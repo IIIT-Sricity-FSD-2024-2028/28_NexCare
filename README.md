@@ -1,0 +1,1 @@
+NexCare is a Hospital Operations & Administration System designed to manage and improve the day-to-day operational workflows of a hospital. The project focuses on coordinating hospital services, staff, patients, and resources to improve efficiency, and support smooth hospital functioning.
