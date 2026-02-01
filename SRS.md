@@ -1,3 +1,13 @@
+<style>
+  img {
+    max-height: 900px; /* Limits height to fit A4 */
+    width: auto;
+    display: block;
+    margin: 10px auto;
+    page-break-inside: avoid;
+  }
+</style>
+
 # User Requirements 
 ## NexCare – Hospital Administrative Operations Platform
 
@@ -453,46 +463,51 @@ This section provides practical guidance on how to test and validate each NFR ca
 
 ### 1. Use Case Diagram
 
-<img width="683" height="1006" alt="use_case_2 drawio" src="https://github.com/user-attachments/assets/efe131ad-b08c-4bd9-97c5-0e488fe49f7d" />
+<div style="page-break-before: always;"></div>
 
+### 1. Use Case Diagram
+<img src="https://github.com/user-attachments/assets/efe131ad-b08c-4bd9-97c5-0e488fe49f7d" alt="Use Case Diagram" style="max-height: 900px; width: auto; display: block; margin: 0 auto;" />
 
 ### 2. Activity Diagrams
 
- ### 2.1 Triage-Based Appointment Booking, Rescheduling and Cancelling
+### 2.1 Triage-Based Appointment Booking, Rescheduling and Cancelling
+<img src="https://github.com/user-attachments/assets/e7ff2d33-9ac1-4853-bb7d-aa4dc323e610" />
 
-<img width="1151" height="1261" alt="activity_appointment2 drawio (1)" src="https://github.com/user-attachments/assets/e7ff2d33-9ac1-4853-bb7d-aa4dc323e610" />
+### 2.2 Billing and Payment Processing
+<img src="https://github.com/user-attachments/assets/76f2d07a-26a5-4473-84f7-7c3e86aec8b7" />
 
- ### 2.2 Billing and Payment processing
+<div style="page-break-before: always;"></div>
 
-<img width="1351" height="1971" alt="billingandpayment drawio" src="https://github.com/user-attachments/assets/76f2d07a-26a5-4473-84f7-7c3e86aec8b7" />
+### 2.3 Feedback and Complaint Handling
+<img src="https://github.com/user-attachments/assets/204f35fa-8511-4de8-b3a3-fa5512b84d6d" />
 
- ### 2.3 Feedback and complaint handling
+<div style="page-break-before: always;"></div>
 
-<img width="1261" height="1541" alt="feedbackandcomplaint drawio" src="https://github.com/user-attachments/assets/204f35fa-8511-4de8-b3a3-fa5512b84d6d" />
+### 2.4 Inventory & Asset Stock Management
+<img src="https://github.com/user-attachments/assets/e062b433-22f5-4ddf-9e30-61d1712cc351" />
 
- ### 2.4 Inventory & Asset Stock Management
+<div style="page-break-before: always;"></div>
 
-<img width="531" height="1081" alt="I drawio" src="https://github.com/user-attachments/assets/e062b433-22f5-4ddf-9e30-61d1712cc351" />
+### 2.5 Ambulance Request, Assignment & Tracking
+<img src="https://github.com/user-attachments/assets/d73203ae-4ff4-4a69-86e6-149a7a479698" />
 
- ### 2.5 Ambulance Request, Assignment & Tracking
-
-<img width="811" height="1071" alt="Ambulance drawio" src="https://github.com/user-attachments/assets/d73203ae-4ff4-4a69-86e6-149a7a479698" />
+<div style="page-break-before: always;"></div>
 
 ### 2.6 Monitor Hospital Operations & Reports
+<img src="https://github.com/user-attachments/assets/eec34de0-488f-4ef5-b3e7-3d353668129b" />
 
-<img width="882" height="1815" alt="Hospital Operations & Reports" src="https://github.com/user-attachments/assets/eec34de0-488f-4ef5-b3e7-3d353668129b" />
+<div style="page-break-before: always;"></div>
 
 ### 2.7 Patient Check-In & Movement Tracking
+<img src="https://github.com/user-attachments/assets/98dcd046-4069-4787-8045-9ba6433c87a7" />
 
-<img width="611" height="1882" alt="Patient Check-In and Movement Tracking drawio (1)" src="https://github.com/user-attachments/assets/98dcd046-4069-4787-8045-9ba6433c87a7" />
+<div style="page-break-before: always;"></div>
 
 ### 2.8 Bed/Room/Ward Allocation Process
+<img src="https://github.com/user-attachments/assets/68e8949e-44ad-4cbd-b925-06ef187a2cb4" />
 
-<img width="758" height="1882" alt="Bed, Room, and Ward Allocation Process drawio" src="https://github.com/user-attachments/assets/68e8949e-44ad-4cbd-b925-06ef187a2cb4" />
+<div style="page-break-before: always;"></div>
 
-
-### 3 Sequence diagram
-
-
-<img width="1502" height="1507" alt="sequence drawio" src="https://github.com/user-attachments/assets/fd7c1253-c977-4a08-9d82-a4b4b9e3a760" />
+### 3 Sequence Diagram
+<img src="https://github.com/user-attachments/assets/fd7c1253-c977-4a08-9d82-a4b4b9e3a760" />
 
