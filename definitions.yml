@@ -21,6 +21,15 @@ Appointment:
     - Viewing appointment status online
   aliases:
     - VisitSchedule
+Triage:
+  definition: >
+    The process of quickly assessing a patient’s condition to
+    determine the urgency and priority of medical attention.
+  examples:
+    - Classifying emergency patients as critical, urgent, or stable
+    - Prioritizing treatment in the emergency department
+  aliases:
+    - PatientPriorityAssessment
 
 CheckIn:
   definition: >
