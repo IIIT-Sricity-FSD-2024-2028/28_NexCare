@@ -444,6 +444,19 @@ This section provides practical guidance on how to test and validate each NFR ca
 
 ---
 
+##  8. UML Diagrams
+
+### 8.1 Use Case Diagram
+<img width="683" height="1006" alt="use_case_2 drawio" src="https://github.com/user-attachments/assets/efe131ad-b08c-4bd9-97c5-0e488fe49f7d" />
+
+### 8.2 Activity Diagrams
+
+### 1. Triage-Based Appointment Booking, Rescheduling and Cancelling
+<img width="1151" height="1261" alt="activity_appointment2 drawio (1)" src="https://github.com/user-attachments/assets/e7ff2d33-9ac1-4853-bb7d-aa4dc323e610" />
+
+
+
+
 ## Quick Reference: Critical NFRs Checklist
 
 Use this checklist during development and before final submission:
