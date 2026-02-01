@@ -464,6 +464,13 @@ This section provides practical guidance on how to test and validate each NFR ca
 
 <img width="1261" height="1541" alt="feedbackandcomplaint drawio" src="https://github.com/user-attachments/assets/204f35fa-8511-4de8-b3a3-fa5512b84d6d" />
 
+### 4.Inventory & Asset Stock Management
+
+<img width="531" height="1081" alt="Inventory drawio" src="https://github.com/user-attachments/assets/f9ad565a-6baa-4e3f-a4e1-b715a6619389" />
+
+### 5.Ambulance Request, Assignment & Tracking
+
+<img width="811" height="1071" alt="Ambulance drawio" src="https://github.com/user-attachments/assets/d73203ae-4ff4-4a69-86e6-149a7a479698" />
 
 
 
