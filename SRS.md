@@ -1,3 +1,5 @@
+<img width="758" height="1882" alt="Bed, Room, and Ward Allocation Process drawio" src="https://github.com/user-attachments/assets/d53740fe-e76f-4383-95ef-9afd2895f976" />
+<img width="611" height="1882" alt="Patient Check-In and Movement Tracking drawio (1)" src="https://github.com/user-attachments/assets/0f45bcf1-c8db-4b83-81ca-d7d342deef1a" />
 # Functional Requirements
 ## Hospital Administrative Operations Platform *(Non-Clinical Workflows)*
 
