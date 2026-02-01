@@ -268,163 +268,99 @@ Each requirement is written as a testable statement describing what the system s
 
 ### 4.1 Triage-Based Appointment Booking
 
-**Actor:** Patient | **System Integration:** Triage System, Notification Service
-
-| ID | Requirement | Actor |
+| ID | Functional Requirement | Actor |
 |---|---|---|
-| FR-01 | The system shall allow a patient to initiate a triage-based appointment booking by selecting a department and a preferred date and time slot. | Patient |
-| FR-02 | The system shall integrate with the Triage System to automatically assign a priority level to each booking request before confirming the appointment. | Patient |
-| FR-03 | The system shall issue a unique token to each patient upon successful appointment confirmation via EMR. | Patient |
-| FR-04 | The system shall send an appointment confirmation notification to the patient through the Notification Service immediately after booking. | Patient |
-| FR-05 | The system shall allow Administrative Staff to view, reschedule, or cancel any existing appointment. | Admin. Staff |
-| FR-06 | The system shall integrate with the Triage System to re-sort the appointment queue whenever a new triage-prioritised booking is added. | Admin. Staff |
-| FR-07 | The system shall trigger a notification via the Notification Service to the patient when their token is called or their appointment status changes. | Admin. Staff |
-| FR-08 | The system shall prevent duplicate token assignment for the same appointment slot to avoid scheduling conflicts. | Admin. Staff |
+| FR-01 | The system shall allow patients to book appointments by selecting department, date, and time slot. | Patient |
+| FR-02 | The system shall assign a unique appointment token to each confirmed booking. | System |
+| FR-03 | The system shall prevent duplicate token assignment for the same time slot. | System |
+| FR-04 | The system shall allow administrative staff to view, reschedule, or cancel appointments. | Admin. Staff |
+| FR-05 | The system shall notify patients when their token is called or appointment status changes. | System |
 
 ---
 
-### 4.2 Submit Feedback / Complaint
+### 4.2 Patient Check-in & Movement Tracking
 
-**Actor:** Patient, Administrative Staff | **System Integration:** Notification Service
-
-| ID | Requirement | Actor |
+| ID | Functional Requirement | Actor |
 |---|---|---|
-| FR-09 | The system shall provide a dedicated form that allows a patient to submit a feedback entry or complaint, including a text description and an optional category tag. | Patient |
-| FR-10 | The system shall record each submission with a unique reference number and a timestamp upon receipt. | Patient |
-| FR-11 | The system shall automatically route the submitted feedback to the relevant department and send an acknowledgement notification to the patient via the Notification Service. | Patient |
-| FR-12 | The system shall allow Administrative Staff to view, filter, and update the status of all feedback and complaint entries. | Admin. Staff |
+| FR-06 | The system shall allow administrative staff to register patient check-in with timestamp. | Admin. Staff |
+| FR-07 | The system shall track the current department/location of a checked-in patient. | Admin. Staff |
+| FR-08 | The system shall maintain a movement history log for each patient visit. | System |
 
 ---
 
-### 4.3 Request Ambulance
+### 4.3 Request Ambulance & Dispatch
 
-**Actor:** Patient | **System Integration:** GPS Tracking System
-
-| ID | Requirement | Actor |
+| ID | Functional Requirement | Actor |
 |---|---|---|
-| FR-13 | The system shall provide a request form that allows a patient to submit an ambulance request, including location details and a brief description of the situation. | Patient |
-| FR-14 | The system shall integrate with the GPS Tracking System to determine the nearest available ambulance unit upon request submission. | Patient |
+| FR-09 | The system shall allow patients or staff to submit an ambulance request with location details. | Patient / Admin. Staff |
+| FR-10 | The system shall allow ambulance staff to accept assignments and update dispatch status. | Ambulance Staff |
+| FR-11 | The system shall display real-time ambulance status and estimated arrival time. | System |
 
 ---
 
-### 4.4 Ambulance Assignment & Status Tracking
+### 4.4 Bed / Room / Ward Allocation
 
-**Actor:** Ambulance Staff | **System Integration:** GPS Tracking System
-
-| ID | Requirement | Actor |
+| ID | Functional Requirement | Actor |
 |---|---|---|
-| FR-15 | The system shall allow Ambulance Staff to view assigned dispatch requests, accept or acknowledge an assignment, and update the unit status in real time. | Amb. Staff |
-| FR-16 | The system shall integrate with the GPS Tracking System to display the live location and estimated arrival time of every dispatched ambulance unit. | Amb. Staff |
-| FR-17 | The system shall flag any ambulance dispatch that exceeds a configurable target response time and escalate it for administrative review. | Amb. Staff |
+| FR-12 | The system shall maintain real-time availability status of beds and rooms. | System |
+| FR-13 | The system shall allow administrative staff to allocate a bed or room to a patient. | Admin. Staff |
+| FR-14 | The system shall prevent allocation of unavailable or blocked beds. | System |
 
 ---
 
 ### 4.5 View & Pay Bill
 
-**Actor:** Patient, Administrative Staff | **System Integration:** Payment Gateway
-
-| ID | Requirement | Actor |
+| ID | Functional Requirement | Actor |
 |---|---|---|
-| FR-18 | The system shall display an itemised bill summary to the patient, showing all charges associated with their visit or stay. | Patient |
-| FR-19 | The system shall allow a patient to initiate online payment of the displayed bill through the integrated Payment Gateway. | Patient |
-| FR-20 | The system shall update the bill status to 'Paid' and generate a downloadable receipt upon successful transaction confirmation from the Payment Gateway. | Patient |
-| FR-21 | The system shall allow Administrative Staff to manually adjust or add line items to a patient bill before final submission. | Admin. Staff |
+| FR-15 | The system shall display an itemized bill to the patient. | Patient |
+| FR-16 | The system shall allow patients to pay bills online through an integrated payment gateway. | Patient |
+| FR-17 | The system shall generate a receipt upon successful payment. | System |
 
 ---
 
-### 4.6 Patient Check-in & Movement Tracking
+### 4.6 Inventory & Asset Management
 
-**Actor:** Administrative Staff | **System Integration:** Notification Service
-
-| ID | Requirement | Actor |
+| ID | Functional Requirement | Actor |
 |---|---|---|
-| FR-22 | The system shall allow Administrative Staff to register a patient check-in by scanning or entering a unique patient identifier, recording the date and time of arrival. | Admin. Staff |
-| FR-23 | The system shall track and display the current location or department of a checked-in patient within the hospital premises. | Admin. Staff |
-| FR-24 | The system shall send an automatic notification via the Notification Service to relevant staff when a patient is checked in and ready for the next step. | Admin. Staff |
-| FR-25 | The system shall maintain a movement log for each patient, recording every department transition with timestamps. | Admin. Staff |
+| FR-18 | The system shall maintain a registry of hospital assets and inventory items. | Admin. Staff |
+| FR-19 | The system shall alert administrative staff when inventory levels fall below a defined threshold. | System |
 
 ---
 
-### 4.7 Bed / Room / Ward Allocation
+### 4.7 Staff Shift & Availability Management
 
-**Actor:** Administrative Staff
-
-| ID | Requirement | Actor |
+| ID | Functional Requirement | Actor |
 |---|---|---|
-| FR-26 | The system shall maintain a real-time inventory of all beds, rooms, and wards, displaying their current occupancy status. | Admin. Staff |
-| FR-27 | The system shall allow Administrative Staff to allocate a specific bed, room, or ward to a checked-in patient. | Admin. Staff |
-| FR-28 | The system shall prevent allocation of a bed or room that is already marked as occupied. | Admin. Staff |
-| FR-29 | The system shall automatically update bed/room status to 'Available' once a patient discharge or transfer is recorded. | Admin. Staff |
+| FR-20 | The system shall allow administrative staff to create and modify staff duty rosters. | Admin. Staff |
+| FR-21 | The system shall allow staff leave requests to be recorded and reviewed. | Admin. Staff |
 
 ---
 
-### 4.8 Inventory & Asset Management
+### 4.8 Monitor Hospital Operations & Reports
 
-**Actor:** Administrative Staff
-
-| ID | Requirement | Actor |
+| ID | Functional Requirement | Actor |
 |---|---|---|
-| FR-30 | The system shall maintain a registry of all hospital assets and consumable inventory items, including current stock levels and maintenance contract type (AMC or CMC). | Admin. Staff |
-| FR-31 | The system shall allow Administrative Staff to add, update, or remove inventory and asset records. | Admin. Staff |
-| FR-32 | The system shall send automated alerts when any inventory item falls below a configurable minimum threshold. | Admin. Staff |
-| FR-33 | The system shall send automated alerts when an equipment item's next scheduled maintenance date is within a configurable lead-time window. | Admin. Staff |
-
----
-
-### 4.9 Staff Shift & Availability Management
-
-**Actor:** Administrative Staff
-
-| ID | Requirement | Actor |
-|---|---|---|
-| FR-34 | The system shall allow Administrative Staff to create, publish, and modify monthly staff duty rosters. | Admin. Staff |
-| FR-35 | The system shall allow staff members to submit leave requests that are recorded and visible to their supervisors within the system. | Admin. Staff |
-| FR-36 | The system shall flag scheduling conflicts such as overlapping shifts or understaffed periods when a roster is saved or modified. | Admin. Staff |
-| FR-37 | The system shall support manual duty reassignment by Administrative Staff when a leave request is approved, including extending the previous shift until a replacement is confirmed. | Admin. Staff |
-
----
-
-### 4.10 Automated Wait-Time & Bottleneck Detection
-
-**Actor:** System (automated) | **System Integration:** Notification Service
-
-| ID | Requirement | Actor |
-|---|---|---|
-| FR-38 | The system shall continuously monitor appointment queue wait times and automatically detect bottlenecks where expected wait exceeds a configurable threshold. | System |
-| FR-39 | The system shall trigger an alert through the Notification Service to Administrative Staff whenever a bottleneck or excessive wait time is detected. | System |
-| FR-40 | The system shall display a real-time wait-time dashboard accessible to Administrative Staff for ongoing monitoring. | System |
-
----
-
-### 4.11 Monitor Hospital Operations & Reports
-
-**Actor:** Admin | **System Integration:** Reporting System
-
-| ID | Requirement | Actor |
-|---|---|---|
-| FR-41 | The system shall provide the Admin with a consolidated operations dashboard covering appointments, bed occupancy, ambulance status, inventory levels, and staff availability. | Admin |
-| FR-42 | The system shall integrate with the Reporting System to generate scheduled and on-demand reports on any operational module. | Admin |
-| FR-43 | The system shall allow the Admin to filter and drill down into reports by date range, department, or category. | Admin |
-| FR-44 | The system shall maintain a full audit trail of all user actions across the platform, accessible to the Admin. | Admin |
+| FR-22 | The system shall provide an operational dashboard for administrators. | Admin |
+| FR-23 | The system shall generate summary reports on appointments, beds, ambulances, and inventory. | System |
+| FR-24 | The system shall maintain an audit trail of critical administrative actions. | System |
 
 ---
 
 ## 5. Summary
 
-| Category | Requirement IDs | Count |
-|---|---|---|
-| Triage-Based Appointment Booking | FR-01 – FR-08 | 8 |
-| Submit Feedback / Complaint | FR-09 – FR-12 | 4 |
-| Request Ambulance | FR-13 – FR-14 | 2 |
-| Ambulance Assignment & Status Tracking | FR-15 – FR-17 | 3 |
-| View & Pay Bill | FR-18 – FR-21 | 4 |
-| Patient Check-in & Movement Tracking | FR-22 – FR-25 | 4 |
-| Bed / Room / Ward Allocation | FR-26 – FR-29 | 4 |
-| Inventory & Asset Management | FR-30 – FR-33 | 4 |
-| Staff Shift & Availability Management | FR-34 – FR-37 | 4 |
-| Automated Wait-Time & Bottleneck Detection | FR-38 – FR-40 | 3 |
-| Monitor Hospital Operations & Reports | FR-41 – FR-44 | 4 |
-| **Total** | | **44** |
+| Category | FR Count |
+|---|---|
+| Appointment & Queue Management | 5 |
+| Patient Check-in & Movement | 3 |
+| Ambulance Operations | 3 |
+| Bed / Room Allocation | 3 |
+| Billing & Payments | 3 |
+| Inventory Management | 2 |
+| Staff Management | 2 |
+| Monitoring & Reports | 3 |
+| **Total Functional Requirements** | **24** |
+
+---
 
 
 # Non-Functional Requirements
@@ -450,7 +386,6 @@ The NFRs focus on essential system qualities that can be implemented, demonstrat
 | **Concurrent Users** | The number of users actively using the system at the same time. |
 | **Functional Module** | A distinct feature set (e.g., Appointment Booking, Billing, Ambulance Tracking). |
 | **API** | Application Programming Interface – the contract for communication between system components. |
-| **Load Test** | A test that simulates multiple concurrent users to verify system performance. |
 
 ---
 
@@ -473,95 +408,71 @@ The requirements are organized into six essential categories suitable for a stud
 
 Each requirement is testable and measurable within the constraints of a student project.
 
-### 4.1 Performance
+## 4.1 Performance Requirements
 
-Performance requirements ensure the system responds quickly for practical use and demonstration.
+| ID         | Requirement                                                                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **NFR-01** | The system shall respond to any user action (login, booking, form submission) within **3 seconds** under normal load (up to 10 concurrent users). |
+| **NFR-02** | The system shall display appointment availability or queue status within **2 seconds** of a user request.                                         |
+| **NFR-03** | The system shall complete bill payment processing and display confirmation within **5 seconds** using a sandbox payment gateway.                  |
 
-| ID | Requirement | Applies To |
-|----|-------------|------------|
-| **NFR-01** | The system shall respond to any user action (login, appointment booking, form submission) within 3 seconds under normal load (up to 10 concurrent users). | All user-facing modules |
-| **NFR-02** | The system shall display appointment availability results within 2 seconds of a search request. | Appointment Booking |
-| **NFR-03** | The system shall process bill payment transactions and display confirmation within 5 seconds. | Billing module |
-| **NFR-04** | Database queries for common operations (view appointments, patient check-in, bed allocation) shall execute in under 1 second with up to 1000 records per table. | All modules |
-
----
-
-### 4.2 Security
-
-Security requirements protect patient data and ensure proper access control.
-
-| ID | Requirement | Applies To |
-|----|-------------|------------|
-| **NFR-05** | The system shall implement Role-Based Access Control (RBAC) with three distinct roles: Patient, Administrative Staff, and Admin. | All modules |
-| **NFR-06** | The system shall require user authentication (username and password) before granting access to any functionality. | All modules |
-| **NFR-07** | Patient passwords shall be hashed using bcrypt or equivalent before storage. Plain-text passwords shall never be stored. | Authentication |
-| **NFR-08** | The system shall automatically log out inactive users after 30 minutes of inactivity. | All modules |
-| **NFR-09** | The system shall lock user accounts after 5 consecutive failed login attempts, requiring admin reset. | Authentication |
-| **NFR-10** | The system shall use HTTPS for all client-server communication in production deployment. | Platform as a whole |
-| **NFR-11** | The system shall validate and sanitize all user inputs to prevent SQL injection and cross-site scripting (XSS) attacks. | All modules |
-| **NFR-12** | Payment gateway integration (if implemented) shall use a sandbox environment and shall not store any credit card information directly in the database. | Payment module |
+**Rationale:** These cover all performance expectations required for demos and evaluations without load-testing complexity.
 
 ---
 
-### 4.3 Usability
+## 4.2 Security Requirements
 
-Usability requirements ensure the system is learnable and easy to use for evaluators and demo purposes.
+| ID         | Requirement                                                                                                         |
+| ---------- | ------------------------------------------------------------------------------------------------------------------- |
+| **NFR-04** | The system shall implement **Role-Based Access Control (RBAC)** for Patient, Administrative Staff, and Admin roles. |
+| **NFR-05** | The system shall require authenticated login before allowing access to any protected functionality.                 |
+| **NFR-06** | User passwords shall be securely hashed (e.g., bcrypt) and never stored in plain text.                              |
+| **NFR-07** | The system shall automatically log out users after **30 minutes of inactivity**.                                    |
+| **NFR-08** | The system shall validate and sanitize all user inputs to prevent SQL injection and XSS attacks.                    |
 
-| ID | Requirement | Applies To |
-|----|-------------|------------|
-| **NFR-13** | The system shall provide a role-specific dashboard for each user type showing only relevant functions and data. | All modules |
-| **NFR-14** | All forms shall include clear field labels, placeholder text, and validation messages to guide user input. | All user-facing modules |
-| **NFR-15** | The system shall display meaningful error messages (e.g., "Appointment slot already booked") instead of technical error codes. | All modules |
-| **NFR-16** | The system shall confirm all destructive actions (delete, cancel appointment, discharge patient) with a confirmation dialog before execution. | All modules |
-| **NFR-17** | The user interface shall be responsive and usable on desktop screens (minimum 1280x720 resolution) and tablet devices (minimum 768px width). | All modules |
-| **NFR-18** | A new user shall be able to complete core tasks (book appointment, check-in patient, allocate bed) within 5 minutes with only README documentation, no live training required. | All modules |
-
----
-
-### 4.4 Reliability
-
-Reliability requirements ensure consistent system behavior during testing and demonstrations.
-
-| ID | Requirement | Applies To |
-|----|-------------|------------|
-| **NFR-19** | The system shall handle expected errors gracefully (invalid inputs, duplicate bookings, missing data) without crashing or showing stack traces to users. | All modules |
-| **NFR-20** | The system shall maintain data consistency: a single appointment slot shall not be bookable by multiple patients simultaneously. | Appointment Booking |
-| **NFR-21** | The system shall maintain database transaction integrity: all related operations (e.g., appointment creation + notification trigger) shall complete together or roll back together. | All modules with database operations |
-| **NFR-22** | The system shall run continuously for at least 4 hours during load testing without crashes or memory leaks. | Platform as a whole |
-| **NFR-23** | All critical errors shall be logged to a file with timestamp, error type, and context for debugging purposes. | Platform as a whole |
+**Removed as out-of-scope:** Account lockout policies, enterprise security audits, and production-grade compliance rules.
 
 ---
 
-### 4.5 Maintainability
+## 4.3 Usability Requirements
 
-Maintainability requirements ensure the codebase can be understood, modified, and extended by team members.
+| ID         | Requirement                                                                                              |
+| ---------- | -------------------------------------------------------------------------------------------------------- |
+| **NFR-09** | The system shall provide **role-specific dashboards** showing only relevant data and actions.            |
+| **NFR-10** | All user forms shall include clear labels, validation messages, and meaningful error feedback.           |
+| **NFR-11** | The system shall confirm all destructive actions (delete, cancel, discharge) before execution.           |
+| **NFR-12** | A new user shall be able to complete core tasks using only README instructions, without formal training. |
 
-| ID | Requirement | Applies To |
-|----|-------------|------------|
-| **NFR-24** | The system shall follow a clear separation of concerns architecture: frontend (UI), backend (API/business logic), and database layers shall be distinct and loosely coupled. | Platform architecture |
-| **NFR-25** | All API endpoints shall follow RESTful conventions with consistent naming (e.g., GET /appointments, POST /appointments, DELETE /appointments/:id). | Backend API |
-| **NFR-26** | The codebase shall include inline comments explaining complex business logic and non-obvious design decisions. | All code |
-| **NFR-27** | The project repository shall include a README with setup instructions, technology stack description, and how to run the application. | Project documentation |
-| **NFR-28** | Database schema shall use meaningful table and column names (e.g., 'appointments', 'patient_id') with foreign key constraints properly defined. | Database layer |
-| **NFR-29** | Each functional module (Appointment, Billing, Check-in, etc.) shall be organized in separate directories/packages to enable independent development and testing. | Platform architecture |
+**Rationale:** These ensure evaluator-friendly demos and good UX without advanced UI research requirements.
 
 ---
 
-### 4.6 Testability
+## 4.4 Reliability Requirements
 
-Testability requirements ensure the system can be properly validated within project constraints.
+| ID         | Requirement                                                                                                   |
+| ---------- | ------------------------------------------------------------------------------------------------------------- |
+| **NFR-13** | The system shall prevent duplicate operations such as double booking of appointments or beds.                 |
+| **NFR-14** | The system shall handle invalid inputs or system errors gracefully without crashing or exposing stack traces. |
+| **NFR-15** | All critical operations shall maintain data consistency using basic database transactions.                    |
 
-| ID | Requirement | Applies To |
-|----|-------------|------------|
-| **NFR-30** | All backend API endpoints shall be testable independently using tools like Postman or automated API tests. | Backend API |
-| **NFR-31** | The system shall include at least one automated test per critical user flow (login, book appointment, process payment, check-in patient). | Core modules |
-| **NFR-32** | The database shall support easy reset to a known test state through seed scripts for repeatable testing. | Database layer |
-| **NFR-33** | The system shall include sample test data (at least 5 patients, 3 staff members, 10 appointments, 5 beds) that can be loaded automatically for demonstration and testing purposes. | All modules |
-| **NFR-34** | All external integrations (payment gateway, notification service, GPS tracking) shall be mockable or have sandbox/test modes for development and testing. | External integrations |
+**Removed:** Long-duration uptime guarantees and production monitoring metrics.
 
 ---
 
-## 6. Summary
+## 4.5 Maintainability & Testability Requirements
+
+| ID         | Requirement                                                                                                |
+| ---------- | ---------------------------------------------------------------------------------------------------------- |
+| **NFR-16** | The system shall follow a **clear separation of concerns** between frontend, backend, and database layers. |
+| **NFR-17** | The project repository shall include a README with setup instructions and execution steps.                 |
+| **NFR-18** | Backend APIs shall be independently testable using tools such as Postman.                                  |
+| **NFR-19** | The system shall include seed data to support repeatable testing and demonstration.                        |
+
+**Rationale:** These are essential for grading, collaboration, and reproducibility.
+
+---
+
+## 4.6 Summary
 
 | Category | Requirement IDs | Count |
 |----------|----------------|-------|
