@@ -570,28 +570,29 @@ This section provides practical guidance on how to test and validate each NFR ca
 
 ### 8.2 Activity Diagrams
 
-### 1. Triage-Based Appointment Booking, Rescheduling and Cancelling
+ ### 1. Triage-Based Appointment Booking, Rescheduling and Cancelling
 
 <img width="1151" height="1261" alt="activity_appointment2 drawio (1)" src="https://github.com/user-attachments/assets/e7ff2d33-9ac1-4853-bb7d-aa4dc323e610" />
 
-### 2. Billing and Payment processing
+ ### 2. Billing and Payment processing
 
 <img width="1351" height="1971" alt="billingandpayment drawio" src="https://github.com/user-attachments/assets/76f2d07a-26a5-4473-84f7-7c3e86aec8b7" />
 
-### 3. Feedback and complaint handling
+ ### 3. Feedback and complaint handling
 
 <img width="1261" height="1541" alt="feedbackandcomplaint drawio" src="https://github.com/user-attachments/assets/204f35fa-8511-4de8-b3a3-fa5512b84d6d" />
 
-### 4.Inventory & Asset Stock Management
+ ### 4.Inventory & Asset Stock Management
 
 <img width="531" height="1081" alt="I drawio" src="https://github.com/user-attachments/assets/e062b433-22f5-4ddf-9e30-61d1712cc351" />
 
-### 5.Ambulance Request, Assignment & Tracking
+ ### 5.Ambulance Request, Assignment & Tracking
 
 <img width="811" height="1071" alt="Ambulance drawio" src="https://github.com/user-attachments/assets/d73203ae-4ff4-4a69-86e6-149a7a479698" />
 
 
 ### 8.3 Sequence diagram
+
 
 <img width="1502" height="1507" alt="sequence drawio" src="https://github.com/user-attachments/assets/fd7c1253-c977-4a08-9d82-a4b4b9e3a760" />
 
