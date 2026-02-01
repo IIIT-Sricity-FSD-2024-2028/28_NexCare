@@ -1,142 +1,159 @@
 # Summary of the Interaction
 
 ## Basic Information
-- **Domain:** Healthcare – Hospital Administrative Operations (Non-Clinical)
-- **Problem Statement:** Design and development of a full-stack Hospital Administrative Operations Platform focusing strictly on non-clinical workflows.
-- **Date of Interaction:** 31/1/26
-- **Mode of Interaction:** Video call (recorded)
-- **Duration (in minutes):** 37 minutes
-- **Publicly Accessible Video Link:** https://drive.google.com/drive/folders/1pxoPQ9ggXqRKsaUnORZCpJNAg6-4CYuM
+
+* **Domain:** Healthcare – Hospital Administrative Operations (Non-Clinical Platform)
+* **Problem Statement:** Understanding real-world hospital workflows from a clinical expert’s perspective to design a strictly non-clinical, full-stack hospital administrative operations platform.
+* **Date of Interaction:** 31-1-12
+* **Mode of Interaction:** Video call (recorded domain expert interaction)
+* **Duration (in minutes):** 37 minutes
+* **Publicly Accessible Video Link:** https://drive.google.com/drive/u/0/folders/1pxoPQ9ggXqRKsaUnORZCpJNAg6-4CYuM
 
 ---
 
 ## Domain Expert Details
-- **Role / Designation:** Senior Clinical Educator
-- **Experience in the Domain:**
-  - 35 years of experience in clinical work.
-  - Currently responsible for training and educating nursing students, security staff, housekeeping staff, and front office desk personnel.
-  - Conducts onboarding sessions for newly joining staff.
-- **Nature of Work:** Administrative, Operational, Educator, Team Lead
+
+* **Role / Designation:** Clinical Educator (Domain Expert)
+* **Experience in the Domain:**
+
+  * Over 35 years of experience in hospital clinical environments.
+  * Currently involved in training and supervising nursing students, front-office staff, housekeeping, security, and support staff.
+  * Acts as a bridge between clinical operations and administrative coordination.
+* **Nature of Work:** Operational oversight, Administrative coordination, Training and supervision
+
+> **Note:** Although the expert has a clinical background, inputs were intentionally mapped only to *non-clinical administrative workflows* for this platform.
 
 ---
 
 ## Domain Context and Terminology
 
 ### Purpose of the Problem Statement in Daily Work
-The problem statement supports smooth, efficient, and organized hospital administrative operations such as patient appointments, ambulance coordination, staff scheduling, billing, insurance processing, inventory management, and inter-hospital communication, without interfering with direct clinical care.
+
+The purpose of this problem statement is to digitally support and streamline hospital administrative processes such as appointments, ambulance coordination, staff scheduling, insurance handling, referrals, and infrastructure management—without interfering with clinical decision-making or treatment.
 
 ### Primary Goals / Outcomes
-- Ensure timely patient handling and administrative decision-making.
-- Minimize operational delays and confusion.
-- Maintain accurate records through electronic systems.
-- Provide humane, patient-centric administrative support.
+
+* Improve coordination between administrative roles.
+* Reduce operational delays in non-clinical workflows.
+* Maintain transparency and traceability of administrative actions.
+* Support patient experience through efficient administration.
 
 ### Key Terms and Definitions
 
-| Term | Meaning as explained by the expert |
-|---|---|
-| HMIS | Hospital Management Information System used for paperless operations |
-| EMR | Electronic Medical Registration system for patient appointments and records |
-| SPOC | Single Point of Contact, usually in the emergency department |
-| AMC | Annual Maintenance Contract for biomedical equipment |
-| CMC | Complete Maintenance Care for medical machinery |
-| Pre-authorization | Insurance approval required before cashless treatment |
-| Token System | Appointment queue system used to call patients |
-| CPR Ambulance | Ambulance equipped with CPR team and advanced support |
+| Term                  | Meaning as explained by the expert                                        |
+| --------------------- | ------------------------------------------------------------------------- |
+| HMIS                  | Hospital Management Information System used for administrative operations |
+| Appointment Token     | Digital queue number assigned for OPD appointments                        |
+| SPOC                  | Single Point of Contact for emergency and inter-hospital coordination     |
+| Administrative Triage | Non-clinical prioritization of patients based on urgency                  |
+| Bed Blocking          | Temporarily marking a room unavailable due to maintenance                 |
+| Referral Coordination | Administrative process of transferring patients to another hospital       |
+| Pre-Authorization     | Approval process for insurance-based cashless treatment                   |
+| Inventory Audit       | Periodic check of non-clinical hospital resources                         |
 
 ---
 
 ## Actors and Responsibilities
 
-| Actor / Role | Responsibilities |
-|---|---|
-| Patient | Books appointments, seeks treatment, provides documents and consent |
-| Front Office / Receptionist | Appointment handling, patient registration, SPOC communication |
-| Admin / SPOC | Coordinates ambulance, referrals, emergency communication |
-| Ambulance Staff | Patient transport, emergency response, inter-hospital transfers |
-| Nursing Staff | Assist during ambulance transport and emergency care |
-| Insurance Department | Pre-authorization, cashless approvals, reimbursement support |
-| Biomedical / Maintenance Team | Equipment maintenance, bed and infrastructure readiness |
+(Actors aligned with the **non-clinical use case diagram**)
+
+| Actor / Role         | Responsibilities                                                          |
+| ------------------   | ------------------------------------------------------------------------- |
+| Patient              | Books appointments, provides documents, requests services, gives consent  |
+| Admin                | Overall coordination, approvals, monitoring workflows, policy enforcement |
+| Administrative Staff | Front-office operations, appointment handling, SPOC communication         |
+| Ambulance Staff      | Patient transport, coordination with admin and helpdesk                   |
 
 ---
 
 ## Core Workflows
 
-### Workflow 1: Ambulance Request and Dispatch
-- **Trigger / Start Condition:** Emergency call requesting an ambulance
-- **Steps Involved:**
-  1. Receive call from customer/bystander
-  2. Collect patient condition (conscious/unconscious)
-  3. Decide type of ambulance (normal or CPR)
-  4. Collect location, patient details, and contact number
-  5. Dispatch ambulance within 5 minutes
-  6. Prepare hospital bed and treatment in advance
-- **Outcome / End Condition:** Patient safely transported and admitted
+### Workflow 1: Non-Clinical Appointment Management
 
-### Workflow 2: Patient Appointment and OPD Management
-- **Trigger / Start Condition:** Patient books online appointment or walks in
-- **Steps Involved:**
-  1. Token issued through EMR
-  2. Patient called via buzzer system
-  3. Late or absent patients are skipped
-  4. Walk-ins adjusted between scheduled appointments
-- **Outcome / End Condition:** Patient consultation completed
+* **Trigger / Start Condition:** Patient books an online appointment or walks in
+* **Steps Involved:**
 
-### Workflow 3: Staff Scheduling and Emergency Leave
-- **Trigger / Start Condition:** Monthly planning or emergency leave request
-- **Steps Involved:**
-  1. Staff duties planned monthly
-  2. Leave requests noted in leave book
-  3. Emergency leave communicated via message
-  4. Previous shift staff continues duty
-  5. Duty adjusted the following day
-- **Outcome / End Condition:** Shift coverage maintained without escalation
+  1. Appointment token generated via HMIS
+  2. Patient details verified at helpdesk
+  3. Token called using digital/buzzer system
+  4. No-show tokens are skipped
+  5. Walk-in patients are adjusted between slots
+* **Outcome / End Condition:** Patient successfully routed to consultation or emergency
+
+### Workflow 2: Ambulance Coordination (Administrative)
+
+* **Trigger / Start Condition:** Emergency or transfer request received by helpdesk/SPOC
+* **Steps Involved:**
+
+  1. Call received and logged
+  2. Basic condition and location details collected
+  3. Ambulance type identified (normal / advanced)
+  4. Admin approves and dispatches ambulance
+  5. Receiving department is informed
+* **Outcome / End Condition:** Ambulance dispatched and patient handover completed
+
+### Workflow 3: Referral and Transfer Management
+
+* **Trigger / Start Condition:** Infrastructure unavailability or patient transfer need
+* **Steps Involved:**
+
+  1. Non-clinical feasibility check (beds, equipment)
+  2. Consent collected from patient/attendant
+  3. Receiving hospital contacted
+  4. Transfer details documented in system
+* **Outcome / End Condition:** Patient safely referred with administrative closure
 
 ---
 
 ## Rules, Constraints, and Exceptions
 
-- **Mandatory Rules / Policies:**
-  - Emergency patients are prioritized on humanitarian grounds
-  - Consent required for patient transfer
-  - Pre-authorization mandatory for cashless insurance cases
+* **Mandatory Rules / Policies:**
 
-- **Constraints / Limitations:**
-  - Insurance coverage limitations
-  - Infrastructure availability (beds, machines)
-  - Insurance tariff mismatches
+  * Emergency cases receive administrative priority
+  * Consent is mandatory before transfers
+  * Insurance pre-authorization required for cashless cases
 
-- **Common Exceptions / Edge Cases:**
-  - Sudden deterioration of walk-in patients
-  - Late or early arrival for appointments
-  - Patients overstaying beyond insurance-covered days
+* **Constraints / Limitations:**
 
-- **Situations Where Things Go Wrong:**
-  - Delay in insurance approvals
-  - Equipment breakdown
-  - Infrastructure unavailability
+  * Dependency on infrastructure availability
+  * Insurance policy restrictions
+  * Vendor response time for maintenance
+
+* **Common Exceptions / Edge Cases:**
+
+  * Sudden walk-in emergencies
+  * Late arrival for scheduled appointments
+  * Equipment breakdown during peak hours
+
+* **Situations Where Things Usually Go Wrong:**
+
+  * Insurance approval delays
+  * Miscommunication between departments
+  * Patient dissatisfaction due to administrative waiting
 
 ---
 
 ## Current Challenges and Pain Points
-- Insurance approval delays due to tariff mismatch
-- Difficulty managing patients wanting extended stays
-- Limited insurance coverage for chronic or cosmetic procedures
-- Dependency on infrastructure readiness
+
+* Delay in insurance approvals due to tariff mismatches
+* Difficulty tracking infrastructure readiness in real time
+* Managing patient expectations during delays
+* Coordinating multiple non-clinical actors simultaneously
 
 ---
 
 ## Assumptions & Clarifications
 
-- **Confirmed Assumptions:**
-  - Most administrative workflows are already digitized
-  - Token overlap does not occur due to EMR
-  - Human interaction is critical and should not be automated
+* **Confirmed Assumptions:**
 
-- **Corrected Assumptions:**
-  - Full automation is not always beneficial in healthcare administration
+  * Core hospital administration is already partially digitized
+  * Human interaction remains essential in healthcare administration
 
-- **Open Questions / Follow-ups:**
-  - How to further streamline insurance approval workflows
-  - Integration of government ID uploads for specific cases only
+* **Corrected Assumptions:**
 
+  * Full automation is not suitable for all hospital workflows
+
+* **Open Questions / Follow-ups:**
+
+  * Can insurance workflows be partially automated?
+  * Can vendor maintenance status be integrated in real time?
