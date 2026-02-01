@@ -1,1 +1,201 @@
+Domain: Hospital Administrative Operations
+ProblemStatement: Hospital Management Platform
+LastUpdated: 2026-02-01
+
+Patient:
+  definition: >
+    A person who receives medical, administrative, or emergency
+    services within the hospital.
+  examples:
+    - A person visiting the hospital for consultation
+    - An admitted individual occupying a ward bed
+  aliases:
+    - HospitalPatient
+
+Appointment:
+  definition: >
+    A scheduled arrangement between a patient and the hospital
+    for consultation, treatment, or diagnostic services.
+  examples:
+    - Booking an OPD consultation slot
+    - Viewing appointment status online
+  aliases:
+    - VisitSchedule
+
+CheckIn:
+  definition: >
+    The administrative process of confirming a patient’s arrival
+    at the hospital and initiating service delivery.
+  examples:
+    - Reception confirming patient arrival
+  aliases:
+    - PatientRegistration
+
+MovementTracking:
+  definition: >
+    The continuous monitoring of a patient’s physical movement
+    between hospital departments.
+  examples:
+    - Tracking movement from OPD to laboratory
+    - Updating patient location during treatment
+  aliases:
+    - PatientFlowTracking
+
+Department:
+  definition: >
+    A functional unit within the hospital responsible for a
+    specific category of care or service.
+  examples:
+    - Outpatient Department
+    - Radiology Department
+  aliases:
+    - HospitalUnit
+
+Admission:
+  definition: >
+    The formal process of accepting a patient for inpatient care
+    within the hospital.
+  examples:
+    - Approving ward admission after diagnosis
+  aliases:
+    - InpatientEntry
+
+Bed:
+  definition: >
+    A physical sleeping or treatment space allocated to an
+    admitted patient.
+  examples:
+    - ICU bed
+    - General ward bed
+  aliases:
+    - PatientBed
+
+Ward:
+  definition: >
+    A designated area within the hospital containing multiple
+    beds for admitted patients.
+  examples:
+    - General ward
+    - Intensive Care Unit
+  aliases:
+    - PatientWard
+
+BedAllocation:
+  definition: >
+    The process of assigning an available bed or ward to an
+    admitted patient.
+  examples:
+    - Allocating a ward bed after admission approval
+  aliases:
+    - RoomAssignment
+
+Occupancy:
+  definition: >
+    The current usage status of hospital beds and wards.
+  examples:
+    - Marking a bed as occupied after allocation
+    - Updating bed availability after discharge
+  aliases:
+    - BedUtilization
+
+Discharge:
+  definition: >
+    The formal process of releasing a patient from hospital care
+    after treatment completion.
+  examples:
+    - Patient leaving the hospital after final clearance
+  aliases:
+    - PatientRelease
+
+Billing:
+  definition: >
+    The calculation and generation of charges for hospital services
+    provided to a patient.
+  examples:
+    - Generating charges for consultation and ward stay
+  aliases:
+    - HospitalBilling
+
+Invoice:
+  definition: >
+    A formal financial document detailing charges payable by a
+    patient for hospital services.
+  examples:
+    - Final invoice generated during discharge
+  aliases:
+    - BillStatement
+
+Payment:
+  definition: >
+    The settlement of billed charges by the patient through
+    approved payment methods.
+  examples:
+    - Paying hospital charges at the billing counter
+  aliases:
+    - BillSettlement
+
+Enquiry:
+  definition: >
+    A request raised by a patient seeking clarification or
+    assistance related to hospital services.
+  examples:
+    - Asking about appointment status
+    - Billing-related questions
+  aliases:
+    - HelpdeskRequest
+
+IssueEscalation:
+  definition: >
+    The process of forwarding unresolved enquiries to higher
+    authority for resolution.
+  examples:
+    - Escalating a delayed billing issue
+  aliases:
+    - ComplaintHandling
+
+AmbulanceRequest:
+  definition: >
+    A formal request for ambulance services to transport a patient
+    during emergencies.
+  examples:
+    - Requesting ambulance pickup from home
+  aliases:
+    - EmergencyTransportRequest
+
+AmbulanceAssignment:
+  definition: >
+    The allocation of an available ambulance to an approved
+    ambulance request.
+  examples:
+    - Assigning ambulance to an emergency case
+  aliases:
+    - VehicleDispatch
+
+InventoryItem:
+  definition: >
+    A consumable or reusable resource managed by the hospital
+    for operational purposes.
+  examples:
+    - Medical supplies
+    - Equipment items
+  aliases:
+    - StockItem
+
+Vendor:
+  definition: >
+    An external entity supplying goods or services to the hospital.
+  examples:
+    - Medical equipment supplier
+  aliases:
+    - Supplier
+
+Report:
+  definition: >
+    A summarized view of hospital operations used for monitoring
+    and decision-making.
+  examples:
+    - Occupancy report
+    - Billing summary report
+  aliases:
+    - OperationalSummary
 
