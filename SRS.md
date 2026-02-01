@@ -1,5 +1,210 @@
 <img width="758" height="1882" alt="Bed, Room, and Ward Allocation Process drawio" src="https://github.com/user-attachments/assets/68e8949e-44ad-4cbd-b925-06ef187a2cb4" />
 <img width="611" height="1882" alt="Patient Check-In and Movement Tracking drawio (1)" src="https://github.com/user-attachments/assets/98dcd046-4069-4787-8045-9ba6433c87a7" />
+
+# User requirements 
+
+This section describes the services provided by the NexCare system to its users, along with user-visible quality expectations and constraints. The requirements are expressed in natural language and are intended to be understandable by hospital stakeholders. Detailed functional logic and measurable non-functional constraints are specified in later sections of this document.
+
+## 3.1 User Classes
+
+The NexCare system supports the following user classes:
+Patients – users who book appointments, request services, make payments, and submit feedback.
+
+Administrative Staff – hospital staff responsible for appointments, check-in, billing, bed allocation, inventory, and staff scheduling.
+
+Ambulance Staff – users responsible for handling ambulance dispatch requests and updates.
+
+Admin (Hospital Management) – users responsible for monitoring hospital operations and performance.
+
+##  3.2 User Service Requirements
+### 3.2.1 Appointment Booking & Queue Management
+UR-1
+The system shall allow patients to request appointments by selecting a department and preferred date and time.
+
+UR-2
+The system shall provide patients with a unique appointment token upon successful booking.
+
+UR-3
+The system shall allow patients to view the status and queue position of their appointments.
+
+UR-4
+The system shall notify patients when appointment timing or queue position changes.
+
+UR-5
+The system shall allow administrative staff to view, reschedule, or cancel patient appointments.
+
+### 3.2.2 Feedback & Complaint Management
+The system shall allow patients to submit feedback or complaints related to hospital services.
+
+UR-7
+The system shall provide patients with an acknowledgement and reference number for submitted feedback or complaints.
+
+UR-8
+The system shall allow administrative staff to review and update the status of feedback and complaint records.
+
+### 3.2.3 Ambulance Request & Coordination
+UR-9
+The system shall allow patients to request ambulance services by providing required location details.
+
+UR-10
+The system shall allow ambulance staff to view and accept assigned ambulance requests.
+
+UR-11
+The system shall allow ambulance staff to update the status of ambulance dispatch and patient transport.
+
+UR-12
+The system shall allow administrative staff to monitor ambulance requests and their current status.
+
+### 3.2.4 Billing & Payments
+UR-13
+The system shall allow patients to view an itemised bill for hospital services received.
+
+UR-14
+The system shall allow patients to make online payments for hospital bills.
+
+UR-15
+The system shall allow patients to view or download payment receipts after successful transactions.
+
+UR-16
+The system shall allow administrative staff to modify billing details before final bill generation.
+
+### 3.2.5 Patient Check-in & Movement Tracking
+UR-17
+The system shall allow administrative staff to record patient check-in upon arrival at the hospital.
+
+UR-18
+The system shall allow administrative staff to view the current department or location of a checked-in patient.
+
+UR-19
+The system shall notify relevant staff when a patient moves to the next stage of care.
+
+UR-20
+The system shall maintain a visible movement history for each patient during their hospital visit.
+
+### 3.2.6 Bed / Room / Ward Allocation
+UR-21
+The system shall allow administrative staff to view real-time availability of beds, rooms, and wards.
+
+UR-22
+The system shall allow administrative staff to allocate beds or rooms to patients.
+
+UR-23
+The system shall prevent allocation of beds or rooms that are already occupied.
+
+UR-24
+The system shall update bed and room availability when patients are discharged or transferred.
+
+### 3.2.7 Inventory & Asset Management
+UR-25
+The system shall allow administrative staff to view hospital inventory and equipment records.
+
+UR-26
+The system shall allow administrative staff to update inventory quantities and asset information.
+
+UR-27
+The system shall notify administrative staff when inventory levels or asset conditions require attention.
+
+### 3.2.8 Staff Scheduling
+UR-28
+The system shall allow administrative staff to create and manage staff duty schedules.
+
+UR-29
+The system shall allow approved staff availability changes to be reflected in schedules.
+
+UR-30
+The system shall alert administrative staff to scheduling conflicts or understaffed periods.
+
+### 3.2.9 Wait-Time & Bottleneck Monitoring
+UR-31
+The system shall allow administrative staff to view current patient wait times for hospital services.
+
+UR-32
+The system shall notify administrative staff when excessive wait times or service bottlenecks are detected.
+
+### 3.2.10 Operations Dashboard & Reporting
+UR-33
+The system shall provide hospital management with a consolidated operational dashboard.
+
+UR-34
+The system shall allow hospital management to generate and view operational reports.
+
+UR-35
+The system shall allow hospital management to review audit logs of significant system activities.
+
+## 3.3 User-Visible Non-Functional Requirements
+The following non-functional requirements describe quality attributes as experienced by users. Detailed, measurable non-functional requirements are specified separately in the Non-Functional Requirements section.
+
+UR-NF-1
+The system shall respond to common user actions in a timely manner under normal operating conditions.
+
+UR-NF-2
+The system shall be available to users during normal hospital operating hours.
+
+UR-NF-3
+The system shall restrict access to system features based on the user’s assigned role.
+
+UR-NF-4
+The system shall present information using clear labels, readable layouts, and understandable messages suitable for non-technical users.
+
+UR-NF-5
+The system shall protect patient and hospital information from unauthorized access.
+
+## 3.4 Standards and Constraints
+UR-SC-1
+The system shall comply with standard web application usability and accessibility practices.
+
+UR-SC-2
+The system shall handle patient information in accordance with applicable privacy and confidentiality guidelines.
+
+UR-SC-3
+The system shall maintain auditability of administrative, billing, and scheduling actions.
+
+UR-SC-4
+The system shall support commonly used modern web browsers.
+
+UR-SC-5
+The system shall integrate with an approved and secure payment gateway for billing transactions.
+
+## User Requirement – Functional Requirement Traceability Matrix
+| User Requirement (UR)      | Mapped Functional Requirement(s) (FR) |
+| ------------------------- | ----------------------------------------- |
+| UR-1                      | FR-01                                     |
+| UR-2                      | FR-02                                     |
+| UR-3                      | FR-03                                     |
+| UR-4                      | FR-02, FR-03                              |
+| UR-5                      | FR-03                                     |
+| UR-6                      | FR-09                                     |
+| UR-7                      | FR-10                                     |
+| UR-8                      | FR-11, FR-12                              |
+| UR-9                      | FR-13                                     |
+| UR-10                     | FR-14                                     |
+| UR-11                     | FR-15                                     |
+| UR-12                     | FR-16, FR-17                              |
+| UR-13                     | FR-18                                     |
+| UR-14                     | FR-19                                     |
+| UR-15                     | FR-20                                     |
+| UR-16                     | FR-21                                     |
+| UR-17                     | FR-22                                     |
+| UR-18                     | FR-23                                     |
+| UR-19                     | FR-24                                     |
+| UR-20                     | FR-25                                     |
+| UR-21                     | FR-26                                     |
+| UR-22                     | FR-27                                     |
+| UR-23                     | FR-27                                     |
+| UR-24                     | FR-28, FR-29                              |
+| UR-25                     | FR-30                                     |
+| UR-26                     | FR-31                                     |
+| UR-27                     | FR-32, FR-33                              |
+| UR-28                     | FR-34                                     |
+| UR-29                     | FR-35                                     |
+| UR-30                     | FR-36, FR-37                              |
+| UR-31                     | FR-38                                     |
+| UR-32                     | FR-39, FR-40                              |
+| UR-33                     | FR-41                                     |
+| UR-34                     | FR-42, FR-43                              |
+| UR-35                     | FR-44                                     |
+
+
 # Functional Requirements
 ## Hospital Administrative Operations Platform *(Non-Clinical Workflows)*
 
