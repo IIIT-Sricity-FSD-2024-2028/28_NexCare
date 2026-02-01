@@ -374,11 +374,11 @@ Each requirement is testable and measurable within the constraints of a student 
 
 ---
 
-## 7. Testing and Validation Guide
+## Testing and Validation Guide
 
 This section provides practical guidance on how to test and validate each NFR category within project constraints.
 
-### 7.1 Performance Testing
+### 1. Performance Testing
 
 **Tools:** Browser Developer Tools (Network tab), Apache JMeter (basic load testing), or custom scripts
 
@@ -389,7 +389,7 @@ This section provides practical guidance on how to test and validate each NFR ca
 
 ---
 
-### 7.2 Security Testing
+### 2. Security Testing
 
 **Tools:** Manual testing, database inspection, browser DevTools
 
@@ -401,7 +401,7 @@ This section provides practical guidance on how to test and validate each NFR ca
 
 ---
 
-### 7.3 Usability Testing
+### 3. Usability Testing
 
 **Tools:** Peer review, instructor evaluation
 
@@ -413,7 +413,7 @@ This section provides practical guidance on how to test and validate each NFR ca
 
 ---
 
-### 7.4 Reliability Testing
+### 4. Reliability Testing
 
 **Tools:** Load testing scripts, log files
 
@@ -425,7 +425,7 @@ This section provides practical guidance on how to test and validate each NFR ca
 
 ---
 
-### 7.5 Maintainability Validation
+### 5. Maintainability Validation
 
 **Tools:** Code review, architecture documentation
 
@@ -437,7 +437,7 @@ This section provides practical guidance on how to test and validate each NFR ca
 
 ---
 
-### 7.6 Testability Validation
+### 6. Testability Validation
 
 **Tools:** Postman, Jest/Mocha/PyTest (depending on stack), database seed scripts
 
@@ -449,50 +449,51 @@ This section provides practical guidance on how to test and validate each NFR ca
 
 ---
 
-##  8. UML Diagrams
+##  UML Diagrams
 
-### 8.1 Use Case Diagram
+### 1. Use Case Diagram
+<img src="https://github.com/user-attachments/assets/efe131ad-b08c-4bd9-97c5-0e488fe49f7d" alt="Use Case Diagram" style="max-height: 900px; width: auto; display: block; margin: 0 auto;" />
 
-<img width="683" height="1006" alt="use_case_2 drawio" src="https://github.com/user-attachments/assets/efe131ad-b08c-4bd9-97c5-0e488fe49f7d" />
+### 2. Activity Diagrams
 
+### 2.1 Triage-Based Appointment Booking, Rescheduling and Cancelling
+<img src="https://github.com/user-attachments/assets/e7ff2d33-9ac1-4853-bb7d-aa4dc323e610" />
 
-### 8.2 Activity Diagrams
+### 2.2 Billing and Payment Processing
+<img src="https://github.com/user-attachments/assets/76f2d07a-26a5-4473-84f7-7c3e86aec8b7" />
 
- ### 1. Triage-Based Appointment Booking, Rescheduling and Cancelling
+<div style="page-break-before: always;"></div>
 
-<img width="1151" height="1261" alt="activity_appointment2 drawio (1)" src="https://github.com/user-attachments/assets/e7ff2d33-9ac1-4853-bb7d-aa4dc323e610" />
+### 2.3 Feedback and Complaint Handling
+<img src="https://github.com/user-attachments/assets/204f35fa-8511-4de8-b3a3-fa5512b84d6d" />
 
- ### 2. Billing and Payment processing
+<div style="page-break-before: always;"></div>
 
-<img width="1351" height="1971" alt="billingandpayment drawio" src="https://github.com/user-attachments/assets/76f2d07a-26a5-4473-84f7-7c3e86aec8b7" />
+### 2.4 Inventory & Asset Stock Management
+<img src="https://github.com/user-attachments/assets/e062b433-22f5-4ddf-9e30-61d1712cc351" />
 
- ### 3. Feedback and complaint handling
+<div style="page-break-before: always;"></div>
 
-<img width="1261" height="1541" alt="feedbackandcomplaint drawio" src="https://github.com/user-attachments/assets/204f35fa-8511-4de8-b3a3-fa5512b84d6d" />
+### 2.5 Ambulance Request, Assignment & Tracking
+<img src="https://github.com/user-attachments/assets/d73203ae-4ff4-4a69-86e6-149a7a479698" />
 
- ### 4.Inventory & Asset Stock Management
+<div style="page-break-before: always;"></div>
 
-<img width="531" height="1081" alt="I drawio" src="https://github.com/user-attachments/assets/e062b433-22f5-4ddf-9e30-61d1712cc351" />
+### 2.6 Monitor Hospital Operations & Reports
+<img src="https://github.com/user-attachments/assets/eec34de0-488f-4ef5-b3e7-3d353668129b" />
 
- ### 5.Ambulance Request, Assignment & Tracking
+<div style="page-break-before: always;"></div>
 
-<img width="811" height="1071" alt="Ambulance drawio" src="https://github.com/user-attachments/assets/d73203ae-4ff4-4a69-86e6-149a7a479698" />
+### 2.7 Patient Check-In & Movement Tracking
+<img src="https://github.com/user-attachments/assets/98dcd046-4069-4787-8045-9ba6433c87a7" />
 
-### 6. Monitor Hospital Operations & Reports
+<div style="page-break-before: always;"></div>
 
-<img width="882" height="1815" alt="Hospital Operations & Reports" src="https://github.com/user-attachments/assets/eec34de0-488f-4ef5-b3e7-3d353668129b" />
+### 2.8 Bed/Room/Ward Allocation Process
+<img src="https://github.com/user-attachments/assets/68e8949e-44ad-4cbd-b925-06ef187a2cb4" />
 
-### 7.Patient Check-In & Movement Tracking
+<div style="page-break-before: always;"></div>
 
-<img width="611" height="1882" alt="Patient Check-In and Movement Tracking drawio (1)" src="https://github.com/user-attachments/assets/98dcd046-4069-4787-8045-9ba6433c87a7" />
-
-### 8.Bed/Room/Ward Allocation Process
-
-<img width="758" height="1882" alt="Bed, Room, and Ward Allocation Process drawio" src="https://github.com/user-attachments/assets/68e8949e-44ad-4cbd-b925-06ef187a2cb4" />
-
-
-### 8.3 Sequence diagram
-
-
-<img width="1502" height="1507" alt="sequence drawio" src="https://github.com/user-attachments/assets/fd7c1253-c977-4a08-9d82-a4b4b9e3a760" />
+### 3 Sequence Diagram
+<img src="https://github.com/user-attachments/assets/fd7c1253-c977-4a08-9d82-a4b4b9e3a760" />
 
