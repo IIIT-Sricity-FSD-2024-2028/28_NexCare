@@ -220,175 +220,249 @@ Each requirement is written as a testable statement describing what the system s
 
 
 # Non-Functional Requirements
-## Hospital Administrative Operations Platform *(Non-Clinical Workflows)*
+## Hospital Administrative Operations Platform
+### (Student Full-Stack Development Project)
 
 ---
 
 ## 1. Scope
 
-This document defines the non-functional requirements for the Hospital Administrative Operations Platform. Non-functional requirements constrain the overall qualities of the system — how well it performs, how reliably it operates, how securely it handles data, and how it is maintained and deployed — rather than what it does. Every requirement here applies to the system as a whole and is derived from the constraints, pain points, and operational rules identified in the domain expert interaction and the system integrations defined in the use case diagram. The platform must meet these qualities across all eleven use-case modules simultaneously.
+This document defines the non-functional requirements (NFRs) for the Hospital Administrative Operations Platform student project. These requirements have been streamlined and scoped appropriately for a full-stack development project with realistic testing and validation constraints.
+
+The NFRs focus on essential system qualities that can be implemented, demonstrated, and tested within an academic project timeline, while maintaining professional development standards. All overly ambitious enterprise-grade requirements have been removed or scaled to student-project-appropriate levels.
 
 ---
 
 ## 2. Definitions
 
 | Term | Definition |
-|---|---|
-| **Response Time** | The duration between a user action or system event and the delivery of the corresponding result back to the user or integrated system. |
-| **Availability** | The percentage of scheduled operating time during which the system is accessible and functioning correctly. |
-| **Throughput** | The number of transactions or operations the system can process per unit of time. |
-| **MTBF** | Mean Time Between Failures — the average operating duration between successive system failures. |
-| **MTTR** | Mean Time To Recovery — the average time required to restore normal system operation after a failure. |
-| **Role-Based Access Control (RBAC)** | A security model that grants each user permissions exclusively on the basis of their assigned role within the organisation. |
-| **PCI-DSS** | Payment Card Industry Data Security Standard — the compliance framework that governs the secure handling of payment-card data. |
-| **Graceful Degradation** | The system's ability to continue offering core functionality at reduced capacity when a component or external integration fails, rather than failing entirely. |
-| **API** | Application Programming Interface — a defined contract through which two systems exchange data and operations. |
+|------|------------|
+| **Response Time** | The duration between a user action and the system's visible response. |
+| **Session** | A period of continuous user activity from login to logout or timeout. |
+| **Concurrent Users** | The number of users actively using the system at the same time. |
+| **Functional Module** | A distinct feature set (e.g., Appointment Booking, Billing, Ambulance Tracking). |
+| **API** | Application Programming Interface – the contract for communication between system components. |
+| **Load Test** | A test that simulates multiple concurrent users to verify system performance. |
 
 ---
 
 ## 3. NFR Categories and Rationale
 
-The eight categories below follow the standard NFR taxonomy. Each is grounded in specific evidence from the domain expert interaction or the use case diagram.
+The requirements are organized into six essential categories suitable for a student project:
 
-| Category | Rationale / Source |
-|---|---|
-| **Performance** | The domain expert specified a 5-minute ambulance dispatch target. The use case diagram connects the GPS Tracking System and the Automated Wait-Time & Bottleneck Detection module to multiple use cases, all of which require low-latency data flow. The expert also identified operational delays as a recurring pain point. |
-| **Reliability** | The expert listed equipment breakdown and infrastructure unavailability as common failure scenarios. Ambulance status tracking via the GPS Tracking System must remain live even under degraded conditions. |
-| **Security** | Patient consent is a mandatory rule. The use case diagram includes a Payment Gateway integration, which requires PCI-DSS compliance. The Admin actor's monitoring use case demands a full audit trail. The expert raised government ID upload as an open integration point. |
-| **Usability** | The expert confirmed that human interaction is critical and must not be fully automated. Four distinct actor types with different responsibilities exist in the diagram, requiring role-appropriate interfaces. The expert's own role involves onboarding new staff, implying the system must be learnable quickly. |
-| **Availability** | Ambulance dispatch is time-critical and can occur at any hour. The Reporting System and Wait-Time Detection module require continuous data access. The expert noted that delays in one area cause cascading failures across other operations. |
-| **Maintainability** | The use case diagram defines five external system integrations (Notification Service, Payment Gateway, Triage System, GPS Tracking System, Reporting System). The platform itself spans eleven distinct use-case modules, both of which demand a modular, loosely coupled architecture. |
-| **Scalability** | The platform must accommodate multiple departments, wards, ambulance units, and staff members simultaneously. The Reporting System aggregates data across every module, so data-handling capacity must grow proportionally. |
-| **Portability** | Ambulance Staff require real-time access to dispatch and tracking data while on the move. Administrative Staff operate from multiple locations within the hospital. The system must therefore be accessible across device types without loss of functionality. |
+| Category | Rationale |
+|----------|-----------|
+| **Performance** | Ensures the system responds quickly enough for practical use during demos and testing. Critical for appointment booking and real-time ambulance tracking. |
+| **Security** | Protects patient data and ensures proper access control. Essential for any healthcare-related system, even in academic contexts. |
+| **Usability** | Makes the system learnable and usable by teaching assistants, instructors, and demo users without extensive training. |
+| **Reliability** | Ensures the system works consistently during testing, demos, and evaluation periods without frequent crashes. |
+| **Maintainability** | Enables team members to understand, modify, and extend the codebase. Critical for iterative development and bug fixes. |
+| **Testability** | Ensures the system can be properly tested and validated within project constraints. |
 
 ---
 
 ## 4. Non-Functional Requirements
 
-Each requirement is written as a testable, measurable statement describing a quality the system as a whole must satisfy. The "Applies To" column identifies which use-case modules or system integrations are directly constrained by the requirement.
-
----
+Each requirement is testable and measurable within the constraints of a student project.
 
 ### 4.1 Performance
 
-Performance requirements define speed and responsiveness targets for the system and its integrations with external services.
+Performance requirements ensure the system responds quickly for practical use and demonstration.
 
 | ID | Requirement | Applies To |
-|---|---|---|
-| NFR-01 | The system shall process any user-initiated action (appointment booking, check-in, bill payment, feedback submission) and return a visible response within 3 seconds under normal load. | All patient- and staff-facing modules |
-| NFR-02 | The system shall deliver Notification Service alerts (appointment updates, check-in confirmations, feedback acknowledgements) to end users within 10 seconds of the triggering event. | Notification Service integration |
-| NFR-03 | The system shall refresh GPS-based ambulance location data at intervals of no more than 5 seconds during an active dispatch. | GPS Tracking System integration |
-| NFR-04 | The system shall evaluate appointment queue wait times and detect bottlenecks within 30 seconds of a threshold breach. | Automated Wait-Time & Bottleneck Detection |
-| NFR-05 | The system shall support a sustained throughput of at least 200 concurrent user sessions without degradation in response times specified in NFR-01. | All modules |
+|----|-------------|------------|
+| **NFR-01** | The system shall respond to any user action (login, appointment booking, form submission) within 3 seconds under normal load (up to 10 concurrent users). | All user-facing modules |
+| **NFR-02** | The system shall display appointment availability results within 2 seconds of a search request. | Appointment Booking |
+| **NFR-03** | The system shall process bill payment transactions and display confirmation within 5 seconds. | Billing module |
+| **NFR-04** | Database queries for common operations (view appointments, patient check-in, bed allocation) shall execute in under 1 second with up to 1000 records per table. | All modules |
 
 ---
 
-### 4.2 Reliability
+### 4.2 Security
 
-Reliability requirements ensure the system continues to function correctly and recovers predictably when failures occur.
+Security requirements protect patient data and ensure proper access control.
 
 | ID | Requirement | Applies To |
-|---|---|---|
-| NFR-06 | The system shall achieve a Mean Time Between Failures (MTBF) of no less than 720 hours (30 days) of continuous operation. | Platform as a whole |
-| NFR-07 | The system shall achieve a Mean Time To Recovery (MTTR) of no more than 15 minutes following any single-component failure. | Platform as a whole |
-| NFR-08 | The system shall implement graceful degradation so that a failure in any one external integration (Notification Service, Payment Gateway, Triage System, GPS Tracking System, or Reporting System) does not prevent the remaining modules from functioning. | All external integrations |
-| NFR-09 | The system shall retain and make recoverable all data entered within the last 24 hours in the event of a full system restart. | All modules |
-| NFR-10 | The system shall log every detected failure, including the affected component, a timestamp, and an error classification, without requiring manual intervention. | Platform as a whole |
+|----|-------------|------------|
+| **NFR-05** | The system shall implement Role-Based Access Control (RBAC) with three distinct roles: Patient, Administrative Staff, and Admin. | All modules |
+| **NFR-06** | The system shall require user authentication (username and password) before granting access to any functionality. | All modules |
+| **NFR-07** | Patient passwords shall be hashed using bcrypt or equivalent before storage. Plain-text passwords shall never be stored. | Authentication |
+| **NFR-08** | The system shall automatically log out inactive users after 30 minutes of inactivity. | All modules |
+| **NFR-09** | The system shall lock user accounts after 5 consecutive failed login attempts, requiring admin reset. | Authentication |
+| **NFR-10** | The system shall use HTTPS for all client-server communication in production deployment. | Platform as a whole |
+| **NFR-11** | The system shall validate and sanitize all user inputs to prevent SQL injection and cross-site scripting (XSS) attacks. | All modules |
+| **NFR-12** | Payment gateway integration (if implemented) shall use a sandbox environment and shall not store any credit card information directly in the database. | Payment module |
 
 ---
 
-### 4.3 Security
+### 4.3 Usability
 
-Security requirements govern data protection, access control, and compliance obligations across the platform.
+Usability requirements ensure the system is learnable and easy to use for evaluators and demo purposes.
 
 | ID | Requirement | Applies To |
-|---|---|---|
-| NFR-11 | The system shall enforce Role-Based Access Control (RBAC) so that each actor (Patient, Administrative Staff, Ambulance Staff, Admin) can only access and modify data permitted by their assigned role. | All modules |
-| NFR-12 | The system shall uniquely authenticate every user before granting access, using a secure credential mechanism (e.g., hospital-issued identity card or multi-factor authentication). | All modules |
-| NFR-13 | The system shall encrypt all data in transit between the platform and each external integration using TLS 1.2 or higher. | All external integrations |
-| NFR-14 | The system shall encrypt all stored patient and billing data at rest using AES-256 or an equivalent standard. | Patient data, billing data |
-| NFR-15 | The Payment Gateway integration shall comply with PCI-DSS requirements; no raw payment-card data shall be stored by the platform. | Payment Gateway integration |
-| NFR-16 | The system shall record patient consent digitally before any transfer or inter-hospital referral is processed, and shall store the consent record for the duration of the patient's association with the hospital. | Patient transfers, referrals |
-| NFR-17 | The system shall maintain a comprehensive audit trail of all user logins, data reads, data writes, and configuration changes, accessible to the Admin for a minimum retention period of 3 years. | All modules |
+|----|-------------|------------|
+| **NFR-13** | The system shall provide a role-specific dashboard for each user type showing only relevant functions and data. | All modules |
+| **NFR-14** | All forms shall include clear field labels, placeholder text, and validation messages to guide user input. | All user-facing modules |
+| **NFR-15** | The system shall display meaningful error messages (e.g., "Appointment slot already booked") instead of technical error codes. | All modules |
+| **NFR-16** | The system shall confirm all destructive actions (delete, cancel appointment, discharge patient) with a confirmation dialog before execution. | All modules |
+| **NFR-17** | The user interface shall be responsive and usable on desktop screens (minimum 1280x720 resolution) and tablet devices (minimum 768px width). | All modules |
+| **NFR-18** | A new user shall be able to complete core tasks (book appointment, check-in patient, allocate bed) within 5 minutes with only README documentation, no live training required. | All modules |
 
 ---
 
-### 4.4 Usability
+### 4.4 Reliability
 
-Usability requirements ensure the system is learnable, efficient to operate, and appropriate for each actor type.
+Reliability requirements ensure consistent system behavior during testing and demonstrations.
 
 | ID | Requirement | Applies To |
-|---|---|---|
-| NFR-18 | The system shall present each actor with an interface tailored to their role, displaying only the actions, data, and navigation relevant to their assigned responsibilities. | All modules |
-| NFR-19 | A new staff member with no prior experience of the platform shall be able to complete their core daily tasks independently within 2 working days of first use, supported only by in-system guidance. | All staff-facing modules |
-| NFR-20 | The system shall provide contextual help or tooltip guidance at every step where a staff member performs a data-entry or decision action, without requiring navigation to a separate help section. | All staff-facing modules |
-| NFR-21 | The system shall confirm every irreversible action (deletion, cancellation, status change to 'Discharged') with an explicit user confirmation prompt before executing. | Appointment management, Bed allocation, Patient check-in |
-| NFR-22 | The system shall display all status updates, alerts, and notifications in plain language without internal error codes or technical identifiers. | All modules |
+|----|-------------|------------|
+| **NFR-19** | The system shall handle expected errors gracefully (invalid inputs, duplicate bookings, missing data) without crashing or showing stack traces to users. | All modules |
+| **NFR-20** | The system shall maintain data consistency: a single appointment slot shall not be bookable by multiple patients simultaneously. | Appointment Booking |
+| **NFR-21** | The system shall maintain database transaction integrity: all related operations (e.g., appointment creation + notification trigger) shall complete together or roll back together. | All modules with database operations |
+| **NFR-22** | The system shall run continuously for at least 4 hours during load testing without crashes or memory leaks. | Platform as a whole |
+| **NFR-23** | All critical errors shall be logged to a file with timestamp, error type, and context for debugging purposes. | Platform as a whole |
 
 ---
 
-### 4.5 Availability
+### 4.5 Maintainability
 
-Availability requirements define the uptime and access guarantees the platform must meet.
+Maintainability requirements ensure the codebase can be understood, modified, and extended by team members.
 
 | ID | Requirement | Applies To |
-|---|---|---|
-| NFR-23 | The system shall be available 24 hours a day, 7 days a week, with a target uptime of 99.5% or higher measured on a rolling 30-day basis. | Platform as a whole |
-| NFR-24 | Scheduled maintenance windows shall not exceed 2 hours per calendar month and shall be communicated to all users at least 48 hours in advance. | Platform as a whole |
-| NFR-25 | The system shall remain fully operational for all ambulance-related modules (Request Ambulance, Ambulance Assignment & Status Tracking) even when non-critical modules are undergoing maintenance. | Ambulance modules |
-| NFR-26 | The system shall automatically redirect user sessions to a standby instance within 60 seconds if the primary instance becomes unresponsive. | Platform as a whole |
+|----|-------------|------------|
+| **NFR-24** | The system shall follow a clear separation of concerns architecture: frontend (UI), backend (API/business logic), and database layers shall be distinct and loosely coupled. | Platform architecture |
+| **NFR-25** | All API endpoints shall follow RESTful conventions with consistent naming (e.g., GET /appointments, POST /appointments, DELETE /appointments/:id). | Backend API |
+| **NFR-26** | The codebase shall include inline comments explaining complex business logic and non-obvious design decisions. | All code |
+| **NFR-27** | The project repository shall include a README with setup instructions, technology stack description, and how to run the application. | Project documentation |
+| **NFR-28** | Database schema shall use meaningful table and column names (e.g., 'appointments', 'patient_id') with foreign key constraints properly defined. | Database layer |
+| **NFR-29** | Each functional module (Appointment, Billing, Check-in, etc.) shall be organized in separate directories/packages to enable independent development and testing. | Platform architecture |
 
 ---
 
-### 4.6 Maintainability
+### 4.6 Testability
 
-Maintainability requirements govern how easily the system can be updated, debugged, and extended over time.
+Testability requirements ensure the system can be properly validated within project constraints.
 
 | ID | Requirement | Applies To |
-|---|---|---|
-| NFR-27 | Each external integration (Notification Service, Payment Gateway, Triage System, GPS Tracking System, Reporting System) shall be implemented behind a dedicated API adapter layer, so that changes to an external service's interface can be accommodated without modifying core platform logic. | All external integrations |
-| NFR-28 | The system shall be structured as independent, loosely coupled modules corresponding to the eleven use-case categories, so that a change in one module does not require regression testing of unrelated modules. | Platform architecture |
-| NFR-29 | All configuration values (alert thresholds, response-time targets, maintenance windows) shall be externalisable and changeable without redeployment of the application. | All modules |
-| NFR-30 | The system shall include automated unit and integration tests covering a minimum of 80% of all business logic paths, maintained alongside the source code. | Platform as a whole |
+|----|-------------|------------|
+| **NFR-30** | All backend API endpoints shall be testable independently using tools like Postman or automated API tests. | Backend API |
+| **NFR-31** | The system shall include at least one automated test per critical user flow (login, book appointment, process payment, check-in patient). | Core modules |
+| **NFR-32** | The database shall support easy reset to a known test state through seed scripts for repeatable testing. | Database layer |
+| **NFR-33** | The system shall include sample test data (at least 5 patients, 3 staff members, 10 appointments, 5 beds) that can be loaded automatically for demonstration and testing purposes. | All modules |
+| **NFR-34** | All external integrations (payment gateway, notification service, GPS tracking) shall be mockable or have sandbox/test modes for development and testing. | External integrations |
 
 ---
 
-### 4.7 Scalability
-
-Scalability requirements ensure the platform can grow with increasing numbers of users, departments, and data volumes.
-
-| ID | Requirement | Applies To |
-|---|---|---|
-| NFR-31 | The system shall support scaling from a single hospital site to a minimum of 5 hospital sites without architectural redesign, sharing a common data layer where appropriate. | Platform as a whole |
-| NFR-32 | The system shall handle a 3× increase in concurrent user sessions over its baseline capacity (defined in NFR-05) by adding compute resources horizontally, without changes to application code. | Platform as a whole |
-| NFR-33 | The Reporting System integration shall remain responsive (query results returned within 10 seconds) as the cumulative data volume grows up to 5 years of operational records. | Reporting System integration |
-| NFR-34 | The database layer shall support partitioning or sharding strategies so that growth in one module's data (e.g., ambulance logs or billing records) does not degrade query performance in other modules. | Platform data layer |
-
----
-
-### 4.8 Portability
-
-Portability requirements ensure the system is accessible and functional across the range of devices and environments used by its actors.
-
-| ID | Requirement | Applies To |
-|---|---|---|
-| NFR-35 | The system shall deliver a fully functional experience on desktop browsers (Chrome, Firefox, Edge — latest two major versions) and on mobile browsers (iOS Safari, Android Chrome — latest two major versions) without requiring a separate native application. | All modules |
-| NFR-36 | All patient- and staff-facing interfaces shall comply with WCAG 2.1 Level AA accessibility standards to ensure usability for users with disabilities. | All modules |
-| NFR-37 | The Ambulance Staff interface shall remain usable on small-screen mobile devices (minimum viewport width of 320 px) with no loss of critical functionality for dispatch acceptance and status updates. | Ambulance Assignment & Status Tracking |
-| NFR-38 | The system shall be deployable on any standard cloud infrastructure provider (e.g., AWS, Azure, GCP) without vendor-specific dependencies in the application code. | Platform as a whole |
-
----
-
-## 5. Summary
+## 6. Summary
 
 | Category | Requirement IDs | Count |
-|---|---|---|
-| Performance | NFR-01 – NFR-05 | 5 |
-| Reliability | NFR-06 – NFR-10 | 5 |
-| Security | NFR-11 – NFR-17 | 7 |
-| Usability | NFR-18 – NFR-22 | 5 |
-| Availability | NFR-23 – NFR-26 | 4 |
-| Maintainability | NFR-27 – NFR-30 | 4 |
-| Scalability | NFR-31 – NFR-34 | 4 |
-| Portability | NFR-35 – NFR-38 | 4 |
-| **Total** | | **38** |
+|----------|----------------|-------|
+| Performance | NFR-01 to NFR-04 | 4 |
+| Security | NFR-05 to NFR-12 | 8 |
+| Usability | NFR-13 to NFR-18 | 6 |
+| Reliability | NFR-19 to NFR-23 | 5 |
+| Maintainability | NFR-24 to NFR-29 | 6 |
+| Testability | NFR-30 to NFR-34 | 5 |
+| **Total** | | **34** |
+
+---
+
+## 7. Testing and Validation Guide
+
+This section provides practical guidance on how to test and validate each NFR category within project constraints.
+
+### 7.1 Performance Testing
+
+**Tools:** Browser Developer Tools (Network tab), Apache JMeter (basic load testing), or custom scripts
+
+**Method:**
+1. Use browser Developer Tools to measure response times for key actions
+2. Create 10 concurrent user sessions and verify no degradation
+3. Document response times in a test report with screenshots
+
+---
+
+### 7.2 Security Testing
+
+**Tools:** Manual testing, database inspection, browser DevTools
+
+**Method:**
+1. Verify RBAC by attempting to access restricted pages with different user roles
+2. Check database to confirm passwords are hashed, not plain text
+3. Test session timeout by leaving browser idle for 30 minutes
+4. Attempt SQL injection in input fields (e.g., username: `admin' OR '1'='1`)
+
+---
+
+### 7.3 Usability Testing
+
+**Tools:** Peer review, instructor evaluation
+
+**Method:**
+1. Give system to a peer who hasn't seen it before with only README instructions
+2. Ask them to complete 5 core tasks and time how long it takes
+3. Test on different screen sizes (desktop, tablet) to verify responsiveness
+4. Intentionally trigger errors and verify messages are user-friendly
+
+---
+
+### 7.4 Reliability Testing
+
+**Tools:** Load testing scripts, log files
+
+**Method:**
+1. Run the system continuously for 4 hours with periodic test actions
+2. Monitor memory usage to detect leaks (should remain stable)
+3. Test duplicate appointment booking by two users simultaneously
+4. Review error logs to confirm all errors are properly logged
+
+---
+
+### 7.5 Maintainability Validation
+
+**Tools:** Code review, architecture documentation
+
+**Method:**
+1. Review code structure to verify clear separation of frontend/backend/database
+2. Check API endpoints follow RESTful naming conventions
+3. Verify README includes all necessary setup and run instructions
+4. Have another team member attempt to add a new feature to assess code clarity
+
+---
+
+### 7.6 Testability Validation
+
+**Tools:** Postman, Jest/Mocha/PyTest (depending on stack), database seed scripts
+
+**Method:**
+1. Test all API endpoints independently using Postman or curl
+2. Run database seed script to verify test data loads correctly
+3. Execute automated tests (if implemented) and document results
+4. Verify external integrations can be tested in sandbox/mock mode
+
+---
+
+## Quick Reference: Critical NFRs Checklist
+
+Use this checklist during development and before final submission:
+
+- [ ] **Performance**: Response times under 3 seconds (NFR-01)
+- [ ] **Security**: RBAC implemented with 3 roles (NFR-05)
+- [ ] **Security**: Passwords hashed with bcrypt (NFR-07)
+- [ ] **Security**: SQL injection prevention implemented (NFR-11)
+- [ ] **Usability**: Role-specific dashboards created (NFR-13)
+- [ ] **Usability**: User-friendly error messages (NFR-15)
+- [ ] **Reliability**: Duplicate booking prevention (NFR-20)
+- [ ] **Reliability**: 4-hour continuous operation test passed (NFR-22)
+- [ ] **Maintainability**: Clear 3-tier architecture (NFR-24)
+- [ ] **Maintainability**: RESTful API conventions followed (NFR-25)
+- [ ] **Maintainability**: Comprehensive README included (NFR-27)
+- [ ] **Testability**: API endpoints testable with Postman (NFR-30)
+- [ ] **Testability**: Database seed scripts created (NFR-32)
+- [ ] **Testability**: Sample test data included (NFR-33)
+
+---
+
+**Document Version:** 1.0 - Student Project Edition  
+**Last Updated:** February 2026  
+**Total Requirements:** 34 NFRs across 6 categories
