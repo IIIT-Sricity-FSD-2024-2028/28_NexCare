@@ -8,6 +8,7 @@ This section describes the services provided by the NexCare system to its users,
 ## 3.1 User Classes
 
 The NexCare system supports the following user classes:
+
 Patients – users who book appointments, request services, make payments, and submit feedback.
 
 Administrative Staff – hospital staff responsible for appointments, check-in, billing, bed allocation, inventory, and staff scheduling.
