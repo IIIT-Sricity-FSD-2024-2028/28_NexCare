@@ -567,6 +567,7 @@ This section provides practical guidance on how to test and validate each NFR ca
 
 <img width="683" height="1006" alt="use_case_2 drawio" src="https://github.com/user-attachments/assets/efe131ad-b08c-4bd9-97c5-0e488fe49f7d" />
 
+
 ### 8.2 Activity Diagrams
 
 ### 1. Triage-Based Appointment Booking, Rescheduling and Cancelling
@@ -588,6 +589,12 @@ This section provides practical guidance on how to test and validate each NFR ca
 ### 5.Ambulance Request, Assignment & Tracking
 
 <img width="811" height="1071" alt="Ambulance drawio" src="https://github.com/user-attachments/assets/d73203ae-4ff4-4a69-86e6-149a7a479698" />
+
+
+### 8.3 Sequence diagram
+
+<img width="1502" height="1507" alt="sequence drawio" src="https://github.com/user-attachments/assets/fd7c1253-c977-4a08-9d82-a4b4b9e3a760" />
+
 
 
 
