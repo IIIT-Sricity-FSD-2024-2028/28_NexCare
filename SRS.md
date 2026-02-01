@@ -1,13 +1,3 @@
-<style>
-  img {
-    max-height: 900px; /* Limits height to fit A4 */
-    width: auto;
-    display: block;
-    margin: 10px auto;
-    page-break-inside: avoid;
-  }
-</style>
-
 # User Requirements 
 ## NexCare – Hospital Administrative Operations Platform
 
@@ -460,10 +450,6 @@ This section provides practical guidance on how to test and validate each NFR ca
 ---
 
 ##  UML Diagrams
-
-### 1. Use Case Diagram
-
-<div style="page-break-before: always;"></div>
 
 ### 1. Use Case Diagram
 <img src="https://github.com/user-attachments/assets/efe131ad-b08c-4bd9-97c5-0e488fe49f7d" alt="Use Case Diagram" style="max-height: 900px; width: auto; display: block; margin: 0 auto;" />
