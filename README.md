@@ -96,6 +96,7 @@ Manage duty rosters and leave schedules
 Detect staffing conflicts or understaffed shifts in advance
 
 ---
+
 ### Ambulance Staff Features
 
 ### Ambulance Dispatch Management
@@ -109,8 +110,6 @@ Share live location data for routing and coordination
 ### Emergency Transport Tracking
 Record pickup time, transport progress, and patient drop-off
 Notify administrative staff upon patient arrival
-
----
 
 ---
 
