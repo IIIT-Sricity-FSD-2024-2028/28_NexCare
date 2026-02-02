@@ -3,8 +3,8 @@
 ## Basic Information
 
 * **Domain:** Healthcare – Hospital Administrative Operations (Non-Clinical Platform)
-* **Problem Statement:** Understanding real-world hospital workflows from a clinical expert’s perspective to design a strictly non-clinical, full-stack hospital administrative operations platform.
-* **Date of Interaction:** 31-1-12
+* **Problem Statement:** Understanding real-world hospital workflows from an expert’s perspective to design a strictly non-clinical, full-stack hospital administrative operations platform.
+* **Date of Interaction:** 31-1-26
 * **Mode of Interaction:** Video call (recorded domain expert interaction)
 * **Duration (in minutes):** 37 minutes
 * **Publicly Accessible Video Link:** https://drive.google.com/drive/u/0/folders/1pxoPQ9ggXqRKsaUnORZCpJNAg6-4CYuM
