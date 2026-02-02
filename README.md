@@ -23,14 +23,31 @@ The patient is the primary service requester who interacts with the system to:
 
 ---
 
-### Administrative and Ambulance Staff (Service Providers)
+### Administrative Staff (Service Provider)
 
-This group includes front-office staff and ambulance personnel responsible for:
-- Processing and managing patient requests  
-- Allocating hospital resources such as beds, wards, and assets  
-- Updating operational statuses in real time  
+Administrative staff manage internal hospital operations and resources. Their responsibilities include:
+
+Processing and managing patient requests
+
+Allocating beds, wards, and non-clinical resources
+
+Managing inventory, assets, and staff schedules
+
+Updating operational statuses in real time
 
 ---
+
+### Ambulance Staff (Emergency Service Provider)
+
+Ambulance staff are responsible for emergency response and patient transport operations, including:
+
+Receiving and responding to ambulance dispatch requests
+
+Updating ambulance availability and location status
+
+Recording pickup, transfer, and drop-off events
+
+Coordinating with administrative staff during emergencies
 
 ### Admin (System Administrator)
 
@@ -58,21 +75,40 @@ Patients can access itemized billing information and complete secure online paym
 Patients can submit feedback or complaints, each assigned a unique reference ID for tracking and automated routing to the appropriate department.
 
 ---
+### Administrative Staff Features
 
-### Administrative and Ambulance Staff Features
+### Appointment and Request Management
+Review and process patient appointment requests
+Handle escalations from triage-based prioritization
 
-#### Patient Movement Tracking
-Staff can record patient check-ins and transfers, maintaining a real-time movement history across departments and facilities.
+### Bed, Ward, and Resource Allocation
+Maintain real-time bed and ward occupancy
+Prevent double allocation of hospital resources
+Support efficient capacity planning
 
-#### Resource Allocation and Bed Management
-The system maintains live occupancy status of beds, rooms, and wards to prevent double allocation and support efficient resource planning.
-
-#### Inventory and Asset Management
+### Inventory and Asset Management
 Administrative staff can manage hospital assets and consumables with automated alerts for:
-- Low stock levels  
+Low stock levels
+Asset maintenance or replacement needs
 
-#### Staff Shift and Availability Management
-Duty rosters and leave schedules can be managed digitally, with automated conflict detection to identify understaffed shifts in advance.
+### Staff Shift and Availability Management
+Manage duty rosters and leave schedules
+Detect staffing conflicts or understaffed shifts in advance
+
+---
+### Ambulance Staff Features
+
+### Ambulance Dispatch Management
+Receive emergency dispatch requests
+Accept or acknowledge assigned trips
+
+### Real-Time Location and Availability Updates
+Update ambulance availability status
+Share live location data for routing and coordination
+
+### Emergency Transport Tracking
+Record pickup time, transport progress, and patient drop-off
+Notify administrative staff upon patient arrival
 
 ---
 
