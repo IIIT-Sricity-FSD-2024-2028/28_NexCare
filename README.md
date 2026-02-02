@@ -112,6 +112,8 @@ Notify administrative staff upon patient arrival
 
 ---
 
+---
+
 ### Admin Features
 
 #### Centralized Operations Dashboard
