@@ -13,7 +13,7 @@ In many hospitals, everyday administrative operations remain slow and fragmented
 
 ## 2. Identified Actors
 
-### Patient (User / Customer)
+### Patient
 
 The patient is the primary service requester who interacts with the system to:
 - Book appointments based on urgency  
@@ -23,7 +23,7 @@ The patient is the primary service requester who interacts with the system to:
 
 ---
 
-### Administrative Staff (Service Provider)
+### Administrative Staff 
 
 Administrative staff manage internal hospital operations and resources. Their responsibilities include:
 - Processing and managing patient requests
@@ -33,7 +33,7 @@ Administrative staff manage internal hospital operations and resources. Their re
 
 ---
 
-### Ambulance Staff (Emergency Service Provider)
+### Ambulance Staff 
 
 Ambulance staff are responsible for emergency response and patient transport operations, including:
 - Receiving and responding to ambulance dispatch requests
@@ -43,7 +43,7 @@ Ambulance staff are responsible for emergency response and patient transport ope
 
 ---
 
-### Admin (System Administrator)
+### Admin 
 
 The admin oversees the overall platform and hospital operations, with responsibilities including:
 - Monitoring operational performance  
@@ -56,7 +56,7 @@ The admin oversees the overall platform and hospital operations, with responsibi
 
 ### Patient Features
 
-#### Triage-Based Appointment Booking
+#### Priority-Based Appointment Booking
 Patients can request appointments that are automatically prioritized using a triage mechanism. Each request generates a unique EMR token for tracking and reference.
 
 #### Emergency Ambulance Requests
