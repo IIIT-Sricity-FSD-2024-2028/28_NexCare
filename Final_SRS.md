@@ -489,7 +489,7 @@ This section provides practical guidance on how to test and validate each NFR ca
 
 <div style="page-break-before: always;"></div>
 
-### 3 Sequence Diagram
+### 3. Sequence Diagram
 
 <img width="1762" height="1989" alt="sequence_new_3 drawio" src="https://github.com/user-attachments/assets/132d1f30-b451-4aac-842c-d1ed098ca2aa" />
 
