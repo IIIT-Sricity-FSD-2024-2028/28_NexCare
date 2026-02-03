@@ -190,14 +190,6 @@ InventoryItem:
   aliases:
     - StockItem
 
-Vendor:
-  definition: >
-    An external entity supplying goods or services to the hospital.
-  examples:
-    - Medical equipment supplier
-  aliases:
-    - Supplier
-
 Report:
   definition: >
     A summarized view of hospital operations used for monitoring
