@@ -112,8 +112,6 @@ This document defines the functional requirements for the Hospital Administrativ
 | **Triage** | A prioritisation process that classifies patients by urgency to determine appointment order. |
 | **CPR Ambulance** | An ambulance unit equipped with a Cardiopulmonary Resuscitation team and advanced life-support equipment. |
 | **Pre-authorisation** | Mandatory insurance approval required before a cashless treatment can be initiated. |
-| **AMC** | Annual Maintenance Contract – a scheduled service agreement for biomedical equipment. |
-| **CMC** | Complete Maintenance Care – a comprehensive care plan covering medical machinery upkeep. |
 | **SPOC** | Single Point of Contact – the administrative coordinator in the emergency department. |
 
 ---
@@ -139,7 +137,7 @@ System actors represent external services that integrate with the platform to fu
 |---|---|
 | **Notification Service** | Sends automated alerts to patients and staff regarding feedback acknowledgement, appointment updates, and check-in status changes. Also receives triggers from the Wait-Time & Bottleneck Detection module. |
 | **Payment Gateway** | Processes online bill payments initiated by patients and confirms transaction status back to the platform. |
-| **Triage System** | Classifies incoming patients by urgency and feeds priority data into the appointment booking and management workflows. |
+| **Priority Assessment System** | Classifies incoming patients by urgency and feeds priority data into the appointment booking and management workflows. |
 | **GPS Tracking System** | Provides real-time geolocation of ambulance units during dispatch and en-route travel. |
 | **Reporting System** | Aggregates operational data across all modules and generates dashboards and summary reports for the Admin. |
 
@@ -452,7 +450,9 @@ This section provides practical guidance on how to test and validate each NFR ca
 ##  UML Diagrams
 
 ### 1. Use Case Diagram
-<img src="https://github.com/user-attachments/assets/efe131ad-b08c-4bd9-97c5-0e488fe49f7d" alt="Use Case Diagram" style="max-height: 900px; width: auto; display: block; margin: 0 auto;" />
+
+<img width="684" height="1006" alt="use_case_3 drawio" src="https://github.com/user-attachments/assets/ba2d28a6-da0f-4046-ad40-a61c352c9788" />
+
 
 ### 2. Activity Diagrams
 
@@ -495,5 +495,7 @@ This section provides practical guidance on how to test and validate each NFR ca
 <div style="page-break-before: always;"></div>
 
 ### 3 Sequence Diagram
-<img src="https://github.com/user-attachments/assets/fd7c1253-c977-4a08-9d82-a4b4b9e3a760" />
+
+<img width="1762" height="1989" alt="sequence_new_3 drawio" src="https://github.com/user-attachments/assets/132d1f30-b451-4aac-842c-d1ed098ca2aa" />
+
 
