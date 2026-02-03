@@ -62,12 +62,7 @@ The system shall allow administrative staff to create and manage staff schedules
 
 ---
 
-### **UR-9 Wait-Time & Bottleneck Monitoring**
-The system shall allow administrative staff to monitor patient wait times and identify service bottlenecks affecting hospital operations.
-
----
-
-### **UR-10 Operations Dashboard & Reporting**
+### **UR-9 Operations Dashboard & Reporting**
 The system shall provide hospital management with dashboards, operational reports, and audit logs to monitor overall hospital performance.
 
 ---
