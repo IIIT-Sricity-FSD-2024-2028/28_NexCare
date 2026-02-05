@@ -46,7 +46,6 @@ The purpose of this problem statement is to digitally support and streamline hos
 | Administrative Triage | Non-clinical prioritization based on urgency and logistics               |
 | Bed Blocking          | Temporarily marking a room unavailable due to maintenance or cleaning    |
 | Referral Coordination | Administrative handling of patient transfers between hospitals           |
-| Pre-Authorization     | Insurance approval process for cashless administrative cases             |
 | Inventory Audit       | Periodic verification of non-clinical hospital resources                 |
 
 ---
@@ -55,55 +54,48 @@ The purpose of this problem statement is to digitally support and streamline hos
 
 (Actors aligned with the **non-clinical use case diagram**)
 
-| Actor / Role         | Responsibilities                                                          |
-| -------------------- | ------------------------------------------------------------------------- |
-| Patient              | Books appointments, provides required documents, requests services        |
-| Admin                | Overall coordination, approvals, monitoring workflows, policy enforcement |
-| Administrative Staff | Front-office operations, appointment handling, SPOC communication         |
-| Ambulance Staff      | Patient transport coordination and communication with admin/helpdesk      |
+| Actor / Role         | Responsibilities |
+|----------------------|------------------|
+| Patient              | Books appointments, requests services, provides feedback |
+| Admin                | Overall coordination, approvals, monitoring workflows |
+| Administrative Staff | Front-office operations, appointment handling, coordination |
+| Ambulance Staff      | Patient transport and status updates |
 
 ---
 
 ## Core Workflows
 
-### Workflow 1: Non-Clinical Appointment Management
+### Workflow 1: Appointment & Queue Management
 
-* **Trigger / Start Condition:** Patient books an online appointment or arrives as a walk-in
+* **Trigger / Start Condition:** Patient books an online appointment or walks in
 * **Steps Involved:**
-
-  1. Appointment token generated through HMIS
-  2. Patient details verified at the helpdesk
-  3. Token called using a digital queue or display system
-  4. No-show tokens are skipped automatically
-  5. Walk-in patients are adjusted between available slots
-* **Outcome / End Condition:** Appointment process completed and patient routed to the appropriate administrative stage
-
----
+  1. Appointment token generated via HMIS
+  2. Patient details verified at helpdesk
+  3. Token called using digital queue system
+  4. No-show tokens are skipped
+  5. Walk-in patients are adjusted between slots
+* **Outcome / End Condition:** Patient successfully routed for consultation
 
 ### Workflow 2: Ambulance Coordination (Administrative)
 
-* **Trigger / Start Condition:** Emergency or transfer request received by helpdesk or SPOC
+* **Trigger / Start Condition:** Emergency or transfer request received by helpdesk
 * **Steps Involved:**
-
   1. Request received and logged in the system
-  2. Basic location and urgency details collected
-  3. Ambulance type identified based on logistical needs
-  4. Admin approval obtained and ambulance dispatched
-  5. Receiving department or facility notified
-* **Outcome / End Condition:** Ambulance dispatched and administrative handover completed
-
----
+  2. Location and basic details collected
+  3. Ambulance type identified
+  4. Admin approves and dispatches ambulance
+  5. Receiving department is informed
+* **Outcome / End Condition:** Ambulance dispatched and handover completed
 
 ### Workflow 3: Referral and Transfer Management
 
-* **Trigger / Start Condition:** Infrastructure unavailability or administrative transfer requirement
+* **Trigger / Start Condition:** Infrastructure unavailability or transfer requirement
 * **Steps Involved:**
-
-  1. Non-clinical feasibility check (beds, rooms, equipment availability)
-  2. Consent collected from patient or attendant
-  3. Receiving hospital or facility contacted
+  1. Non-clinical feasibility check (beds, equipment)
+  2. Consent collected from patient/attendant
+  3. Receiving hospital contacted
   4. Transfer details recorded in the system
-* **Outcome / End Condition:** Transfer completed with proper administrative closure
+* **Outcome / End Condition:** Administrative transfer process completed
 
 ---
 
@@ -111,35 +103,34 @@ The purpose of this problem statement is to digitally support and streamline hos
 
 ### Mandatory Rules / Policies
 
-* Emergency-related requests receive administrative priority
-* Consent is mandatory before any transfer or referral
-* Insurance pre-authorization is required for cashless processing
+* Emergency cases receive administrative priority
+* Consent is mandatory before transfers
+* All billing actions must be logged and auditable
 
 ### Constraints / Limitations
 
-* Dependency on infrastructure and resource availability
-* Insurance policy and provider restrictions
-* Vendor response time for maintenance and logistics
+* Dependency on infrastructure availability
+* Vendor response time for maintenance
+* Peak-hour operational load
 
 ### Common Exceptions / Edge Cases
 
 * Sudden walk-in emergencies
-* Late arrivals for scheduled appointments
-* Infrastructure or equipment breakdown during peak hours
+* Late arrival for scheduled appointments
+* Equipment breakdown during peak hours
 
 ### Situations Where Things Usually Go Wrong
 
-* Delays in insurance approvals
 * Miscommunication between administrative departments
+* Delays during peak operational hours
 * Patient dissatisfaction due to waiting times or lack of updates
 
 ---
 
 ## Current Challenges and Pain Points
 
-* Delays in insurance processing due to documentation or policy mismatches
-* Limited real-time visibility into infrastructure readiness
-* Managing patient expectations during administrative delays
+* Difficulty tracking infrastructure readiness in real time
+* Managing patient expectations during delays
 * Coordinating multiple non-clinical actors simultaneously
 
 ---
@@ -148,7 +139,7 @@ The purpose of this problem statement is to digitally support and streamline hos
 
 ### Confirmed Assumptions
 
-* Core hospital administrative processes are partially digitized
+* Core hospital administration is already partially digitized
 * Human intervention remains essential in hospital administration
 
 ### Corrected Assumptions
@@ -157,5 +148,5 @@ The purpose of this problem statement is to digitally support and streamline hos
 
 ### Open Questions / Follow-ups
 
-* Can insurance workflows be further streamlined using automation?
-* Can vendor and maintenance status be integrated in real time into the system?
+* Can infrastructure and vendor maintenance status be integrated in real time?
+* Can feedback resolution timelines be better visualized in dashboards?
