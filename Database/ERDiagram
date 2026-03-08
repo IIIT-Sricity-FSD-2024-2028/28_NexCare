@@ -1,0 +1,12 @@
+# NexCare Hospital – ER Diagram Introduction
+
+The Entity Relationship (ER) diagram for the **NexCare Hospital Management System** represents the structure and relationships of the main data entities involved in managing hospital operations. The purpose of this ER model is to design a clear and organized database structure that supports efficient storage, retrieval, and management of hospital information.
+
+The system focuses on several core entities including **Patient, Doctor, Appointment, Administrative Staff, SPOC, Inventory, Ambulance Staff, Ambulance Requests, Billing, Payments, and Feedback**. Each entity represents a real-world object within the hospital environment and contains attributes that describe its properties. For example, the **Patient** entity stores details such as patient ID, name, date of birth, gender, contact information, and address, while the **Doctor** entity includes details like doctor ID, name, specialization, and contact information.
+
+The ER diagram also models the relationships between these entities. Patients can schedule **appointments** with doctors, which are managed by administrative staff. The hospital also manages **ambulance services**, where ambulance staff handle requests made for patient transportation. In addition, the system maintains **inventory records** to track medical supplies and equipment availability.
+
+For financial operations, the system includes **billing and payment management**. Each patient may generate bills that are processed by administrative staff, and payments are handled through various **payment gateways**. To improve service quality, the system also collects **patient feedback**, which helps the hospital monitor satisfaction and identify areas for improvement.
+
+Overall, the ER diagram provides a conceptual blueprint for the **NexCare Hospital database**, ensuring that all important hospital processes such as patient care, appointment scheduling, resource management, billing, and feedback are properly organized and interconnected. This design helps maintain data integrity, reduce redundancy, and support the efficient functioning of the hospital management system.
+
