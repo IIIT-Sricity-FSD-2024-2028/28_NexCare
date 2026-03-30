@@ -1,0 +1,207 @@
+/* Base Variables */
+:root {
+    --primary-blue: #0076b6;
+    --light-bg: #e8f7fa;
+    --white: #ffffff;
+    --text-dark: #333333;
+    --text-muted: #666666;
+    --border-color: #cccccc;
+    --border-radius: 12px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.auth-wrapper {
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+}
+
+/* Logo Header */
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo-container img {
+    height: 40px; /* Adjust based on your actual logo image */
+}
+
+/* Main Card */
+.auth-card {
+    display: flex;
+    background-color: var(--light-bg);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    min-height: 550px;
+}
+
+/* Reverses layout for Sign Up page */
+.auth-card.reverse {
+    flex-direction: row-reverse;
+}
+
+/* Form Section */
+.auth-form-section {
+    flex: 1;
+    padding: 40px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-form-section h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 30px;
+    color: var(--text-dark);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: transparent;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+/* Radio Button Grid for Roles */
+.role-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.role-option {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.role-option input {
+    margin-right: 8px;
+}
+
+/* Checkbox & Forgot Password Row */
+.form-actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.form-actions-row a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.btn-primary:hover {
+    background-color: #005f94;
+}
+
+/* The pulse icon on the button */
+.btn-primary::after {
+    content: '〰️'; /* You can replace this with an SVG or FontAwesome icon */
+    position: absolute;
+    right: 15px;
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.auth-links a {
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+
+/* Or Divider */
+.or-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--text-muted);
+    margin: 20px 0;
+}
+
+.or-divider::before, .or-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.or-divider:not(:empty)::before { margin-right: .5em; }
+.or-divider:not(:empty)::after { margin-left: .5em; }
+
+/* Google Button */
+.btn-google {
+    background-color: transparent;
+    border: 1px solid var(--text-dark);
+    padding: 10px;
+    width: 100%;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+}
+
+.btn-google img {
+    height: 18px;
+    margin-right: 10px;
+}
+
+/* Image Section */
+.auth-image-section {
+    flex: 1;
+    /* UPDATE THIS PATH to where you save that wave image in your repo */
+    background-image: url('../assets/wave-image.png'); 
+    background-size: cover;
+    background-position: center;
+}
