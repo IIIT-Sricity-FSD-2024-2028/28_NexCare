@@ -11,18 +11,18 @@
 <body>
 
     <div class="auth-wrapper">
-        <div class="logo-container"
-            style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-            <img src="../assets/logo.png" alt="NexCare Logo" style="height: 40px; margin-right: 12px;">
-            <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #0076b6; letter-spacing: 1px;">NEX CARE</h1>
+        <div class="logo-container" style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+            <h2 style="color: #000000; font-weight: 900; display: flex; align-items: center; margin: 0; font-size: 28px;">
+                <img src="../assets/logo.png" alt="NexCare Logo" style="height: 35px; margin-right: 10px;"> 
+                NEX CARE
+            </h2> 
         </div>
 
         <div class="auth-card reverse">
-
             <div class="auth-form-section">
                 <h2>SIGN UP</h2>
 
-                <form>
+                <form id="signupForm">
                     <div class="form-group">
                         <label>Full Name</label>
                         <input type="text" class="form-control" required>
@@ -60,6 +60,24 @@
         </div>
     </div>
 
+    <script src="../shared/session.js"></script>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevents the page from refreshing
+            
+            console.log("Signup triggered...");
+
+            // Check if session.js is loaded correctly
+            if (typeof loginUser === "function") {
+                // For the prototype, we assume everyone signing up is a 'superuser' 
+                // to get them to your dashboard
+                loginUser('superuser'); 
+            } else {
+                alert("Error: session.js could not be found. Check your folder paths!");
+            }
+        });
+    </script>
 </body>
 
 </html>

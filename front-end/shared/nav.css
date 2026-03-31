@@ -1,0 +1,55 @@
+/* Sidebar Container */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #001f3f; /* Deep Hospital Blue */
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.sidebar-brand {
+    padding: 0 20px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.nav-menu {
+    flex-grow: 1;
+    margin-top: 20px;
+}
+
+.nav-item {
+    padding: 15px 25px;
+    display: block;
+    color: #aab7c4;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.nav-item:hover, .nav-item.active {
+    background-color: #003366;
+    color: white;
+}
+
+.logout-btn {
+    padding: 15px 25px;
+    background-color: #d9534f;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    margin-top: auto;
+}
+
+/* Push content to the right so it doesn't hide behind sidebar */
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+}

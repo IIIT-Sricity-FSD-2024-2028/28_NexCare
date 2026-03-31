@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCare - Super User Dashboard</title>
+    <link rel="stylesheet" href="../shared/nav.css">
+    <style>
+        /* Modern Dashboard Styling */
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .welcome-section {
+            margin-bottom: 30px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-top: 4px solid #0056b3;
+        }
+        .stat-card h3 { color: #666; font-size: 14px; margin-bottom: 10px; }
+        .stat-card p { font-size: 28px; font-weight: bold; color: #333; margin: 0; }
+    </style>
+</head>
+<body>
+
+    <main class="main-content">
+        <div class="welcome-section">
+            <h1>Super User Command Center</h1>
+            <p>Monitoring system-wide hospital operations.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Active Staff</h3>
+                <p>248</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Patients Today</h3>
+                <p>1,102</p>
+            </div>
+            <div class="stat-card">
+                <h3>Ambulance Requests</h3>
+                <p>14</p>
+            </div>
+            <div class="stat-card">
+                <h3>System Uptime</h3>
+                <p>99.9%</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="../shared/session.js"></script>
+    <script src="../shared/nav.js"></script>
+    
+    <script>
+        // Security Check: Make sure only 'superuser' can see this
+        document.addEventListener('DOMContentLoaded', () => {
+            const role = sessionStorage.getItem('nexcare_current_role');
+            if (role !== 'superuser') {
+                alert("Unauthorized Access. Redirecting to Login.");
+                window.location.href = '../auth/login.html';
+            }
+        });
+    </script>
+</body>
+</html>
