@@ -15,11 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="../superuser/manage-users.html" class="nav-item">Manage Users</a>
             <a href="../superuser/system-settings.html" class="nav-item">System Settings</a>
         `;
-    } else if (role === 'admin') {
+    } else if (role === 'administrative_staff') {
         navLinks = `
-            <a href="../admin/dashboard.html" class="nav-item">Operations Dashboard</a>
-            <a href="../admin/bed-allocation.html" class="nav-item">Bed Allocation</a>
-            <a href="../admin/reports.html" class="nav-item">Reports</a>
+            <a href="../administrative_staff/dashboard.html" class="nav-item">Operations Dashboard</a>
+            <a href="../administrative_staff/bed-allocation.html" class="nav-item">Bed Allocation</a>
+            <a href="../administrative_staff/reports.html" class="nav-item">Reports</a>
         `;
     } else if (role === 'patient') {
         navLinks = `

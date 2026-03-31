@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing & Payments - NexCare Patient Portal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="dashboard.html" aria-label="NexCare Patient Portal Home">
+            <nex-care-logo></nex-care-logo>
+            <span class="sidebar-brand-subtitle">Patient Portal</span>
+        </a>
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect width="8" height="8" x="2" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="2" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="12" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="12" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="appointments/appointments.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M6.667 1.667v3.333M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.917 7.5h14.166" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="2.5" y="3.333" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.667"/>
+                </svg>
+                <span>Appointments</span>
+            </a>
+            <a href="ambulance.html" class="nav-item">
+                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M17 8H15V6C15 4.89543 14.1046 4 13 4H5C3.89543 4 3 4.89543 3 6V16C3 17.1046 3.89543 18 5 18H6.18421C6.58354 19.165 7.69351 20 9 20C10.3065 20 11.4165 19.165 11.8158 18H16.1842C16.5835 19.165 17.6935 20 19 20C20.3065 20 21.4165 19.165 21.8158 18H23V14L20 10V8C20 6.89543 19.1046 6 18 6H17V8Z" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <path d="M15 8V12H20" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <path d="M7 11H11" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M9 9V13" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <circle cx="9" cy="18" r="2" stroke="#6B7280" stroke-width="1.5"/>
+  <circle cx="19" cy="18" r="2" stroke="#6B7280" stroke-width="1.5"/>
+</svg>
+
+                <span>Ambulance Request</span>
+            </a>
+            <a href="billing.html" class="nav-item active">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M2 8h16" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Billing & Payments</span>
+            </a>
+            <a href="feedback.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M14 2v4M2 8h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M6 12h2M12 12h2M6 15h2M12 15h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Feedback and Complaint</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M17 18c0-3.866-3.134-7-7-7s-7 3.134-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Profile</span>
+            </a>
+            <a href="../landing/landing.html" class="nav-item nav-logout">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M13 15l5-5-5-5M18 10H8M12 5v-.5a2 2 0 00-2-2H4a2 2 0 00-2 2v11a2 2 0 002 2h6a2 2 0 002-2V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Logout</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content billing-page">
+        <div class="billing-header">
+            <div class="billing-title">
+                <h1>Billing & Payment</h1>
+                <p>View your bills, payment history, and manage your payment methods securely.</p>
+            </div>
+        </div>
+
+        <div class="billing-content">
+            <div class="billing-left">
+                <!-- Pending Bill Alert -->
+                <div class="pending-bill-alert">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 9v4M12 17h.01" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="12" r="10" stroke="#10B981" stroke-width="2"/>
+                    </svg>
+                    <div>
+                        <h3>1 Pending Bill</h3>
+                        <p>No overdue bills • Due by 14 March, 2026</p>
+                    </div>
+                    <span class="badge badge-pending-lg">Pending</span>
+                </div>
+
+                <!-- Patient Information -->
+                <div class="billing-card">
+                    <h2>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="7" r="3" stroke="#0F172A" stroke-width="1.5"/>
+                            <path d="M17 18c0-3.866-3.134-7-7-7s-7 3.134-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Patient Information
+                    </h2>
+                    
+                    <div class="patient-info-grid">
+                        <div class="info-field">
+                            <label>Patient Name</label>
+                            <p class="info-value">Rajesh Kumar Patel</p>
+                        </div>
+                        <div class="info-field">
+                            <label>Patient ID</label>
+                            <p class="info-value">PAT-2026-00152</p>
+                        </div>
+                        <div class="info-field">
+                            <label>
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+                                    <path d="M13 9.917v1.75a1.167 1.167 0 01-1.273 1.166A11.662 11.662 0 016.561 11.02a11.481 11.481 0 01-3.54-3.54A11.662 11.662 0 011.167 2.273 1.167 1.167 0 012.333 1h1.75a1.167 1.167 0 011.167 1.002c.073.73.209 1.45.408 2.145a1.167 1.167 0 01-.263 1.232l-1.022 1.021a9.333 9.333 0 003.54 3.54l1.022-1.022a1.167 1.167 0 011.232-.262c.695.199 1.416.335 2.146.408A1.167 1.167 0 0113 9.917z" stroke="#6B7280" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Phone
+                            </label>
+                            <p class="info-value">+91 98765 43210</p>
+                        </div>
+                        <div class="info-field">
+                            <label>
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+                                    <path d="M2.333 2.333h9.334A1.167 1.167 0 0112.833 3.5v7a1.167 1.167 0 01-1.166 1.167H2.333A1.167 1.167 0 011.167 10.5v-7a1.167 1.167 0 011.166-1.167z" stroke="#6B7280" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12.833 3.5l-5.833 4.083L1.167 3.5" stroke="#6B7280" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Email
+                            </label>
+                            <p class="info-value">rajesh.patel@email.com</p>
+                        </div>
+                        <div class="info-field">
+                            <label>
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+                                    <path d="M5.833 1.167V3.5M8.167 1.167V3.5" stroke="#6B7280" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <rect x="1.75" y="2.333" width="10.5" height="10.5" rx="1.75" stroke="#6B7280" stroke-width="1.17"/>
+                                    <path d="M1.75 5.833h10.5" stroke="#6B7280" stroke-width="1.17"/>
+                                </svg>
+                                Visit Date
+                            </label>
+                            <p class="info-value">7 March, 2026</p>
+                        </div>
+                        <div class="info-field">
+                            <label>
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+                                    <rect x="1.75" y="3.5" width="10.5" height="8.167" rx="1.75" stroke="#6B7280" stroke-width="1.17"/>
+                                    <path d="M1.75 5.833h10.5" stroke="#6B7280" stroke-width="1.17"/>
+                                </svg>
+                                Bill ID
+                            </label>
+                            <p class="info-value">BILL-2026-03-00789</p>
+                        </div>
+                        <div class="info-field">
+                            <label>
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+                                    <path d="M5.833 1.167V3.5M8.167 1.167V3.5" stroke="#6B7280" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <rect x="1.75" y="2.333" width="10.5" height="10.5" rx="1.75" stroke="#6B7280" stroke-width="1.17"/>
+                                    <path d="M1.75 5.833h10.5" stroke="#6B7280" stroke-width="1.17"/>
+                                </svg>
+                                Due Date
+                            </label>
+                            <p class="info-value">14 March, 2026</p>
+                        </div>
+                        <div class="info-field">
+                            <label>
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+                                    <circle cx="7" cy="7" r="5.833" stroke="#6B7280" stroke-width="1.17"/>
+                                    <path d="M7 3.5V7l2.333 1.167" stroke="#6B7280" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Status
+                            </label>
+                            <p class="info-value">Pending</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Itemized Bill -->
+                <div class="billing-card">
+                    <h2>Itemized Bill</h2>
+                    <p class="card-subtitle">Detailed breakdown of charges</p>
+                    
+                    <div class="itemized-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Department</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Consultation Fee - Dr. Priya Sharma</td>
+                                    <td><span class="dept-badge dept-cardiology">Cardiology</span></td>
+                                    <td>07-03-2026</td>
+                                    <td>₹1200.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Blood Test - Complete Blood Count</td>
+                                    <td><span class="dept-badge dept-laboratory">Laboratory</span></td>
+                                    <td>07-03-2026</td>
+                                    <td>₹450.00</td>
+                                </tr>
+                                <tr>
+                                    <td>ECG Test</td>
+                                    <td><span class="dept-badge dept-cardiology">Cardiology</span></td>
+                                    <td>07-03-2026</td>
+                                    <td>₹600.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Medications - Prescribed</td>
+                                    <td><span class="dept-badge dept-pharmacy">Pharmacy</span></td>
+                                    <td>07-03-2026</td>
+                                    <td>₹650.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bill-summary">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span class="amount">₹2900.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>CGST (9%)</span>
+                            <span class="amount">₹261.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>SGST (9%)</span>
+                            <span class="amount">₹261.00</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total Amount</span>
+                            <span class="amount">₹3422.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Sidebar -->
+            <div class="billing-right">
+                <div class="payment-card">
+                    <h2>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <rect x="2" y="4" width="16" height="12" rx="2" stroke="#0F172A" stroke-width="1.5"/>
+                            <path d="M2 8h16" stroke="#0F172A" stroke-width="1.5"/>
+                        </svg>
+                        Payment
+                    </h2>
+                    <p class="card-subtitle">Complete your payment securely</p>
+
+                    <div class="amount-display">
+                        <p class="amount-label">Total Amount Due</p>
+                        <h1 class="amount-value">₹3422.00</h1>
+                    </div>
+
+                    <button class="btn-proceed-payment" onclick="showPaymentForm()">
+                        Proceed to Payment
+                    </button>
+
+                    <p class="payment-security">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M6 1L1 3.5v3a4.5 4.5 0 004.5 4.5h.5a4.5 4.5 0 004.5-4.5v-3L6 1z" stroke="#10B981" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4.5 6l1 1L7.5 5" stroke="#10B981" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Secure payment powered by NexCare Payment Gateway
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content payment-modal-content">
+            <div class="modal-header">
+                <h2>NexCare Hospital</h2>
+                <p>Billing & Payment Portal</p>
+                <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="payment-layout">
+                    <div class="payment-left-section">
+                        <!-- Patient Info in Modal -->
+                        <div class="modal-patient-info">
+                            <h3>
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                    <circle cx="9" cy="6.5" r="2.5" stroke="#0F172A" stroke-width="1.5"/>
+                                    <path d="M15 16a6 6 0 00-12 0" stroke="#0F172A" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                Patient Information
+                            </h3>
+                            
+                            <div class="modal-info-grid">
+                                <div>
+                                    <label>Patient Name</label>
+                                    <p>Rajesh Kumar Patel</p>
+                                </div>
+                                <div>
+                                    <label>Patient ID</label>
+                                    <p>PAT-2026-00152</p>
+                                </div>
+                                <div>
+                                    <label>Phone</label>
+                                    <p>+91 98765 43210</p>
+                                </div>
+                                <div>
+                                    <label>Email</label>
+                                    <p>rajesh.patel@email.com</p>
+                                </div>
+                                <div>
+                                    <label>Visit Date</label>
+                                    <p>5-6 March, 2026</p>
+                                </div>
+                                <div>
+                                    <label>Bill ID</label>
+                                    <p>BILL-2026-03-00789</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Itemized Bill in Modal -->
+                        <div class="modal-itemized">
+                            <h3>Itemized Bill</h3>
+                            <p>Detailed breakdown of charges</p>
+                            
+                            <table class="modal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Department</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Consultation Fee - Dr. Priya Sharma</td>
+                                        <td><span class="dept-badge dept-cardiology">Cardiology</span></td>
+                                        <td>05-03-2026</td>
+                                        <td>₹1200.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Blood Test - Complete Blood Count</td>
+                                        <td><span class="dept-badge dept-laboratory">Laboratory</span></td>
+                                        <td>05-03-2026</td>
+                                        <td>₹450.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>ECG Test</td>
+                                        <td><span class="dept-badge dept-cardiology">Cardiology</span></td>
+                                        <td>05-03-2026</td>
+                                        <td>₹600.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>X-Ray - Chest</td>
+                                        <td><span class="dept-badge dept-radiology">Radiology</span></td>
+                                        <td>06-03-2026</td>
+                                        <td>₹800.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Medications - Prescribed</td>
+                                        <td><span class="dept-badge dept-pharmacy">Pharmacy</span></td>
+                                        <td>06-03-2026</td>
+                                        <td>₹650.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="modal-summary">
+                                <div class="summary-row">
+                                    <span>Subtotal</span>
+                                    <span>₹3700.00</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>CGST (9%)</span>
+                                    <span>₹333.00</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>SGST (9%)</span>
+                                    <span>₹333.00</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total Amount</span>
+                                    <span>₹4366.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-right-section">
+                        <div class="payment-form-card">
+                            <h3>
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                    <rect x="2" y="4" width="14" height="10" rx="2" stroke="#0F172A" stroke-width="1.5"/>
+                                    <path d="M2 7h14" stroke="#0F172A" stroke-width="1.5"/>
+                                </svg>
+                                Payment
+                            </h3>
+                            <p>Complete your payment securely</p>
+
+                            <form id="paymentForm" class="payment-form">
+                                <div class="form-group">
+                                    <label for="paymentMethod">Payment Method</label>
+                                    <select id="paymentMethod" name="paymentMethod">
+                                        <option value="credit">Credit Card</option>
+                                        <option value="debit">Debit Card</option>
+                                        <option value="upi">UPI</option>
+                                        <option value="netbanking">Net Banking</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="cardholderName">Cardholder Name</label>
+                                    <input type="text" id="cardholderName" name="cardholderName" placeholder="Rajesh" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="cardNumber">Card Number</label>
+                                    <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 6789 0123 4567" maxlength="19" required>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="expiryDate">Expiry Date</label>
+                                        <input type="text" id="expiryDate" name="expiryDate" placeholder="12/30" maxlength="5" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cvv">CVV</label>
+                                        <input type="text" id="cvv" name="cvv" placeholder="123" maxlength="3" required>
+                                    </div>
+                                </div>
+
+                                <div class="amount-charged">
+                                    Amount to be charged: <strong>₹4366.00</strong>
+                                </div>
+
+                                <button type="submit" class="btn-pay-now">Pay Now</button>
+                                <button type="button" class="btn-cancel" onclick="closePaymentModal()">Cancel</button>
+
+                                <p class="payment-info">
+                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                        <path d="M6 1L1 3.5v3a4.5 4.5 0 004.5 4.5h.5a4.5 4.5 0 004.5-4.5v-3L6 1z" stroke="#10B981" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M4.5 6l1 1L7.5 5" stroke="#10B981" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Your payment information is encrypted and secure
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../logo.js"></script>
+    <script src="dataStore.js"></script>
+    <script src="billing.js"></script>
+</body>
+</html>

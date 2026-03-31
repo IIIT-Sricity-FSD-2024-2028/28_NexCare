@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambulance Request - NexCare Patient Portal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="dashboard.html" aria-label="NexCare Patient Portal Home">
+            <nex-care-logo></nex-care-logo>
+            <span class="sidebar-brand-subtitle">Patient Portal</span>
+        </a>
+
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect width="8" height="8" x="2" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="2" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="12" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="12" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="appointments/appointments.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M6.667 1.667v3.333M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.917 7.5h14.166" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="2.5" y="3.333" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.667"/>
+                </svg>
+                <span>Appointments</span>
+            </a>
+            <a href="ambulance.html" class="nav-item active">
+                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M17 8H15V6C15 4.89543 14.1046 4 13 4H5C3.89543 4 3 4.89543 3 6V16C3 17.1046 3.89543 18 5 18H6.18421C6.58354 19.165 7.69351 20 9 20C10.3065 20 11.4165 19.165 11.8158 18H16.1842C16.5835 19.165 17.6935 20 19 20C20.3065 20 21.4165 19.165 21.8158 18H23V14L20 10V8C20 6.89543 19.1046 6 18 6H17V8Z" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <path d="M15 8V12H20" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <path d="M7 11H11" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M9 9V13" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <circle cx="9" cy="18" r="2" stroke="#6B7280" stroke-width="1.5"/>
+  <circle cx="19" cy="18" r="2" stroke="#6B7280" stroke-width="1.5"/>
+</svg>
+
+                <span>Ambulance Request</span>
+            </a>
+            <a href="billing.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M2 8h16" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Billing & Payments</span>
+            </a>
+            <a href="feedback.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M14 2v4M2 8h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M6 12h2M12 12h2M6 15h2M12 15h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Feedback and Complaint</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M17 18c0-3.866-3.134-7-7-7s-7 3.134-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Profile</span>
+            </a>
+            <a href="../landing/landing.html" class="nav-item nav-logout">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M13 15l5-5-5-5M18 10H8M12 5v-.5a2 2 0 00-2-2H4a2 2 0 00-2 2v11a2 2 0 002 2h6a2 2 0 002-2V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Logout</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content ambulance-page">
+        <div class="ambulance-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M10 10H6M8 8v4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 18h6M15 18a2 2 0 104 0 2 2 0 00-4 0zM5 18a2 2 0 104 0 2 2 0 00-4 0z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 6h8v12H2zM10 10h4l3 3v5h-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div>
+                <h1>Ambulance Request</h1>
+                <p>Submit your ambulance request. Our team will respond immediately.</p>
+            </div>
+        </div>
+
+        <div class="ambulance-content">
+            <div class="emergency-alert">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 9v4M12 17h.01" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div>
+                    <h3>Emergency Service</h3>
+                    <p>For life-threatening emergencies, please call <strong>108</strong> immediately. This form is for non-critical ambulance service requests.</p>
+                </div>
+            </div>
+
+            <div class="ambulance-form-card">
+                <h2>Request Ambulance Service</h2>
+                
+                <form id="ambulanceForm" class="ambulance-form">
+                    <div class="form-group">
+                        <label for="pickupLocation">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M15.75 7.5c0 4.5-6.75 9.75-6.75 9.75S2.25 12 2.25 7.5a6.75 6.75 0 0113.5 0z" stroke="#0F172A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="9" cy="7.5" r="2.25" stroke="#0F172A" stroke-width="1.5"/>
+                            </svg>
+                            Pickup Location *
+                        </label>
+                        <input type="text" id="pickupLocation" name="pickupLocation" placeholder="Enter full address or current location" required>
+                        <p class="form-help">Please provide complete address including street, city, and landmark.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactNumber">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M16.5 12.75v2.25a1.5 1.5 0 01-1.636 1.5 14.994 14.994 0 01-6.543-2.329 14.778 14.778 0 01-4.553-4.552A14.994 14.994 0 011.5 3.136 1.5 1.5 0 013 1.5h2.25a1.5 1.5 0 011.5 1.289 9.638 9.638 0 00.525 2.107 1.5 1.5 0 01-.337 1.584L5.625 7.793a12 12 0 004.553 4.552l1.313-1.313a1.5 1.5 0 011.584-.337 9.638 9.638 0 002.107.525 1.5 1.5 0 011.318 1.53z" stroke="#0F172A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Contact Phone Number *
+                        </label>
+                        <input type="tel" id="contactNumber" name="contactNumber" placeholder="Enter your contact number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additionalNotes">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M14 2H6a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2z" stroke="#0F172A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 10H6M12 14H6M8 6H6" stroke="#0F172A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Additional Notes (Optional)
+                        </label>
+                        <textarea id="additionalNotes" name="additionalNotes" rows="4" placeholder="Any special instructions, patient condition, or other important details"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-request-ambulance">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 10H6M8 8v4M9 18h6M15 18a2 2 0 104 0 2 2 0 00-4 0zM5 18a2 2 0 104 0 2 2 0 00-4 0z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 6h8v12H2zM10 10h4l3 3v5h-7" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Request Ambulance
+                    </button>
+                </form>
+            </div>
+
+            <div class="request-status-card">
+                <h2>Request Status</h2>
+                
+                <div class="status-table-container">
+                    <table class="status-table">
+                        <thead>
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Request Time</th>
+                                <th>Pickup Location</th>
+                                <th>Contact</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>AMB-2026-001</td>
+                                <td>
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:inline-block; margin-right:6px; vertical-align:middle;">
+                                        <circle cx="8" cy="8" r="6" stroke="#6A7282" stroke-width="1.33"/>
+                                        <path d="M8 4v4l2.667 1.333" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Mar 8, 2026 - 10:30 AM
+                                </td>
+                                <td>123 Main Street, Downtown</td>
+                                <td>+1 (555) 123-4567</td>
+                                <td><span class="badge badge-completed">Completed</span></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>AMB-2026-002</td>
+                                <td>
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:inline-block; margin-right:6px; vertical-align:middle;">
+                                        <circle cx="8" cy="8" r="6" stroke="#6A7282" stroke-width="1.33"/>
+                                        <path d="M8 4v4l2.667 1.333" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Mar 5, 2026 - 2:15 PM
+                                </td>
+                                <td>456 Oak Avenue, Westside</td>
+                                <td>+1 (555) 123-4567</td>
+                                <td><span class="badge badge-completed">Completed</span></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>AMB-2026-003</td>
+                                <td>
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:inline-block; margin-right:6px; vertical-align:middle;">
+                                        <circle cx="8" cy="8" r="6" stroke="#6A7282" stroke-width="1.33"/>
+                                        <path d="M8 4v4l2.667 1.333" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Feb 28, 2026 - 9:45 AM
+                                </td>
+                                <td>789 Pine Road, Northside</td>
+                                <td>+1 (555) 123-4567</td>
+                                <td><span class="badge badge-completed">Completed</span></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../logo.js"></script>
+    <script src="dataStore.js"></script>
+    <script src="ambulance.js"></script>
+</body>
+</html>

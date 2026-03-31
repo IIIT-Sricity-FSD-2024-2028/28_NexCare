@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - Step 1 - NexCare</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="booking-page">
+    <div class="booking-container">
+        <!-- Header -->
+        <div class="booking-header">
+            <h1>Book an Appointment</h1>
+            <p>Schedule your visit with our expert medical professionals. Choose your preferred department, date, and time.</p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step active">
+                <div class="step-circle">1</div>
+                <div class="step-label">Department</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-circle">2</div>
+                <div class="step-label">Date & Time</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <div class="step-label">Details</div>
+            </div>
+        </div>
+
+        <!-- Department Selection -->
+        <div class="booking-card">
+            <h2 class="card-title">Select Department</h2>
+            
+            <div class="department-grid">
+                <button class="department-card" data-department="Cardiology">
+                    <h3>Cardiology</h3>
+                    <p>Heart and cardiovascular care</p>
+                </button>
+                <button class="department-card" data-department="Orthopedics">
+                    <h3>Orthopedics</h3>
+                    <p>Bone and joint treatment</p>
+                </button>
+                <button class="department-card" data-department="Pediatrics">
+                    <h3>Pediatrics</h3>
+                    <p>Children's healthcare</p>
+                </button>
+                <button class="department-card" data-department="Neurology">
+                    <h3>Neurology</h3>
+                    <p>Brain and nervous system</p>
+                </button>
+                <button class="department-card" data-department="General Medicine">
+                    <h3>General Medicine</h3>
+                    <p>Primary care consultation</p>
+                </button>
+                <button class="department-card" data-department="Dermatology">
+                    <h3>Dermatology</h3>
+                    <p>Skin care and treatment</p>
+                </button>
+            </div>
+
+            <div class="booking-actions">
+                <button class="btn-back" onclick="window.location.href='appointments.html'">Back</button>
+                <button class="btn-continue" id="continueBtn" disabled>Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        let selectedDepartment = '';
+        const departmentCards = document.querySelectorAll('.department-card');
+        const continueBtn = document.getElementById('continueBtn');
+
+        departmentCards.forEach(card => {
+            card.addEventListener('click', function() {
+                departmentCards.forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedDepartment = this.dataset.department;
+                continueBtn.disabled = false;
+                
+                // Save to localStorage
+                localStorage.setItem('selectedDepartment', selectedDepartment);
+            });
+        });
+
+        continueBtn.addEventListener('click', function() {
+            if (selectedDepartment) {
+                window.location.href = 'book-appointment-step2.html';
+            }
+        });
+
+        // Load selected department from localStorage
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedDepartment = localStorage.getItem('selectedDepartment');
+            if (savedDepartment) {
+                departmentCards.forEach(card => {
+                    if (card.dataset.department === savedDepartment) {
+                        card.classList.add('selected');
+                        selectedDepartment = savedDepartment;
+                        continueBtn.disabled = false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -11,12 +11,9 @@
 <body>
 
     <div class="auth-wrapper">
-        <div class="logo-container" style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-            <h2 style="color: #000000; font-weight: 900; display: flex; align-items: center; margin: 0; font-size: 28px;">
-                <img src="../assets/logo.png" alt="NexCare Logo" style="height: 35px; margin-right: 10px;"> 
-                NEX CARE
-            </h2> 
-        </div>
+        <header class="header">
+        <nex-care-logo></nex-care-logo>
+    </header>
 
         <div class="auth-card reverse">
             <div class="auth-form-section">
@@ -48,7 +45,18 @@
                         <input type="password" class="form-control" required>
                     </div>
 
-                    <button type="submit" class="btn-primary" style="margin-top: 15px;">Sign up</button>
+                         <button type="submit" class="btn-primary">
+    Sign up
+    <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <polyline 
+        points="0,60 25,60 40,25 55,60 70,90 85,60 100,60"
+        fill="none"
+        stroke="white"
+        stroke-width="6"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+</svg>
+</button>
 
                     <div class="auth-links">
                         Already have an account? <a href="login.html">Sign in</a>
@@ -113,6 +121,7 @@
             }
         });
     </script>
+    <script src="../logo.js"></script>
 </body>
 
 </html>

@@ -8,15 +8,15 @@
     --border-color: #cccccc;
     --border-radius: 12px;
 }
-
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--white);
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh;
     margin: 0;
+    
 }
 
 .auth-wrapper {
@@ -26,15 +26,12 @@ body {
 }
 
 /* Logo Header */
-.logo-container {
-    text-align: center;
-    margin-bottom: 20px;
+.header { 
+    padding: 5px 0 15px 0; 
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
-
-.logo-container img {
-    height: 40px; /* Adjust based on your actual logo image */
-}
-
 /* Main Card */
 .auth-card {
     display: flex;
@@ -42,7 +39,7 @@ body {
     border-radius: var(--border-radius);
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    min-height: 550px;
+    min-height: 520px;
 }
 
 /* Reverses layout for Sign Up page */
@@ -53,7 +50,7 @@ body {
 /* Form Section */
 .auth-form-section {
     flex: 1;
-    padding: 40px 50px;
+    padding: 25px 35px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -62,7 +59,7 @@ body {
 .auth-form-section h2 {
     text-align: center;
     margin-top: 0;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     color: var(--text-dark);
 }
 
@@ -132,21 +129,23 @@ body {
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     position: relative;
+    text-align: center;   /* keeps text centered */
 }
 
 .btn-primary:hover {
     background-color: #005f94;
 }
 
-/* The pulse icon on the button */
-.btn-primary::after {
-    content: '〰️'; /* You can replace this with an SVG or FontAwesome icon */
+.btn-primary svg {
+    width: 26px;
+    height: 26px;
     position: absolute;
-    right: 15px;
+    right: 15px;          /* move to right edge */
+    top: 50%;
+    transform: translateY(-50%);
+    stroke: white;
+    fill: none;
 }
 
 .auth-links {
@@ -198,10 +197,19 @@ body {
 }
 
 /* Image Section */
+
 .auth-image-section {
     flex: 1;
-    /* UPDATE THIS PATH to where you save that wave image in your repo */
-    background-image: url('../assets/wave-image.png'); 
+    background-image: url('../assets/wave-image.png');
     background-size: cover;
     background-position: center;
+
+    transform: translateX(0);
+    transition: transform 1s ease;
 }
+
+/* default (login page) */
+.auth-card .auth-image-section {
+    transform: translateX(0);
+}
+
