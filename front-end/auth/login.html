@@ -7,15 +7,10 @@
     <link rel="stylesheet" href="auth.css">
 </head>
 <body>
-
     <div class="auth-wrapper">
-        <div class="logo-container">
-            <h2>
-                <img src="../assets/logo.png" alt="NexCare Logo" style="height: 30px; vertical-align: middle; margin-right: 10px;"> 
-                NEX CARE
-            </h2> 
-        </div>
-
+        <header class="header">
+        <nex-care-logo></nex-care-logo>
+    </header>
         <div class="auth-card">
             <div class="auth-form-section">
                 <h2>LOGIN</h2>
@@ -44,7 +39,7 @@
                             <input type="radio" name="role" value="patient" required> Patient
                         </label>
                         <label class="role-option">
-                            <input type="radio" name="role" value="admin" required> Admin (Operations)
+                            <input type="radio" name="role" value="administrative_staff" required> Admininstrative Staff
                         </label>
                         <label class="role-option">
                             <input type="radio" name="role" value="superuser" required> Super User (System)
@@ -54,7 +49,18 @@
                         </label>
                     </div>
 
-                    <button type="submit" class="btn-primary">Sign in</button>
+                    <button type="submit" class="btn-primary">
+    Sign in
+    <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <polyline 
+        points="0,60 25,60 40,25 55,60 70,90 85,60 100,60"
+        fill="none"
+        stroke="white"
+        stroke-width="6"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+</svg>
+</button>
                     
                     <div class="auth-links">
                         Don't have an account? <a href="signup.html">Sign up</a>
@@ -83,7 +89,7 @@
         // Mock Database of Valid Credentials
         const VALID_USERS = [
             { email: 'superuser@nexcare.com', password: 'Password123', role: 'superuser' },
-            { email: 'admin@nexcare.com', password: 'Password123', role: 'admin' },
+            { email: 'administrative_staff@nexcare.com', password: 'Password123', role: 'administrative_staff' },
             { email: 'ambulance@nexcare.com', password: 'Password123', role: 'ambulance' },
             { email: 'patient@gmail.com', password: 'Password123', role: 'patient' }
         ];
@@ -126,5 +132,6 @@
             }
         }
     </script>
+    <script src="../logo.js"></script>
 </body>
 </html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCare - Patient Portal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="dashboard.html" aria-label="NexCare Patient Portal Home">
+            <nex-care-logo></nex-care-logo>
+            <span class="sidebar-brand-subtitle">Patient Portal</span>
+        </a>
+
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item active">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect width="8" height="8" x="2" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="2" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="12" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="12" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="appointments/appointments.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M6.667 1.667v3.333M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.917 7.5h14.166" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="2.5" y="3.333" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.667"/>
+                </svg>
+                <span>Appointments</span>
+            </a>
+            <a href="ambulance.html" class="nav-item">
+               <svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M17 8H15V6C15 4.89543 14.1046 4 13 4H5C3.89543 4 3 4.89543 3 6V16C3 17.1046 3.89543 18 5 18H6.18421C6.58354 19.165 7.69351 20 9 20C10.3065 20 11.4165 19.165 11.8158 18H16.1842C16.5835 19.165 17.6935 20 19 20C20.3065 20 21.4165 19.165 21.8158 18H23V14L20 10V8C20 6.89543 19.1046 6 18 6H17V8Z" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <path d="M15 8V12H20" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <path d="M7 11H11" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M9 9V13" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <circle cx="9" cy="18" r="2" stroke="#6B7280" stroke-width="1.5"/>
+  <circle cx="19" cy="18" r="2" stroke="#6B7280" stroke-width="1.5"/>
+</svg>
+
+                <span>Ambulance Request</span>
+            </a>
+            <a href="billing.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M2 8h16" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Billing & Payments</span>
+            </a>
+            <a href="feedback.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M14 2v4M2 8h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M6 12h2M12 12h2M6 15h2M12 15h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Feedback and Complaint</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M17 18c0-3.866-3.134-7-7-7s-7 3.134-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Profile</span>
+            </a>
+            <a href="../landing/landing.html" class="nav-item nav-logout">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M13 15l5-5-5-5M18 10H8M12 5v-.5a2 2 0 00-2-2H4a2 2 0 00-2 2v11a2 2 0 002 2h6a2 2 0 002-2V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Logout</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="search-bar">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="9" cy="9" r="6" stroke="#6A7282" stroke-width="2"/>
+                    <path d="M14 14l4 4" stroke="#6A7282" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input type="text" placeholder="Search appointments, doctors, records...">
+            </div>
+            <div class="header-actions">
+                <button class="notification-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M18 8A6 6 0 1 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#4A5565" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="#4A5565" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="notification-badge"></span>
+                </button>
+                <button class="profile-btn">
+                    <div class="profile-avatar">JP</div>
+                    <div class="profile-info">
+                        <p class="profile-name">John Patient</p>
+                        <p class="profile-id">Patient ID: P12345</p>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M4 6l4 4 4-4" stroke="#99A1AF" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Welcome Back, John!</h1>
+                <p>Manage your healthcare services, appointments, and billing in one place.</p>
+                <button class="btn-primary" onclick="location.href='appointments/appointments.html'">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M6.667 1.667V5M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="2.5" y="3.333" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.667"/>
+                        <path d="M2.5 8.333h15M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Book Appointment
+                </button>
+            </div>
+        </section>
+
+        <!-- Stats Cards -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-info">
+                        <p class="stat-label">Upcoming Appointments</p>
+                        <h3 class="stat-value">4</h3>
+                    </div>
+                    <div class="stat-icon blue">
+                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                            <path d="M8.667 2.167V6.5M17.333 2.167V6.5" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="3.25" y="4.333" width="19.5" height="19.5" rx="2" stroke="#155DFC" stroke-width="2"/>
+                            <path d="M3.25 10.833h19.5" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-info">
+                        <p class="stat-label">Medical Records</p>
+                        <h3 class="stat-value">12</h3>
+                    </div>
+                    <div class="stat-icon green">
+                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                            <rect x="6.5" y="2.167" width="13" height="21.667" rx="2" stroke="#009689" stroke-width="2"/>
+                            <path d="M10.833 9.75H8.667M17.333 14.083H8.667M17.333 18.417H8.667" stroke="#009689" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-info">
+                        <p class="stat-label">Ambulance Requests</p>
+                        <h3 class="stat-value">0</h3>
+                    </div>
+                    <div class="stat-icon red">
+                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                            <path d="M10.833 10.833H6.5M8.667 8.667V13" stroke="#E7000B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9.75 19.5h6.5M16.25 19.5a2.167 2.167 0 104.333 0 2.167 2.167 0 00-4.333 0zM5.417 19.5a2.167 2.167 0 104.333 0 2.167 2.167 0 00-4.333 0z" stroke="#E7000B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2.167 6.5h8.666v13H2.167zM10.833 10.833h4.334l3.25 3.25v5.417h-7.584" stroke="#E7000B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-info">
+                        <p class="stat-label">Pending Bills</p>
+                        <h3 class="stat-value">2</h3>
+                    </div>
+                    <div class="stat-icon orange">
+                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                            <rect x="2.167" y="4.333" width="21.667" height="17.333" rx="2" stroke="#F54900" stroke-width="2"/>
+                            <path d="M2.167 10.833h21.667" stroke="#F54900" stroke-width="2"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Sections -->
+        <section class="content-sections">
+            <!-- Upcoming Appointments -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h2>Upcoming Appointments</h2>
+                </div>
+                <div class="appointments-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Doctor</th>
+                                <th>Department</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Dr. Sarah Chen</td>
+                                <td>Cardiology</td>
+                                <td>Mar 5, 2026</td>
+                                <td>10:00 AM</td>
+                                <td><span class="badge badge-confirmed">Confirmed</span></td>
+                                <td>
+                                    <button class="btn-icon" title="View">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <circle cx="8" cy="8" r="3" stroke="#4A5565" stroke-width="1.5"/>
+                                            <path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" stroke="#4A5565" stroke-width="1.5"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon" title="Reschedule">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M5.333 1.333V4M10.667 1.333V4" stroke="#4A5565" stroke-width="1.33" stroke-linecap="round"/>
+                                            <rect x="2" y="2.667" width="12" height="12" rx="2" stroke="#4A5565" stroke-width="1.33"/>
+                                            <path d="M2 6.667h12" stroke="#4A5565" stroke-width="1.33"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon" title="Cancel">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M12 4L4 12M4 4l8 8" stroke="#E7000B" stroke-width="1.33" stroke-linecap="round"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Dr. Michael Chan</td>
+                                <td>Orthopedics</td>
+                                <td>Mar 12, 2026</td>
+                                <td>2:30 PM</td>
+                                <td><span class="badge badge-pending">Pending</span></td>
+                                <td>
+                                    <button class="btn-icon" title="View">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <circle cx="8" cy="8" r="3" stroke="#4A5565" stroke-width="1.5"/>
+                                            <path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" stroke="#4A5565" stroke-width="1.5"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon" title="Reschedule">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M5.333 1.333V4M10.667 1.333V4" stroke="#4A5565" stroke-width="1.33" stroke-linecap="round"/>
+                                            <rect x="2" y="2.667" width="12" height="12" rx="2" stroke="#4A5565" stroke-width="1.33"/>
+                                            <path d="M2 6.667h12" stroke="#4A5565" stroke-width="1.33"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon" title="Cancel">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M12 4L4 12M4 4l8 8" stroke="#E7000B" stroke-width="1.33" stroke-linecap="round"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Dr. Emily Johnson</td>
+                                <td>Neurology</td>
+                                <td>Mar 15, 2026</td>
+                                <td>11:00 AM</td>
+                                <td><span class="badge badge-confirmed">Confirmed</span></td>
+                                <td>
+                                    <button class="btn-icon" title="View">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <circle cx="8" cy="8" r="3" stroke="#4A5565" stroke-width="1.5"/>
+                                            <path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" stroke="#4A5565" stroke-width="1.5"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon" title="Reschedule">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M5.333 1.333V4M10.667 1.333V4" stroke="#4A5565" stroke-width="1.33" stroke-linecap="round"/>
+                                            <rect x="2" y="2.667" width="12" height="12" rx="2" stroke="#4A5565" stroke-width="1.33"/>
+                                            <path d="M2 6.667h12" stroke="#4A5565" stroke-width="1.33"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon" title="Cancel">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M12 4L4 12M4 4l8 8" stroke="#E7000B" stroke-width="1.33" stroke-linecap="round"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Emergency Ambulance Request -->
+            <div class="section-card emergency-card">
+                <div class="emergency-header">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M10 10H6M8 8v4" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 18h6M15 18a2 2 0 104 0 2 2 0 00-4 0zM5 18a2 2 0 104 0 2 2 0 00-4 0z" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 6h8v12H2zM10 10h4l3 3v5h-7" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h2>Emergency Ambulance Request</h2>
+                </div>
+                <div class="emergency-content">
+                    <div class="form-group">
+                        <label>Pickup Location</label>
+                        <input type="text" placeholder="Enter your location">
+                    </div>
+                    <div class="form-group">
+                        <label>Emergency Type</label>
+                        <select>
+                            <option value="">Select emergency type</option>
+                            <option>Cardiac Emergency</option>
+                            <option>Accident</option>
+                            <option>Breathing Problem</option>
+                            <option>Severe Pain</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Number</label>
+                        <input type="tel" placeholder="Enter contact number">
+                    </div>
+                    <button class="btn-emergency">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 10H6M8 8v4M9 18h6M15 18a2 2 0 104 0 2 2 0 00-4 0zM5 18a2 2 0 104 0 2 2 0 00-4 0z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 6h8v12H2zM10 10h4l3 3v5h-7" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Request Ambulance
+                    </button>
+                </div>
+            </div>
+
+            <!-- Billing & Payments -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h2>Billing & Payments</h2>
+                </div>
+                <div class="billing-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bill ID</th>
+                                <th>Service</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>INV-001</td>
+                                <td>Cardiology Consultation</td>
+                                <td>Mar 5, 2026</td>
+                                <td><strong>₹250</strong></td>
+                                <td><span class="badge badge-pending">Pending</span></td>
+                                <td>
+                                    <button class="btn-primary-sm">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <rect x="1.333" y="3.333" width="13.333" height="9.333" rx="1.333" stroke="white" stroke-width="1.33"/>
+                                            <path d="M1.333 6.667h13.333" stroke="white" stroke-width="1.33"/>
+                                        </svg>
+                                        Pay Now
+                                    </button>
+                                    <button class="btn-icon" title="View">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <circle cx="8" cy="8" r="3" stroke="#4A5565" stroke-width="1.5"/>
+                                            <path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" stroke="#4A5565" stroke-width="1.5"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>INV-002</td>
+                                <td>Blood Complete Panel</td>
+                                <td>Feb 28, 2026</td>
+                                <td><strong>₹700</strong></td>
+                                <td><span class="badge badge-paid">Paid</span></td>
+                                <td>
+                                    <button class="btn-icon" title="View">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <circle cx="8" cy="8" r="3" stroke="#4A5565" stroke-width="1.5"/>
+                                            <path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" stroke="#4A5565" stroke-width="1.5"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon" title="Download">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M14 10v3.333A1.333 1.333 0 0112.667 14.667H3.333A1.333 1.333 0 012 13.333V10" stroke="#4A5565" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M4.667 6.667L8 10l3.333-3.333M8 10V1.333" stroke="#4A5565" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>INV-003</td>
+                                <td>X-Ray Imaging</td>
+                                <td>Feb 20, 2026</td>
+                                <td><strong>₹180</strong></td>
+                                <td><span class="badge badge-paid">Paid</span></td>
+                                <td>
+                                    <button class="btn-icon" title="View">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <circle cx="8" cy="8" r="3" stroke="#4A5565" stroke-width="1.5"/>
+                                            <path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" stroke="#4A5565" stroke-width="1.5"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon" title="Download">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M14 10v3.333A1.333 1.333 0 0112.667 14.667H3.333A1.333 1.333 0 012 13.333V10" stroke="#4A5565" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M4.667 6.667L8 10l3.333-3.333M8 10V1.333" stroke="#4A5565" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>INV-004</td>
+                                <td>Physical Therapy Session</td>
+                                <td>Mar 1, 2026</td>
+                                <td><strong>₹90</strong></td>
+                                <td><span class="badge badge-pending">Pending</span></td>
+                                <td>
+                                    <button class="btn-primary-sm">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <rect x="1.333" y="3.333" width="13.333" height="9.333" rx="1.333" stroke="white" stroke-width="1.33"/>
+                                            <path d="M1.333 6.667h13.333" stroke="white" stroke-width="1.33"/>
+                                        </svg>
+                                        Pay Now
+                                    </button>
+                                    <button class="btn-icon" title="View">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <circle cx="8" cy="8" r="3" stroke="#4A5565" stroke-width="1.5"/>
+                                            <path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" stroke="#4A5565" stroke-width="1.5"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Medical Records -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h2>Medical Records</h2>
+                </div>
+                <div class="records-grid">
+                    <div class="record-card">
+                        <div class="record-icon blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="record-info">
+                            <h3>Complete Blood Count Test</h3>
+                            <p>Dr. Sarah Chen - Cardiology</p>
+                            <p class="record-date">Mar 2, 2026</p>
+                        </div>
+                        <div class="record-actions">
+                            <button class="btn-primary-sm">View</button>
+                            <button class="btn-outline-sm">Download</button>
+                        </div>
+                    </div>
+
+                    <div class="record-card">
+                        <div class="record-icon blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="record-info">
+                            <h3>Chest X-Ray Report</h3>
+                            <p>Dr. James Wilson - Radiology</p>
+                            <p class="record-date">Feb 25, 2026</p>
+                        </div>
+                        <div class="record-actions">
+                            <button class="btn-primary-sm">View</button>
+                            <button class="btn-outline-sm">Download</button>
+                        </div>
+                    </div>
+
+                    <div class="record-card">
+                        <div class="record-icon blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="record-info">
+                            <h3>ECG Report</h3>
+                            <p>Dr. Emily Johnson - Cardiology</p>
+                            <p class="record-date">Feb 18, 2026</p>
+                        </div>
+                        <div class="record-actions">
+                            <button class="btn-primary-sm">View</button>
+                            <button class="btn-outline-sm">Download</button>
+                        </div>
+                    </div>
+
+                    <div class="record-card">
+                        <div class="record-icon blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="record-info">
+                            <h3>Annual Physical Examination</h3>
+                            <p>Dr. Robert Stone - General Medicine</p>
+                            <p class="record-date">Jan 15, 2026</p>
+                        </div>
+                        <div class="record-actions">
+                            <button class="btn-primary-sm">View</button>
+                            <button class="btn-outline-sm">Download</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="../logo.js"></script>
+    <script src="dataStore.js"></script>
+    <script src="script.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

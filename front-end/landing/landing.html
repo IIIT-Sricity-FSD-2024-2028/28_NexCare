@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NexCare - Hospital Operational Administration System</title>
     <link rel="stylesheet" href="landing.css">
-
+    
 </head>
-
 <body>
     <!-- Navbar -->
     <nav id="navbar">
@@ -27,9 +25,8 @@
 
                 <!-- Auth Buttons -->
                 <div class="auth-buttons">
-                    <a href="../auth/login.html" class="btn-signin" style="text-decoration: none;">Sign In</a>
-                    <a href="../auth/signup.html" class="btn-primary"
-                        style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">Register</a>
+                    <a href="../auth/login.html" class="btn-signin">Sign In </a>
+                    <a href="../auth/signup.html" class="btn-primary">Register</a>
                 </div>
             </div>
         </div>
@@ -41,102 +38,79 @@
             <div class="container">
                 <div class="hero-grid">
                     <!-- Left Content -->
-                    <div class="hero-content">
+                    <div class="hero-content">    
                         <h1 class="hero-title">NexCare – Smart Hospital Operations Platform</h1>
-
+                        
                         <p class="hero-description">
-                            Seamlessly connect patients, hospital staff, ambulance teams, and management personnel
-                            into one unified digital platform. Transform healthcare operations with intelligent
-                            automation,
-                            real-time coordination, and streamlined workflows that improve patient care and operational
-                            efficiency.
+                            Seamlessly connect patients, hospital staff, ambulance teams, and management personnel 
+                            into one unified digital platform. Transform healthcare operations with intelligent automation, 
+                            real-time coordination, and streamlined workflows that improve patient care and operational efficiency.
                         </p>
 
                         <div class="hero-buttons">
-                            <a href="../auth/login.html" class="btn-primary btn-large"
-                                style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">
+                            <a href="../auth/login.html" class="btn-primary btn-large">
                                 Sign In
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" style="margin-left: 8px;">
-                                    <path d="M5 12h14" />
-                                    <path d="m12 5 7 7-7 7" />
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
                                 </svg>
                             </a>
+                            
+                            <a href="../auth/signup.html" class="btn-outline btn-large">Create Account</a>
+                        </div>
+                    </div>
 
-                            <a href="../auth/signup.html" class="btn-outline btn-large"
-                                style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">Create
-                                Account</a>
+                    <!-- Right Illustration -->
+                    <div class="hero-illustration">
+                        <div class="dashboard-card floating">
+                            <div class="dashboard-header">
+                                <h3>Dashboard Overview</h3>
+                                <div class="status-indicator"></div>
+                            </div>
+                            
+                            <div class="dashboard-grid">
+                                <div class="stat-card stat-blue">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                                    </svg>
+                                    <p class="stat-value">3K+</p>
+                                    <p class="stat-label">Patients</p>
+                                </div>
+                                
+                                <div class="stat-card stat-green">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                                    </svg>
+                                    <p class="stat-value">5K+</p>
+                                    <p class="stat-label">Requests</p>
+                                </div>
+                                
+                                <div class="stat-card stat-purple">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                    </svg>
+                                    <p class="stat-value">200+</p>
+                                    <p class="stat-label">Staff</p>
+                                </div>
+                                
+                                <div class="stat-card stat-orange">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                    </svg>
+                                    <p class="stat-value">300+</p>
+                                    <p class="stat-label">Ambulance Requests</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Right Illustration -->
-                        <div class="hero-illustration">
-                            <div class="dashboard-card floating">
-                                <div class="dashboard-header">
-                                    <h3>Dashboard Overview</h3>
-                                    <div class="status-indicator"></div>
-                                </div>
-
-                                <div class="dashboard-grid">
-                                    <div class="stat-card stat-blue">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path
-                                                d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                                        </svg>
-                                        <p class="stat-value">10K+</p>
-                                        <p class="stat-label">Patients</p>
-                                    </div>
-
-                                    <div class="stat-card stat-green">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                                        </svg>
-                                        <p class="stat-value">500+</p>
-                                        <p class="stat-label">Requests</p>
-                                    </div>
-
-                                    <div class="stat-card stat-purple">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                            <circle cx="9" cy="7" r="4" />
-                                            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                        </svg>
-                                        <p class="stat-value">200+</p>
-                                        <p class="stat-label">Staff</p>
-                                    </div>
-
-                                    <div class="stat-card stat-orange">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-                                            <path
-                                                d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                                        </svg>
-                                        <p class="stat-value">50+</p>
-                                        <p class="stat-label">Departments</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Floating Icon -->
-                            <div class="floating-icon rotating">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                                </svg>
-                            </div>
+                        <!-- Floating Icon -->
+                        <div class="floating-icon rotating">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                            </svg>
                         </div>
                     </div>
                 </div>
+            </div>
         </section>
 
         <!-- Trust Section -->
@@ -150,73 +124,48 @@
                 <div class="stats-grid">
                     <div class="stat-card-large">
                         <div class="stat-icon pulsing">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                             </svg>
                         </div>
-                        <div class="stat-number" data-target="10000">0</div>
+                        <div class="stat-number" data-target="3000" data-suffix="+">0</div>
                         <div class="stat-text">Patients Managed</div>
                     </div>
 
                     <div class="stat-card-large">
-                        <div class="stat-icon pulsing">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M10 10H6" />
-                                <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
-                                <path
-                                    d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.579l-1.5-4.5A1 1 0 0 0 16.382 7h-2.764a1 1 0 0 0-.894.553l-1.5 3a1 1 0 0 1-.894.553H9.5a1 1 0 0 0-1 1V12" />
-                                <circle cx="7" cy="18" r="2" />
-                                <path d="M9 18h5" />
-                                <circle cx="16" cy="18" r="2" />
-                            </svg>
-                        </div>
-                        <div class="stat-number" data-target="500">0</div>
-                        <div class="stat-text">Ambulance Requests</div>
-                    </div>
+                <div class="stat-icon pulsing">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                </div>
+                <div class="stat-number" data-target="5000" data-suffix="+">0</div>
+                <div class="stat-text">Appointments Scheduled</div>
+            </div>
 
                     <div class="stat-card-large">
                         <div class="stat-icon pulsing">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <circle cx="17" cy="11" r="3" />
-                                <path d="M21 21v-2a4 4 0 0 0-3-3.85" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><circle cx="17" cy="11" r="3"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/>
                             </svg>
                         </div>
-                        <div class="stat-number" data-target="200">0</div>
+                        <div class="stat-number" data-target="200" data-suffix="+">0</div>
                         <div class="stat-text">Hospital Staff Connected</div>
                     </div>
 
                     <div class="stat-card-large">
-                        <div class="stat-icon pulsing">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <rect width="16" height="20" x="4" y="2" rx="2" ry="2" />
-                                <path d="M9 22v-4h6v4" />
-                                <path d="M8 6h.01" />
-                                <path d="M16 6h.01" />
-                                <path d="M12 6h.01" />
-                                <path d="M12 10h.01" />
-                                <path d="M12 14h.01" />
-                                <path d="M16 10h.01" />
-                                <path d="M16 14h.01" />
-                                <path d="M8 10h.01" />
-                                <path d="M8 14h.01" />
-                            </svg>
-                        </div>
-                        <div class="stat-number" data-target="50">0</div>
-                        <div class="stat-text">Hospital Departments Supported</div>
-                    </div>
+    <div class="stat-icon pulsing">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 8H15V6C15 4.89543 14.1046 4 13 4H5C3.89543 4 3 4.89543 3 6V16C3 17.1046 3.89543 18 5 18H6.18421C6.58354 19.165 7.69351 20 9 20C10.3065 20 11.4165 19.165 11.8158 18H16.1842C16.5835 19.165 17.6935 20 19 20C20.3065 20 21.4165 19.165 21.8158 18H23V14L20 10V8C20 6.89543 19.1046 6 18 6H17V8Z" />
+            <path d="M15 8V12H20" />
+            <path d="M7 11H11" />
+            <path d="M9 9V13" />
+            <circle cx="9" cy="18" r="2" />
+            <circle cx="19" cy="18" r="2" />
+        </svg>
+    </div>
+    <div class="stat-number" data-target="300" data-suffix="+">0</div>
+    <div class="stat-text">Ambulance Requests</div>
+</div>
                 </div>
             </div>
         </section>
@@ -232,101 +181,62 @@
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <line x1="17" x2="22" y1="8" y2="8" />
-                                <line x1="19.5" x2="19.5" y1="5.5" y2="10.5" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="8"/><line x1="19.5" x2="19.5" y1="5.5" y2="10.5"/>
                             </svg>
                         </div>
                         <h3>Patient Registration and Profile Management</h3>
-                        <p>Efficiently manage patient information with secure digital profiles, complete medical
-                            history, and instant access to records.</p>
+                        <p>Efficiently manage patient information with secure digital profiles, complete medical history, and instant access to records.</p>
                     </div>
 
                     <div class="feature-card">
                         <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                                <line x1="16" x2="16" y1="2" y2="6" />
-                                <line x1="8" x2="8" y1="2" y2="6" />
-                                <line x1="3" x2="21" y1="10" y2="10" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
                             </svg>
                         </div>
                         <h3>Appointment Booking System</h3>
-                        <p>Streamline scheduling with intelligent booking that reduces wait times and optimizes doctor
-                            availability.</p>
+                        <p>Streamline scheduling with intelligent booking that reduces wait times and optimizes doctor availability.</p>
                     </div>
 
                     <div class="feature-card">
                         <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M10 10H6" />
-                                <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
-                                <path
-                                    d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.579l-1.5-4.5A1 1 0 0 0 16.382 7h-2.764a1 1 0 0 0-.894.553l-1.5 3a1 1 0 0 1-.894.553H9.5a1 1 0 0 0-1 1V12" />
-                                <circle cx="7" cy="18" r="2" />
-                                <path d="M9 18h5" />
-                                <circle cx="16" cy="18" r="2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 10H6"/><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.579l-1.5-4.5A1 1 0 0 0 16.382 7h-2.764a1 1 0 0 0-.894.553l-1.5 3a1 1 0 0 1-.894.553H9.5a1 1 0 0 0-1 1V12"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/>
                             </svg>
                         </div>
                         <h3>Emergency Ambulance Request System</h3>
-                        <p>Rapid response coordination for emergency services with real-time tracking and automated
-                            dispatch.</p>
+                        <p>Rapid response coordination for emergency services with real-time tracking and automated dispatch.</p>
                     </div>
 
                     <div class="feature-card">
                         <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                                <path d="M12 11h4" />
-                                <path d="M12 16h4" />
-                                <path d="M8 11h.01" />
-                                <path d="M8 16h.01" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>
                             </svg>
                         </div>
                         <h3>Staff Workflow Management</h3>
-                        <p>Automate routine tasks and manage workflows efficiently to reduce staff burden and errors.
-                        </p>
+                        <p>Automate routine tasks and manage workflows efficiently to reduce staff burden and errors.</p>
                     </div>
 
                     <div class="feature-card">
                         <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M3 3v18h18" />
-                                <path d="m19 9-5 5-4-4-3 3" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
                             </svg>
                         </div>
                         <h3>Hospital Operations Monitoring Dashboard</h3>
-                        <p>Real-time insights and analytics to monitor hospital performance, resource utilization, and
-                            key metrics.</p>
+                        <p>Real-time insights and analytics to monitor hospital performance, resource utilization, and key metrics.</p>
                     </div>
 
                     <div class="feature-card">
                         <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="m12 12-4-4" />
-                                <path d="M12 12v8" />
-                                <path d="m12 12 5 5" />
-                                <circle cx="12" cy="12" r="9" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m12 12-4-4"/><path d="M12 12v8"/><path d="m12 12 5 5"/><circle cx="12" cy="12" r="9"/>
                             </svg>
                         </div>
                         <h3>Real-Time Hospital Coordination</h3>
-                        <p>Seamless communication between departments, staff, and teams to ensure smooth operations
-                            across the hospital.</p>
+                        <p>Seamless communication between departments, staff, and teams to ensure smooth operations across the hospital.</p>
                     </div>
                 </div>
             </div>
@@ -343,64 +253,42 @@
                 <div class="roles-grid">
                     <div class="role-card role-blue">
                         <div class="role-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                             </svg>
                         </div>
                         <h3>Patient</h3>
-                        <p>Manage your health profile, book appointments with specialists, request emergency ambulance
-                            services, and track your medical history all in one place.</p>
+                        <p>Manage your health profile, book appointments with specialists, request emergency ambulance services, and track your medical history all in one place.</p>
                     </div>
 
                     <div class="role-card role-green">
                         <div class="role-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <circle cx="17" cy="11" r="3" />
-                                <path d="M21 21v-2a4 4 0 0 0-3-3.85" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><circle cx="17" cy="11" r="3"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/>
                             </svg>
                         </div>
                         <h3>Hospital Staff</h3>
-                        <p>Process patient registrations, manage appointments, coordinate with departments, and handle
-                            workflows efficiently.</p>
+                        <p>Process patient registrations, manage appointments, coordinate with departments, and handle workflows efficiently.</p>
                     </div>
 
                     <div class="role-card role-red">
                         <div class="role-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M10 10H6" />
-                                <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
-                                <path
-                                    d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.579l-1.5-4.5A1 1 0 0 0 16.382 7h-2.764a1 1 0 0 0-.894.553l-1.5 3a1 1 0 0 1-.894.553H9.5a1 1 0 0 0-1 1V12" />
-                                <circle cx="7" cy="18" r="2" />
-                                <path d="M9 18h5" />
-                                <circle cx="16" cy="18" r="2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 10H6"/><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.579l-1.5-4.5A1 1 0 0 0 16.382 7h-2.764a1 1 0 0 0-.894.553l-1.5 3a1 1 0 0 1-.894.553H9.5a1 1 0 0 0-1 1V12"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/>
                             </svg>
                         </div>
                         <h3>Ambulance Staff</h3>
-                        <p>Receive and respond to emergency requests, track ambulance availability, navigate to
-                            patients, and coordinate with hospital staff for smooth handoffs.</p>
+                        <p>Receive and respond to emergency requests, track ambulance availability, navigate to patients, and coordinate with hospital staff for smooth handoffs.</p>
                     </div>
 
                     <div class="role-card role-purple">
                         <div class="role-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
                             </svg>
                         </div>
                         <h3>Management</h3>
-                        <p>Monitor hospital operations, analyze performance metrics, manage staff assignments, oversee
-                            all departments, and make data-driven decisions.</p>
+                        <p>Monitor hospital operations, analyze performance metrics, manage staff assignments, oversee all departments, and make data-driven decisions.</p>
                     </div>
                 </div>
             </div>
@@ -419,17 +307,12 @@
                         <div class="step-number">1</div>
                         <div class="step-card">
                             <div class="step-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                                    <polyline points="10 17 15 12 10 7" />
-                                    <line x1="15" x2="3" y1="12" y2="12" />
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>
                                 </svg>
                             </div>
                             <h3>Register or Sign In</h3>
-                            <p>Create your account or log in to access your personalized dashboard based on your role in
-                                the healthcare system.</p>
+                            <p>Create your account or log in to access your personalized dashboard based on your role in the healthcare system.</p>
                         </div>
                     </div>
 
@@ -437,18 +320,12 @@
                         <div class="step-number">2</div>
                         <div class="step-card">
                             <div class="step-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                                    <line x1="16" x2="16" y1="2" y2="6" />
-                                    <line x1="8" x2="8" y1="2" y2="6" />
-                                    <line x1="3" x2="21" y1="10" y2="10" />
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
                                 </svg>
                             </div>
                             <h3>Patient Books Appointment or Requests Ambulance</h3>
-                            <p>Patients can easily schedule appointments with doctors or request emergency ambulance
-                                services with just a few clicks.</p>
+                            <p>Patients can easily schedule appointments with doctors or request emergency ambulance services with just a few clicks.</p>
                         </div>
                     </div>
 
@@ -456,28 +333,12 @@
                         <div class="step-number">3</div>
                         <div class="step-card">
                             <div class="step-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" />
-                                    <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
-                                    <path d="M12 2v2" />
-                                    <path d="M12 22v-2" />
-                                    <path d="m17 20.66-1-1.73" />
-                                    <path d="M11 10.27 7 3.34" />
-                                    <path d="m20.66 17-1.73-1" />
-                                    <path d="m3.34 7 1.73 1" />
-                                    <path d="M14 12h8" />
-                                    <path d="M2 12h2" />
-                                    <path d="m20.66 7-1.73 1" />
-                                    <path d="m3.34 17 1.73-1" />
-                                    <path d="m17 3.34-1 1.73" />
-                                    <path d="m11 13.73-4 6.93" />
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M12 2v2"/><path d="M12 22v-2"/><path d="m17 20.66-1-1.73"/><path d="M11 10.27 7 3.34"/><path d="m20.66 17-1.73-1"/><path d="m3.34 7 1.73 1"/><path d="M14 12h8"/><path d="M2 12h2"/><path d="m20.66 7-1.73 1"/><path d="m3.34 17 1.73-1"/><path d="m17 3.34-1 1.73"/><path d="m11 13.73-4 6.93"/>
                                 </svg>
                             </div>
                             <h3>Staff Manage and Process Requests</h3>
-                            <p>Hospital and ambulance staff receive notifications and efficiently manage incoming
-                                requests through their workflow dashboard.</p>
+                            <p>Hospital and ambulance staff receive notifications and efficiently manage incoming requests through their workflow dashboard.</p>
                         </div>
                     </div>
 
@@ -485,218 +346,18 @@
                         <div class="step-number">4</div>
                         <div class="step-card">
                             <div class="step-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
-                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
                                 </svg>
                             </div>
                             <h3>Management Monitors Hospital Operations</h3>
-                            <p>Hospital management oversees all operations, analyzes performance metrics, and ensures
-                                smooth coordination across departments.</p>
+                            <p>Hospital management oversees all operations, analyzes performance metrics, and ensures smooth coordination across departments.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Dashboard Preview Section -->
-        <section class="dashboard-preview-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>Dashboard Previews</h2>
-                    <p>Intuitive interfaces designed for each role in your healthcare facility</p>
-                </div>
-
-                <div class="dashboards-grid">
-                    <div class="dashboard-card-preview dashboard-border-blue">
-                        <h3>Patient Dashboard</h3>
-                        <p class="dashboard-desc">Manage your health journey</p>
-                        <div class="dashboard-items">
-                            <div class="dashboard-item item-blue">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                                    <line x1="16" x2="16" y1="2" y2="6" />
-                                    <line x1="8" x2="8" y1="2" y2="6" />
-                                    <line x1="3" x2="21" y1="10" y2="10" />
-                                </svg>
-                                <div>
-                                    <p class="item-title">Upcoming Appointments</p>
-                                    <p class="item-subtitle">Dr. Smith - Cardiology</p>
-                                </div>
-                            </div>
-                            <div class="dashboard-item item-green">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                    <polyline points="14 2 14 8 20 8" />
-                                </svg>
-                                <div>
-                                    <p class="item-title">Medical Records</p>
-                                    <p class="item-subtitle">View complete history</p>
-                                </div>
-                            </div>
-                            <div class="dashboard-item item-red">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                                </svg>
-                                <div>
-                                    <p class="item-title">Emergency Services</p>
-                                    <p class="item-subtitle">Quick ambulance request</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card-preview dashboard-border-purple">
-                        <h3>Management Dashboard</h3>
-                        <p class="dashboard-desc">Comprehensive hospital oversight</p>
-                        <div class="dashboard-items">
-                            <div class="dashboard-item item-purple">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <rect width="7" height="9" x="3" y="3" rx="1" />
-                                    <rect width="7" height="5" x="14" y="3" rx="1" />
-                                    <rect width="7" height="9" x="14" y="12" rx="1" />
-                                    <rect width="7" height="5" x="3" y="16" rx="1" />
-                                </svg>
-                                <div>
-                                    <p class="item-title">Operations Overview</p>
-                                    <p class="item-subtitle">Real-time monitoring</p>
-                                </div>
-                            </div>
-                            <div class="dashboard-item item-orange">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-                                    <polyline points="16 7 22 7 22 13" />
-                                </svg>
-                                <div>
-                                    <p class="item-title">Performance Analytics</p>
-                                    <p class="item-subtitle">Key metrics & insights</p>
-                                </div>
-                            </div>
-                            <div class="dashboard-item item-blue">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                    <circle cx="9" cy="7" r="4" />
-                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                </svg>
-                                <div>
-                                    <p class="item-title">Staff Management</p>
-                                    <p class="item-subtitle">200+ staff members</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card-preview dashboard-border-green">
-                        <h3>Hospital Staff Dashboard</h3>
-                        <p class="dashboard-desc">Streamline patient workflows</p>
-                        <div class="dashboard-items">
-                            <div class="dashboard-item item-green">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                    <circle cx="9" cy="7" r="4" />
-                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                </svg>
-                                <div>
-                                    <p class="item-title">Patient Registration</p>
-                                    <p class="item-subtitle">15 pending registrations</p>
-                                </div>
-                            </div>
-                            <div class="dashboard-item item-blue">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                                    <line x1="16" x2="16" y1="2" y2="6" />
-                                    <line x1="8" x2="8" y1="2" y2="6" />
-                                    <line x1="3" x2="21" y1="10" y2="10" />
-                                </svg>
-                                <div>
-                                    <p class="item-title">Appointment Management</p>
-                                    <p class="item-subtitle">32 appointments today</p>
-                                </div>
-                            </div>
-                            <div class="dashboard-item item-yellow">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                    <polyline points="14 2 14 8 20 8" />
-                                </svg>
-                                <div>
-                                    <p class="item-title">Document Processing</p>
-                                    <p class="item-subtitle">8 documents to review</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card-preview dashboard-border-red">
-                        <h3>Ambulance Staff Dashboard</h3>
-                        <p class="dashboard-desc">Emergency response coordination</p>
-                        <div class="dashboard-items">
-                            <div class="dashboard-item item-red">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                                </svg>
-                                <div class="flex-1">
-                                    <p class="item-title">Active Requests</p>
-                                    <p class="item-subtitle">2 emergency calls</p>
-                                </div>
-                                <span class="urgent-badge">URGENT</span>
-                            </div>
-                            <div class="dashboard-item item-green">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                    <circle cx="9" cy="7" r="4" />
-                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                </svg>
-                                <div>
-                                    <p class="item-title">Available Units</p>
-                                    <p class="item-subtitle">8 units ready</p>
-                                </div>
-                            </div>
-                            <div class="dashboard-item item-blue">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <rect width="7" height="9" x="3" y="3" rx="1" />
-                                    <rect width="7" height="5" x="14" y="3" rx="1" />
-                                    <rect width="7" height="9" x="14" y="12" rx="1" />
-                                    <rect width="7" height="5" x="3" y="16" rx="1" />
-                                </svg>
-                                <div>
-                                    <p class="item-title">Route Navigation</p>
-                                    <p class="item-subtitle">GPS tracking enabled</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <!-- Benefits Section -->
         <section class="benefits-section">
@@ -709,91 +370,69 @@
                 <div class="benefits-grid">
                     <div class="benefit-card">
                         <div class="benefit-icon pulsing">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
                             </svg>
                         </div>
                         <div>
                             <h3>Faster Hospital Workflows</h3>
-                            <p>Automate routine processes and reduce manual tasks, allowing staff to focus on patient
-                                care.</p>
+                            <p>Automate routine processes and reduce manual tasks, allowing staff to focus on patient care.</p>
                         </div>
                     </div>
 
                     <div class="benefit-card">
                         <div class="benefit-icon pulsing">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <polyline points="12 6 12 12 16 14" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                             </svg>
                         </div>
                         <div>
                             <h3>Improved Emergency Response</h3>
-                            <p>Real-time ambulance dispatch and tracking ensures the fastest possible response to
-                                emergencies.</p>
+                            <p>Real-time ambulance dispatch and tracking ensures the fastest possible response to emergencies.</p>
                         </div>
                     </div>
 
                     <div class="benefit-card">
                         <div class="benefit-icon pulsing">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <ellipse cx="12" cy="5" rx="9" ry="3" />
-                                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
-                                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
                             </svg>
                         </div>
                         <div>
                             <h3>Centralized Healthcare Data</h3>
-                            <p>All patient records, appointments, and medical history in one secure, accessible
-                                location.</p>
+                            <p>All patient records, appointments, and medical history in one secure, accessible location.</p>
                         </div>
                     </div>
 
                     <div class="benefit-card">
                         <div class="benefit-icon pulsing">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="m12 12-4-4" />
-                                <path d="M12 12v8" />
-                                <path d="m12 12 5 5" />
-                                <circle cx="12" cy="12" r="9" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m12 12-4-4"/><path d="M12 12v8"/><path d="m12 12 5 5"/><circle cx="12" cy="12" r="9"/>
                             </svg>
                         </div>
                         <div>
                             <h3>Better Coordination Between Teams</h3>
-                            <p>Seamless communication across departments ensures everyone stays informed and aligned.
-                            </p>
+                            <p>Seamless communication across departments ensures everyone stays informed and aligned.</p>
                         </div>
                     </div>
 
                     <div class="benefit-card">
                         <div class="benefit-icon pulsing">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
                             </svg>
                         </div>
                         <div>
                             <h3>Enhanced Patient Service Experience</h3>
-                            <p>Simplified booking, shorter wait times, and better communication improve patient
-                                satisfaction.</p>
+                            <p>Simplified booking, shorter wait times, and better communication improve patient satisfaction.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Testimonials Section -->
-        <section id="contact" class="testimonials-section">
+        <!-- Reviews Section -->
+        <section id="reviews" class="testimonials-section">
             <div class="container">
                 <div class="section-header">
                     <h2>What Healthcare Teams Say</h2>
@@ -803,49 +442,28 @@
                 <div class="testimonials-grid">
                     <div class="testimonial-card">
                         <div class="quote-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
-                                <path
-                                    d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
                             </svg>
                         </div>
                         <div class="rating">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
                         </div>
-                        <p class="testimonial-quote">"NexCare has revolutionized how we manage patient appointments. The
-                            interface is intuitive, and our workflow burden has decreased significantly."</p>
+                        <p class="testimonial-quote">"NexCare has revolutionized how we manage patient appointments. The interface is intuitive, and our workflow burden has decreased significantly."</p>
                         <div class="testimonial-author">
                             <div class="author-avatar">D</div>
                             <div>
@@ -857,49 +475,28 @@
 
                     <div class="testimonial-card">
                         <div class="quote-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
-                                <path
-                                    d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
                             </svg>
                         </div>
                         <div class="rating">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
                         </div>
-                        <p class="testimonial-quote">"The emergency ambulance dispatch system is incredible. Response
-                            times have improved by 40%, and the real-time tracking gives us peace of mind."</p>
+                        <p class="testimonial-quote">"The emergency ambulance dispatch system is incredible. Response times have improved by 40%, and the real-time tracking gives us peace of mind."</p>
                         <div class="testimonial-author">
                             <div class="author-avatar">M</div>
                             <div>
@@ -911,49 +508,28 @@
 
                     <div class="testimonial-card">
                         <div class="quote-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
-                                <path
-                                    d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
                             </svg>
                         </div>
                         <div class="rating">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
                         </div>
-                        <p class="testimonial-quote">"As part of hospital management, having all hospital operations
-                            data in one dashboard has been game-changing. We make better decisions faster."</p>
+                        <p class="testimonial-quote">"As part of hospital management, having all hospital operations data in one dashboard has been game-changing. We make better decisions faster."</p>
                         <div class="testimonial-author">
                             <div class="author-avatar">L</div>
                             <div>
@@ -965,49 +541,28 @@
 
                     <div class="testimonial-card">
                         <div class="quote-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
-                                <path
-                                    d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
                             </svg>
                         </div>
                         <div class="rating">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
                         </div>
-                        <p class="testimonial-quote">"Booking appointments is so easy now. I love being able to manage
-                            my health records and communicate with my doctors all in one place."</p>
+                        <p class="testimonial-quote">"Booking appointments is so easy now. I love being able to manage my health records and communicate with my doctors all in one place."</p>
                         <div class="testimonial-author">
                             <div class="author-avatar">J</div>
                             <div>
@@ -1020,46 +575,70 @@
             </div>
         </section>
 
+        <!-- Contact Us Section -->
+        <section id="contact" class="contact-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Contact Us</h2>
+                    <p>Reach out to NexCare support for onboarding, demos, and technical help.</p>
+                </div>
+
+                <div class="contact-grid">
+                    <div class="contact-card">
+                        <div class="contact-card-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                            </svg>
+                            <h3>Email</h3>
+                        </div>
+                        <p><a href="mailto:support@nexcare.com">support@nexcare.com</a></p>
+                    </div>
+
+                    <div class="contact-card">
+                        <div class="contact-card-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                            <h3>Phone</h3>
+                        </div>
+                        <p><a href="tel:+1234567890">+1 (234) 567-890</a></p>
+                    </div>
+
+                    <div class="contact-card">
+                        <div class="contact-card-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            <h3>Address</h3>
+                        </div>
+                        <p>123 Healthcare Blvd, Medical City, HC 12345</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- CTA Section -->
         <section class="cta-section">
             <div class="cta-background"></div>
             <div class="cta-pattern"></div>
             <div class="container">
                 <div class="cta-content">
-                    <div class="sparkles-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                                d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-                            <path d="M5 3v4" />
-                            <path d="M19 17v4" />
-                            <path d="M3 5h4" />
-                            <path d="M17 19h4" />
-                        </svg>
-                    </div>
-
+                    
                     <h2 class="cta-title">Transform Hospital Operations with NexCare</h2>
-
+                    
                     <p class="cta-description">
-                        Join thousands of healthcare providers who are already experiencing the future of hospital
-                        management
+                        Join thousands of healthcare providers who are already experiencing the future of hospital management
                     </p>
 
                     <div class="cta-buttons">
-                        <a href="../auth/signup.html" class="btn-white btn-large"
-                            style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">
+                        <a href="../auth/signup.html" class="btn-white btn-large">
                             <span>Register Now</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" style="margin-left: 8px;">
-                                <path d="M5 12h14" />
-                                <path d="m12 5 7 7-7 7" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
                             </svg>
                         </a>
-
-                        <a href="../auth/login.html" class="btn-outline-white btn-large"
-                            style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">Sign
-                            In</a>
+                        
+                        <a href="../auth/login.html" class="btn-outline-white btn-large">Sign In</a>
                     </div>
 
                     <div class="trust-badges">
@@ -1088,43 +667,31 @@
                 <!-- Brand Column -->
                 <div class="footer-brand">
                     <div class="logo">
-                        <div class="logo-icon-container">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                            </svg>
-                        </div>
-                        <span class="logo-text">
-                            <span class="nexcare">NEXCARE</span>
-                        </span>
-                    </div>
+    <div class="logo-icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+    </div>
+    <span class="logo-text">
+        <span class="nexcare">NEXCARE</span>
+    </span>
+</div>
 
-                    <p>Smart Hospital Operations Platform connecting patients, staff, and administrators for better
-                        healthcare.</p>
+                    <p>Smart Hospital Operations Platform connecting patients, staff, and administrators for better healthcare.</p>
                     <div class="social-links">
                         <a href="#" class="social-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
                             </svg>
                         </a>
                         <a href="#" class="social-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                                <rect width="4" height="12" x="2" y="9" />
-                                <circle cx="4" cy="4" r="2" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>
                             </svg>
                         </a>
                         <a href="#" class="social-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
                             </svg>
                         </a>
                     </div>
@@ -1159,11 +726,8 @@
                     <h3>Contact Us</h3>
                     <ul class="contact-list">
                         <li>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <rect width="20" height="16" x="2" y="4" rx="2" />
-                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
                             </svg>
                             <div>
                                 <p class="contact-label">Email</p>
@@ -1171,11 +735,8 @@
                             </div>
                         </li>
                         <li>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                             </svg>
                             <div>
                                 <p class="contact-label">Phone</p>
@@ -1183,11 +744,8 @@
                             </div>
                         </li>
                         <li>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                                <circle cx="12" cy="10" r="3" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
                             </svg>
                             <div>
                                 <p class="contact-label">Address</p>
@@ -1200,8 +758,7 @@
 
             <!-- Bottom Bar -->
             <div class="footer-bottom">
-                <p>&copy; <span id="current-year">2024</span> NexCare – Hospital Operational Administration System. All
-                    rights reserved.</p>
+                <p>&copy; <span id="current-year">2024</span> NexCare – Hospital Operational Administration System. All rights reserved.</p>
                 <div class="footer-links">
                     <a href="#">Privacy Policy</a>
                     <a href="#">Terms of Service</a>
@@ -1212,7 +769,6 @@
     </footer>
 
     <script src="landing.js"></script>
-    <script src="logo.js"></script>
+    <script src="../logo.js"></script>
 </body>
-
 </html>
