@@ -68,10 +68,9 @@
             
             console.log("Signup triggered...");
 
-            // Check if session.js is loaded correctly
+            
             if (typeof loginUser === "function") {
-                // For the prototype, we assume everyone signing up is a 'superuser' 
-                // to get them to your dashboard
+               
                 loginUser('superuser'); 
             } else {
                 alert("Error: session.js could not be found. Check your folder paths!");
