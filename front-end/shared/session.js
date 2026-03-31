@@ -9,8 +9,10 @@ function loginUser(role) {
     console.log("Session started for:", role);
 
     // Redirect to the correct dashboard based on role
-    if (role === 'superuser' || role === 'Hospital Manager') {
+    if (role === 'superuser') {
         window.location.href = '../superuser/dashboard.html';
+    } else if (role === 'admin') {
+        window.location.href = '../admin/dashboard.html';
     } else if (role === 'patient') {
         window.location.href = '../patient/dashboard.html';
     } else {

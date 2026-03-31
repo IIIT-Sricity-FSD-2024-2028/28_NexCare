@@ -1,0 +1,177 @@
+/* /front-end/superuser/manage-users.js */
+
+// Mock Data Structure
+const DEFAULT_USERS = [
+    { id: 1, name: "Dr. Sarah Smith", email: "sarah@nexcare.com", dept: "Cardiology", role: "doctor", status: "Active" },
+    { id: 2, name: "Mark Johnson", email: "mark@nexcare.com", dept: "Management", role: "admin", status: "Active" },
+    { id: 3, name: "Lisa Wong", email: "lisa@nexcare.com", dept: "Transport", role: "driver", status: "Inactive" }
+];
+
+// Initialize State
+let usersList = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Load from local storage, or fallback to default data
+    const storedUsers = localStorage.getItem('nexcare_users');
+    if (storedUsers) {
+        usersList = JSON.parse(storedUsers);
+    } else {
+        usersList = DEFAULT_USERS;
+        saveToLocalStorage();
+    }
+    
+    renderTable();
+});
+
+// Helper: Save to 'Backend' (LocalStorage)
+function saveToLocalStorage() {
+    localStorage.setItem('nexcare_users', JSON.stringify(usersList));
+}
+
+// Read: Render Table Dynamically
+function renderTable() {
+    const tbody = document.getElementById('usersTableBody');
+    tbody.innerHTML = ''; // Clear existing rows
+
+    if(usersList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--text-muted);">No users found. Add one to get started.</td></tr>`;
+        return;
+    }
+
+    usersList.forEach(user => {
+        const row = document.createElement('tr');
+        
+        row.innerHTML = `
+            <td style="font-weight: 500;">${user.name}</td>
+            <td style="color: var(--text-muted);">${user.email}</td>
+            <td>${user.dept}</td>
+            <td><span class="badge ${user.role}">${user.role.toUpperCase()}</span></td>
+            <td>
+                <span style="color: ${user.status === 'Active' ? 'var(--success)' : 'var(--danger)'}">
+                    • ${user.status}
+                </span>
+            </td>
+            <td>
+                <button class="btn-secondary btn-icon" onclick="editUser(${user.id})">Edit</button>
+                <button class="btn-danger btn-icon" onclick="deleteUser(${user.id})">Del</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Modal Management
+const modalOverlay = document.getElementById('userModalOverlay');
+const form = document.getElementById('userForm');
+
+function openUserModal() {
+    clearValidation();
+    form.reset();
+    document.getElementById('userId').value = '';
+    document.getElementById('modalTitle').textContent = 'Add New User';
+    modalOverlay.classList.add('active');
+}
+
+function closeUserModal() {
+    modalOverlay.classList.remove('active');
+}
+
+// Modal Click-Outside logic
+modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeUserModal();
+});
+
+// Validation Helper
+function clearValidation() {
+    document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.form-control').forEach(el => el.style.borderColor = 'var(--border-color)');
+}
+
+function showError(fieldId, errorId) {
+    document.getElementById(fieldId).style.borderColor = 'var(--danger)';
+    document.getElementById(errorId).style.display = 'block';
+}
+
+// Create & Update (Save)
+function handleSaveUser(e) {
+    e.preventDefault();
+    clearValidation();
+
+    // Get Form Values
+    const idInput = document.getElementById('userId').value;
+    const name = document.getElementById('userName').value.trim();
+    const email = document.getElementById('userEmail').value.trim();
+    const role = document.getElementById('userRole').value;
+    const dept = document.getElementById('userDept').value;
+    const status = document.getElementById('userStatus').value;
+
+    let isValid = true;
+
+    // Strict Client-Side Validation
+    if(name.length < 2) {
+        showError('userName', 'errorName');
+        isValid = false;
+    }
+
+    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+    if(!emailRegex.test(email)) {
+        showError('userEmail', 'errorEmail');
+        isValid = false;
+    }
+
+    if(!role) {
+        showError('userRole', 'errorRole');
+        isValid = false;
+    }
+
+    if(!dept) {
+        showError('userDept', 'errorDept');
+        isValid = false;
+    }
+
+    if(!isValid) return; // Stop processing if invalid
+
+    // Save Data
+    if(idInput === '') {
+        // Create new user
+        const newId = usersList.length > 0 ? Math.max(...usersList.map(u => u.id)) + 1 : 1;
+        usersList.push({ id: newId, name, email, role, dept, status });
+    } else {
+        // Update existing user
+        const editId = parseInt(idInput);
+        const index = usersList.findIndex(u => u.id === editId);
+        if(index > -1) {
+            usersList[index] = { id: editId, name, email, role, dept, status };
+        }
+    }
+
+    saveToLocalStorage();
+    renderTable();
+    closeUserModal();
+}
+
+// Edit (Populate Form)
+function editUser(id) {
+    const user = usersList.find(u => u.id === id);
+    if(!user) return;
+
+    clearValidation();
+    document.getElementById('modalTitle').textContent = 'Edit User';
+    document.getElementById('userId').value = user.id;
+    document.getElementById('userName').value = user.name;
+    document.getElementById('userEmail').value = user.email;
+    document.getElementById('userRole').value = user.role;
+    document.getElementById('userDept').value = user.dept;
+    document.getElementById('userStatus').value = user.status;
+    
+    modalOverlay.classList.add('active');
+}
+
+// Delete
+function deleteUser(id) {
+    if(confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+        usersList = usersList.filter(u => u.id !== id);
+        saveToLocalStorage();
+        renderTable(); // Update instantly without reloading
+    }
+}

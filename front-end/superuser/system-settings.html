@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings | Super User | NexCare</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="../shared/nav.css">
+    <style>
+        .page-header {
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--dark-panel);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .settings-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .settings-card h3 {
+            margin-top: 0;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background: var(--secondary-color);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .toggle-switch label {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* Pure CSS Toggle Slider without external dependencies */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        .save-banner {
+            position: fixed;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            transition: bottom 0.4s ease;
+            z-index: 100;
+        }
+        
+        .save-banner.show {
+            bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Global System Setup</h1>
+            <p style="margin: 5px 0 0; color: var(--text-muted); font-size: 14px;">Manage core operational configurations and system toggles.</p>
+        </div>
+
+        <form id="settingsForm">
+            <div class="settings-grid">
+                
+                <!-- Card 1: Hospital Details -->
+                <div class="settings-card">
+                    <h3>Hospital Information Profile</h3>
+                    
+                    <div class="form-group">
+                        <label>Hospital/Institution Name</label>
+                        <input type="text" id="hospitalName" class="form-control" required>
+                    </div>
+
+                    <div class="form-group" style="display: flex; gap: 15px;">
+                        <div style="flex: 1;">
+                            <label>System Support Email</label>
+                            <input type="email" id="supportEmail" class="form-control" required>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Emergency Ambulance Hotline</label>
+                            <input type="tel" id="emergencyPhone" class="form-control" pattern="[0-9]{3,15}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: System Toggles -->
+                <div class="settings-card">
+                    <h3>System Operational Control</h3>
+                    
+                    <div class="toggle-switch">
+                        <div>
+                            <label>Enable Patient Registration</label>
+                            <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Allow new patients to create accounts via the public portal.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleRegistration">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-switch">
+                        <div>
+                            <label>System Maintenance Mode</label>
+                            <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Lock out all non-Super User accounts (Admin, Patient, Drivers).</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleMaintenance">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end;">
+                    <button type="submit" class="btn-primary" style="padding: 12px 30px; font-size: 16px;">Save System Configuration</button>
+                </div>
+
+            </div>
+        </form>
+
+        <!-- Floating success banner -->
+        <div id="saveBanner" class="save-banner">
+            ✓ Settings Saved Successfully!
+        </div>
+
+    </main>
+
+    <script src="../shared/session.js"></script>
+    <script src="../shared/nav.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const role = sessionStorage.getItem('nexcare_current_role');
+            if (role !== 'superuser') {
+                alert("Unauthorized Access.");
+                window.location.href = '../auth/login.html';
+            }
+        });
+    </script>
+    <script src="system-settings.js"></script>
+</body>
+</html>

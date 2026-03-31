@@ -35,7 +35,7 @@
 
                     <div class="form-group">
                         <label>Phone</label>
-                        <input type="tel" class="form-control" required>
+                        <input type="tel" class="form-control" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required>
                     </div>
 
                     <div class="form-group">
@@ -64,16 +64,52 @@
 
     <script>
         document.getElementById('signupForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevents the page from refreshing
+            e.preventDefault(); 
             
             console.log("Signup triggered...");
 
+            // 1. Get user data from inputs
+            const inputs = document.querySelectorAll('.form-control');
             
+            // Validate phone number (must be exactly 10 digits)
+            const phoneVal = inputs[2].value;
+            const phoneRegex = /^\d{10}$/;
+            if (!phoneRegex.test(phoneVal)) {
+                alert("Phone number must be exactly 10 digits (numbers only)!");
+                return;
+            }
+
+            // Check if passwords match
+            if (inputs[3].value !== inputs[4].value) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            const newPatient = {
+                id: Date.now(),
+                name: inputs[0].value,
+                email: inputs[1].value,
+                phone: inputs[2].value,
+                password: inputs[3].value,
+                role: 'patient',
+                status: 'Active'
+            };
+
+            // 2. Fetch existing mock database from Local Storage, or create new array
+            let patientsData = localStorage.getItem('nexcare_patients');
+            let patientsArray = patientsData ? JSON.parse(patientsData) : [];
+
+            // 3. Add to mock database and save back to local storage
+            patientsArray.push(newPatient);
+            localStorage.setItem('nexcare_patients', JSON.stringify(patientsArray));
+
+            console.log("Mock DB Updated:", JSON.parse(localStorage.getItem('nexcare_patients')));
+
+            // 4. Log them in
             if (typeof loginUser === "function") {
-               
-                loginUser('superuser'); 
+                loginUser('patient'); 
             } else {
-                alert("Error: session.js could not be found. Check your folder paths!");
+                alert("Error: session.js could not be found.");
             }
         });
     </script>

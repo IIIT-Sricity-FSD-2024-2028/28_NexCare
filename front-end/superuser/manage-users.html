@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users | Super User | NexCare</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="../shared/nav.css">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--dark-panel);
+        }
+
+        .action-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.admin { background: #dbeafe; color: #1e40af; }
+        .badge.doctor { background: #dcfce7; color: #166534; }
+        .badge.driver { background: #fef9c3; color: #854d0e; }
+
+        .btn-icon {
+            padding: 6px 10px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1>System User Management</h1>
+                <p style="margin: 5px 0 0; color: var(--text-muted); font-size: 14px;">Manage system access, roles, and profiles for hospital staff.</p>
+            </div>
+            <div class="action-row">
+                <button class="btn-primary" onclick="openUserModal()">+ Add New User</button>
+            </div>
+        </div>
+
+        <table class="data-table" id="usersTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="usersTableBody">
+                <!-- Data populated dynamically via JS -->
+            </tbody>
+        </table>
+
+        <!-- User Form Modal -->
+        <div class="modal-overlay" id="userModalOverlay">
+            <div class="modal-content">
+                <h2 id="modalTitle" style="margin-top: 0">Add New User</h2>
+                <form id="userForm" onsubmit="handleSaveUser(event)" novalidate>
+                    <input type="hidden" id="userId">
+                    
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="userName" class="form-control">
+                        <span class="error-message" id="errorName">Name is required.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="userEmail" class="form-control">
+                        <span class="error-message" id="errorEmail">Valid email is required.</span>
+                    </div>
+
+                    <div class="form-group" style="display: flex; gap: 15px;">
+                        <div style="flex: 1;">
+                            <label>Role</label>
+                            <select id="userRole" class="form-control">
+                                <option value="">Select Role...</option>
+                                <option value="admin">Operations Admin</option>
+                                <option value="doctor">Doctor</option>
+                                <option value="driver">Ambulance Driver</option>
+                            </select>
+                            <span class="error-message" id="errorRole">Role is required.</span>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Department</label>
+                            <select id="userDept" class="form-control">
+                                <option value="Management">Management</option>
+                                <option value="Cardiology">Cardiology</option>
+                                <option value="Emergency">Emergency</option>
+                                <option value="Transport">Transport</option>
+                            </select>
+                            <span class="error-message" id="errorDept">Dept is required.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="userStatus" class="form-control">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Suspended">Suspended</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px;">
+                        <button type="button" class="btn-secondary" onclick="closeUserModal()">Cancel</button>
+                        <button type="submit" class="btn-primary">Save User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="../shared/session.js"></script>
+    <script src="../shared/nav.js"></script>
+    <script>
+        // Security logic for superuser
+        document.addEventListener('DOMContentLoaded', () => {
+            const role = sessionStorage.getItem('nexcare_current_role');
+            if (role !== 'superuser') {
+                alert("Unauthorized Access. System Administrators only.");
+                window.location.href = '../auth/login.html';
+            }
+        });
+    </script>
+    <script src="manage-users.js"></script>
+</body>
+</html>
