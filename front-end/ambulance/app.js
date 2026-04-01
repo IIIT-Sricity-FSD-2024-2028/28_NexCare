@@ -60,8 +60,8 @@ const SessionManager = {
         // Show logout message
         this.showNotification('Logged out successfully', 'info');
         
-        // Redirect to login (in real app, would go to login page)
-        window.location.reload();
+        // Redirect to login
+        window.location.href = '../auth/login.html';
     },
     
     // Update UI for logged in user
