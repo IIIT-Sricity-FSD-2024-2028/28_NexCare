@@ -1,0 +1,3236 @@
+// NEXCARE — persisted CRUD (localStorage) for requests + profile
+const STORAGE_KEY = 'nexcare_app_v1';
+
+// Session Management System
+const SessionManager = {
+    // User session management
+    currentUser: null,
+    
+    // Initialize session
+    init: function() {
+        this.checkAuthStatus();
+        this.setupNavigation();
+        this.setupLogout();
+    },
+    
+    // Check if user is logged in
+    checkAuthStatus: function() {
+        const userData = localStorage.getItem('ambulanceUser');
+        if (userData) {
+            try {
+                this.currentUser = JSON.parse(userData);
+                this.updateUIForLoggedInUser();
+                return true;
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                this.logout();
+                return false;
+            }
+        }
+        return false;
+    },
+    
+    // Login user
+    login: function(userData) {
+        this.currentUser = {
+            id: userData.id || 'emp-' + Date.now(),
+            name: userData.name || 'Alex Martinez',
+            email: userData.email || 'alex@nexcare.com',
+            role: userData.role || 'paramedic',
+            loginTime: new Date().toISOString()
+        };
+        
+        localStorage.setItem('ambulanceUser', JSON.stringify(this.currentUser));
+        this.updateUIForLoggedInUser();
+        
+        // Show welcome message
+        this.showNotification(`Welcome back, ${this.currentUser.name}!`, 'success');
+        
+        return true;
+    },
+    
+    // Logout user
+    logout: function() {
+        localStorage.removeItem('ambulanceUser');
+        this.currentUser = null;
+        
+        // Clear all session data
+        this.clearSessionData();
+        
+        // Show logout message
+        this.showNotification('Logged out successfully', 'info');
+        
+        // Redirect to login (in real app, would go to login page)
+        window.location.reload();
+    },
+    
+    // Update UI for logged in user
+    updateUIForLoggedInUser: function() {
+        if (this.currentUser) {
+            // Update welcome message
+            const userNameElement = document.getElementById('dashboard-user-name');
+            if (userNameElement) {
+                userNameElement.textContent = this.currentUser.name;
+            }
+            
+            // Update profile name if exists
+            const profileNameElement = document.querySelector('.profile-name');
+            if (profileNameElement) {
+                profileNameElement.textContent = this.currentUser.name;
+            }
+        }
+    },
+    
+    // Setup navigation
+    setupNavigation: function() {
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.getAttribute('data-page');
+                if (pageId) {
+                    this.navigateToPage(pageId);
+                }
+            });
+        });
+    },
+    
+    // Navigate to specific page
+    navigateToPage: function(pageId) {
+        // Hide all pages
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => {
+            page.classList.remove('active');
+        });
+        
+        // Show target page
+        const targetPage = document.getElementById(pageId + '-page');
+        if (targetPage) {
+            targetPage.classList.add('active');
+        }
+        
+        // Update navigation active state
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-page') === pageId) {
+                link.classList.add('active');
+            }
+        });
+        
+        // Store current page in session
+        sessionStorage.setItem('currentPage', pageId);
+    },
+    
+    // Setup logout
+    setupLogout: function() {
+        const logoutBtn = document.querySelector('.logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    this.logout();
+                }
+            });
+        }
+    },
+    
+    // Clear session data
+    clearSessionData: function() {
+        sessionStorage.clear();
+        // Keep localStorage data (profile, settings) but clear session-specific data
+    },
+    
+    // Show notification
+    showNotification: function(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        `;
+        
+        switch (type) {
+            case 'success':
+                notification.style.backgroundColor = '#10b981';
+                break;
+            case 'error':
+                notification.style.backgroundColor = '#ef4444';
+                break;
+            case 'warning':
+                notification.style.backgroundColor = '#f59e0b';
+                break;
+            default:
+                notification.style.backgroundColor = '#3b82f6';
+        }
+        
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 10);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+};
+
+// State Management System
+const StateManager = {
+    // Current state
+    state: {
+        selectedRequest: null,
+        currentPage: 'dashboard',
+        filters: {},
+        sortBy: 'time'
+    },
+    
+    // Initialize state
+    init: function() {
+        this.loadStateFromStorage();
+        this.setupStatePersistence();
+    },
+    
+    // Load state from storage
+    loadStateFromStorage: function() {
+        const savedState = sessionStorage.getItem('ambulanceState');
+        if (savedState) {
+            try {
+                this.state = { ...this.state, ...JSON.parse(savedState) };
+            } catch (error) {
+                console.error('Error loading state:', error);
+            }
+        }
+        
+        // Restore current page
+        if (this.state.currentPage) {
+            SessionManager.navigateToPage(this.state.currentPage);
+        }
+    },
+    
+    // Save state to storage
+    saveState: function() {
+        sessionStorage.setItem('ambulanceState', JSON.stringify(this.state));
+    },
+    
+    // Setup state persistence
+    setupStatePersistence: function() {
+        // Save state before page unload
+        window.addEventListener('beforeunload', () => {
+            this.saveState();
+        });
+        
+        // Save state on page changes
+        const observer = new MutationObserver(() => {
+            this.saveState();
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    },
+    
+    // Set selected request
+    setSelectedRequest: function(request) {
+        this.state.selectedRequest = request;
+        localStorage.setItem('selectedRequest', JSON.stringify(request));
+        this.saveState();
+    },
+    
+    // Get selected request
+    getSelectedRequest: function() {
+        if (this.state.selectedRequest) {
+            return this.state.selectedRequest;
+        }
+        
+        const saved = localStorage.getItem('selectedRequest');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (error) {
+                console.error('Error loading selected request:', error);
+            }
+        }
+        
+        return null;
+    },
+    
+    // Set current page
+    setCurrentPage: function(page) {
+        this.state.currentPage = page;
+        this.saveState();
+    },
+    
+    // Set filters
+    setFilters: function(filters) {
+        this.state.filters = { ...this.state.filters, ...filters };
+        this.saveState();
+    },
+    
+    // Get filters
+    getFilters: function() {
+        return this.state.filters;
+    },
+    
+    // Clear state
+    clearState: function() {
+        this.state = {
+            selectedRequest: null,
+            currentPage: 'dashboard',
+            filters: {},
+            sortBy: 'time'
+        };
+        sessionStorage.removeItem('ambulanceState');
+        localStorage.removeItem('selectedRequest');
+    }
+};
+
+// Navigation Helper Functions
+function goBack() {
+    const previousPage = sessionStorage.getItem('previousPage') || 'dashboard';
+    SessionManager.navigateToPage(previousPage);
+}
+
+function showPage(pageId) {
+    SessionManager.navigateToPage(pageId);
+}
+
+// Initialize application
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize session and state management
+    SessionManager.init();
+    StateManager.init();
+    
+    // Simulate login for demo (in real app, this would be actual login)
+    if (!SessionManager.currentUser) {
+        SessionManager.login({
+            name: 'Alex Martinez',
+            email: 'alex@nexcare.com',
+            role: 'paramedic',
+            id: 'emp-001'
+        });
+    }
+    
+    // Initialize dynamic rendering
+    DynamicRenderer.init();
+    
+    // Initialize existing functionality
+    initializeNavigation();
+    initializeDashboard();
+    initializeAmbulanceRequests();
+    initializeAssignedDispatch();
+    initializeActiveTransport();
+    initializeCompletedTransports();
+    initializeProfile();
+    initializeLogout();
+});
+
+// Form Validation Utilities
+const ValidationUtils = {
+    // Email validation regex
+    emailRegex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    
+    // Phone validation regex (supports multiple formats)
+    phoneRegex: /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/,
+    
+    // Name validation (letters, spaces, hyphens, apostrophes)
+    nameRegex: /^[a-zA-Z\s\-'\.]{2,50}$/,
+    
+    // Vehicle number validation (alphanumeric with hyphens)
+    vehicleRegex: /^[A-Z0-9\-]{3,10}$/,
+    
+    // Location validation (letters, numbers, spaces, common punctuation)
+    locationRegex: /^[a-zA-Z0-9\s\,\.\-\#]{5,100}$/,
+    
+    validateRequired: function(value, fieldName) {
+        if (!value || value.trim() === '') {
+            return `${fieldName} is required`;
+        }
+        return null;
+    },
+    
+    validateEmail: function(email) {
+        if (!email || email.trim() === '') {
+            return 'Email is required';
+        }
+        if (!this.emailRegex.test(email.trim())) {
+            return 'Invalid email format';
+        }
+        return null;
+    },
+    
+    validatePhone: function(phone) {
+        if (!phone || phone.trim() === '') {
+            return 'Phone number is required';
+        }
+        if (!this.phoneRegex.test(phone.trim())) {
+            return 'Invalid phone number format';
+        }
+        return null;
+    },
+    
+    validateName: function(name, fieldName = 'Name') {
+        if (!name || name.trim() === '') {
+            return `${fieldName} is required`;
+        }
+        if (name.trim().length < 2) {
+            return `${fieldName} must be at least 2 characters`;
+        }
+        if (name.trim().length > 50) {
+            return `${fieldName} must be less than 50 characters`;
+        }
+        if (!this.nameRegex.test(name.trim())) {
+            return `${fieldName} can only contain letters, spaces, hyphens, and apostrophes`;
+        }
+        return null;
+    },
+    
+    validateVehicle: function(vehicle) {
+        if (!vehicle || vehicle.trim() === '') {
+            return 'Vehicle number is required';
+        }
+        if (!this.vehicleRegex.test(vehicle.trim().toUpperCase())) {
+            return 'Vehicle number must be 3-10 characters (letters, numbers, hyphens only)';
+        }
+        return null;
+    },
+    
+    validateLocation: function(location) {
+        if (!location || location.trim() === '') {
+            return 'Location is required';
+        }
+        if (location.trim().length < 5) {
+            return 'Location must be at least 5 characters';
+        }
+        if (location.trim().length > 100) {
+            return 'Location must be less than 100 characters';
+        }
+        if (!this.locationRegex.test(location.trim())) {
+            return 'Location contains invalid characters';
+        }
+        return null;
+    },
+    
+    validateSelect: function(value, fieldName, allowedValues) {
+        if (!value || value.trim() === '') {
+            return `${fieldName} is required`;
+        }
+        if (allowedValues && !allowedValues.includes(value)) {
+            return `Invalid ${fieldName} selected`;
+        }
+        return null;
+    },
+    
+    checkDuplicate: function(value, existingValues, fieldName) {
+        if (existingValues && existingValues.includes(value.trim())) {
+            return `${fieldName} already exists`;
+        }
+        return null;
+    }
+};
+
+// Form Error Display Manager
+const FormValidation = {
+    errorElements: new Map(),
+    
+    showError: function(inputElement, message) {
+        // Remove existing error if any
+        this.removeError(inputElement);
+        
+        // Add error class to input
+        inputElement.classList.add('input-error');
+        
+        // Create error message element
+        const errorElement = document.createElement('div');
+        errorElement.className = 'error-message';
+        errorElement.textContent = message;
+        
+        // Insert error message after input
+        inputElement.parentNode.insertBefore(errorElement, inputElement.nextSibling);
+        
+        // Store reference for later removal
+        this.errorElements.set(inputElement, errorElement);
+        
+        // Add aria-invalid for accessibility
+        inputElement.setAttribute('aria-invalid', 'true');
+        inputElement.setAttribute('aria-describedby', errorElement.id || `error-${Date.now()}`);
+    },
+    
+    removeError: function(inputElement) {
+        // Remove error class
+        inputElement.classList.remove('input-error');
+        inputElement.setAttribute('aria-invalid', 'false');
+        
+        // Remove existing error message
+        const existingError = this.errorElements.get(inputElement);
+        if (existingError && existingError.parentNode) {
+            existingError.parentNode.removeChild(existingError);
+        }
+        
+        // Clear from map
+        this.errorElements.delete(inputElement);
+    },
+    
+    clearAllErrors: function(formElement) {
+        const inputs = formElement.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => this.removeError(input));
+    },
+    
+    validateForm: function(formElement, validationRules) {
+        let isValid = true;
+        this.clearAllErrors(formElement);
+        
+        for (const [fieldName, rules] of Object.entries(validationRules)) {
+            const inputElement = formElement.querySelector(`[name="${fieldName}"], #${fieldName}`);
+            if (!inputElement) continue;
+            
+            const value = inputElement.value;
+            
+            // Run all validation rules for this field
+            for (const rule of rules) {
+                let error = null;
+                
+                if (rule.type === 'required') {
+                    error = ValidationUtils.validateRequired(value, rule.message || fieldName);
+                } else if (rule.type === 'email') {
+                    error = ValidationUtils.validateEmail(value);
+                } else if (rule.type === 'phone') {
+                    error = ValidationUtils.validatePhone(value);
+                } else if (rule.type === 'name') {
+                    error = ValidationUtils.validateName(value, rule.message || fieldName);
+                } else if (rule.type === 'vehicle') {
+                    error = ValidationUtils.validateVehicle(value);
+                } else if (rule.type === 'location') {
+                    error = ValidationUtils.validateLocation(value);
+                } else if (rule.type === 'select') {
+                    error = ValidationUtils.validateSelect(value, rule.message || fieldName, rule.allowedValues);
+                } else if (rule.type === 'duplicate') {
+                    error = ValidationUtils.checkDuplicate(value, rule.existingValues, rule.message || fieldName);
+                } else if (rule.type === 'custom') {
+                    error = rule.validator(value);
+                }
+                
+                if (error) {
+                    this.showError(inputElement, error);
+                    isValid = false;
+                    break; // Stop at first error for this field
+                }
+            }
+        }
+        
+        return isValid;
+    }
+};
+
+// Navigation History Management
+const NavigationHistory = {
+    history: [],
+    currentIndex: -1,
+    
+    // Initialize history with current page
+    init: function() {
+        const currentPage = this.getCurrentPage();
+        this.history.push(currentPage);
+        this.currentIndex = 0;
+    },
+    
+    // Get current page from hash or default
+    getCurrentPage: function() {
+        const hash = window.location.hash.slice(1);
+        return hash || 'dashboard';
+    },
+    
+    // Navigate to page and update history
+    navigateToPage: function(pageId) {
+        const currentPage = this.getCurrentPage();
+        
+        // Don't add to history if it's the same page
+        if (currentPage === pageId) return;
+        
+        // Remove any forward history when navigating to new page
+        if (this.currentIndex < this.history.length - 1) {
+            this.history = this.history.slice(0, this.currentIndex + 1);
+        }
+        
+        // Add new page to history
+        this.history.push(pageId);
+        this.currentIndex = this.history.length - 1;
+        
+        // Update back button visibility
+        this.updateBackButtonVisibility();
+    },
+    
+    // Go back to previous page
+    goBack: function() {
+        if (this.canGoBack()) {
+            this.currentIndex--;
+            const previousPage = this.history[this.currentIndex];
+            
+            // Navigate to previous page
+            const targetPage = document.getElementById(previousPage + '-page');
+            if (targetPage) {
+                // Update navigation
+                const navLinks = document.querySelectorAll('.nav-link');
+                const pages = document.querySelectorAll('.page');
+                
+                pages.forEach((page) => page.classList.remove('active'));
+                navLinks.forEach((link) => link.classList.remove('active'));
+                
+                targetPage.classList.add('active');
+                
+                const activeLink = document.querySelector(`[data-page="${previousPage}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+                
+                // Update URL hash
+                window.location.hash = previousPage;
+                
+                // Update back button visibility
+                this.updateBackButtonVisibility();
+                
+                // Show toast notification
+                ToastNotifications.info(`Navigated back to ${this.getPageName(previousPage)}`);
+            }
+        } else {
+            // If no history, go to dashboard
+            this.goToDashboard();
+        }
+    },
+    
+    // Check if we can go back
+    canGoBack: function() {
+        return this.currentIndex > 0;
+    },
+    
+    // Go to dashboard
+    goToDashboard: function() {
+        const dashboardLink = document.querySelector('[data-page="dashboard"]');
+        if (dashboardLink) {
+            dashboardLink.click();
+        }
+    },
+    
+    // Get user-friendly page name
+    getPageName: function(pageId) {
+        const pageNames = {
+            'dashboard': 'Dashboard',
+            'ambulance-requests': 'Incoming Requests',
+            'assigned-dispatch': 'Assigned Dispatch',
+            'active-transport': 'Active Transport',
+            'completed-transports': 'Completed Transports',
+            'profile': 'Profile'
+        };
+        return pageNames[pageId] || pageId;
+    },
+    
+    // Update back button visibility based on history
+    updateBackButtonVisibility: function() {
+        const backButtons = document.querySelectorAll('.btn-back');
+        const canGoBack = this.canGoBack();
+        
+        backButtons.forEach(button => {
+            button.style.display = canGoBack ? 'inline-flex' : 'none';
+        });
+    }
+};
+
+// Global back function for onclick handlers
+function goBack() {
+    NavigationHistory.goBack();
+}
+
+// Error Handling and Empty State Management
+const ErrorHandler = {
+    // Show error state in a container
+    showError: function(containerId, title, description, actionCallback = null) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        container.innerHTML = `
+            <div class="error-state">
+                <svg class="error-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div class="error-state-title">${title}</div>
+                <div class="error-state-description">${description}</div>
+                ${actionCallback ? `<div class="empty-state-action"><button type="button" class="btn btn-primary" onclick="${actionCallback}">Try Again</button></div>` : ''}
+            </div>
+        `;
+    },
+    
+    // Show empty state in a container
+    showEmpty: function(containerId, title, description, actionCallback = null, actionText = 'Add New') {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        container.innerHTML = `
+            <div class="empty-state">
+                <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                </svg>
+                <div class="empty-state-title">${title}</div>
+                <div class="empty-state-description">${description}</div>
+                ${actionCallback ? `<div class="empty-state-action"><button type="button" class="btn btn-primary" onclick="${actionCallback}">${actionText}</button></div>` : ''}
+            </div>
+        `;
+    },
+    
+    // Show loading state in a container
+    showLoading: function(containerId, message = 'Loading...') {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        container.innerHTML = `
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <div class="loading-state-text">${message}</div>
+            </div>
+        `;
+    },
+    
+    // Validate record exists
+    validateRecord: function(recordId, recordType = 'record') {
+        if (!recordId) {
+            ToastNotifications.error(`No ${recordType} ID provided`);
+            return false;
+        }
+        
+        const record = appState.requests.find(r => r.id === recordId);
+        if (!record) {
+            ToastNotifications.error(`${recordType.charAt(0).toUpperCase() + recordType.slice(1)} not found`);
+            return false;
+        }
+        
+        return record;
+    },
+    
+    // Handle API errors gracefully
+    handleApiError: function(error, operation = 'operation') {
+        console.error(`Error during ${operation}:`, error);
+        ToastNotifications.error(`Failed to ${operation}. Please try again.`);
+    },
+    
+    // Create alert message
+    showAlert: function(containerId, message, type = 'info', dismissible = true) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        const alertId = 'alert-' + Date.now();
+        const alertHtml = `
+            <div id="${alertId}" class="alert alert-${type}">
+                <svg class="alert-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    ${this.getAlertIcon(type)}
+                </svg>
+                <span class="alert-message">${message}</span>
+                ${dismissible ? `<button class="alert-close" onclick="this.parentElement.remove()">×</button>` : ''}
+            </div>
+        `;
+        
+        // Insert at the beginning of container
+        container.insertAdjacentHTML('afterbegin', alertHtml);
+        
+        // Auto-dismiss after 5 seconds for info and success
+        if (type === 'info' || type === 'success') {
+            setTimeout(() => {
+                const alert = document.getElementById(alertId);
+                if (alert) alert.remove();
+            }, 5000);
+        }
+    },
+    
+    getAlertIcon: function(type) {
+        const icons = {
+            info: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            warning: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>',
+            error: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            success: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+        };
+        return icons[type] || icons.info;
+    }
+};
+
+// ETA Timer System for Real-time Status Display (FR-11)
+const ETATimer = {
+    intervals: new Map(),
+    
+    // ETA estimates per step (in minutes)
+    stepEstimates: {
+        0: 8,  // Dispatch Accepted -> Ambulance En Route
+        1: 12, // Ambulance En Route -> Patient Picked Up  
+        2: 5,  // Patient Picked Up -> Reached Hospital
+        3: 15, // Reached Hospital -> Transport Completed
+        4: 0   // Transport Completed (no further steps)
+    },
+    
+    startTimer: function(requestId, currentStep) {
+        // Clear existing timer for this request
+        this.stopTimer(requestId);
+        
+        const estimate = this.stepEstimates[currentStep] || 0;
+        if (estimate === 0) return; // No timer needed for completed steps
+        
+        let remainingSeconds = estimate * 60;
+        
+        const interval = setInterval(() => {
+            remainingSeconds--;
+            
+            if (remainingSeconds <= 0) {
+                this.stopTimer(requestId);
+                this.updateTimerDisplay(requestId, 'Completed', true);
+            } else {
+                const minutes = Math.floor(remainingSeconds / 60);
+                const seconds = remainingSeconds % 60;
+                const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                this.updateTimerDisplay(requestId, timeString, false);
+            }
+        }, 1000);
+        
+        this.intervals.set(requestId, interval);
+        this.updateTimerDisplay(requestId, `${estimate}:00`, false);
+    },
+    
+    stopTimer: function(requestId) {
+        const interval = this.intervals.get(requestId);
+        if (interval) {
+            clearInterval(interval);
+            this.intervals.delete(requestId);
+        }
+    },
+    
+    updateTimerDisplay: function(requestId, timeString, isCompleted) {
+        const etaElement = document.getElementById(`eta-${requestId}`);
+        if (etaElement) {
+            if (isCompleted) {
+                etaElement.innerHTML = `<span class="eta-completed">✓ Step Completed</span>`;
+            } else {
+                etaElement.innerHTML = `<span class="eta-live">⏱️ ETA: ${timeString}</span>`;
+            }
+        }
+    },
+    
+    formatTimeRemaining: function(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+};
+
+// Toast Notification System
+const ToastNotifications = {
+    container: null,
+    
+    init: function() {
+        this.container = document.createElement('div');
+        this.container.className = 'toast-container';
+        document.body.appendChild(this.container);
+    },
+    
+    show: function(message, type = 'info', duration = 3000) {
+        if (!this.container) this.init();
+        
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <span class="toast-message">${message}</span>
+                <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+        
+        this.container.appendChild(toast);
+        
+        // Auto remove after duration
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, duration);
+        
+        // Animate in
+        setTimeout(() => toast.classList.add('toast-show'), 10);
+    },
+    
+    success: function(message) {
+        this.show(message, 'success');
+    },
+    
+    error: function(message) {
+        this.show(message, 'error', 5000);
+    },
+    
+    info: function(message) {
+        this.show(message, 'info');
+    },
+    
+    warning: function(message) {
+        this.show(message, 'warning');
+    }
+};
+
+// Checklist Persistence System
+const ChecklistManager = {
+    storageKey: 'nexcare_checklist_v1',
+    
+    getChecklistState: function() {
+        try {
+            const stored = localStorage.getItem(this.storageKey);
+            return stored ? JSON.parse(stored) : {};
+        } catch (e) {
+            return {};
+        }
+    },
+    
+    saveChecklistState: function(state) {
+        try {
+            localStorage.setItem(this.storageKey, JSON.stringify(state));
+        } catch (e) {
+            console.warn('Could not save checklist state:', e);
+        }
+    },
+    
+    bindCheckboxes: function() {
+        const checkboxes = document.querySelectorAll('.checklist-grid .checkbox');
+        const currentState = this.getChecklistState();
+        
+        checkboxes.forEach((checkbox, index) => {
+            const checkboxId = `checklist-${index}`;
+            
+            // Restore saved state
+            if (currentState[checkboxId]) {
+                checkbox.checked = true;
+            }
+            
+            // Save on change
+            checkbox.addEventListener('change', function() {
+                const newState = ChecklistManager.getChecklistState();
+                newState[checkboxId] = this.checked;
+                ChecklistManager.saveChecklistState(newState);
+            });
+        });
+    },
+    
+    resetChecklist: function() {
+        try {
+            localStorage.removeItem(this.storageKey);
+            const checkboxes = document.querySelectorAll('.checklist-grid .checkbox');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+        } catch (e) {
+            console.warn('Could not reset checklist:', e);
+        }
+    }
+};
+
+// CSV Export Utility
+const CSVExport = {
+    downloadCSV: function(data, filename) {
+        const csv = this.convertToCSV(data);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+    },
+    
+    convertToCSV: function(data) {
+        if (!data || data.length === 0) return '';
+        
+        // Get headers from first object
+        const headers = Object.keys(data[0]);
+        const csvHeaders = headers.join(',');
+        
+        // Convert data rows
+        const csvRows = data.map(row => {
+            return headers.map(header => {
+                const value = row[header] || '';
+                // Escape quotes and wrap in quotes if contains comma
+                return `"${String(value).replace(/"/g, '""')}"`;
+            }).join(',');
+        });
+        
+        return [csvHeaders, ...csvRows].join('\n');
+    }
+};
+
+const TRANSPORT_STEPS = [
+    {
+        label: 'Dispatch Accepted',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    },
+    {
+        label: 'Ambulance En Route',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>',
+    },
+    {
+        label: 'Patient Picked Up',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>',
+    },
+    {
+        label: 'Reached Hospital',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+    },
+    {
+        label: 'Transport Completed',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
+    },
+];
+
+function escapeHtml(str) {
+    if (str == null) return '';
+    const d = document.createElement('div');
+    d.textContent = String(str);
+    return d.innerHTML;
+}
+
+function formatRequestTime() {
+    return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
+function formatCompletedDate() {
+    return new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function getDefaultAppState() {
+    return {
+        nextSeq: 20,
+        profile: {
+            name: 'Alex Martinez',
+            phone: '+1 (555) 987-6543',
+            vehicle: 'AMB-05',
+            status: 'Available',
+        },
+        requests: [
+            { id: 'AMB-2026-012', patient: 'John Smith', location: '123 Main Street, Downtown', contact: '+1 (555) 123-4567', time: '10:30 AM', priority: 'High', status: 'pending' },
+            { id: 'AMB-2026-011', patient: 'Sarah Johnson', location: '456 Oak Avenue, Westside', contact: '+1 (555) 234-5678', time: '10:15 AM', priority: 'Medium', status: 'pending' },
+            { id: 'AMB-2026-010', patient: 'Michael Brown', location: '789 Pine Road, Eastside', contact: '+1 (555) 345-6789', time: '9:45 AM', priority: 'High', status: 'pending' },
+            { id: 'AMB-2026-009', patient: 'Emily Davis', location: '321 Elm Street, Northside', contact: '+1 (555) 456-7890', time: '9:30 AM', priority: 'Low', status: 'pending' },
+            { id: 'AMB-2026-008', patient: 'David Martinez', location: '987 Birch Lane, Central', contact: '+1 (555) 567-8901', time: '9:15 AM', priority: 'Medium', status: 'pending' },
+            { id: 'AMB-2026-007', patient: 'Lisa Anderson', location: '654 Cedar Court, Southside', contact: '+1 (555) 678-9012', time: '9:00 AM', priority: 'High', status: 'pending' },
+            {
+                id: 'AMB-2026-005',
+                patient: 'Robert Wilson',
+                location: '654 Maple Drive, Southside',
+                contact: '+1 (555) 567-8901',
+                time: '8:15 AM',
+                priority: 'High',
+                status: 'in_transit',
+                stepIndex: 2,
+            },
+            { id: 'AMB-2026-006', patient: 'James Williams', location: '876 Willow St, Midtown', contact: '+1 (555) 111-2000', time: '8:30 AM', priority: 'Low', status: 'completed', completedDate: 'March 8, 2026', completedTime: '8:30 AM' },
+            { id: 'AMB-2026-004', patient: 'Patricia Taylor', location: '543 Spruce Ave, Downtown', contact: '+1 (555) 111-2001', time: '4:15 PM', priority: 'Medium', status: 'completed', completedDate: 'March 7, 2026', completedTime: '4:15 PM' },
+            { id: 'AMB-2026-003', patient: 'Thomas Anderson', location: '432 Cedar Ln, Westside', contact: '+1 (555) 111-2002', time: '2:45 PM', priority: 'High', status: 'completed', completedDate: 'March 7, 2026', completedTime: '2:45 PM' },
+            { id: 'AMB-2026-002', patient: 'Maria Garcia', location: '321 Birch Rd, Eastside', contact: '+1 (555) 111-2003', time: '11:30 AM', priority: 'Low', status: 'completed', completedDate: 'March 7, 2026', completedTime: '11:30 AM' },
+            { id: 'AMB-2026-001', patient: 'Christopher Lee', location: '210 Pine St, Northside', contact: '+1 (555) 111-2004', time: '9:00 AM', priority: 'Medium', status: 'completed', completedDate: 'March 7, 2026', completedTime: '9:00 AM' },
+            { id: 'AMB-2026-018', patient: 'Alex Rivera', location: '100 River Rd, Central', contact: '+1 (555) 111-2005', time: '7:30 AM', priority: 'Low', status: 'completed', completedDate: 'March 6, 2026', completedTime: '7:30 AM' },
+        ],
+    };
+}
+
+function migrateState(raw) {
+    if (!raw.requests) raw.requests = [];
+    if (typeof raw.nextSeq !== 'number') raw.nextSeq = 20;
+    if (!raw.profile) raw.profile = getDefaultAppState().profile;
+    raw.requests.forEach((r) => {
+        if (!r.status) r.status = 'pending';
+        if (r.status === 'in_transit' && (r.stepIndex == null || r.stepIndex < 0)) r.stepIndex = 0;
+    });
+    return raw;
+}
+
+function loadAppState() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            return migrateState(parsed);
+        }
+    } catch (e) {}
+    return getDefaultAppState();
+}
+
+let appState = loadAppState();
+
+function persistAppState() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+    } catch (e) {}
+}
+
+function newRequestId() {
+    const n = appState.nextSeq++;
+    return `AMB-2026-${String(n).padStart(3, '0')}`;
+}
+
+    function getPriorityBadgeClass(priority) {
+        switch (priority) {
+        case 'High':
+            return 'badge-red';
+        case 'Medium':
+            return 'badge-yellow';
+        case 'Low':
+            return 'badge-green';
+        default:
+            return 'badge-gray';
+    }
+}
+
+function statusToRecentBadge(status) {
+    switch (status) {
+        case 'pending':
+            return 'badge-orange';
+        case 'assigned':
+            return 'badge-blue';
+        case 'in_transit':
+            return 'badge-teal';
+        case 'completed':
+            return 'badge-green';
+        default:
+            return 'badge-gray';
+    }
+}
+
+function statusToLabel(status) {
+    switch (status) {
+        case 'pending':
+            return 'Pending';
+        case 'assigned':
+            return 'Assigned';
+        case 'in_transit':
+            return 'Active';
+        case 'completed':
+            return 'Completed';
+        default:
+            return status;
+    }
+}
+
+function getActiveTransportRequest() {
+    return appState.requests.find((r) => r.status === 'in_transit');
+}
+
+function refreshAllViews() {
+    renderDashboard();
+    renderAmbulanceRequests();
+    renderAssignedDispatch();
+    renderCompletedTransports();
+    renderActiveTransport();
+    syncDashboardUserName();
+}
+
+function syncDashboardUserName() {
+    const el = document.getElementById('dashboard-user-name');
+    if (el && appState.profile) el.textContent = appState.profile.name;
+}
+
+function renderDashboard() {
+    const pending = appState.requests.filter((r) => r.status === 'pending').length;
+    const assigned = appState.requests.filter((r) => r.status === 'assigned').length;
+    const active = appState.requests.filter((r) => r.status === 'in_transit').length;
+    const completed = appState.requests.filter((r) => r.status === 'completed').length;
+
+    const sp = document.getElementById('stat-pending');
+    const sa = document.getElementById('stat-assigned');
+    const sac = document.getElementById('stat-active');
+    const sc = document.getElementById('stat-completed');
+    if (sp) sp.textContent = String(pending);
+    if (sa) sa.textContent = String(assigned);
+    if (sac) sac.textContent = String(active);
+    if (sc) sc.textContent = String(completed);
+
+    // Update Active Transport banner
+    updateActiveTransportBanner();
+
+    const recentBody = document.getElementById('dashboard-recent-tbody');
+    if (!recentBody) return;
+
+    const open = appState.requests
+        .filter((r) => r.status !== 'completed')
+        .slice()
+        .sort((a, b) => (a.time > b.time ? -1 : 1))
+        .slice(0, 8);
+
+    recentBody.innerHTML = open.length
+        ? open
+              .map(
+                  (r) => {
+                      const priorityClass = `priority-${r.priority.toLowerCase()}`;
+                      return `
+        <tr>
+            <td><span class="request-id">${escapeHtml(r.id)}</span></td>
+            <td><span class="patient-name">${escapeHtml(r.patient)}</span></td>
+            <td><span class="text-gray">${escapeHtml(r.location)}</span></td>
+            <td><span class="text-gray">${escapeHtml(r.time)}</span></td>
+            <td><span class="priority-badge ${priorityClass}">${escapeHtml(r.priority)}</span></td>
+            <td><span class="badge ${statusToRecentBadge(r.status)}">${escapeHtml(statusToLabel(r.status))}</span></td>
+        </tr>`;
+                  }
+              )
+              .join('')
+        : '<tr><td colspan="6" class="text-gray">No open requests</td></tr>';
+}
+
+function updateActiveTransportBanner() {
+    const banner = document.getElementById('dashboard-active-banner');
+    const activeRequest = getActiveTransportRequest();
+    
+    if (!banner) return;
+    
+    if (activeRequest) {
+        const currentStep = TRANSPORT_STEPS[activeRequest.stepIndex || 0];
+        const etaDisplay = document.getElementById('eta-display');
+        const currentStepElement = document.getElementById('eta-current-step');
+        
+        // Update banner content
+        document.getElementById('banner-patient-name').textContent = `Patient: ${activeRequest.patient}`;
+        document.getElementById('banner-current-step').textContent = `Step: ${currentStep.label}`;
+        
+        // Show banner
+        banner.style.display = 'block';
+        
+        // Update ETA if timer is running
+        if (etaDisplay && etaDisplay.textContent !== '⏱️ ETA: --:--') {
+            document.getElementById('banner-time-remaining').textContent = `ETA: ${etaDisplay.textContent.replace('⏱️ ETA: ', '')}`;
+        } else {
+            document.getElementById('banner-time-remaining').textContent = 'ETA: --:--';
+        }
+    } else {
+        // Hide banner if no active transport
+        banner.style.display = 'none';
+    }
+}
+
+function resetRequestForm() {
+    const form = document.getElementById('request-mutate-form');
+    const title = document.getElementById('request-form-title');
+    const hint = document.getElementById('request-form-hint');
+    const submitBtn = document.getElementById('request-form-submit');
+    const cancelBtn = document.getElementById('request-form-cancel');
+    const editId = document.getElementById('request-edit-id');
+    if (form) form.reset();
+    if (editId) editId.value = '';
+    if (title) title.textContent = 'New request';
+    if (hint) hint.textContent = 'Add a dispatch request to the queue';
+    if (submitBtn) submitBtn.textContent = 'Create request';
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    const pr = document.getElementById('req-priority');
+    if (pr) pr.value = 'Medium';
+}
+
+function renderAmbulanceRequests() {
+    const tbody = document.getElementById('ambulance-requests-tbody');
+    if (!tbody) return;
+
+    try {
+        const pending = appState.requests.filter((r) => r.status === 'pending');
+
+        if (pending.length === 0) {
+            // Show empty state with proper messaging
+            tbody.innerHTML = `
+                <tr class="empty-row">
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                            </svg>
+                            <div class="empty-state-title">No Pending Requests</div>
+                            <div class="empty-state-description">There are no pending ambulance requests from dispatch at the moment. New requests will appear here automatically.</div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = pending
+            .map(
+                (request) => {
+                    const priorityClass = `priority-${request.priority.toLowerCase()}`;
+                    return `
+            <tr>
+                <td><span class="request-id">${escapeHtml(request.id)}</span></td>
+                <td><span class="patient-name">${escapeHtml(request.patient)}</span></td>
+                <td><span class="text-gray">${escapeHtml(request.location)}</span></td>
+                <td><span class="text-gray">${escapeHtml(request.contact)}</span></td>
+                <td><span class="text-gray">${escapeHtml(request.time)}</span></td>
+                <td><span class="priority-badge ${priorityClass}">${escapeHtml(request.priority)}</span></td>
+                <td><span class="badge badge-orange">Pending</span></td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-sm accept-btn" data-id="${escapeHtml(request.id)}">Accept</button>
+                </td>
+            </tr>`;
+                }
+            )
+            .join('');
+
+        // Accept button functionality with error handling
+        tbody.querySelectorAll('.accept-btn').forEach((btn) => {
+            btn.addEventListener('click', function () {
+                try {
+                    const id = this.getAttribute('data-id');
+                    const record = ErrorHandler.validateRecord(id, 'request');
+                    if (!record) return;
+                    
+                    if (record.status !== 'pending') {
+                        ToastNotifications.warning('This request is no longer pending');
+                        refreshAllViews();
+                        return;
+                    }
+                    
+                    record.status = 'assigned';
+                    persistAppState();
+                    refreshAllViews();
+                    ToastNotifications.success(`Accepted request ${record.id} - ${record.patient}`);
+                } catch (error) {
+                    ErrorHandler.handleApiError(error, 'accept request');
+                }
+            });
+        });
+    } catch (error) {
+        ErrorHandler.handleApiError(error, 'load requests');
+        ErrorHandler.showError('ambulance-requests-tbody', 'Failed to Load Requests', 'Unable to load incoming requests. Please refresh the page.');
+    }
+}
+
+function bindRequestCrudForm() {
+    const form = document.getElementById('request-mutate-form');
+    const cancelBtn = document.getElementById('request-form-cancel');
+    if (!form) return;
+
+    // Add name attributes to form fields for validation
+    document.getElementById('req-patient').setAttribute('name', 'patient');
+    document.getElementById('req-location').setAttribute('name', 'location');
+    document.getElementById('req-contact').setAttribute('name', 'contact');
+    document.getElementById('req-priority').setAttribute('name', 'priority');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        
+        // Get existing contacts for duplicate checking
+        const existingContacts = appState.requests.map(r => r.contact);
+        const editId = document.getElementById('request-edit-id').value.trim();
+        
+        // If editing, exclude current contact from duplicate check
+        if (editId) {
+            const currentRequest = appState.requests.find(r => r.id === editId);
+            if (currentRequest) {
+                const index = existingContacts.indexOf(currentRequest.contact);
+                if (index > -1) {
+                    existingContacts.splice(index, 1);
+                }
+            }
+        }
+        
+        // Validation rules
+        const validationRules = {
+            patient: [
+                { type: 'required', message: 'Patient name' },
+                { type: 'name', message: 'Patient name' }
+            ],
+            location: [
+                { type: 'required', message: 'Location' },
+                { type: 'location' }
+            ],
+            contact: [
+                { type: 'required', message: 'Contact number' },
+                { type: 'phone' },
+                { type: 'duplicate', existingValues: existingContacts, message: 'Contact number' }
+            ],
+            priority: [
+                { type: 'required', message: 'Priority' },
+                { type: 'select', allowedValues: ['Low', 'Medium', 'High'] }
+            ]
+        };
+        
+        // Validate form
+        const isValid = FormValidation.validateForm(form, validationRules);
+        
+        if (!isValid) {
+            // Focus first error field
+            const firstError = form.querySelector('.input-error');
+            if (firstError) {
+                firstError.focus();
+            }
+            return;
+        }
+        
+        // If validation passes, proceed with form submission
+        const patient = document.getElementById('req-patient').value.trim();
+        const location = document.getElementById('req-location').value.trim();
+        const contact = document.getElementById('req-contact').value.trim();
+        const priority = document.getElementById('req-priority').value;
+
+        if (editId) {
+            const r = appState.requests.find((x) => x.id === editId);
+            if (r && r.status === 'pending') {
+                r.patient = patient;
+                r.location = location;
+                r.contact = contact;
+                r.priority = priority;
+            }
+        } else {
+            appState.requests.push({
+                id: newRequestId(),
+                patient,
+                location,
+                contact,
+                time: formatRequestTime(),
+                priority,
+                status: 'pending',
+            });
+        }
+        persistAppState();
+        resetRequestForm();
+        refreshAllViews();
+    });
+
+    // Add real-time validation on input
+    const inputs = form.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateSingleField(input);
+        });
+        
+        input.addEventListener('input', function() {
+            // Clear error on typing
+            if (input.classList.contains('input-error')) {
+                FormValidation.removeError(input);
+            }
+        });
+    });
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', resetRequestForm);
+    }
+}
+
+// Function to validate a single field
+function validateSingleField(inputElement) {
+    const fieldName = inputElement.name || inputElement.id;
+    const value = inputElement.value;
+    
+    let validationRules = [];
+    
+    switch(fieldName) {
+        case 'patient':
+            validationRules = [
+                { type: 'required', message: 'Patient name' },
+                { type: 'name', message: 'Patient name' }
+            ];
+            break;
+        case 'location':
+            validationRules = [
+                { type: 'required', message: 'Location' },
+                { type: 'location' }
+            ];
+            break;
+        case 'contact':
+            validationRules = [
+                { type: 'required', message: 'Contact number' },
+                { type: 'phone' }
+            ];
+            break;
+        case 'priority':
+            validationRules = [
+                { type: 'required', message: 'Priority' },
+                { type: 'select', allowedValues: ['Low', 'Medium', 'High'] }
+            ];
+            break;
+    }
+    
+    // Run validation for this field
+    for (const rule of validationRules) {
+        let error = null;
+        
+        if (rule.type === 'required') {
+            error = ValidationUtils.validateRequired(value, rule.message || fieldName);
+        } else if (rule.type === 'name') {
+            error = ValidationUtils.validateName(value, rule.message || fieldName);
+        } else if (rule.type === 'location') {
+            error = ValidationUtils.validateLocation(value);
+        } else if (rule.type === 'phone') {
+            error = ValidationUtils.validatePhone(value);
+        } else if (rule.type === 'select') {
+            error = ValidationUtils.validateSelect(value, rule.message || fieldName, rule.allowedValues);
+        }
+        
+        if (error) {
+            FormValidation.showError(inputElement, error);
+            return;
+        }
+    }
+    
+    // If no errors, show success state (optional)
+    FormValidation.removeError(inputElement);
+}
+
+function renderAssignedDispatch() {
+    const container = document.getElementById('assigned-requests-container');
+    if (!container) return;
+
+    try {
+        const assigned = appState.requests.filter((r) => r.status === 'assigned');
+        const active = getActiveTransportRequest();
+
+        // Update stats with error handling
+        try {
+            const totalEl = document.getElementById('dispatch-stat-total');
+            const readyEl = document.getElementById('dispatch-stat-ready');
+            const progEl = document.getElementById('dispatch-stat-progress');
+            if (totalEl) totalEl.textContent = String(assigned.length + (active ? 1 : 0));
+            if (readyEl) readyEl.textContent = String(assigned.length);
+            if (progEl) progEl.textContent = String(active ? 1 : 0);
+        } catch (error) {
+            console.warn('Failed to update dispatch stats:', error);
+        }
+
+        if (assigned.length === 0) {
+            // Show empty state with proper messaging
+            container.innerHTML = `
+                <div class="empty-state">
+                    <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <div class="empty-state-title">No Assigned Dispatches</div>
+                    <div class="empty-state-description">You don't have any assigned ambulance requests. Accept pending requests from the Incoming Requests page to see them here.</div>
+                    <div class="empty-state-action">
+                        <a href="#ambulance-requests" class="btn btn-primary" data-page="ambulance-requests">View Incoming Requests</a>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = assigned
+            .map(
+                (request) => {
+                    const priorityClass = `priority-${request.priority.toLowerCase()}`;
+                    return `
+            <div class="dispatch-card">
+                <div class="dispatch-card-header">
+                    <div>
+                        <h3 class="dispatch-patient">${escapeHtml(request.patient)}</h3>
+                        <span class="dispatch-id">${escapeHtml(request.id)}</span>
+                    </div>
+                    <div class="dispatch-badges">
+                        <span class="badge badge-green">Ready to Start</span>
+                        <span class="priority-badge ${priorityClass}">${escapeHtml(request.priority)}</span>
+                    </div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-icon blue-bg">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                        <div>
+                            <p class="info-label">Pickup Address</p>
+                            <p class="info-value">${escapeHtml(request.location)}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon teal-bg">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        </div>
+                        <div>
+                            <p class="info-label">Contact Number</p>
+                            <p class="info-value">${escapeHtml(request.contact)}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="dispatch-actions">
+                    <button type="button" class="btn btn-teal start-transport-btn" data-id="${escapeHtml(request.id)}" ${getActiveTransportRequest() ? 'disabled title="Finish current transport first"' : ''}>
+                        Start Transport
+                    </button>
+                    <button type="button" class="btn-cancel cancel-assignment-btn" data-id="${escapeHtml(request.id)}">
+                        Cancel Assignment
+                    </button>
+                </div>
+            </div>`;
+                }
+            )
+            .join('');
+
+        // Start Transport buttons with error handling
+        container.querySelectorAll('.start-transport-btn').forEach((btn) => {
+            btn.addEventListener('click', function () {
+                try {
+                    if (getActiveTransportRequest()) {
+                        ToastNotifications.error('Complete or finish the current transport before starting another.');
+                        return;
+                    }
+                    const id = this.getAttribute('data-id');
+                    const record = ErrorHandler.validateRecord(id, 'request');
+                    if (!record) return;
+                    
+                    if (record.status !== 'assigned') {
+                        ToastNotifications.warning('This request is no longer available for transport');
+                        refreshAllViews();
+                        return;
+                    }
+                    
+                    record.status = 'in_transit';
+                    record.stepIndex = 0;
+                    persistAppState();
+                    refreshAllViews();
+                    ToastNotifications.success(`Transport started for ${record.patient}`);
+                    
+                    // Start ETA timer
+                    ETATimer.startTimer(record.id, record.stepIndex);
+                } catch (error) {
+                    ErrorHandler.handleApiError(error, 'start transport');
+                }
+            });
+        });
+
+        // Cancel Assignment buttons with error handling
+        container.querySelectorAll('.cancel-assignment-btn').forEach((btn) => {
+            btn.addEventListener('click', function () {
+                try {
+                    const id = this.getAttribute('data-id');
+                    const record = ErrorHandler.validateRecord(id, 'request');
+                    if (!record) return;
+                    
+                    if (record.status !== 'assigned') {
+                        ToastNotifications.warning('This request cannot be cancelled');
+                        refreshAllViews();
+                        return;
+                    }
+                    
+                    record.status = 'pending';
+                    persistAppState();
+                    refreshAllViews();
+                    ToastNotifications.warning(`Assignment cancelled for ${record.patient}`);
+                } catch (error) {
+                    ErrorHandler.handleApiError(error, 'cancel assignment');
+                }
+            });
+        });
+    } catch (error) {
+        ErrorHandler.handleApiError(error, 'load assigned dispatches');
+        ErrorHandler.showError('assigned-requests-container', 'Failed to Load Dispatches', 'Unable to load assigned ambulance requests. Please refresh the page.');
+    }
+}
+
+function renderProgressTracker(stepIndex) {
+        const tracker = document.getElementById('progress-tracker');
+    if (!tracker) return;
+    const maxIdx = TRANSPORT_STEPS.length - 1;
+    const cur = Math.min(Math.max(0, stepIndex), maxIdx);
+    const progressPercent = maxIdx > 0 ? (cur / maxIdx) * 100 : 100;
+
+        tracker.innerHTML = `
+            <div class="progress-line">
+                <div class="progress-line-fill" style="height: ${progressPercent}%"></div>
+            </div>
+            <div class="progress-steps">
+            ${TRANSPORT_STEPS.map((step, index) => {
+                const isCompleted = index < cur;
+                const isCurrent = index === cur;
+                let statusClass = 'pending';
+                    let statusText = '';
+                    if (isCompleted) {
+                        statusClass = 'completed';
+                        statusText = '<p class="step-status completed">Completed</p>';
+                    } else if (isCurrent) {
+                        statusClass = 'current';
+                        statusText = '<p class="step-status current">In Progress</p>';
+                    }
+                    return `
+                        <div class="progress-step">
+                        <div class="step-icon ${statusClass}">${step.icon}</div>
+                            <div class="step-content">
+                            <h3 class="${statusClass}">${escapeHtml(step.label)}</h3>
+                                ${statusText}
+                        </div>
+                    </div>`;
+                }).join('')}
+        </div>`;
+}
+
+function renderActiveTransport() {
+    const empty = document.getElementById('active-transport-empty');
+    const panel = document.getElementById('active-transport-panel');
+    const actions = document.getElementById('active-transport-actions');
+    const nextBtn = document.getElementById('next-step-btn');
+    const completeBtn = document.getElementById('complete-transport-btn');
+    const etaBanner = document.getElementById('eta-banner');
+
+    const active = getActiveTransportRequest();
+
+    if (!active) {
+        if (empty) empty.style.display = 'block';
+        if (panel) panel.style.display = 'none';
+        if (actions) actions.style.display = 'none';
+        if (etaBanner) etaBanner.style.display = 'none';
+        // Stop any running ETA timer
+        if (active) ETATimer.stopTimer(active.id);
+        return;
+    }
+
+    if (empty) empty.style.display = 'none';
+    if (panel) panel.style.display = 'block';
+    if (actions) actions.style.display = 'flex';
+    if (etaBanner) etaBanner.style.display = 'flex';
+
+    const nameEl = document.getElementById('active-patient-name');
+    const phoneEl = document.getElementById('active-patient-phone');
+    const locEl = document.getElementById('active-patient-location');
+    if (nameEl) nameEl.textContent = active.patient;
+    if (phoneEl) phoneEl.textContent = active.contact;
+    if (locEl) locEl.textContent = active.location;
+
+    let step = active.stepIndex != null ? active.stepIndex : 0;
+    if (step < 0) step = 0;
+    if (step >= TRANSPORT_STEPS.length) step = TRANSPORT_STEPS.length - 1;
+    active.stepIndex = step;
+
+    renderProgressTracker(step);
+
+    // Update ETA timer
+    const currentStep = TRANSPORT_STEPS[step];
+    const etaStepInfo = document.getElementById('eta-current-step');
+    if (etaStepInfo) {
+        etaStepInfo.textContent = currentStep.label;
+    }
+
+    // Start or update ETA timer
+    ETATimer.startTimer(active.id, step);
+
+    const lastStep = TRANSPORT_STEPS.length - 1;
+    if (nextBtn) {
+        nextBtn.style.display = step < lastStep ? 'block' : 'none';
+    }
+    if (completeBtn) {
+        completeBtn.style.display = step >= lastStep ? 'block' : 'none';
+    }
+}
+
+function bindActiveTransportControls() {
+    const nextBtn = document.getElementById('next-step-btn');
+    const completeBtn = document.getElementById('complete-transport-btn');
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function () {
+            const r = getActiveTransportRequest();
+            if (!r) return;
+            const lastStep = TRANSPORT_STEPS.length - 1;
+            if (r.stepIndex < lastStep) {
+                r.stepIndex++;
+                persistAppState();
+                refreshAllViews();
+            }
+        });
+    }
+
+    if (completeBtn) {
+        completeBtn.addEventListener('click', function () {
+            const r = getActiveTransportRequest();
+            if (!r) return;
+            r.status = 'completed';
+            r.completedDate = formatCompletedDate();
+            r.completedTime = formatRequestTime();
+            delete r.stepIndex;
+            persistAppState();
+            refreshAllViews();
+        });
+    }
+}
+
+function renderCompletedTransports() {
+    const tbody = document.getElementById('completed-transports-tbody');
+    if (!tbody) return;
+
+    try {
+        const completed = appState.requests.filter((r) => r.status === 'completed');
+
+        // Update dynamic stats with error handling
+        try {
+            updateCompletedTransportStats(completed);
+        } catch (error) {
+            console.warn('Failed to update completed transport stats:', error);
+        }
+
+        if (completed.length === 0) {
+            // Show empty state with proper messaging
+            tbody.innerHTML = `
+                <tr class="empty-row">
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div class="empty-state-title">No Completed Transports</div>
+                            <div class="empty-state-description">No ambulance transports have been completed yet. Completed transports will appear here with detailed information.</div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = completed
+            .map(
+                (t) => {
+                    const priorityClass = `priority-${t.priority.toLowerCase()}`;
+                    return `
+        <tr>
+            <td><span class="request-id">${escapeHtml(t.id)}</span></td>
+            <td><span class="patient-name">${escapeHtml(t.patient)}</span></td>
+            <td><span class="text-gray">${escapeHtml(t.location)}</span></td>
+            <td><span class="text-gray">${escapeHtml(t.completedDate || '—')}</span></td>
+            <td><span class="text-gray">${escapeHtml(t.completedTime || '—')}</span></td>
+            <td><span class="priority-badge ${priorityClass}">${escapeHtml(t.priority)}</span></td>
+            <td><span class="badge badge-green">Completed</span></td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm delete-completed-btn" data-id="${escapeHtml(t.id)}">Delete</button>
+            </td>
+        </tr>`;
+                }
+            )
+            .join('');
+
+        // Delete buttons with error handling
+        tbody.querySelectorAll('.delete-completed-btn').forEach((btn) => {
+            btn.addEventListener('click', function () {
+                try {
+                    const id = this.getAttribute('data-id');
+                    const record = ErrorHandler.validateRecord(id, 'transport');
+                    if (!record) return;
+                    
+                    if (record.status !== 'completed') {
+                        ToastNotifications.warning('This transport is no longer in completed status');
+                        refreshAllViews();
+                        return;
+                    }
+                    
+                    if (!confirm(`Remove ${id} from history? This action cannot be undone.`)) return;
+                    
+                    appState.requests = appState.requests.filter((x) => x.id !== id);
+                    persistAppState();
+                    refreshAllViews();
+                    ToastNotifications.info(`Transport ${id} removed from history`);
+                } catch (error) {
+                    ErrorHandler.handleApiError(error, 'delete completed transport');
+                }
+            });
+        });
+    } catch (error) {
+        ErrorHandler.handleApiError(error, 'load completed transports');
+        ErrorHandler.showError('completed-transports-tbody', 'Failed to Load History', 'Unable to load completed transport history. Please refresh the page.');
+    }
+}
+
+function updateCompletedTransportStats(completed) {
+    try {
+        // Update total completed count
+        const totalStat = document.querySelector('.stat-value');
+        if (totalStat && totalStat.parentElement?.querySelector('.stat-label')?.textContent === 'Total Completed') {
+            totalStat.textContent = String(completed.length);
+        }
+
+        // Calculate response times (mock calculation for demo)
+        const avgResponseTime = completed.length > 0 ? 8.5 : 0; // Mock calculation
+        const under10MinPercentage = completed.length > 0 ? 58 : 0; // Mock calculation
+
+        // Update average response time
+        const responseTimeStat = document.querySelector('.stat-value');
+        if (responseTimeStat && responseTimeStat.parentElement?.querySelector('.stat-label')?.textContent === 'Avg Response Time') {
+            responseTimeStat.textContent = avgResponseTime > 0 ? `${avgResponseTime.toFixed(1)} min` : '—';
+        }
+
+        // Update response time breakdown
+        const breakdownValue = document.querySelector('.breakdown-value');
+        if (breakdownValue) {
+            breakdownValue.textContent = `${under10MinPercentage}%`;
+        }
+
+        // Update progress bar
+        const progressFill = document.querySelector('.progress-fill');
+        if (progressFill) {
+            progressFill.style.width = `${under10MinPercentage}%`;
+        }
+    } catch (error) {
+        console.warn('Failed to update completed transport stats:', error);
+    }
+}
+
+function exportCompletedTransports() {
+    try {
+        const completed = appState.requests.filter((r) => r.status === 'completed');
+        
+        if (completed.length === 0) {
+            ToastNotifications.warning('No completed transports to export');
+            return;
+        }
+
+        // Validate data integrity
+        if (!completed.every(t => t.id && t.patient)) {
+            ToastNotifications.error('Some transport data is incomplete and cannot be exported');
+            return;
+        }
+
+        // Prepare CSV data with error handling
+        const csvData = completed.map(t => {
+            try {
+                return {
+                    'Transport ID': t.id || 'Unknown',
+                    'Patient Name': t.patient || 'Unknown',
+                    'Pickup Location': t.location || 'Unknown',
+                    'Completed Date': t.completedDate || '',
+                    'Completed Time': t.completedTime || '',
+                    'Priority Level': t.priority || 'Unknown',
+                    'Status': t.status || 'Unknown'
+                };
+            } catch (error) {
+                console.warn('Error processing transport record:', t, error);
+                return null;
+            }
+        }).filter(Boolean); // Remove null entries
+
+        if (csvData.length === 0) {
+            ToastNotifications.error('No valid transport data available for export');
+            return;
+        }
+
+        // Generate filename with timestamp
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const filename = `completed-transports-${timestamp}.csv`;
+
+        // Download CSV with error handling
+        try {
+            CSVExport.downloadCSV(csvData, filename);
+            ToastNotifications.success(`Exported ${csvData.length} transports to ${filename}`);
+        } catch (error) {
+            ErrorHandler.handleApiError(error, 'download CSV');
+            ToastNotifications.error('Failed to download CSV file. Please try again.');
+        }
+    } catch (error) {
+        ErrorHandler.handleApiError(error, 'export transports');
+        ToastNotifications.error('Failed to export transports. Please try again.');
+    }
+}
+
+function initProfile() {
+    const formData = {
+        name: appState.profile.name,
+        phone: appState.profile.phone,
+        vehicle: appState.profile.vehicle,
+        status: appState.profile.status,
+    };
+
+    const editBtn = document.getElementById('edit-profile-btn');
+    const saveBtn = document.getElementById('save-profile-btn');
+    const cancelBtn = document.getElementById('cancel-profile-btn');
+    const formActions = document.getElementById('profile-actions');
+    const profileForm = document.getElementById('profile-form');
+
+    const nameInput = document.getElementById('profile-name');
+    const phoneInput = document.getElementById('profile-phone');
+    const vehicleInput = document.getElementById('profile-vehicle');
+    const statusSelect = document.getElementById('profile-status');
+
+    // Add name attributes to form fields for validation
+    nameInput.setAttribute('name', 'name');
+    phoneInput.setAttribute('name', 'phone');
+    vehicleInput.setAttribute('name', 'vehicle');
+    statusSelect.setAttribute('name', 'status');
+
+    function updateDisplayValues() {
+        document.getElementById('profile-display-name').textContent = formData.name;
+        document.getElementById('profile-display-phone').textContent = formData.phone;
+        document.getElementById('profile-display-vehicle').textContent = formData.vehicle;
+        
+        const badge = document.getElementById('profile-status-badge');
+        badge.textContent = formData.status;
+        badge.className = 'badge';
+        
+        switch (formData.status) {
+            case 'Available':
+                badge.classList.add('badge-green');
+                break;
+            case 'On Duty':
+                badge.classList.add('badge-blue');
+                break;
+            case 'Off Duty':
+                badge.classList.add('badge-gray');
+                break;
+        }
+
+        appState.profile = { ...formData };
+        persistAppState();
+        syncDashboardUserName();
+    }
+
+    function setEditMode(editing) {
+        nameInput.disabled = !editing;
+        phoneInput.disabled = !editing;
+        vehicleInput.disabled = !editing;
+        statusSelect.disabled = !editing;
+
+        if (editing) {
+            editBtn.style.display = 'none';
+            formActions.style.display = 'flex';
+        } else {
+            editBtn.style.display = 'block';
+            formActions.style.display = 'none';
+            // Clear validation errors when exiting edit mode
+            FormValidation.clearAllErrors(profileForm);
+        }
+    }
+
+    function validateProfileForm() {
+        // Validation rules
+        const validationRules = {
+            name: [
+                { type: 'required', message: 'Full name' },
+                { type: 'name', message: 'Full name' }
+            ],
+            phone: [
+                { type: 'required', message: 'Phone number' },
+                { type: 'phone' }
+            ],
+            vehicle: [
+                { type: 'required', message: 'Vehicle number' },
+                { type: 'vehicle' }
+            ],
+            status: [
+                { type: 'required', message: 'Status' },
+                { type: 'select', allowedValues: ['Available', 'On Duty', 'Off Duty'] }
+            ]
+        };
+        
+        return FormValidation.validateForm(profileForm, validationRules);
+    }
+
+    // Add real-time validation for profile fields
+    function addProfileFieldValidation() {
+        const inputs = profileForm.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (!input.disabled) {
+                    validateProfileSingleField(input);
+                }
+            });
+            
+            input.addEventListener('input', function() {
+                // Clear error on typing
+                if (input.classList.contains('input-error')) {
+                    FormValidation.removeError(input);
+                }
+            });
+        });
+    }
+
+    // Function to validate a single profile field
+    function validateProfileSingleField(inputElement) {
+        const fieldName = inputElement.name || inputElement.id;
+        const value = inputElement.value;
+        
+        let validationRules = [];
+        
+        switch(fieldName) {
+            case 'name':
+                validationRules = [
+                    { type: 'required', message: 'Full name' },
+                    { type: 'name', message: 'Full name' }
+                ];
+                break;
+            case 'phone':
+                validationRules = [
+                    { type: 'required', message: 'Phone number' },
+                    { type: 'phone' }
+                ];
+                break;
+            case 'vehicle':
+                validationRules = [
+                    { type: 'required', message: 'Vehicle number' },
+                    { type: 'vehicle' }
+                ];
+                break;
+            case 'status':
+                validationRules = [
+                    { type: 'required', message: 'Status' },
+                    { type: 'select', allowedValues: ['Available', 'On Duty', 'Off Duty'] }
+                ];
+                break;
+        }
+        
+        // Run validation for this field
+        for (const rule of validationRules) {
+            let error = null;
+            
+            if (rule.type === 'required') {
+                error = ValidationUtils.validateRequired(value, rule.message || fieldName);
+            } else if (rule.type === 'name') {
+                error = ValidationUtils.validateName(value, rule.message || fieldName);
+            } else if (rule.type === 'phone') {
+                error = ValidationUtils.validatePhone(value);
+            } else if (rule.type === 'vehicle') {
+                error = ValidationUtils.validateVehicle(value);
+            } else if (rule.type === 'select') {
+                error = ValidationUtils.validateSelect(value, rule.message || fieldName, rule.allowedValues);
+            }
+            
+            if (error) {
+                FormValidation.showError(inputElement, error);
+                return;
+            }
+        }
+        
+        // If no errors, remove error state
+        FormValidation.removeError(inputElement);
+    }
+
+    nameInput.value = formData.name;
+    phoneInput.value = formData.phone;
+    vehicleInput.value = formData.vehicle;
+    statusSelect.value = formData.status;
+
+    editBtn.addEventListener('click', function () {
+        setEditMode(true);
+        // Focus first field for better UX
+        setTimeout(() => nameInput.focus(), 100);
+    });
+
+    saveBtn.addEventListener('click', function () {
+        // Validate form before saving
+        const isValid = validateProfileForm();
+        
+        if (!isValid) {
+            // Focus first error field
+            const firstError = profileForm.querySelector('.input-error');
+            if (firstError) {
+                firstError.focus();
+            }
+            return;
+        }
+        
+        // If validation passes, save the data
+        formData.name = nameInput.value.trim();
+        formData.phone = phoneInput.value.trim();
+        formData.vehicle = vehicleInput.value.trim().toUpperCase();
+        formData.status = statusSelect.value;
+
+        updateDisplayValues();
+        setEditMode(false);
+    });
+
+    cancelBtn.addEventListener('click', function () {
+        nameInput.value = formData.name;
+        phoneInput.value = formData.phone;
+        vehicleInput.value = formData.vehicle;
+        statusSelect.value = formData.status;
+
+        setEditMode(false);
+    });
+
+    // Add field validation
+    addProfileFieldValidation();
+    
+    updateDisplayValues();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const pages = document.querySelectorAll('.page');
+
+    // Initialize navigation history
+    NavigationHistory.init();
+
+    function showPage(pageId) {
+        pages.forEach((page) => page.classList.remove('active'));
+        navLinks.forEach((link) => link.classList.remove('active'));
+
+        const targetPage = document.getElementById(pageId + '-page');
+        if (targetPage) {
+            targetPage.classList.add('active');
+        }
+
+        const activeLink = document.querySelector(`[data-page="${pageId}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+        
+        // Update navigation history
+        NavigationHistory.navigateToPage(pageId);
+    }
+
+    navLinks.forEach((link) => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const pageId = this.getAttribute('data-page');
+            showPage(pageId);
+            window.location.hash = pageId;
+        });
+    });
+
+    function handleHashChange() {
+        const hash = window.location.hash.slice(1);
+        if (hash) {
+            showPage(hash);
+        }
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+    handleHashChange();
+
+    const headerEl = document.querySelector('.header-container');
+    const logoContainer = document.querySelector('.header-container .logo-container');
+    const mainContent = document.querySelector('.main-content');
+
+    function goDashboard() {
+        showPage('dashboard');
+        window.location.hash = 'dashboard';
+    }
+
+    if (logoContainer) {
+        logoContainer.addEventListener('click', goDashboard);
+        logoContainer.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                goDashboard();
+            }
+        });
+    }
+
+    if (headerEl && mainContent) {
+        mainContent.addEventListener('scroll', function () {
+            headerEl.classList.toggle('scrolled', mainContent.scrollTop > 50);
+        });
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+
+        const t = e.target;
+        const tag = t && t.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) {
+            return;
+        }
+
+        const activeLink = document.querySelector('.nav-link.active');
+        if (!activeLink) return;
+
+        const allLinks = Array.from(navLinks);
+        const currentIndex = allLinks.indexOf(activeLink);
+        if (currentIndex === -1) return;
+
+        e.preventDefault();
+
+        if (e.key === 'ArrowDown') {
+            const nextIndex = (currentIndex + 1) % allLinks.length;
+            allLinks[nextIndex].click();
+            allLinks[nextIndex].focus();
+        } else {
+            const prevIndex = (currentIndex - 1 + allLinks.length) % allLinks.length;
+            allLinks[prevIndex].click();
+            allLinks[prevIndex].focus();
+        }
+    });
+
+    const logoutBtn = document.querySelector('.logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function () {
+            if (confirm('Are you sure you want to logout?')) {
+                alert('Logging out...');
+            }
+        });
+    }
+
+    // Export button functionality
+    const exportBtn = document.querySelector('.btn-with-icon');
+    if (exportBtn && exportBtn.textContent.includes('Export')) {
+        exportBtn.addEventListener('click', exportCompletedTransports);
+    }
+
+    // Call Patient button functionality
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'call-patient-btn') {
+            const activeRequest = getActiveTransportRequest();
+            if (activeRequest) {
+                ToastNotifications.info(`Calling ${activeRequest.patient} at ${activeRequest.contact}...`);
+                // In a real app, this would integrate with phone system
+                setTimeout(() => {
+                    ToastNotifications.success(`Call initiated to ${activeRequest.patient}`);
+                }, 1500);
+            }
+        }
+    });
+
+    // Initialize checklist persistence
+    ChecklistManager.bindCheckboxes();
+
+    // bindRequestCrudForm() - Removed as per SRS compliance (Ambulance Staff cannot create/edit requests)
+    bindActiveTransportControls();
+    resetRequestForm();
+    initProfile();
+    refreshAllViews();
+    
+    // Initialize validation tests if on validation tests page
+    if (window.location.hash === '#validation-tests') {
+        runValidationTests();
+    }
+});
+
+// Validation Tests Integration
+function runValidationTests() {
+    const resultsDiv = document.getElementById('test-results');
+    if (!resultsDiv) return;
+    
+    // Test cases
+    const testCases = [
+        // Required field tests
+        { name: 'Empty name', test: () => ValidationUtils.validateRequired('', 'Name'), expected: 'Name is required' },
+        { name: 'Empty email', test: () => ValidationUtils.validateEmail(''), expected: 'Email is required' },
+        { name: 'Empty phone', test: () => ValidationUtils.validatePhone(''), expected: 'Phone number is required' },
+        
+        // Email validation tests
+        { name: 'Valid email', test: () => ValidationUtils.validateEmail('test@example.com'), expected: null },
+        { name: 'Invalid email - no @', test: () => ValidationUtils.validateEmail('testexample.com'), expected: 'Invalid email format' },
+        { name: 'Invalid email - no domain', test: () => ValidationUtils.validateEmail('test@'), expected: 'Invalid email format' },
+        { name: 'Invalid email - spaces', test: () => ValidationUtils.validateEmail('test @example.com'), expected: 'Invalid email format' },
+        
+        // Phone validation tests
+        { name: 'Valid phone - US format', test: () => ValidationUtils.validatePhone('+1 (555) 123-4567'), expected: null },
+        { name: 'Valid phone - simple', test: () => ValidationUtils.validatePhone('5551234567'), expected: null },
+        { name: 'Valid phone - international', test: () => ValidationUtils.validatePhone('+44 20 1234 5678'), expected: null },
+        { name: 'Invalid phone - letters', test: () => ValidationUtils.validatePhone('abc1234567'), expected: 'Invalid phone number format' },
+        { name: 'Invalid phone - too short', test: () => ValidationUtils.validatePhone('123'), expected: 'Invalid phone number format' },
+        
+        // Name validation tests
+        { name: 'Valid name', test: () => ValidationUtils.validateName('John Smith'), expected: null },
+        { name: 'Valid name with hyphen', test: () => ValidationUtils.validateName('Mary-Jane Watson'), expected: null },
+        { name: 'Valid name with apostrophe', test: () => ValidationUtils.validateName("O'Connor"), expected: null },
+        { name: 'Invalid name - too short', test: () => ValidationUtils.validateName('A'), expected: 'Name must be at least 2 characters' },
+        { name: 'Invalid name - numbers', test: () => ValidationUtils.validateName('John123'), expected: 'Name can only contain letters, spaces, hyphens, and apostrophes' },
+        { name: 'Invalid name - special chars', test: () => ValidationUtils.validateName('John@Smith'), expected: 'Name can only contain letters, spaces, hyphens, and apostrophes' },
+        { name: 'Invalid name - too long', test: () => ValidationUtils.validateName('A'.repeat(51)), expected: 'Name must be less than 50 characters' },
+        
+        // Vehicle validation tests
+        { name: 'Valid vehicle', test: () => ValidationUtils.validateVehicle('AMB-123'), expected: null },
+        { name: 'Valid vehicle - simple', test: () => ValidationUtils.validateVehicle('AMB123'), expected: null },
+        { name: 'Invalid vehicle - too short', test: () => ValidationUtils.validateVehicle('AB'), expected: 'Vehicle number must be 3-10 characters (letters, numbers, hyphens only)' },
+        { name: 'Invalid vehicle - too long', test: () => ValidationUtils.validateVehicle('AMB-12345678'), expected: 'Vehicle number must be 3-10 characters (letters, numbers, hyphens only)' },
+        { name: 'Invalid vehicle - special chars', test: () => ValidationUtils.validateVehicle('AMB@123'), expected: 'Vehicle number must be 3-10 characters (letters, numbers, hyphens only)' },
+        
+        // Location validation tests
+        { name: 'Valid location', test: () => ValidationUtils.validateLocation('123 Main Street, Downtown'), expected: null },
+        { name: 'Valid location with number', test: () => ValidationUtils.validateLocation('Building #5, Oak Avenue'), expected: null },
+        { name: 'Invalid location - too short', test: () => ValidationUtils.validateLocation('123'), expected: 'Location must be at least 5 characters' },
+        { name: 'Invalid location - too long', test: () => ValidationUtils.validateLocation('A'.repeat(101)), expected: 'Location must be less than 100 characters' },
+        { name: 'Invalid location - special chars', test: () => ValidationUtils.validateLocation('123 Main @ Street'), expected: 'Location contains invalid characters' }
+    ];
+
+    // Clear previous results
+    resultsDiv.innerHTML = '';
+    
+    let passCount = 0;
+    let failCount = 0;
+    
+    // Create test results container
+    const testResultsHtml = testCases.map(testCase => {
+        try {
+            const result = testCase.test();
+            const passed = result === testCase.expected;
+            
+            if (passed) {
+                passCount++;
+            } else {
+                failCount++;
+            }
+            
+            return `
+                <div class="test-case ${passed ? 'pass' : 'fail'}">
+                    <h3>${testCase.name}</h3>
+                    <p><strong>Expected:</strong> ${testCase.expected || 'null'}</p>
+                    <p><strong>Actual:</strong> ${result || 'null'}</p>
+                    <div class="test-result">${passed ? '✅ PASS' : '❌ FAIL'}</div>
+                </div>
+            `;
+            
+        } catch (error) {
+            failCount++;
+            return `
+                <div class="test-case fail">
+                    <h3>${testCase.name}</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <div class="test-result">❌ FAIL (Exception)</div>
+                </div>
+            `;
+        }
+    }).join('');
+    
+    // Add summary
+    const summaryHtml = `
+        <div class="test-summary">
+            <h2>Test Summary</h2>
+            <p><strong>Total Tests:</strong> ${testCases.length}</p>
+            <p><strong>Passed:</strong> <span class="pass-count">${passCount}</span></p>
+            <p><strong>Failed:</strong> <span class="fail-count">${failCount}</span></p>
+            <p><strong>Success Rate:</strong> ${((passCount / testCases.length) * 100).toFixed(1)}%</p>
+        </div>
+    `;
+    
+    resultsDiv.innerHTML = testResultsHtml + summaryHtml;
+    
+    // Show notification
+    ToastNotifications.info(`Validation tests completed: ${passCount}/${testCases.length} passed`);
+}
+
+// Add validation test runner to navigation
+document.addEventListener('DOMContentLoaded', function() {
+    const originalShowPage = window.showPage;
+    window.showPage = function(pageId) {
+        if (pageId === 'validation-tests') {
+            setTimeout(() => runValidationTests(), 100);
+        }
+        return originalShowPage ? originalShowPage(pageId) : null;
+    };
+});
+
+// Profile Page Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    initializeProfile();
+});
+
+function initializeProfile() {
+    // Profile editing functionality
+    const editProfileBtn = document.getElementById('edit-profile-btn');
+    const saveProfileBtn = document.getElementById('save-profile-btn');
+    const cancelProfileBtn = document.getElementById('cancel-profile-btn');
+    const profileForm = document.getElementById('profile-form');
+    const profileInputs = profileForm ? profileForm.querySelectorAll('.form-input') : [];
+    
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', function() {
+            enableProfileEditing();
+        });
+    }
+    
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener('click', function() {
+            saveProfileChanges();
+        });
+    }
+    
+    if (cancelProfileBtn) {
+        cancelProfileBtn.addEventListener('click', function() {
+            cancelProfileEditing();
+        });
+    }
+    
+    function enableProfileEditing() {
+        profileInputs.forEach(input => {
+            input.disabled = false;
+        });
+        
+        document.getElementById('profile-actions').style.display = 'flex';
+        document.getElementById('edit-profile-btn').style.display = 'none';
+    }
+    
+    function cancelProfileEditing() {
+        // Reset to original values
+        document.getElementById('profile-name').value = 'Alex Martinez';
+        document.getElementById('profile-phone').value = '+1 (555) 987-6543';
+        document.getElementById('profile-vehicle').value = 'AMB-05';
+        document.getElementById('profile-status').value = 'Available';
+        
+        profileInputs.forEach(input => {
+            input.disabled = true;
+        });
+        
+        document.getElementById('profile-actions').style.display = 'none';
+        document.getElementById('edit-profile-btn').style.display = 'block';
+    }
+    
+    function saveProfileChanges() {
+        // Validate form data
+        const name = document.getElementById('profile-name').value.trim();
+        const phone = document.getElementById('profile-phone').value.trim();
+        const vehicle = document.getElementById('profile-vehicle').value.trim();
+        const status = document.getElementById('profile-status').value;
+        
+        // Basic validation
+        if (!name) {
+            showNotification('Name is required', 'error');
+            return;
+        }
+        
+        if (!phone) {
+            showNotification('Phone number is required', 'error');
+            return;
+        }
+        
+        if (!vehicle) {
+            showNotification('Vehicle number is required', 'error');
+            return;
+        }
+        
+        // Phone number validation
+        const phoneRegex = /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/;
+        if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
+            showNotification('Invalid phone number format', 'error');
+            return;
+        }
+        
+        // Vehicle number validation
+        if (vehicle.length < 3 || vehicle.length > 10) {
+            showNotification('Vehicle number must be 3-10 characters', 'error');
+            return;
+        }
+        
+        // Save to localStorage (in a real app, this would be sent to server)
+        const profileData = {
+            name,
+            phone,
+            vehicle,
+            status,
+            updatedAt: new Date().toISOString()
+        };
+        
+        localStorage.setItem('ambulanceProfile', JSON.stringify(profileData));
+        
+        // Update UI
+        updateProfileUI(profileData);
+        
+        // Disable editing
+        profileInputs.forEach(input => {
+            input.disabled = true;
+        });
+        
+        document.getElementById('profile-actions').style.display = 'none';
+        document.getElementById('edit-profile-btn').style.display = 'block';
+        
+        // Show success message
+        showNotification('Profile updated successfully!', 'success');
+    }
+    
+    function updateProfileUI(data) {
+        // Update profile header
+        const profileName = document.querySelector('.profile-name');
+        if (profileName) profileName.textContent = data.name;
+        
+        // Update contact information
+        const contactItems = document.querySelectorAll('.contact-item span');
+        if (contactItems[0]) contactItems[0].textContent = data.phone;
+        if (contactItems[1]) contactItems[1].textContent = data.vehicle;
+        
+        // Update status badge
+        const statusBadge = document.querySelector('.status-badge');
+        if (statusBadge) {
+            const statusClass = data.status.toLowerCase().replace(' ', '-');
+            statusBadge.className = `status-badge ${statusClass}`;
+            statusBadge.innerHTML = `<span class="status-dot"></span>${data.status}`;
+        }
+    }
+    
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        `;
+        
+        // Set background color based on type
+        switch (type) {
+            case 'success':
+                notification.style.backgroundColor = '#10b981';
+                break;
+            case 'error':
+                notification.style.backgroundColor = '#ef4444';
+                break;
+            default:
+                notification.style.backgroundColor = '#3b82f6';
+        }
+        
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 10);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+    
+    // Load saved profile data if exists
+    function loadSavedProfile() {
+        const savedProfile = localStorage.getItem('ambulanceProfile');
+        if (savedProfile) {
+            try {
+                const profileData = JSON.parse(savedProfile);
+                
+                // Update form fields
+                document.getElementById('profile-name').value = profileData.name || 'Alex Martinez';
+                document.getElementById('profile-phone').value = profileData.phone || '+1 (555) 987-6543';
+                document.getElementById('profile-vehicle').value = profileData.vehicle || 'AMB-05';
+                document.getElementById('profile-status').value = profileData.status || 'Available';
+                
+                // Update UI elements
+                updateProfileUI(profileData);
+                
+            } catch (error) {
+                console.error('Error loading saved profile:', error);
+            }
+        }
+    }
+    
+    // Initialize profile data
+    loadSavedProfile();
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+E to edit profile
+        if (e.ctrlKey && e.key === 'e' && profileInputs[0]) {
+            e.preventDefault();
+            enableProfileEditing();
+        }
+        
+        // Escape to cancel editing
+        if (e.key === 'Escape' && document.getElementById('profile-actions') && document.getElementById('profile-actions').style.display === 'flex') {
+            cancelProfileEditing();
+        }
+        
+        // Ctrl+S to save when editing
+        if (e.ctrlKey && e.key === 's' && document.getElementById('profile-actions') && document.getElementById('profile-actions').style.display === 'flex') {
+            e.preventDefault();
+            saveProfileChanges();
+        }
+    });
+    
+    // Add form validation on input
+    profileInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            // Clear any error states
+            this.style.borderColor = '';
+            
+            // Real-time validation for specific fields
+            if (this.id === 'profile-phone') {
+                const phoneRegex = /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/;
+                const cleanPhone = this.value.replace(/[\s\-\(\)]/g, '');
+                
+                if (cleanPhone.length > 0 && !phoneRegex.test(cleanPhone)) {
+                    this.style.borderColor = '#ef4444';
+                } else {
+                    this.style.borderColor = '#10b981';
+                }
+            }
+            
+            if (this.id === 'profile-vehicle') {
+                if (this.value.length > 0 && (this.value.length < 3 || this.value.length > 10)) {
+                    this.style.borderColor = '#ef4444';
+                } else {
+                    this.style.borderColor = '#10b981';
+                }
+            }
+        });
+    });
+}
+
+// Missing initialization functions for seamless navigation
+function initializeNavigation() {
+    // Navigation is handled by SessionManager.setupNavigation()
+    console.log('Navigation initialized');
+}
+
+function initializeDashboard() {
+    // Use DynamicRenderer to render dashboard
+    DynamicRenderer.init();
+    console.log('Dashboard initialized dynamically');
+}
+
+function initializeAmbulanceRequests() {
+    // Load ambulance requests
+    loadAmbulanceRequests();
+    console.log('Ambulance requests initialized');
+}
+
+function initializeAssignedDispatch() {
+    // Load assigned dispatch
+    loadAssignedDispatch();
+    console.log('Assigned dispatch initialized');
+}
+
+function initializeActiveTransport() {
+    // Load active transport
+    loadActiveTransport();
+    console.log('Active transport initialized');
+}
+
+function initializeCompletedTransports() {
+    // Load completed transports
+    loadCompletedTransports();
+    console.log('Completed transports initialized');
+}
+
+function initializeLogout() {
+    // Logout is handled by SessionManager.setupLogout()
+    console.log('Logout initialized');
+}
+
+// Dynamic UI Rendering System
+const DynamicRenderer = {
+    // Sample data for demonstration
+    sampleData: {
+        requests: [
+            {
+                id: 'AMB-2026-001',
+                patientName: 'John Smith',
+                pickupLocation: '123 Main St, Downtown',
+                requestTime: '10:30 AM',
+                priority: 'high',
+                status: 'assigned',
+                assignedTo: 'Alex Martinez'
+            },
+            {
+                id: 'AMB-2026-002',
+                patientName: 'Sarah Johnson',
+                pickupLocation: '456 Oak Ave, Westside',
+                requestTime: '10:15 AM',
+                priority: 'medium',
+                status: 'active',
+                assignedTo: 'Alex Martinez'
+            },
+            {
+                id: 'AMB-2026-003',
+                patientName: 'Michael Brown',
+                pickupLocation: '789 Pine Rd, North District',
+                requestTime: '09:45 AM',
+                priority: 'low',
+                status: 'completed',
+                assignedTo: 'Alex Martinez'
+            },
+            {
+                id: 'AMB-2026-004',
+                patientName: 'Emily Davis',
+                pickupLocation: '321 Elm St, Central',
+                requestTime: '09:30 AM',
+                priority: 'medium',
+                status: 'completed',
+                assignedTo: 'Alex Martinez'
+            },
+            {
+                id: 'AMB-2026-005',
+                patientName: 'Robert Wilson',
+                pickupLocation: '654 Maple Dr, Eastside',
+                requestTime: '09:15 AM',
+                priority: 'high',
+                status: 'completed',
+                assignedTo: 'Alex Martinez'
+            }
+        ],
+        stats: {
+            pending: 3,
+            assigned: 2,
+            active: 1,
+            completed: 8
+        }
+    },
+    
+    // Initialize dynamic rendering
+    init: function() {
+        this.renderDashboard();
+        this.renderStats();
+        this.renderRecentRequests();
+        this.setupRoleBasedUI();
+    },
+    
+    // Render dashboard statistics dynamically
+    renderStats: function() {
+        const stats = this.sampleData.stats;
+        
+        Object.keys(stats).forEach(key => {
+            const element = document.getElementById(`stat-${key}`);
+            if (element) {
+                // Animate number counting
+                this.animateNumber(element, 0, stats[key], 1000);
+            }
+        });
+    },
+    
+    // Animate number counting
+    animateNumber: function(element, start, end, duration) {
+        const startTime = performance.now();
+        
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            const current = Math.floor(start + (end - start) * progress);
+            element.textContent = current;
+            
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            }
+        }
+        
+        requestAnimationFrame(update);
+    },
+    
+    // Render recent requests table dynamically
+    renderRecentRequests: function() {
+        const tbody = document.getElementById('dashboard-recent-tbody');
+        if (!tbody) return;
+        
+        // Clear existing content
+        tbody.innerHTML = '';
+        
+        // Check for empty data
+        if (this.sampleData.requests.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 40px; color: #6b7280;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+                        <p style="font-size: 16px; font-weight: 500; margin-bottom: 8px;">No ambulance requests found</p>
+                        <p style="font-size: 14px;">New requests will appear here when they are created.</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        // Generate table rows dynamically
+        this.sampleData.requests.forEach((request, index) => {
+            const row = this.createRequestRow(request);
+            tbody.appendChild(row);
+            
+            // Animate row appearance
+            setTimeout(() => {
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    },
+    
+    // Create individual request row
+    createRequestRow: function(request) {
+        const row = document.createElement('tr');
+        row.style.cssText = `
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        `;
+        
+        row.innerHTML = `
+            <td>${request.id}</td>
+            <td>${request.patientName}</td>
+            <td>${request.pickupLocation}</td>
+            <td>${request.requestTime}</td>
+            <td>${this.createPriorityBadge(request.priority)}</td>
+            <td>${this.createStatusBadge(request.status)}</td>
+        `;
+        
+        // Add click handler for row selection
+        row.addEventListener('click', () => {
+            this.selectRequest(request);
+        });
+        
+        // Add hover effects
+        row.addEventListener('mouseenter', () => {
+            row.style.backgroundColor = '#f9fafb';
+        });
+        
+        row.addEventListener('mouseleave', () => {
+            row.style.backgroundColor = '';
+        });
+        
+        return row;
+    },
+    
+    // Create priority badge dynamically
+    createPriorityBadge: function(priority) {
+        const colors = {
+            high: '#ef4444',
+            medium: '#f59e0b',
+            low: '#10b981'
+        };
+        
+        return `<span class="priority-badge ${priority}" style="background-color: ${colors[priority]}20; color: ${colors[priority]}; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;">${priority.charAt(0).toUpperCase() + priority.slice(1)}</span>`;
+    },
+    
+    // Create status badge dynamically
+    createStatusBadge: function(status) {
+        const colors = {
+            pending: '#6b7280',
+            assigned: '#3b82f6',
+            active: '#f59e0b',
+            completed: '#10b981'
+        };
+        
+        return `<span class="status-badge ${status}" style="background-color: ${colors[status]}20; color: ${colors[status]}; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+    },
+    
+    // Select request and store in state
+    selectRequest: function(request) {
+        StateManager.setSelectedRequest(request);
+        SessionManager.showNotification(`Selected request: ${request.id}`, 'info');
+        
+        // Highlight selected row
+        const rows = document.querySelectorAll('#dashboard-recent-tbody tr');
+        rows.forEach(row => row.style.backgroundColor = '');
+        event.currentTarget.style.backgroundColor = '#e5e7eb';
+    },
+    
+    // Setup role-based UI
+    setupRoleBasedUI: function() {
+        const user = SessionManager.currentUser;
+        if (!user) return;
+        
+        // Show/hide elements based on user role
+        this.updateUIForRole(user.role);
+        
+        // Add role-based event listeners
+        this.addRoleBasedEventListeners(user.role);
+    },
+    
+    // Update UI based on user role
+    updateUIForRole: function(role) {
+        // Super user can see all features
+        if (role === 'superuser' || role === 'admin') {
+            this.showAdminFeatures();
+        } else {
+            this.hideAdminFeatures();
+        }
+    },
+    
+    // Show admin features
+    showAdminFeatures: function() {
+        // Add admin buttons to table
+        const tableHeaders = document.querySelector('#dashboard-recent-tbody').previousElementSibling;
+        if (tableHeaders && !tableHeaders.querySelector('.actions-header')) {
+            const actionsHeader = document.createElement('th');
+            actionsHeader.className = 'actions-header';
+            actionsHeader.textContent = 'Actions';
+            actionsHeader.style.cssText = 'text-align: center; padding: 12px;';
+            tableHeaders.querySelector('tr').appendChild(actionsHeader);
+            
+            // Add action buttons to each row
+            const rows = document.querySelectorAll('#dashboard-recent-tbody tr');
+            rows.forEach(row => {
+                const actionsCell = document.createElement('td');
+                actionsCell.innerHTML = this.createActionButtons();
+                actionsCell.style.cssText = 'text-align: center; padding: 12px;';
+                row.appendChild(actionsCell);
+            });
+        }
+    },
+    
+    // Hide admin features
+    hideAdminFeatures: function() {
+        // Remove admin buttons
+        const actionsHeaders = document.querySelectorAll('.actions-header');
+        const actionCells = document.querySelectorAll('td:last-child');
+        
+        actionsHeaders.forEach(header => header.remove());
+        actionCells.forEach(cell => {
+            if (cell.innerHTML.includes('Edit') || cell.innerHTML.includes('Delete')) {
+                cell.remove();
+            }
+        });
+    },
+    
+    // Create action buttons for admin users
+    createActionButtons: function() {
+        return `
+            <button onclick="DynamicRenderer.editRequest('${this.sampleData.requests[0].id}')" style="background: #3b82f6; color: white; border: none; padding: 4px 8px; border-radius: 4px; margin-right: 4px; cursor: pointer; font-size: 12px;">Edit</button>
+            <button onclick="DynamicRenderer.deleteRequest('${this.sampleData.requests[0].id}')" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">Delete</button>
+        `;
+    },
+    
+    // Add role-based event listeners
+    addRoleBasedEventListeners: function(role) {
+        if (role === 'superuser' || role === 'admin') {
+            // Add keyboard shortcuts for admin
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    this.showCreateModal();
+                }
+            });
+        }
+    },
+    
+    // Edit request (admin only)
+    editRequest: function(requestId) {
+        const request = this.sampleData.requests.find(r => r.id === requestId);
+        if (request) {
+            SessionManager.showNotification(`Editing request: ${requestId}`, 'info');
+            // In real app, this would open an edit modal
+        }
+    },
+    
+    // Delete request (admin only)
+    deleteRequest: function(requestId) {
+        if (confirm(`Are you sure you want to delete request ${requestId}?`)) {
+            const index = this.sampleData.requests.findIndex(r => r.id === requestId);
+            if (index > -1) {
+                this.sampleData.requests.splice(index, 1);
+                this.renderRecentRequests();
+                SessionManager.showNotification(`Request ${requestId} deleted`, 'success');
+            } else {
+                SessionManager.showNotification('Request not found', 'error');
+            }
+        }
+    },
+    
+    // Show create modal (admin only)
+    showCreateModal: function() {
+        SessionManager.showNotification('Create request modal (admin feature)', 'info');
+        // In real app, this would open a create modal
+    },
+    
+    // Render dashboard dynamically
+    renderDashboard: function() {
+        // Update welcome message
+        const userNameElement = document.getElementById('dashboard-user-name');
+        if (userNameElement && SessionManager.currentUser) {
+            userNameElement.textContent = SessionManager.currentUser.name;
+        }
+        
+        // Render stats cards dynamically
+        this.renderStatsCards();
+    },
+    
+    // Render stats cards dynamically
+    renderStatsCards: function() {
+        const statsContainer = document.querySelector('.stats-grid');
+        if (!statsContainer) return;
+        
+        const statsConfig = [
+            {
+                id: 'pending',
+                label: 'Pending Requests',
+                value: this.sampleData.stats.pending,
+                icon: '⏰',
+                color: '#f59e0b'
+            },
+            {
+                id: 'assigned',
+                label: 'Assigned Requests',
+                value: this.sampleData.stats.assigned,
+                icon: '📋',
+                color: '#3b82f6'
+            },
+            {
+                id: 'active',
+                label: 'Active Transport',
+                value: this.sampleData.stats.active,
+                icon: '🚑',
+                color: '#10b981'
+            },
+            {
+                id: 'completed',
+                label: 'Completed Today',
+                value: this.sampleData.stats.completed,
+                icon: '✅',
+                color: '#059669'
+            }
+        ];
+        
+        // Clear and rebuild stats cards
+        statsContainer.innerHTML = '';
+        
+        statsConfig.forEach((stat, index) => {
+            const card = this.createStatCard(stat);
+            statsContainer.appendChild(card);
+            
+            // Animate card appearance
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 150);
+        });
+    },
+    
+    // Create individual stat card
+    createStatCard: function(stat) {
+        const card = document.createElement('div');
+        card.className = 'stat-card';
+        card.style.cssText = `
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        `;
+        
+        card.innerHTML = `
+            <div class="stat-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div class="stat-icon" style="width: 48px; height: 48px; border-radius: 12px; background: ${stat.color}20; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                    ${stat.icon}
+                </div>
+            </div>
+            <h3 class="stat-label" style="font-size: 14px; color: #6b7280; margin: 0 0 8px 0;">${stat.label}</h3>
+            <p class="stat-value" id="stat-${stat.id}" style="font-size: 28px; font-weight: 700; color: #111827; margin: 0;">0</p>
+        `;
+        
+        // Add hover effect
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-4px)';
+            card.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'translateY(0)';
+            card.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+        });
+        
+        return card;
+    },
+    
+    // Refresh all data
+    refreshData: function() {
+        this.renderDashboard();
+        this.renderRecentRequests();
+        SessionManager.showNotification('Data refreshed', 'success');
+    }
+};
+
+function loadAmbulanceRequests() {
+    // Use DynamicRenderer to load ambulance requests
+    DynamicRenderer.renderRecentRequests();
+    console.log('Ambulance requests loaded dynamically');
+}
+
+function loadAssignedDispatch() {
+    // Load assigned dispatch data
+    console.log('Assigned dispatch loaded');
+}
+
+function loadActiveTransport() {
+    // Load active transport data
+    console.log('Active transport loaded');
+}
+
+function loadCompletedTransports() {
+    // Load completed transports data
+    console.log('Completed transports loaded');
+}
+
+// Enhanced page transition with loading state
+function showPageWithLoading(pageId) {
+    // Show loading indicator
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'loading-indicator';
+    loadingIndicator.innerHTML = `
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+    `;
+    loadingIndicator.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        text-align: center;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+    
+    document.body.appendChild(loadingIndicator);
+    
+    // Navigate to page after short delay
+    setTimeout(() => {
+        SessionManager.navigateToPage(pageId);
+        document.body.removeChild(loadingIndicator);
+    }, 300);
+}
+
+// Auto-save functionality
+function setupAutoSave() {
+    // Save form data automatically
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                const formData = new FormData(form);
+                const data = {};
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                }
+                localStorage.setItem(`formData_${form.id}`, JSON.stringify(data));
+            });
+        });
+    });
+}
+
+// Restore form data
+function restoreFormData(formId) {
+    const savedData = localStorage.getItem(`formData_${formId}`);
+    if (savedData) {
+        try {
+            const data = JSON.parse(savedData);
+            const form = document.getElementById(formId);
+            if (form) {
+                Object.keys(data).forEach(key => {
+                    const input = form.querySelector(`[name="${key}"], #${key}`);
+                    if (input) {
+                        input.value = data[key];
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error restoring form data:', error);
+        }
+    }
+}
+
+// Initialize auto-save on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setupAutoSave();
+    
+    // Restore form data for all forms
+    const forms = document.querySelectorAll('form[id]');
+    forms.forEach(form => {
+        restoreFormData(form.id);
+    });
+});

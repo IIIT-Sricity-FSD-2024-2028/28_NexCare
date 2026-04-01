@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXCARE - Ambulance Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="portal-shell">
+        <header class="header-container" role="banner">
+            <div class="header-content">
+                <div class="logo-container" role="button" tabindex="0" aria-label="Go to dashboard">
+                    <nex-care-logo></nex-care-logo>
+                    <p class="subtitle">Ambulance Portal</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="app-container">
+        
+        <aside class="sidebar">
+            <nav class="nav" aria-label="Main">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="#dashboard" class="nav-link active" data-page="dashboard">
+                            <svg class="nav-icon" fill="none" viewBox="0 0 21.8182 21.8182" aria-hidden="true">
+                                <path d="M8.18173 2.72798H3.63627C3.1342 2.72798 2.72718 3.135 2.72718 3.63707V10.0007C2.72718 10.5028 3.1342 10.9098 3.63627 10.9098H8.18173C8.68381 10.9098 9.09082 10.5028 9.09082 10.0007V3.63707C9.09082 3.135 8.68381 2.72798 8.18173 2.72798Z" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M18.1821 2.72798H13.6366C13.1346 2.72798 12.7275 3.135 12.7275 3.63707V6.36435C12.7275 6.86642 13.1346 7.27344 13.6366 7.27344H18.1821C18.6842 7.27344 19.0912 6.86642 19.0912 6.36435V3.63707C19.0912 3.135 18.6842 2.72798 18.1821 2.72798Z" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M18.1821 10.9098H13.6366C13.1346 10.9098 12.7275 11.3168 12.7275 11.8189V18.1825C12.7275 18.6846 13.1346 19.0916 13.6366 19.0916H18.1821C18.6842 19.0916 19.0912 18.6846 19.0912 18.1825V11.8189C19.0912 11.3168 18.6842 10.9098 18.1821 10.9098Z" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8.18173 14.5469H3.63627C3.1342 14.5469 2.72718 14.9539 2.72718 15.456V18.1832C2.72718 18.6853 3.1342 19.0923 3.63627 19.0923H8.18173C8.68381 19.0923 9.09082 18.6853 9.09082 18.1832V15.456C9.09082 14.9539 8.68381 14.5469 8.18173 14.5469Z" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#ambulance-requests" class="nav-link" data-page="ambulance-requests">
+                            <svg class="nav-icon" fill="none" viewBox="0 0 21.8182 21.8182" aria-hidden="true">
+                                <path d="M9.08976 9.09109H5.45339" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12.7275 16.3638V5.45472C12.7275 4.97251 12.536 4.51005 12.195 4.16907C11.854 3.8281 11.3916 3.63654 10.9094 3.63654H3.63663C3.15442 3.63654 2.69196 3.8281 2.35098 4.16907C2.01001 4.51005 1.81845 4.97251 1.81845 5.45472V15.4547C1.81845 15.6958 1.91423 15.9271 2.08471 16.0975C2.2552 16.268 2.48643 16.3638 2.72754 16.3638H4.54572" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M17.273 16.3624H19.0912C19.3323 16.3624 19.5635 16.2666 19.734 16.0961C19.9045 15.9256 20.0003 15.6944 20.0003 15.4533V12.4715C20.0001 12.2808 19.94 12.0949 19.8284 11.9403C19.7168 11.7856 19.5594 11.6699 19.3784 11.6097L17.6303 11.0269C17.517 10.9891 17.4123 10.9293 17.3221 10.851C17.232 10.7727 17.1581 10.6774 17.1048 10.5706L15.7057 7.77421C15.6303 7.62323 15.5143 7.49623 15.3707 7.40744C15.2272 7.31865 15.0618 7.27157 14.893 7.27148H12.7275" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M7.27299 7.27148V10.9078" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8.18173 16.3631H13.6363" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M15.4545 18.182C16.4586 18.182 17.2726 17.368 17.2726 16.3638C17.2726 15.3597 16.4586 14.5456 15.4545 14.5456C14.4503 14.5456 13.6363 15.3597 13.6363 16.3638C13.6363 17.368 14.4503 18.182 15.4545 18.182Z" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M6.3639 18.182C7.36806 18.182 8.18208 17.368 8.18208 16.3638C8.18208 15.3597 7.36806 14.5456 6.3639 14.5456C5.35975 14.5456 4.54572 15.3597 4.54572 16.3638C4.54572 17.368 5.35975 18.182 6.3639 18.182Z" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Incoming Requests</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#assigned-dispatch" class="nav-link" data-page="assigned-dispatch">
+                            <svg class="nav-icon" fill="none" viewBox="0 0 21.8182 21.8182" aria-hidden="true">
+                                <path d="M13.6366 1.81765H8.18208C7.68001 1.81765 7.27299 2.22466 7.27299 2.72674V4.54492C7.27299 5.047 7.68001 5.45401 8.18208 5.45401H13.6366C14.1387 5.45401 14.5457 5.047 14.5457 4.54492V2.72674C14.5457 2.22466 14.1387 1.81765 13.6366 1.81765Z" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14.545 3.63725H16.3632C16.8454 3.63725 17.3079 3.82881 17.6488 4.16978C17.9898 4.51076 18.1814 4.97322 18.1814 5.45543V18.1827C18.1814 18.6649 17.9898 19.1274 17.6488 19.4684C17.3079 19.8093 16.8454 20.0009 16.3632 20.0009H5.4541C4.97189 20.0009 4.50943 19.8093 4.16845 19.4684C3.82748 19.1274 3.63592 18.6649 3.63592 18.1827V5.45543C3.63592 4.97322 3.82748 4.51076 4.16845 4.16978C4.50943 3.82881 4.97189 3.63725 5.4541 3.63725H7.27228" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M10.909 9.99947H14.5454" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M10.909 14.5463H14.5454" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M7.27299 9.99947H7.28133" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M7.27299 14.5463H7.28133" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Assigned Dispatch</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#active-transport" class="nav-link" data-page="active-transport">
+                            <svg class="nav-icon" fill="none" viewBox="0 0 21.8182 21.8182" aria-hidden="true">
+                                <path d="M12.7275 16.3631V5.45401C12.7275 4.9718 12.536 4.50934 12.195 4.16836C11.854 3.82739 11.3916 3.63583 10.9094 3.63583H3.63663C3.15442 3.63583 2.69196 3.82739 2.35098 4.16836C2.01001 4.50934 1.81845 4.9718 1.81845 5.45401V15.454C1.81845 15.6951 1.91423 15.9263 2.08471 16.0968C2.2552 16.2673 2.48643 16.3631 2.72754 16.3631H4.54572" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M13.6363 16.3624H8.18173" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M17.273 16.3617H19.0912C19.3323 16.3617 19.5635 16.2659 19.734 16.0954C19.9045 15.9249 20.0003 15.6937 20.0003 15.4526V12.1344C19.9999 11.9281 19.9294 11.7281 19.8003 11.5671L16.6366 7.61259C16.5516 7.50612 16.4437 7.42012 16.321 7.36095C16.1983 7.30179 16.0638 7.27097 15.9275 7.27077H12.7275" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M15.4545 18.1813C16.4586 18.1813 17.2726 17.3673 17.2726 16.3631C17.2726 15.3589 16.4586 14.5449 15.4545 14.5449C14.4503 14.5449 13.6363 15.3589 13.6363 16.3631C13.6363 17.3673 14.4503 18.1813 15.4545 18.1813Z" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M6.3639 18.1813C7.36806 18.1813 8.18208 17.3673 8.18208 16.3631C8.18208 15.3589 7.36806 14.5449 6.3639 14.5449C5.35975 14.5449 4.54572 15.3589 4.54572 16.3631C4.54572 17.3673 5.35975 18.1813 6.3639 18.1813Z" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Active Transport</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#completed-transports" class="nav-link" data-page="completed-transports">
+                            <svg class="nav-icon" fill="none" viewBox="0 0 21.8182 21.8182" aria-hidden="true">
+                                <path d="M19.8194 9.09081C20.2345 11.1284 19.9386 13.2466 18.981 15.0924C18.0234 16.9382 16.462 18.3999 14.5571 19.2338C12.6522 20.0677 10.519 20.2233 8.51327 19.6748C6.50752 19.1262 4.75044 17.9066 3.53506 16.2194C2.31969 14.5321 1.71947 12.4792 1.83451 10.403C1.94955 8.32675 2.77289 6.35271 4.16722 4.81006C5.56156 3.2674 7.44261 2.24938 9.49669 1.92577C11.5508 1.60215 13.6537 1.9925 15.4548 3.03172" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8.18173 10.0004L10.909 12.7276L19.9999 3.63672" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Completed Transports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#profile" class="nav-link" data-page="profile">
+                            <svg class="nav-icon" fill="none" viewBox="0 0 21.8182 21.8182" aria-hidden="true">
+                                <path d="M17.273 19.0913V17.2731C17.273 16.3087 16.8899 15.3837 16.2079 14.7018C15.526 14.0198 14.6011 13.6367 13.6366 13.6367H8.18208C7.21766 13.6367 6.29274 14.0198 5.61079 14.7018C4.92884 15.3837 4.54572 16.3087 4.54572 17.2731V19.0913" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M10.9094 10.0004C12.9177 10.0004 14.5457 8.3723 14.5457 6.36399C14.5457 4.35568 12.9177 2.72763 10.9094 2.72763C8.90105 2.72763 7.27299 4.35568 7.27299 6.36399C7.27299 8.3723 8.90105 10.0004 10.9094 10.0004Z" stroke-width="1.81818" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                                    </ul>
+
+                <button type="button" class="logout-btn">
+                    <svg class="logout-icon" fill="none" viewBox="0 0 23.5688 23.5688" aria-hidden="true">
+                        <path d="M8.83831 20.6226H4.91018C4.38927 20.6226 3.8897 20.4156 3.52137 20.0473C3.15304 19.679 2.94611 19.1794 2.94611 18.6585V4.91002C2.94611 4.38912 3.15304 3.88955 3.52137 3.52122C3.8897 3.15288 4.38927 2.94596 4.91018 2.94596H8.83831" stroke-width="1.96407" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M15.7127 16.6946L20.6229 11.7844L15.7127 6.87428" stroke-width="1.96407" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20.6227 11.7843H8.83831" stroke-width="1.96407" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Logout</span>
+                </button>
+            </nav>
+        </aside>
+
+        
+        <main class="main-content">
+            
+            <div id="dashboard-page" class="page active">
+                <div class="page-header">
+                    <h1 class="page-title">Welcome, <span id="dashboard-user-name">Alex Martinez</span></h1>
+                    <p class="page-subtitle">Here's your ambulance operations overview for today</p>
+                </div>
+
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon orange-gradient">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 class="stat-label">Pending Requests</h3>
+                        <p class="stat-value" id="stat-pending">3</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon blue-gradient">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                    <polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 class="stat-label">Assigned Requests</h3>
+                        <p class="stat-value" id="stat-assigned">2</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon teal-gradient">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="1" y="3" width="15" height="13"/>
+                                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                                    <circle cx="5.5" cy="18.5" r="2.5"/>
+                                    <circle cx="18.5" cy="18.5" r="2.5"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 class="stat-label">Active Transport</h3>
+                        <p class="stat-value" id="stat-active">1</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon green-gradient">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <polyline points="10 9 9 9 8 9"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 class="stat-label">Completed Today</h3>
+                        <p class="stat-value" id="stat-completed">8</p>
+                    </div>
+                </div>
+
+                
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Recent Ambulance Requests</h2>
+                        <p class="card-subtitle">Latest requests from the dispatch center</p>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Request ID</th>
+                                    <th>Patient Name</th>
+                                    <th>Pickup Location</th>
+                                    <th>Request Time</th>
+                                    <th>Priority Level</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-recent-tbody">
+                            <!-- Dynamic content will be rendered here -->
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div id="ambulance-requests-page" class="page">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <div>
+                            <button type="button" class="btn btn-secondary btn-back" onclick="goBack()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                                Back
+                            </button>
+                            <h1 class="page-title">Incoming Requests</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Request ID</th>
+                                    <th>Patient Name</th>
+                                    <th>Pickup Location</th>
+                                    <th>Contact Number</th>
+                                    <th>Request Time</th>
+                                    <th>Priority Level</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ambulance-requests-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div id="assigned-dispatch-page" class="page">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <div>
+                            <button type="button" class="btn btn-secondary btn-back" onclick="goBack()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                                Back
+                            </button>
+                            <h1 class="page-title">Assigned Dispatch</h1>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="stats-grid-3">
+                    <div class="stat-card">
+                        <h3 class="stat-label">Total Assigned</h3>
+                        <p class="stat-value" id="dispatch-stat-total">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 class="stat-label">Ready to Start</h3>
+                        <p class="stat-value stat-value-blue" id="dispatch-stat-ready">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 class="stat-label">In Progress</h3>
+                        <p class="stat-value stat-value-teal" id="dispatch-stat-progress">0</p>
+                    </div>
+                </div>
+
+                
+                <div class="content-card">
+                    <h2 class="card-title">Pre-Departure Checklist</h2>
+                    <div class="checklist-grid">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="checkbox">
+                            <span>Vehicle fuel checked</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="checkbox">
+                            <span>Medical equipment ready</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="checkbox">
+                            <span>Route planned</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="checkbox">
+                            <span>Communication system tested</span>
+                        </label>
+                    </div>
+                </div>
+
+                
+                <div id="assigned-requests-container" class="dispatch-cards">
+                    
+                </div>
+            </div>
+
+            
+            <div id="active-transport-page" class="page">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <div>
+                            <button type="button" class="btn btn-secondary btn-back" onclick="goBack()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                                Back
+                            </button>
+                            <h1 class="page-title">Active Transport</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="active-transport-empty" class="content-card" style="display: none;">
+                    <p class="page-subtitle" style="margin: 0; padding: 24px;">No active transport. Accept a dispatch and choose <strong>Start transport</strong> from Assigned Dispatch.</p>
+                </div>
+
+                <div id="active-transport-panel">
+                
+                <div class="eta-banner" id="eta-banner" style="display: none;">
+                    <div class="eta-info">
+                        <div>
+                            <h3 style="margin: 0 0 4px 0;">Real-time ETA</h3>
+                            <p style="margin: 0; opacity: 0.9; font-size: 14px;">Estimated time to next step</p>
+                        </div>
+                        <div id="eta-display" class="eta-live eta-pulse">
+                            ⏱️ ETA: --:--
+                        </div>
+                    </div>
+                    <div id="eta-step-info" style="text-align: right;">
+                        <div style="font-size: 14px; opacity: 0.9;">Current Step</div>
+                        <div id="eta-current-step" style="font-weight: 600;">--</div>
+                    </div>
+                </div>
+
+                
+                <div class="content-card">
+                    <h2 class="card-title">Patient Details</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-icon blue-bg">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="info-label">Patient Name</p>
+                                <p class="info-value" id="active-patient-name">—</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon teal-bg">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="info-label">Contact Number</p>
+                                <p class="info-value" id="active-patient-phone">—</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon orange-bg">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="info-label">Pickup Location</p>
+                                <p class="info-value" id="active-patient-location">—</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="content-card">
+                    <h2 class="card-title">Transport Progress</h2>
+                    <div class="progress-tracker" id="progress-tracker">
+                    </div>
+                </div>
+
+                
+                <div class="action-buttons" id="active-transport-actions">
+                    <button type="button" id="next-step-btn" class="btn btn-primary">Update to Next Step</button>
+                    <button type="button" id="complete-transport-btn" class="btn btn-success" style="display: none;">Complete Transport</button>
+                    <button type="button" id="call-patient-btn" class="btn-call">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                        Call Patient
+                    </button>
+                </div>
+                </div>
+            </div>
+
+            
+            <div id="completed-transports-page" class="page">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <div>
+                            <button type="button" class="btn btn-secondary btn-back" onclick="goBack()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                                Back
+                            </button>
+                            <h1 class="page-title">Completed Transports</h1>
+                        </div>
+                        <button class="btn btn-primary btn-with-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export
+                        </button>
+                    </div>
+                </div>
+
+                
+                <div class="stats-grid-3">
+                    <div class="stat-card">
+                        <div class="stat-row">
+                            <h3 class="stat-label">Total Completed</h3>
+                            <svg class="stat-icon-small" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                                <polyline points="17 6 23 6 23 12"/>
+                            </svg>
+                        </div>
+                        <p class="stat-value">24</p>
+                        <p class="stat-change">+18% from last week</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-row">
+                            <h3 class="stat-label">Avg Response Time</h3>
+                            <svg class="stat-icon-small" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <p class="stat-value">8.5 min</p>
+                        <p class="stat-change">Below target of 10 min</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-row">
+                            <h3 class="stat-label">Response Time Breakdown</h3>
+                            <svg class="stat-icon-small" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
+                        <div class="breakdown">
+                            <div class="breakdown-row">
+                                <span class="breakdown-label">Under 10 mins</span>
+                                <span class="breakdown-value">58%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 58%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="content-card">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Transport ID</th>
+                                    <th>Patient Name</th>
+                                    <th>Pickup Location</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Priority Level</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="completed-transports-tbody">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div id="profile-page" class="page">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <div>
+                            <button type="button" class="btn btn-secondary btn-back" onclick="goBack()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                                Back
+                            </button>
+                            <h1 class="page-title">Profile</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-layout">
+                    
+                    <div class="profile-sidebar">
+                        <div class="content-card">
+                            <div class="profile-avatar-section">
+                                <div class="profile-avatar">AM</div>
+                                <h3 class="profile-name" id="profile-display-name">Alex Martinez</h3>
+                                <p class="profile-role">Ambulance Staff</p>
+                                <span class="badge badge-green" id="profile-status-badge">Available</span>
+                            </div>
+
+                            <div class="profile-info-section">
+                                <div class="profile-info-item">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                    </svg>
+                                    <span id="profile-display-phone">+1 (555) 987-6543</span>
+                                </div>
+                                <div class="profile-info-item">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="1" y="3" width="15" height="13"/>
+                                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                                        <circle cx="5.5" cy="18.5" r="2.5"/>
+                                        <circle cx="18.5" cy="18.5" r="2.5"/>
+                                    </svg>
+                                    <span>Vehicle: <span id="profile-display-vehicle">AMB-05</span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="content-card">
+                            <h4 class="card-title">Quick Stats</h4>
+                            <div class="quick-stats">
+                                <div class="quick-stat-row">
+                                    <span class="quick-stat-label">Total Transports</span>
+                                    <span class="quick-stat-value">24</span>
+                                </div>
+                                <div class="quick-stat-row">
+                                    <span class="quick-stat-label">This Month</span>
+                                    <span class="quick-stat-value">12</span>
+                                </div>
+                                <div class="quick-stat-row">
+                                    <span class="quick-stat-label">Success Rate</span>
+                                    <span class="quick-stat-value quick-stat-success">100%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="profile-main">
+                        <div class="content-card">
+                            <div class="card-header-row">
+                                <h2 class="card-title">Personal Information</h2>
+                                <button id="edit-profile-btn" class="btn btn-primary">Edit Profile</button>
+                            </div>
+
+                            <form id="profile-form" class="profile-form">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                            <circle cx="12" cy="7" r="4"/>
+                                        </svg>
+                                        Full Name
+                                    </label>
+                                    <input type="text" id="profile-name" class="form-input" value="Alex Martinez" disabled>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                        </svg>
+                                        Phone Number
+                                    </label>
+                                    <input type="tel" id="profile-phone" class="form-input" value="+1 (555) 987-6543" disabled>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="1" y="3" width="15" height="13"/>
+                                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                                            <circle cx="5.5" cy="18.5" r="2.5"/>
+                                            <circle cx="18.5" cy="18.5" r="2.5"/>
+                                        </svg>
+                                        Vehicle Number
+                                    </label>
+                                    <input type="text" id="profile-vehicle" class="form-input" value="AMB-05" disabled>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+                                            <line x1="12" y1="2" x2="12" y2="12"/>
+                                        </svg>
+                                        Availability Status
+                                    </label>
+                                    <select id="profile-status" class="form-input" disabled>
+                                        <option value="Available">Available</option>
+                                        <option value="On Duty">On Duty</option>
+                                        <option value="Off Duty">Off Duty</option>
+                                    </select>
+                                </div>
+
+                                <div id="profile-actions" class="form-actions" style="display: none;">
+                                    <button type="button" id="save-profile-btn" class="btn btn-primary btn-with-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                            <polyline points="17 21 17 13 7 13 7 21"/>
+                                            <polyline points="7 3 7 8 15 8"/>
+                                        </svg>
+                                        Save Changes
+                                    </button>
+                                    <button type="button" id="cancel-profile-btn" class="btn btn-secondary">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        
+                        <div class="content-card">
+                            <h3 class="card-title">Account Information</h3>
+                            <div class="account-info-grid">
+                                <div>
+                                    <p class="account-info-label">Employee ID</p>
+                                    <p class="account-info-value">EMP-AMB-2024-142</p>
+                                </div>
+                                <div>
+                                    <p class="account-info-label">Department</p>
+                                    <p class="account-info-value">Emergency Transport</p>
+                                </div>
+                                <div>
+                                    <p class="account-info-label">Joined Date</p>
+                                    <p class="account-info-value">January 15, 2024</p>
+                                </div>
+                                <div>
+                                    <p class="account-info-label">License Number</p>
+                                    <p class="account-info-value">EMT-45782-CA</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="../logo.js"></script>
+</body>
+</html>
