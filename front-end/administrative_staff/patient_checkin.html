@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital Management System - Patient Check-in</title>
+    <meta name="description" content="Hospital Management System - Patient Check-in">
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="logo.css">
+    <script defer src="logo.js"></script>
+    <style>
+        .checkin-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+        }
+        .form-input {
+            height: 38px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 4px 12px;
+            font-size: 13px;
+        }
+        .btn-dark {
+            height: 38px;
+            background: #0a0a0a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-dark:hover { background: #1a1a1a; }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .status-consultation { background: #dbeafe; color: #1e40af; }
+        .status-er { background: #fee2e2; color: #991b1b; }
+        .status-pharmacy { background: #dcfce7; color: #166534; }
+        .status-waiting { background: #fef3c7; color: #92400e; }
+        
+        .update-btn {
+            padding: 6px 12px;
+            background: white; border: 1px solid #e5e7eb;
+            border-radius: 6px; font-size: 12px; cursor: pointer;
+        }
+        .update-btn:hover { background: #f9fafb; }
+        
+        .movement-timeline { display: flex; align-items: center; gap: 16px; margin-top: 10px; }
+        .movement-step { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .step-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .step-icon.completed { background: #dcfce7; color: #16a34a; }
+        .step-icon.waiting { background: #dbeafe; color: #2563eb; }
+        .step-label { font-size: 11px; color: #374151; }
+        .step-time { font-size: 10px; color: #9ca3af; }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <nex-care-logo></nex-care-logo>
+        <ul class="menu">
+            <li>
+                <a href="dashboard.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    Dashboard
+                </a>
+            </li>
+            <li class="active">
+                <a href="patient_checkin.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                    Patient Check-in
+                </a>
+            </li>
+            <li>
+                <a href="manage_appointments.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Manage Appointments
+                </a>
+            </li>
+            <li>
+                <a href="bed-allocation.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="18" height="5" rx="1"/><rect x="4" y="7" width="4" height="3" rx="1"/><line x1="3" y1="7" x2="3" y2="15"/><line x1="21" y1="10" x2="21" y2="15"/></svg>
+                    Bed Allocation
+                </a>
+            </li>
+            <li>
+                <a href="inventory.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3 8 12 13 21 8"/></svg>
+                    Inventory
+                </a>
+            </li>
+            <li>
+                <a href="staff_scheduling.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M17 11a4 4 0 1 0-4-4"/><path d="M3 21v-2a4 4 0 0 1 6-3.46"/><path d="M16 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                    Staff Scheduling
+                </a>
+            </li>
+            <li>
+                <a href="generate-bill.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="9" x2="8" y2="9"/></svg>
+                    Generate Bill
+                </a>
+            </li>
+            <li>
+                <a href="feedback.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
+                    Feedback
+                </a>
+            </li>
+        </ul>
+        <div class="logout">
+            <button type="button" class="logout-btn">
+                <svg class="logout-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 17l5-5-5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- MAIN -->
+    <div class="main">
+        <div class="topbar">
+            <div class="user">Admin User</div>
+        </div>
+
+        <div class="header-row">
+            <div>
+                <h1>Patient Check-in & Movement Tracking</h1>
+                <div class="sub">Manage quick check-ins and track patient locations within the facility.</div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 20px;">
+            <div style="font-size: 14px; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                Quick Check-in
+            </div>
+            <div class="checkin-card">
+                <input type="text" id="patientIdInput" class="form-input" placeholder="Enter Patient ID or Name" style="width: 250px;" required>
+                <input type="text" id="visitPurposeInput" class="form-input" placeholder="Visit Purpose" style="width: 200px;" required>
+                <button class="btn-dark" onclick="handleCheckin()">Check-in Patient</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">Patients in Facility</h3>
+            <div id="patientsContainer"></div>
+        </div>
+    </div>
+</div>
+<script src="patient_checkin.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+let feedbacks = [
+    {id: 'FB101', date: "2026-03-30", type: "Patient", sender: "John Doe", rating: 5, subject: "Excellent Service", comment: "The nursing staff was very attentive and the check-in process was smooth. Highly recommended."},
+    {id: 'FB102', date: "2026-03-31", type: "Patient", sender: "Jane Smith", rating: 3, subject: "Long wait times", comment: "Wait time at the pharmacy was over an hour today. Please look into improving efficiency."},
+    {id: 'FB103', date: "2026-04-01", type: "Staff", sender: "Dr. Brown", rating: 4, subject: "System Speed", comment: "The new HMS is good but sometimes slow to load patient files. Appreciate the new features though."}
+];
+
+function renderRatings(num) {
+    let starsHtml = '';
+    for(let i=0; i<5; i++) {
+        starsHtml += i < num ? '&#9733;' : '&#9734;';
+    }
+    return `<span class="stars">${starsHtml}</span>`;
+}
+
+function renderFeedback(data = feedbacks) {
+    const tbody = document.getElementById('feedbackTableBody');
+    tbody.innerHTML = data.map(f => {
+        let badgeColor = f.type === 'Patient' ? 'status-patient' : 'status-staff';
+        return `
+        <tr>
+            <td><strong>${f.id}</strong></td>
+            <td>${f.date}</td>
+            <td><span class="status-badge ${badgeColor}">${f.type}</span></td>
+            <td>${f.sender}</td>
+            <td>${f.subject}</td>
+            <td>${renderRatings(f.rating)}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="viewFeedback('${f.id}')" title="Read Feedback">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                    <button class="action-btn" onclick="deleteFeedback('${f.id}')" title="Delete">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `}).join('');
+}
+
+function viewFeedback(id) {
+    const f = feedbacks.find(x => x.id === id);
+    if(!f) return;
+    
+    document.getElementById('feedbackDetailsContainer').innerHTML = `
+        <div><strong>ID:</strong> ${f.id}</div>
+        <div><strong>Date:</strong> ${f.date}</div>
+        <div><strong>Type:</strong> ${f.type}</div>
+        <div><strong>Sender:</strong> ${f.sender}</div>
+        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 10px 0;">
+        <div><strong>Subject:</strong> ${f.subject}</div>
+        <div><strong>Rating:</strong> ${renderRatings(f.rating)} (${f.rating}/5)</div>
+        <div style="margin-top: 10px;"><strong>Feedback Body:</strong><br> <span style="display:block; margin-top:5px;">${f.comment}</span></div>
+    `;
+    document.getElementById('viewFeedbackModal').classList.add('active');
+}
+
+function closeViewModal() {
+    document.getElementById('viewFeedbackModal').classList.remove('active');
+}
+
+function deleteFeedback(id) {
+    if (confirm('Are you sure you want to permanently delete this feedback?')) {
+        feedbacks = feedbacks.filter(f => f.id !== id);
+        applyFilters();
+    }
+}
+
+function openAddFeedbackModal() {
+    document.getElementById('addFeedbackForm').reset();
+    document.getElementById('addFeedbackModal').classList.add('active');
+}
+
+function closeAddFeedbackModal() {
+    document.getElementById('addFeedbackModal').classList.remove('active');
+}
+
+function saveFeedback(e) {
+    e.preventDefault();
+    
+    const type = document.getElementById('newType').value;
+    const name = document.getElementById('newName').value.trim();
+    const subject = document.getElementById('newSubject').value.trim();
+    const rating = parseInt(document.getElementById('newRating').value);
+    const comment = document.getElementById('newDesc').value.trim();
+    
+    if(!type || !name || !subject || !comment) {
+        alert("Please fill all required fields correctly.");
+        return;
+    }
+
+    const newId = 'FB' + String(Math.floor(Math.random() * 900) + 100);
+    const dateNow = new Date().toISOString().split('T')[0];
+    
+    feedbacks.unshift({ id: newId, date: dateNow, type, sender: name, rating, subject, comment });
+    
+    closeAddFeedbackModal();
+    applyFilters();
+}
+
+function applyFilters() {
+    const term = document.getElementById('searchTable').value.toLowerCase();
+    const typeVal = document.getElementById('filterType').value;
+    
+    const filtered = feedbacks.filter(f => {
+        const matchesTerm = f.sender.toLowerCase().includes(term) || f.subject.toLowerCase().includes(term) || f.id.toLowerCase().includes(term);
+        const matchesType = (typeVal === 'All' || f.type === typeVal);
+        return matchesTerm && matchesType;
+    });
+    
+    renderFeedback(filtered);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    applyFilters();
+    
+    document.getElementById('searchTable').addEventListener('input', applyFilters);
+    document.getElementById('filterType').addEventListener('change', applyFilters);
+    
+    window.addEventListener('click', function(event) {
+        if (event.target == document.getElementById('addFeedbackModal')) {
+            closeAddFeedbackModal();
+        } else if (event.target == document.getElementById('viewFeedbackModal')) {
+            closeViewModal();
+        }
+    });
+});
