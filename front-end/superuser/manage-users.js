@@ -10,6 +10,12 @@ const DEFAULT_USERS = [
 // Initialize State
 let usersList = [];
 
+const ROLE_DEPARTMENTS = {
+    'admin': ['Management', 'IT Support', 'Human Resources', 'Billing'],
+    'doctor': ['Cardiology', 'Orthopedics', 'Pediatrics', 'Neurology', 'General Medicine', 'Dermatology', 'Emergency'],
+    'driver': ['Transport', 'Maintenance']
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // Load from local storage, or fallback to default data
     const storedUsers = localStorage.getItem('nexcare_users');
@@ -60,6 +66,18 @@ function renderTable() {
     });
 }
 
+function updateDeptDropdown(role, selectedDept = null) {
+    const deptSelect = document.getElementById('userDept');
+    deptSelect.innerHTML = '<option value="">Select Department...</option>';
+    
+    if (role && ROLE_DEPARTMENTS[role]) {
+        ROLE_DEPARTMENTS[role].forEach(dept => {
+            const isSelected = (dept === selectedDept) ? 'selected' : '';
+            deptSelect.innerHTML += `<option value="${dept}" ${isSelected}>${dept}</option>`;
+        });
+    }
+}
+
 // Modal Management
 const modalOverlay = document.getElementById('userModalOverlay');
 const form = document.getElementById('userForm');
@@ -69,6 +87,7 @@ function openUserModal() {
     form.reset();
     document.getElementById('userId').value = '';
     document.getElementById('modalTitle').textContent = 'Add New User';
+    updateDeptDropdown(''); // clear out department dropdown
     modalOverlay.classList.add('active');
 }
 
@@ -113,7 +132,7 @@ function handleSaveUser(e) {
         isValid = false;
     }
 
-    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if(!emailRegex.test(email)) {
         showError('userEmail', 'errorEmail');
         isValid = false;
@@ -161,7 +180,7 @@ function editUser(id) {
     document.getElementById('userName').value = user.name;
     document.getElementById('userEmail').value = user.email;
     document.getElementById('userRole').value = user.role;
-    document.getElementById('userDept').value = user.dept;
+    updateDeptDropdown(user.role, user.dept);
     document.getElementById('userStatus').value = user.status;
     
     modalOverlay.classList.add('active');

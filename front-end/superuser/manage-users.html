@@ -146,7 +146,7 @@
                     <div class="form-group" style="display: flex; gap: 15px;">
                         <div style="flex: 1;">
                             <label>Role</label>
-                            <select id="userRole" class="form-control">
+                            <select id="userRole" class="form-control" onchange="updateDeptDropdown(this.value)">
                                 <option value="">Select Role...</option>
                                 <option value="admin">Operations Admin</option>
                                 <option value="doctor">Doctor</option>

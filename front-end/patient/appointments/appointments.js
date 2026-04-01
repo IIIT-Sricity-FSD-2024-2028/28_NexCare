@@ -3,6 +3,7 @@
 // Store booking data
 let bookingData = {
     department: null,
+    doctor: null,
     date: null,
     time: null,
     patientInfo: {}
@@ -12,6 +13,25 @@ let currentStep = 1;
 
 function getStore() {
     return window.NexCareStore;
+}
+
+function getDoctorsForDepartment(deptName) {
+    const DEFAULT_USERS = [
+        { id: 1, name: "Dr. Sarah Smith", email: "sarah@nexcare.com", dept: "Cardiology", role: "doctor", status: "Active" },
+        { id: 2, name: "Dr. Priya Sharma", email: "priya@nexcare.com", dept: "Cardiology", role: "doctor", status: "Active" },
+        { id: 3, name: "Dr. Vikram Patel", email: "vikram@nexcare.com", dept: "Orthopedics", role: "doctor", status: "Active" },
+        { id: 4, name: "Dr. Anjali Desai", email: "anjali@nexcare.com", dept: "General Medicine", role: "doctor", status: "Active" },
+        { id: 5, name: "Dr. Neha Joshi", email: "neha@nexcare.com", dept: "Dermatology", role: "doctor", status: "Active" }
+    ];
+    let users = DEFAULT_USERS;
+    try {
+        const storedUsers = localStorage.getItem('nexcare_users');
+        if (storedUsers) {
+            users = JSON.parse(storedUsers);
+        }
+    } catch (e) {}
+    
+    return users.filter(u => u.role === 'doctor' && u.dept === deptName && u.status === 'Active');
 }
 
 function renderAppointmentsFromStore() {
@@ -271,6 +291,14 @@ function renderStep2() {
         <div class="booking-card">
             <h2>Select Date & Time</h2>
             <p style="margin-bottom: 24px;">Department: <span style="color: #155DFC; font-weight: 500;">${bookingData.department}</span></p>
+
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label style="display:block; margin-bottom: 8px; font-weight: 500;">Select Doctor:</label>
+                <select id="doctorSelect" class="form-control" onchange="selectDoctor(this.value)" style="width: 100%; max-width: 400px; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px;">
+                    <option value="" disabled ${!bookingData.doctor ? 'selected' : ''}>Choose a doctor...</option>
+                    ${getDoctorsForDepartment(bookingData.department).map(d => `<option value="${d.name}" ${bookingData.doctor === d.name ? 'selected' : ''}>${d.name}</option>`).join('') || '<option value="" disabled>No doctors available</option>'}
+                </select>
+            </div>
             
             <div class="calendar-container">
                 <div class="calendar-header">
@@ -333,7 +361,7 @@ function renderStep2() {
             
             <div class="booking-actions">
                 <button class="btn-back-booking" onclick="prevStep()">Back</button>
-                <button class="btn-continue" ${!bookingData.date || !bookingData.time ? 'disabled' : ''} onclick="nextStep()">Continue</button>
+                <button class="btn-continue" ${!bookingData.doctor || !bookingData.date || !bookingData.time ? 'disabled' : ''} onclick="nextStep()">Continue</button>
             </div>
         </div>
     `;
@@ -412,6 +440,10 @@ function renderStep3() {
                     <span class="summary-value"> ${bookingData.department}</span>
                 </div>
                 <div class="summary-item">
+                    <span class="summary-label">Doctor:</span>
+                    <span class="summary-value"> ${bookingData.doctor}</span>
+                </div>
+                <div class="summary-item">
                     <span class="summary-label">Date:</span>
                     <span class="summary-value"> ${bookingData.date || 'Not selected'}</span>
                 </div>
@@ -466,7 +498,16 @@ function renderConfirmation() {
                     </h3>
                     <p>${bookingData.department}</p>
                     
-                    <h3>
+                    <h3 style="margin-top: 12px;">
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                            <circle cx="11" cy="7.333" r="3.667" stroke="#6A7282" stroke-width="1.833"/>
+                            <path d="M18.333 20.167a7.333 7.333 0 00-14.666 0" stroke="#6A7282" stroke-width="1.833" stroke-linecap="round"/>
+                        </svg>
+                        Doctor
+                    </h3>
+                    <p>${bookingData.doctor}</p>
+                    
+                    <h3 style="margin-top: 12px;">
                         <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
                             <path d="M7.333 1.833V5.5M14.667 1.833V5.5" stroke="#6A7282" stroke-width="1.833" stroke-linecap="round" stroke-linejoin="round"/>
                             <rect x="2.75" y="3.667" width="16.5" height="16.5" rx="2" stroke="#6A7282" stroke-width="1.833"/>
@@ -513,9 +554,19 @@ function selectTime(time) {
     renderBookingStep();
 }
 
+function selectDoctor(docName) {
+    bookingData.doctor = docName;
+    const continueBtn = document.querySelector('.btn-continue');
+    if (continueBtn && bookingData.date && bookingData.time && bookingData.doctor) {
+        continueBtn.disabled = false;
+    } else if (continueBtn) {
+        continueBtn.disabled = true;
+    }
+}
+
 function nextStep() {
     if (currentStep === 1 && !bookingData.department) return;
-    if (currentStep === 2 && (!bookingData.date || !bookingData.time)) return;
+    if (currentStep === 2 && (!bookingData.doctor || !bookingData.date || !bookingData.time)) return;
     
     currentStep++;
     renderBookingStep();
@@ -551,7 +602,7 @@ function confirmBooking() {
             department: bookingData.department,
             dateLabel: bookingData.date,
             timeLabel: bookingData.time,
-            doctor: 'TBD',
+            doctor: bookingData.doctor || 'TBD',
             reason: bookingData.patientInfo.reason || '',
             status: 'Confirmed',
             fee: 100
@@ -565,6 +616,7 @@ function confirmBooking() {
 function resetBooking() {
     bookingData = {
         department: null,
+        doctor: null,
         date: null,
         time: null,
         patientInfo: {}
@@ -644,7 +696,7 @@ function selectCalendarDate(day) {
     
     // Enable time slot selection
     const continueBtn = document.querySelector('.btn-continue');
-    if (continueBtn && bookingData.time) {
+    if (continueBtn && bookingData.time && bookingData.doctor) {
         continueBtn.disabled = false;
     }
 }
