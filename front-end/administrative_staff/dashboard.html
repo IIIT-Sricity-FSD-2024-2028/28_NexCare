@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital Management System - Dashboard</title>
+    <meta name="description" content="Hospital Management System Dashboard">
+    <meta name="keywords" content="Hospital management system, iiit, sricity">
+
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../shared/logo.css">
+
+    <script defer src="../shared/logo.js"></script>
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <nex-care-logo></nex-care-logo>
+
+        <ul class="menu">
+            <li class="active"><a href="dashboard.html">Dashboard</a></li>
+            <li>Patient Check-in</li>
+            <li>Manage Appointments</li>
+            <li><a href="bed-allocation.html">Bed Allocation</li>
+            <li><a href="inventory.html">Inventory</a></li>
+            <li>Staff Scheduling</li>
+            <li><a href="generate-bill.html">Generate Bill</a></li>
+            <li>Feedback</li>
+        </ul>
+
+        <div style="margin-top:40px;">Logout</div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <div class="user">Admin User</div>
+        </div>
+
+        <!-- HEADER -->
+        <div class="header-row">
+            <div>
+                <h1>Dashboard</h1>
+                <div class="sub">Welcome back! Here's what's happening today.</div>
+            </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="cards">
+            <div class="card stat">
+                <p>Total Patients</p>
+                <h3>342</h3>
+                <span class="trend up">+12%</span>
+            </div>
+
+            <div class="card stat">
+                <p>Today's Appointments</p>
+                <h3>48</h3>
+                <span class="trend up">+5%</span>
+            </div>
+
+            <div class="card stat">
+                <p>Available Beds</p>
+                <h3>23/50</h3>
+                <span class="trend neutral">46%</span>
+            </div>
+
+            <div class="card stat">
+                <p>Critical Alerts</p>
+                <h3>5</h3>
+                <span class="trend down">-2%</span>
+            </div>
+        </div>
+
+        <!-- SEARCH -->
+        <div class="filters" style="margin-bottom:10px;">
+            <input id="searchInput" class="search" placeholder="Search appointments..." />
+        </div>
+
+        <!-- RECENT APPOINTMENTS -->
+        <div class="card">
+            <h3>Recent Appointments</h3>
+            <div id="appointmentsList"></div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="card" style="margin-top:20px;">
+            <h3>Quick Actions</h3>
+
+            <div class="actions">
+                <button class="action-btn">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>Schedule Appointment</span>
+                </button>
+
+                <button class="action-btn">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="8" r="4"></circle>
+                        <path d="M4 20c0-4 16-4 16 0"></path>
+                    </svg>
+                    <span>Register Patient</span>
+                </button>
+
+                <button class="action-btn">
+                    <img src="../assets/images/bed.png" class="icon">
+                    <span>Assign Bed</span>
+                </button>
+
+                <button class="action-btn">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <circle cx="12" cy="16" r="1"></circle>
+                    </svg>
+                    <span>View Alerts</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script defer src="../assets/js/dashboard.js"></script>
+
+</body>
+</html>

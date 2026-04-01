@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bed Allocation</title>
+
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../shared/logo.css">
+
+    <script defer src="../shared/logo.js"></script>
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <nex-care-logo></nex-care-logo>
+
+        <ul class="menu">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li>Manage Appointments</li>
+            <li>Patient Check-in</li>
+            <li class="active">Bed Allocation</li>
+            <li><a href="inventory.html">Inventory</a></li>
+            <li>Staff Scheduling</li>
+            <li><a href="generate-bill.html">Generate Bill</a></li>
+            <li>Feedback</li>
+        </ul>
+
+        <div style="margin-top:40px;">Logout</div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <div class="user">Admin</div>
+        </div>
+
+        <!-- HEADER -->
+        <div class="header-row">
+            <div>
+                <h2>Patient Bed Management</h2>
+                <div class="sub">💖 Compassionate care for every patient</div>
+            </div>
+            <button class="btn" onclick="openAdmitModal()">+ Admit Patient</button>
+        </div>
+
+        <!-- WARD CARDS (dynamic) -->
+        <div id="wardCards" class="cards"></div>
+
+        <!-- SEARCH-->
+        <div class="filters">
+            <input id="searchInput" class="search" placeholder="Search by bed ID or patient..." />
+        </div>
+        
+        <!-- WARD DETAILS CARD -->
+        <div class="card">
+
+            <!-- DYNAMIC HEADER -->
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                
+                <div>
+                    <h3 id="wardTitle">Emergency Ward</h3>
+                    <div class="small" id="wardMeta">Ground Floor • Nurse Sarah • Ext 1234</div>
+                    <div class="small" id="occupiedInfo">Occupied: 0/0</div>
+                </div>
+
+                <div style="text-align:right;">
+                    <div class="small">Available</div>
+                    <h2 id="availableCount" style="color:#22c55e;">0</h2>
+                </div>
+            </div>
+
+            <!-- GRID + LEGEND ROW -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+
+                <!-- LEFT: GRID / LIST -->
+                <div>
+                    <button class="btn-outline" onclick="setView('grid')">Grid</button>
+                    <button class="btn-outline" onclick="setView('list')">List</button>
+                </div>
+
+                <!-- RIGHT: LEGEND -->
+                <div class="legend">
+                    <span class="legend-item">
+                        <span class="dot green"></span> Available
+                    </span>
+                    <span class="legend-item">
+                        <span class="dot blue"></span> Stable
+                    </span>
+                    <span class="legend-item">
+                        <span class="dot red"></span> Critical
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- BEDS GRID -->
+            <div id="bedsGrid" class="beds-grid"></div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- UPDATE BED MODAL -->
+<div id="modal" class="modal">
+    <div class="card modal-card">
+        <h3>Update Bed</h3>
+
+        <input id="patientName" class="input" placeholder="Patient Name">
+
+        <select id="status" class="input">
+            <option value="available">Available</option>
+            <option value="occupied">Occupied</option>
+            <option value="critical">Critical</option>
+        </select>
+
+        <div class="modal-actions">
+            <button class="btn" onclick="saveBed()">Save</button>
+            <button class="btn-outline" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIT PATIENT MODAL -->
+<div id="admitModal" class="modal">
+    <div class="card modal-card">
+        <h3>Admit Patient</h3>
+
+        <input id="admitName" class="input" placeholder="Patient Name">
+
+        <select id="admitWard" class="input"></select>
+
+        <div class="modal-actions">
+            <button class="btn" onclick="admitPatient()">Admit</button>
+            <button class="btn-outline" onclick="closeAdmitModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="../assets/js/bed.js"></script>
+
+</body>
+</html>
