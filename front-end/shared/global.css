@@ -1,37 +1,58 @@
 /* /front-end/shared/global.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* ==========================================
+   CSS Variables — aligned with patient portal
+   ========================================== */
 :root {
-    --primary-color: #0056b3;
-    --primary-hover: #004494;
-    --secondary-color: #f8f9fa;
-    --dark-bg: #0f172a;
-    --dark-panel: #1e293b;
-    --text-main: #334155;
-    --text-muted: #64748b;
-    --success: #10b981;
-    --danger: #ef4444;
-    --warning: #f59e0b;
-    --border-color: #e2e8f0;
-    --border-radius: 8px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    --primary-color: #2563EB;
+    --primary-hover: #1D4ED8;
+    --primary-light: #EFF6FF;
+    --primary-accent: #155DFC;
+    --secondary-color: #F9FAFB;
+    --text-main: #101828;
+    --text-body: #374151;
+    --text-muted: #6A7282;
+    --success: #00A63E;
+    --success-bg: #DCFCE7;
+    --danger: #E7000B;
+    --danger-bg: #FEE2E2;
+    --warning: #A65F00;
+    --warning-bg: #FEF9C2;
+    --border-color: #E5E7EB;
+    --border-radius: 10px;
+    --border-radius-lg: 14px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(21, 93, 252, 0.10);
+    --shadow-lg: 0 12px 24px rgba(0,0,0,0.10);
+}
+
+/* ==========================================
+   Base — matches patient portal body style
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: #f1f5f9;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(140deg, #EFF6FF 0%, #FFFFFF 50%, #EFF6FF 100%);
+    min-height: 100vh;
     color: var(--text-main);
     -webkit-font-smoothing: antialiased;
 }
 
-/* Modals & Overlays (Glassmorphism) */
+
+
+/* ==========================================
+   Modals & Overlays (Glassmorphism)
+   ========================================== */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(15, 23, 42, 0.4);
+    background: rgba(16, 24, 40, 0.35);
     backdrop-filter: blur(4px);
     display: flex;
     justify-content: center;
@@ -48,34 +69,44 @@ body {
 }
 
 .modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
+    background: #FFFFFF;
+    padding: 32px;
+    border-radius: var(--border-radius-lg);
     width: 100%;
-    max-width: 500px;
+    max-width: 520px;
     box-shadow: var(--shadow-lg);
     transform: translateY(-20px);
     transition: transform 0.3s ease;
+    border: 1px solid var(--border-color);
 }
 
 .modal-overlay.active .modal-content {
     transform: translateY(0);
 }
 
-/* UI Components */
+/* ==========================================
+   Buttons
+   ========================================== */
 .btn-primary {
     background: var(--primary-color);
-    color: white;
+    color: #FFFFFF;
     border: none;
     padding: 10px 20px;
     border-radius: var(--border-radius);
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 14px;
     cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    font-family: inherit;
 }
 
 .btn-primary:hover {
     background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .btn-primary:active {
@@ -84,33 +115,39 @@ body {
 
 .btn-danger {
     background: var(--danger);
-    color: white;
+    color: #FFFFFF;
     border: none;
     padding: 8px 16px;
     border-radius: var(--border-radius);
     cursor: pointer;
     font-weight: 500;
+    font-family: inherit;
+    transition: background 0.2s;
 }
 
 .btn-danger:hover {
-    background: #dc2626;
+    background: #B91C1C;
 }
 
 .btn-secondary {
-    background: white;
-    color: var(--text-main);
+    background: #FFFFFF;
+    color: var(--text-body);
     border: 1px solid var(--border-color);
     padding: 8px 16px;
     border-radius: var(--border-radius);
     cursor: pointer;
     font-weight: 500;
+    font-family: inherit;
+    transition: background 0.2s;
 }
 
 .btn-secondary:hover {
     background: var(--secondary-color);
 }
 
-/* Forms */
+/* ==========================================
+   Forms
+   ========================================== */
 .form-group {
     margin-bottom: 20px;
 }
@@ -120,63 +157,123 @@ body {
     margin-bottom: 8px;
     font-size: 14px;
     font-weight: 500;
-    color: var(--text-main);
+    color: var(--text-body);
 }
 
 .form-control {
     width: 100%;
-    padding: 10px 12px;
+    padding: 12px 16px;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     font-family: inherit;
     font-size: 14px;
+    color: var(--text-main);
+    background: #FFFFFF;
     transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
+    outline: none;
 }
 
 .form-control:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0,86,179,0.1);
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 0 3px rgba(21, 93, 252, 0.12);
 }
 
-/* Tables */
+/* ==========================================
+   Tables — matches patient portal table style
+   ========================================== */
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-}
-
-.data-table th, .data-table td {
-    padding: 15px 20px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
+    background: #FFFFFF;
 }
 
 .data-table th {
-    background-color: var(--secondary-color);
-    font-weight: 600;
+    text-align: left;
+    padding: 14px 16px;
+    background: #F9FAFB;
     font-size: 13px;
-    color: var(--text-muted);
+    font-weight: 600;
+    color: #4A5565;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+    color: var(--text-main);
 }
 
 .data-table tbody tr {
-    transition: background-color 0.2s;
+    transition: background 0.15s;
 }
 
 .data-table tbody tr:hover {
-    background-color: #f8fafc;
+    background: #F9FAFB;
 }
 
-/* Error spans */
+/* ==========================================
+   Badges — matches patient portal badge style
+   ========================================== */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+}
+.badge.admin    { background: #DBEAFE; color: #1447E6; }
+.badge.doctor   { background: var(--success-bg); color: #016630; border: 1px solid #7BF1A8; }
+.badge.driver   { background: var(--warning-bg); color: var(--warning); border: 1px solid #F7D24C; }
+.badge.active   { background: var(--success-bg); color: #016630; }
+.badge.inactive { background: #F3F4F6; color: #6B7280; }
+.badge.suspended{ background: var(--danger-bg); color: #DC2626; }
+
+/* ==========================================
+   Error messages
+   ========================================== */
 .error-message {
     color: var(--danger);
     font-size: 12px;
     margin-top: 5px;
     display: none;
+}
+
+/* ==========================================
+   Page header / section card — consistent
+   with patient portal section-card
+   ========================================== */
+.page-header-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.page-header-card h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 4px 0;
+}
+
+.page-header-card p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+/* ==========================================
+   Animations
+   ========================================== */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
