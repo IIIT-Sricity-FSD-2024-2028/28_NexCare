@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Hospital Management System - Billing, Check-in, Scheduling</title>
+	<meta name="description" content="Hospital Management System for billing, check-in and scheduling">
+	<meta name="keywords" content="Hospital management system, iiit, sricity">
+	<link rel="stylesheet" href="../assets/css/styles.css">
+	<link rel="stylesheet" href="../shared/logo.css"> 
+	<script src="../shared/logo.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <nex-care-logo></nex-care-logo>
+
+        <ul class="menu">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li>Patient Check-in</li>
+            <li>Manage Appointments</li>
+            <li>Bed Allocation</li>
+            <li><a href="inventory.html">Inventory</a></li>
+            <li>Staff Scheduling</li>
+            <li class="active"><a href="generate-bill.html">Generate Bill</a></li>
+            <li>Feedback</li>
+        </ul>
+
+        <div style="margin-top:40px;">Logout</div>
+    </div>
+
+<!-- Main -->
+<main class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="user">Admin User</div>
+    </div>
+
+    <!-- Title -->
+    <div class="header-row">
+        <div>
+            <h1>Generate Bill</h1>
+            <p class="sub">Create and manage patient bills and invoices</p>
+        </div>
+        <button class="btn" onclick="openModal()">+ New Bill</button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="cards">
+        <div class="card stat">
+            <p>Total Bills</p>
+            <h3 id="totalBills">5</h3>
+        </div>
+
+        <div class="card stat green">
+            <p>Total Revenue</p>
+            <h3 id="revenue">₹2018.50</h3>
+        </div>
+
+        <div class="card stat yellow">
+            <p>Pending Amount</p>
+            <h3 id="pending">₹709.50</h3>
+        </div>
+
+        <div class="card stat purple">
+            <p>Paid Bills</p>
+            <h3 id="paid">2</h3>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+        <input id="searchInput" class="search" placeholder="Search by patient name, bill ID..." />
+        
+        <select id="statusFilter">
+            <option value="">All Status</option>
+            <option>Paid</option>
+            <option>Pending</option>
+            <option>Overdue</option>
+        </select>
+
+        <button class="btn-outline" onclick="exportData()">Export</button>
+    </div>
+
+    <!-- Table -->
+    <div class="card table-container">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Bill ID</th>
+                    <th>Patient</th>
+                    <th>Date</th>
+                    <th>Services</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="bills"></tbody>
+        </table>
+
+    </div>
+
+</main>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal">
+    <div class="card modal-card">
+        <h3>New Bill</h3>
+        <input id="name" class="input" placeholder="Patient Name">
+        <input id="services" class="input" placeholder="Services">
+        <input id="amount" class="input" placeholder="Amount">
+	<div class="modal-actions">
+	    <button class="btn" onclick="save()">Save</button>
+	    <button class="btn-outline" onclick="closeModal()">Cancel</button>
+	</div>
+    </div>
+</div>
+
+<!-- VIEW BILL MODAL -->
+<div id="viewModal" class="modal">
+    <div class="card modal-card" style="width:500px;">
+        <h3>Bill Details</h3>
+
+        <!-- THIS WAS MISSING -->
+        <div id="billContent"></div>
+
+        <div class="modal-actions">
+            <button class="btn" onclick="printBillContent()">Print</button>
+            <button class="btn-outline" onclick="downloadPDF()">Download PDF</button>
+            <button class="btn-outline" onclick="closeViewModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="../assets/js/billing.js"></script>
+
+</body>
+</html>
