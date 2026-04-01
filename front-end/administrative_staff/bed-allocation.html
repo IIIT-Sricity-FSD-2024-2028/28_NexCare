@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bed Allocation</title>
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="logo.css">
+
+    <script defer src="logo.js"></script>
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+        <nex-care-logo></nex-care-logo>
+
+        <ul class="menu">
+            <li>
+                <a href="dashboard.html">
+                    <!-- Dashboard -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="#">
+                    <!-- Patient Check-in -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-8 0v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                        <line x1="19" y1="8" x2="19" y2="14"/>
+                        <line x1="22" y1="11" x2="16" y2="11"/>
+                    </svg>
+                    Patient Check-in
+                </a>
+            </li>
+
+            <li>
+                <a href="#">
+                    <!-- Manage Appointments -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Manage Appointments
+                </a>
+            </li>
+
+            <li class="active">
+                <a href="bed-allocation.html">
+                    <!-- Bed Allocation -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <!-- Bed frame -->
+                        <rect x="3" y="10" width="18" height="5" rx="1"/>
+                        
+                        <!-- Pillow -->
+                        <rect x="4" y="7" width="4" height="3" rx="1"/>
+                        
+                        <!-- Headboard -->
+                        <line x1="3" y1="7" x2="3" y2="15"/>
+                        
+                        <!-- Foot support -->
+                        <line x1="21" y1="10" x2="21" y2="15"/>
+                    </svg>
+                    Bed Allocation
+                </a>
+            </li>
+
+            <li>
+                <a href="inventory.html">
+                    <!-- Inventory -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <polyline points="3 8 12 13 21 8"/>
+                    </svg>
+                    Inventory
+                </a>
+            </li>
+
+            <li>
+                <a href="#">
+                    <!-- Staff Scheduling -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M17 11a4 4 0 1 0-4-4"/>
+                        <path d="M3 21v-2a4 4 0 0 1 6-3.46"/>
+                        <path d="M16 21v-2a4 4 0 0 0-3-3.87"/>
+                    </svg>
+                    Staff Scheduling
+                </a>
+            </li>
+
+            <li>
+                <a href="generate-bill.html">
+                    <!-- Generate Bill -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="9" x2="8" y2="9"/>
+                    </svg>
+                    Generate Bill
+                </a>
+            </li>
+
+            <li>
+                <a href="#">
+                    <!-- Feedback -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+                    </svg>
+                    Feedback
+                </a>
+            </li>
+        </ul>
+
+        <div class="logout">
+            <button type="button" class="logout-btn">
+                <svg class="logout-icon" viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+                          stroke="currentColor" stroke-width="1.8"
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16 17l5-5-5-5"
+                          stroke="currentColor" stroke-width="1.8"
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 12H9"
+                          stroke="currentColor" stroke-width="1.8"
+                          stroke-linecap="round"/>
+                </svg>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <div class="user">Admin</div>
+        </div>
+
+        <!-- HEADER -->
+        <div class="header-row">
+            <div>
+                <h2>Patient Bed Management</h2>
+                <div class="sub">💖 Compassionate care for every patient</div>
+            </div>
+            <button class="btn" onclick="openAdmitModal()">+ Admit Patient</button>
+        </div>
+
+        <!-- WARD CARDS (dynamic) -->
+        <div id="wardCards" class="cards"></div>
+
+        <!-- SEARCH-->
+        <div class="filters">
+            <input id="searchInput" class="search" placeholder="Search by bed ID or patient..." />
+        </div>
+        
+        <!-- WARD DETAILS CARD -->
+        <div class="card">
+
+            <!-- DYNAMIC HEADER -->
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                
+                <div>
+                    <h3 id="wardTitle">Emergency Ward</h3>
+                    <div class="small" id="wardMeta">Ground Floor • Nurse Sarah • Ext 1234</div>
+                    <div class="small" id="occupiedInfo">Occupied: 0/0</div>
+                </div>
+
+                <div style="text-align:right;">
+                    <div class="small">Available</div>
+                    <h2 id="availableCount" style="color:#22c55e;">0</h2>
+                </div>
+            </div>
+
+            <!-- GRID + LEGEND ROW -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+
+                <!-- LEFT: GRID / LIST -->
+                <div>
+                    <button class="btn-outline" onclick="setView('grid')">Grid</button>
+                    <button class="btn-outline" onclick="setView('list')">List</button>
+                </div>
+
+                <!-- RIGHT: LEGEND -->
+                <div class="legend">
+                    <span class="legend-item">
+                        <span class="dot green"></span> Available
+                    </span>
+                    <span class="legend-item">
+                        <span class="dot blue"></span> Stable
+                    </span>
+                    <span class="legend-item">
+                        <span class="dot red"></span> Critical
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- BEDS GRID -->
+            <div id="bedsGrid" class="beds-grid"></div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- UPDATE BED MODAL -->
+<div id="modal" class="modal">
+    <div class="card modal-card">
+        <h3>Update Bed</h3>
+
+        <input id="patientName" class="input" placeholder="Patient Name">
+
+        <select id="status" class="input">
+            <option value="available">Available</option>
+            <option value="occupied">Occupied</option>
+            <option value="critical">Critical</option>
+        </select>
+
+        <div class="modal-actions">
+            <button class="btn" onclick="saveBed()">Save</button>
+            <button class="btn-outline" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIT PATIENT MODAL -->
+<div id="admitModal" class="modal">
+    <div class="card modal-card">
+        <h3>Admit Patient</h3>
+
+        <input id="admitName" class="input" placeholder="Patient Name">
+
+        <select id="admitWard" class="input"></select>
+
+        <div class="modal-actions">
+            <button class="btn" onclick="admitPatient()">Admit</button>
+            <button class="btn-outline" onclick="closeAdmitModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="bed.js"></script>
+
+</body>
+</html>

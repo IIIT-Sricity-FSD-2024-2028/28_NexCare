@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Sarah Johnson",
+    "doctor": "Dr. Smith",
+    "dept": "Cardiology",
+    "time": "09:00 AM",
+    "status": "Completed"
+  },
+  {
+    "name": "Michael Chen",
+    "doctor": "Dr. Williams",
+    "dept": "Orthopedics",
+    "time": "10:30 AM",
+    "status": "In Progress"
+  },
+  {
+    "name": "Emily Davis",
+    "doctor": "Dr. Brown",
+    "dept": "Neurology",
+    "time": "11:00 AM",
+    "status": "Waiting"
+  },
+  {
+    "name": "Robert Wilson",
+    "doctor": "Dr. Martinez",
+    "dept": "General",
+    "time": "02:00 PM",
+    "status": "Scheduled"
+  }
+]

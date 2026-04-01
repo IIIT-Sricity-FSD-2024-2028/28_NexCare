@@ -1,0 +1,667 @@
+/* RESET */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, Arial, sans-serif;
+    background: #f5f7fb;
+    color: #111;
+}
+
+/* LAYOUT */
+.layout {
+    display: flex;
+}
+
+/* SIDEBAR */
+/* SIDEBAR FIX */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+}
+
+/* LOGO */
+.logo {
+    padding: 20px;
+}
+
+/* MENU */
+.menu {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+    flex: 1;
+}
+
+.menu li {
+    margin-bottom: 6px;
+}
+
+.menu li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #6b7280;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menu svg {
+    flex-shrink: 0;
+}
+
+/* HOVER */
+.menu li a:hover {
+    background: #f3f4f6;
+    color: #2563eb;
+}
+
+/* ACTIVE */
+.menu li.active a {
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* LOGOUT */
+.logout {
+    padding: 16px;
+}
+
+.logout button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #f9fafb;
+    cursor: pointer;
+    color: #2563eb;
+    font-weight: 500;
+}
+
+.logout button:hover {
+    background: #eef2ff;
+}
+
+/* MAIN */
+.main {
+    flex: 1;
+    padding: 24px;
+}
+
+/* TOPBAR */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search {
+    width: 50%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.user {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-left: auto;
+}
+
+/* HEADER */
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.sub {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 6px;
+}
+
+/* CARDS */
+.card {
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.05);
+}
+
+/* STATS */
+.cards {
+    display: flex;
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.stat {
+    flex: 1;
+    padding: 18px;
+    border-radius: 12px;
+}
+
+.stat p {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.stat h3 {
+    margin: 8px 0 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.green { background: #ecfdf5; }
+.yellow { background: #fffbeb; }
+.purple { background: #f5f3ff; }
+
+/* FILTERS */
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.filters .search {
+    width: 40%;
+}
+
+select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+/* BUTTONS */
+.btn {
+    background: #2563eb;
+    color: #fff;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-outline {
+    border: 1px solid #d1d5db;
+    background: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-outline:hover {
+    background: #f9fafb;
+}
+
+/* INPUT */
+.input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* TABLE */
+.table-container {
+    margin-top: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+thead {
+    background: #f9fafb;
+}
+
+th {
+    text-align: left;
+    padding: 12px;
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+td {
+    padding: 14px 12px;
+    border-top: 1px solid #f1f5f9;
+}
+
+tr:hover {
+    background: #f9fafb;
+}
+
+/* STATUS BADGES */
+.status {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status.paid {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status.pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status.overdue {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0,0,0,0.4);
+
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+}
+
+.modal-card {
+    width: 320px;
+}
+
+/* UTIL */
+.small {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+h1, h3 {
+    margin: 0;
+}
+
+
+
+/* APPOINTMENTS */
+.appointment {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    background: #e0ecff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.info {
+    flex: 1;
+}
+
+.time {
+    font-size: 13px;
+    color: #6b7280;
+    margin-right: 10px;
+}
+
+/* BADGES */
+.badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    background: #e5e7eb;
+}
+
+.badge.success {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.badge.info {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.badge.warning {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+/* TRENDS */
+.trend {
+    font-size: 12px;
+    margin-top: 6px;
+    display: inline-block;
+}
+
+.trend.up { color: #16a34a; }
+.trend.down { color: #dc2626; }
+.trend.neutral { color: #6b7280; }
+
+/* ACTIONS */
+.actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.action-btn:hover {
+    background: #f9fafb;
+}
+/* FIX APPOINTMENT LAYOUT */
+.appointment {
+    display: grid;
+    grid-template-columns: 40px 1fr 100px 140px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* FIX BADGE WIDTH */
+.status-wrap {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.badge {
+    display: inline-block;
+    width: 200px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 100px;
+}
+
+.icon {
+    width: 28px;
+    height: 28px;
+    stroke-width: 1.8;
+    color: #6b7280;
+}
+.menu li a {
+    text-decoration: none;   /* removes underline */
+    color: inherit;          /* keeps same text color */
+}
+
+/* ---------------- BED GRID ---------------- */
+.beds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.bed {
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    border: 2px solid #e5e7eb;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.bed:hover {
+    transform: scale(1.05);
+}
+
+.bed.available {
+    border-color: #22c55e;
+    background: #ecfdf5;
+}
+
+.bed.occupied {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.bed.critical {
+    border-color: #ef4444;
+    background: #fee2e2;
+}
+
+/* Modal buttons */
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+/* WARD CARD */
+.ward-card {
+    border: 1px solid #e5e7eb;
+    padding: 14px;
+    border-radius: 12px;
+    background: #fff;
+    flex: 1;
+}
+
+.progress {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 6px 0;
+}
+
+.progress-bar {
+    height: 100%;
+}
+
+.progress.red { background:#fee2e2; }
+.progress.yellow { background:#fef3c7; }
+.progress.blue { background:#dbeafe; }
+.progress.green { background:#dcfce7; }
+
+.progress-bar.red { background:#ef4444; }
+.progress-bar.yellow { background:#f59e0b; }
+.progress-bar.blue { background:#3b82f6; }
+.progress-bar.green { background:#22c55e; }
+
+/* LIST MODE */
+.beds-list {
+    display: flex !important;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.beds-list .bed {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    font-size: 14px;
+}
+
+.btn-outline.active {
+    background: #2563eb;
+    color: #fff;
+}
+
+.legend {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    font-size: 13px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #374151;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.dot.green { background: #22c55e; }
+.dot.blue { background: #3b82f6; }
+.dot.red { background: #ef4444; }
+
+.ward-card {
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.ward-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,.08);
+}
+
+/* INVENTORY BUTTON ALIGN */
+.table-container .btn {
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+/* STATUS COLORS REUSE */
+.status.paid {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status.pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+/* STAT NUMBER COLORS */
+.blue-text {
+    color: #2563eb;
+}
+
+.green-text {
+    color: #16a34a;
+}
+
+.orange-text {
+    color: #f59e0b;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.icon-btn {
+    border: none;
+    background: #f3f4f6;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn svg {
+    stroke: #374151;
+    stroke-width: 2;
+    fill: none;
+}
+
+.icon-btn:hover {
+    background: #e5e7eb;
+}
+
+#billContent p {
+    margin: 6px 0;
+}
+
+.logout {
+    margin-top: auto;
+    padding: 16px;
+}
+
+.logout-btn {
+    width: 100%;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: none;
+    background: #f9fafb;
+    cursor: pointer;
+    color: #374151;
+}
+
+.logout-btn:hover {
+    background: #eef2ff;
+    color: #2563eb;
+}
+
+.logout-icon {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+}
