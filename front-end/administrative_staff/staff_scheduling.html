@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEX CARE - Staff Scheduling & Roster</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f9fafb;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 293px;
+            background: white;
+            border-right: 2px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .logo-container {
+            padding: 32px 32px 24px;
+            border-bottom: 2.66px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: #0066cc;
+            border-radius: 7.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg {
+            width: 36px;
+            height: 36px;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 41.25px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .logo-nex {
+            color: #0077b6;
+        }
+
+        .logo-care {
+            color: black;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            color: black;
+            margin-top: 2px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: #f3f4f6;
+        }
+
+        .nav-item.active {
+            background: #eff6ff;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .nav-item.active svg path {
+            stroke: #155DFC;
+        }
+
+        .nav-item span {
+            font-size: 16px;
+            font-weight: 500;
+            color: #364153;
+        }
+
+        .nav-item.active span {
+            color: #155DFC;
+        }
+
+        .sidebar-footer {
+            border-top: 2px solid #e5e7eb;
+            padding: 18px 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 3px solid #e5e7eb;
+            padding: 16px 24px;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 672px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 36px;
+            background: #f3f3f5;
+            border: none;
+            border-radius: 8px;
+            padding: 4px 12px 4px 40px;
+            font-size: 14px;
+            color: #717182;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 8px;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .notification-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background: #fb2c36;
+            border-radius: 50%;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ececf0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #0a0a0a;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #6a7282;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 30px;
+            font-weight: 700;
+            color: #101828;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-content h3 {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .stat-content .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #0a0a0a;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon.blue {
+            background: #dbeafe;
+        }
+
+        .stat-icon.green {
+            background: #d1fae5;
+        }
+
+        .stat-icon.yellow {
+            background: #fef3c7;
+        }
+
+        .stat-icon.purple {
+            background: #ede9fe;
+        }
+
+        .stat-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Schedule Section */
+        .schedule-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .schedule-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #364153;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: #0a0a0a;
+            color: white;
+            border-color: #0a0a0a;
+        }
+
+        .schedule-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .week-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .week-nav button {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .week-nav button:hover {
+            background: #f9fafb;
+        }
+
+        .week-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #0a0a0a;
+        }
+
+        .export-btn {
+            padding: 8px 16px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .export-btn:hover {
+            background: #f9fafb;
+        }
+
+        .add-staff-btn {
+            padding: 10px 20px;
+            background: #0a0a0a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-staff-btn:hover {
+            background: #1a1a1a;
+        }
+
+        /* Schedule Table */
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .schedule-table th,
+        .schedule-table td {
+            padding: 16px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .schedule-table th {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .schedule-table td {
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .staff-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .staff-name {
+            font-weight: 600;
+            color: #0a0a0a;
+        }
+
+        .staff-id {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .role-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .role-doctor {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .role-nurse {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .shift-badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            display: inline-block;
+            min-width: 70px;
+        }
+
+        .shift-morning {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .shift-afternoon {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .shift-night {
+            background: #ede9fe;
+            color: #6b21a8;
+        }
+
+        .shift-off {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        /* Shift Legend */
+        .shift-legend {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .legend-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-right: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #374151;
+        }
+
+        .legend-item .shift-badge {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <svg fill="none" viewBox="0 0 36 36">
+                    <path d="M33 18H29.28C28.6245 17.9986 27.9865 18.212 27.4637 18.6075C26.9409 19.0029 26.562 19.5588 26.385 20.19L22.86 32.73C22.8373 32.8079 22.7899 32.8763 22.725 32.925C22.6601 32.9737 22.5811 33 22.5 33C22.4189 33 22.3399 32.9737 22.275 32.925C22.2101 32.8763 22.1627 32.8079 22.14 32.73L13.86 3.27C13.8373 3.19211 13.7899 3.12368 13.725 3.075C13.6601 3.02632 13.5811 3 13.5 3C13.4189 3 13.3399 3.02632 13.275 3.075C13.2101 3.12368 13.1627 3.19211 13.14 3.27L9.615 15.81C9.4387 16.4387 9.06207 16.9928 8.5423 17.388C8.02252 17.7833 7.38798 17.9981 6.735 18H3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="logo-text">
+                <div class="logo-title">
+                    <span class="logo-nex">NEX</span><span class="logo-care">CARE</span>
+                </div>
+                <div class="logo-subtitle">Administrative staff portal</div>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 20 20">
+                    <path d="M7.5 2.5H3.33333C2.8731 2.5 2.5 2.8731 2.5 3.33333V9.16667C2.5 9.6269 2.8731 10 3.33333 10H7.5C7.96024 10 8.33333 9.6269 8.33333 9.16667V3.33333C8.33333 2.8731 7.96024 2.5 7.5 2.5Z" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16.6667 2.5H12.5C12.0398 2.5 11.6667 2.8731 11.6667 3.33333V5.83333C11.6667 6.29357 12.0398 6.66667 12.5 6.66667H16.6667C17.1269 6.66667 17.5 6.29357 17.5 5.83333V3.33333C17.5 2.8731 17.1269 2.5 16.6667 2.5Z" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16.6667 10H12.5C12.0398 10 11.6667 10.3731 11.6667 10.8333V16.6667C11.6667 17.1269 12.0398 17.5 12.5 17.5H16.6667C17.1269 17.5 17.5 17.1269 17.5 16.6667V10.8333C17.5 10.3731 17.1269 10 16.6667 10Z" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7.5 13.3333H3.33333C2.8731 13.3333 2.5 13.7064 2.5 14.1667V16.6667C2.5 17.1269 2.8731 17.5 3.33333 17.5H7.5C7.96024 17.5 8.33333 17.1269 8.33333 16.6667V14.1667C8.33333 13.7064 7.96024 13.3333 7.5 13.3333Z" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Dashboard</span>
+            </button>
+
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 19.0312 20">
+                    <path d="M6.34375 2.07031V5.24219" stroke="#364153" stroke-width="1.58594" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12.6875 2.07031V5.24219" stroke="#364153" stroke-width="1.58594" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15.0664 3.65625H3.96484C3.08895 3.65625 2.37891 4.3663 2.37891 5.24219V16.3438C2.37891 17.2196 3.08895 17.9297 3.96484 17.9297H15.0664C15.9423 17.9297 16.6523 17.2196 16.6523 16.3438V5.24219C16.6523 4.3663 15.9423 3.65625 15.0664 3.65625Z" stroke="#364153" stroke-width="1.58594" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.37891 8.41406H16.6523" stroke="#364153" stroke-width="1.58594" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Manage Appointments</span>
+            </button>
+
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 17.4836 17.4836">
+                    <path d="M11.6557 15.2993V13.8424C11.6557 13.0696 11.3487 12.3284 10.8022 11.7819C10.2557 11.2355 9.51457 10.9285 8.74175 10.9285H4.37086C3.59804 10.9285 2.85687 11.2355 2.31041 11.7819C1.76394 12.3284 1.45694 13.0696 1.45694 13.8424V15.2993" stroke="#364153" stroke-width="1.45696" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6.55631 8.01453C8.16562 8.01453 9.47023 6.70992 9.47023 5.1006C9.47023 3.49129 8.16562 2.18668 6.55631 2.18668C4.94699 2.18668 3.64238 3.49129 3.64238 5.1006C3.64238 6.70992 4.94699 8.01453 6.55631 8.01453Z" stroke="#364153" stroke-width="1.45696" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M11.6551 8.01453L13.1121 9.47149L16.026 6.55757" stroke="#364153" stroke-width="1.45696" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Patient Check-in</span>
+            </button>
+
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 19.9922 19.9922">
+                    <path d="M1.66602 3.33203V16.6602" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M1.66602 6.66406H16.6602C17.102 6.66406 17.5258 6.83959 17.8382 7.15203C18.1506 7.46447 18.3262 7.88822 18.3262 8.33008V16.6602" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M1.66602 14.1611H18.3262" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4.99805 6.66406V14.1611" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Bed Allocation</span>
+            </button>
+
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 20 20">
+                    <path d="M9.16667 18.1083C9.42003 18.2546 9.70744 18.3316 10 18.3316C10.2926 18.3316 10.58 18.2546 10.8333 18.1083L16.6667 14.775C16.9198 14.6289 17.13 14.4187 17.2763 14.1657C17.4225 13.9127 17.4997 13.6256 17.5 13.3333V6.66667C17.4997 6.3744 17.4225 6.08734 17.2763 5.8343C17.13 5.58126 16.9198 5.37114 16.6667 5.225L10.8333 1.89167C10.58 1.74539 10.2926 1.66838 10 1.66838C9.70744 1.66838 9.42003 1.74539 9.16667 1.89167L3.33333 5.225C3.08022 5.37114 2.86998 5.58126 2.72372 5.8343C2.57745 6.08734 2.5003 6.3744 2.5 6.66667V13.3333C2.5003 13.6256 2.57745 13.9127 2.72372 14.1657C2.86998 14.4187 3.08022 14.6289 3.33333 14.775L9.16667 18.1083Z" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 18.3333V10" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.74167 5.83333L10 10L17.2583 5.83333" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6.25 3.55833L13.75 7.85" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Inventory</span>
+            </button>
+
+            <button class="nav-item active">
+                <svg fill="none" viewBox="0 0 19.9922 19.9922">
+                    <path d="M13.3281 17.4932V15.8271C13.3281 14.9434 12.9771 14.0959 12.3522 13.471C11.7273 12.8462 10.8798 12.4951 9.99609 12.4951H4.99805C4.11434 12.4951 3.26682 12.8462 2.64195 13.471C2.01707 14.0959 1.66602 14.9434 1.66602 15.8271V17.4932" stroke="#155DFC" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7.49707 9.16309C9.3373 9.16309 10.8291 7.67128 10.8291 5.83105C10.8291 3.99082 9.3373 2.49902 7.49707 2.49902C5.65684 2.49902 4.16504 3.99082 4.16504 5.83105C4.16504 7.67128 5.65684 9.16309 7.49707 9.16309Z" stroke="#155DFC" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M18.3262 17.4932V15.8271C18.3256 15.0889 18.0799 14.3717 17.6276 13.7882C17.1753 13.2047 16.542 12.788 15.8271 12.6034" stroke="#155DFC" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13.3281 2.60731C14.0449 2.79083 14.6801 3.20766 15.1338 3.79211C15.5874 4.37656 15.8337 5.09537 15.8337 5.83522C15.8337 6.57507 15.5874 7.29388 15.1338 7.87833C14.6801 8.46278 14.0449 8.87961 13.3281 9.06313" stroke="#155DFC" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Staff Scheduling</span>
+            </button>
+
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 19.9922 19.9922">
+                    <path d="M12.4951 1.66602H4.99805C4.55619 1.66602 4.13243 1.84154 3.82 2.15398C3.50756 2.46642 3.33203 2.89018 3.33203 3.33203V16.6602C3.33203 17.102 3.50756 17.5258 3.82 17.8382C4.13243 18.1506 4.55619 18.3262 4.99805 18.3262H14.9941C15.436 18.3262 15.8598 18.1506 16.1722 17.8382C16.4846 17.5258 16.6602 17.102 16.6602 16.6602V5.83105L12.4951 1.66602Z" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M11.6621 1.66602V4.99805C11.6621 5.4399 11.8376 5.86366 12.1501 6.1761C12.4625 6.48854 12.8863 6.66406 13.3281 6.66406H16.6602" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8.33008 7.49707H6.66406" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13.3281 10.8291H6.66406" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13.3281 14.1611H6.66406" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Generate Bill</span>
+            </button>
+
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 19.9922 19.9922">
+                    <path d="M17.4932 12.4951C17.4932 12.937 17.3176 13.3607 17.0052 13.6732C16.6928 13.9856 16.269 14.1611 15.8271 14.1611H5.83105L2.49902 17.4932V4.16504C2.49902 3.72318 2.67455 3.29943 2.98699 2.98699C3.29943 2.67455 3.72318 2.49902 4.16504 2.49902H15.8271C16.269 2.49902 16.6928 2.67455 17.0052 2.98699C17.3176 3.29943 17.4932 3.72318 17.4932 4.16504V12.4951Z" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Feedback</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 20 20">
+                    <path d="M7.5 17.5H4.16667C3.72464 17.5 3.30072 17.3244 2.98816 17.0118C2.67559 16.6993 2.5 16.2754 2.5 15.8333V4.16667C2.5 3.72464 2.67559 3.30072 2.98816 2.98816C3.30072 2.67559 3.72464 2.5 4.16667 2.5H7.5" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13.3333 14.1667L17.5 10L13.3333 5.83333" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17.5 10H7.5" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="search-container">
+                    <svg class="search-icon" fill="none" viewBox="0 0 19.9688 19.9688" width="20" height="20">
+                        <path d="M9.15234 15.8086C12.8285 15.8086 15.8086 12.8285 15.8086 9.15234C15.8086 5.4762 12.8285 2.49609 9.15234 2.49609C5.4762 2.49609 2.49609 5.4762 2.49609 9.15234C2.49609 12.8285 5.4762 15.8086 9.15234 15.8086Z" stroke="#99A1AF" stroke-width="1.66406" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17.4727 17.4727L13.8949 13.8949" stroke="#99A1AF" stroke-width="1.66406" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <input type="text" class="search-input" placeholder="Search patients, appointments, or records...">
+                </div>
+                <div class="user-section">
+                    <button class="notification-btn">
+                        <svg fill="none" viewBox="0 0 15.9844 15.9844" width="16" height="16">
+                            <path d="M6.83865 13.9863C6.95556 14.1888 7.12371 14.3569 7.3262 14.4738C7.52869 14.5907 7.75838 14.6523 7.99219 14.6523C8.226 14.6523 8.45569 14.5907 8.65817 14.4738C8.86066 14.3569 9.02881 14.1888 9.14573 13.9863" stroke="#0A0A0A" stroke-width="1.33203" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2.17254 10.2074C2.08554 10.3027 2.02812 10.4213 2.00727 10.5487C1.98643 10.6761 2.00305 10.8068 2.05513 10.9249C2.1072 11.043 2.19248 11.1435 2.30059 11.214C2.4087 11.2846 2.53497 11.3222 2.66406 11.3223H13.3203C13.4494 11.3223 13.5757 11.2849 13.6839 11.2144C13.792 11.144 13.8774 11.0437 13.9296 10.9257C13.9819 10.8076 13.9986 10.677 13.978 10.5495C13.9573 10.4221 13.9 10.3035 13.8132 10.208C12.9274 9.29491 11.9883 8.32453 11.9883 5.32812C11.9883 4.2683 11.5673 3.25187 10.8179 2.50246C10.0684 1.75305 9.05202 1.33203 7.99219 1.33203C6.93236 1.33203 5.91594 1.75305 5.16652 2.50246C4.41711 3.25187 3.99609 4.2683 3.99609 5.32812C3.99609 8.32453 3.05635 9.29491 2.17254 10.2074Z" stroke="#0A0A0A" stroke-width="1.33203" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="notification-badge"></span>
+                    </button>
+                    <div class="user-info">
+                        <div class="avatar">AD</div>
+                        <div class="user-details">
+                            <div class="user-name">Admin User</div>
+                            <div class="user-role">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="page-header">
+                <h1 class="page-title">Staff Scheduling & Roster</h1>
+                <p class="page-subtitle">Manage staff schedules, shifts, and availability</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <h3>Total Staff</h3>
+                        <div class="stat-value">6</div>
+                    </div>
+                    <div class="stat-icon blue">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="#1e40af" stroke-width="2">
+                            <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <h3>On Duty Today</h3>
+                        <div class="stat-value">5</div>
+                    </div>
+                    <div class="stat-icon green">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="#166534" stroke-width="2">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <h3>On Leave</h3>
+                        <div class="stat-value">1</div>
+                    </div>
+                    <div class="stat-icon yellow">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="#92400e" stroke-width="2">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <h3>Departments</h3>
+                        <div class="stat-value">6</div>
+                    </div>
+                    <div class="stat-icon purple">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="#6b21a8" stroke-width="2">
+                            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Section -->
+            <div class="schedule-section">
+                <div class="schedule-header">
+                    <div class="schedule-tabs">
+                        <button class="tab-btn active">Weekly Schedule</button>
+                        <button class="tab-btn">Staff Directory</button>
+                    </div>
+                    <button class="add-staff-btn">
+                        <span>+</span>
+                        Add Staff Member
+                    </button>
+                </div>
+
+                <div class="schedule-controls">
+                    <div class="week-nav">
+                        <button onclick="previousWeek()">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+                                <path d="M10 12L6 8l4-4" stroke="#364153" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <span class="week-text">Week of March 8 - March 14, 2026</span>
+                        <button onclick="nextWeek()">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+                                <path d="M6 12l4-4-4-4" stroke="#364153" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <button class="export-btn">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+                            <circle cx="8" cy="8" r="7" stroke="#364153" stroke-width="1.5"/>
+                            <path d="M8 4v4l2 2" stroke="#364153" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Export Schedule
+                    </button>
+                </div>
+
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Staff Member</th>
+                            <th>Role</th>
+                            <th>Monday</th>
+                            <th>Tuesday</th>
+                            <th>Wednesday</th>
+                            <th>Thursday</th>
+                            <th>Friday</th>
+                            <th>Saturday</th>
+                            <th>Sunday</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="staff-info">
+                                    <div class="staff-name">Dr. Sarah Johnson</div>
+                                    <div class="staff-id">S001</div>
+                                </div>
+                            </td>
+                            <td><span class="role-badge role-doctor">Doctor</span></td>
+                            <td><span class="shift-badge shift-morning">Morning</span></td>
+                            <td><span class="shift-badge shift-morning">Morning</span></td>
+                            <td><span class="shift-badge shift-off">Off</span></td>
+                            <td><span class="shift-badge shift-afternoon">Afternoon</span></td>
+                            <td><span class="shift-badge shift-afternoon">Afternoon</span></td>
+                            <td><span class="shift-badge shift-off">Off</span></td>
+                            <td><span class="shift-badge shift-night">Night</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="staff-info">
+                                    <div class="staff-name">Nurse Emily Davis</div>
+                                    <div class="staff-id">S002</div>
+                                </div>
+                            </td>
+                            <td><span class="role-badge role-nurse">Nurse</span></td>
+                            <td><span class="shift-badge shift-night">Night</span></td>
+                            <td><span class="shift-badge shift-night">Night</span></td>
+                            <td><span class="shift-badge shift-morning">Morning</span></td>
+                            <td><span class="shift-badge shift-morning">Morning</span></td>
+                            <td><span class="shift-badge shift-off">Off</span></td>
+                            <td><span class="shift-badge shift-afternoon">Afternoon</span></td>
+                            <td><span class="shift-badge shift-off">Off</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="staff-info">
+                                    <div class="staff-name">Dr. Michael Chen</div>
+                                    <div class="staff-id">S003</div>
+                                </div>
+                            </td>
+                            <td><span class="role-badge role-doctor">Doctor</span></td>
+                            <td><span class="shift-badge shift-morning">Morning</span></td>
+                            <td><span class="shift-badge shift-morning">Morning</span></td>
+                            <td><span class="shift-badge shift-morning">Morning</span></td>
+                            <td><span class="shift-badge shift-afternoon">Afternoon</span></td>
+                            <td><span class="shift-badge shift-afternoon">Afternoon</span></td>
+                            <td><span class="shift-badge shift-off">Off</span></td>
+                            <td><span class="shift-badge shift-off">Off</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="staff-info">
+                                    <div class="staff-name">Nurse James Wilson</div>
+                                    <div class="staff-id">S004</div>
+                                </div>
+                            </td>
+                            <td><span class="role-badge role-nurse">Nurse</span></td>
+                            <td><span class="shift-badge shift-afternoon">Afternoon</span></td>
+                            <td><span class="shift-badge shift-afternoon">Afternoon</span></td>
+                            <td><span class="shift-badge shift-night">Night</span></td>
+                            <td><span class="shift-badge shift-night">Night</span></td>
+                            <td><span class="shift-badge shift-morning">Morning</span></td>
+                            <td><span class="shift-badge shift-morning">Morning</span></td>
+                            <td><span class="shift-badge shift-off">Off</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="staff-info">
+                                    <div class="staff-name">Nurse Robert Taylor</div>
+                                    <div class="staff-id">S006</div>
+                                </div>
+                            </td>
+                            <td><span class="role-badge role-nurse">Nurse</span></td>
+                            <td><span class="shift-badge shift-morning">Morning</span></td>
+                            <td><span class="shift-badge shift-afternoon">Afternoon</span></td>
+                            <td><span class="shift-badge shift-afternoon">Afternoon</span></td>
+                            <td><span class="shift-badge shift-off">Off</span></td>
+                            <td><span class="shift-badge shift-morning">Morning</span></td>
+                            <td><span class="shift-badge shift-night">Night</span></td>
+                            <td><span class="shift-badge shift-night">Night</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="shift-legend">
+                    <span class="legend-label">Shift Legend:</span>
+                    <div class="legend-item">
+                        <span class="shift-badge shift-morning">Morning (8AM-2PM)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="shift-badge shift-afternoon">Afternoon (2PM-10PM)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="shift-badge shift-night">Night (10PM-6AM)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="shift-badge shift-off">Off</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // JavaScript functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search functionality
+            const searchInput = document.querySelector('.search-input');
+            searchInput.addEventListener('input', function(e) {
+                console.log('Searching for:', e.target.value);
+            });
+
+            // Tab switching
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    if (this.textContent === 'Staff Directory') {
+                        alert('Staff Directory view - Shows detailed staff profiles and contact information');
+                    }
+                });
+            });
+
+            // Add Staff Member button
+            const addStaffBtn = document.querySelector('.add-staff-btn');
+            addStaffBtn.addEventListener('click', function() {
+                const name = prompt('Enter staff member name:');
+                if (name) {
+                    const role = prompt('Enter role (Doctor/Nurse):');
+                    if (role) {
+                        alert(`New staff member added:\nName: ${name}\nRole: ${role}`);
+                    }
+                }
+            });
+
+            // Export Schedule button
+            const exportBtn = document.querySelector('.export-btn');
+            exportBtn.addEventListener('click', function() {
+                alert('Schedule exported as PDF/Excel');
+            });
+
+            // Notification button
+            const notificationBtn = document.querySelector('.notification-btn');
+            notificationBtn.addEventListener('click', function() {
+                alert('Notifications:\n• Staff shift swap requested\n• New staff member onboarded\n• Schedule update reminder');
+            });
+
+            // Navigation items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const text = this.querySelector('span').textContent;
+                    if (text === 'Logout') {
+                        if (confirm('Are you sure you want to logout?')) {
+                            alert('Logged out successfully');
+                        }
+                    } else if (text !== 'Staff Scheduling') {
+                        alert(`Navigating to: ${text}`);
+                    }
+                });
+            });
+
+            // Shift badge click to edit
+            const shiftBadges = document.querySelectorAll('.shift-badge');
+            shiftBadges.forEach(badge => {
+                badge.addEventListener('click', function() {
+                    if (!this.classList.contains('shift-off')) {
+                        const currentShift = this.textContent;
+                        const newShift = prompt(`Change shift from "${currentShift}" to:\n1. Morning\n2. Afternoon\n3. Night\n4. Off`);
+                        
+                        if (newShift) {
+                            const shiftMap = {
+                                '1': 'Morning',
+                                '2': 'Afternoon',
+                                '3': 'Night',
+                                '4': 'Off'
+                            };
+                            
+                            if (shiftMap[newShift]) {
+                                // Remove all shift classes
+                                this.classList.remove('shift-morning', 'shift-afternoon', 'shift-night', 'shift-off');
+                                // Add new shift class
+                                this.classList.add('shift-' + shiftMap[newShift].toLowerCase());
+                                this.textContent = shiftMap[newShift];
+                                alert('Shift updated successfully!');
+                            }
+                        }
+                    }
+                });
+            });
+        });
+
+        // Week navigation functions
+        let currentWeekStart = new Date(2026, 2, 8); // March 8, 2026
+
+        function previousWeek() {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            updateWeekDisplay();
+        }
+
+        function nextWeek() {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            updateWeekDisplay();
+        }
+
+        function updateWeekDisplay() {
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            const formatDate = (date) => {
+                const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+                return `${months[date.getMonth()]} ${date.getDate()}`;
+            };
+            
+            document.querySelector('.week-text').textContent = 
+                `Week of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}`;
+        }
+    </script>
+</body>
+</html>
