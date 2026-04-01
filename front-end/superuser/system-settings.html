@@ -7,19 +7,40 @@
     <link rel="stylesheet" href="../shared/global.css">
     <link rel="stylesheet" href="../shared/nav.css">
     <style>
-        .page-header {
-            margin-bottom: 30px;
-            background: white;
-            padding: 20px 24px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-sm);
-        }
+        .page-body { padding: 32px; }
 
-        .page-header h1 {
-            margin: 0;
-            font-size: 24px;
-            color: var(--dark-panel);
+        /* Sticky top header bar */
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
+        .header-title { font-size: 18px; font-weight: 700; color: #101828; }
+        .header-user { display: flex; align-items: center; gap: 10px; }
+        .header-avatar {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: #2563EB; color: #FFFFFF;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px;
+        }
+        .header-user-name { font-size: 14px; font-weight: 700; color: #101828; margin: 0; }
+        .header-user-role { font-size: 12px; color: #6A7282; margin: 0; }
+
+        .page-header {
+            margin-bottom: 24px;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            padding: 20px 24px;
+            border-radius: 14px;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        .page-header h1 { margin: 0; font-size: 20px; font-weight: 700; color: #101828; }
 
         .settings-grid {
             display: grid;
@@ -28,38 +49,42 @@
         }
 
         .settings-card {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            border-top: 4px solid var(--primary-color);
+            background: #FFFFFF;
+            padding: 28px;
+            border-radius: 14px;
+            border: 1px solid #E5E7EB;
+            animation: fadeInUp 0.4s ease-out;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .settings-card:hover {
+            border-color: #BFDBFE;
+            box-shadow: 0 4px 12px rgba(21, 93, 252, 0.08);
         }
 
         .settings-card h3 {
             margin-top: 0;
-            color: var(--text-main);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            color: #101828;
+            border-bottom: 1px solid #E5E7EB;
+            padding-bottom: 12px;
             margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 700;
         }
 
         .toggle-switch {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 15px;
-            padding: 10px 15px;
-            background: var(--secondary-color);
-            border-radius: var(--border-radius);
-            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+            padding: 14px 16px;
+            background: #F9FAFB;
+            border-radius: 10px;
+            border: 1px solid #E5E7EB;
         }
 
-        .toggle-switch label {
-            margin: 0;
-            font-weight: 500;
-        }
+        .toggle-switch label { margin: 0; font-weight: 500; }
 
-        /* Pure CSS Toggle Slider without external dependencies */
+        /* Pure CSS Toggle Slider */
         .switch {
             position: relative;
             display: inline-block;
@@ -67,18 +92,14 @@
             height: 24px;
         }
 
-        .switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .switch input { opacity: 0; width: 0; height: 0; }
 
         .slider {
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #cbd5e1;
-            transition: .4s;
+            background-color: #D1D5DC;
+            transition: .3s;
             border-radius: 24px;
         }
 
@@ -90,42 +111,49 @@
             left: 3px;
             bottom: 3px;
             background-color: white;
-            transition: .4s;
+            transition: .3s;
             border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
 
-        input:checked + .slider {
-            background-color: var(--success);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(24px);
-        }
+        input:checked + .slider { background-color: #2563EB; }
+        input:checked + .slider:before { transform: translateX(24px); }
 
         .save-banner {
             position: fixed;
             bottom: -50px;
             left: 50%;
             transform: translateX(-50%);
-            background: var(--success);
+            background: #00A63E;
             color: white;
-            padding: 12px 24px;
+            padding: 12px 28px;
             border-radius: 24px;
             font-weight: 600;
-            box-shadow: var(--shadow-lg);
+            font-size: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
             transition: bottom 0.4s ease;
             z-index: 100;
         }
-        
-        .save-banner.show {
-            bottom: 30px;
-        }
+        .save-banner.show { bottom: 30px; }
     </style>
 </head>
 <body>
 
     <main class="main-content">
+
+        <!-- Sticky top header inside main -->
+        <header class="header">
+            <span class="header-title">Global System Settings</span>
+            <div class="header-user">
+                <div class="header-avatar">SU</div>
+                <div>
+                    <p class="header-user-name">Super User</p>
+                    <p class="header-user-role">System Administrator</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-body">
         <div class="page-header">
             <h1>Global System Setup</h1>
             <p style="margin: 5px 0 0; color: var(--text-muted); font-size: 14px;">Manage core operational configurations and system toggles.</p>
@@ -193,11 +221,12 @@
         <div id="saveBanner" class="save-banner">
             ✓ Settings Saved Successfully!
         </div>
-
+        </div> <!-- /.page-body -->
     </main>
 
     <script src="../shared/session.js"></script>
     <script src="../shared/nav.js"></script>
+    <script src="../logo.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const role = sessionStorage.getItem('nexcare_current_role');

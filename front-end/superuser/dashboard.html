@@ -7,88 +7,206 @@
     <link rel="stylesheet" href="../shared/global.css">
     <link rel="stylesheet" href="../shared/nav.css">
     <style>
-        .welcome-section {
-            margin-bottom: 30px;
-            background: white;
-            padding: 24px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-sm);
-        }
-        .welcome-section h1 { margin-top: 0; color: var(--dark-panel); }
-        .welcome-section p { margin-bottom: 0; color: var(--text-muted); }
+        /* Page padding inside main-content */
+        .page-body { padding: 32px; }
 
+        /* Hero banner — matches patient portal hero gradient */
+        .hero {
+            background: linear-gradient(135deg, #2563EB 0%, #0EA5E9 100%);
+            padding: 32px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            color: #FFFFFF;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+        .hero p  { font-size: 16px; opacity: 0.85; margin: 0; }
+
+        /* Stats grid — matches patient portal stats-grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
         }
         .stat-card {
-            background: white;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
             padding: 24px;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            border-top: 4px solid var(--primary-color);
-            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            animation: fadeInUp 0.5s ease-out;
         }
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
+            border-color: #155DFC;
+            box-shadow: 0 4px 12px rgba(21, 93, 252, 0.15);
+            transform: translateY(-2px);
         }
-        .stat-card h3 { color: var(--text-muted); font-size: 14px; margin-top: 0; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
-        .stat-card p { font-size: 32px; font-weight: 700; color: var(--text-main); margin: 0; }
-        .trend { font-size: 12px; font-weight: 500; margin-top: 10px; display: block; }
-        .trend.up { color: var(--success); }
-        .trend.down { color: var(--danger); }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6A7282;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .stat-value {
+            font-size: 30px;
+            font-weight: 700;
+            color: #101828;
+            line-height: 1;
+        }
+        .stat-trend {
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 8px;
+            display: block;
+        }
+        .trend-up   { color: #00A63E; }
+        .trend-down { color: #E7000B; }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .stat-icon.blue   { background: #DBEAFE; }
+        .stat-icon.green  { background: #DCFCE7; }
+        .stat-icon.purple { background: #F3E8FF; }
+        .stat-icon.orange { background: #FFEDD5; }
+
+        /* Header bar — matches patient portal .header */
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #101828;
+        }
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #2563EB;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .header-user-info p { margin: 0; }
+        .header-user-name { font-size: 14px; font-weight: 700; color: #101828; }
+        .header-user-role { font-size: 12px; color: #6A7282; }
     </style>
 </head>
 <body>
 
     <main class="main-content">
-        <div class="welcome-section">
-            <h1>System Command Center</h1>
-            <p>Welcome back, System Administrator. Global system overview.</p>
-        </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Total System Users</h3>
-                <p id="totalUsersCount">--</p>
-                <span class="trend up">Active Staff Directory</span>
+        <!-- Sticky header inside main so it respects margin-left -->
+        <header class="header">
+            <span class="header-title">System Command Center</span>
+            <div class="header-user">
+                <div class="header-avatar">SU</div>
+                <div class="header-user-info">
+                    <p class="header-user-name">Super User</p>
+                    <p class="header-user-role">System Administrator</p>
+                </div>
             </div>
-            <div class="stat-card">
-                <h3>System Uptime</h3>
-                <p>99.9%</p>
-                <span class="trend up">↑ Last 30 Days</span>
+        </header>
+
+        <div class="page-body">
+
+            <!-- Hero Banner -->
+            <div class="hero">
+                <h1>Welcome back, System Administrator</h1>
+                <p>Monitor users, settings, and system-wide health from one place.</p>
             </div>
-            <div class="stat-card">
-                <h3>Database Health</h3>
-                <p>Optimal</p>
-                <span class="trend up">0 Sync Errors</span>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p class="stat-label">Total System Users</p>
+                        <p class="stat-value" id="totalUsersCount">--</p>
+                        <span class="stat-trend trend-up">↑ Active Staff Directory</span>
+                    </div>
+                    <div class="stat-icon blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p class="stat-label">System Uptime</p>
+                        <p class="stat-value">99.9%</p>
+                        <span class="stat-trend trend-up">↑ Last 30 Days</span>
+                    </div>
+                    <div class="stat-icon green">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#009689" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p class="stat-label">Database Health</p>
+                        <p class="stat-value" style="font-size:22px;margin-top:4px;">Optimal</p>
+                        <span class="stat-trend trend-up">0 Sync Errors</span>
+                    </div>
+                    <div class="stat-icon purple">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9333EA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p class="stat-label">Active Sessions</p>
+                        <p class="stat-value">42</p>
+                        <span class="stat-trend trend-down">↓ 5 from yesterday</span>
+                    </div>
+                    <div class="stat-icon orange">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                    </div>
+                </div>
             </div>
-            <div class="stat-card">
-                <h3>Active Sessions</h3>
-                <p>42</p>
-                <span class="trend down">↓ 5 from yesterday</span>
-            </div>
+
         </div>
     </main>
 
     <script src="../shared/session.js"></script>
+    <script src="../logo.js"></script>
     <script src="../shared/nav.js"></script>
     <script>
-        // Security Check: Make sure only 'superuser' can see this
         document.addEventListener('DOMContentLoaded', () => {
             const role = sessionStorage.getItem('nexcare_current_role');
             if (role !== 'superuser') {
                 alert("Unauthorized Access. System Administrators only.");
                 window.location.href = '../auth/login.html';
             }
-
-            // Sync total users count
             const storedUsers = localStorage.getItem('nexcare_users');
-            if(storedUsers) {
-                const arr = JSON.parse(storedUsers);
-                document.getElementById('totalUsersCount').textContent = arr.length;
+            if (storedUsers) {
+                document.getElementById('totalUsersCount').textContent = JSON.parse(storedUsers).length;
             } else {
                 document.getElementById('totalUsersCount').textContent = '3';
             }

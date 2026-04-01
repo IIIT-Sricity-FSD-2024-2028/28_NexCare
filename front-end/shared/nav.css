@@ -1,57 +1,143 @@
-/* Sidebar Container */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@800&display=swap');
+
+/* ==========================================
+   SIDEBAR — matches patient portal exactly
+   White bg, light border, blue active states
+   ========================================== */
 .sidebar {
-    width: 250px;
+    width: 282px;
+    background: #FFFFFF;
+    border-right: 1px solid #E5E7EB;
     height: 100vh;
-    background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
-    color: white;
     position: fixed;
     left: 0;
     top: 0;
+    padding: 24px 16px;
     display: flex;
     flex-direction: column;
-    padding: 20px 0;
+    overflow-y: auto;
     font-family: 'Inter', sans-serif;
-    box-shadow: 4px 0 10px rgba(0,0,0,0.1);
     z-index: 50;
+    box-shadow: none;
 }
 
+/* Brand / Logo area */
 .sidebar-brand {
-    padding: 0 20px 30px;
-    font-size: 20px;
-    font-weight: bold;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.nav-menu {
-    flex-grow: 1;
-    margin-top: 20px;
-}
-
-.nav-item {
-    padding: 15px 25px;
     display: block;
-    color: #aab7c4;
     text-decoration: none;
-    transition: 0.3s;
+    color: inherit;
+    margin-bottom: 32px;
+    padding: 0 8px;
+    border-bottom: none;
+    background: none;
 }
 
-.nav-item:hover, .nav-item.active {
-    background-color: #003366;
-    color: white;
+/* Scale the animated logo to fit the sidebar width neatly */
+.sidebar-brand nex-care-logo {
+    transform: scale(0.62);
+    transform-origin: left center;
+    display: block;
+    height: 45px;
 }
 
-.logout-btn {
-    padding: 15px 25px;
-    background-color: #d9534f;
-    color: white;
-    text-align: center;
+/* Sidebar role tag below the logo */
+.sidebar-role-tag {
+    display: block;
+    margin-top: 4px;
+    margin-left: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6B7280;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Nav menu */
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    margin-top: 0;
+    padding: 0;
+}
+
+/* Nav items — clean light style matching patient portal */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #4A5565;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
     cursor: pointer;
+    position: relative;
+    margin-bottom: 0;
+}
+
+.nav-item:hover {
+    background: #F9FAFB;
+    color: #155DFC;
+    transform: none;
+}
+
+.nav-item.active {
+    background: #EFF6FF;
+    color: #155DFC;
+}
+
+/* Remove the dark-mode left-bar indicator */
+.nav-item::before {
+    display: none;
+}
+
+.nav-item svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* Logout button — matches nav-logout from patient portal */
+.logout-btn {
+    margin: 0;
+    padding: 12px 16px;
+    background: none;
+    color: #E7000B;
     border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    transition: background 0.2s ease;
     margin-top: auto;
 }
 
-/* Push content to the right so it doesn't hide behind sidebar */
+.logout-btn:hover {
+    background: #FEF2F2;
+    color: #E7000B;
+}
+
+/* ==========================================
+   MAIN CONTENT AREA
+   ========================================== */
 .main-content {
-    margin-left: 250px;
-    padding: 20px;
+    margin-left: 282px;
+    min-height: 100vh;
+}
+
+/* Page inner padding (applied inside pages) */
+.page-inner {
+    padding: 32px;
 }
