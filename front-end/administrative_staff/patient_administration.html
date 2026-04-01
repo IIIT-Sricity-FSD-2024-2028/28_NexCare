@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEX CARE - Patient Check-in & Movement Tracking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f9fafb;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 293px;
+            background: white;
+            border-right: 2px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .logo-container {
+            padding: 32px 32px 24px;
+            border-bottom: 2.66px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: #0066cc;
+            border-radius: 7.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg {
+            width: 36px;
+            height: 36px;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 41.25px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .logo-nex {
+            color: #0077b6;
+        }
+
+        .logo-care {
+            color: black;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            color: black;
+            margin-top: 2px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: #f3f4f6;
+        }
+
+        .nav-item.active {
+            background: #eff6ff;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .nav-item.active svg path {
+            stroke: #155DFC;
+        }
+
+        .nav-item span {
+            font-size: 16px;
+            font-weight: 500;
+            color: #364153;
+        }
+
+        .nav-item.active span {
+            color: #155DFC;
+        }
+
+        .sidebar-footer {
+            border-top: 2px solid #e5e7eb;
+            padding: 18px 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 3px solid #e5e7eb;
+            padding: 16px 24px;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 672px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 36px;
+            background: #f3f3f5;
+            border: none;
+            border-radius: 8px;
+            padding: 4px 12px 4px 40px;
+            font-size: 14px;
+            color: #717182;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 8px;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .notification-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background: #fb2c36;
+            border-radius: 50%;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ececf0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #0a0a0a;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #6a7282;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .page-title {
+            font-size: 30px;
+            font-weight: 700;
+            color: #101828;
+            margin-bottom: 24px;
+        }
+
+        /* Quick Check-in Card */
+        .checkin-card {
+            background: white;
+            border: 1.95px solid #e5e7eb;
+            border-radius: 10.4px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            font-size: 10.4px;
+            font-weight: 500;
+            color: #0a0a0a;
+        }
+
+        .checkin-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .form-input {
+            height: 36px;
+            background: #f3f3f5;
+            border: 2px solid transparent;
+            border-radius: 5.2px;
+            padding: 4px 12px;
+            font-size: 11px;
+            color: #364153;
+        }
+
+        .form-input::placeholder {
+            color: #717182;
+        }
+
+        .checkin-btn {
+            height: 36px;
+            background: #0a0a0a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 20px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .checkin-btn:hover {
+            background: #1a1a1a;
+        }
+
+        /* Patients List */
+        .patients-section {
+            background: white;
+            border: 1.95px solid #e5e7eb;
+            border-radius: 10.4px;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0a0a0a;
+            margin-bottom: 16px;
+        }
+
+        .patient-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .patient-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .patient-name-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .patient-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0a0a0a;
+        }
+
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .status-consultation {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-er {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-pharmacy {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-waiting {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .update-btn {
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .update-btn:hover {
+            background: #f9fafb;
+        }
+
+        .patient-info {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .patient-info svg {
+            width: 12px;
+            height: 12px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+
+        .movement-history {
+            margin-top: 12px;
+        }
+
+        .movement-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .movement-timeline {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .movement-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-icon.completed {
+            background: #dcfce7;
+        }
+
+        .step-icon.waiting {
+            background: #dbeafe;
+        }
+
+        .step-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .step-label {
+            font-size: 11px;
+            color: #374151;
+            text-align: center;
+        }
+
+        .step-time {
+            font-size: 10px;
+            color: #9ca3af;
+        }
+
+        .timeline-arrow {
+            color: #d1d5db;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <svg fill="none" viewBox="0 0 36 36">
+                    <path d="M33 18H29.28C28.6245 17.9986 27.9865 18.212 27.4637 18.6075C26.9409 19.0029 26.562 19.5588 26.385 20.19L22.86 32.73C22.8373 32.8079 22.7899 32.8763 22.725 32.925C22.6601 32.9737 22.5811 33 22.5 33C22.4189 33 22.3399 32.9737 22.275 32.925C22.2101 32.8763 22.1627 32.8079 22.14 32.73L13.86 3.27C13.8373 3.19211 13.7899 3.12368 13.725 3.075C13.6601 3.02632 13.5811 3 13.5 3C13.4189 3 13.3399 3.02632 13.275 3.075C13.2101 3.12368 13.1627 3.19211 13.14 3.27L9.615 15.81C9.4387 16.4387 9.06207 16.9928 8.5423 17.388C8.02252 17.7833 7.38798 17.9981 6.735 18H3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="logo-text">
+                <div class="logo-title">
+                    <span class="logo-nex">NEX</span><span class="logo-care">CARE</span>
+                </div>
+                <div class="logo-subtitle">Administrative staff portal</div>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 20 20">
+                    <path d="M7.5 2.5H3.33333C2.8731 2.5 2.5 2.8731 2.5 3.33333V9.16667C2.5 9.6269 2.8731 10 3.33333 10H7.5C7.96024 10 8.33333 9.6269 8.33333 9.16667V3.33333C8.33333 2.8731 7.96024 2.5 7.5 2.5Z" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16.6667 2.5H12.5C12.0398 2.5 11.6667 2.8731 11.6667 3.33333V5.83333C11.6667 6.29357 12.0398 6.66667 12.5 6.66667H16.6667C17.1269 6.66667 17.5 6.29357 17.5 5.83333V3.33333C17.5 2.8731 17.1269 2.5 16.6667 2.5Z" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16.6667 10H12.5C12.0398 10 11.6667 10.3731 11.6667 10.8333V16.6667C11.6667 17.1269 12.0398 17.5 12.5 17.5H16.6667C17.1269 17.5 17.5 17.1269 17.5 16.6667V10.8333C17.5 10.3731 17.1269 10 16.6667 10Z" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7.5 13.3333H3.33333C2.8731 13.3333 2.5 13.7064 2.5 14.1667V16.6667C2.5 17.1269 2.8731 17.5 3.33333 17.5H7.5C7.96024 17.5 8.33333 17.1269 8.33333 16.6667V14.1667C8.33333 13.7064 7.96024 13.3333 7.5 13.3333Z" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Dashboard</span>
+            </button>
+
+            <button class="nav-item appointments">
+                <svg fill="none" viewBox="0 0 19.0312 20">
+                    <path d="M6.34375 2.07031V5.24219" stroke="#364153" stroke-width="1.58594" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12.6875 2.07031V5.24219" stroke="#364153" stroke-width="1.58594" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15.0664 3.65625H3.96484C3.08895 3.65625 2.37891 4.3663 2.37891 5.24219V16.3438C2.37891 17.2196 3.08895 17.9297 3.96484 17.9297H15.0664C15.9423 17.9297 16.6523 17.2196 16.6523 16.3438V5.24219C16.6523 4.3663 15.9423 3.65625 15.0664 3.65625Z" stroke="#364153" stroke-width="1.58594" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.37891 8.41406H16.6523" stroke="#364153" stroke-width="1.58594" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Manage Appointments</span>
+            </button>
+
+            <button class="nav-item active">
+                <svg fill="none" viewBox="0 0 19.9688 19.9688">
+                    <path d="M13.3125 17.4727V15.8086C13.3125 14.9259 12.9619 14.0794 12.3377 13.4553C11.7136 12.8311 10.867 12.4805 9.98438 12.4805H4.99219C4.10951 12.4805 3.26299 12.8311 2.63885 13.4553C2.0147 14.0794 1.66406 14.9259 1.66406 15.8086V17.4727" stroke="#155DFC" stroke-width="1.66406" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7.48828 9.15234C9.32635 9.15234 10.8164 7.66229 10.8164 5.82422C10.8164 3.98615 9.32635 2.49609 7.48828 2.49609C5.65021 2.49609 4.16016 3.98615 4.16016 5.82422C4.16016 7.66229 5.65021 9.15234 7.48828 9.15234Z" stroke="#155DFC" stroke-width="1.66406" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13.3125 9.15234L14.9766 10.8164L18.3047 7.48828" stroke="#155DFC" stroke-width="1.66406" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Patient Check-in</span>
+            </button>
+
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 19.9922 19.9922">
+                    <path d="M1.66602 3.33203V16.6602" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M1.66602 6.66406H16.6602C17.102 6.66406 17.5258 6.83959 17.8382 7.15203C18.1506 7.46447 18.3262 7.88822 18.3262 8.33008V16.6602" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M1.66602 14.1611H18.3262" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4.99805 6.66406V14.1611" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Bed Allocation</span>
+            </button>
+
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 20 20">
+                    <path d="M9.16667 18.1083C9.42003 18.2546 9.70744 18.3316 10 18.3316C10.2926 18.3316 10.58 18.2546 10.8333 18.1083L16.6667 14.775C16.9198 14.6289 17.13 14.4187 17.2763 14.1657C17.4225 13.9127 17.4997 13.6256 17.5 13.3333V6.66667C17.4997 6.3744 17.4225 6.08734 17.2763 5.8343C17.13 5.58126 16.9198 5.37114 16.6667 5.225L10.8333 1.89167C10.58 1.74539 10.2926 1.66838 10 1.66838C9.70744 1.66838 9.42003 1.74539 9.16667 1.89167L3.33333 5.225C3.08022 5.37114 2.86998 5.58126 2.72372 5.8343C2.57745 6.08734 2.5003 6.3744 2.5 6.66667V13.3333C2.5003 13.6256 2.57745 13.9127 2.72372 14.1657C2.86998 14.4187 3.08022 14.6289 3.33333 14.775L9.16667 18.1083Z" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 18.3333V10" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.74167 5.83333L10 10L17.2583 5.83333" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6.25 3.55833L13.75 7.85" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Inventory</span>
+            </button>
+
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 20 20">
+                    <path d="M13.3333 17.5V15.8333C13.3333 14.9493 12.9821 14.1014 12.357 13.4763C11.7319 12.8512 10.8841 12.5 10 12.5H5C4.11595 12.5 3.2681 12.8512 2.64298 13.4763C2.01786 14.1014 1.66667 14.9493 1.66667 15.8333V17.5" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7.5 9.16667C9.34095 9.16667 10.8333 7.67428 10.8333 5.83333C10.8333 3.99238 9.34095 2.5 7.5 2.5C5.65905 2.5 4.16667 3.99238 4.16667 5.83333C4.16667 7.67428 5.65905 9.16667 7.5 9.16667Z" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M18.3333 17.5V15.8333C18.3328 15.0948 18.087 14.3773 17.6345 13.7936C17.182 13.2099 16.5484 12.793 15.8333 12.6083" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13.3333 2.60833C14.0503 2.79192 14.6859 3.20892 15.1397 3.79359C15.5935 4.37827 15.8399 5.09736 15.8399 5.8375C15.8399 6.57764 15.5935 7.29673 15.1397 7.88141C14.6859 8.46608 14.0503 8.88308 13.3333 9.06667" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Staff Scheduling</span>
+            </button>
+
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 19.9922 19.9922">
+                    <path d="M12.4951 1.66602H4.99805C4.55619 1.66602 4.13243 1.84154 3.82 2.15398C3.50756 2.46642 3.33203 2.89018 3.33203 3.33203V16.6602C3.33203 17.102 3.50756 17.5258 3.82 17.8382C4.13243 18.1506 4.55619 18.3262 4.99805 18.3262H14.9941C15.436 18.3262 15.8598 18.1506 16.1722 17.8382C16.4846 17.5258 16.6602 17.102 16.6602 16.6602V5.83105L12.4951 1.66602Z" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M11.6621 1.66602V4.99805C11.6621 5.4399 11.8376 5.86366 12.1501 6.1761C12.4625 6.48854 12.8863 6.66406 13.3281 6.66406H16.6602" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8.33008 7.49707H6.66406" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13.3281 10.8291H6.66406" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13.3281 14.1611H6.66406" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Generate Bill</span>
+            </button>
+
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 19.9922 19.9922">
+                    <path d="M17.4932 12.4951C17.4932 12.937 17.3176 13.3607 17.0052 13.6732C16.6928 13.9856 16.269 14.1611 15.8271 14.1611H5.83105L2.49902 17.4932V4.16504C2.49902 3.72318 2.67455 3.29943 2.98699 2.98699C3.29943 2.67455 3.72318 2.49902 4.16504 2.49902H15.8271C16.269 2.49902 16.6928 2.67455 17.0052 2.98699C17.3176 3.29943 17.4932 3.72318 17.4932 4.16504V12.4951Z" stroke="#364153" stroke-width="1.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Feedback</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="nav-item">
+                <svg fill="none" viewBox="0 0 20 20">
+                    <path d="M7.5 17.5H4.16667C3.72464 17.5 3.30072 17.3244 2.98816 17.0118C2.67559 16.6993 2.5 16.2754 2.5 15.8333V4.16667C2.5 3.72464 2.67559 3.30072 2.98816 2.98816C3.30072 2.67559 3.72464 2.5 4.16667 2.5H7.5" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13.3333 14.1667L17.5 10L13.3333 5.83333" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17.5 10H7.5" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="search-container">
+                    <svg class="search-icon" fill="none" viewBox="0 0 19.9688 19.9688" width="20" height="20">
+                        <path d="M9.15234 15.8086C12.8285 15.8086 15.8086 12.8285 15.8086 9.15234C15.8086 5.4762 12.8285 2.49609 9.15234 2.49609C5.4762 2.49609 2.49609 5.4762 2.49609 9.15234C2.49609 12.8285 5.4762 15.8086 9.15234 15.8086Z" stroke="#99A1AF" stroke-width="1.66406" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17.4727 17.4727L13.8949 13.8949" stroke="#99A1AF" stroke-width="1.66406" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <input type="text" class="search-input" placeholder="Search patients, appointments, or records...">
+                </div>
+                <div class="user-section">
+                    <button class="notification-btn">
+                        <svg fill="none" viewBox="0 0 15.9844 15.9844" width="16" height="16">
+                            <path d="M6.83865 13.9863C6.95556 14.1888 7.12371 14.3569 7.3262 14.4738C7.52869 14.5907 7.75838 14.6523 7.99219 14.6523C8.226 14.6523 8.45569 14.5907 8.65817 14.4738C8.86066 14.3569 9.02881 14.1888 9.14573 13.9863" stroke="#0A0A0A" stroke-width="1.33203" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2.17254 10.2074C2.08554 10.3027 2.02812 10.4213 2.00727 10.5487C1.98643 10.6761 2.00305 10.8068 2.05513 10.9249C2.1072 11.043 2.19248 11.1435 2.30059 11.214C2.4087 11.2846 2.53497 11.3222 2.66406 11.3223H13.3203C13.4494 11.3223 13.5757 11.2849 13.6839 11.2144C13.792 11.144 13.8774 11.0437 13.9296 10.9257C13.9819 10.8076 13.9986 10.677 13.978 10.5495C13.9573 10.4221 13.9 10.3035 13.8132 10.208C12.9274 9.29491 11.9883 8.32453 11.9883 5.32812C11.9883 4.2683 11.5673 3.25187 10.8179 2.50246C10.0684 1.75305 9.05202 1.33203 7.99219 1.33203C6.93236 1.33203 5.91594 1.75305 5.16652 2.50246C4.41711 3.25187 3.99609 4.2683 3.99609 5.32812C3.99609 8.32453 3.05635 9.29491 2.17254 10.2074Z" stroke="#0A0A0A" stroke-width="1.33203" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="notification-badge"></span>
+                    </button>
+                    <div class="user-info">
+                        <div class="avatar">AD</div>
+                        <div class="user-details">
+                            <div class="user-name">Admin User</div>
+                            <div class="user-role">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
+            <h1 class="page-title">Patient Check-in & Movement Tracking</h1>
+
+            <!-- Quick Check-in -->
+            <div class="checkin-card">
+                <div class="card-title">
+                    <svg fill="none" viewBox="0 0 12.9847 12.9847" width="13" height="13">
+                        <path d="M8.65666 11.3617V10.2797C8.65666 9.7057 8.42866 9.15524 8.02281 8.74939C7.61696 8.34354 7.0665 8.11553 6.49254 8.11553H3.24636C2.6724 8.11553 2.12195 8.34354 1.7161 8.74939C1.31024 9.15524 1.08224 9.7057 1.08224 10.2797V11.3617" stroke="#0A0A0A" stroke-width="1.08206" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4.86945 5.95141C6.06466 5.95141 7.03357 4.9825 7.03357 3.78729C7.03357 2.59208 6.06466 1.62317 4.86945 1.62317C3.67424 1.62317 2.70533 2.59208 2.70533 3.78729C2.70533 4.9825 3.67424 5.95141 4.86945 5.95141Z" stroke="#0A0A0A" stroke-width="1.08206" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8.65666 5.95141L9.73872 7.03347L11.9028 4.86935" stroke="#0A0A0A" stroke-width="1.08206" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Quick Check-in
+                </div>
+                <div class="checkin-form">
+                    <input type="text" class="form-input" placeholder="Enter Patient ID or Name" style="width: 200px;">
+                    <input type="text" class="form-input" placeholder="Visit Purpose" style="width: 150px;">
+                    <button class="checkin-btn">
+                        <svg style="display: inline-block; vertical-align: middle; margin-right: 4px;" fill="none" viewBox="0 0 12.9847 12.9847" width="12" height="12">
+                            <path d="M8.65666 11.3617V10.2797C8.65666 9.7057 8.42866 9.15524 8.02281 8.74939C7.61696 8.34354 7.0665 8.11553 6.49254 8.11553H3.24636C2.6724 8.11553 2.12195 8.34354 1.7161 8.74939C1.31024 9.15524 1.08224 9.7057 1.08224 10.2797V11.3617" stroke="white" stroke-width="1.08206" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4.86945 5.95141C6.06466 5.95141 7.03357 4.9825 7.03357 3.78729C7.03357 2.59208 6.06466 1.62317 4.86945 1.62317C3.67424 1.62317 2.70533 2.59208 2.70533 3.78729C2.70533 4.9825 3.67424 5.95141 4.86945 5.95141Z" stroke="white" stroke-width="1.08206" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8.65666 5.95141L9.73872 7.03347L11.9028 4.86935" stroke="white" stroke-width="1.08206" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Check-in Patient
+                    </button>
+                </div>
+            </div>
+
+            <!-- Patients in Facility -->
+            <div class="patients-section">
+                <h2 class="section-title">Patients in Facility</h2>
+
+                <!-- Patient 1: Sarah Johnson -->
+                <div class="patient-card">
+                    <div class="patient-header">
+                        <div class="patient-name-row">
+                            <span class="patient-name">Sarah Johnson</span>
+                            <span class="status-badge status-consultation">In Consultation</span>
+                        </div>
+                        <button class="update-btn">Update Location</button>
+                    </div>
+                    <div class="patient-info">
+                        <span>ID: PT2355</span> • 
+                        <span>
+                            <svg fill="none" viewBox="0 0 12 12">
+                                <circle cx="6" cy="6" r="5" stroke="#6b7280" stroke-width="1"/>
+                            </svg>
+                            Checked in: 09:00 AM
+                        </span> • 
+                        <span>📍 Cardiology - Room 201</span>
+                    </div>
+                    <div class="movement-history">
+                        <div class="movement-label">Movement History</div>
+                        <div class="movement-timeline">
+                            <div class="movement-step">
+                                <div class="step-icon completed">
+                                    <svg fill="none" viewBox="0 0 16 16">
+                                        <path d="M5 8L7 10L11 6" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="step-label">Reception</div>
+                                <div class="step-time">08:15 AM</div>
+                            </div>
+                            <span class="timeline-arrow">→</span>
+                            <div class="movement-step">
+                                <div class="step-icon completed">
+                                    <svg fill="none" viewBox="0 0 16 16">
+                                        <path d="M8 4V8L10 10" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="8" cy="8" r="6" stroke="#16a34a" stroke-width="1.5"/>
+                                    </svg>
+                                </div>
+                                <div class="step-label">Waiting Area</div>
+                                <div class="step-time">08:50 AM</div>
+                            </div>
+                            <span class="timeline-arrow">→</span>
+                            <div class="movement-step">
+                                <div class="step-icon waiting">
+                                    <svg fill="none" viewBox="0 0 16 16">
+                                        <path d="M8 2C4.7 2 2 4.7 2 8s2.7 6 6 6 6-2.7 6-6" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="step-label">Cardiology - Room 201</div>
+                                <div class="step-time">09:10 AM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patient 2: Michael Chen -->
+                <div class="patient-card">
+                    <div class="patient-header">
+                        <div class="patient-name-row">
+                            <span class="patient-name">Michael Chen</span>
+                            <span class="status-badge status-er">In ER</span>
+                        </div>
+                        <button class="update-btn">Update Location</button>
+                    </div>
+                    <div class="patient-info">
+                        <span>ID: PT2365</span> • 
+                        <span>
+                            <svg fill="none" viewBox="0 0 12 12">
+                                <circle cx="6" cy="6" r="5" stroke="#6b7280" stroke-width="1"/>
+                            </svg>
+                            Checked in: 10:15 AM
+                        </span> • 
+                        <span>📍 X-Ray Lab</span>
+                    </div>
+                    <div class="movement-history">
+                        <div class="movement-label">Movement History</div>
+                        <div class="movement-timeline">
+                            <div class="movement-step">
+                                <div class="step-icon completed">
+                                    <svg fill="none" viewBox="0 0 16 16">
+                                        <path d="M5 8L7 10L11 6" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="step-label">Reception</div>
+                                <div class="step-time">10:07 AM</div>
+                            </div>
+                            <span class="timeline-arrow">→</span>
+                            <div class="movement-step">
+                                <div class="step-icon completed">
+                                    <svg fill="none" viewBox="0 0 16 16">
+                                        <path d="M5 8L7 10L11 6" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="step-label">Waiting Area</div>
+                                <div class="step-time">10:15 AM</div>
+                            </div>
+                            <span class="timeline-arrow">→</span>
+                            <div class="movement-step">
+                                <div class="step-icon completed">
+                                    <svg fill="none" viewBox="0 0 16 16">
+                                        <path d="M5 8L7 10L11 6" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="step-label">Registration</div>
+                                <div class="step-time">10:20 AM</div>
+                            </div>
+                            <span class="timeline-arrow">→</span>
+                            <div class="movement-step">
+                                <div class="step-icon waiting">
+                                    <svg fill="none" viewBox="0 0 16 16">
+                                        <path d="M8 2C4.7 2 2 4.7 2 8s2.7 6 6 6 6-2.7 6-6" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="step-label">X-Ray Lab</div>
+                                <div class="step-time">10:30 AM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patient 3: Emily Davis -->
+                <div class="patient-card">
+                    <div class="patient-header">
+                        <div class="patient-name-row">
+                            <span class="patient-name">Emily Davis</span>
+                            <span class="status-badge status-pharmacy">At Pharmacy</span>
+                        </div>
+                        <button class="update-btn">Update Location</button>
+                    </div>
+                    <div class="patient-info">
+                        <span>ID: PT2367</span> • 
+                        <span>
+                            <svg fill="none" viewBox="0 0 12 12">
+                                <circle cx="6" cy="6" r="5" stroke="#6b7280" stroke-width="1"/>
+                            </svg>
+                            Checked in: 11:00 AM
+                        </span> • 
+                        <span>📍 Pharmacy</span>
+                    </div>
+                    <div class="movement-history">
+                        <div class="movement-label">Movement History</div>
+                        <div class="movement-timeline">
+                            <div class="movement-step">
+                                <div class="step-icon completed">
+                                    <svg fill="none" viewBox="0 0 16 16">
+                                        <path d="M5 8L7 10L11 6" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="step-label">Reception</div>
+                                <div class="step-time">10:55 AM</div>
+                            </div>
+                            <span class="timeline-arrow">→</span>
+                            <div class="movement-step">
+                                <div class="step-icon waiting">
+                                    <svg fill="none" viewBox="0 0 16 16">
+                                        <path d="M8 2C4.7 2 2 4.7 2 8s2.7 6 6 6 6-2.7 6-6" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="step-label">Pharmacy</div>
+                                <div class="step-time">11:07 AM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patient 4: Robert Wilcox -->
+                <div class="patient-card">
+                    <div class="patient-header">
+                        <div class="patient-name-row">
+                            <span class="patient-name">Robert Wilcox</span>
+                            <span class="status-badge status-waiting">Waiting</span>
+                        </div>
+                        <button class="update-btn">Update Location</button>
+                    </div>
+                    <div class="patient-info">
+                        <span>ID: PT2368</span> • 
+                        <span>
+                            <svg fill="none" viewBox="0 0 12 12">
+                                <circle cx="6" cy="6" r="5" stroke="#6b7280" stroke-width="1"/>
+                            </svg>
+                            Checked in: 01:40 PM
+                        </span> • 
+                        <span>📍 Waiting Area</span>
+                    </div>
+                    <div class="movement-history">
+                        <div class="movement-label">Movement History</div>
+                        <div class="movement-timeline">
+                            <div class="movement-step">
+                                <div class="step-icon completed">
+                                    <svg fill="none" viewBox="0 0 16 16">
+                                        <path d="M5 8L7 10L11 6" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="step-label">Reception</div>
+                                <div class="step-time">01:40 PM</div>
+                            </div>
+                            <span class="timeline-arrow">→</span>
+                            <div class="movement-step">
+                                <div class="step-icon waiting">
+                                    <svg fill="none" viewBox="0 0 16 16">
+                                        <path d="M8 2C4.7 2 2 4.7 2 8s2.7 6 6 6 6-2.7 6-6" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="step-label">Waiting Area</div>
+                                <div class="step-time">01:50 PM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Add interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search functionality
+            const searchInput = document.querySelector('.search-input');
+            searchInput.addEventListener('input', function(e) {
+                console.log('Searching for:', e.target.value);
+                // Add search logic here
+            });
+
+            // Check-in form
+            const checkinBtn = document.querySelector('.checkin-btn');
+            checkinBtn.addEventListener('click', function() {
+                const patientId = document.querySelector('.form-input:nth-of-type(1)').value;
+                const visitPurpose = document.querySelector('.form-input:nth-of-type(2)').value;
+                
+                if (patientId && visitPurpose) {
+                    alert(`Patient checked in:\nID: ${patientId}\nPurpose: ${visitPurpose}`);
+                    // Clear form
+                    document.querySelector('.form-input:nth-of-type(1)').value = '';
+                    document.querySelector('.form-input:nth-of-type(2)').value = '';
+                } else {
+                    alert('Please fill in all fields');
+                }
+            });
+
+            // Update Location buttons
+            const updateBtns = document.querySelectorAll('.update-btn');
+            updateBtns.forEach((btn, index) => {
+                btn.addEventListener('click', function() {
+                    const patientCard = this.closest('.patient-card');
+                    const patientName = patientCard.querySelector('.patient-name').textContent;
+                    
+                    const newLocation = prompt(`Enter new location for ${patientName}:`);
+                    if (newLocation) {
+                        alert(`Location updated for ${patientName} to: ${newLocation}`);
+                    }
+                });
+            });
+
+            // Navigation items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const text = this.querySelector('span').textContent;
+                    if (text === 'Logout') {
+                        if (confirm('Are you sure you want to logout?')) {
+                            alert('Logged out successfully');
+                        }
+                    } else if (text !== 'Patient Check-in') {
+                        alert(`Navigating to: ${text}`);
+                    }
+                });
+            });
+
+            // Notification button
+            const notificationBtn = document.querySelector('.notification-btn');
+            notificationBtn.addEventListener('click', function() {
+                alert('You have 3 new notifications:\n• New patient arrived\n• Lab results ready\n• Meeting reminder');
+            });
+        });
+    </script>
+</body>
+</html>
