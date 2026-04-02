@@ -1,0 +1,20 @@
+{
+    "organisation": "",
+    "contact": "",
+    "gitConfig": {
+        "owner": "IIIT-Sricity-FSD-2024-2028",
+        "repo": "28_NexCare",
+        "branch": "master",
+        "publishUrl": "https://IIIT-Sricity-FSD-2024-2028.github.io/28_NexCare/"
+    },
+    "repoConfig": {
+        "assetFolderName": "δ steps",
+        "variableFolderName": "Ω variables",
+        "publishFolderName": "pub",
+        "docsFolderName": "docs",
+        "mapsFolderName": "tsmaps"
+    },
+    "devConfig": {
+        "forceJsDelivr": true
+    }
+}
