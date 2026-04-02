@@ -65,8 +65,23 @@ function handleCheckin() {
     
     const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+    let patientName = id;
+    if (window.NexCareDB) {
+        const found = window.NexCareDB.getTable('patients').find(p => 
+            p.id.toLowerCase() === id.toLowerCase() || 
+            (p.patientIdDisplay && p.patientIdDisplay.toLowerCase() === id.toLowerCase())
+        );
+        if (found && found.fullName) {
+            patientName = found.fullName;
+        } else if (!isNaN(id)) {
+            patientName = `Unknown (${id})`;
+        }
+    } else if (!isNaN(id)) {
+        patientName = `Unknown (${id})`;
+    }
+
     const newPatient = {
-        name: isNaN(id) ? id : `Unknown (${id})`,
+        name: patientName,
         id: id,
         status: "Waiting",
         statusClass: "status-waiting",

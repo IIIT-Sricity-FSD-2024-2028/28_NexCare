@@ -16,22 +16,17 @@ function getStore() {
 }
 
 function getDoctorsForDepartment(deptName) {
-    const DEFAULT_USERS = [
-        { id: 1, name: "Dr. Sarah Smith", email: "sarah@nexcare.com", dept: "Cardiology", role: "doctor", status: "Active" },
-        { id: 2, name: "Dr. Priya Sharma", email: "priya@nexcare.com", dept: "Cardiology", role: "doctor", status: "Active" },
-        { id: 3, name: "Dr. Vikram Patel", email: "vikram@nexcare.com", dept: "Orthopedics", role: "doctor", status: "Active" },
-        { id: 4, name: "Dr. Anjali Desai", email: "anjali@nexcare.com", dept: "General Medicine", role: "doctor", status: "Active" },
-        { id: 5, name: "Dr. Neha Joshi", email: "neha@nexcare.com", dept: "Dermatology", role: "doctor", status: "Active" }
-    ];
-    let users = DEFAULT_USERS;
-    try {
-        const storedUsers = localStorage.getItem('nexcare_users');
-        if (storedUsers) {
-            users = JSON.parse(storedUsers);
-        }
-    } catch (e) {}
+    let users = [];
+    if (window.NexCareDB) {
+        users = window.NexCareDB.getTable('users');
+    }
     
-    return users.filter(u => u.role === 'doctor' && u.dept === deptName && u.status === 'Active');
+    return users.filter(u => 
+        u.role && 
+        u.role.toLowerCase() === 'doctor' && 
+        u.dept === deptName && 
+        u.status === 'Active'
+    );
 }
 
 function renderAppointmentsFromStore() {
@@ -584,14 +579,29 @@ function confirmBooking() {
     const formData = new FormData(form);
     
     bookingData.patientInfo = {
-        fullName: formData.get('fullName'),
-        phone: formData.get('phone'),
-        email: formData.get('email'),
-        reason: formData.get('reason')
+        fullName: formData.get('fullName')?.trim(),
+        phone: formData.get('phone')?.trim(),
+        email: formData.get('email')?.trim(),
+        reason: formData.get('reason')?.trim()
     };
     
+    // 1. Basic empty check
     if (!bookingData.patientInfo.fullName || !bookingData.patientInfo.phone || !bookingData.patientInfo.email) {
-        alert('Please fill in all required fields');
+        alert('Please fill in all required fields (Name, Phone, Email).');
+        return;
+    }
+
+    // 2. Strict Phone Validation (Exactly 10 digits, no spaces/letters)
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(bookingData.patientInfo.phone)) {
+        alert('Please enter a valid 10-digit phone number containing only numbers (e.g., 9876543210).');
+        return;
+    }
+
+    // 3. Strict Email Validation (Must have @ and a proper domain structure)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(bookingData.patientInfo.email)) {
+        alert('Please enter a valid email address with a domain (e.g., patient@example.com).');
         return;
     }
 
@@ -607,6 +617,28 @@ function confirmBooking() {
             status: 'Confirmed',
             fee: 100
         });
+
+        // Generate corresponding bill dynamically
+        let dueDateStr = bookingData.date;
+        try {
+             const d = new Date(bookingData.date);
+             if (!isNaN(d)) {
+                 d.setDate(d.getDate() + 14); // Due in 14 days
+                 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                 dueDateStr = `${d.getDate()} ${monthNames[d.getMonth()]}, ${d.getFullYear()}`;
+             }
+        } catch(e) {}
+
+        if (store.createBill) {
+            store.createBill({
+                visitDate: bookingData.date,
+                dueDate: dueDateStr,
+                subtotal: 100, // Matching the appointment fee
+                items: [
+                   { description: "Specialist Consultation", department: bookingData.department, amount: 100 }
+                ]
+            });
+        }
     }
     
     currentStep = 4;

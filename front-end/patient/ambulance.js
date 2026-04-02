@@ -28,6 +28,13 @@ function handleAmbulanceRequest(e) {
         return;
     }
     
+    // Strict Phone Validation (Exactly 10 digits, no spaces/letters)
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(contact)) {
+        alert('Please enter a valid 10-digit phone number containing only numbers (e.g., 9876543210).');
+        return;
+    }
+    
     // Confirm request
     if (confirm('⚠️ EMERGENCY AMBULANCE REQUEST\n\n' +
                 `Pickup Location: ${location}\n` +

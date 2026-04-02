@@ -7,6 +7,7 @@
     
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="logo.css">
+    <script src="../shared/db.js"></script>
     <script defer src="logo.js"></script>
     <style>
         .table-wrapper { overflow-y: auto; max-height: 500px; width: 100%; }
@@ -86,10 +87,16 @@
                     Dashboard
                 </a>
             </li>
-            <li>
+            <li class="">
                 <a href="patient_checkin.html">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
                     Patient Check-in
+                </a>
+            </li>
+            <li class="">
+                <a href="patient-directory.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Patient Directory
                 </a>
             </li>
             <li class="active">
@@ -202,7 +209,9 @@
             </div>
             <div class="form-group">
                 <label>Doctor</label>
-                <input type="text" id="doctorName" class="form-input" placeholder="Doctor Name" required>
+                <select id="doctorName" class="form-select" required>
+                    <option value="" disabled selected>Select Dept First</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>Department</label>

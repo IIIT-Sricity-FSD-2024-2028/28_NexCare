@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Review | Super User | NexCare</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="../shared/nav.css">
+    <style>
+        .page-body { padding: 32px; }
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header-title { font-size: 18px; font-weight: 700; color: #101828; }
+        .header-user { display: flex; align-items: center; gap: 10px; }
+        .header-avatar {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: #2563EB; color: #FFFFFF;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px;
+        }
+        .header-user-name { font-size: 14px; font-weight: 700; color: #101828; margin: 0; }
+        .header-user-role { font-size: 12px; color: #6A7282; margin: 0; }
+        .page-header {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        .page-header h1 { margin: 0; font-size: 20px; font-weight: 700; color: #101828; }
+        .page-header p  { margin: 4px 0 0; font-size: 14px; color: #6A7282; }
+        .table-card {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            overflow: hidden;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        .badge.Patient { background: #DBEAFE; color: #1447E6; }
+        .badge.Staff { background: #E0E7FF; color: #3730A3; }
+
+        .btn-icon {
+            padding: 6px 10px;
+            font-size: 12px;
+            margin-right: 4px;
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+        .btn-icon:hover { background: #EFF6FF; border-color: #155DFC; color: #155DFC; }
+        .btn-icon.danger:hover { background: #FEF2F2; border-color: #E7000B; color: #E7000B; }
+        
+        .stars { color: #f59e0b; font-size: 14px; }
+        
+        /* Modal Implementation */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-card {
+            background: white; border-radius: 12px; width: 100%; max-width: 500px;
+            padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { margin: 0; font-size: 18px; }
+        .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #6b7280; }
+        .modal-body { font-size: 14px; color: #374151; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+    <main class="main-content">
+        <header class="header">
+            <span class="header-title">System Administrator Portal</span>
+            <div class="header-user">
+                <div class="header-avatar">SU</div>
+                <div>
+                    <p class="header-user-name">Super User</p>
+                    <p class="header-user-role">System Administrator</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-body">
+            <div class="page-header">
+                <div>
+                    <h1>Feedback Review</h1>
+                    <p style="margin: 5px 0 0; color: var(--text-muted); font-size: 14px;">Review system feedback provided by patients and staff.</p>
+                </div>
+                <div class="action-row" style="display:flex; gap:10px;">
+                    <select id="filterType" class="form-control">
+                        <option value="All">All Types</option>
+                        <option value="Patient">Patients</option>
+                        <option value="Staff">Staff</option>
+                    </select>
+                    <input type="text" id="searchTable" placeholder="Search Feedback..." class="form-control" style="width: 250px;">
+                </div>
+            </div>
+
+            <div class="table-card">
+                <table class="data-table" id="feedbackTable">
+                    <thead>
+                        <tr>
+                            <th>Feedback ID</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Sender</th>
+                            <th>Subject</th>
+                            <th>Rating</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feedbackTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div> <!-- /.table-card -->
+        </div> <!-- /.page-body -->
+    </main>
+    
+    <!-- View Modal -->
+    <div class="modal-overlay" id="viewFeedbackModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Feedback Details</h2>
+                <button class="modal-close" onclick="closeViewModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="feedbackDetailsContainer">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../shared/session.js"></script>
+    <script src="../shared/nav.js"></script>
+    <script src="../shared/db.js"></script>
+    <script src="../logo.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const role = sessionStorage.getItem('nexcare_current_role');
+            if (role !== 'superuser') {
+                alert("Unauthorized Access. System Administrators only.");
+                window.location.href = '../auth/login.html';
+            }
+        });
+    </script>
+    <script src="feedback.js"></script>
+</body>
+</html>

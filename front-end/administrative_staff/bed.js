@@ -8,18 +8,23 @@ let selectedWard = "ALL";
 let beds = [];
 let filteredBeds = [];
 
-// ---------------- LOAD MOCK DATA FROM beds.json ----------------
-async function loadBeds() {
-    try {
-        const res = await fetch("beds.json");
-        beds = await res.json();
-        filteredBeds = [...beds];
-
-        renderWards();
-        render();
-    } catch (err) {
-        console.error("Failed to load beds:", err);
+// ---------------- LOAD DATA FROM NexCareDB ----------------
+function loadBeds() {
+    if (window.NexCareDB) {
+        beds = window.NexCareDB.getTable('beds');
+        // If DB table is empty, fall back to initial seeded data
+        if (beds.length === 0) {
+            beds = [
+                { "id": "E1", "ward": "Emergency", "status": "occupied", "patient": "Ravi Kumar" },
+                { "id": "E2", "ward": "Emergency", "status": "critical", "patient": "Anita Sharma" },
+                { "id": "E3", "ward": "Emergency", "status": "available", "patient": "" }
+                // ... (simplified fallback for robustness)
+            ];
+        }
     }
+    filteredBeds = [...beds];
+    renderWards();
+    render();
 }
 
 let selectedBed = null;
@@ -212,6 +217,13 @@ window.saveBed = () => {
     }
 
     selectedBed.status = status;
+    
+    if (window.NexCareDB) {
+        window.NexCareDB.updateRow('beds', selectedBed.id, {
+            patient: selectedBed.patient,
+            status: selectedBed.status
+        });
+    }
 
     closeModal();
     applyFilters();
@@ -274,6 +286,13 @@ window.admitPatient = () => {
 
     bed.patient = name;
     bed.status = "occupied";
+    
+    if (window.NexCareDB) {
+        window.NexCareDB.updateRow('beds', bed.id, {
+            patient: bed.patient,
+            status: bed.status
+        });
+    }
 
     closeAdmitModal();
     applyFilters();

@@ -68,6 +68,7 @@
         </div>
     </div>
 
+    <script src="../shared/db.js"></script>
     <script src="../shared/session.js"></script>
 
     <script>
@@ -93,25 +94,21 @@
                 return;
             }
 
-            const newPatient = {
-                id: Date.now(),
-                name: inputs[0].value,
-                email: inputs[1].value,
-                phone: inputs[2].value,
-                password: inputs[3].value,
-                role: 'patient',
-                status: 'Active'
-            };
-
-            // 2. Fetch existing mock database from Local Storage, or create new array
-            let patientsData = localStorage.getItem('nexcare_patients');
-            let patientsArray = patientsData ? JSON.parse(patientsData) : [];
-
-            // 3. Add to mock database and save back to local storage
-            patientsArray.push(newPatient);
-            localStorage.setItem('nexcare_patients', JSON.stringify(patientsArray));
-
-            console.log("Mock DB Updated:", JSON.parse(localStorage.getItem('nexcare_patients')));
+            // 2. Fetch shared mock database module and register
+            if(window.NexCareDB) {
+                const patientData = {
+                    fullName: inputs[0].value,
+                    email: inputs[1].value,
+                    phone: inputs[2].value
+                };
+                
+                try {
+                    window.NexCareDB.registerPatient(patientData, inputs[3].value);
+                    sessionStorage.setItem("nexcare_user_email", inputs[1].value);
+                } catch(e) {
+                    console.error(e);
+                }
+            }
 
             // 4. Log them in
             if (typeof loginUser === "function") {

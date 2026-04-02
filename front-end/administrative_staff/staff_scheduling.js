@@ -1,11 +1,20 @@
-let staffData = [
-    {id: 'STF1', name: "Dr. Robert Smith", role: "Sr. Cardiologist", dept: "Cardiology", shift: "Morning (08:00 - 16:00)", status: "On Duty"},
-    {id: 'STF2', name: "Nurse Emily Davis", role: "Head Nurse", dept: "ER", shift: "Night (20:00 - 08:00)", status: "Scheduled"},
-    {id: 'STF3', name: "Dr. James Brown", role: "Neurologist", dept: "Neurology", shift: "Afternoon (14:00 - 22:00)", status: "On Duty"},
-    {id: 'STF4', name: "Tech Sarah Wilson", role: "Lab Technician", dept: "Pathology", shift: "Morning (08:00 - 16:00)", status: "On Leave"}
-];
+let staffCache = [];
 
-function renderStaff(data = staffData) {
+function getStaff() {
+    if (!window.NexCareDB) return [];
+    const dbUsers = window.NexCareDB.getTable('users');
+    staffCache = dbUsers.filter(u => u.role !== 'patient' && u.role !== 'superuser').map(u => ({
+        id: u.id,
+        name: u.name || 'Unknown',
+        role: u.role || 'Staff',
+        dept: u.dept || 'General',
+        shift: u.shift || 'Morning (08:00 - 16:00)',
+        status: u.status || 'Scheduled'
+    }));
+    return staffCache;
+}
+
+function renderStaff(data = getStaff()) {
     const tbody = document.getElementById('staffTableBody');
     tbody.innerHTML = data.map(s => {
         let badgeColor = s.status === 'On Duty' ? 'status-onduty' : s.status === 'On Leave' ? 'status-onleave' : 'status-scheduled';
@@ -31,8 +40,8 @@ function renderStaff(data = staffData) {
 }
 
 function deleteShift(id) {
-    if (confirm('Are you sure you want to delete this staff shift?')) {
-        staffData = staffData.filter(s => s.id !== id);
+    if (confirm('Are you sure you want to delete this staff member?')) {
+        if(window.NexCareDB) window.NexCareDB.deleteRow('users', id);
         applyFilters();
     }
 }
@@ -40,7 +49,7 @@ function deleteShift(id) {
 function openShiftModal() {
     document.getElementById('shiftForm').reset();
     document.getElementById('staffId').value = '';
-    document.getElementById('modalTitle').textContent = 'Add Shift';
+    document.getElementById('modalTitle').textContent = 'Add Staff Shift';
     document.getElementById('shiftModal').classList.add('active');
 }
 
@@ -49,10 +58,10 @@ function closeShiftModal() {
 }
 
 function editShift(id) {
-    const s = staffData.find(st => st.id === id);
+    const s = getStaff().find(st => st.id === id);
     if(!s) return;
     
-    document.getElementById('modalTitle').textContent = 'Edit Shift';
+    document.getElementById('modalTitle').textContent = 'Edit Staff Shift';
     document.getElementById('staffId').value = s.id;
     document.getElementById('staffName').value = s.name;
     document.getElementById('staffRole').value = s.role;
@@ -65,6 +74,7 @@ function editShift(id) {
 
 function saveShift(e) {
     e.preventDefault();
+    if(!window.NexCareDB) return;
     
     const id = document.getElementById('staffId').value;
     const name = document.getElementById('staffName').value.trim();
@@ -78,14 +88,21 @@ function saveShift(e) {
         return;
     }
 
+    const payload = {
+        name,
+        role,
+        dept,
+        shift,
+        status,
+        email: name.replace(/\s+/g,"").toLowerCase() + "@nexcare.com"
+    };
+
     if (id) {
-        const idx = staffData.findIndex(s => s.id === id);
-        if (idx !== -1) {
-            staffData[idx] = { id, name, role, dept, shift, status };
-        }
+        window.NexCareDB.updateRow('users', id, payload);
     } else {
-        const newId = 'STF' + String(Math.floor(Math.random() * 900) + 100);
-        staffData.unshift({ id: newId, name, role, dept, shift, status });
+        payload.id = window.NexCareDB.generateId("STF");
+        payload.password = "Password123";
+        window.NexCareDB.addRow('users', payload);
     }
     
     closeShiftModal();
@@ -96,7 +113,7 @@ function applyFilters() {
     const term = document.getElementById('searchTable').value.toLowerCase();
     const stat = document.getElementById('filterStatus').value;
     
-    const filtered = staffData.filter(s => {
+    const filtered = getStaff().filter(s => {
         const matchesTerm = s.name.toLowerCase().includes(term) || s.dept.toLowerCase().includes(term);
         const matchesStat = (stat === 'All' || s.status === stat);
         return matchesTerm && matchesStat;

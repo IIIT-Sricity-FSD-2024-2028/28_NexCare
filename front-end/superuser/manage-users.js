@@ -1,43 +1,32 @@
-/* /front-end/superuser/manage-users.js */
+let usersCache = [];
 
-// Mock Data Structure
-const DEFAULT_USERS = [
-    { id: 1, name: "Dr. Sarah Smith", email: "sarah@nexcare.com", dept: "Cardiology", role: "doctor", status: "Active" },
-    { id: 2, name: "Mark Johnson", email: "mark@nexcare.com", dept: "Management", role: "admin", status: "Active" },
-    { id: 3, name: "Lisa Wong", email: "lisa@nexcare.com", dept: "Transport", role: "driver", status: "Inactive" }
-];
-
-// Initialize State
-let usersList = [];
+function getUsers() {
+    if (!window.NexCareDB) return [];
+    // Superuser sees all users universally
+    usersCache = window.NexCareDB.getTable('users');
+    return usersCache;
+}
 
 const ROLE_DEPARTMENTS = {
     'admin': ['Management', 'IT Support', 'Human Resources', 'Billing'],
+    'administrative_staff': ['Management', 'Front Desk', 'Billing'],
     'doctor': ['Cardiology', 'Orthopedics', 'Pediatrics', 'Neurology', 'General Medicine', 'Dermatology', 'Emergency'],
-    'driver': ['Transport', 'Maintenance']
+    'nurse': ['ER', 'ICU', 'General Ward', 'Pediatrics'],
+    'driver': ['Transport', 'Maintenance'],
+    'ambulance': ['Transport']
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Load from local storage, or fallback to default data
-    const storedUsers = localStorage.getItem('nexcare_users');
-    if (storedUsers) {
-        usersList = JSON.parse(storedUsers);
-    } else {
-        usersList = DEFAULT_USERS;
-        saveToLocalStorage();
-    }
-    
+    // Rely solely on universal NexCareDB
     renderTable();
 });
-
-// Helper: Save to 'Backend' (LocalStorage)
-function saveToLocalStorage() {
-    localStorage.setItem('nexcare_users', JSON.stringify(usersList));
-}
 
 // Read: Render Table Dynamically
 function renderTable() {
     const tbody = document.getElementById('usersTableBody');
     tbody.innerHTML = ''; // Clear existing rows
+
+    const usersList = getUsers();
 
     if(usersList.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--text-muted);">No users found. Add one to get started.</td></tr>`;
@@ -45,26 +34,31 @@ function renderTable() {
     }
 
     usersList.forEach(user => {
+        // Obfuscate the patients from the staff management list, keep it clean
+        if(user.role === 'patient') return; 
+
         const row = document.createElement('tr');
+        const roleDisp = user.role.replace('_', ' ').toUpperCase();
         
         row.innerHTML = `
             <td style="font-weight: 500;">${user.name}</td>
             <td style="color: var(--text-muted);">${user.email}</td>
-            <td>${user.dept}</td>
-            <td><span class="badge ${user.role}">${user.role.toUpperCase()}</span></td>
+            <td>${user.dept || '-'}</td>
+            <td><span class="badge ${user.role}">${roleDisp}</span></td>
             <td>
                 <span style="color: ${user.status === 'Active' ? 'var(--success)' : 'var(--danger)'}">
                     • ${user.status}
                 </span>
             </td>
             <td>
-                <button class="btn-secondary btn-icon" onclick="editUser(${user.id})">Edit</button>
-                <button class="btn-danger btn-icon" onclick="deleteUser(${user.id})">Del</button>
+                <button class="btn-secondary btn-icon" onclick="editUser('${user.id}')">Edit</button>
+                <button class="btn-danger btn-icon" onclick="deleteUser('${user.id}')">Del</button>
             </td>
         `;
         tbody.appendChild(row);
     });
 }
+
 
 function updateDeptDropdown(role, selectedDept = null) {
     const deptSelect = document.getElementById('userDept');
@@ -151,27 +145,38 @@ function handleSaveUser(e) {
     if(!isValid) return; // Stop processing if invalid
 
     // Save Data
+    if (!window.NexCareDB) return;
+
     if(idInput === '') {
         // Create new user
-        const newId = usersList.length > 0 ? Math.max(...usersList.map(u => u.id)) + 1 : 1;
-        usersList.push({ id: newId, name, email, role, dept, status });
+        const newId = window.NexCareDB.generateId("U");
+        window.NexCareDB.addRow('users', { 
+            id: newId, 
+            name, 
+            email, 
+            role, 
+            dept, 
+            status,
+            password: "Password123" // Setup dummy password
+        });
     } else {
         // Update existing user
-        const editId = parseInt(idInput);
-        const index = usersList.findIndex(u => u.id === editId);
-        if(index > -1) {
-            usersList[index] = { id: editId, name, email, role, dept, status };
-        }
+        window.NexCareDB.updateRow('users', idInput, { 
+            name, 
+            email, 
+            role, 
+            dept, 
+            status 
+        });
     }
 
-    saveToLocalStorage();
     renderTable();
     closeUserModal();
 }
 
 // Edit (Populate Form)
 function editUser(id) {
-    const user = usersList.find(u => u.id === id);
+    const user = getUsers().find(u => u.id === id);
     if(!user) return;
 
     clearValidation();
@@ -189,8 +194,7 @@ function editUser(id) {
 // Delete
 function deleteUser(id) {
     if(confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
-        usersList = usersList.filter(u => u.id !== id);
-        saveToLocalStorage();
+        if(window.NexCareDB) window.NexCareDB.deleteRow('users', id);
         renderTable(); // Update instantly without reloading
     }
 }

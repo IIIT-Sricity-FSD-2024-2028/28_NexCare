@@ -1064,14 +1064,30 @@ function migrateState(raw) {
 }
 
 function loadAppState() {
+    let raw;
     try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-            const parsed = JSON.parse(raw);
-            return migrateState(parsed);
+        raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    } catch(e) {}
+    let state = raw ? migrateState(raw) : getDefaultAppState();
+    
+    if (window.NexCareDB) {
+        const dbReqs = window.NexCareDB.getTable('ambulanceRequests');
+        if (dbReqs && dbReqs.length > 0) {
+            state.requests = dbReqs.map(req => ({
+                id: req.id,
+                patient: req.patientName || 'Unknown Patient',
+                location: req.pickupLocation || req.location || 'Unknown Location',
+                contact: req.contact || '-',
+                time: req.createdAt ? new Date(req.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '12:00 PM',
+                priority: req.priority || 'Medium',
+                status: req.status.toLowerCase() === 'pending' ? 'pending' : (req.status.toLowerCase() === 'completed' ? 'completed' : 'in_transit'),
+                stepIndex: req.stepIndex || 0,
+                completedDate: req.completedDate || null,
+                completedTime: req.completedTime || null
+            }));
         }
-    } catch (e) {}
-    return getDefaultAppState();
+    }
+    return state;
 }
 
 let appState = loadAppState();
@@ -1079,6 +1095,29 @@ let appState = loadAppState();
 function persistAppState() {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        if(window.NexCareDB) {
+            appState.requests.forEach(req => {
+                const mapped = {
+                    patientName: req.patient,
+                    pickupLocation: req.location,
+                    contact: req.contact,
+                    priority: req.priority,
+                    status: req.status === 'pending' ? 'Pending' : (req.status === 'completed' ? 'Completed' : 'Dispatched'),
+                    stepIndex: req.stepIndex,
+                    completedDate: req.completedDate,
+                    completedTime: req.completedTime
+                };
+                const existing = window.NexCareDB.getTable('ambulanceRequests').find(r => r.id === req.id);
+                if(existing) {
+                    window.NexCareDB.updateRow('ambulanceRequests', req.id, mapped);
+                } else {
+                    mapped.id = req.id;
+                    mapped.patientId = 'P001';
+                    mapped.createdAt = new Date().toISOString();
+                    window.NexCareDB.addRow('ambulanceRequests', mapped);
+                }
+            });
+        }
     } catch (e) {}
 }
 

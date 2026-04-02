@@ -1,11 +1,21 @@
-let appointments = [
-    {id: 'APT001', patient: 'Sarah Johnson', patientId: 'PT2301', doctor: 'Dr. Robert Smith', dept: 'Cardiology', date: '2026-03-08', time: '09:00', status: 'Completed'},
-    {id: 'APT002', patient: 'Michael Chen', patientId: 'PT2302', doctor: 'Dr. Emily Williams', dept: 'Orthopedics', date: '2026-03-08', time: '10:30', status: 'In Progress'},
-    {id: 'APT003', patient: 'Emily Davis', patientId: 'PT2303', doctor: 'Dr. James Brown', dept: 'Neurology', date: '2026-03-08', time: '13:30', status: 'Waiting'},
-    {id: 'APT004', patient: 'Robert Wilson', patientId: 'PT2304', doctor: 'Dr. Maria Martinez', dept: 'General Medicine', date: '2026-03-09', time: '09:00', status: 'Scheduled'}
-];
+let appointmentsCache = [];
 
-function renderAppointments(data = appointments) {
+function getAppointments() {
+    if (!window.NexCareDB) return [];
+    appointmentsCache = window.NexCareDB.getTable('appointments').map(a => ({
+        id: a.id,
+        patient: a.patientName || 'Unknown Patient',
+        patientId: a.patientId || 'N/A',
+        doctor: a.doctor || 'TBD',
+        dept: a.department || 'General',
+        date: a.dateLabel || 'Unscheduled',
+        time: a.timeLabel || 'TBD',
+        status: a.status || 'Pending'
+    }));
+    return appointmentsCache;
+}
+
+function renderAppointments(data = getAppointments()) {
     const tbody = document.getElementById('appointmentsTableBody');
     tbody.innerHTML = data.map(apt => `
         <tr>
@@ -31,7 +41,7 @@ function renderAppointments(data = appointments) {
 
 function deleteAppt(id) {
     if (confirm('Are you sure you want to delete appointment: ' + id + '?')) {
-        appointments = appointments.filter(a => a.id !== id);
+        if(window.NexCareDB) window.NexCareDB.deleteRow('appointments', id);
         applyFilters();
     }
 }
@@ -48,17 +58,44 @@ function closeAppointmentModal() {
 }
 
 function editAppt(id) {
-    const apt = appointments.find(a => a.id === id);
+    const apt = getAppointments().find(a => a.id === id);
     if(!apt) return;
     
     document.getElementById('modalTitle').textContent = 'Edit Appointment';
     document.getElementById('apptId').value = apt.id;
     document.getElementById('patientName').value = apt.patient;
     document.getElementById('patientId').value = apt.patientId;
-    document.getElementById('doctorName').value = apt.doctor;
     document.getElementById('deptName').value = apt.dept;
-    document.getElementById('apptDate').value = apt.date;
-    document.getElementById('apptTime').value = apt.time;
+    
+    // Update doctor dropdown dynamically based on department
+    updateDoctorsDropdown(apt.dept, apt.doctor);
+    
+    // Parse date for HTML5 Date Input
+    let rawDate = apt.date;
+    try {
+        const d = new Date(apt.date);
+        if(!isNaN(d)) {
+            const yy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            rawDate = `${yy}-${mm}-${dd}`;
+        }
+    } catch(e) {}
+    
+    // Parse time for HTML5 Time Input
+    let rawTime = apt.time;
+    if (apt.time && apt.time.toLowerCase().includes('m')) {
+        let [time, modifier] = apt.time.split(' ');
+        let [hours, minutes] = time.split(':');
+        if (hours === '12') { hours = '00'; }
+        if (modifier && modifier.toUpperCase() === 'PM') { hours = parseInt(hours, 10) + 12; }
+        hours = String(hours).padStart(2, '0');
+        minutes = String(minutes).padStart(2, '0');
+        rawTime = `${hours}:${minutes}`;
+    }
+
+    document.getElementById('apptDate').value = rawDate;
+    document.getElementById('apptTime').value = rawTime;
     document.getElementById('apptStatus').value = apt.status;
     
     document.getElementById('appointmentModal').classList.add('active');
@@ -66,6 +103,7 @@ function editAppt(id) {
 
 function saveAppointment(e) {
     e.preventDefault();
+    if(!window.NexCareDB) { alert("Database offline"); return; }
     
     const id = document.getElementById('apptId').value;
     const patientName = document.getElementById('patientName').value.trim();
@@ -81,16 +119,40 @@ function saveAppointment(e) {
         return;
     }
 
+    // Format Date beautifully
+    let formattedDate = apptDate;
+    if (apptDate) {
+        const d = new Date(apptDate);
+        if (!isNaN(d)) formattedDate = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    
+    // Format Time beautifully
+    let formattedTime = apptTime;
+    if (apptTime && apptTime.includes(':')) {
+        let [hh, mm] = apptTime.split(':');
+        let h = parseInt(hh, 10);
+        let ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        formattedTime = `${h}:${mm} ${ampm}`;
+    }
+
+    const payload = {
+        patientName: patientName,
+        patientId: patientId,
+        doctor: doctorName,
+        department: deptName,
+        dateLabel: formattedDate || apptDate,
+        timeLabel: formattedTime || apptTime,
+        status: apptStatus
+    };
+
     if (id) {
-        // Edit
-        const idx = appointments.findIndex(a => a.id === id);
-        if (idx !== -1) {
-            appointments[idx] = { id, patient: patientName, patientId, doctor: doctorName, dept: deptName, date: apptDate, time: apptTime, status: apptStatus };
-        }
+        window.NexCareDB.updateRow('appointments', id, payload);
     } else {
-        // Add
-        const newId = 'APT' + String(Math.floor(Math.random() * 900) + 100);
-        appointments.unshift({ id: newId, patient: patientName, patientId, doctor: doctorName, dept: deptName, date: apptDate, time: apptTime, status: apptStatus });
+        payload.id = window.NexCareDB.generateId("APT");
+        payload.fee = 100;
+        payload.createdAt = new Date().toISOString();
+        window.NexCareDB.addRow('appointments', payload);
     }
     
     closeAppointmentModal();
@@ -101,7 +163,7 @@ function applyFilters() {
     const term = document.getElementById('searchTable').value.toLowerCase();
     const stat = document.getElementById('filterStatus').value;
     
-    const filtered = appointments.filter(a => {
+    const filtered = getAppointments().filter(a => {
         const matchesTerm = a.patient.toLowerCase().includes(term) || a.patientId.toLowerCase().includes(term) || a.doctor.toLowerCase().includes(term) || a.id.toLowerCase().includes(term);
         const matchesStat = (stat === 'All' || a.status === stat);
         return matchesTerm && matchesStat;
@@ -110,11 +172,37 @@ function applyFilters() {
     renderAppointments(filtered);
 }
 
+function updateDoctorsDropdown(selectedDept, selectedDoctor = null) {
+    const doctorSelect = document.getElementById('doctorName');
+    doctorSelect.innerHTML = '<option value="" disabled selected>Choosing doctor...</option>';
+    if (!window.NexCareDB) return;
+
+    const allUsers = window.NexCareDB.getTable('users');
+    const doctors = allUsers.filter(u => u.role && u.role.toLowerCase() === 'doctor' && u.dept === selectedDept && u.status === 'Active');
+
+    if (doctors.length === 0) {
+        doctorSelect.innerHTML = '<option value="" disabled selected>No doctors available</option>';
+        return;
+    }
+
+    doctorSelect.innerHTML = '<option value="" disabled selected>Select Doctor</option>' + doctors.map(d => 
+        `<option value="${d.name}">${d.name}</option>`
+    ).join('');
+
+    if (selectedDoctor) {
+        doctorSelect.value = selectedDoctor;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     applyFilters();
     
     document.getElementById('searchTable').addEventListener('input', applyFilters);
     document.getElementById('filterStatus').addEventListener('change', applyFilters);
+
+    document.getElementById('deptName').addEventListener('change', (e) => {
+        updateDoctorsDropdown(e.target.value);
+    });
     
     // Close modal when clicking outside
     window.addEventListener('click', function(event) {

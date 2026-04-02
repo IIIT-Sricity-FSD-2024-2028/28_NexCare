@@ -74,16 +74,9 @@
         </div>
     </div>
 
+    <script src="../shared/db.js"></script>
     <script src="../shared/session.js"></script>
     <script>
-        // Mock Database of Valid Credentials
-        const VALID_USERS = [
-            { email: 'superuser@nexcare.com', password: 'Password123', role: 'superuser' },
-            { email: 'administrative_staff@nexcare.com', password: 'Password123', role: 'administrative_staff' },
-            { email: 'ambulance@nexcare.com', password: 'Password123', role: 'ambulance' },
-            { email: 'patient@gmail.com', password: 'Password123', role: 'patient' }
-        ];
-
         function handleAuth(event) {
             event.preventDefault(); 
             
@@ -91,35 +84,16 @@
             const passwordInput = document.querySelector('input[type="password"]').value;
             const selectedRole = document.querySelector('input[name="role"]:checked').value;
 
-            // 1. Check if patient exists in the dynamically created localStorage (from Signup)
-            if (selectedRole === 'patient') {
-                const patientsData = localStorage.getItem('nexcare_patients');
-                if (patientsData) {
-                    const patients = JSON.parse(patientsData);
-                    const foundPatient = patients.find(p => p.email === emailInput);
-                    if (foundPatient) {
-                        if (foundPatient.password === passwordInput) {
-                            loginUser(selectedRole);
-                            return;
-                        } else {
-                            // Stop executing and fall through to the alert error below
-                        }
-                    }
+            // Use the shared mock Database to authenticate
+            if (window.NexCareDB) {
+                const userMatch = window.NexCareDB.authenticate(emailInput, passwordInput, selectedRole);
+                if (userMatch) {
+                    sessionStorage.setItem("nexcare_user_email", userMatch.email);
+                    loginUser(selectedRole); 
+                    return;
                 }
             }
-
-            // 2. Check against strictly enforced internal Staff mock accounts
-            const userMatch = VALID_USERS.find(user => 
-                user.email === emailInput && 
-                user.password === passwordInput && 
-                user.role === selectedRole
-            );
-
-            if(userMatch) {
-                loginUser(selectedRole); 
-            } else {
-                alert("Invalid Email, Password, or Role selection! Please try again.");
-            }
+            alert("Invalid Email, Password, or Role selection! Please try again.");
         }
     </script>
     <script src="../logo.js"></script>

@@ -18,53 +18,61 @@ function renderBillFromStore() {
 
     const bills = store.listBills();
     const bill = bills[0];
-    if (!bill) return;
+    
+    // If no bill exists, we should probably hide payment stuff or show an empty state, but for now just clear them
+    if (!bill) {
+        document.querySelector('.billing-left').innerHTML = '<div class="billing-card" style="text-align: center; padding: 40px; color: #6A7282;">No pending or past bills found.</div>';
+        const right = document.querySelector('.billing-right');
+        if(right) right.style.display = 'none';
+        return;
+    }
 
     const totals = computeBillTotal(bill);
+    const patient = store.getActivePatient?.() || {};
 
-    // Patient info card (best-effort: matches existing DOM order)
+    // Patient info card (Main Page)
     const infoValues = document.querySelectorAll('.patient-info-grid .info-value');
     if (infoValues.length >= 8) {
-        // Keep existing name/id/email/phone layout, update with store where possible
-        const patient = store.getActivePatient?.() || {};
-        infoValues[0].textContent = patient.fullName || infoValues[0].textContent;
-        infoValues[1].textContent = patient.patientIdDisplay || infoValues[1].textContent;
-        infoValues[2].textContent = patient.phone || infoValues[2].textContent;
-        infoValues[3].textContent = patient.email || infoValues[3].textContent;
-        infoValues[4].textContent = bill.visitDate;
+        infoValues[0].textContent = patient.fullName || "N/A";
+        infoValues[1].textContent = patient.patientIdDisplay || patient.id || "N/A";
+        infoValues[2].textContent = patient.phone || "N/A";
+        infoValues[3].textContent = patient.email || "N/A";
+        infoValues[4].textContent = bill.visitDate || bill.dueDate || "N/A";
         infoValues[5].textContent = bill.id;
-        infoValues[6].textContent = bill.dueDate;
+        infoValues[6].textContent = bill.dueDate || "N/A";
         infoValues[7].textContent = bill.status;
     }
 
     // Pending alert
     const pendingAlert = document.querySelector('.pending-bill-alert');
     if (pendingAlert) {
-        pendingAlert.style.borderLeftColor = bill.status === 'Paid' ? '#00A63E' : '#10b981';
+        pendingAlert.style.borderLeftColor = bill.status === 'Paid' ? '#00A63E' : '#F59E0B';
         const h3 = pendingAlert.querySelector('h3');
         const p = pendingAlert.querySelector('p');
         const badge = pendingAlert.querySelector('.badge');
         if (h3) h3.textContent = bill.status === 'Paid' ? '0 Pending Bills' : '1 Pending Bill';
-        if (p) p.textContent = bill.status === 'Paid' ? 'All bills are paid' : `No overdue bills • Due by ${bill.dueDate}`;
-        if (badge) {
-            badge.textContent = bill.status;
-        }
+        if (p) p.textContent = bill.status === 'Paid' ? 'All bills are paid' : `Due by ${bill.dueDate}`;
+        if (badge) badge.textContent = bill.status;
     }
 
-    // Itemized bill table
-    const itemTableBody = document.querySelector('.itemized-table tbody');
-    if (itemTableBody) {
-        itemTableBody.innerHTML = (bill.items || []).map(it => `
+    // Itemized table row HTML generator
+    const generateItemsHtml = (items) => {
+        if(!items || items.length === 0) return '<tr><td colspan="4">No items listed</td></tr>';
+        return items.map(it => `
             <tr>
                 <td>${it.description}</td>
-                <td><span class="dept-badge dept-${String(it.department).toLowerCase()}">${it.department}</span></td>
-                <td>${it.date}</td>
+                <td><span class="dept-badge dept-${String(it.department || '').toLowerCase()}">${it.department || '-'}</span></td>
+                <td>${it.date || bill.visitDate}</td>
                 <td>${formatMoneyINR(it.amount)}</td>
             </tr>
         `).join('');
-    }
+    };
 
-    // Summary values
+    // Itemized bill table (Main Page)
+    const itemTableBody = document.querySelector('.itemized-table tbody');
+    if (itemTableBody) itemTableBody.innerHTML = generateItemsHtml(bill.items);
+
+    // Summary values (Main Page)
     const summary = document.querySelector('.bill-summary');
     if (summary) {
         const rows = summary.querySelectorAll('.summary-row .amount');
@@ -79,8 +87,47 @@ function renderBillFromStore() {
     // Payment sidebar total
     const amountValue = document.querySelector('.amount-value');
     if (amountValue) amountValue.textContent = formatMoneyINR(totals.total);
+    
+    // Hide proceed button if Paid
+    const proceedBtn = document.querySelector('.btn-proceed-payment');
+    if (proceedBtn && bill.status === 'Paid') {
+        proceedBtn.style.display = 'none';
+        amountValue.textContent = 'PAID';
+        amountValue.style.color = '#00A63E';
+    } else if(proceedBtn) {
+        proceedBtn.style.display = 'block';
+    }
 
-    // Modal bill ID and totals
+    // --- MODAL UPDATES ---
+
+    // Patient info modal
+    const modalInfoValues = document.querySelectorAll('.modal-info-grid p');
+    if (modalInfoValues.length >= 6) {
+        modalInfoValues[0].textContent = patient.fullName || "N/A";
+        modalInfoValues[1].textContent = patient.patientIdDisplay || patient.id || "N/A";
+        modalInfoValues[2].textContent = patient.phone || "N/A";
+        modalInfoValues[3].textContent = patient.email || "N/A";
+        modalInfoValues[4].textContent = bill.visitDate || bill.dueDate || "N/A";
+        modalInfoValues[5].textContent = bill.id;
+    }
+
+    // Modal itemized table
+    const modalTableBody = document.querySelector('.modal-table tbody');
+    if (modalTableBody) modalTableBody.innerHTML = generateItemsHtml(bill.items);
+
+    // Modal summary values
+    const modalSummary = document.querySelector('.modal-summary');
+    if (modalSummary) {
+        const modalRows = modalSummary.querySelectorAll('.summary-row span:nth-child(2)');
+        if (modalRows.length >= 4) {
+            modalRows[0].textContent = formatMoneyINR(totals.subtotal);
+            modalRows[1].textContent = formatMoneyINR(totals.cgst);
+            modalRows[2].textContent = formatMoneyINR(totals.sgst);
+            modalRows[3].textContent = formatMoneyINR(totals.total);
+        }
+    }
+
+    // Modal form bill ID and totals
     const modalTotal = document.querySelector('.amount-charged strong');
     if (modalTotal) modalTotal.textContent = formatMoneyINR(totals.total);
 }

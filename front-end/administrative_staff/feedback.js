@@ -1,8 +1,18 @@
-let feedbacks = [
-    {id: 'FB101', date: "2026-03-30", type: "Patient", sender: "John Doe", rating: 5, subject: "Excellent Service", comment: "The nursing staff was very attentive and the check-in process was smooth. Highly recommended."},
-    {id: 'FB102', date: "2026-03-31", type: "Patient", sender: "Jane Smith", rating: 3, subject: "Long wait times", comment: "Wait time at the pharmacy was over an hour today. Please look into improving efficiency."},
-    {id: 'FB103', date: "2026-04-01", type: "Staff", sender: "Dr. Brown", rating: 4, subject: "System Speed", comment: "The new HMS is good but sometimes slow to load patient files. Appreciate the new features though."}
-];
+let feedbackCache = [];
+
+function getFeedbacks() {
+    if (!window.NexCareDB) return [];
+    feedbackCache = window.NexCareDB.getTable('feedback').map(f => ({
+        id: f.id,
+        date: f.createdAt ? f.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+        type: f.type || 'Patient',
+        sender: f.sender || 'Anonymous',
+        rating: f.rating || 0,
+        subject: f.subject || 'Feedback',
+        comment: f.summary || f.description || ''
+    }));
+    return feedbackCache;
+}
 
 function renderRatings(num) {
     let starsHtml = '';
@@ -12,7 +22,7 @@ function renderRatings(num) {
     return `<span class="stars">${starsHtml}</span>`;
 }
 
-function renderFeedback(data = feedbacks) {
+function renderFeedback(data = getFeedbacks()) {
     const tbody = document.getElementById('feedbackTableBody');
     tbody.innerHTML = data.map(f => {
         let badgeColor = f.type === 'Patient' ? 'status-patient' : 'status-staff';
@@ -39,7 +49,7 @@ function renderFeedback(data = feedbacks) {
 }
 
 function viewFeedback(id) {
-    const f = feedbacks.find(x => x.id === id);
+    const f = getFeedbacks().find(x => x.id === id);
     if(!f) return;
     
     document.getElementById('feedbackDetailsContainer').innerHTML = `
@@ -61,7 +71,7 @@ function closeViewModal() {
 
 function deleteFeedback(id) {
     if (confirm('Are you sure you want to permanently delete this feedback?')) {
-        feedbacks = feedbacks.filter(f => f.id !== id);
+        if(window.NexCareDB) window.NexCareDB.deleteRow('feedback', id);
         applyFilters();
     }
 }
@@ -77,6 +87,7 @@ function closeAddFeedbackModal() {
 
 function saveFeedback(e) {
     e.preventDefault();
+    if(!window.NexCareDB) return;
     
     const type = document.getElementById('newType').value;
     const name = document.getElementById('newName').value.trim();
@@ -89,10 +100,18 @@ function saveFeedback(e) {
         return;
     }
 
-    const newId = 'FB' + String(Math.floor(Math.random() * 900) + 100);
-    const dateNow = new Date().toISOString().split('T')[0];
+    const payload = {
+        id: window.NexCareDB.generateId("FB"),
+        type,
+        sender: name,
+        rating,
+        subject,
+        summary: comment,
+        status: "Open",
+        createdAt: new Date().toISOString()
+    };
     
-    feedbacks.unshift({ id: newId, date: dateNow, type, sender: name, rating, subject, comment });
+    window.NexCareDB.addRow('feedback', payload);
     
     closeAddFeedbackModal();
     applyFilters();
@@ -102,7 +121,7 @@ function applyFilters() {
     const term = document.getElementById('searchTable').value.toLowerCase();
     const typeVal = document.getElementById('filterType').value;
     
-    const filtered = feedbacks.filter(f => {
+    const filtered = getFeedbacks().filter(f => {
         const matchesTerm = f.sender.toLowerCase().includes(term) || f.subject.toLowerCase().includes(term) || f.id.toLowerCase().includes(term);
         const matchesType = (typeVal === 'All' || f.type === typeVal);
         return matchesTerm && matchesType;
