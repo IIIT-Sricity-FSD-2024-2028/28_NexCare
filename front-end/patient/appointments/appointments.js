@@ -37,13 +37,21 @@ function renderAppointmentsFromStore() {
     const upcoming = all.filter(a => a.status !== 'Canceled' && a.status !== 'Completed');
     const past = all.filter(a => a.status === 'Completed' || a.status === 'Canceled');
 
-    // Update stats (best-effort: elements exist only in My Appointments view)
-    const statCards = document.querySelectorAll('.appointment-stats .stat-card h2');
-    if (statCards.length >= 3) {
-        statCards[0].textContent = String(upcoming.length);
-        statCards[1].textContent = String(all.filter(a => a.status === 'Completed').length);
-        statCards[2].textContent = String(all.length);
-    }
+    // Update stats using specific IDs
+    const upcomingCountEl = document.getElementById('upcomingCount');
+    const completedCountEl = document.getElementById('completedCount');
+    const totalCountEl = document.getElementById('totalCount');
+    
+    if (upcomingCountEl) upcomingCountEl.textContent = String(upcoming.length);
+    if (completedCountEl) completedCountEl.textContent = String(all.filter(a => a.status === 'Completed').length);
+    if (totalCountEl) totalCountEl.textContent = String(all.length);
+
+    // Update section badges
+    const upcomingBadge = document.getElementById('upcomingBadge');
+    const pastBadge = document.getElementById('pastBadge');
+
+    if (upcomingBadge) upcomingBadge.textContent = `${upcoming.length} Scheduled`;
+    if (pastBadge) pastBadge.textContent = `${past.length} Records`;
 
     const lists = document.querySelectorAll('#myAppointments .appointments-list');
     const upcomingList = lists[0];

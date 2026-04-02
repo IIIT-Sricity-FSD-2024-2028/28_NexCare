@@ -41,7 +41,14 @@ function renderAppointments(data = getAppointments()) {
 
 function deleteAppt(id) {
     if (confirm('Are you sure you want to delete appointment: ' + id + '?')) {
+        const apt = getAppointments().find(a => a.id === id);
+        const patientName = apt ? apt.patient : id;
+        
         if(window.NexCareDB) window.NexCareDB.deleteRow('appointments', id);
+        
+        if (window.NexCareStore) {
+            window.NexCareStore.logActivity('Delete', 'Appointments', `Cancelled appointment for ${patientName} (ID: ${id})`);
+        }
         applyFilters();
     }
 }
@@ -148,11 +155,18 @@ function saveAppointment(e) {
 
     if (id) {
         window.NexCareDB.updateRow('appointments', id, payload);
+        if (window.NexCareStore) {
+            window.NexCareStore.logActivity('Update', 'Appointments', `Updated appointment status to ${apptStatus} for ${patientName} (Dr. ${doctorName})`);
+        }
     } else {
         payload.id = window.NexCareDB.generateId("APT");
         payload.fee = 100;
         payload.createdAt = new Date().toISOString();
         window.NexCareDB.addRow('appointments', payload);
+        
+        if (window.NexCareStore) {
+            window.NexCareStore.logActivity('Create', 'Appointments', `New appointment scheduled: ${patientName} with Dr. ${doctorName} (${deptName})`);
+        }
     }
     
     closeAppointmentModal();

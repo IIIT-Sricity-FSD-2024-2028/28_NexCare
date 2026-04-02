@@ -89,16 +89,16 @@
         <div class="billing-content">
             <div class="billing-left">
                 <!-- Pending Bill Alert -->
-                <div class="pending-bill-alert">
+                <div class="pending-bill-alert" id="pendingBillAlert">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M12 9v4M12 17h.01" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <circle cx="12" cy="12" r="10" stroke="#10B981" stroke-width="2"/>
                     </svg>
                     <div>
-                        <h3>1 Pending Bill</h3>
-                        <p>No overdue bills • Due by 14 March, 2026</p>
+                        <h3 id="pendingBillTitle">-- Pending Bill</h3>
+                        <p id="pendingBillText">--</p>
                     </div>
-                    <span class="badge badge-pending-lg">Pending</span>
+                    <span class="badge badge-pending-lg" id="pendingBillBadge">--</span>
                 </div>
 
                 <!-- Patient Information -->
@@ -108,78 +108,41 @@
                             <circle cx="10" cy="7" r="3" stroke="#0F172A" stroke-width="1.5"/>
                             <path d="M17 18c0-3.866-3.134-7-7-7s-7 3.134-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
-                        Patient Information
+                        Patient Information (<span id="activePatientNameDisplay">--</span>)
                     </h2>
                     
                     <div class="patient-info-grid">
                         <div class="info-field">
                             <label>Patient Name</label>
-                            <p class="info-value">Rajesh Kumar Patel</p>
+                            <p class="info-value" id="billing-patientName">--</p>
                         </div>
                         <div class="info-field">
                             <label>Patient ID</label>
-                            <p class="info-value">PAT-2026-00152</p>
+                            <p class="info-value" id="billing-patientId">--</p>
                         </div>
                         <div class="info-field">
-                            <label>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline-block; vertical-align:middle; margin-right:4px;">
-                                    <path d="M13 9.917v1.75a1.167 1.167 0 01-1.273 1.166A11.662 11.662 0 016.561 11.02a11.481 11.481 0 01-3.54-3.54A11.662 11.662 0 011.167 2.273 1.167 1.167 0 012.333 1h1.75a1.167 1.167 0 011.167 1.002c.073.73.209 1.45.408 2.145a1.167 1.167 0 01-.263 1.232l-1.022 1.021a9.333 9.333 0 003.54 3.54l1.022-1.022a1.167 1.167 0 011.232-.262c.695.199 1.416.335 2.146.408A1.167 1.167 0 0113 9.917z" stroke="#6B7280" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                Phone
-                            </label>
-                            <p class="info-value">+91 98765 43210</p>
+                            <label>Phone</label>
+                            <p class="info-value" id="billing-phone">--</p>
                         </div>
                         <div class="info-field">
-                            <label>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline-block; vertical-align:middle; margin-right:4px;">
-                                    <path d="M2.333 2.333h9.334A1.167 1.167 0 0112.833 3.5v7a1.167 1.167 0 01-1.166 1.167H2.333A1.167 1.167 0 011.167 10.5v-7a1.167 1.167 0 011.166-1.167z" stroke="#6B7280" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M12.833 3.5l-5.833 4.083L1.167 3.5" stroke="#6B7280" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                Email
-                            </label>
-                            <p class="info-value">rajesh.patel@email.com</p>
+                            <label>Email</label>
+                            <p class="info-value" id="billing-email">--</p>
                         </div>
                         <div class="info-field">
-                            <label>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline-block; vertical-align:middle; margin-right:4px;">
-                                    <path d="M5.833 1.167V3.5M8.167 1.167V3.5" stroke="#6B7280" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <rect x="1.75" y="2.333" width="10.5" height="10.5" rx="1.75" stroke="#6B7280" stroke-width="1.17"/>
-                                    <path d="M1.75 5.833h10.5" stroke="#6B7280" stroke-width="1.17"/>
-                                </svg>
-                                Visit Date
-                            </label>
-                            <p class="info-value">7 March, 2026</p>
+                            <label>Visit Date</label>
+                            <p class="info-value" id="billing-visitDate">--</p>
                         </div>
                         <div class="info-field">
-                            <label>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline-block; vertical-align:middle; margin-right:4px;">
-                                    <rect x="1.75" y="3.5" width="10.5" height="8.167" rx="1.75" stroke="#6B7280" stroke-width="1.17"/>
-                                    <path d="M1.75 5.833h10.5" stroke="#6B7280" stroke-width="1.17"/>
-                                </svg>
-                                Bill ID
-                            </label>
-                            <p class="info-value">BILL-2026-03-00789</p>
+                            <label>Bill ID</label>
+                            <p class="info-value" id="billing-billId">--</p>
                         </div>
                         <div class="info-field">
-                            <label>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline-block; vertical-align:middle; margin-right:4px;">
-                                    <path d="M5.833 1.167V3.5M8.167 1.167V3.5" stroke="#6B7280" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <rect x="1.75" y="2.333" width="10.5" height="10.5" rx="1.75" stroke="#6B7280" stroke-width="1.17"/>
-                                    <path d="M1.75 5.833h10.5" stroke="#6B7280" stroke-width="1.17"/>
-                                </svg>
-                                Due Date
-                            </label>
-                            <p class="info-value">14 March, 2026</p>
+                            <label>Due Date</label>
+                            <p class="info-value" id="billing-dueDate">--</p>
                         </div>
                         <div class="info-field">
-                            <label>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline-block; vertical-align:middle; margin-right:4px;">
-                                    <circle cx="7" cy="7" r="5.833" stroke="#6B7280" stroke-width="1.17"/>
-                                    <path d="M7 3.5V7l2.333 1.167" stroke="#6B7280" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                Status
-                            </label>
-                            <p class="info-value">Pending</p>
+                            <label>Status</label>
+                            <p class="info-value" id="billing-status">--</p>
                         </div>
                     </div>
                 </div>
@@ -200,30 +163,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Consultation Fee - Dr. Priya Sharma</td>
-                                    <td><span class="dept-badge dept-cardiology">Cardiology</span></td>
-                                    <td>07-03-2026</td>
-                                    <td>₹1200.00</td>
-                                </tr>
-                                <tr>
-                                    <td>Blood Test - Complete Blood Count</td>
-                                    <td><span class="dept-badge dept-laboratory">Laboratory</span></td>
-                                    <td>07-03-2026</td>
-                                    <td>₹450.00</td>
-                                </tr>
-                                <tr>
-                                    <td>ECG Test</td>
-                                    <td><span class="dept-badge dept-cardiology">Cardiology</span></td>
-                                    <td>07-03-2026</td>
-                                    <td>₹600.00</td>
-                                </tr>
-                                <tr>
-                                    <td>Medications - Prescribed</td>
-                                    <td><span class="dept-badge dept-pharmacy">Pharmacy</span></td>
-                                    <td>07-03-2026</td>
-                                    <td>₹650.00</td>
-                                </tr>
+                            <tbody id="billItemsBody">
+                                <!-- Dynamic items -->
+                            </tbody>
                             </tbody>
                         </table>
                     </div>

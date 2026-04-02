@@ -436,6 +436,112 @@ body {
     transform: scale(1.1);
 }
 
+/* --- Premium NexCare Modals (FR-15) --- */
+.nexcare-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    animation: modal-fade-in 0.3s ease forwards;
+}
+
+.nexcare-modal-container {
+    background: white;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    transform: scale(0.85);
+    opacity: 0;
+    animation: modal-pop-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.modal-icon-container {
+    width: 72px;
+    height: 72px;
+    background: #DCFCE7;
+    color: #16A34A;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 32px;
+    animation: icon-pulse 2s infinite;
+}
+
+.modal-icon-container.error {
+    background: #FEE2E2;
+    color: #DC2626;
+}
+
+.nexcare-modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0F172A;
+    margin-bottom: 12px;
+}
+
+.nexcare-modal-message {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #64748B;
+    margin-bottom: 24px;
+}
+
+.modal-details-box {
+    background: #F8FAFC;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 24px;
+    text-align: left;
+    font-size: 14px;
+    color: #475569;
+    border-left: 4px solid #16A34A;
+}
+
+.btn-modal-close {
+    width: 100%;
+    background: #0F172A;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-modal-close:hover {
+    background: #1E293B;
+    transform: translateY(-2px);
+}
+
+@keyframes modal-fade-in {
+    to { opacity: 1; }
+}
+
+@keyframes modal-pop-up {
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes icon-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(22, 163, 74, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
 .btn-primary-sm {
     background: #2563EB;
     color: #FFFFFF;

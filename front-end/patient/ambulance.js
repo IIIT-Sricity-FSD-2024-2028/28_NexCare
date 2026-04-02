@@ -24,43 +24,45 @@ function handleAmbulanceRequest(e) {
     const notes = formData.get('additionalNotes');
     
     if (!location || !contact) {
-        alert('Please fill in all required fields');
+        showNexCareModal('Missing Information', 'Please fill in all required fields to request an ambulance.', { isError: true });
         return;
     }
     
     // Strict Phone Validation (Exactly 10 digits, no spaces/letters)
     const phoneRegex = /^\d{10}$/;
     if (!phoneRegex.test(contact)) {
-        alert('Please enter a valid 10-digit phone number containing only numbers (e.g., 9876543210).');
+        showNexCareModal('Invalid Phone Number', 'Please enter a valid 10-digit phone number (e.g., 9876543210).', { isError: true });
         return;
     }
     
     // Confirm request
-    if (confirm('⚠️ EMERGENCY AMBULANCE REQUEST\n\n' +
-                `Pickup Location: ${location}\n` +
-                `Contact: ${contact}\n` +
-                `Notes: ${notes || 'None'}\n\n` +
-                'Dispatch ambulance immediately?')) {
-        
-        // Create request in shared store (Create)
-        const req = window.NexCareStore?.createAmbulanceRequest({
-            pickupLocation: location,
-            contact,
-            notes
-        });
-        const requestId = req?.id || ('AMB-2026-' + String(Math.floor(Math.random() * 900 + 100)).padStart(3, '0'));
-        
-        // Show success message
-        alert('✓ Ambulance Request Submitted!\n\n' +
-              `Request ID: ${requestId}\n` +
-              'Estimated arrival: 8-12 minutes\n' +
-              'Our team will contact you shortly at ' + contact);
-        
-        // Clear form
-        e.target.reset();
-        
-        renderAmbulanceRequests();
-    }
+    showNexCareModal('Confirm Emergency Request', 
+        `Are you sure you want to dispatch an ambulance to <strong>${location}</strong>?`, 
+        { 
+            isConfirm: true, 
+            onConfirm: () => {
+                // Create request in shared store (Create)
+                const req = window.NexCareStore?.createAmbulanceRequest({
+                    pickupLocation: location,
+                    contact,
+                    notes
+                });
+                const requestId = req?.id || ('AMB-2026-' + String(Math.floor(Math.random() * 900 + 100)).padStart(3, '0'));
+                
+                // Show success modal
+                showNexCareModal('Request Submitted!', 
+                    'Your ambulance request has been dispatched successfully.', 
+                    { 
+                        details: `<strong>Request ID:</strong> ${requestId}<br><strong>ETA:</strong> 8-12 minutes<br><strong>Contact:</strong> ${contact}`,
+                        onClose: () => {
+                            e.target.reset();
+                            renderAmbulanceRequests();
+                        }
+                    }
+                );
+            }
+        }
+    );
 }
 
 function renderAmbulanceRequests() {
@@ -119,18 +121,95 @@ function handleAmbulanceTableClick(e) {
     if (!store) return;
 
     if (action === 'cancel') {
-        if (!confirm('Cancel this ambulance request?')) return;
-        store.updateAmbulanceRequest(id, { status: 'Canceled' });
-        renderAmbulanceRequests();
+        showNexCareModal('Cancel Request', 'Are you sure you want to cancel this ambulance request?', {
+            isConfirm: true,
+            onConfirm: () => {
+                store.updateAmbulanceRequest(id, { status: 'Canceled' });
+                renderAmbulanceRequests();
+            }
+        });
         return;
     }
 
     if (action === 'delete') {
-        if (!confirm('Delete this request permanently?')) return;
-        store.deleteAmbulanceRequest(id);
-        renderAmbulanceRequests();
+        showNexCareModal('Delete History', 'Are you sure you want to delete this record permanently?', {
+            isConfirm: true,
+            onConfirm: () => {
+                store.deleteAmbulanceRequest(id);
+                renderAmbulanceRequests();
+            }
+        });
         return;
     }
+}
+
+/**
+ * Modern NexCare Modal System (FR-15)
+ * Replaces ugly browser alerts/confirms with premium glassmorphic popups
+ */
+function showNexCareModal(title, message, options = {}) {
+    const { isError = false, isConfirm = false, onConfirm, onClose, details } = options;
+    
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'nexcare-modal-overlay';
+    
+    // Build Modal HTML
+    overlay.innerHTML = `
+        <div class="nexcare-modal-container">
+            <div class="modal-icon-container ${isError ? 'error' : ''}">
+                ${isError ? '✕' : (isConfirm ? '❓' : '✓')}
+            </div>
+            <h2 class="nexcare-modal-title">${title}</h2>
+            <p class="nexcare-modal-message">${message}</p>
+            ${details ? `<div class="modal-details-box">${details}</div>` : ''}
+            
+            <div style="display: flex; gap: 12px;">
+                ${isConfirm ? `
+                    <button class="btn-modal-close" style="background:#E2E8F0; color:#475569;" id="modalCancel">No, Back</button>
+                    <button class="btn-modal-close" id="modalConfirm">Yes, Proceed</button>
+                ` : `
+                    <button class="btn-modal-close" id="modalClose">Great, Thanks!</button>
+                `}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Focus management
+    const mainBtn = overlay.querySelector('#modalConfirm') || overlay.querySelector('#modalClose');
+    if (mainBtn) mainBtn.focus();
+
+    // Event Handlers
+    const close = () => {
+        overlay.style.animation = 'modal-fade-in 0.2s ease reverse forwards';
+        overlay.querySelector('.nexcare-modal-container').style.animation = 'modal-pop-up 0.2s ease reverse forwards';
+        setTimeout(() => {
+            overlay.remove();
+            if (onClose) onClose();
+        }, 200);
+    };
+
+    if (overlay.querySelector('#modalClose')) {
+        overlay.querySelector('#modalClose').onclick = close;
+    }
+    
+    if (overlay.querySelector('#modalCancel')) {
+        overlay.querySelector('#modalCancel').onclick = close;
+    }
+
+    if (overlay.querySelector('#modalConfirm')) {
+        overlay.querySelector('#modalConfirm').onclick = () => {
+            close();
+            if (onConfirm) onConfirm();
+        };
+    }
+
+    // Close on background click
+    overlay.onclick = (e) => {
+        if (e.target === overlay && !isConfirm) close();
+    };
 }
 
 // Legacy helper (kept to avoid breaking any old calls)

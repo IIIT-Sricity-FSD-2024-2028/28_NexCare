@@ -23,9 +23,29 @@ const SessionManager = {
                 return true;
             } catch (error) {
                 console.error('Error parsing user data:', error);
-                this.logout();
-                return false;
             }
+        }
+
+        // Bridge from global login (NexCareDB)
+        const globalEmail = sessionStorage.getItem("nexcare_user_email");
+        if (globalEmail && window.NexCareDB) {
+            const dbUser = window.NexCareDB.getActiveUser(globalEmail);
+            if (dbUser && dbUser.role === 'ambulance') {
+                this.login({
+                    id: dbUser.id,
+                    name: dbUser.name,
+                    email: dbUser.email,
+                    role: dbUser.role
+                });
+                return true;
+            }
+        }
+        
+        // If not logged in at all, redirect
+        if (typeof logoutUser === 'function') {
+            logoutUser();
+        } else {
+            window.location.href = '../auth/login.html';
         }
         return false;
     },
@@ -60,8 +80,13 @@ const SessionManager = {
         // Show logout message
         this.showNotification('Logged out successfully', 'info');
         
-        // Redirect to login
-        window.location.href = '../auth/login.html';
+        // Redirect using global logout helper if available
+        if (typeof logoutUser === 'function') {
+            logoutUser();
+        } else {
+            sessionStorage.clear();
+            window.location.href = '../auth/login.html';
+        }
     },
     
     // Update UI for logged in user
@@ -120,6 +145,12 @@ const SessionManager = {
         
         // Store current page in session
         sessionStorage.setItem('currentPage', pageId);
+        
+        // RE-FETCH AND RE-RENDER ON EVERY NAVIGATION (FR-12)
+        if (typeof refreshAllViews === 'function') {
+            refreshAllViews(false); // Direct navigation = show animations
+            console.log(`NexCare: Navigated to ${pageId}, data refreshed.`);
+        }
     },
     
     // Setup logout
@@ -924,8 +955,23 @@ const ChecklistManager = {
                 const newState = ChecklistManager.getChecklistState();
                 newState[checkboxId] = this.checked;
                 ChecklistManager.saveChecklistState(newState);
+                
+                // NOTIFY UI TO RE-RENDER BUTTONS (FR-13)
+                if (typeof refreshAllViews === 'function') {
+                    refreshAllViews(true); // Background refresh, no flickers
+                }
             });
         });
+    },
+
+    isComplete: function() {
+        const checkboxes = document.querySelectorAll('.checklist-grid .checkbox');
+        if (checkboxes.length === 0) return true; // Fail safe
+        let allChecked = true;
+        checkboxes.forEach(cb => {
+            if (!cb.checked) allChecked = false;
+        });
+        return allChecked;
     },
     
     resetChecklist: function() {
@@ -1008,6 +1054,16 @@ function escapeHtml(str) {
     return d.innerHTML;
 }
 
+/**
+ * Updates an element's innerHTML only if the content has changed.
+ * This prevents flickering/flashing during background refreshes.
+ */
+function safeSetInnerHTML(element, newHTML) {
+    if (!element) return;
+    if (element.innerHTML.trim() === newHTML.trim()) return;
+    element.innerHTML = newHTML;
+}
+
 function formatRequestTime() {
     return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 }
@@ -1016,8 +1072,8 @@ function formatCompletedDate() {
     return new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
-function getDefaultAppState() {
-    return {
+function loadAppState() {
+    let state = {
         nextSeq: 20,
         profile: {
             name: 'Alex Martinez',
@@ -1025,63 +1081,29 @@ function getDefaultAppState() {
             vehicle: 'AMB-05',
             status: 'Available',
         },
-        requests: [
-            { id: 'AMB-2026-012', patient: 'John Smith', location: '123 Main Street, Downtown', contact: '+1 (555) 123-4567', time: '10:30 AM', priority: 'High', status: 'pending' },
-            { id: 'AMB-2026-011', patient: 'Sarah Johnson', location: '456 Oak Avenue, Westside', contact: '+1 (555) 234-5678', time: '10:15 AM', priority: 'Medium', status: 'pending' },
-            { id: 'AMB-2026-010', patient: 'Michael Brown', location: '789 Pine Road, Eastside', contact: '+1 (555) 345-6789', time: '9:45 AM', priority: 'High', status: 'pending' },
-            { id: 'AMB-2026-009', patient: 'Emily Davis', location: '321 Elm Street, Northside', contact: '+1 (555) 456-7890', time: '9:30 AM', priority: 'Low', status: 'pending' },
-            { id: 'AMB-2026-008', patient: 'David Martinez', location: '987 Birch Lane, Central', contact: '+1 (555) 567-8901', time: '9:15 AM', priority: 'Medium', status: 'pending' },
-            { id: 'AMB-2026-007', patient: 'Lisa Anderson', location: '654 Cedar Court, Southside', contact: '+1 (555) 678-9012', time: '9:00 AM', priority: 'High', status: 'pending' },
-            {
-                id: 'AMB-2026-005',
-                patient: 'Robert Wilson',
-                location: '654 Maple Drive, Southside',
-                contact: '+1 (555) 567-8901',
-                time: '8:15 AM',
-                priority: 'High',
-                status: 'in_transit',
-                stepIndex: 2,
-            },
-            { id: 'AMB-2026-006', patient: 'James Williams', location: '876 Willow St, Midtown', contact: '+1 (555) 111-2000', time: '8:30 AM', priority: 'Low', status: 'completed', completedDate: 'March 8, 2026', completedTime: '8:30 AM' },
-            { id: 'AMB-2026-004', patient: 'Patricia Taylor', location: '543 Spruce Ave, Downtown', contact: '+1 (555) 111-2001', time: '4:15 PM', priority: 'Medium', status: 'completed', completedDate: 'March 7, 2026', completedTime: '4:15 PM' },
-            { id: 'AMB-2026-003', patient: 'Thomas Anderson', location: '432 Cedar Ln, Westside', contact: '+1 (555) 111-2002', time: '2:45 PM', priority: 'High', status: 'completed', completedDate: 'March 7, 2026', completedTime: '2:45 PM' },
-            { id: 'AMB-2026-002', patient: 'Maria Garcia', location: '321 Birch Rd, Eastside', contact: '+1 (555) 111-2003', time: '11:30 AM', priority: 'Low', status: 'completed', completedDate: 'March 7, 2026', completedTime: '11:30 AM' },
-            { id: 'AMB-2026-001', patient: 'Christopher Lee', location: '210 Pine St, Northside', contact: '+1 (555) 111-2004', time: '9:00 AM', priority: 'Medium', status: 'completed', completedDate: 'March 7, 2026', completedTime: '9:00 AM' },
-            { id: 'AMB-2026-018', patient: 'Alex Rivera', location: '100 River Rd, Central', contact: '+1 (555) 111-2005', time: '7:30 AM', priority: 'Low', status: 'completed', completedDate: 'March 6, 2026', completedTime: '7:30 AM' },
-        ],
+        requests: []
     };
-}
-
-function migrateState(raw) {
-    if (!raw.requests) raw.requests = [];
-    if (typeof raw.nextSeq !== 'number') raw.nextSeq = 20;
-    if (!raw.profile) raw.profile = getDefaultAppState().profile;
-    raw.requests.forEach((r) => {
-        if (!r.status) r.status = 'pending';
-        if (r.status === 'in_transit' && (r.stepIndex == null || r.stepIndex < 0)) r.stepIndex = 0;
-    });
-    return raw;
-}
-
-function loadAppState() {
-    let raw;
-    try {
-        raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    } catch(e) {}
-    let state = raw ? migrateState(raw) : getDefaultAppState();
     
-    if (window.NexCareDB) {
-        const dbReqs = window.NexCareDB.getTable('ambulanceRequests');
+    if (window.NexCareDB && window.NexCareStore) {
+        // Use the new listAllAmbulanceRequests to see everyone's requests
+        const dbReqs = window.NexCareStore.listAllAmbulanceRequests();
         if (dbReqs && dbReqs.length > 0) {
             state.requests = dbReqs.map(req => ({
                 id: req.id,
-                patient: req.patientName || 'Unknown Patient',
-                location: req.pickupLocation || req.location || 'Unknown Location',
+                patient: req.patientName || 'Emergency Patient', // Use the stored patient name
+                location: req.pickupLocation || 'Unknown Location',
                 contact: req.contact || '-',
                 time: req.createdAt ? new Date(req.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '12:00 PM',
                 priority: req.priority || 'Medium',
-                status: req.status.toLowerCase() === 'pending' ? 'pending' : (req.status.toLowerCase() === 'completed' ? 'completed' : 'in_transit'),
-                stepIndex: req.stepIndex || 0,
+                status: (function(s) {
+                    const ls = s.toLowerCase();
+                    if (ls === 'pending') return 'pending';
+                    if (ls === 'assigned') return 'assigned';
+                    if (ls === 'active') return 'in_transit';
+                    if (ls === 'completed') return 'completed';
+                    return 'pending'; // Fallback
+                })(req.status),
+                stepIndex: req.stepIndex != null ? req.stepIndex : 0,
                 completedDate: req.completedDate || null,
                 completedTime: req.completedTime || null
             }));
@@ -1102,7 +1124,13 @@ function persistAppState() {
                     pickupLocation: req.location,
                     contact: req.contact,
                     priority: req.priority,
-                    status: req.status === 'pending' ? 'Pending' : (req.status === 'completed' ? 'Completed' : 'Dispatched'),
+                    status: (function(s) {
+                        if (s === 'pending') return 'Pending';
+                        if (s === 'assigned') return 'Assigned';
+                        if (s === 'in_transit') return 'Active';
+                        if (s === 'completed') return 'Completed';
+                        return 'Pending';
+                    })(req.status),
                     stepIndex: req.stepIndex,
                     completedDate: req.completedDate,
                     completedTime: req.completedTime
@@ -1173,13 +1201,22 @@ function getActiveTransportRequest() {
     return appState.requests.find((r) => r.status === 'in_transit');
 }
 
-function refreshAllViews() {
+function refreshAllViews(isBackground = false) {
+    // CRITICAL: Re-read the database into the appState before each render
+    appState = loadAppState();
+    
     renderDashboard();
     renderAmbulanceRequests();
     renderAssignedDispatch();
     renderCompletedTransports();
     renderActiveTransport();
     syncDashboardUserName();
+    
+    // Also update the DynamicRenderer if available
+    if (typeof DynamicRenderer !== 'undefined' && DynamicRenderer.renderStats) {
+        DynamicRenderer.renderStats(isBackground);
+        DynamicRenderer.renderRecentRequests(isBackground);
+    }
 }
 
 function syncDashboardUserName() {
@@ -1214,7 +1251,7 @@ function renderDashboard() {
         .sort((a, b) => (a.time > b.time ? -1 : 1))
         .slice(0, 8);
 
-    recentBody.innerHTML = open.length
+    const html = open.length
         ? open
               .map(
                   (r) => {
@@ -1232,6 +1269,8 @@ function renderDashboard() {
               )
               .join('')
         : '<tr><td colspan="6" class="text-gray">No open requests</td></tr>';
+    
+    safeSetInnerHTML(recentBody, html);
 }
 
 function updateActiveTransportBanner() {
@@ -1306,10 +1345,11 @@ function renderAmbulanceRequests() {
             return;
         }
 
-        tbody.innerHTML = pending
+        const html = pending
             .map(
                 (request) => {
                     const priorityClass = `priority-${request.priority.toLowerCase()}`;
+                    const checklistComplete = ChecklistManager.isComplete();
                     return `
             <tr>
                 <td><span class="request-id">${escapeHtml(request.id)}</span></td>
@@ -1320,39 +1360,119 @@ function renderAmbulanceRequests() {
                 <td><span class="priority-badge ${priorityClass}">${escapeHtml(request.priority)}</span></td>
                 <td><span class="badge badge-orange">Pending</span></td>
                 <td>
-                    <button type="button" class="btn btn-primary btn-sm accept-btn" data-id="${escapeHtml(request.id)}">Accept</button>
+                    ${!checklistComplete 
+                        ? `<div class="checklist-warning" style="color: #DC2626; font-size: 10px; font-weight: 700; margin-bottom: 4px;">CHECKLIST REQUIRED</div>` 
+                        : ''}
+                    <button type="button" class="btn btn-primary btn-sm accept-btn" 
+                        data-id="${escapeHtml(request.id)}"
+                        ${!checklistComplete ? 'disabled title="Complete safety checklist to accept"' : ''}>
+                        Accept
+                    </button>
                 </td>
             </tr>`;
                 }
             )
             .join('');
-
-        // Accept button functionality with error handling
-        tbody.querySelectorAll('.accept-btn').forEach((btn) => {
-            btn.addEventListener('click', function () {
-                try {
-                    const id = this.getAttribute('data-id');
-                    const record = ErrorHandler.validateRecord(id, 'request');
-                    if (!record) return;
-                    
-                    if (record.status !== 'pending') {
-                        ToastNotifications.warning('This request is no longer pending');
-                        refreshAllViews();
-                        return;
-                    }
-                    
-                    record.status = 'assigned';
-                    persistAppState();
-                    refreshAllViews();
-                    ToastNotifications.success(`Accepted request ${record.id} - ${record.patient}`);
-                } catch (error) {
-                    ErrorHandler.handleApiError(error, 'accept request');
-                }
-            });
-        });
+        
+        safeSetInnerHTML(tbody, html);
     } catch (error) {
         ErrorHandler.handleApiError(error, 'load requests');
         ErrorHandler.showError('ambulance-requests-tbody', 'Failed to Load Requests', 'Unable to load incoming requests. Please refresh the page.');
+    }
+}
+
+// Global Event Delegation (FR-13)
+// This fixes the multiple listener bug and avoids stacking listeners every refresh
+function setupGlobalDelegation() {
+    // 1. Incoming Requests
+    const reqTbody = document.getElementById('ambulance-requests-tbody');
+    if (reqTbody) {
+        reqTbody.addEventListener('click', function(e) {
+            const btn = e.target.closest('.accept-btn');
+            if (!btn || btn.disabled) return;
+            
+            const id = btn.getAttribute('data-id');
+            const record = ErrorHandler.validateRecord(id, 'request');
+            if (!record) return;
+            
+            if (record.status !== 'pending') {
+                ToastNotifications.warning('This request is no longer pending');
+                refreshAllViews();
+                return;
+            }
+            
+            record.status = 'assigned';
+            if (window.NexCareStore) {
+                window.NexCareStore.updateAmbulanceRequest(id, { status: 'Assigned' });
+            }
+            persistAppState();
+            refreshAllViews();
+            ToastNotifications.success(`Accepted request ${record.id} - ${record.patient}`);
+        });
+    }
+
+    // 2. Assigned Dispatch
+    const dispatchContainer = document.getElementById('assigned-requests-container');
+    if (dispatchContainer) {
+        dispatchContainer.addEventListener('click', function(e) {
+            const startBtn = e.target.closest('.start-transport-btn');
+            const cancelBtn = e.target.closest('.cancel-assignment-btn');
+
+            if (startBtn && !startBtn.disabled) {
+                const id = startBtn.getAttribute('data-id');
+                const record = ErrorHandler.validateRecord(id, 'request');
+                if (!record || record.status !== 'assigned') return;
+                
+                record.status = 'in_transit';
+                record.stepIndex = 0;
+                if (window.NexCareStore) {
+                    window.NexCareStore.updateAmbulanceRequest(id, { status: 'Active', stepIndex: 0 });
+                }
+                persistAppState();
+                refreshAllViews();
+                ToastNotifications.success(`Transport started for ${record.patient}`);
+                ETATimer.startTimer(record.id, record.stepIndex);
+            }
+
+            if (cancelBtn) {
+                const id = cancelBtn.getAttribute('data-id');
+                const record = ErrorHandler.validateRecord(id, 'request');
+                if (!record || record.status !== 'assigned') return;
+                
+                if (confirm(`Cancel assignment for ${record.patient}?`)) {
+                    record.status = 'pending';
+                    if (window.NexCareStore) {
+                        window.NexCareStore.updateAmbulanceRequest(id, { status: 'Pending' });
+                    }
+                    persistAppState();
+                    refreshAllViews();
+                    ToastNotifications.info(`Assignment canceled for ${record.patient}`);
+                }
+            }
+        });
+    }
+
+    // 3. Completed Transports
+    const completedTbody = document.getElementById('completed-transports-tbody');
+    if (completedTbody) {
+        completedTbody.addEventListener('click', function(e) {
+            const btn = e.target.closest('.delete-completed-btn');
+            if (!btn) return;
+            
+            const id = btn.getAttribute('data-id');
+            const record = appState.requests.find(r => r.id === id);
+            if (!record) return;
+
+            if (confirm(`Remove ${id} from history? This action cannot be undone.`)) {
+                if (window.NexCareStore) {
+                    window.NexCareStore.deleteAmbulanceRequest(id);
+                }
+                appState.requests = appState.requests.filter(r => r.id !== id);
+                persistAppState();
+                refreshAllViews();
+                ToastNotifications.info(`Transport ${id} removed from history`);
+            }
+        });
     }
 }
 
@@ -1565,7 +1685,7 @@ function renderAssignedDispatch() {
             return;
         }
 
-        container.innerHTML = assigned
+        const html = assigned
             .map(
                 (request) => {
                     const priorityClass = `priority-${request.priority.toLowerCase()}`;
@@ -1602,7 +1722,13 @@ function renderAssignedDispatch() {
                     </div>
                 </div>
                 <div class="dispatch-actions">
-                    <button type="button" class="btn btn-teal start-transport-btn" data-id="${escapeHtml(request.id)}" ${getActiveTransportRequest() ? 'disabled title="Finish current transport first"' : ''}>
+                    ${!ChecklistManager.isComplete() 
+                        ? `<div class="checklist-warning" style="color: #DC2626; font-size: 11px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">📋 Checklist Required</div>` 
+                        : ''}
+                    <button type="button" class="btn btn-teal start-transport-btn" 
+                        data-id="${escapeHtml(request.id)}" 
+                        ${getActiveTransportRequest() ? 'disabled title="Finish current transport first"' : ''}
+                        ${!ChecklistManager.isComplete() ? 'disabled title="Complete ALL pre-departure checklist items to start"' : ''}>
                         Start Transport
                     </button>
                     <button type="button" class="btn-cancel cancel-assignment-btn" data-id="${escapeHtml(request.id)}">
@@ -1613,65 +1739,10 @@ function renderAssignedDispatch() {
                 }
             )
             .join('');
-
-        // Start Transport buttons with error handling
-        container.querySelectorAll('.start-transport-btn').forEach((btn) => {
-            btn.addEventListener('click', function () {
-                try {
-                    if (getActiveTransportRequest()) {
-                        ToastNotifications.error('Complete or finish the current transport before starting another.');
-                        return;
-                    }
-                    const id = this.getAttribute('data-id');
-                    const record = ErrorHandler.validateRecord(id, 'request');
-                    if (!record) return;
-                    
-                    if (record.status !== 'assigned') {
-                        ToastNotifications.warning('This request is no longer available for transport');
-                        refreshAllViews();
-                        return;
-                    }
-                    
-                    record.status = 'in_transit';
-                    record.stepIndex = 0;
-                    persistAppState();
-                    refreshAllViews();
-                    ToastNotifications.success(`Transport started for ${record.patient}`);
-                    
-                    // Start ETA timer
-                    ETATimer.startTimer(record.id, record.stepIndex);
-                } catch (error) {
-                    ErrorHandler.handleApiError(error, 'start transport');
-                }
-            });
-        });
-
-        // Cancel Assignment buttons with error handling
-        container.querySelectorAll('.cancel-assignment-btn').forEach((btn) => {
-            btn.addEventListener('click', function () {
-                try {
-                    const id = this.getAttribute('data-id');
-                    const record = ErrorHandler.validateRecord(id, 'request');
-                    if (!record) return;
-                    
-                    if (record.status !== 'assigned') {
-                        ToastNotifications.warning('This request cannot be cancelled');
-                        refreshAllViews();
-                        return;
-                    }
-                    
-                    record.status = 'pending';
-                    persistAppState();
-                    refreshAllViews();
-                    ToastNotifications.warning(`Assignment cancelled for ${record.patient}`);
-                } catch (error) {
-                    ErrorHandler.handleApiError(error, 'cancel assignment');
-                }
-            });
-        });
+        
+        safeSetInnerHTML(container, html);
     } catch (error) {
-        ErrorHandler.handleApiError(error, 'load assigned dispatches');
-        ErrorHandler.showError('assigned-requests-container', 'Failed to Load Dispatches', 'Unable to load assigned ambulance requests. Please refresh the page.');
+        ErrorHandler.handleApiError(error, 'load dispatches');
     }
 }
 
@@ -1780,6 +1851,9 @@ function bindActiveTransportControls() {
             const lastStep = TRANSPORT_STEPS.length - 1;
             if (r.stepIndex < lastStep) {
                 r.stepIndex++;
+                if (window.NexCareStore) {
+                    window.NexCareStore.updateAmbulanceRequest(r.id, { stepIndex: r.stepIndex, status: 'Active' });
+                }
                 persistAppState();
                 refreshAllViews();
             }
@@ -1793,9 +1867,32 @@ function bindActiveTransportControls() {
             r.status = 'completed';
             r.completedDate = formatCompletedDate();
             r.completedTime = formatRequestTime();
+            if (window.NexCareStore) {
+                window.NexCareStore.updateAmbulanceRequest(r.id, { 
+                    status: 'Completed',
+                    completedDate: r.completedDate,
+                    completedTime: r.completedTime
+                });
+                
+                // Log the transport completion to recent system activity (FR-12)
+                window.NexCareStore.logActivity('Complete', 'Ambulance', `Transport for ${r.patient} (ID: ${r.id}) completed successfully.`);
+            }
             delete r.stepIndex;
             persistAppState();
+            
+            // Stop the timer
+            if (typeof ETATimer !== 'undefined' && ETATimer.stopTimer) {
+                ETATimer.stopTimer(r.id);
+            }
+            
             refreshAllViews();
+            
+            // Explicitly redirect to history (FR-15)
+            if (typeof AmbulancePortal !== 'undefined' && AmbulancePortal.navigateToPage) {
+                AmbulancePortal.navigateToPage('completed-transports');
+            }
+            
+            ToastNotifications.success(`Transport for ${r.patient} completed successfully!`);
         });
     }
 }
@@ -1832,7 +1929,7 @@ function renderCompletedTransports() {
             return;
         }
 
-        tbody.innerHTML = completed
+        const html = completed
             .map(
                 (t) => {
                     const priorityClass = `priority-${t.priority.toLowerCase()}`;
@@ -1852,32 +1949,8 @@ function renderCompletedTransports() {
                 }
             )
             .join('');
-
-        // Delete buttons with error handling
-        tbody.querySelectorAll('.delete-completed-btn').forEach((btn) => {
-            btn.addEventListener('click', function () {
-                try {
-                    const id = this.getAttribute('data-id');
-                    const record = ErrorHandler.validateRecord(id, 'transport');
-                    if (!record) return;
-                    
-                    if (record.status !== 'completed') {
-                        ToastNotifications.warning('This transport is no longer in completed status');
-                        refreshAllViews();
-                        return;
-                    }
-                    
-                    if (!confirm(`Remove ${id} from history? This action cannot be undone.`)) return;
-                    
-                    appState.requests = appState.requests.filter((x) => x.id !== id);
-                    persistAppState();
-                    refreshAllViews();
-                    ToastNotifications.info(`Transport ${id} removed from history`);
-                } catch (error) {
-                    ErrorHandler.handleApiError(error, 'delete completed transport');
-                }
-            });
-        });
+        
+        safeSetInnerHTML(tbody, html);
     } catch (error) {
         ErrorHandler.handleApiError(error, 'load completed transports');
         ErrorHandler.showError('completed-transports-tbody', 'Failed to Load History', 'Unable to load completed transport history. Please refresh the page.');
@@ -2753,80 +2826,42 @@ function initializeLogout() {
 
 // Dynamic UI Rendering System
 const DynamicRenderer = {
-    // Sample data for demonstration
-    sampleData: {
-        requests: [
-            {
-                id: 'AMB-2026-001',
-                patientName: 'John Smith',
-                pickupLocation: '123 Main St, Downtown',
-                requestTime: '10:30 AM',
-                priority: 'high',
-                status: 'assigned',
-                assignedTo: 'Alex Martinez'
-            },
-            {
-                id: 'AMB-2026-002',
-                patientName: 'Sarah Johnson',
-                pickupLocation: '456 Oak Ave, Westside',
-                requestTime: '10:15 AM',
-                priority: 'medium',
-                status: 'active',
-                assignedTo: 'Alex Martinez'
-            },
-            {
-                id: 'AMB-2026-003',
-                patientName: 'Michael Brown',
-                pickupLocation: '789 Pine Rd, North District',
-                requestTime: '09:45 AM',
-                priority: 'low',
-                status: 'completed',
-                assignedTo: 'Alex Martinez'
-            },
-            {
-                id: 'AMB-2026-004',
-                patientName: 'Emily Davis',
-                pickupLocation: '321 Elm St, Central',
-                requestTime: '09:30 AM',
-                priority: 'medium',
-                status: 'completed',
-                assignedTo: 'Alex Martinez'
-            },
-            {
-                id: 'AMB-2026-005',
-                patientName: 'Robert Wilson',
-                pickupLocation: '654 Maple Dr, Eastside',
-                requestTime: '09:15 AM',
-                priority: 'high',
-                status: 'completed',
-                assignedTo: 'Alex Martinez'
+    // Get live data from NexCareDB instead of sampleData
+    getData: function() {
+        const store = window.NexCareStore;
+        // MUST USE UNFILTERED LIST for Ambulance Portal
+        if (!store) return { requests: [], stats: { pending: 0, assigned: 0, active: 0, completed: 0 } };
+
+        const requests = store.listAllAmbulanceRequests() || [];
+        
+        return {
+            requests: requests,
+            stats: {
+                pending: requests.filter(r => r.status.toLowerCase() === 'pending').length,
+                assigned: requests.filter(r => r.status.toLowerCase() === 'assigned').length,
+                active: requests.filter(r => r.status.toLowerCase() === 'dispatched' || r.status.toLowerCase() === 'active').length,
+                completed: requests.filter(r => r.status.toLowerCase() === 'completed').length
             }
-        ],
-        stats: {
-            pending: 3,
-            assigned: 2,
-            active: 1,
-            completed: 8
-        }
+        };
     },
     
     // Initialize dynamic rendering
     init: function() {
         this.renderDashboard();
-        this.renderStats();
-        this.renderRecentRequests();
+        this.renderStats(false);
+        this.renderRecentRequests(false);
         this.setupRoleBasedUI();
     },
     
     // Render dashboard statistics dynamically
-    renderStats: function() {
-        const stats = this.sampleData.stats;
+    renderStats: function(isBackground = false) {
+        const data = this.getData();
+        const stats = data.stats;
         
         Object.keys(stats).forEach(key => {
             const element = document.getElementById(`stat-${key}`);
             if (element) {
-                // Animate number counting
-                this.animateNumber(element, 0, stats[key], 1000);
+                element.textContent = stats[key];
             }
         });
     },
@@ -2851,7 +2886,8 @@ const DynamicRenderer = {
     },
     
     // Render recent requests table dynamically
-    renderRecentRequests: function() {
+    renderRecentRequests: function(isBackground = false) {
+        const data = this.getData();
         const tbody = document.getElementById('dashboard-recent-tbody');
         if (!tbody) return;
         
@@ -2859,7 +2895,7 @@ const DynamicRenderer = {
         tbody.innerHTML = '';
         
         // Check for empty data
-        if (this.sampleData.requests.length === 0) {
+        if (data.requests.length === 0) {
             tbody.innerHTML = `
                 <tr>
                     <td colspan="6" style="text-align: center; padding: 40px; color: #6b7280;">
@@ -2873,15 +2909,17 @@ const DynamicRenderer = {
         }
         
         // Generate table rows dynamically
-        this.sampleData.requests.forEach((request, index) => {
+        data.requests.slice(0, 10).forEach((request, index) => { // Show last 10
             const row = this.createRequestRow(request);
             tbody.appendChild(row);
             
-            // Animate row appearance
-            setTimeout(() => {
-                row.style.opacity = '1';
-                row.style.transform = 'translateY(0)';
-            }, index * 100);
+            row.style.opacity = '1';
+            row.style.transform = 'translateY(0)';
+            
+            // SKIP ANIMATIONS IF BACKGROUND (FR-13)
+            if (isBackground) {
+                row.style.transition = 'none';
+            }
         });
     },
     
@@ -2896,10 +2934,10 @@ const DynamicRenderer = {
         
         row.innerHTML = `
             <td>${request.id}</td>
-            <td>${request.patientName}</td>
+            <td>${request.patientName || 'Emergency Request'}</td>
             <td>${request.pickupLocation}</td>
-            <td>${request.requestTime}</td>
-            <td>${this.createPriorityBadge(request.priority)}</td>
+            <td>${new Date(request.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+            <td>${this.createPriorityBadge(request.priority || 'high')}</td>
             <td>${this.createStatusBadge(request.status)}</td>
         `;
         
@@ -3045,13 +3083,13 @@ const DynamicRenderer = {
     // Delete request (admin only)
     deleteRequest: function(requestId) {
         if (confirm(`Are you sure you want to delete request ${requestId}?`)) {
-            const index = this.sampleData.requests.findIndex(r => r.id === requestId);
-            if (index > -1) {
-                this.sampleData.requests.splice(index, 1);
-                this.renderRecentRequests();
+            const store = window.NexCareStore;
+            if (store) {
+                store.deleteAmbulanceRequest(requestId);
+                this.refreshData();
                 SessionManager.showNotification(`Request ${requestId} deleted`, 'success');
             } else {
-                SessionManager.showNotification('Request not found', 'error');
+                SessionManager.showNotification('Store not initialized', 'error');
             }
         }
     },
@@ -3075,40 +3113,50 @@ const DynamicRenderer = {
     },
     
     // Render stats cards dynamically
-    renderStatsCards: function() {
+    renderStatsCards: function(isBackground = false) {
         const statsContainer = document.querySelector('.stats-grid');
         if (!statsContainer) return;
         
+        const data = this.getData();
         const statsConfig = [
             {
                 id: 'pending',
                 label: 'Pending Requests',
-                value: this.sampleData.stats.pending,
+                value: data.stats.pending,
                 icon: '⏰',
                 color: '#f59e0b'
             },
             {
                 id: 'assigned',
                 label: 'Assigned Requests',
-                value: this.sampleData.stats.assigned,
+                value: data.stats.assigned,
                 icon: '📋',
                 color: '#3b82f6'
             },
             {
                 id: 'active',
                 label: 'Active Transport',
-                value: this.sampleData.stats.active,
+                value: data.stats.active,
                 icon: '🚑',
                 color: '#10b981'
             },
             {
                 id: 'completed',
                 label: 'Completed Today',
-                value: this.sampleData.stats.completed,
+                value: data.stats.completed,
                 icon: '✅',
                 color: '#059669'
             }
         ];
+        
+        // Skip re-rendering cards during background refresh to prevent flickers
+        if (isBackground) {
+            statsConfig.forEach(stat => {
+                const el = document.getElementById(`stat-${stat.id}`);
+                if (el) el.textContent = stat.value;
+            });
+            return;
+        }
         
         // Clear and rebuild stats cards
         statsContainer.innerHTML = '';
@@ -3265,6 +3313,11 @@ function restoreFormData(formId) {
 
 // Initialize auto-save on page load
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize session first
+    if (typeof SessionManager !== 'undefined') {
+        SessionManager.init();
+    }
+    
     setupAutoSave();
     
     // Restore form data for all forms
@@ -3272,4 +3325,16 @@ document.addEventListener('DOMContentLoaded', function() {
     forms.forEach(form => {
         restoreFormData(form.id);
     });
+
+    // Global UI event listeners
+    ChecklistManager.bindCheckboxes();
+    setupGlobalDelegation(); // ATTACH ONCE (FR-13)
+    
+    // START GLOBAL AUTO-REFRESH (FR-12)
+    // Synchronizes the dashboard with patient requests every 5 seconds
+    setInterval(() => {
+        if (typeof refreshAllViews === 'function') {
+            refreshAllViews(true); // BACKGROUND = Skip animations
+        }
+    }, 5000);
 });

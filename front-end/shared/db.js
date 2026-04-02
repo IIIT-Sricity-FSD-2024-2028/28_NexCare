@@ -8,7 +8,7 @@ const NexCareDB = (() => {
         "users": [
             { "id": "U001", "name": "System Administrator", "email": "superuser@nexcare.com", "role": "superuser", "status": "Active", "password": "Password123" },
             { "id": "U002", "name": "Jane Doe (Desk)", "email": "admin@nexcare.com", "role": "administrative_staff", "status": "Active", "password": "Password123" },
-            { "id": "U003", "name": "Driver Bob", "email": "ambulance@nexcare.com", "role": "ambulance", "status": "Active", "password": "Password123" },
+            { "id": "U003", "name": "Alex Martinez", "email": "ambulance@nexcare.com", "role": "ambulance", "status": "Active", "password": "Password123" },
             { "id": "U004", "name": "John Anderson", "email": "patient@gmail.com", "role": "patient", "status": "Active", "password": "Password123", "patientId": "P001" },
             { "id": "U005", "name": "Dr. Sarah Smith", "email": "sarah.smith@nexcare.com", "role": "doctor", "dept": "Cardiology", "status": "Active", "password": "Password123" },
             { "id": "U006", "name": "Dr. Vikram Patel", "email": "vikram.patel@nexcare.com", "role": "doctor", "dept": "Orthopedics", "status": "Active", "password": "Password123" },
@@ -37,6 +37,10 @@ const NexCareDB = (() => {
             { "id": "APT-001", "patientId": "P001", "patientName": "John Anderson", "department": "Cardiology", "doctor": "Dr. Sarah Smith", "dateLabel": "March 15, 2026", "timeLabel": "10:00 AM", "token": "TKN-1234", "fee": 150, "status": "Confirmed", "reason": "Routine heart checkup", "createdAt": new Date().toISOString() },
             { "id": "APT-002", "patientId": "P002", "patientName": "Maria Garcia", "department": "Orthopedics", "doctor": "Dr. Vikram Patel", "dateLabel": "April 02, 2026", "timeLabel": "02:30 PM", "token": "TKN-5678", "fee": 200, "status": "Pending", "reason": "Severe knee pain - Emergency Consult", "createdAt": new Date().toISOString() },
             { "id": "APT-003", "patientId": "P001", "patientName": "John Anderson", "department": "General Medicine", "doctor": "Dr. Anjali Desai", "dateLabel": "March 01, 2026", "timeLabel": "11:00 AM", "token": "TKN-9012", "fee": 100, "status": "Completed", "reason": "Annual physical", "createdAt": new Date().toISOString() }
+        ],
+        "systemActivity": [
+            { "id": "ACT-001", "date": "31 Mar 2026", "actor": "Super User", "action": "Create", "module": "Users", "details": "New doctor account created for Cardiology department (Dr. Sarah Smith).", "createdAt": new Date().toISOString() },
+            { "id": "ACT-002", "date": "31 Mar 2026", "actor": "Jane Doe (Desk)", "action": "Update", "module": "Bed Allocation", "details": "Patient Maria Garcia moved to General Ward (G2). Status: Stable.", "createdAt": new Date().toISOString() }
         ],
         "ambulanceRequests": [
             { "id": "AMB-001", "patientId": "P002", "patientName": "Maria Garcia", "pickupLocation": "742 Evergreen Terrace, Springfield", "contact": "+1 (555) 987-6543", "notes": "Patient is experiencing severe chest pains and shortness of breath.", "status": "Dispatched", "assignedTo": "U003", "createdAt": "2026-04-02T10:15:00Z" },
@@ -77,6 +81,31 @@ const NexCareDB = (() => {
             { "id": "M2", "ward": "Maternity", "status": "occupied", "patient": "Mother B" },
             { "id": "M3", "ward": "Maternity", "status": "available", "patient": "" },
             { "id": "M4", "ward": "Maternity", "status": "available", "patient": "" }
+        ],
+        "settings": {
+            "hospitalName": "NexCare General Hospital",
+            "supportEmail": "support@nexcare.com",
+            "emergencyPhone": "911",
+            "enableRegistration": true,
+            "maintenanceMode": false
+        },
+        "checkins": [
+            {
+                "id": "C001", "patientId": "P001", "name": "John Anderson", "status": "Waiting", "statusClass": "status-waiting",
+                "time": "08:48 AM", "location": "Reception",
+                "history": [
+                    { "label": "Reception", "time": "08:48 AM", "state": "completed" }
+                ]
+            },
+            {
+                "id": "C002", "patientId": "P005", "name": "Priya Singh", "status": "In Consultation", "statusClass": "status-consultation",
+                "time": "09:00 AM", "location": "Cardiology - Room 201",
+                "history": [
+                    { "label": "Reception", "time": "08:15 AM", "state": "completed" },
+                    { "label": "Waiting Area", "time": "08:50 AM", "state": "completed" },
+                    { "label": "Cardiology", "time": "09:10 AM", "state": "waiting" }
+                ]
+            }
         ]
     };
 
@@ -102,6 +131,22 @@ const NexCareDB = (() => {
     function migrate() {
         const db = read();
         let changed = false;
+
+        // Ensure all users from FALLBACK_SEED exist
+        FALLBACK_SEED.users.forEach(u => {
+            if (!db.users.find(existing => existing.email === u.email)) {
+                db.users.push(u);
+                changed = true;
+            } else {
+                // Special check for user U003 (Ambulance) - Ensure role is correct even if email exists
+                const existingUser = db.users.find(existing => existing.email === u.email);
+                if (u.id === "U003" && existingUser.role !== u.role) {
+                    existingUser.role = u.role;
+                    existingUser.name = u.name;
+                    changed = true;
+                }
+            }
+        });
 
         // Ensure all patients from FALLBACK_SEED exist
         FALLBACK_SEED.patients.forEach(p => {
@@ -204,6 +249,9 @@ const NexCareDB = (() => {
             age: patientData.age || 0
         });
         
+        // Log the registration activity
+        logActivity('Create', 'Registration', `New patient registered: ${patientData.fullName} (ID: ${pId})`);
+        
         return { userId, pId };
     }
 
@@ -216,6 +264,25 @@ const NexCareDB = (() => {
             if(u && u.patientId) return u.patientId;
         }
         return "P001"; // Default mockup
+    }
+
+    function logActivity(action, module, details) {
+        const email = sessionStorage.getItem("nexcare_user_email") || "System";
+        const user = getActiveUser(email);
+        const actorName = user ? user.name : "System Admin";
+        
+        const activity = {
+            id: "ACT-" + Math.floor(Math.random() * 90000 + 10000),
+            date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+            actor: actorName,
+            action: action,
+            module: module,
+            details: details,
+            createdAt: new Date().toISOString()
+        };
+        
+        addRow('systemActivity', activity);
+        return activity;
     }
 
     return {
@@ -236,6 +303,7 @@ const NexCareDB = (() => {
         getActivePatientScope,
         
         // Custom Helpers
+        logActivity,
         generateId: (prefix) => prefix + "-" + Math.floor(Math.random() * 90000 + 10000)
     };
 })();
@@ -276,6 +344,7 @@ window.NexCareStore = {
     deleteAppointment: (id) => NexCareDB.deleteRow('appointments', id),
     
     // Ambulance
+    listAllAmbulanceRequests: () => NexCareDB.getTable('ambulanceRequests'),
     listAmbulanceRequests: () => NexCareDB.getTable('ambulanceRequests').filter(r => r.patientId === NexCareDB.getActivePatientScope()),
     createAmbulanceRequest: (data) => {
         return NexCareDB.addRow('ambulanceRequests', {
@@ -318,6 +387,7 @@ window.NexCareStore = {
         }];
         NexCareDB.updateRow('bills', id, { status: "Paid", payments: payments });
     },
+    deleteBill: (id) => NexCareDB.deleteRow('bills', id),
     
     // Feedback
     listFeedback: () => NexCareDB.getTable('feedback').filter(f => f.patientId === NexCareDB.getActivePatientScope()),
@@ -336,5 +406,9 @@ window.NexCareStore = {
         });
     },
     updateFeedback: (id, patch) => NexCareDB.updateRow('feedback', id, patch),
-    deleteFeedback: (id) => NexCareDB.deleteRow('feedback', id)
+    deleteFeedback: (id) => NexCareDB.deleteRow('feedback', id),
+    
+    // System Activity
+    listActivity: () => NexCareDB.getTable('systemActivity'),
+    logActivity: (action, module, details) => NexCareDB.logActivity(action, module, details)
 };

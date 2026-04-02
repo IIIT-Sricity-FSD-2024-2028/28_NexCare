@@ -8,9 +8,24 @@
     <link rel="stylesheet" href="logo.css">
 
     <script src="../shared/db.js"></script>
+    <script src="../shared/session.js"></script>
     <script defer src="logo.js"></script>
 </head>
 <body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const role = sessionStorage.getItem('nexcare_current_role');
+        const email = sessionStorage.getItem('nexcare_user_email');
+        if (!role || role !== 'administrative_staff' || email !== 'admin@nexcare.com') {
+            window.location.href = '../auth/login.html';
+        }
+        if (window.NexCareDB && document.getElementById('displayUserName')) {
+            const user = window.NexCareDB.getActiveUser(email);
+            if (user) document.getElementById('displayUserName').textContent = user.name;
+        }
+    });
+</script>
 
 <div class="layout">
 

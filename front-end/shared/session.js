@@ -17,7 +17,7 @@ function loginUser(role) {
             break;
 
         case "ambulance":
-            window.location.href = "../ambulance/dashboard.html";
+            window.location.href = "../ambulance/index.html";
             break;
 
         default:

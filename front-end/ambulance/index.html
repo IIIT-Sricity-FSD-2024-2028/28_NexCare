@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
+    <script src="../shared/session.js"></script>
 </head>
 <body>
     <div class="portal-shell">
@@ -95,7 +96,7 @@
                     </li>
                                     </ul>
 
-                <button type="button" class="logout-btn">
+                <button type="button" class="logout-btn" onclick="logoutUser()">
                     <svg class="logout-icon" fill="none" viewBox="0 0 23.5688 23.5688" aria-hidden="true">
                         <path d="M8.83831 20.6226H4.91018C4.38927 20.6226 3.8897 20.4156 3.52137 20.0473C3.15304 19.679 2.94611 19.1794 2.94611 18.6585V4.91002C2.94611 4.38912 3.15304 3.88955 3.52137 3.52122C3.8897 3.15288 4.38927 2.94596 4.91018 2.94596H8.83831" stroke-width="1.96407" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M15.7127 16.6946L20.6229 11.7844L15.7127 6.87428" stroke-width="1.96407" stroke-linecap="round" stroke-linejoin="round"/>
@@ -195,8 +196,8 @@
                                 </tr>
                             </thead>
                             <tbody id="dashboard-recent-tbody">
-                            <!-- Dynamic content will be rendered here -->
-                        </tbody>
+                                <!-- Dynamic content will be rendered here -->
+                            </tbody>
                         </table>
                     </div>
                 </div>

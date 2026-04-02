@@ -7,44 +7,54 @@ document.querySelectorAll('.menu li').forEach(item => {
 });
 
 
-// ---------------- MOCK DATA FROM JSON appointments.json ----------------
+// ---------------- DATA FROM NexCareDB ----------------
 let appointments = [];
 let filteredAppointments = [];
 
 
 // ---------------- FETCH DATA ----------------
-async function loadAppointments() {
-    try {
-        const res = await fetch("./appointments.json");
-        appointments = await res.json();
-        filteredAppointments = [...appointments];
-        render();
-    } catch (err) {
-        console.error("Error loading appointments:", err);
-    }
+function loadDashboardData() {
+    if (!window.NexCareDB) return;
+
+    // 1. Sync Stats
+    const patients = window.NexCareDB.getTable('patients');
+    const allAppointments = window.NexCareDB.getTable('appointments');
+
+    document.getElementById('totalPatientsCount').textContent = patients.length;
+    document.getElementById('todayApptCount').textContent = allAppointments.length; // Simplified for "System Total"
+
+    // 2. Load Appointments List
+    appointments = allAppointments;
+    filteredAppointments = [...appointments];
+    render();
 }
 
 function getStatusClass(status) {
-    switch (status) {
-        case "Completed": return "success";
-        case "In Progress": return "info";
-        case "Waiting": return "warning";
-        default: return "";
-    }
+    const s = status ? status.toLowerCase() : "";
+    if (s.includes("completed")) return "success";
+    if (s.includes("progress")) return "info";
+    if (s.includes("waiting") || s.includes("pending")) return "warning";
+    return "";
 }
 
 // ---------------- RENDER ----------------
 function render() {
     const container = document.getElementById("appointmentsList");
+    if (!container) return;
+
+    if (filteredAppointments.length === 0) {
+        container.innerHTML = `<div style="padding:20px; text-align:center; color:#666;">No recent appointments found in database.</div>`;
+        return;
+    }
 
     container.innerHTML = filteredAppointments.map(a => `
         <div class="appointment">
             <div class="avatar">⚕</div>
             <div class="info">
-                <strong>${a.name}</strong>
-                <div class="small">${a.doctor} • ${a.dept}</div>
+                <strong>${a.patientName || a.name}</strong>
+                <div class="small">${a.doctor} • ${a.department || a.dept}</div>
             </div>
-            <div class="time">${a.time}</div>
+            <div class="time">${a.timeLabel || a.time}</div>
             <div class="status-wrap">
                 <span class="badge ${getStatusClass(a.status)}">${a.status}</span>
             </div>
@@ -58,11 +68,10 @@ function applyFilters() {
     const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
 
     filteredAppointments = appointments.filter(a => {
-        return (
-            a.name.toLowerCase().includes(search) ||
-            a.doctor.toLowerCase().includes(search) ||
-            a.dept.toLowerCase().includes(search)
-        );
+        const pName = (a.patientName || a.name || "").toLowerCase();
+        const dName = (a.doctor || "").toLowerCase();
+        const deptName = (a.department || a.dept || "").toLowerCase();
+        return pName.includes(search) || dName.includes(search) || deptName.includes(search);
     });
 
     render();
@@ -74,4 +83,4 @@ document.getElementById("searchInput")?.addEventListener("input", applyFilters);
 
 
 // ---------------- INIT ----------------
-loadAppointments();
+loadDashboardData();

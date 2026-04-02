@@ -159,6 +159,10 @@ function handleSaveUser(e) {
             status,
             password: "Password123" // Setup dummy password
         });
+        
+        if (window.NexCareStore) {
+            window.NexCareStore.logActivity('Create', 'Users', `New ${role} account created: ${name} (${dept})`);
+        }
     } else {
         // Update existing user
         window.NexCareDB.updateRow('users', idInput, { 
@@ -168,6 +172,10 @@ function handleSaveUser(e) {
             dept, 
             status 
         });
+
+        if (window.NexCareStore) {
+            window.NexCareStore.logActivity('Update', 'Users', `Updated user details for ${name} (ID: ${idInput})`);
+        }
     }
 
     renderTable();
@@ -194,7 +202,15 @@ function editUser(id) {
 // Delete
 function deleteUser(id) {
     if(confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
-        if(window.NexCareDB) window.NexCareDB.deleteRow('users', id);
+        if(window.NexCareDB) {
+            const user = window.NexCareDB.getTable('users').find(u => u.id === id);
+            const userName = user ? user.name : id;
+            window.NexCareDB.deleteRow('users', id);
+            
+            if (window.NexCareStore) {
+                window.NexCareStore.logActivity('Delete', 'Users', `Removed user account: ${userName} (ID: ${id})`);
+            }
+        }
         renderTable(); // Update instantly without reloading
     }
 }

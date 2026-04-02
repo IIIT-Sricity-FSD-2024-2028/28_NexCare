@@ -201,7 +201,7 @@
                     <div class="stat-header">
                         <div class="stat-details">
                             <p>Upcoming Appointments</p>
-                            <h2>3</h2>
+                            <h2 id="upcomingCount">--</h2>
                         </div>
                         <div class="stat-icon-rounded green">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -217,7 +217,7 @@
                     <div class="stat-header">
                         <div class="stat-details">
                             <p>Completed</p>
-                            <h2>4</h2>
+                            <h2 id="completedCount">--</h2>
                         </div>
                         <div class="stat-icon-rounded blue">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -232,7 +232,7 @@
                     <div class="stat-header">
                         <div class="stat-details">
                             <p>Total Appointments</p>
-                            <h2>8</h2>
+                            <h2 id="totalCount">--</h2>
                         </div>
                         <div class="stat-icon-rounded purple">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -256,168 +256,11 @@
                         <h2>Upcoming Appointments</h2>
                         <p>Your scheduled appointments</p>
                     </div>
-                    <span class="badge badge-green-lg">3 Scheduled</span>
+                    <span class="badge badge-green-lg" id="upcomingBadge">-- Scheduled</span>
                 </div>
 
                 <div class="appointments-list">
-                    <div class="appointment-item">
-                        <div class="appointment-emoji">❤️</div>
-                        <div class="appointment-details">
-                            <div class="appointment-header">
-                                <h3>Cardiology</h3>
-                                <span class="badge badge-confirmed">Confirmed</span>
-                            </div>
-                            <div class="appointment-info-grid">
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="8" cy="6" r="2.5" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M14 14a6 6 0 00-12 0" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round"/>
-                                    </svg>
-                                    <span>Dr. Priya Sharma</span>
-                                </div>
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <path d="M5.333 1.333V4M10.667 1.333V4" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <rect x="2" y="2.667" width="12" height="12" rx="2" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M2 6.667h12" stroke="#6A7282" stroke-width="1.33"/>
-                                    </svg>
-                                    <span>Tue, 10 Mar, 2026</span>
-                                </div>
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="8" cy="8" r="6" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M8 4v4l2.667 1.333" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span>10:00 AM</span>
-                                </div>
-                            </div>
-                            <div class="appointment-meta">
-                                <span class="token">Token: TKN-1234</span>
-                                <span class="fee">Fee: ₹100</span>
-                            </div>
-                        </div>
-                        <div class="appointment-actions">
-                            <button class="btn-icon-action" title="View Details">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <circle cx="10" cy="10" r="3" stroke="#00A63E" stroke-width="1.5"/>
-                                    <path d="M1 10s3-6 9-6 9 6 9 6-3 6-9 6-9-6-9-6z" stroke="#00A63E" stroke-width="1.5"/>
-                                </svg>
-                            </button>
-                            <button class="btn-icon-action" title="More Options">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <circle cx="10" cy="4" r="1.5" fill="#6A7282"/>
-                                    <circle cx="10" cy="10" r="1.5" fill="#6A7282"/>
-                                    <circle cx="10" cy="16" r="1.5" fill="#6A7282"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="appointment-item">
-                        <div class="appointment-emoji">🦴</div>
-                        <div class="appointment-details">
-                            <div class="appointment-header">
-                                <h3>Orthopedics</h3>
-                                <span class="badge badge-confirmed">Confirmed</span>
-                            </div>
-                            <div class="appointment-info-grid">
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="8" cy="6" r="2.5" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M14 14a6 6 0 00-12 0" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round"/>
-                                    </svg>
-                                    <span>Dr. Vikram Patel</span>
-                                </div>
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <path d="M5.333 1.333V4M10.667 1.333V4" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <rect x="2" y="2.667" width="12" height="12" rx="2" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M2 6.667h12" stroke="#6A7282" stroke-width="1.33"/>
-                                    </svg>
-                                    <span>Thu, 12 Mar, 2026</span>
-                                </div>
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="8" cy="8" r="6" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M8 4v4l2.667 1.333" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span>02:30 PM</span>
-                                </div>
-                            </div>
-                            <div class="appointment-meta">
-                                <span class="token">Token: TKN-0457</span>
-                                <span class="fee">Fee: ₹100</span>
-                            </div>
-                        </div>
-                        <div class="appointment-actions">
-                            <button class="btn-icon-action" title="View Details">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <circle cx="10" cy="10" r="3" stroke="#00A63E" stroke-width="1.5"/>
-                                    <path d="M1 10s3-6 9-6 9 6 9 6-3 6-9 6-9-6-9-6z" stroke="#00A63E" stroke-width="1.5"/>
-                                </svg>
-                            </button>
-                            <button class="btn-icon-action" title="More Options">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <circle cx="10" cy="4" r="1.5" fill="#6A7282"/>
-                                    <circle cx="10" cy="10" r="1.5" fill="#6A7282"/>
-                                    <circle cx="10" cy="16" r="1.5" fill="#6A7282"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="appointment-item">
-                        <div class="appointment-emoji">💊</div>
-                        <div class="appointment-details">
-                            <div class="appointment-header">
-                                <h3>General Medicine</h3>
-                                <span class="badge badge-confirmed">Confirmed</span>
-                            </div>
-                            <div class="appointment-info-grid">
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="8" cy="6" r="2.5" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M14 14a6 6 0 00-12 0" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round"/>
-                                    </svg>
-                                    <span>Dr. Anjali Desai</span>
-                                </div>
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <path d="M5.333 1.333V4M10.667 1.333V4" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <rect x="2" y="2.667" width="12" height="12" rx="2" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M2 6.667h12" stroke="#6A7282" stroke-width="1.33"/>
-                                    </svg>
-                                    <span>Sat, 15 Mar, 2026</span>
-                                </div>
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="8" cy="8" r="6" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M8 4v4l2.667 1.333" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span>11:00 AM</span>
-                                </div>
-                            </div>
-                            <div class="appointment-meta">
-                                <span class="token">Token: TKN-0188</span>
-                                <span class="fee">Fee: ₹80</span>
-                            </div>
-                        </div>
-                        <div class="appointment-actions">
-                            <button class="btn-icon-action" title="View Details">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <circle cx="10" cy="10" r="3" stroke="#00A63E" stroke-width="1.5"/>
-                                    <path d="M1 10s3-6 9-6 9 6 9 6-3 6-9 6-9-6-9-6z" stroke="#00A63E" stroke-width="1.5"/>
-                                </svg>
-                            </button>
-                            <button class="btn-icon-action" title="More Options">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <circle cx="10" cy="4" r="1.5" fill="#6A7282"/>
-                                    <circle cx="10" cy="10" r="1.5" fill="#6A7282"/>
-                                    <circle cx="10" cy="16" r="1.5" fill="#6A7282"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+                    <!-- Dynamic Loading -->
                 </div>
             </div>
 
@@ -431,117 +274,11 @@
                         <h2>Past Appointments</h2>
                         <p>Your appointment history</p>
                     </div>
-                    <span class="badge badge-gray">5 Records</span>
+                    <span class="badge badge-gray" id="pastBadge">-- Records</span>
                 </div>
 
                 <div class="appointments-list">
-                    <div class="appointment-item completed">
-                        <div class="appointment-emoji">❤️</div>
-                        <div class="appointment-details">
-                            <div class="appointment-header">
-                                <h3>Cardiology</h3>
-                                <span class="badge badge-completed">Completed</span>
-                            </div>
-                            <div class="appointment-info-grid">
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="8" cy="6" r="2.5" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M14 14a6 6 0 00-12 0" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round"/>
-                                    </svg>
-                                    <span>Dr. Priya Sharma</span>
-                                </div>
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <path d="M5.333 1.333V4M10.667 1.333V4" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <rect x="2" y="2.667" width="12" height="12" rx="2" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M2 6.667h12" stroke="#6A7282" stroke-width="1.33"/>
-                                    </svg>
-                                    <span>Thu, 5 Mar, 2026</span>
-                                </div>
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="8" cy="8" r="6" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M8 4v4l2.667 1.333" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span>10:30 AM</span>
-                                </div>
-                            </div>
-                            <div class="appointment-meta">
-                                <span class="token">Token: TKN-0087</span>
-                                <span class="bill-paid">Bill Paid</span>
-                                <span class="prescription">Prescription Available</span>
-                            </div>
-                        </div>
-                        <div class="appointment-actions">
-                            <button class="btn-icon-action" title="View Details">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <circle cx="10" cy="10" r="3" stroke="#1447E6" stroke-width="1.5"/>
-                                    <path d="M1 10s3-6 9-6 9 6 9 6-3 6-9 6-9-6-9-6z" stroke="#1447E6" stroke-width="1.5"/>
-                                </svg>
-                            </button>
-                            <button class="btn-icon-action" title="More Options">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <circle cx="10" cy="4" r="1.5" fill="#6A7282"/>
-                                    <circle cx="10" cy="10" r="1.5" fill="#6A7282"/>
-                                    <circle cx="10" cy="16" r="1.5" fill="#6A7282"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="appointment-item completed">
-                        <div class="appointment-emoji">🌟</div>
-                        <div class="appointment-details">
-                            <div class="appointment-header">
-                                <h3>Dermatology</h3>
-                                <span class="badge badge-completed">Completed</span>
-                            </div>
-                            <div class="appointment-info-grid">
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="8" cy="6" r="2.5" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M14 14a6 6 0 00-12 0" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round"/>
-                                    </svg>
-                                    <span>Dr. Neha Joshi</span>
-                                </div>
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <path d="M5.333 1.333V4M10.667 1.333V4" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <rect x="2" y="2.667" width="12" height="12" rx="2" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M2 6.667h12" stroke="#6A7282" stroke-width="1.33"/>
-                                    </svg>
-                                    <span>Sat, 28 Feb, 2026</span>
-                                </div>
-                                <div class="info-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="8" cy="8" r="6" stroke="#6A7282" stroke-width="1.33"/>
-                                        <path d="M8 4v4l2.667 1.333" stroke="#6A7282" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span>03:00 PM</span>
-                                </div>
-                            </div>
-                            <div class="appointment-meta">
-                                <span class="token">Token: TKN-0654</span>
-                                <span class="bill-paid">Bill Paid</span>
-                                <span class="prescription">Prescription Available</span>
-                            </div>
-                        </div>
-                        <div class="appointment-actions">
-                            <button class="btn-icon-action" title="View Details">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <circle cx="10" cy="10" r="3" stroke="#1447E6" stroke-width="1.5"/>
-                                    <path d="M1 10s3-6 9-6 9 6 9 6-3 6-9 6-9-6-9-6z" stroke="#1447E6" stroke-width="1.5"/>
-                                </svg>
-                            </button>
-                            <button class="btn-icon-action" title="More Options">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <circle cx="10" cy="4" r="1.5" fill="#6A7282"/>
-                                    <circle cx="10" cy="10" r="1.5" fill="#6A7282"/>
-                                    <circle cx="10" cy="16" r="1.5" fill="#6A7282"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+                    <!-- Dynamic Loading -->
                 </div>
             </div>
 

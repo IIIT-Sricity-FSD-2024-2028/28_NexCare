@@ -1,52 +1,47 @@
-let patients = [
-    {
-        name: "Sarah Johnson", id: "PT2355", status: "In Consultation", statusClass: "status-consultation",
-        time: "09:00 AM", location: "Cardiology - Room 201",
-        history: [
-            {label: "Reception", time: "08:15 AM", state: "completed"}, 
-            {label: "Waiting Area", time: "08:50 AM", state: "completed"}, 
-            {label: "Cardiology", time: "09:10 AM", state: "waiting"}
-        ]
-    },
-    {
-        name: "Michael Chen", id: "PT2365", status: "In ER", statusClass: "status-er",
-        time: "10:15 AM", location: "X-Ray Lab",
-        history: [
-            {label: "Reception", time: "10:07 AM", state: "completed"}, 
-            {label: "Waiting Area", time: "10:15 AM", state: "completed"}, 
-            {label: "X-Ray Lab", time: "10:30 AM", state: "waiting"}
-        ]
+// ---------------- NexCareDB INTEGRATION ----------------
+
+function getPatients() {
+    if (window.NexCareDB) {
+        return window.NexCareDB.getTable('checkins');
     }
-];
+    return [];
+}
 
 function renderPatients() {
     const container = document.getElementById('patientsContainer');
-    container.innerHTML = patients.map((p, idx) => `
-        <div class="card" style="margin-bottom: 15px; border: 1px solid #e5e7eb;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="font-weight: 600; font-size: 15px;">${p.name}</div>
+    const localPatients = getPatients();
+
+    if (localPatients.length === 0) {
+        container.innerHTML = '<div style="padding: 20px; text-align: center; color: #6b7280;">No patients currently checked in today.</div>';
+        return;
+    }
+
+    container.innerHTML = localPatients.map((p, idx) => `
+        <div class="card" style="margin-bottom: 24px; border: 1px solid #E5E7EB; padding: 20px; border-radius: 12px; background: #FFF;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="font-weight: 700; font-size: 18px; color: #111827;">${p.name}</div>
                     <span class="status-badge ${p.statusClass}">${p.status}</span>
                 </div>
-                <button class="update-btn" onclick="updateLocation('${p.id}')">Update Location</button>
+                <button class="update-btn" onclick="updateLocation('${p.id}')" style="background: transparent; color: #155DFC; border: 1.5px solid #155DFC; padding: 6px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Update Location</button>
             </div>
-            <div style="font-size: 12px; color: #6b7280; margin-bottom: 15px;">
+            <div style="font-size: 14px; color: #6b7280; margin-bottom: 20px; font-family: 'JetBrains Mono', monospace;">
                 ID: ${p.id} &bull; Checked in: ${p.time} &bull; &#128205; ${p.location}
             </div>
             <div>
-                <div style="font-size: 11px; font-weight: 600; margin-bottom: 10px; color: #6b7280;">Movement History</div>
-                <div class="movement-timeline">
+                <div style="font-size: 12px; font-weight: 600; margin-bottom: 12px; color: #374151; letter-spacing: 0.5px; text-transform: uppercase;">Movement History</div>
+                <div class="movement-timeline" style="display: flex; align-items: center; gap: 12px;">
                     ${p.history.map((h, i) => `
-                        <div class="movement-step">
+                        <div class="movement-step" style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
                             <div class="step-icon ${h.state}">
                                 ${h.state === 'completed' 
-                                  ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>' 
-                                  : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'}
+                                  ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' 
+                                  : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#155DFC" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'}
                             </div>
-                            <div class="step-label">${h.label}</div>
-                            <div class="step-time">${h.time}</div>
+                            <div class="step-label" style="font-size: 12px; font-weight: 500; color: #111827;">${h.label}</div>
+                            <div class="step-time" style="font-size: 11px; color: #6B7280;">${h.time}</div>
                         </div>
-                        ${i < p.history.length - 1 ? '<div style="color: #d1d5db;">&rarr;</div>' : ''}
+                        ${i < p.history.length - 1 ? '<div style="color: #D1D5DB; font-size: 18px;">&rarr;</div>' : ''}
                     `).join('')}
                 </div>
             </div>
@@ -55,34 +50,30 @@ function renderPatients() {
 }
 
 function handleCheckin() {
-    const id = document.getElementById('patientIdInput').value.trim();
+    const patientId = document.getElementById('patientIdInput').value.trim();
     const purpose = document.getElementById('visitPurposeInput').value.trim();
     
-    if (!id || !purpose) {
+    if (!patientId || !purpose) {
         alert('Please fill in both Patient ID and Visit Purpose to check them in.');
         return;
     }
     
+    if (!window.NexCareDB) return;
+
     const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    let patientName = id;
-    if (window.NexCareDB) {
-        const found = window.NexCareDB.getTable('patients').find(p => 
-            p.id.toLowerCase() === id.toLowerCase() || 
-            (p.patientIdDisplay && p.patientIdDisplay.toLowerCase() === id.toLowerCase())
-        );
-        if (found && found.fullName) {
-            patientName = found.fullName;
-        } else if (!isNaN(id)) {
-            patientName = `Unknown (${id})`;
-        }
-    } else if (!isNaN(id)) {
-        patientName = `Unknown (${id})`;
-    }
+    // Validate if patient exists in Directory
+    const foundPatient = window.NexCareDB.getTable('patients').find(p => 
+        p.id.toLowerCase() === patientId.toLowerCase() || 
+        (p.patientIdDisplay && p.patientIdDisplay.toLowerCase() === patientId.toLowerCase())
+    );
 
-    const newPatient = {
-        name: patientName,
-        id: id,
+    const displayName = foundPatient ? foundPatient.fullName : patientId;
+
+    const newCheckin = {
+        id: "C" + Math.floor(Math.random() * 9000 + 1000),
+        patientId: foundPatient ? foundPatient.id : patientId,
+        name: displayName,
         status: "Waiting",
         statusClass: "status-waiting",
         time: timeNow,
@@ -92,30 +83,46 @@ function handleCheckin() {
         ]
     };
     
-    patients.unshift(newPatient); // Add to top
+    window.NexCareDB.addRow('checkins', newCheckin);
     renderPatients();
     
-    alert(`Successfully checked in patient ${id} for ${purpose}`);
+    alert(`Successfully checked in patient ${displayName} for ${purpose}`);
     
     document.getElementById('patientIdInput').value = '';
     document.getElementById('visitPurposeInput').value = '';
 }
 
-function updateLocation(id) {
-    const p = patients.find(pat => pat.id === id);
+function updateLocation(checkinId) {
+    if (!window.NexCareDB) return;
+
+    const currentCheckins = getPatients();
+    const p = currentCheckins.find(pat => pat.id === checkinId);
     if(!p) return;
     
     const loc = prompt(`Update current location for ${p.name}:`);
     if (loc && loc.trim() !== '') {
-        // Find previous 'waiting' and mark 'completed'
-        p.history.forEach(h => {
-             if(h.state === 'waiting') h.state = 'completed';
+        // Update history states
+        const updatedHistory = p.history.map(h => {
+             if(h.state === 'waiting') return { ...h, state: 'completed' };
+             return h;
         });
         
         const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        updatedHistory.push({ label: loc, time: timeNow, state: 'waiting' });
         
-        p.history.push({ label: loc, time: timeNow, state: 'waiting' });
-        p.location = loc;
+        // Final Status Logic
+        let finalStatus = "Moving";
+        let finalClass = "status-waiting";
+        if (loc.toLowerCase().includes("consultation")) { finalStatus = "In Consultation"; finalClass = "status-consultation"; }
+        if (loc.toLowerCase().includes("er")) { finalStatus = "In ER"; finalClass = "status-er"; }
+
+        window.NexCareDB.updateRow('checkins', checkinId, {
+            location: loc,
+            history: updatedHistory,
+            status: finalStatus,
+            statusClass: finalClass
+        });
+        
         renderPatients();
     }
 }

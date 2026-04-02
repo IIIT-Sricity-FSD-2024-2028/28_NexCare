@@ -445,8 +445,9 @@
                 const patients = window.NexCareDB.getTable('patients');
                 const feedback = window.NexCareDB.getTable('feedback');
 
-                // Update Counts
-                document.getElementById('totalUsersCount').textContent = users.length;
+                // Update Counts (Staff vs Patients)
+                const staffCount = users.filter(u => u.role !== 'patient').length;
+                document.getElementById('totalUsersCount').textContent = staffCount;
                 document.getElementById('totalPatientsCount').textContent = patients.length;
                 
                 const doctors = users.filter(u => u.role === 'doctor');
@@ -463,8 +464,61 @@
                     const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
                     document.getElementById('userInitials').textContent = initials;
                 }
+
+                // Initial Log Render
+                renderActivityLog();
+
+                // Background Auto-Refresh (FR-12)
+                setInterval(() => {
+                    renderActivityLog(true);
+                }, 10000);
             }
         });
+
+        // Safe DOM Helper (Anti-Flicker)
+        function safeSetInnerHTML(element, newHTML) {
+            if (!element) return;
+            if (element.innerHTML.trim() === newHTML.trim()) return;
+            element.innerHTML = newHTML;
+        }
+
+        function escapeHtml(unsafe) {
+            return String(unsafe)
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        function renderActivityLog(isBackground = false) {
+            const tbody = document.getElementById('activityTableBody');
+            if(!tbody || !window.NexCareDB) return;
+
+            const activity = window.NexCareDB.getTable('systemActivity') || [];
+            
+            // Sort by createdAt (newest first)
+            const sorted = activity.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            // Show only latest 10
+            const latest = sorted.slice(0, 10);
+
+            if(latest.length === 0) {
+                safeSetInnerHTML(tbody, '<tr><td colspan="5" style="text-align:center; padding: 40px; color: #64748b;">No recent system activity.</td></tr>');
+                return;
+            }
+
+            const html = latest.map(item => `
+                <tr>
+                    <td>${escapeHtml(item.date)}</td>
+                    <td class="actor-cell">${escapeHtml(item.actor)}</td>
+                    <td><span class="badge-action badge-${item.action.toLowerCase()}">${escapeHtml(item.action)}</span></td>
+                    <td>${escapeHtml(item.module)}</td>
+                    <td class="details-cell">${escapeHtml(item.details)}</td>
+                </tr>
+            `).join('');
+
+            safeSetInnerHTML(tbody, html);
+        }
     </script>
 </body>
 </html>

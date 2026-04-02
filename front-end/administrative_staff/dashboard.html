@@ -10,9 +10,31 @@
     <link rel="stylesheet" href="logo.css">
 
     <script src="../shared/db.js"></script>
+    <script src="../shared/session.js"></script>
     <script defer src="logo.js"></script>
 </head>
 <body>
+
+<script>
+    // Role & Email Access Control (RBAC)
+    document.addEventListener('DOMContentLoaded', () => {
+        const role = sessionStorage.getItem('nexcare_current_role');
+        const email = sessionStorage.getItem('nexcare_user_email');
+        
+        if (!role || role !== 'administrative_staff' || email !== 'admin@nexcare.com') {
+            alert("Unauthorized Access. This portal is restricted to authorized administrative staff (admin@nexcare.com).");
+            window.location.href = '../auth/login.html';
+        }
+
+        // Sync Dynamic Name
+        if (window.NexCareDB) {
+            const user = window.NexCareDB.getActiveUser(email);
+            if (user) {
+                document.getElementById('displayUserName').textContent = user.name;
+            }
+        }
+    });
+</script>
 
 <div class="layout">
 
@@ -178,13 +200,13 @@
         <div class="cards">
             <div class="card stat">
                 <p>Total Patients</p>
-                <h3>342</h3>
+                <h3 id="totalPatientsCount">--</h3>
                 <span class="trend up">+12%</span>
             </div>
 
             <div class="card stat">
                 <p>Today's Appointments</p>
-                <h3>48</h3>
+                <h3 id="todayApptCount">--</h3>
                 <span class="trend up">+5%</span>
             </div>
 
@@ -217,7 +239,7 @@
             <h3>Quick Actions</h3>
 
             <div class="actions">
-                <button class="action-btn">
+                <a href="manage_appointments.html" class="action-btn" style="text-decoration:none; color:inherit;">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <rect x="3" y="4" width="18" height="18" rx="2"></rect>
                         <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -225,29 +247,29 @@
                         <line x1="3" y1="10" x2="21" y2="10"></line>
                     </svg>
                     <span>Schedule Appointment</span>
-                </button>
+                </a>
 
-                <button class="action-btn">
+                <a href="patient_checkin.html" class="action-btn" style="text-decoration:none; color:inherit;">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="12" cy="8" r="4"></circle>
                         <path d="M4 20c0-4 16-4 16 0"></path>
                     </svg>
                     <span>Register Patient</span>
-                </button>
+                </a>
 
-                <button class="action-btn">
-                    <img src="bed.png" class="icon">
+                <a href="bed-allocation.html" class="action-btn" style="text-decoration:none; color:inherit;">
+                    <img src="bed.png" class="icon" style="width:24px; height:24px;">
                     <span>Assign Bed</span>
-                </button>
+                </a>
 
-                <button class="action-btn">
+                <a href="feedback.html" class="action-btn" style="text-decoration:none; color:inherit;">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="12" y1="8" x2="12" y2="12"></line>
                         <circle cx="12" cy="16" r="1"></circle>
                     </svg>
                     <span>View Alerts</span>
-                </button>
+                </a>
             </div>
         </div>
 

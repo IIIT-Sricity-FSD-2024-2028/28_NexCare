@@ -8,9 +8,24 @@
     <link rel="stylesheet" href="logo.css">
 
     <script src="../shared/db.js"></script>
+    <script src="../shared/session.js"></script>
     <script defer src="logo.js"></script>
 </head>
 <body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const role = sessionStorage.getItem('nexcare_current_role');
+        const email = sessionStorage.getItem('nexcare_user_email');
+        if (!role || role !== 'administrative_staff' || email !== 'admin@nexcare.com') {
+            window.location.href = '../auth/login.html';
+        }
+        if (window.NexCareDB && document.getElementById('displayUserName')) {
+            const user = window.NexCareDB.getActiveUser(email);
+            if (user) document.getElementById('displayUserName').textContent = user.name;
+        }
+    });
+</script>
 
 <div class="layout">
 
@@ -126,7 +141,7 @@
         </ul>
 
         <div class="logout">
-            <button type="button" class="logout-btn">
+            <button type="button" class="logout-btn" onclick="logoutUser()">
                 <svg class="logout-icon" viewBox="0 0 24 24">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
                           stroke="currentColor" stroke-width="1.8"
@@ -146,8 +161,9 @@
     <!-- MAIN -->
     <div class="main">
 
+        <!-- TOPBAR -->
         <div class="topbar">
-            <div class="user">Admin User</div>
+            <div class="user" id="displayUserName">Admin</div>
         </div>
 
         <!-- HEADER -->

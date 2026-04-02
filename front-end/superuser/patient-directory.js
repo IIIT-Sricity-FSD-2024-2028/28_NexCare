@@ -25,7 +25,23 @@ function fetchPatients() {
 function deletePatient(id) {
     if (confirm("WARNING: Are you sure you want to permanently delete this patient from the NexCare records?")) {
         if (window.NexCareDB) {
+            const patient = window.NexCareDB.getTable('patients').find(p => p.id === id);
+            const patientName = patient ? patient.fullName : id;
+            
+            // 1. Delete from patients table
             window.NexCareDB.deleteRow('patients', id);
+            
+            // 2. Cascade Delete: Find and delete corresponding user account (FR-17)
+            const users = window.NexCareDB.getTable('users');
+            const user = users.find(u => u.patientId === id);
+            if (user) {
+                window.NexCareDB.deleteRow('users', user.id);
+            }
+            
+            // 3. Log the activity
+            if (window.NexCareStore) {
+                window.NexCareStore.logActivity('Delete', 'Patient Directory', `Full deletion of patient: ${patientName} (ID: ${id})`);
+            }
         }
         fetchPatients();
     }

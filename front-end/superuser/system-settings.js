@@ -1,25 +1,18 @@
 /* /front-end/superuser/system-settings.js */
 
-// Mock Default Settings
-const DEFAULT_SETTINGS = {
-    hospitalName: "NexCare General Hospital",
-    supportEmail: "support@nexcare.com",
-    emergencyPhone: "911",
-    enableRegistration: true,
-    maintenanceMode: false
-};
+/* /front-end/superuser/system-settings.js */
 
-// 1. Read: Load data onto the screen from Local Storage when loaded
+// 1. Read: Load data onto the screen from NexCareDB
 document.addEventListener('DOMContentLoaded', () => {
-    let settings = localStorage.getItem('nexcare_system_settings');
-    
-    // Fallback to default if no settings exist yet
-    if (settings) {
-        settings = JSON.parse(settings);
-    } else {
-        settings = DEFAULT_SETTINGS;
-        localStorage.setItem('nexcare_system_settings', JSON.stringify(settings));
-    }
+    if (!window.NexCareDB) return;
+
+    const settings = window.NexCareDB.read().settings || {
+        hospitalName: "NexCare General Hospital",
+        supportEmail: "support@nexcare.com",
+        emergencyPhone: "911",
+        enableRegistration: true,
+        maintenanceMode: false
+    };
 
     // Populate DOM inputs with the exact data
     document.getElementById('hospitalName').value = settings.hospitalName;
@@ -33,23 +26,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 2. Update Document Function Without Reloading
 document.getElementById('settingsForm').addEventListener('submit', function(e) {
-    e.preventDefault(); // Stop page from refreshing dynamically
+    e.preventDefault(); 
 
     // Gather inputs
     const hName = document.getElementById('hospitalName').value.trim();
     const sEmail = document.getElementById('supportEmail').value.trim();
     const ePhone = document.getElementById('emergencyPhone').value.trim();
     
-    // Quick strictly JS validation matching Review 3 rules
-    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+    // Fix Regex literal correctly
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(sEmail)) {
-        alert("Please enter a strictly valid email for Support Contact.");
-        document.getElementById('supportEmail').style.borderColor = 'var(--danger)';
+        alert("Please enter a valid email for Support Contact.");
+        document.getElementById('supportEmail').style.borderColor = '#B91C1C';
         return;
     }
     
-    // Set validation boundary back
-    document.getElementById('supportEmail').style.borderColor = 'var(--border-color)';
+    // Reset styling
+    document.getElementById('supportEmail').style.borderColor = '#E5E7EB';
 
     // Build the updated object payload
     const updatedSettings = {
@@ -60,10 +53,14 @@ document.getElementById('settingsForm').addEventListener('submit', function(e) {
         maintenanceMode: document.getElementById('toggleMaintenance').checked
     };
 
-    // Commit to JSON Local Storage 'Database'
-    localStorage.setItem('nexcare_system_settings', JSON.stringify(updatedSettings));
+    // Commit to NexCareDB
+    if (window.NexCareDB) {
+        const db = window.NexCareDB.read();
+        db.settings = updatedSettings;
+        window.NexCareDB.write(db);
+    }
 
-    // Show visual confirmation without reload
+    // Show visual confirmation
     const banner = document.getElementById('saveBanner');
     banner.classList.add('show');
     

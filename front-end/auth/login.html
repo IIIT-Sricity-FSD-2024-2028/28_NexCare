@@ -86,14 +86,23 @@
 
             // Use the shared mock Database to authenticate
             if (window.NexCareDB) {
-                const userMatch = window.NexCareDB.authenticate(emailInput, passwordInput, selectedRole);
-                if (userMatch) {
-                    sessionStorage.setItem("nexcare_user_email", userMatch.email);
+                const users = window.NexCareDB.getTable('users');
+                const emailMatch = users.find(u => u.email === emailInput);
+                
+                if (!emailMatch) {
+                    alert("Authentication Failed: Email address not found.");
+                } else if (emailMatch.password !== passwordInput) {
+                    alert("Authentication Failed: Incorrect password.");
+                } else if (emailMatch.role !== selectedRole) {
+                    alert(`Access Denied: User exists but is not registered as '${selectedRole}'. (\u2714 Registered as: ${emailMatch.role})`);
+                } else {
+                    sessionStorage.setItem("nexcare_user_email", emailMatch.email);
                     loginUser(selectedRole); 
                     return;
                 }
+            } else {
+                alert("Critical Error: Database system not initialized.");
             }
-            alert("Invalid Email, Password, or Role selection! Please try again.");
         }
     </script>
     <script src="../logo.js"></script>
