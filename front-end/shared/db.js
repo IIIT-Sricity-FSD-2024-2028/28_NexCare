@@ -475,5 +475,22 @@ window.NexCareStore = {
     
     // System Activity
     listActivity: () => NexCareDB.getTable('systemActivity'),
-    logActivity: (action, module, details) => NexCareDB.logActivity(action, module, details)
+    logActivity: (action, module, details) => NexCareDB.logActivity(action, module, details),
+
+    // Password Security
+    getPassword: () => {
+        const email = sessionStorage.getItem("nexcare_user_email");
+        const user = NexCareDB.getActiveUser(email);
+        return user ? user.password : null;
+    },
+    updatePassword: (newPw) => {
+        const email = sessionStorage.getItem("nexcare_user_email");
+        const user = NexCareDB.getActiveUser(email);
+        if (user) {
+            NexCareDB.updateRow('users', user.id, { password: newPw });
+            NexCareDB.logActivity('Update', 'Security', `User successfully updated their password.`);
+            return true;
+        }
+        return false;
+    }
 };

@@ -130,14 +130,31 @@
                 <p><strong>Time:</strong> <span id="modalTime"></span></p>
             </div>
             <div class="modal-actions">
-                <button class="btn-primary" onclick="window.location.href='index.html'">Go to Dashboard</button>
+                <button class="btn-primary" onclick="window.location.href='../dashboard.html'">Go to Dashboard</button>
                 <button class="btn-secondary" onclick="window.location.href='appointments.html'">View Appointments</button>
             </div>
         </div>
     </div>
 
+    <script src="../../shared/db.js"></script>
     <script src="app.js"></script>
     <script>
+        // Pre-fill patient info from Store
+        document.addEventListener('DOMContentLoaded', function() {
+            const store = window.NexCareStore;
+            if (store) {
+                const p = store.getActivePatient();
+                if (p) {
+                    const nameEl = document.getElementById('fullName');
+                    const phoneEl = document.getElementById('phone');
+                    const emailEl = document.getElementById('email');
+                    if (nameEl) nameEl.value = p.fullName || '';
+                    if (phoneEl) phoneEl.value = p.phone || '';
+                    if (emailEl) emailEl.value = p.email || '';
+                }
+            }
+        });
+
         // Load saved data
         const savedDepartment = localStorage.getItem('selectedDepartment') || 'Cardiology';
         const savedDate = localStorage.getItem('selectedDate') || 'March 09, 2026';

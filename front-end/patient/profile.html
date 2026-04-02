@@ -138,7 +138,7 @@
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <path d="M18.333 14.583v2.5a1.667 1.667 0 01-1.817 1.667 18.742 18.742 0 01-8.179-2.908 17.659 17.659 0 01-5.691-5.692A18.742 18.742 0 01.333 1.942 1.667 1.667 0 012 .125h2.5a1.667 1.667 0 011.667 1.434c.084.812.238 1.613.458 2.391a1.667 1.667 0 01-.375 1.759L5.208 6.75a13.333 13.333 0 005.691 5.691l1.042-1.042a1.667 1.667 0 011.759-.375c.778.22 1.579.374 2.391.458a1.667 1.667 0 011.434 1.601z" stroke="#99A1AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <input type="tel" id="phoneNumber" name="phoneNumber" value="+1 (555) 123-4567" required disabled>
+                            <input type="tel" id="phoneNumber" name="phoneNumber" value="+1 (555) 123-4567" required disabled maxlength="10" pattern="\d{10}">
                         </div>
                     </div>
 
@@ -210,15 +210,15 @@
                 <div class="account-details-grid">
                     <div class="account-detail-row">
                         <span class="detail-label">Patient ID:</span>
-                        <span class="detail-value">PAT-2026-001234</span>
+                        <span class="detail-value" id="profilePatientId">PAT-2026-001234</span>
                     </div>
                     <div class="account-detail-row">
                         <span class="detail-label">Member Since:</span>
-                        <span class="detail-value">January 2024</span>
+                        <span class="detail-value" id="profileMemberSince">January 2024</span>
                     </div>
                     <div class="account-detail-row">
                         <span class="detail-label">Account Status:</span>
-                        <span class="status-badge active">Active</span>
+                        <span class="status-badge" id="profileAccountStatus">Active</span>
                     </div>
                 </div>
             </div>
@@ -227,6 +227,7 @@
 
     <script src="../logo.js"></script>
     <script src="../shared/db.js"></script>
+    <script src="../shared/ui-components.js"></script>
     <script src="profile.js"></script>
 </body>
 </html>

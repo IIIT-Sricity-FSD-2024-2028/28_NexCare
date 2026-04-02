@@ -387,6 +387,9 @@ function renderTimeSlots() {
 }
 
 function renderStep3() {
+    const store = getStore();
+    const p = store?.getActivePatient() || {};
+
     return `
         <div class="booking-header">
             <h1>Book an Appointment</h1>
@@ -406,7 +409,7 @@ function renderStep3() {
                         </svg>
                         Full Name *
                     </label>
-                    <input type="text" name="fullName" placeholder="Enter your full name" required>
+                    <input type="text" name="fullName" value="${p.fullName || ''}" placeholder="Enter your full name" required>
                 </div>
                 
                 <div class="form-field">
@@ -416,7 +419,7 @@ function renderStep3() {
                         </svg>
                         Phone Number *
                     </label>
-                    <input type="tel" name="phone" placeholder="Enter your phone number" required>
+                    <input type="tel" name="phone" value="${p.phone || ''}" placeholder="Enter your phone number" required>
                 </div>
                 
                 <div class="form-field">
@@ -427,7 +430,7 @@ function renderStep3() {
                         </svg>
                         Email Address *
                     </label>
-                    <input type="email" name="email" placeholder="Enter your email address" required>
+                    <input type="email" name="email" value="${p.email || ''}" placeholder="Enter your email address" required>
                 </div>
                 
                 <div class="form-field">
@@ -536,7 +539,7 @@ function renderConfirmation() {
                 <p>Please arrive 15 minutes before your appointment time. A confirmation email has been sent to ${bookingData.patientInfo.email || 'your email'}.</p>
             </div>
             
-            <button class="btn-book-another" onclick="resetBooking()">Book Another Appointment</button>
+            <button class="btn-primary" onclick="window.location.href='../dashboard.html'" style="width: 100%; margin-top: 15px;">Go to Dashboard</button>
         </div>
     `;
 }
