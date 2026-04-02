@@ -88,7 +88,34 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="main-content billing-page">
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="search-bar">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="9" cy="9" r="6" stroke="#6A7282" stroke-width="2"/>
+                    <path d="M14 14l4 4" stroke="#6A7282" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input type="text" placeholder="Search bills, records, history...">
+            </div>
+            <div class="header-actions">
+                <button class="notification-btn" onclick="window.showNotifications()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.36 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.63 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z" fill="#6A7282"/>
+                    </svg>
+                    <span class="notification-badge"></span>
+                </button>
+                <button class="profile-btn">
+                    <div class="profile-avatar" id="header-avatar">UA</div>
+                    <div class="profile-info">
+                        <p class="profile-name" id="header-name">Patient User</p>
+                        <p class="profile-id" id="header-id">PAT-0000</p>
+                    </div>
+                </button>
+            </div>
+        </header>
+
+        <div class="billing-page">
         <div class="billing-header">
             <div class="billing-title">
                 <h1>Billing & Payment</h1>
@@ -347,56 +374,27 @@
                                         <th>Amount</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Consultation Fee - Dr. Priya Sharma</td>
-                                        <td><span class="dept-badge dept-cardiology">Cardiology</span></td>
-                                        <td>05-03-2026</td>
-                                        <td>₹1200.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Blood Test - Complete Blood Count</td>
-                                        <td><span class="dept-badge dept-laboratory">Laboratory</span></td>
-                                        <td>05-03-2026</td>
-                                        <td>₹450.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>ECG Test</td>
-                                        <td><span class="dept-badge dept-cardiology">Cardiology</span></td>
-                                        <td>05-03-2026</td>
-                                        <td>₹600.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>X-Ray - Chest</td>
-                                        <td><span class="dept-badge dept-radiology">Radiology</span></td>
-                                        <td>06-03-2026</td>
-                                        <td>₹800.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Medications - Prescribed</td>
-                                        <td><span class="dept-badge dept-pharmacy">Pharmacy</span></td>
-                                        <td>06-03-2026</td>
-                                        <td>₹650.00</td>
-                                    </tr>
-                                </tbody>
+                            <tbody id="modalBillItemsBody">
+                                <!-- Dynamic items -->
+                            </tbody>
                             </table>
 
                             <div class="modal-summary">
                                 <div class="summary-row">
                                     <span>Subtotal</span>
-                                    <span>₹3700.00</span>
+                                    <span id="modalSubtotal">₹0.00</span>
                                 </div>
                                 <div class="summary-row">
                                     <span>CGST (9%)</span>
-                                    <span>₹333.00</span>
+                                    <span id="modalCGST">₹0.00</span>
                                 </div>
                                 <div class="summary-row">
                                     <span>SGST (9%)</span>
-                                    <span>₹333.00</span>
+                                    <span id="modalSGST">₹0.00</span>
                                 </div>
                                 <div class="summary-row total">
                                     <span>Total Amount</span>
-                                    <span>₹4366.00</span>
+                                    <span id="modalTotal">₹0.00</span>
                                 </div>
                             </div>
                         </div>
@@ -446,7 +444,7 @@
                                 </div>
 
                                 <div class="amount-charged">
-                                    Amount to be charged: <strong>₹4366.00</strong>
+                                    Amount to be charged: <strong id="modalAmountCharged">₹0.00</strong>
                                 </div>
 
                                 <button type="submit" class="btn-pay-now">Pay Now</button>
@@ -469,6 +467,7 @@
 
     <script src="../logo.js"></script>
     <script src="../shared/db.js"></script>
+    <script src="../shared/ui-components.js"></script>
     <script src="billing.js"></script>
 </body>
 </html>

@@ -51,9 +51,19 @@ function renderBillFromStore() {
 
     const patient = store.getActivePatient?.() || {};
 
-    // Update Top Branding
+    // Update Top Branding & Header
     const nameDisplay = document.getElementById('activePatientNameDisplay');
+    const headerName = document.getElementById('header-name');
+    const headerId = document.getElementById('header-id');
+    const headerAvatar = document.getElementById('header-avatar');
+
     if (nameDisplay) nameDisplay.textContent = patient.fullName || "Guest";
+    if (headerName) headerName.textContent = patient.fullName || "Guest";
+    if (headerId) headerId.textContent = `Patient ID: ${patient.patientIdDisplay || patient.id || 'N/A'}`;
+    if (headerAvatar && patient.fullName) {
+        const initials = patient.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+        headerAvatar.textContent = initials;
+    }
     
     // If no bill exists
     if (!bill) {
@@ -164,11 +174,21 @@ function renderBillFromStore() {
         modalInfoValues[5].textContent = bill.id;
     }
 
-    const modalTableBody = document.querySelector('.modal-table tbody');
+    // Modal Tables & Summaries
+    const modalTableBody = document.getElementById('modalBillItemsBody');
     if (modalTableBody) modalTableBody.innerHTML = generateItemsHtml(bill.items);
 
-    const modalTotal = document.querySelector('.amount-charged strong');
-    if (modalTotal) modalTotal.textContent = formatMoneyINR(totals.total);
+    const mSub = document.getElementById('modalSubtotal');
+    const mCGST = document.getElementById('modalCGST');
+    const mSGST = document.getElementById('modalSGST');
+    const mTotal = document.getElementById('modalTotal');
+    const mCharged = document.getElementById('modalAmountCharged');
+
+    if (mSub) mSub.textContent = formatMoneyINR(totals.subtotal);
+    if (mCGST) mCGST.textContent = formatMoneyINR(totals.cgst);
+    if (mSGST) mSGST.textContent = formatMoneyINR(totals.sgst);
+    if (mTotal) mTotal.textContent = formatMoneyINR(totals.total);
+    if (mCharged) mCharged.textContent = formatMoneyINR(totals.total);
 }
 
 function renderPendingBillsList(pendingBills) {
@@ -283,6 +303,12 @@ document.addEventListener('DOMContentLoaded', function() {
         expiryInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length >= 2) {
+                let month = parseInt(value.substring(0, 2));
+                if (month > 12) month = 12;
+                if (value.length >= 2 && month === 0) month = 1;
+                
+                let monthStr = month.toString().padStart(2, '0');
+                value = monthStr + value.substring(2, 4);
                 value = value.substring(0, 2) + '/' + value.substring(2, 4);
             }
             e.target.value = value;
@@ -332,6 +358,31 @@ function handlePayment(e) {
         return;
     }
     
+    // Validate expiry date values
+    if (expiryDate.length < 5 || !expiryDate.includes('/')) {
+        alert('Please enter a valid expiry date (MM/YY)');
+        return;
+    }
+    const [expMonth, expYear] = expiryDate.split('/').map(v => parseInt(v));
+    const now = new Date();
+    const currentYear = parseInt(now.getFullYear().toString().slice(-2));
+    const currentMonth = now.getMonth() + 1; // getMonth() is 0-indexed
+
+    if (isNaN(expMonth) || expMonth > 12 || expMonth < 1) {
+        alert('Please enter a valid expiry month (01-12)');
+        return;
+    }
+    
+    if (isNaN(expYear) || expYear < currentYear) {
+        alert(`Please enter a valid expiry year (${currentYear} or later)`);
+        return;
+    }
+
+    if (expYear === currentYear && expMonth < currentMonth) {
+        alert('This card has already expired');
+        return;
+    }
+    
     // Validate CVV
     if (cvv.length < 3) {
         alert('Please enter a valid CVV');
@@ -350,26 +401,45 @@ function handlePayment(e) {
 
         // Persist paid status (Update)
         const store = window.NexCareStore;
+        let paidAmountText = '₹0.00';
+        const transactionId = 'TXN' + Date.now().toString().slice(-10);
+
         if (store) {
             const bills = store.listBills();
             const selectedId = getSelectedBillId();
             const bill = selectedId ? bills.find(b => String(b.id) === String(selectedId)) : bills[0];
             if (bill) {
                 const totals = computeBillTotal(bill);
+                paidAmountText = formatMoneyINR(totals.total);
                 store.markBillPaid(bill.id, {
                     method: String(formData.get('paymentMethod') || 'CARD').toUpperCase(),
                     amount: totals.total,
-                    transactionId: 'TXN' + Date.now().toString().slice(-10)
+                    transactionId: transactionId
                 });
             }
         }
         
-        // Show success message
-        alert('✓ Payment Successful!\n\n' +
-              'Amount: ₹4366.00\n' +
-              'Transaction ID: TXN' + Date.now().toString().slice(-10) + '\n' +
-              'Payment Method: ' + formData.get('paymentMethod').toUpperCase() + '\n\n' +
-              'A confirmation has been sent to your email.');
+        // Show success message (Premium Modal)
+        const detailsHtml = `
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <span style="font-weight: 500; font-size: 13px;">Amount Paid:</span>
+                <span style="text-align: right; color: #16A34A; font-weight: 600;">${paidAmountText}</span>
+                <span style="font-weight: 500; font-size: 13px;">Transaction ID:</span>
+                <span style="text-align: right; font-family: monospace; font-size: 12px;">${transactionId}</span>
+                <span style="font-weight: 500; font-size: 13px;">Method:</span>
+                <span style="text-align: right; font-size: 13px;">${formData.get('paymentMethod').toUpperCase()}</span>
+            </div>
+        `;
+        
+        NexCareUI.showSuccess({
+            title: 'Payment Successful!',
+            message: 'Your payment has been processed and a confirmation email has been sent.',
+            details: detailsHtml,
+            onClose: () => {
+                // Receipt download prompt removed as requested
+                renderBillFromStore();
+            }
+        });
         
         // Reset button
         submitBtn.textContent = originalText;

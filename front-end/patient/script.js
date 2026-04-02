@@ -7,16 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
         element.addEventListener('mouseleave', hideTooltip);
     });
     
-    // Handle notification badge
-    const notificationBtn = document.querySelector('.notification-btn');
-    if (notificationBtn) {
-        notificationBtn.addEventListener('click', function() {
-            alert('You have 3 new notifications:\n\n' +
-                  '1. Appointment reminder for tomorrow at 10:00 AM\n' +
-                  '2. Lab results available for review\n' +
-                  '3. Bill payment pending for INV-001');
-        });
-    }
+    // Notification handled by window.showNotifications() via onclick
     
     // Handle profile dropdown
     const profileBtn = document.querySelector('.profile-btn');
