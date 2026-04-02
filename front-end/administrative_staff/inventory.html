@@ -171,6 +171,9 @@
             <div>
                 <h2>Inventory Management</h2>
             </div>
+            <div>
+                <button class="btn" type="button" onclick="openCreateItemModal()">Add Item</button>
+            </div>
         </div>
 
         <!-- STATS -->
@@ -214,9 +217,9 @@
 <!-- MODAL -->
 <div id="modal" class="modal">
     <div class="card modal-card">
-        <h3>Edit Item</h3>
+        <h3 id="modalTitle">Edit Item</h3>
 
-        <input id="itemName" class="input" disabled>
+        <input id="itemName" class="input" placeholder="Item name">
         <input id="quantity" class="input" placeholder="Quantity">
 
         <div class="modal-actions">

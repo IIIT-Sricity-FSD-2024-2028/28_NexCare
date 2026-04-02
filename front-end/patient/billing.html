@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Billing & Payments - NexCare Patient Portal</title>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        // Early auth guard: block direct portal access without sign-in
+        (function () {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            const role = sessionStorage.getItem('nexcare_current_role');
+            if (isLoggedIn !== 'true' || role !== 'patient') {
+                window.location.replace('../auth/login.html');
+            }
+        })();
+    </script>
 </head>
 <body>
     <!-- Sidebar -->
@@ -68,7 +78,7 @@
                 </svg>
                 <span>Profile</span>
             </a>
-            <a href="#" onclick="sessionStorage.clear(); localStorage.removeItem('nexcare_currentUser'); window.location.href='../auth/login.html'; return false;" class="nav-item nav-logout">
+            <a href="#" onclick="sessionStorage.clear(); localStorage.removeItem('nexcare_currentUser'); window.location.href='../landing/landing.html'; return false;" class="nav-item nav-logout">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                     <path d="M13 15l5-5-5-5M18 10H8M12 5v-.5a2 2 0 00-2-2H4a2 2 0 00-2 2v11a2 2 0 002 2h6a2 2 0 002-2V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -88,6 +98,30 @@
 
         <div class="billing-content">
             <div class="billing-left">
+                <!-- Pending Bills List (All Pending) -->
+                <div class="billing-card" id="pendingBillsCard">
+                    <h2 style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                        <span>Pending Bills</span>
+                        <span class="badge badge-pending" id="pendingBillsCount">0</span>
+                    </h2>
+                    <div class="billing-table-container" style="margin-top: 12px;">
+                        <table class="billing-table-full">
+                            <thead>
+                                <tr>
+                                    <th>Bill ID</th>
+                                    <th>Visit Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th style="text-align:right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingBillsBody">
+                                <tr><td colspan="5" style="text-align:center; padding:16px; color:#6A7282;">Loading…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Pending Bill Alert -->
                 <div class="pending-bill-alert" id="pendingBillAlert">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -187,6 +221,31 @@
                             <span>Total Amount</span>
                             <span class="amount">₹3422.00</span>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Payment History (Paid Bills) -->
+                <div class="billing-card" id="paymentHistoryCard">
+                    <h2 style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                        <span>Payment History</span>
+                        <span class="badge badge-paid" id="paidBillsCount">0</span>
+                    </h2>
+                    <p class="card-subtitle">Completed payments and settled invoices</p>
+                    <div class="billing-table-container" style="margin-top: 12px;">
+                        <table class="billing-table-full">
+                            <thead>
+                                <tr>
+                                    <th>Bill ID</th>
+                                    <th>Visit Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th style="text-align:right;">Receipt</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paidBillsBody">
+                                <tr><td colspan="5" style="text-align:center; padding:16px; color:#6A7282;">Loading…</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

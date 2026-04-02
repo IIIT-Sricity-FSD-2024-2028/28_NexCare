@@ -34,6 +34,10 @@ function handleAmbulanceRequest(e) {
         showNexCareModal('Invalid Phone Number', 'Please enter a valid 10-digit phone number (e.g., 9876543210).', { isError: true });
         return;
     }
+    if (/^0+$/.test(contact) || /^(\d)\1+$/.test(contact)) {
+        showNexCareModal('Invalid Phone Number', 'Please enter a valid phone number (cannot be all the same digit).', { isError: true });
+        return;
+    }
     
     // Confirm request
     showNexCareModal('Confirm Emergency Request', 

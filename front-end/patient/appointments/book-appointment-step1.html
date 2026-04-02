@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Appointment - Step 1 - NexCare</title>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        // Early auth guard: block direct portal access without sign-in
+        (function () {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            const role = sessionStorage.getItem('nexcare_current_role');
+            if (isLoggedIn !== 'true' || role !== 'patient') {
+                window.location.replace('../../auth/login.html');
+            }
+        })();
+    </script>
 </head>
 <body class="booking-page">
     <div class="booking-container">

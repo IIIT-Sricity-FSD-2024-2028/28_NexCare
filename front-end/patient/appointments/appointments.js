@@ -605,6 +605,10 @@ function confirmBooking() {
         alert('Please enter a valid 10-digit phone number containing only numbers (e.g., 9876543210).');
         return;
     }
+    if (/^0+$/.test(bookingData.patientInfo.phone) || /^(\d)\1+$/.test(bookingData.patientInfo.phone)) {
+        alert('Please enter a valid phone number (cannot be all the same digit).');
+        return;
+    }
 
     // 3. Strict Email Validation (Must have @ and a proper domain structure)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadBills();
     loadAmbulance();
     loadRecords();
+    setupDashboardSearch();
 });
 
 window.showSystemModal = function(title, message, confirmCallback) {
@@ -40,13 +41,19 @@ window.closeSystemModal = function() {
 };
 
 window.cancelAppointment = function(id) {
-    window.NexCareStore.updateAppointment(id, {status: 'Cancelled'});
-    window.location.reload();
+    if (!window.NexCareStore) return;
+    window.NexCareStore.updateAppointment(id, { status: 'Cancelled' });
+    // Dynamic UI update (no reload)
+    loadAppointments();
+    loadRecords();
 };
 
 window.payBill = function(id, subtotal) {
-    window.NexCareStore.markBillPaid(id, {amount: subtotal});
-    window.location.reload();
+    // Requirement: Pay Now on dashboard should take user to Billing & Payments
+    try {
+        sessionStorage.setItem('nexcare_selected_bill_id', String(id));
+    } catch (e) {}
+    window.location.href = 'billing.html';
 };
 
 window.showNotifications = function() {
@@ -246,4 +253,44 @@ function loadRecords() {
             });
         }
     }
+}
+
+function setupDashboardSearch() {
+    const input = document.querySelector('.search-bar input');
+    if (!input) return;
+
+    const normalize = (s) => String(s || '').toLowerCase().trim();
+
+    function applySearch() {
+        const q = normalize(input.value);
+
+        // Appointments table rows
+        const apptRows = document.querySelectorAll('#appointmentsTable tbody tr');
+        apptRows.forEach(row => {
+            const text = normalize(row.textContent);
+            row.style.display = !q || text.includes(q) ? '' : 'none';
+        });
+
+        // Billing rows
+        const billRows = document.querySelectorAll('#billingTable tbody tr');
+        billRows.forEach(row => {
+            const text = normalize(row.textContent);
+            row.style.display = !q || text.includes(q) ? '' : 'none';
+        });
+
+        // Records cards
+        const recordCards = document.querySelectorAll('#recordsGrid .record-card');
+        recordCards.forEach(card => {
+            const text = normalize(card.textContent);
+            card.style.display = !q || text.includes(q) ? '' : 'none';
+        });
+    }
+
+    input.addEventListener('input', applySearch);
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            input.value = '';
+            applySearch();
+        }
+    });
 }

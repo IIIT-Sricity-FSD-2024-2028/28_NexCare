@@ -1,6 +1,7 @@
 // Feedback & Complaints Page Functionality
 
 let selectedRating = 0;
+let editingFeedbackId = null;
 
 function getStore() {
     return window.NexCareStore;
@@ -50,9 +51,10 @@ function renderSubmissions() {
                 </div>
             </div>
             <div style="margin-top:12px; color:#4A5565; font-size:14px; line-height:1.6;">
-                ${escapeHtml(it.description)}
+                ${escapeHtml(it.summary ?? it.description ?? '')}
             </div>
             <div style="margin-top:12px; display:flex; gap:8px;">
+                <button type="button" class="btn-outline-sm" data-action="edit">Edit</button>
                 <button type="button" class="btn-outline-sm" data-action="delete">Delete</button>
                 <button type="button" class="btn-primary-sm" data-action="resolve">Mark Resolved</button>
             </div>
@@ -119,6 +121,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
+            if (action === 'edit') {
+                const current = store.listFeedback().find(f => String(f.id) === String(id));
+                if (!current) return;
+
+                editingFeedbackId = current.id;
+
+                // Switch to submit tab and prefill
+                showFeedbackTab('submit');
+
+                const categoryEl = document.getElementById('category');
+                const descEl = document.getElementById('description');
+                const ratingEl = document.getElementById('rating');
+                const submitBtn = document.querySelector('.btn-submit-feedback');
+
+                if (categoryEl) categoryEl.value = current.category || '';
+                if (descEl) {
+                    descEl.value = current.summary ?? current.description ?? '';
+                    const charCountSpan = document.getElementById('charCount');
+                    if (charCountSpan) charCountSpan.textContent = String(descEl.value.length);
+                }
+
+                selectedRating = Number(current.rating || 0);
+                if (ratingEl) ratingEl.value = selectedRating ? String(selectedRating) : '';
+                updateStarRating(selectedRating);
+
+                if (submitBtn) submitBtn.textContent = 'Update';
+                return;
+            }
+
             if (action === 'resolve') {
                 store.updateFeedback(id, { status: 'Resolved' });
                 renderSubmissions();
@@ -175,20 +206,35 @@ function handleFeedbackSubmit(e) {
     if (!rating || selectedRating === 0) { alert('Please rate your experience'); return; }
     
     const store = getStore();
-    const created = store?.createFeedback({
-        category,
-        description: description.trim(),
-        rating: selectedRating,
-        status: 'Open'
-    });
-    const refId = created?.id || ('REF-2026-' + Math.floor(Math.random() * 90000 + 10000));
-    
-    alert(`✓ Feedback Submitted!\nReference ID: ${refId}`);
+    let refId = null;
+
+    if (editingFeedbackId) {
+        store?.updateFeedback(editingFeedbackId, {
+            category,
+            summary: description.trim(),
+            rating: selectedRating,
+            status: 'Open'
+        });
+        refId = editingFeedbackId;
+        alert(`✓ Feedback Updated!\nReference ID: ${refId}`);
+    } else {
+        const created = store?.createFeedback({
+            category,
+            description: description.trim(),
+            rating: selectedRating,
+            status: 'Open'
+        });
+        refId = created?.id || ('REF-2026-' + Math.floor(Math.random() * 90000 + 10000));
+        alert(`✓ Feedback Submitted!\nReference ID: ${refId}`);
+    }
     
     e.target.reset();
     selectedRating = 0;
     updateStarRating(0);
     document.getElementById('charCount').textContent = '0';
+    editingFeedbackId = null;
+    const submitBtn = document.querySelector('.btn-submit-feedback');
+    if (submitBtn) submitBtn.textContent = 'Submit';
     
     renderSubmissions();
     setTimeout(() => { showFeedbackTab('submissions'); }, 500);

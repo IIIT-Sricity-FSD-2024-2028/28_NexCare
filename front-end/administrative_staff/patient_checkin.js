@@ -57,6 +57,20 @@ function handleCheckin() {
         alert('Please fill in both Patient ID and Visit Purpose to check them in.');
         return;
     }
+
+    // Validation: prevent spaces-only, overly long, unsafe input
+    if (patientId.length < 2 || patientId.length > 32) {
+        alert('Patient ID must be between 2 and 32 characters.');
+        return;
+    }
+    if (!/^[A-Za-z0-9-]+$/.test(patientId)) {
+        alert('Patient ID can only contain letters, numbers, and hyphens (e.g., P001 or PAT-2026-001).');
+        return;
+    }
+    if (purpose.length < 3 || purpose.length > 80) {
+        alert('Visit purpose must be between 3 and 80 characters.');
+        return;
+    }
     
     if (!window.NexCareDB) return;
 
@@ -69,6 +83,16 @@ function handleCheckin() {
     );
 
     const displayName = foundPatient ? foundPatient.fullName : patientId;
+
+    // Edge case: prevent duplicate active check-in for same patient
+    const existing = window.NexCareDB.getTable('checkins').find(c =>
+        String(c.patientId || '').toLowerCase() === String(foundPatient ? foundPatient.id : patientId).toLowerCase() &&
+        String(c.status || '').toLowerCase() !== 'completed'
+    );
+    if (existing) {
+        alert(`This patient is already checked in (Check-in ID: ${existing.id}).`);
+        return;
+    }
 
     const newCheckin = {
         id: "C" + Math.floor(Math.random() * 9000 + 1000),

@@ -12,12 +12,43 @@ function computeBillTotal(bill) {
     return { subtotal, cgst, sgst, total: subtotal + cgst + sgst };
 }
 
+function getSelectedBillId() {
+    try {
+        const id = sessionStorage.getItem('nexcare_selected_bill_id');
+        return id ? String(id) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function setSelectedBillId(id) {
+    try {
+        if (id) sessionStorage.setItem('nexcare_selected_bill_id', String(id));
+        else sessionStorage.removeItem('nexcare_selected_bill_id');
+    } catch (e) {}
+}
+
+function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
 function renderBillFromStore() {
     const store = window.NexCareStore;
     if (!store) return;
 
     const bills = store.listBills();
-    const bill = bills[0]; // Active/Latest bill for this specific patient
+    const pendingBills = bills.filter(b => String(b.status).toLowerCase() === 'pending');
+    const paidBills = bills.filter(b => String(b.status).toLowerCase() === 'paid');
+
+    // Render lists (all pending + payment history)
+    renderPendingBillsList(pendingBills);
+    renderPaidBillsHistory(paidBills);
+
+    // Pick active bill for the details panel
+    const selectedId = getSelectedBillId();
+    let bill = selectedId ? bills.find(b => String(b.id) === String(selectedId)) : null;
+    if (!bill) bill = pendingBills[0] || bills[0] || null;
+
     const patient = store.getActivePatient?.() || {};
 
     // Update Top Branding
@@ -26,17 +57,16 @@ function renderBillFromStore() {
     
     // If no bill exists
     if (!bill) {
-        const left = document.querySelector('.billing-left');
-        if (left) left.innerHTML = `
-            <div class="billing-card" style="text-align: center; padding: 60px 40px; color: #6A7282;">
-                <div style="font-size: 48px; margin-bottom: 20px;">📄</div>
-                <h2 style="color: #111827; margin-bottom: 8px;">No Pending Bills</h2>
-                <p>You don't have any unpaid invoices at the moment. All your previous medical expenses are settled.</p>
-            </div>`;
         const right = document.querySelector('.billing-right');
         if(right) right.style.display = 'none';
+        const pendingAlert = document.getElementById('pendingBillAlert');
+        if (pendingAlert) pendingAlert.style.display = 'none';
         return;
     }
+    const right = document.querySelector('.billing-right');
+    if(right) right.style.display = 'block';
+    const pendingAlert = document.getElementById('pendingBillAlert');
+    if (pendingAlert) pendingAlert.style.display = '';
 
     const totals = computeBillTotal(bill);
 
@@ -58,7 +88,6 @@ function renderBillFromStore() {
     }
 
     // Pending alert
-    const pendingAlert = document.getElementById('pendingBillAlert');
     if (pendingAlert) {
         const isPaid = bill.status === 'Paid';
         pendingAlert.style.borderLeft = isPaid ? '4px solid #00A63E' : '4px solid #F59E0B';
@@ -68,7 +97,7 @@ function renderBillFromStore() {
         const p = document.getElementById('pendingBillText');
         const badge = document.getElementById('pendingBillBadge');
         
-        if (h3) h3.textContent = isPaid ? 'All Bills Settled' : '1 Pending Invoice';
+        if (h3) h3.textContent = isPaid ? 'Paid Invoice' : `${pendingBills.length || 1} Pending Invoice${(pendingBills.length || 1) > 1 ? 's' : ''}`;
         if (p) p.textContent = isPaid ? 'Thank you for your timely payment.' : `Amount ${formatMoneyINR(totals.total)} is due by ${bill.dueDate}`;
         if (badge) {
             badge.textContent = bill.status;
@@ -140,6 +169,85 @@ function renderBillFromStore() {
 
     const modalTotal = document.querySelector('.amount-charged strong');
     if (modalTotal) modalTotal.textContent = formatMoneyINR(totals.total);
+}
+
+function renderPendingBillsList(pendingBills) {
+    const body = document.getElementById('pendingBillsBody');
+    const count = document.getElementById('pendingBillsCount');
+    if (count) count.textContent = String(pendingBills.length);
+    if (!body) return;
+
+    if (!pendingBills.length) {
+        body.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:16px; color:#6A7282;">No pending bills.</td></tr>`;
+        return;
+    }
+
+    body.innerHTML = pendingBills.map(b => {
+        const totals = computeBillTotal(b);
+        return `
+            <tr data-id="${escapeHtml(b.id)}">
+                <td><strong>${escapeHtml(b.id)}</strong></td>
+                <td>${escapeHtml(b.visitDate || b.dueDate || '')}</td>
+                <td><strong>${escapeHtml(formatMoneyINR(totals.total))}</strong></td>
+                <td><span class="badge badge-pending">Pending</span></td>
+                <td style="text-align:right; display:flex; justify-content:flex-end; gap:8px;">
+                    <button class="btn-view-invoice" type="button" data-action="view">View</button>
+                    <button class="btn-pay" type="button" data-action="pay">Pay Now</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    body.onclick = (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const tr = e.target.closest('tr[data-id]');
+        if (!tr) return;
+        const id = tr.dataset.id;
+        setSelectedBillId(id);
+        renderBillFromStore(); // refresh details
+        if (btn.dataset.action === 'pay') {
+            showPaymentForm();
+        }
+    };
+}
+
+function renderPaidBillsHistory(paidBills) {
+    const body = document.getElementById('paidBillsBody');
+    const count = document.getElementById('paidBillsCount');
+    if (count) count.textContent = String(paidBills.length);
+    if (!body) return;
+
+    if (!paidBills.length) {
+        body.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:16px; color:#6A7282;">No payment history yet.</td></tr>`;
+        return;
+    }
+
+    body.innerHTML = paidBills.map(b => {
+        const totals = computeBillTotal(b);
+        return `
+            <tr data-id="${escapeHtml(b.id)}">
+                <td><strong>${escapeHtml(b.id)}</strong></td>
+                <td>${escapeHtml(b.visitDate || b.dueDate || '')}</td>
+                <td><strong>${escapeHtml(formatMoneyINR(totals.total))}</strong></td>
+                <td><span class="badge badge-paid">Paid</span></td>
+                <td style="text-align:right;">
+                    <button class="btn-view-invoice" type="button" data-action="receipt">View</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    body.onclick = (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const tr = e.target.closest('tr[data-id]');
+        if (!tr) return;
+        const id = tr.dataset.id;
+        setSelectedBillId(id);
+        renderBillFromStore();
+        alert(`Receipt ready for ${id}.`);
+    };
 }
 
 function showPaymentForm() {
@@ -244,7 +352,8 @@ function handlePayment(e) {
         const store = window.NexCareStore;
         if (store) {
             const bills = store.listBills();
-            const bill = bills[0];
+            const selectedId = getSelectedBillId();
+            const bill = selectedId ? bills.find(b => String(b.id) === String(selectedId)) : bills[0];
             if (bill) {
                 const totals = computeBillTotal(bill);
                 store.markBillPaid(bill.id, {

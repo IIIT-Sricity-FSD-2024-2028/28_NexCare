@@ -13,6 +13,10 @@ const NexCareDB = (() => {
             { "id": "U005", "name": "Dr. Sarah Smith", "email": "sarah.smith@nexcare.com", "role": "doctor", "dept": "Cardiology", "status": "Active", "password": "Password123" },
             { "id": "U006", "name": "Dr. Vikram Patel", "email": "vikram.patel@nexcare.com", "role": "doctor", "dept": "Orthopedics", "status": "Active", "password": "Password123" },
             { "id": "U007", "name": "Dr. Anjali Desai", "email": "anjali.desai@nexcare.com", "role": "doctor", "dept": "General Medicine", "status": "On Leave", "password": "Password123" },
+            { "id": "U010", "name": "Dr. Maya Rao", "email": "maya.rao@nexcare.com", "role": "doctor", "dept": "Pediatrics", "status": "Active", "password": "Password123" },
+            { "id": "U011", "name": "Dr. Ethan Brown", "email": "ethan.brown@nexcare.com", "role": "doctor", "dept": "Neurology", "status": "Active", "password": "Password123" },
+            { "id": "U012", "name": "Dr. Aisha Khan", "email": "aisha.khan@nexcare.com", "role": "doctor", "dept": "Dermatology", "status": "Active", "password": "Password123" },
+            { "id": "U013", "name": "Dr. Liam Chen", "email": "liam.chen@nexcare.com", "role": "doctor", "dept": "Emergency", "status": "Active", "password": "Password123" },
             { "id": "U008", "name": "Nurse Emily Davis", "email": "emily.davis@nexcare.com", "role": "nurse", "dept": "ER", "status": "Active", "password": "Password123" },
             { "id": "U009", "name": "Maria Garcia", "email": "maria@example.com", "role": "patient", "status": "Active", "password": "Password123", "patientId": "P002" }
         ],
@@ -36,7 +40,11 @@ const NexCareDB = (() => {
         "appointments": [
             { "id": "APT-001", "patientId": "P001", "patientName": "John Anderson", "department": "Cardiology", "doctor": "Dr. Sarah Smith", "dateLabel": "March 15, 2026", "timeLabel": "10:00 AM", "token": "TKN-1234", "fee": 150, "status": "Confirmed", "reason": "Routine heart checkup", "createdAt": new Date().toISOString() },
             { "id": "APT-002", "patientId": "P002", "patientName": "Maria Garcia", "department": "Orthopedics", "doctor": "Dr. Vikram Patel", "dateLabel": "April 02, 2026", "timeLabel": "02:30 PM", "token": "TKN-5678", "fee": 200, "status": "Pending", "reason": "Severe knee pain - Emergency Consult", "createdAt": new Date().toISOString() },
-            { "id": "APT-003", "patientId": "P001", "patientName": "John Anderson", "department": "General Medicine", "doctor": "Dr. Anjali Desai", "dateLabel": "March 01, 2026", "timeLabel": "11:00 AM", "token": "TKN-9012", "fee": 100, "status": "Completed", "reason": "Annual physical", "createdAt": new Date().toISOString() }
+            { "id": "APT-003", "patientId": "P001", "patientName": "John Anderson", "department": "General Medicine", "doctor": "Dr. Anjali Desai", "dateLabel": "March 01, 2026", "timeLabel": "11:00 AM", "token": "TKN-9012", "fee": 100, "status": "Completed", "reason": "Annual physical", "createdAt": new Date().toISOString() },
+            { "id": "APT-004", "patientId": "P001", "patientName": "John Anderson", "department": "Pediatrics", "doctor": "Dr. Maya Rao", "dateLabel": "April 05, 2026", "timeLabel": "09:30 AM", "token": "TKN-1456", "fee": 120, "status": "Confirmed", "reason": "Child wellness consultation (family)", "createdAt": new Date().toISOString() },
+            { "id": "APT-005", "patientId": "P002", "patientName": "Maria Garcia", "department": "Neurology", "doctor": "Dr. Ethan Brown", "dateLabel": "April 08, 2026", "timeLabel": "01:00 PM", "token": "TKN-2789", "fee": 220, "status": "Pending", "reason": "Recurring headaches - evaluation", "createdAt": new Date().toISOString() },
+            { "id": "APT-006", "patientId": "P001", "patientName": "John Anderson", "department": "Dermatology", "doctor": "Dr. Aisha Khan", "dateLabel": "April 10, 2026", "timeLabel": "04:00 PM", "token": "TKN-3301", "fee": 140, "status": "Confirmed", "reason": "Skin allergy follow-up", "createdAt": new Date().toISOString() },
+            { "id": "APT-007", "patientId": "P002", "patientName": "Maria Garcia", "department": "Emergency", "doctor": "Dr. Liam Chen", "dateLabel": "April 02, 2026", "timeLabel": "06:15 PM", "token": "TKN-7721", "fee": 250, "status": "Confirmed", "reason": "ER triage follow-up", "createdAt": new Date().toISOString() }
         ],
         "systemActivity": [
             { "id": "ACT-001", "date": "31 Mar 2026", "actor": "Super User", "action": "Create", "module": "Users", "details": "New doctor account created for Cardiology department (Dr. Sarah Smith).", "createdAt": new Date().toISOString() },
@@ -319,13 +327,35 @@ window.NexCareStore = {
         return NexCareDB.getTable('patients').find(p => p.id === pId);
     },
     updateActivePatient: (patch) => {
-        NexCareDB.updateRow('patients', NexCareDB.getActivePatientScope(), patch);
+        const patientId = NexCareDB.getActivePatientScope();
+        const existingPatient = NexCareDB.getTable('patients').find(p => p.id === patientId);
+
+        NexCareDB.updateRow('patients', patientId, patch);
+
+        // Keep auth user row in sync so name/email update reflects everywhere
+        const sessionEmail = sessionStorage.getItem("nexcare_user_email");
+        const userRow = sessionEmail ? NexCareDB.getActiveUser(sessionEmail) : null;
+        if (userRow && userRow.patientId === patientId) {
+            const nextName = patch.fullName ?? patch.name ?? userRow.name;
+            const nextEmail = patch.email ?? userRow.email;
+            NexCareDB.updateRow('users', userRow.id, { name: nextName, email: nextEmail });
+
+            // If email changed, keep session in sync
+            if (nextEmail && nextEmail !== sessionEmail) {
+                sessionStorage.setItem("nexcare_user_email", nextEmail);
+                localStorage.setItem("nexcare_currentUser", nextEmail);
+            }
+        }
+
+        // Log to system activity
+        const newName = patch.fullName ?? patch.name ?? existingPatient?.fullName ?? "Patient";
+        NexCareDB.logActivity('Update', 'Profile', `Updated profile details for ${newName} (ID: ${patientId}).`);
     },
     
     // Appointments
     listAppointments: () => NexCareDB.getTable('appointments').filter(a => a.patientId === NexCareDB.getActivePatientScope()),
     createAppointment: (data) => {
-        return NexCareDB.addRow('appointments', {
+        const appt = NexCareDB.addRow('appointments', {
             id: NexCareDB.generateId("APT"),
             patientId: NexCareDB.getActivePatientScope(),
             patientName: NexCareDB.getTable('patients').find(p => p.id === NexCareDB.getActivePatientScope())?.fullName || 'Self',
@@ -339,15 +369,26 @@ window.NexCareStore = {
             reason: data.reason || "",
             createdAt: new Date().toISOString()
         });
+        NexCareDB.logActivity('Create', 'Appointments', `Booked appointment (${appt.id}) for ${appt.department} with ${appt.doctor} on ${appt.dateLabel} at ${appt.timeLabel}.`);
+        return appt;
     },
-    updateAppointment: (id, patch) => NexCareDB.updateRow('appointments', id, patch),
-    deleteAppointment: (id) => NexCareDB.deleteRow('appointments', id),
+    updateAppointment: (id, patch) => {
+        NexCareDB.updateRow('appointments', id, patch);
+        const updated = NexCareDB.getTable('appointments').find(a => a.id === id);
+        const status = patch?.status ? ` Status: ${patch.status}.` : '';
+        NexCareDB.logActivity('Update', 'Appointments', `Updated appointment (${id}).${status}`);
+        return updated;
+    },
+    deleteAppointment: (id) => {
+        NexCareDB.deleteRow('appointments', id);
+        NexCareDB.logActivity('Delete', 'Appointments', `Deleted appointment record (${id}).`);
+    },
     
     // Ambulance
     listAllAmbulanceRequests: () => NexCareDB.getTable('ambulanceRequests'),
     listAmbulanceRequests: () => NexCareDB.getTable('ambulanceRequests').filter(r => r.patientId === NexCareDB.getActivePatientScope()),
     createAmbulanceRequest: (data) => {
-        return NexCareDB.addRow('ambulanceRequests', {
+        const req = NexCareDB.addRow('ambulanceRequests', {
             id: NexCareDB.generateId("AMB"),
             patientId: NexCareDB.getActivePatientScope(),
             patientName: NexCareDB.getTable('patients').find(p => p.id === NexCareDB.getActivePatientScope())?.fullName || 'Self',
@@ -357,15 +398,24 @@ window.NexCareStore = {
             status: data.status || "Pending",
             createdAt: new Date().toISOString()
         });
+        NexCareDB.logActivity('Create', 'Ambulance', `New ambulance request (${req.id}) created. Location: ${req.pickupLocation}.`);
+        return req;
     },
-    updateAmbulanceRequest: (id, patch) => NexCareDB.updateRow('ambulanceRequests', id, patch),
-    deleteAmbulanceRequest: (id) => NexCareDB.deleteRow('ambulanceRequests', id),
+    updateAmbulanceRequest: (id, patch) => {
+        NexCareDB.updateRow('ambulanceRequests', id, patch);
+        const status = patch?.status ? ` Status: ${patch.status}.` : '';
+        NexCareDB.logActivity('Update', 'Ambulance', `Updated ambulance request (${id}).${status}`);
+    },
+    deleteAmbulanceRequest: (id) => {
+        NexCareDB.deleteRow('ambulanceRequests', id);
+        NexCareDB.logActivity('Delete', 'Ambulance', `Deleted ambulance request (${id}).`);
+    },
     
     // Bills
     listBills: () => NexCareDB.getTable('bills').filter(b => b.patientId === NexCareDB.getActivePatientScope()),
     getBill: (id) => NexCareDB.getTable('bills').find(b => b.id === id),
     createBill: (data) => {
-        return NexCareDB.addRow('bills', {
+        const bill = NexCareDB.addRow('bills', {
             id: NexCareDB.generateId("BILL"),
             patientId: NexCareDB.getActivePatientScope(),
             visitDate: data.visitDate,
@@ -378,6 +428,8 @@ window.NexCareStore = {
             items: data.items || [],
             payments: []
         });
+        NexCareDB.logActivity('Create', 'Billing', `Generated bill (${bill.id}) amount ${bill.currency}${bill.subtotal}.`);
+        return bill;
     },
     markBillPaid: (id, payment) => {
         const bill = NexCareDB.getTable('bills').find(b => b.id === id);
@@ -386,13 +438,17 @@ window.NexCareStore = {
             id: NexCareDB.generateId("PAY"), amount: payment.amount, method: payment.method || "CARD", createdAt: new Date().toISOString()
         }];
         NexCareDB.updateRow('bills', id, { status: "Paid", payments: payments });
+        NexCareDB.logActivity('Update', 'Billing', `Payment received for ${bill.id}. Amount: ${bill.currency}${payment.amount}.`);
     },
-    deleteBill: (id) => NexCareDB.deleteRow('bills', id),
+    deleteBill: (id) => {
+        NexCareDB.deleteRow('bills', id);
+        NexCareDB.logActivity('Delete', 'Billing', `Deleted bill record (${id}).`);
+    },
     
     // Feedback
     listFeedback: () => NexCareDB.getTable('feedback').filter(f => f.patientId === NexCareDB.getActivePatientScope()),
     createFeedback: (data) => {
-        return NexCareDB.addRow('feedback', {
+        const fb = NexCareDB.addRow('feedback', {
             id: NexCareDB.generateId("FB"),
             patientId: NexCareDB.getActivePatientScope(),
             sender: NexCareDB.getTable('patients').find(p => p.id === NexCareDB.getActivePatientScope())?.fullName || 'Self',
@@ -404,9 +460,18 @@ window.NexCareStore = {
             status: data.status || "Open",
             createdAt: new Date().toISOString()
         });
+        NexCareDB.logActivity('Create', 'Feedback', `New feedback submitted (${fb.id}) in category "${fb.category}".`);
+        return fb;
     },
-    updateFeedback: (id, patch) => NexCareDB.updateRow('feedback', id, patch),
-    deleteFeedback: (id) => NexCareDB.deleteRow('feedback', id),
+    updateFeedback: (id, patch) => {
+        NexCareDB.updateRow('feedback', id, patch);
+        const status = patch?.status ? ` Status: ${patch.status}.` : '';
+        NexCareDB.logActivity('Update', 'Feedback', `Updated feedback (${id}).${status}`);
+    },
+    deleteFeedback: (id) => {
+        NexCareDB.deleteRow('feedback', id);
+        NexCareDB.logActivity('Delete', 'Feedback', `Deleted feedback record (${id}).`);
+    },
     
     // System Activity
     listActivity: () => NexCareDB.getTable('systemActivity'),

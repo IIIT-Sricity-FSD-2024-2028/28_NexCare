@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - NexCare Patient Portal</title>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        (function () {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            const role = sessionStorage.getItem('nexcare_current_role');
+            if (isLoggedIn !== 'true' || role !== 'patient') {
+                window.location.replace('../auth/login.html');
+            }
+        })();
+    </script>
 </head>
 <body>
     <!-- Sidebar -->
@@ -69,7 +78,7 @@
                 </svg>
                 <span>Profile</span>
             </a>
-            <a href="#" onclick="sessionStorage.clear(); localStorage.removeItem('nexcare_currentUser'); window.location.href='../auth/login.html'; return false;" class="nav-item nav-logout">
+            <a href="#" onclick="sessionStorage.clear(); localStorage.removeItem('nexcare_currentUser'); window.location.href='../landing/landing.html'; return false;" class="nav-item nav-logout">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                     <path d="M13 15l5-5-5-5M18 10H8M12 5v-.5a2 2 0 00-2-2H4a2 2 0 00-2 2v11a2 2 0 002 2h6a2 2 0 002-2V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -93,6 +102,13 @@
         </div>
 
         <div class="profile-main-content">
+            <!-- Profile Actions (Edit/Cancel/Save) -->
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin: 0 0 18px;">
+                <button type="button" class="btn-outline-sm" id="editProfileBtn">Edit Profile</button>
+                <button type="button" class="btn-outline-sm" id="cancelProfileBtn" style="display:none;">Cancel</button>
+                <button type="button" class="btn-primary-sm" id="saveProfileBtn" style="display:none;">Save</button>
+            </div>
+
             <!-- Personal Information -->
             <div class="profile-section-card">
                 <div class="profile-section-header">
@@ -110,7 +126,7 @@
                                 <circle cx="10" cy="7" r="3" stroke="#99A1AF" stroke-width="1.5"/>
                                 <path d="M17 18c0-3.866-3.134-7-7-7s-7 3.134-7 7" stroke="#99A1AF" stroke-width="1.5" stroke-linecap="round"/>
                             </svg>
-                            <input type="text" id="fullName" name="fullName" value="John Anderson" required>
+                            <input type="text" id="fullName" name="fullName" value="John Anderson" required disabled>
                         </div>
                     </div>
 
@@ -122,7 +138,7 @@
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <path d="M18.333 14.583v2.5a1.667 1.667 0 01-1.817 1.667 18.742 18.742 0 01-8.179-2.908 17.659 17.659 0 01-5.691-5.692A18.742 18.742 0 01.333 1.942 1.667 1.667 0 012 .125h2.5a1.667 1.667 0 011.667 1.434c.084.812.238 1.613.458 2.391a1.667 1.667 0 01-.375 1.759L5.208 6.75a13.333 13.333 0 005.691 5.691l1.042-1.042a1.667 1.667 0 011.759-.375c.778.22 1.579.374 2.391.458a1.667 1.667 0 011.434 1.601z" stroke="#99A1AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <input type="tel" id="phoneNumber" name="phoneNumber" value="+1 (555) 123-4567" required>
+                            <input type="tel" id="phoneNumber" name="phoneNumber" value="+1 (555) 123-4567" required disabled>
                         </div>
                     </div>
 
@@ -135,7 +151,7 @@
                                 <path d="M3.333 3.333h13.334A1.667 1.667 0 0118.334 5v10a1.667 1.667 0 01-1.667 1.667H3.333A1.667 1.667 0 011.667 15V5a1.667 1.667 0 011.666-1.667z" stroke="#99A1AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M18.334 5L10 10.833 1.667 5" stroke="#99A1AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <input type="email" id="emailAddress" name="emailAddress" value="john.anderson@email.com" required>
+                            <input type="email" id="emailAddress" name="emailAddress" value="john.anderson@email.com" required disabled>
                         </div>
                     </div>
                 </form>
@@ -156,7 +172,7 @@
                                 <path d="M15.833 9.167H4.167A1.667 1.667 0 002.5 10.833v5.834a1.667 1.667 0 001.667 1.666h11.666a1.667 1.667 0 001.667-1.666v-5.834a1.667 1.667 0 00-1.667-1.666z" stroke="#99A1AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M5.833 9.167V5.833a4.167 4.167 0 118.334 0v3.334" stroke="#99A1AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password">
+                            <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password" disabled>
                         </div>
                     </div>
 
@@ -167,7 +183,7 @@
                                 <path d="M15.833 9.167H4.167A1.667 1.667 0 002.5 10.833v5.834a1.667 1.667 0 001.667 1.666h11.666a1.667 1.667 0 001.667-1.666v-5.834a1.667 1.667 0 00-1.667-1.666z" stroke="#99A1AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M5.833 9.167V5.833a4.167 4.167 0 118.334 0v3.334" stroke="#99A1AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password">
+                            <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" disabled>
                         </div>
                         <p class="input-help">Password must be at least 8 characters long</p>
                     </div>
@@ -179,21 +195,10 @@
                                 <path d="M15.833 9.167H4.167A1.667 1.667 0 002.5 10.833v5.834a1.667 1.667 0 001.667 1.666h11.666a1.667 1.667 0 001.667-1.666v-5.834a1.667 1.667 0 00-1.667-1.666z" stroke="#99A1AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M5.833 9.167V5.833a4.167 4.167 0 118.334 0v3.334" stroke="#99A1AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password">
+                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" disabled>
                         </div>
                     </div>
                 </form>
-            </div>
-
-            <!-- Save Button -->
-            <div class="profile-save-section">
-                <button type="button" class="btn-save-profile" onclick="saveChanges()">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M15.833 2.5H4.167A1.667 1.667 0 002.5 4.167v11.666a1.667 1.667 0 001.667 1.667h11.666a1.667 1.667 0 001.667-1.667V4.167A1.667 1.667 0 0015.833 2.5z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M13.333 17.5v-7.5H6.667v7.5M6.667 2.5v5h6.666" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Save Changes
-                </button>
             </div>
 
             <!-- Account Information -->

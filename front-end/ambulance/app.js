@@ -45,7 +45,7 @@ const SessionManager = {
         if (typeof logoutUser === 'function') {
             logoutUser();
         } else {
-            window.location.href = '../auth/login.html';
+            window.location.href = '../landing/landing.html';
         }
         return false;
     },
@@ -85,7 +85,7 @@ const SessionManager = {
             logoutUser();
         } else {
             sessionStorage.clear();
-            window.location.href = '../auth/login.html';
+            window.location.href = '../landing/landing.html';
         }
     },
     
@@ -3185,6 +3185,7 @@ const DynamicRenderer = {
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
         `;
         
         card.innerHTML = `
@@ -3206,6 +3207,21 @@ const DynamicRenderer = {
         card.addEventListener('mouseleave', () => {
             card.style.transform = 'translateY(0)';
             card.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+        });
+
+        // Quick actions: click stat card to navigate
+        card.addEventListener('click', () => {
+            const map = {
+                pending: 'ambulance-requests',
+                assigned: 'assigned-dispatch',
+                active: 'active-transport',
+                completed: 'completed-transports'
+            };
+            const pageId = map[stat.id];
+            if (!pageId) return;
+            if (typeof SessionManager !== 'undefined' && SessionManager.navigateToPage) {
+                SessionManager.navigateToPage(pageId);
+            }
         });
         
         return card;
