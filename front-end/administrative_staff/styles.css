@@ -26,6 +26,14 @@ body {
     flex-direction: column;
 }
 
+/* FADE OUT ANIMATION */
+.row-fade-out {
+    opacity: 0 !important;
+    transform: translateX(10px);
+    background: #fee2e2 !important;
+    transition: all 0.5s ease-out;
+}
+
 /* LOGO */
 .logo {
     padding: 20px;
@@ -142,8 +150,8 @@ body {
 }
 
 .user-profile .avatar {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     background: #2563eb;
     color: #fff;
     border-radius: 50%;
@@ -156,8 +164,8 @@ body {
 
 .user-profile .user-name {
     font-size: 13px;
-    font-weight: 500;
-    color: #374151;
+    font-weight: 600;
+    color: #111827;
 }
 
 .dropdown-menu {
@@ -470,18 +478,62 @@ h1, h3 {
     margin-top: 15px;
 }
 
-.action-btn {
-    flex: 1;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    cursor: pointer;
-    font-weight: 500;
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
 }
 
-.action-btn:hover {
-    background: #f9fafb;
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.action-btn.edit:hover {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.action-btn.delete:hover {
+    background: #fee2e2;
+    border-color: #ef4444;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.action-btn.confirm {
+    background: #22c55e;
+    border-color: #16a34a;
+    color: white;
+}
+
+.action-btn.confirm:hover {
+    background: #16a34a;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+}
+
+.action-btn.cancel {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+.action-btn.cancel:hover {
+    background: #e5e7eb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn svg {
+    width: 14px;
+    height: 14px;
 }
 /* FIX APPOINTMENT LAYOUT */
 .appointment {

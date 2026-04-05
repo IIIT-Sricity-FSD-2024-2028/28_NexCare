@@ -18,7 +18,7 @@ function getAppointments() {
 function renderAppointments(data = getAppointments()) {
     const tbody = document.getElementById('appointmentsTableBody');
     tbody.innerHTML = data.map(apt => `
-        <tr>
+        <tr id="row-${apt.id}">
             <td><strong>${apt.id}</strong></td>
             <td><div><strong style="color: #111827;">${apt.patient}</strong><br><small style="color:#6b7280;">${apt.patientId}</small></div></td>
             <td>${apt.doctor}</td>
@@ -27,11 +27,11 @@ function renderAppointments(data = getAppointments()) {
             <td><span class="status-badge status-${apt.status.toLowerCase().replace(' ', '')}">${apt.status}</span></td>
             <td>
                 <div class="action-buttons">
-                    <button class="action-btn" onclick="editAppt('${apt.id}')" title="Edit">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <button class="action-btn edit" onclick="editAppt('${apt.id}')" title="Edit">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
-                    <button class="action-btn" onclick="deleteAppt('${apt.id}')" title="Delete">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    <button class="action-btn delete" onclick="deleteAppt('${apt.id}')" title="Delete">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                     </button>
                 </div>
             </td>
@@ -40,16 +40,56 @@ function renderAppointments(data = getAppointments()) {
 }
 
 function deleteAppt(id) {
-    if (confirm('Are you sure you want to delete appointment: ' + id + '?')) {
-        const apt = getAppointments().find(a => a.id === id);
-        const patientName = apt ? apt.patient : id;
-        
-        if(window.NexCareDB) window.NexCareDB.deleteRow('appointments', id);
-        
-        if (window.NexCareStore) {
-            window.NexCareStore.logActivity('Delete', 'Appointments', `Cancelled appointment for ${patientName} (ID: ${id})`);
+    const row = document.getElementById(`row-${id}`);
+    if (row) {
+        const actionBtnContainer = row.querySelector('.action-buttons');
+        if (actionBtnContainer) {
+            // Store original buttons to restore on cancel
+            actionBtnContainer.setAttribute('data-original-html', actionBtnContainer.innerHTML);
+            
+            actionBtnContainer.innerHTML = `
+                <button class="action-btn confirm" onclick="confirmDelete('${id}')" title="Confirm Delete">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </button>
+                <button class="action-btn cancel" onclick="cancelDelete('${id}')" title="Cancel">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            `;
         }
-        applyFilters();
+    }
+}
+
+function confirmDelete(id) {
+    const row = document.getElementById(`row-${id}`);
+    if (row) {
+        row.classList.add('row-fade-out');
+        
+        // Wait for animation to complete
+        setTimeout(() => {
+            const apt = getAppointments().find(a => a.id === id);
+            const patientName = apt ? apt.patient : id;
+            
+            if(window.NexCareDB) window.NexCareDB.deleteRow('appointments', id);
+            
+            if (window.NexCareStore) {
+                window.NexCareStore.logActivity('Delete', 'Appointments', `Cancelled appointment for ${patientName} (ID: ${id})`);
+            }
+            applyFilters();
+        }, 500);
+    }
+}
+
+function cancelDelete(id) {
+    const row = document.getElementById(`row-${id}`);
+    if (row) {
+        const actionBtnContainer = row.querySelector('.action-buttons');
+        const originalHtml = actionBtnContainer.getAttribute('data-original-html');
+        if (originalHtml) {
+            actionBtnContainer.innerHTML = originalHtml;
+        } else {
+            // Fallback: full re-render
+            applyFilters();
+        }
     }
 }
 

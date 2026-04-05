@@ -9,11 +9,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     renderAmbulanceRequests();
 
-    const tbody = document.querySelector('.status-table tbody');
     if (tbody) {
         tbody.addEventListener('click', handleAmbulanceTableClick);
     }
+
+    prefetchPatientData();
 });
+
+function prefetchPatientData() {
+    const store = window.NexCareStore;
+    if (!store) return;
+
+    const patient = store.getActivePatient();
+    if (patient && patient.phone) {
+        const contactInput = document.getElementById('contactNumber');
+        if (contactInput) {
+            contactInput.value = patient.phone;
+        }
+    }
+}
 
 function handleAmbulanceRequest(e) {
     e.preventDefault();

@@ -412,8 +412,9 @@ const ValidationUtils = {
         if (!phone || phone.trim() === '') {
             return 'Phone number is required';
         }
-        if (!this.phoneRegex.test(phone.trim())) {
-            return 'Invalid phone number format';
+        const digits = phone.trim().replace(/\D/g, '');
+        if (digits.length !== 10) {
+            return 'Phone number must be exactly 10 digits';
         }
         return null;
     },
@@ -1211,6 +1212,7 @@ function refreshAllViews(isBackground = false) {
     renderCompletedTransports();
     renderActiveTransport();
     syncDashboardUserName();
+    syncProfileQuickStats();
     
     // Also update the DynamicRenderer if available
     if (typeof DynamicRenderer !== 'undefined' && DynamicRenderer.renderStats) {
@@ -1959,32 +1961,47 @@ function renderCompletedTransports() {
 
 function updateCompletedTransportStats(completed) {
     try {
-        // Update total completed count
-        const totalStat = document.querySelector('.stat-value');
-        if (totalStat && totalStat.parentElement?.querySelector('.stat-label')?.textContent === 'Total Completed') {
-            totalStat.textContent = String(completed.length);
+        // 1. Total Completed (dynamic)
+        const totalEl = document.getElementById('stat-total-completed');
+        const totalSubEl = document.getElementById('stat-completed-sub');
+        if (totalEl) totalEl.textContent = String(completed.length);
+        if (totalSubEl) {
+            totalSubEl.textContent = completed.length === 1
+                ? '1 transport done'
+                : `${completed.length} transports done`;
         }
 
-        // Calculate response times (mock calculation for demo)
-        const avgResponseTime = completed.length > 0 ? 8.5 : 0; // Mock calculation
-        const under10MinPercentage = completed.length > 0 ? 58 : 0; // Mock calculation
-
-        // Update average response time
-        const responseTimeStat = document.querySelector('.stat-value');
-        if (responseTimeStat && responseTimeStat.parentElement?.querySelector('.stat-label')?.textContent === 'Avg Response Time') {
-            responseTimeStat.textContent = avgResponseTime > 0 ? `${avgResponseTime.toFixed(1)} min` : '—';
+        // 2. Pending Requests (live count from all requests)
+        const pendingEl = document.getElementById('stat-pending-count');
+        const pendingSubEl = document.getElementById('stat-pending-sub');
+        if (pendingEl) {
+            const pendingCount = appState.requests.filter(r => r.status === 'pending').length;
+            pendingEl.textContent = String(pendingCount);
+            if (pendingSubEl) {
+                pendingSubEl.textContent = pendingCount === 0
+                    ? 'No pending requests'
+                    : pendingCount === 1
+                    ? '1 request awaiting acceptance'
+                    : `${pendingCount} requests awaiting acceptance`;
+            }
         }
 
-        // Update response time breakdown
-        const breakdownValue = document.querySelector('.breakdown-value');
-        if (breakdownValue) {
-            breakdownValue.textContent = `${under10MinPercentage}%`;
-        }
-
-        // Update progress bar
-        const progressFill = document.querySelector('.progress-fill');
-        if (progressFill) {
-            progressFill.style.width = `${under10MinPercentage}%`;
+        // 3. Latest Transport (most recently completed)
+        const latestPatientEl = document.getElementById('stat-latest-patient');
+        const latestTimeEl = document.getElementById('stat-latest-time');
+        if (latestPatientEl && latestTimeEl) {
+            if (completed.length > 0) {
+                const latest = completed[completed.length - 1];
+                latestPatientEl.textContent = latest.patient || '—';
+                const dateStr = latest.completedDate || '';
+                const timeStr = latest.completedTime || '';
+                latestTimeEl.textContent = dateStr && timeStr
+                    ? `${dateStr} at ${timeStr}`
+                    : dateStr || timeStr || 'Time not recorded';
+            } else {
+                latestPatientEl.textContent = '—';
+                latestTimeEl.textContent = 'No completed transport yet';
+            }
         }
     } catch (error) {
         console.warn('Failed to update completed transport stats:', error);
@@ -2047,7 +2064,39 @@ function exportCompletedTransports() {
     }
 }
 
+function syncProfileQuickStats() {
+    const completed = appState.requests.filter(r => r.status === 'completed');
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    // Total completed transports
+    const totalEl = document.getElementById('qs-total');
+    if (totalEl) totalEl.textContent = String(completed.length);
+
+    // Completed transports this month
+    const thisMonth = completed.filter(r => {
+        if (!r.completedDate) return false;
+        const d = new Date(r.completedDate);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+    const monthEl = document.getElementById('qs-month');
+    if (monthEl) monthEl.textContent = String(thisMonth.length);
+
+    // Success Rate = completed / all requests that were accepted (assigned + active + completed)
+    const accepted = appState.requests.filter(r =>
+        r.status === 'assigned' || r.status === 'active' || r.status === 'completed'
+    ).length;
+    const rateEl = document.getElementById('qs-rate');
+    if (rateEl) {
+        rateEl.textContent = accepted > 0
+            ? `${Math.round((completed.length / accepted) * 100)}%`
+            : '—';
+    }
+}
+
 function initProfile() {
+    syncProfileQuickStats(); // Populate Quick Stats on load
     const formData = {
         name: appState.profile.name,
         phone: appState.profile.phone,
@@ -2065,6 +2114,23 @@ function initProfile() {
     const phoneInput = document.getElementById('profile-phone');
     const vehicleInput = document.getElementById('profile-vehicle');
     const statusSelect = document.getElementById('profile-status');
+
+    // Enforce 10-digit only input on the phone field
+    phoneInput.setAttribute('maxlength', '10');
+    phoneInput.setAttribute('inputmode', 'numeric');
+    phoneInput.setAttribute('pattern', '[0-9]{10}');
+    phoneInput.addEventListener('input', function () {
+        // Strip any non-digit character as user types
+        const clean = this.value.replace(/\D/g, '').slice(0, 10);
+        if (this.value !== clean) this.value = clean;
+    });
+    phoneInput.addEventListener('keydown', function (e) {
+        // Allow: backspace, delete, tab, escape, arrows, home, end
+        const allowed = ['Backspace', 'Delete', 'Tab', 'Escape', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+        if (allowed.includes(e.key)) return;
+        // Block non-digit keys
+        if (!/^\d$/.test(e.key)) e.preventDefault();
+    });
 
     // Add name attributes to form fields for validation
     nameInput.setAttribute('name', 'name');

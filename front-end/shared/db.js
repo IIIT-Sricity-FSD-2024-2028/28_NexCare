@@ -21,21 +21,21 @@ const NexCareDB = (() => {
             { "id": "U009", "name": "Maria Garcia", "email": "maria@example.com", "role": "patient", "status": "Active", "password": "Password123", "patientId": "P002" }
         ],
         "patients": [
-            { "id": "P001", "fullName": "John Anderson", "phone": "+1 (555) 123-4567", "email": "patient@gmail.com", "patientIdDisplay": "PAT-2026-001", "memberSince": "January 2024", "status": "Active", "bloodGroup": "O+", "age": 45 },
-            { "id": "P002", "fullName": "Maria Garcia", "phone": "+1 (555) 987-6543", "email": "maria@example.com", "patientIdDisplay": "PAT-2026-002", "memberSince": "March 2025", "status": "Critical", "bloodGroup": "AB-", "age": 62 },
-            { "id": "P003", "fullName": "Ravi Kumar", "phone": "+91 98765 43210", "email": "ravi.kumar@example.com", "patientIdDisplay": "PAT-2026-003", "memberSince": "February 2026", "status": "Active", "bloodGroup": "B+", "age": 28 },
-            { "id": "P004", "fullName": "Anita Sharma", "phone": "+91 87654 32109", "email": "anita.sharma@example.com", "patientIdDisplay": "PAT-2026-004", "memberSince": "February 2026", "status": "Critical", "bloodGroup": "A-", "age": 35 },
-            { "id": "P005", "fullName": "Priya Singh", "phone": "+91 76543 21098", "email": "priya.singh@example.com", "patientIdDisplay": "PAT-2026-005", "memberSince": "February 2026", "status": "Active", "bloodGroup": "O-", "age": 31 },
-            { "id": "P006", "fullName": "Amit Verma", "phone": "+91 65432 10987", "email": "amit.verma@example.com", "patientIdDisplay": "PAT-2026-006", "memberSince": "February 2026", "status": "Active", "bloodGroup": "B-", "age": 42 },
-            { "id": "P007", "fullName": "Kiran Rao", "phone": "+91 54321 09876", "email": "kiran.rao@example.com", "patientIdDisplay": "PAT-2026-007", "memberSince": "February 2026", "status": "Active", "bloodGroup": "AB+", "age": 29 },
-            { "id": "P008", "fullName": "Rahul Jain", "phone": "+91 43210 98765", "email": "rahul.jain@example.com", "patientIdDisplay": "PAT-2026-008", "memberSince": "February 2026", "status": "Active", "bloodGroup": "A+", "age": 38 },
-            { "id": "P009", "fullName": "Deepak Kumar", "phone": "+91 32109 87654", "email": "deepak.kumar@example.com", "patientIdDisplay": "PAT-2026-009", "memberSince": "February 2026", "status": "Active", "bloodGroup": "O+", "age": 47 },
-            { "id": "P010", "fullName": "Arjun Reddy", "phone": "+91 21098 76543", "email": "arjun.reddy@example.com", "patientIdDisplay": "PAT-2026-010", "memberSince": "February 2026", "status": "Active", "bloodGroup": "B+", "age": 33 },
-            { "id": "P011", "fullName": "Neha Gupta", "phone": "+91 10987 65432", "email": "neha.gupta@example.com", "patientIdDisplay": "PAT-2026-011", "memberSince": "February 2026", "status": "Active", "bloodGroup": "A-", "age": 26 },
-            { "id": "P012", "fullName": "Kid A", "phone": "+91 99999 00001", "email": "kid.a@example.com", "patientIdDisplay": "PAT-2026-012", "memberSince": "February 2026", "status": "Active", "bloodGroup": "O+", "age": 8 },
-            { "id": "P013", "fullName": "Mother A", "phone": "+91 99999 00002", "email": "mother.a@example.com", "patientIdDisplay": "PAT-2026-013", "memberSince": "February 2026", "status": "Active", "bloodGroup": "B-", "age": 30 },
-            { "id": "P014", "fullName": "Mother B", "phone": "+91 99999 00003", "email": "mother.b@example.com", "patientIdDisplay": "PAT-2026-014", "memberSince": "February 2026", "status": "Active", "bloodGroup": "AB-", "age": 34 },
-            { "id": "P015", "fullName": "John Doe", "phone": "+91 99999 00004", "email": "johndoe@example.com", "patientIdDisplay": "PAT-2026-015", "memberSince": "January 2026", "status": "Active", "bloodGroup": "O+", "age": 32 }
+            { "id": "P001", "fullName": "John Anderson", "phone": "5551234567", "email": "patient@gmail.com", "patientIdDisplay": "PAT-2026-001", "memberSince": "January 2024", "status": "Active", "bloodGroup": "O+", "age": 45 },
+            { "id": "P002", "fullName": "Maria Garcia", "phone": "5559876543", "email": "maria@example.com", "patientIdDisplay": "PAT-2026-002", "memberSince": "March 2025", "status": "Critical", "bloodGroup": "AB-", "age": 62 },
+            { "id": "P003", "fullName": "Ravi Kumar", "phone": "9876543210", "email": "ravi.kumar@example.com", "patientIdDisplay": "PAT-2026-003", "memberSince": "February 2026", "status": "Active", "bloodGroup": "B+", "age": 28 },
+            { "id": "P004", "fullName": "Anita Sharma", "phone": "8765432109", "email": "anita.sharma@example.com", "patientIdDisplay": "PAT-2026-004", "memberSince": "February 2026", "status": "Critical", "bloodGroup": "A-", "age": 35 },
+            { "id": "P005", "fullName": "Priya Singh", "phone": "7654321098", "email": "priya.singh@example.com", "patientIdDisplay": "PAT-2026-005", "memberSince": "February 2026", "status": "Active", "bloodGroup": "O-", "age": 31 },
+            { "id": "P006", "fullName": "Amit Verma", "phone": "6543210987", "email": "amit.verma@example.com", "patientIdDisplay": "PAT-2026-006", "memberSince": "February 2026", "status": "Active", "bloodGroup": "B-", "age": 42 },
+            { "id": "P007", "fullName": "Kiran Rao", "phone": "5432109876", "email": "kiran.rao@example.com", "patientIdDisplay": "PAT-2026-007", "memberSince": "February 2026", "status": "Active", "bloodGroup": "AB+", "age": 29 },
+            { "id": "P008", "fullName": "Rahul Jain", "phone": "4321098765", "email": "rahul.jain@example.com", "patientIdDisplay": "PAT-2026-008", "memberSince": "February 2026", "status": "Active", "bloodGroup": "A+", "age": 38 },
+            { "id": "P009", "fullName": "Deepak Kumar", "phone": "3210987654", "email": "deepak.kumar@example.com", "patientIdDisplay": "PAT-2026-009", "memberSince": "February 2026", "status": "Active", "bloodGroup": "O+", "age": 47 },
+            { "id": "P010", "fullName": "Arjun Reddy", "phone": "2109876543", "email": "arjun.reddy@example.com", "patientIdDisplay": "PAT-2026-010", "memberSince": "February 2026", "status": "Active", "bloodGroup": "B+", "age": 33 },
+            { "id": "P011", "fullName": "Neha Gupta", "phone": "1098765432", "email": "neha.gupta@example.com", "patientIdDisplay": "PAT-2026-011", "memberSince": "February 2026", "status": "Active", "bloodGroup": "A-", "age": 26 },
+            { "id": "P012", "fullName": "Kid A", "phone": "9999000001", "email": "kid.a@example.com", "patientIdDisplay": "PAT-2026-012", "memberSince": "February 2026", "status": "Active", "bloodGroup": "O+", "age": 8 },
+            { "id": "P013", "fullName": "Mother A", "phone": "9999000002", "email": "mother.a@example.com", "patientIdDisplay": "PAT-2026-013", "memberSince": "February 2026", "status": "Active", "bloodGroup": "B-", "age": 30 },
+            { "id": "P014", "fullName": "Mother B", "phone": "9999000003", "email": "mother.b@example.com", "patientIdDisplay": "PAT-2026-014", "memberSince": "February 2026", "status": "Active", "bloodGroup": "AB-", "age": 34 },
+            { "id": "P015", "fullName": "John Doe", "phone": "9999000004", "email": "johndoe@example.com", "patientIdDisplay": "PAT-2026-015", "memberSince": "January 2026", "status": "Active", "bloodGroup": "O+", "age": 32 }
         ],
         "appointments": [
             { "id": "APT-001", "patientId": "P001", "patientName": "John Anderson", "department": "Cardiology", "doctor": "Dr. Sarah Smith", "dateLabel": "March 15, 2026", "timeLabel": "10:00 AM", "token": "TKN-1234", "fee": 150, "status": "Confirmed", "reason": "Routine heart checkup", "createdAt": new Date().toISOString() },
@@ -64,9 +64,21 @@ const NexCareDB = (() => {
             { "id": "FB-003", "patientId": "U005", "sender": "Dr. Sarah Smith", "type": "Staff", "category": "software", "subject": "System crash", "summary": "EHR system frequently times out on large files.", "rating": 3, "status": "In Progress", "createdAt": new Date().toISOString() }
         ],
         "inventory": [
-            { "id": "INV-1", "name": "Surgical Masks (N95)", "category": "Consumables", "quantity": 120, "status": "Low Stock" },
-            { "id": "INV-2", "name": "ECG Machines", "category": "Equipment", "quantity": 15, "status": "In Stock" },
-            { "id": "INV-3", "name": "Paracetamol 500mg", "category": "Pharmacy", "quantity": 0, "status": "Out of Stock" }
+            { "id": "INV-1", "name": "Surgical Masks (N95)", "category": "Consumables", "quantity": 120, "status": "In Stock" },
+            { "id": "INV-2", "name": "ECG Machines", "category": "Equipment", "quantity": 15, "status": "Low Stock" },
+            { "id": "INV-3", "name": "Paracetamol 500mg", "category": "Pharmacy", "quantity": 500, "status": "In Stock" },
+            { "id": "INV-4", "name": "Latex Gloves (L)", "category": "Consumables", "quantity": 250, "status": "In Stock" },
+            { "id": "INV-5", "name": "Digital Thermometer", "category": "Equipment", "quantity": 40, "status": "In Stock" },
+            { "id": "INV-6", "name": "Amoxicillin 250mg", "category": "Pharmacy", "quantity": 80, "status": "In Stock" },
+            { "id": "INV-7", "name": "Portable Ventilator", "category": "Equipment", "quantity": 8, "status": "Low Stock" },
+            { "id": "INV-8", "name": "Hand Sanitizer (500ml)", "category": "Consumables", "quantity": 100, "status": "In Stock" },
+            { "id": "INV-9", "name": "Saline Solution (IV)", "category": "Consumables", "quantity": 60, "status": "In Stock" },
+            { "id": "INV-10", "name": "Blood Pressure Monitor", "category": "Equipment", "quantity": 25, "status": "In Stock" },
+            { "id": "INV-11", "name": "Syringes (5ml Disposable)", "category": "Consumables", "quantity": 400, "status": "In Stock" },
+            { "id": "INV-12", "name": "Oxygen Cylinder (L)", "category": "Equipment", "quantity": 12, "status": "Low Stock" },
+            { "id": "INV-13", "name": "Defibrillator Pads", "category": "Consumables", "quantity": 30, "status": "In Stock" },
+            { "id": "INV-14", "name": "Insulin Pen (Glucogen)", "category": "Pharmacy", "quantity": 45, "status": "In Stock" },
+            { "id": "INV-15", "name": "Sterile Gauze Roll", "category": "Consumables", "quantity": 150, "status": "In Stock" }
         ],
         "beds": [
             { "id": "E1", "ward": "Emergency", "status": "occupied", "patient": "Ravi Kumar" },
@@ -161,8 +173,32 @@ const NexCareDB = (() => {
             if (!db.patients.find(existing => existing.id === p.id)) {
                 db.patients.push(p);
                 changed = true;
+            } else {
+                // Sanitize phone numbers - strip to digits only, keep last 10
+                const existing = db.patients.find(ex => ex.id === p.id);
+                if (existing && existing.phone) {
+                    const digits = existing.phone.replace(/\D/g, '');
+                    const clean = digits.slice(-10);
+                    if (clean !== existing.phone && clean.length === 10) {
+                        existing.phone = clean;
+                        changed = true;
+                    }
+                }
             }
         });
+
+        // Ensure inventory is expanded if it's currently low/incomplete
+        if (!db.inventory) {
+            db.inventory = FALLBACK_SEED.inventory;
+            changed = true;
+        } else if (db.inventory.length < FALLBACK_SEED.inventory.length) {
+            FALLBACK_SEED.inventory.forEach(item => {
+                if (!db.inventory.find(existing => existing.id === item.id)) {
+                    db.inventory.push(item);
+                    changed = true;
+                }
+            });
+        }
 
         // Ensure beds table exists and has latest seed
         if (!db.beds || db.beds.length === 0) {

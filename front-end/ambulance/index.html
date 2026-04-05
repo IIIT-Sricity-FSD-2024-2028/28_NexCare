@@ -439,39 +439,32 @@
                                 <polyline points="17 6 23 6 23 12"/>
                             </svg>
                         </div>
-                        <p class="stat-value">24</p>
-                        <p class="stat-change">+18% from last week</p>
+                        <p class="stat-value" id="stat-total-completed">0</p>
+                        <p class="stat-change" id="stat-completed-sub">No transports yet</p>
                     </div>
 
                     <div class="stat-card">
                         <div class="stat-row">
-                            <h3 class="stat-label">Avg Response Time</h3>
-                            <svg class="stat-icon-small" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                            <h3 class="stat-label">Pending Requests</h3>
+                            <svg class="stat-icon-small" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
                                 <circle cx="12" cy="12" r="10"/>
                                 <polyline points="12 6 12 12 16 14"/>
                             </svg>
                         </div>
-                        <p class="stat-value">8.5 min</p>
-                        <p class="stat-change">Below target of 10 min</p>
+                        <p class="stat-value" id="stat-pending-count">0</p>
+                        <p class="stat-change" id="stat-pending-sub">Awaiting acceptance</p>
                     </div>
 
                     <div class="stat-card">
                         <div class="stat-row">
-                            <h3 class="stat-label">Response Time Breakdown</h3>
-                            <svg class="stat-icon-small" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            <h3 class="stat-label">Latest Transport</h3>
+                            <svg class="stat-icon-small" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
                             </svg>
                         </div>
-                        <div class="breakdown">
-                            <div class="breakdown-row">
-                                <span class="breakdown-label">Under 10 mins</span>
-                                <span class="breakdown-value">58%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 58%;"></div>
-                            </div>
-                        </div>
+                        <p class="stat-value" id="stat-latest-patient" style="font-size: 16px; font-weight: 600;">—</p>
+                        <p class="stat-change" id="stat-latest-time">No completed transport yet</p>
                     </div>
                 </div>
 
@@ -551,15 +544,15 @@
                             <div class="quick-stats">
                                 <div class="quick-stat-row">
                                     <span class="quick-stat-label">Total Transports</span>
-                                    <span class="quick-stat-value">24</span>
+                                    <span class="quick-stat-value" id="qs-total">0</span>
                                 </div>
                                 <div class="quick-stat-row">
                                     <span class="quick-stat-label">This Month</span>
-                                    <span class="quick-stat-value">12</span>
+                                    <span class="quick-stat-value" id="qs-month">0</span>
                                 </div>
                                 <div class="quick-stat-row">
                                     <span class="quick-stat-label">Success Rate</span>
-                                    <span class="quick-stat-value quick-stat-success">100%</span>
+                                    <span class="quick-stat-value quick-stat-success" id="qs-rate">—</span>
                                 </div>
                             </div>
                         </div>
@@ -644,10 +637,6 @@
                                 <div>
                                     <p class="account-info-label">Employee ID</p>
                                     <p class="account-info-value">EMP-AMB-2024-142</p>
-                                </div>
-                                <div>
-                                    <p class="account-info-label">Department</p>
-                                    <p class="account-info-value">Emergency Transport</p>
                                 </div>
                                 <div>
                                     <p class="account-info-label">Joined Date</p>

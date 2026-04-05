@@ -40,11 +40,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Handle emergency ambulance request
-    const emergencyBtn = document.querySelector('.btn-emergency');
-    if (emergencyBtn) {
-        emergencyBtn.addEventListener('click', handleEmergencyRequest);
-    }
     
     // Handle bill payment
     const payButtons = document.querySelectorAll('.btn-primary-sm');
@@ -84,32 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function handleEmergencyRequest() {
-    const location = document.querySelector('.emergency-content input[type="text"]').value;
-    const emergencyType = document.querySelector('.emergency-content select').value;
-    const contact = document.querySelector('.emergency-content input[type="tel"]').value;
-    
-    if (!location || !emergencyType || !contact) {
-        alert('Please fill in all required fields');
-        return;
-    }
-    
-    if (confirm('⚠️ EMERGENCY AMBULANCE REQUEST\n\n' +
-                `Location: ${location}\n` +
-                `Emergency: ${emergencyType}\n` +
-                `Contact: ${contact}\n\n` +
-                'Dispatch ambulance immediately?')) {
-        alert('✓ Ambulance dispatched!\n\n' +
-              'Estimated arrival: 8-12 minutes\n' +
-              'Emergency ID: EMR-' + Date.now().toString().slice(-6) + '\n' +
-              'Driver will call you shortly.');
-        
-        // Clear form
-        document.querySelector('.emergency-content input[type="text"]').value = '';
-        document.querySelector('.emergency-content select').value = '';
-        document.querySelector('.emergency-content input[type="tel"]').value = '';
-    }
-}
 
 function showTooltip(event) {
     const title = event.target.getAttribute('title');

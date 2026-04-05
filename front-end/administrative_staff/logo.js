@@ -33,34 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 2. Transform static topbar user into interactive profile dropdown
+    // 2. Setup topbar user static profile
     const topbarUser = document.querySelector('.topbar .user');
     if (topbarUser) {
-        // Morph the container
         topbarUser.className = 'user-profile';
         topbarUser.innerHTML = `
             <div class="avatar">A</div>
             <span class="user-name">Admin User</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            <div class="dropdown-menu">
-                <a href="#">My Profile</a>
-                <a href="#">Settings</a>
-                <div class="divider"></div>
-                <a href="../auth/login.html" class="logout-link">Logout</a>
-            </div>
         `;
-
-        // Toggle logic
-        topbarUser.addEventListener('click', (e) => {
-            const dropdown = topbarUser.querySelector('.dropdown-menu');
-            dropdown.classList.toggle('active');
-            e.stopPropagation(); // Prevent document click from closing immediately
-        });
-
-        // Close on outside click
-        document.addEventListener('click', () => {
-            const dropdown = topbarUser.querySelector('.dropdown-menu');
-            if(dropdown) dropdown.classList.remove('active');
-        });
     }
 });

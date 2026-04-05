@@ -52,17 +52,12 @@ function renderPatients(patients) {
     if (!tbody) return;
 
     if (patients.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 30px; color: #6b7280;">No patients found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; color: #6b7280;">No patients found.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = patients.map(p => {
         const statusClass = p.status === 'Active' ? 'Active' : (p.status === 'Critical' ? 'Critical' : 'Registered');
-        
-        let dateString = "N/A";
-        if (p.createdAt) {
-            dateString = new Date(p.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-        }
         
         return `
             <tr>
@@ -77,7 +72,6 @@ function renderPatients(patients) {
                 </td>
                 <td>${p.email}</td>
                 <td>${p.phone || '-'}</td>
-                <td style="color: #6B7280;">${dateString}</td>
                 <td><span class="badge ${statusClass}">${p.status || 'Registered'}</span></td>
                 <td>
                     <button class="btn-icon danger" onclick="deletePatient('${p.id}')" title="Delete Patient">
