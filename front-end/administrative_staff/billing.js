@@ -15,15 +15,61 @@ let filteredBills = [];
 // ---------------- LOAD MOCK DATA FROM bills.json ----------------
 
 async function loadBills() {
-    try {
-        const res = await fetch("./bills.json");
-        bills = await res.json();
-        filteredBills = [...bills];
+    if (!window.NexCareDB) return;
 
-        render();
-    } catch (err) {
-        console.error("Failed to load bills:", err);
+    // 1. Get all patients for name resolution
+    const patients = window.NexCareDB.getTable('patients');
+    
+    // 2. Fetch bills from persistent database
+    let dbBills = window.NexCareDB.getTable('bills');
+
+    // 3. SEED: If no bills in DB, load mock data once and save it
+    if (dbBills.length === 0) {
+        try {
+            const res = await fetch("./bills.json");
+            const seedData = await res.json();
+            seedData.forEach(b => {
+                // Find matching patient ID or use first available (mockup sync)
+                const mockP = patients.find(p => p.fullName === b.patient);
+                const pid = mockP ? mockP.id : "P001";
+                
+                window.NexCareDB.addRow('bills', {
+                    id: b.id, // Keep legacy ID for initial seed
+                    patientId: pid,
+                    visitDate: b.date,
+                    dueDate: b.date,
+                    status: b.status,
+                    currency: "₹",
+                    subtotal: Number(b.amount),
+                    cgstRate: 0,
+                    sgstRate: 0,
+                    items: [{ description: b.services, amount: Number(b.amount) }],
+                    payments: []
+                });
+            });
+            // Reload after seeding
+            dbBills = window.NexCareDB.getTable('bills');
+        } catch (err) {
+            console.error("Failed to seed bills:", err);
+        }
     }
+
+    // 4. TRANSFORM DB bills for Admin View
+    bills = dbBills.map(db => {
+        const patient = patients.find(p => p.id === db.patientId);
+        return {
+            id: db.id,
+            patient: patient ? patient.fullName : (db.patientName || "Unknown Patient"),
+            date: db.visitDate || db.date,
+            services: db.items && db.items.length > 0 ? db.items[0].description : "Medical Services",
+            amount: db.subtotal || db.amount,
+            status: db.status,
+            payment: db.payments && db.payments.length > 0 ? "Paid" : "-"
+        };
+    });
+
+    filteredBills = [...bills];
+    render();
 }
 
 function render() {
@@ -184,33 +230,20 @@ window.save = () => {
         return;
     }
 
-    const billId = "B00" + (bills.length + 1);
+    // 1. Create native bill first in NexCareDB (Source of Truth)
+    const billId = "BILL-" + Math.floor(Math.random() * 9000 + 1000);
     const dateStr = new Date().toISOString().split("T")[0];
 
-    const newBill = {
-        id: billId,
-        patient: name,
-        date: dateStr,
-        services: services || "Medical Services",
-        amount: Number(amount),
-        status: "Pending",
-        payment: "-"
-    };
-
-    // Update Admin View local state
-    bills.push(newBill);
-
-    // Sync to NexCareDB for Patient Portal
     if (window.NexCareDB) {
         const patients = window.NexCareDB.getTable('patients');
         const patient = patients.find(p => p.id === patientId || p.patientIdDisplay === patientId);
         
         if (patient) {
             window.NexCareDB.addRow('bills', {
-                id: "BILL-" + Math.floor(Math.random() * 9000 + 1000),
+                id: billId,
                 patientId: patient.id,
                 visitDate: dateStr,
-                dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB'),
+                dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
                 status: "Pending",
                 currency: "₹",
                 subtotal: Number(amount),
@@ -221,19 +254,19 @@ window.save = () => {
                 ],
                 payments: []
             });
-            window.NexCareDB.logActivity('Create', 'Billing', `Admin generated new bill for ${name} (ID: ${patient.id})`);
+            window.NexCareDB.logActivity('Create', 'Billing', `Admin generated new persistent bill for ${name} (ID: ${patient.id})`);
         }
     }
 
+    // 2. Clear modal and reset UI
     document.getElementById("modal").style.display = "none";
-
-    // reset form
     document.getElementById("patientId").value = "";
     document.getElementById("name").value = "";
     document.getElementById("amount").value = "";
     document.getElementById("services").value = "";
 
-    applyFilters();
+    // 3. PERSISTENT REFRESH: Reload everything from database to reflect the new ID
+    loadBills();
 };
 
 /* ---------------- EXPORT ---------------- */
