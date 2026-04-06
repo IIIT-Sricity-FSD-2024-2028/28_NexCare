@@ -12,7 +12,7 @@
 
     <div class="auth-wrapper">
         <header class="header">
-        <nex-care-logo></nex-care-logo>
+        <a href="../landing/landing.html" style="text-decoration:none;"><nex-care-logo></nex-care-logo></a>
     </header>
 
         <div class="auth-card reverse">
@@ -48,7 +48,7 @@
                          <button type="submit" class="btn-primary">
     Sign up
     <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <polyline 
+    <polyline
         points="0,60 25,60 40,25 55,60 70,90 85,60 100,60"
         fill="none"
         stroke="white"
@@ -68,54 +68,70 @@
         </div>
     </div>
 
+    <script src="../shared/db.js"></script>
     <script src="../shared/session.js"></script>
 
     <script>
         document.getElementById('signupForm').addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            
-            console.log("Signup triggered...");
-
-            // 1. Get user data from inputs
+            e.preventDefault();
+           
             const inputs = document.querySelectorAll('.form-control');
-            
-            // Validate phone number (must be exactly 10 digits)
-            const phoneVal = inputs[2].value;
-            const phoneRegex = /^\d{10}$/;
-            if (!phoneRegex.test(phoneVal)) {
-                alert("Phone number must be exactly 10 digits (numbers only)!");
+            const fullName = inputs[0].value.trim();
+            const emailVal = inputs[1].value.trim();
+            const phoneVal = inputs[2].value.trim();
+            const passVal = inputs[3].value;
+            const confirmPassVal = inputs[4].value;
+
+            // 1. Name Validation (Only Alphabets)
+            const nameRegex = /^[A-Za-z\s]+$/;
+            if (!nameRegex.test(fullName)) {
+                alert("Name must only contain letters.");
                 return;
             }
 
-            // Check if passwords match
-            if (inputs[3].value !== inputs[4].value) {
+            // 2. Email Validation (Must have @ and a valid domain like .com, .org, .net, etc.)
+            // This prevents "ravi@gmail" (missing .com)
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(emailVal)) {
+                alert("Please enter a complete email address (e.g., name@example.com).");
+                return;
+            }
+
+            // 3. Phone Validation (10 digits and NOT all zeros)
+            const phoneRegex = /^\d{10}$/;
+            if (!phoneRegex.test(phoneVal)) {
+                alert("Phone number must be exactly 10 digits.");
+                return;
+            }
+            if (phoneVal === "0000000000") {
+                alert("Phone number cannot be all zeros.");
+                return;
+            }
+
+            // 4. Password Match
+            if (passVal !== confirmPassVal) {
                 alert("Passwords do not match!");
                 return;
             }
 
-            const newPatient = {
-                id: Date.now(),
-                name: inputs[0].value,
-                email: inputs[1].value,
-                phone: inputs[2].value,
-                password: inputs[3].value,
-                role: 'patient',
-                status: 'Active'
-            };
+            // 5. Database Logic
+            if(window.NexCareDB) {
+                const patientData = {
+                    fullName: fullName,
+                    email: emailVal,
+                    phone: phoneVal
+                };
+               
+                try {
+                    window.NexCareDB.registerPatient(patientData, passVal);
+                    sessionStorage.setItem("nexcare_user_email", emailVal);
+                } catch(err) {
+                    console.error(err);
+                }
+            }
 
-            // 2. Fetch existing mock database from Local Storage, or create new array
-            let patientsData = localStorage.getItem('nexcare_patients');
-            let patientsArray = patientsData ? JSON.parse(patientsData) : [];
-
-            // 3. Add to mock database and save back to local storage
-            patientsArray.push(newPatient);
-            localStorage.setItem('nexcare_patients', JSON.stringify(patientsArray));
-
-            console.log("Mock DB Updated:", JSON.parse(localStorage.getItem('nexcare_patients')));
-
-            // 4. Log them in
             if (typeof loginUser === "function") {
-                loginUser('patient'); 
+                loginUser('patient');
             } else {
                 alert("Error: session.js could not be found.");
             }
