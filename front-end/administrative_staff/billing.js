@@ -1,6 +1,15 @@
 import { validateBillForm } from "./validation.js";
 
+// ---------------- STATE ----------------
+const WARD_RATES = {
+    "Emergency": { service: "Emergency Ward Care & Monitoring", amount: 5000 },
+    "General": { service: "General Ward Stay", amount: 1500 },
+    "Pediatrics": { service: "Pediatric Care & Ward Services", amount: 2500 },
+    "Maternity": { service: "Maternity Ward Services", amount: 4000 }
+};
+
 let bills = [];
+
 let filteredBills = [];
 
 // ---------------- LOAD MOCK DATA FROM bills.json ----------------
@@ -118,32 +127,107 @@ window.closeModal = () => {
     document.getElementById("modal").style.display = "none";
 };
 
+window.fetchPatientDetails = () => {
+    const patientId = document.getElementById("patientId").value.trim();
+    if (!patientId) {
+        alert("Please enter a Patient ID first.");
+        return;
+    }
+
+    if (!window.NexCareDB) {
+        alert("Database connection not found.");
+        return;
+    }
+
+    // 1. Fetch patient name
+    const patients = window.NexCareDB.getTable('patients');
+    const patient = patients.find(p => p.id === patientId || p.patientIdDisplay === patientId);
+
+    if (!patient) {
+        alert("Patient not found. Please check the ID.");
+        return;
+    }
+
+    document.getElementById("name").value = patient.fullName;
+
+    // 2. Fetch bed allocation
+    const beds = window.NexCareDB.getTable('beds');
+    const bed = beds.find(b => b.patient === patient.fullName);
+
+    if (bed && bed.ward && WARD_RATES[bed.ward]) {
+        document.getElementById("services").value = WARD_RATES[bed.ward].service;
+        document.getElementById("amount").value = WARD_RATES[bed.ward].amount;
+    } else {
+        alert("No active bed allocation found for this patient. Please enter services and amount manually.");
+        document.getElementById("services").value = "";
+        document.getElementById("amount").value = "";
+    }
+};
+
 window.save = () => {
 
+    const patientId = document.getElementById("patientId").value.trim();
     const name = document.getElementById("name").value;
     const amount = document.getElementById("amount").value;
     const services = document.getElementById("services").value;
 
     const error = validateBillForm({ name, amount, services });
 
+    if (!patientId) {
+        alert("Patient ID is required.");
+        return;
+    }
+
     if (error) {
         alert(error);
         return;
     }
 
-    bills.push({
-        id: "B00" + (bills.length + 1),
+    const billId = "B00" + (bills.length + 1);
+    const dateStr = new Date().toISOString().split("T")[0];
+
+    const newBill = {
+        id: billId,
         patient: name,
-        date: new Date().toISOString().split("T")[0],
-        services: services || "1 service",
+        date: dateStr,
+        services: services || "Medical Services",
         amount: Number(amount),
         status: "Pending",
         payment: "-"
-    });
+    };
+
+    // Update Admin View local state
+    bills.push(newBill);
+
+    // Sync to NexCareDB for Patient Portal
+    if (window.NexCareDB) {
+        const patients = window.NexCareDB.getTable('patients');
+        const patient = patients.find(p => p.id === patientId || p.patientIdDisplay === patientId);
+        
+        if (patient) {
+            window.NexCareDB.addRow('bills', {
+                id: "BILL-" + Math.floor(Math.random() * 9000 + 1000),
+                patientId: patient.id,
+                visitDate: dateStr,
+                dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB'),
+                status: "Pending",
+                currency: "₹",
+                subtotal: Number(amount),
+                cgstRate: 0.09,
+                sgstRate: 0.09,
+                items: [
+                    { description: services, department: "Administrative", amount: Number(amount) }
+                ],
+                payments: []
+            });
+            window.NexCareDB.logActivity('Create', 'Billing', `Admin generated new bill for ${name} (ID: ${patient.id})`);
+        }
+    }
 
     document.getElementById("modal").style.display = "none";
 
     // reset form
+    document.getElementById("patientId").value = "";
     document.getElementById("name").value = "";
     document.getElementById("amount").value = "";
     document.getElementById("services").value = "";

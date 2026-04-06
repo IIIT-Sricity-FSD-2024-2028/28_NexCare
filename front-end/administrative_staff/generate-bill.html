@@ -254,13 +254,17 @@
 <div id="modal" class="modal">
     <div class="card modal-card">
         <h3>New Bill</h3>
-        <input id="name" class="input" placeholder="Patient Name">
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input id="patientId" class="input" placeholder="Patient ID (e.g. P001)" style="flex: 1; margin-bottom: 0;">
+            <button class="btn-outline" onclick="fetchPatientDetails()" style="padding: 0 15px;">Fetch Details</button>
+        </div>
+        <input id="name" class="input" placeholder="Patient Name" readonly style="background: #f3f4f6;">
         <input id="services" class="input" placeholder="Services">
         <input id="amount" class="input" placeholder="Amount">
-	<div class="modal-actions">
-	    <button class="btn" onclick="save()">Save</button>
-	    <button class="btn-outline" onclick="closeModal()">Cancel</button>
-	</div>
+        <div class="modal-actions">
+            <button class="btn" onclick="save()">Save</button>
+            <button class="btn-outline" onclick="closeModal()">Cancel</button>
+        </div>
     </div>
 </div>
 

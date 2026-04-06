@@ -238,9 +238,9 @@
         <div class="card" style="margin-top:20px;">
             <h3>Quick Actions</h3>
 
-            <div class="actions">
-                <a href="manage_appointments.html" class="action-btn" style="text-decoration:none; color:inherit;">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <div class="quick-actions">
+                <a href="manage_appointments.html" class="quick-action-card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="4" width="18" height="18" rx="2"></rect>
                         <line x1="16" y1="2" x2="16" y2="6"></line>
                         <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -249,24 +249,31 @@
                     <span>Schedule Appointment</span>
                 </a>
 
-                <a href="patient_checkin.html" class="action-btn" style="text-decoration:none; color:inherit;">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="12" cy="8" r="4"></circle>
-                        <path d="M4 20c0-4 16-4 16 0"></path>
+                <a href="patient_checkin.html" class="quick-action-card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-8 0v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                        <line x1="19" y1="8" x2="19" y2="14"/>
+                        <line x1="22" y1="11" x2="16" y2="11"/>
                     </svg>
                     <span>Register Patient</span>
                 </a>
 
-                <a href="bed-allocation.html" class="action-btn" style="text-decoration:none; color:inherit;">
-                    <img src="bed.png" class="icon" style="width:24px; height:24px;">
+                <a href="bed-allocation.html" class="quick-action-card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="10" width="18" height="5" rx="1"/>
+                        <rect x="4" y="7" width="4" height="3" rx="1"/>
+                        <line x1="3" y1="7" x2="3" y2="15"/>
+                        <line x1="21" y1="10" x2="21" y2="15"/>
+                    </svg>
                     <span>Assign Bed</span>
                 </a>
 
-                <a href="feedback.html" class="action-btn" style="text-decoration:none; color:inherit;">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <circle cx="12" cy="16" r="1"></circle>
+                <a href="feedback.html" class="quick-action-card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
                     </svg>
                     <span>View Alerts</span>
                 </a>
