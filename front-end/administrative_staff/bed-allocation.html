@@ -251,8 +251,11 @@
 <div id="modal" class="modal">
     <div class="card modal-card">
         <h3>Update Bed</h3>
-
-        <input id="patientName" class="input" placeholder="Patient Name">
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <input id="patientId" class="input" placeholder="Patient ID (e.g. P001)" style="flex: 1; margin: 0;">
+            <button class="btn-outline" onclick="fetchPatientForUpdate()" style="padding: 0 12px; height: 38px;">Fetch</button>
+        </div>
+        <input id="patientName" class="input" placeholder="Patient Name" readonly style="background: #f3f4f6;">
 
         <select id="status" class="input">
             <option value="available">Available</option>
@@ -271,8 +274,11 @@
 <div id="admitModal" class="modal">
     <div class="card modal-card">
         <h3>Admit Patient</h3>
-
-        <input id="admitName" class="input" placeholder="Patient Name">
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <input id="admitPatientId" class="input" placeholder="Patient ID" style="flex: 1; margin: 0;">
+            <button class="btn-outline" onclick="fetchPatientForAdmit()" style="padding: 0 12px; height: 38px;">Fetch</button>
+        </div>
+        <input id="admitName" class="input" placeholder="Patient Name" readonly style="background: #f3f4f6;">
 
         <select id="admitWard" class="input"></select>
 

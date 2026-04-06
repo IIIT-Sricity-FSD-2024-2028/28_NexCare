@@ -152,7 +152,8 @@ window.fetchPatientDetails = () => {
 
     // 2. Fetch bed allocation
     const beds = window.NexCareDB.getTable('beds');
-    const bed = beds.find(b => b.patient === patient.fullName);
+    // FIX: Look for patientId match first, then fallback to name for sync robustness
+    const bed = beds.find(b => b.patientId === patient.id || (b.patient && b.patient === patient.fullName));
 
     if (bed && bed.ward && WARD_RATES[bed.ward]) {
         document.getElementById("services").value = WARD_RATES[bed.ward].service;

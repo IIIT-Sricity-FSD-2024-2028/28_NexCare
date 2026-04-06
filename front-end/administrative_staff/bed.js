@@ -190,9 +190,43 @@ window.setView = (type) => {
 window.openModal = (id) => {
     selectedBed = beds.find(b => b.id === id);
 
-    document.getElementById("modal").style.display = "flex";
+    const modal = document.getElementById("modal");
+    modal.style.display = "flex";
+    
+    // Auto-populate patient record from DB if possible
+    let currentId = "";
+    if (selectedBed.patient) {
+        // Reverse lookup if ID is missing (legacy support)
+        const patients = window.NexCareDB ? window.NexCareDB.getTable('patients') : [];
+        const patient = patients.find(p => p.fullName === selectedBed.patient);
+        currentId = patient ? patient.id : "";
+    }
+
+    document.getElementById("patientId").value = selectedBed.patientId || currentId;
     document.getElementById("patientName").value = selectedBed.patient || "";
     document.getElementById("status").value = selectedBed.status;
+};
+
+window.fetchPatientForUpdate = () => {
+    const id = document.getElementById("patientId").value.trim();
+    const patient = window.NexCareDB.getTable('patients').find(p => p.id === id || p.patientIdDisplay === id);
+    if (patient) {
+        document.getElementById("patientName").value = patient.fullName;
+    } else {
+        alert("Patient ID not found.");
+        document.getElementById("patientName").value = "";
+    }
+};
+
+window.fetchPatientForAdmit = () => {
+    const id = document.getElementById("admitPatientId").value.trim();
+    const patient = window.NexCareDB.getTable('patients').find(p => p.id === id || p.patientIdDisplay === id);
+    if (patient) {
+        document.getElementById("admitName").value = patient.fullName;
+    } else {
+        alert("Patient ID not found.");
+        document.getElementById("admitName").value = "";
+    }
 };
 
 window.closeModal = () => {
@@ -201,6 +235,7 @@ window.closeModal = () => {
 
 // ---------------- SAVE ----------------
 window.saveBed = () => {
+    const patientId = document.getElementById("patientId").value.trim();
     const name = document.getElementById("patientName").value.trim();
     let status = document.getElementById("status").value;
 
@@ -212,8 +247,10 @@ window.saveBed = () => {
 
     if (status === "available") {
         selectedBed.patient = "";
+        selectedBed.patientId = "";
     } else {
         selectedBed.patient = name;
+        selectedBed.patientId = patientId;
     }
 
     selectedBed.status = status;
@@ -221,6 +258,7 @@ window.saveBed = () => {
     if (window.NexCareDB) {
         window.NexCareDB.updateRow('beds', selectedBed.id, {
             patient: selectedBed.patient,
+            patientId: selectedBed.patientId,
             status: selectedBed.status
         });
     }
@@ -256,15 +294,16 @@ window.openAdmitModal = () => {
 window.closeAdmitModal = () => {
     document.getElementById("admitModal").style.display = "none";
     document.getElementById("admitName").value = "";
+    document.getElementById("admitPatientId").value = "";
 };
 
 window.admitPatient = () => {
+    const patientId = document.getElementById("admitPatientId").value.trim();
     const name = document.getElementById("admitName").value.trim();
     const ward = document.getElementById("admitWard").value;
 
-    // 🚨 HARD BLOCK (independent of import)
-    if (!/^[A-Za-z]+( [A-Za-z]+)*$/.test(name) || name.length < 3) {
-        alert("Valid patient name required (only letters, min 3 chars)");
+    if (!patientId || !name) {
+        alert("Please select a valid patient using ID.");
         return;
     }
 
@@ -285,11 +324,13 @@ window.admitPatient = () => {
     }
 
     bed.patient = name;
+    bed.patientId = patientId;
     bed.status = "occupied";
     
     if (window.NexCareDB) {
         window.NexCareDB.updateRow('beds', bed.id, {
             patient: bed.patient,
+            patientId: bed.patientId,
             status: bed.status
         });
     }
