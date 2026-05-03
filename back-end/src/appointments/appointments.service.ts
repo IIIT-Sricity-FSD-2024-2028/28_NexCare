@@ -1,0 +1,430 @@
+import { Injectable } from '@nestjs/common';
+import { ResponseUtil } from '../common/utils/response.util';
+import { IdGenerator } from '../common/utils/id-generator.util';
+import { ArrayUtil } from '../common/utils/array.util';
+import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest, AppointmentStats } from './interfaces/appointment.interface';
+import { AppointmentStatus } from '../common/interfaces/api-response.interface';
+
+/**
+ * Appointments Service
+ * Manages appointment scheduling and status tracking in the NexCare system
+ * Handles CRUD operations for appointments with business logic
+ */
+@Injectable()
+export class AppointmentsService {
+  // In-memory mock appointments database (aligned with frontend db.js)
+  private appointments: Appointment[] = [
+    {
+      id: 'APT-001',
+      patientId: 'P001',
+      patientName: 'John Anderson',
+      department: 'Cardiology',
+      doctor: 'Dr. Sarah Smith',
+      dateLabel: 'March 15, 2026',
+      timeLabel: '10:00 AM',
+      token: 'TKN-1234',
+      fee: 150,
+      status: AppointmentStatus.CONFIRMED,
+      reason: 'Routine heart checkup',
+      createdAt: '2026-03-01T00:00:00Z'
+    },
+    {
+      id: 'APT-002',
+      patientId: 'P002',
+      patientName: 'Maria Garcia',
+      department: 'Orthopedics',
+      doctor: 'Dr. Vikram Patel',
+      dateLabel: 'April 02, 2026',
+      timeLabel: '02:30 PM',
+      token: 'TKN-5678',
+      fee: 200,
+      status: AppointmentStatus.PENDING,
+      reason: 'Severe knee pain - Emergency Consult',
+      createdAt: '2026-03-25T00:00:00Z'
+    },
+    {
+      id: 'APT-003',
+      patientId: 'P001',
+      patientName: 'John Anderson',
+      department: 'General Medicine',
+      doctor: 'Dr. Anjali Desai',
+      dateLabel: 'March 01, 2026',
+      timeLabel: '11:00 AM',
+      token: 'TKN-9012',
+      fee: 100,
+      status: AppointmentStatus.COMPLETED,
+      reason: 'Annual physical',
+      createdAt: '2026-02-15T00:00:00Z'
+    },
+    {
+      id: 'APT-004',
+      patientId: 'P001',
+      patientName: 'John Anderson',
+      department: 'Pediatrics',
+      doctor: 'Dr. Maya Rao',
+      dateLabel: 'April 05, 2026',
+      timeLabel: '09:30 AM',
+      token: 'TKN-1456',
+      fee: 120,
+      status: AppointmentStatus.CONFIRMED,
+      reason: 'Child wellness consultation (family)',
+      createdAt: '2026-03-20T00:00:00Z'
+    },
+    {
+      id: 'APT-005',
+      patientId: 'P002',
+      patientName: 'Maria Garcia',
+      department: 'Neurology',
+      doctor: 'Dr. Ethan Brown',
+      dateLabel: 'April 08, 2026',
+      timeLabel: '01:00 PM',
+      token: 'TKN-2789',
+      fee: 220,
+      status: AppointmentStatus.PENDING,
+      reason: 'Recurring headaches - evaluation',
+      createdAt: '2026-03-28T00:00:00Z'
+    },
+    {
+      id: 'APT-006',
+      patientId: 'P001',
+      patientName: 'John Anderson',
+      department: 'Dermatology',
+      doctor: 'Dr. Aisha Khan',
+      dateLabel: 'April 10, 2026',
+      timeLabel: '04:00 PM',
+      token: 'TKN-3301',
+      fee: 140,
+      status: AppointmentStatus.CONFIRMED,
+      reason: 'Skin allergy follow-up',
+      createdAt: '2026-03-30T00:00:00Z'
+    },
+    {
+      id: 'APT-007',
+      patientId: 'P002',
+      patientName: 'Maria Garcia',
+      department: 'Emergency',
+      doctor: 'Dr. Liam Chen',
+      dateLabel: 'April 02, 2026',
+      timeLabel: '06:15 PM',
+      token: 'TKN-7721',
+      fee: 250,
+      status: AppointmentStatus.CONFIRMED,
+      reason: 'ER triage follow-up',
+      createdAt: '2026-04-01T00:00:00Z'
+    }
+  ];
+
+  /**
+   * Get all appointments with optional filtering
+   * @param patientId Optional patient filter
+   * @param status Optional status filter
+   * @param department Optional department filter
+   * @returns List of appointments
+   */
+  async findAll(patientId?: string, status?: AppointmentStatus, department?: string) {
+    try {
+      let filteredAppointments = [...this.appointments];
+
+      // Apply patient filter
+      if (patientId) {
+        filteredAppointments = filteredAppointments.filter(apt => apt.patientId === patientId);
+      }
+
+      // Apply status filter
+      if (status) {
+        filteredAppointments = filteredAppointments.filter(apt => apt.status === status);
+      }
+
+      // Apply department filter
+      if (department) {
+        filteredAppointments = filteredAppointments.filter(apt => apt.department === department);
+      }
+
+      return ResponseUtil.success('Appointments retrieved successfully', filteredAppointments);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve appointments');
+    }
+  }
+
+  /**
+   * Get appointment by ID
+   * @param id Appointment ID
+   * @returns Appointment data
+   */
+  async findById(id: string) {
+    try {
+      const appointment = this.appointments.find(a => a.id === id);
+      
+      if (!appointment) {
+        return ResponseUtil.notFound('Appointment', id);
+      }
+
+      return ResponseUtil.success('Appointment retrieved successfully', appointment);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve appointment');
+    }
+  }
+
+  /**
+   * Create new appointment
+   * @param appointmentData Appointment creation data
+   * @returns Created appointment data
+   */
+  async create(appointmentData: CreateAppointmentRequest) {
+    try {
+      // Generate new appointment ID
+      const newAppointmentId = IdGenerator.generateAppointmentId();
+      
+      // Generate token
+      const token = IdGenerator.generateTokenId();
+
+      // Create new appointment
+      const newAppointment: Appointment = {
+        id: newAppointmentId,
+        patientId: appointmentData.patientId,
+        patientName: `Patient ${appointmentData.patientId}`, // Would fetch from patient service
+        department: appointmentData.department,
+        doctor: appointmentData.doctor || 'TBD',
+        dateLabel: appointmentData.dateLabel,
+        timeLabel: appointmentData.timeLabel,
+        token,
+        fee: appointmentData.fee || 100,
+        status: AppointmentStatus.CONFIRMED,
+        reason: appointmentData.reason || '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // Add to appointments array
+      this.appointments.push(newAppointment);
+
+      return ResponseUtil.created('Appointment created successfully', newAppointment);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to create appointment');
+    }
+  }
+
+  /**
+   * Update appointment
+   * @param id Appointment ID
+   * @param updateData Appointment update data
+   * @returns Updated appointment data
+   */
+  async update(id: string, updateData: UpdateAppointmentRequest) {
+    try {
+      const appointment = ArrayUtil.findById(this.appointments, id);
+      
+      if (!appointment) {
+        return ResponseUtil.notFound('Appointment', id);
+      }
+
+      // Update appointment
+      const updatedAppointment = ArrayUtil.updateById(this.appointments, id, {
+        ...updateData,
+        updatedAt: new Date().toISOString()
+      });
+
+      if (!updatedAppointment) {
+        return ResponseUtil.notFound('Appointment', id);
+      }
+
+      return ResponseUtil.updated('Appointment updated successfully', updatedAppointment);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to update appointment');
+    }
+  }
+
+  /**
+   * Delete appointment
+   * @param id Appointment ID
+   * @returns Deletion confirmation
+   */
+  async delete(id: string) {
+    try {
+      const appointmentIndex = this.appointments.findIndex(a => a.id === id);
+      
+      if (appointmentIndex === -1) {
+        return ResponseUtil.notFound('Appointment', id);
+      }
+
+      // Remove appointment
+      this.appointments.splice(appointmentIndex, 1);
+
+      return ResponseUtil.deleted('Appointment');
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to delete appointment');
+    }
+  }
+
+  /**
+   * Confirm appointment
+   * @param id Appointment ID
+   * @returns Updated appointment data
+   */
+  async confirm(id: string) {
+    try {
+      const appointmentIndex = this.appointments.findIndex(a => a.id === id);
+      
+      if (appointmentIndex === -1) {
+        return ResponseUtil.notFound('Appointment', id);
+      }
+
+      // Update status to confirmed
+      this.appointments[appointmentIndex].status = AppointmentStatus.CONFIRMED;
+      this.appointments[appointmentIndex].updatedAt = new Date().toISOString();
+
+      const updatedAppointment = this.appointments[appointmentIndex];
+
+      return ResponseUtil.updated('Appointment confirmed successfully', updatedAppointment);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to confirm appointment');
+    }
+  }
+
+  /**
+   * Complete appointment
+   * @param id Appointment ID
+   * @returns Updated appointment data
+   */
+  async complete(id: string) {
+    try {
+      const appointmentIndex = this.appointments.findIndex(a => a.id === id);
+      
+      if (appointmentIndex === -1) {
+        return ResponseUtil.notFound('Appointment', id);
+      }
+
+      // Update status to completed
+      this.appointments[appointmentIndex].status = AppointmentStatus.COMPLETED;
+      this.appointments[appointmentIndex].updatedAt = new Date().toISOString();
+
+      const updatedAppointment = this.appointments[appointmentIndex];
+
+      return ResponseUtil.updated('Appointment completed successfully', updatedAppointment);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to complete appointment');
+    }
+  }
+
+  /**
+   * Cancel appointment
+   * @param id Appointment ID
+   * @returns Updated appointment data
+   */
+  async cancel(id: string) {
+    try {
+      const appointmentIndex = this.appointments.findIndex(a => a.id === id);
+      
+      if (appointmentIndex === -1) {
+        return ResponseUtil.notFound('Appointment', id);
+      }
+
+      // Update status to cancelled
+      this.appointments[appointmentIndex].status = AppointmentStatus.CANCELLED;
+      this.appointments[appointmentIndex].updatedAt = new Date().toISOString();
+
+      const updatedAppointment = this.appointments[appointmentIndex];
+
+      return ResponseUtil.updated('Appointment cancelled successfully', updatedAppointment);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to cancel appointment');
+    }
+  }
+
+  /**
+   * Get appointment statistics
+   * @returns Appointment statistics
+   */
+  async getStats() {
+    try {
+      const totalAppointments = this.appointments.length;
+      const pendingAppointments = this.appointments.filter(a => a.status === AppointmentStatus.PENDING).length;
+      const confirmedAppointments = this.appointments.filter(a => a.status === AppointmentStatus.CONFIRMED).length;
+      const completedAppointments = this.appointments.filter(a => a.status === AppointmentStatus.COMPLETED).length;
+      const cancelledAppointments = this.appointments.filter(a => a.status === AppointmentStatus.CANCELLED).length;
+      
+      // Today's appointments
+      const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      const todayAppointments = this.appointments.filter(a => a.dateLabel === today).length;
+
+      // By department
+      const byDepartment: Record<string, number> = {};
+      this.appointments.forEach(apt => {
+        byDepartment[apt.department] = (byDepartment[apt.department] || 0) + 1;
+      });
+
+      // Revenue from completed appointments
+      const revenue = this.appointments
+        .filter(a => a.status === AppointmentStatus.COMPLETED)
+        .reduce((sum, apt) => sum + apt.fee, 0);
+
+      const stats: AppointmentStats = {
+        total: totalAppointments,
+        pending: pendingAppointments,
+        confirmed: confirmedAppointments,
+        completed: completedAppointments,
+        cancelled: cancelledAppointments,
+        today: todayAppointments,
+        byDepartment,
+        revenue
+      };
+
+      return ResponseUtil.success('Appointment statistics retrieved successfully', stats);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve appointment statistics');
+    }
+  }
+
+  /**
+   * Get appointments by patient
+   * @param patientId Patient ID
+   * @returns Patient appointments
+   */
+  async findByPatient(patientId: string) {
+    try {
+      const appointments = this.appointments.filter(a => a.patientId === patientId);
+      
+      return ResponseUtil.success(`Appointments for patient ${patientId} retrieved successfully`, appointments);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve patient appointments');
+    }
+  }
+
+  /**
+   * Get appointments by department
+   * @param department Department name
+   * @returns Department appointments
+   */
+  async findByDepartment(department: string) {
+    try {
+      const appointments = this.appointments.filter(a => a.department === department);
+      
+      return ResponseUtil.success(`Appointments for ${department} department retrieved successfully`, appointments);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve department appointments');
+    }
+  }
+
+  /**
+   * Generate appointment token
+   * @returns Generated token
+   */
+  private generateToken(): string {
+    return 'TKN-' + Math.floor(Math.random() * 90000 + 10000);
+  }
+
+  /**
+   * Get today's appointments
+   * @returns Today's appointments
+   */
+  async getTodayAppointments() {
+    try {
+      const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      const todayAppointments = this.appointments.filter(a => a.dateLabel === today);
+      
+      return ResponseUtil.success('Today\'s appointments retrieved successfully', todayAppointments);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve today\'s appointments');
+    }
+  }
+}

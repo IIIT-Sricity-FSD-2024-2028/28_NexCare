@@ -1,0 +1,15 @@
+import { Module } from '@nestjs/common';
+import { FeedbackController } from './feedback.controller';
+import { FeedbackService } from './feedback.service';
+
+/**
+ * Feedback Module
+ * Manages communication and feedback system in the NexCare system
+ * Provides CRUD operations and feedback management functionality
+ */
+@Module({
+  controllers: [FeedbackController],
+  providers: [FeedbackService],
+  exports: [FeedbackService],
+})
+export class FeedbackModule {}

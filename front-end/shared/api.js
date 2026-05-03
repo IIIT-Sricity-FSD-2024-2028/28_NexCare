@@ -1,0 +1,465 @@
+// NEXCARE FRONTEND API LAYER
+// Centralized backend communication service
+// Base URL: http://localhost:3001/api
+
+class NexCareAPI {
+    constructor() {
+        this.baseURL = 'http://localhost:3001/api';
+        this.defaultHeaders = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+    }
+
+    // Core HTTP Methods
+    async get(endpoint) {
+        try {
+            const response = await fetch(`${this.baseURL}${endpoint}`, {
+                method: 'GET',
+                headers: this.getHeaders()
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            return this.handleError(error, 'GET', endpoint);
+        }
+    }
+
+    async post(endpoint, data = {}) {
+        try {
+            const response = await fetch(`${this.baseURL}${endpoint}`, {
+                method: 'POST',
+                headers: this.getHeaders(),
+                body: JSON.stringify(data)
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            return this.handleError(error, 'POST', endpoint);
+        }
+    }
+
+    async put(endpoint, data = {}) {
+        try {
+            const response = await fetch(`${this.baseURL}${endpoint}`, {
+                method: 'PUT',
+                headers: this.getHeaders(),
+                body: JSON.stringify(data)
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            return this.handleError(error, 'PUT', endpoint);
+        }
+    }
+
+    async patch(endpoint, data = {}) {
+        try {
+            const response = await fetch(`${this.baseURL}${endpoint}`, {
+                method: 'PATCH',
+                headers: this.getHeaders(),
+                body: JSON.stringify(data)
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            return this.handleError(error, 'PATCH', endpoint);
+        }
+    }
+
+    async delete(endpoint) {
+        try {
+            const response = await fetch(`${this.baseURL}${endpoint}`, {
+                method: 'DELETE',
+                headers: this.getHeaders()
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            return this.handleError(error, 'DELETE', endpoint);
+        }
+    }
+
+    // Helper Methods
+    getHeaders() {
+        const headers = { ...this.defaultHeaders };
+        
+        // Add auth token if available
+        const token = this.getAuthToken();
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        return headers;
+    }
+
+    getAuthToken() {
+        // Try to get token from sessionStorage or localStorage
+        return sessionStorage.getItem('nexcare_auth_token') || 
+               localStorage.getItem('nexcare_auth_token');
+    }
+
+    setAuthToken(token) {
+        // Store token in both storages for persistence
+        sessionStorage.setItem('nexcare_auth_token', token);
+        localStorage.setItem('nexcare_auth_token', token);
+    }
+
+    clearAuthToken() {
+        sessionStorage.removeItem('nexcare_auth_token');
+        localStorage.removeItem('nexcare_auth_token');
+    }
+
+    async handleResponse(response) {
+        try {
+            const data = await response.json();
+            
+            if (response.ok) {
+                return {
+                    success: true,
+                    data: data.data || data,
+                    message: data.message || 'Success'
+                };
+            } else {
+                return {
+                    success: false,
+                    data: null,
+                    message: data.message || `HTTP Error: ${response.status}`
+                };
+            }
+        } catch (error) {
+            return {
+                success: false,
+                data: null,
+                message: `Response parsing error: ${error.message}`
+            };
+        }
+    }
+
+    handleError(error, method, endpoint) {
+        console.error(`API Error (${method} ${endpoint}):`, error);
+        
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            return {
+                success: false,
+                data: null,
+                message: 'Network error: Unable to connect to server. Please check your connection.'
+            };
+        }
+        
+        return {
+            success: false,
+            data: null,
+            message: error.message || 'An unexpected error occurred'
+        };
+    }
+}
+
+// Create global API instance
+const api = new NexCareAPI();
+
+// API MODULES
+
+// Auth API
+const AuthAPI = {
+    async login(credentials) {
+        const response = await api.post('/auth/login', credentials);
+        if (response.success && response.data?.token) {
+            api.setAuthToken(response.data.token);
+        }
+        return response;
+    },
+
+    async register(userData) {
+        return await api.post('/auth/register', userData);
+    },
+
+    async logout(userId) {
+        const response = await api.post(`/auth/logout/${userId}`);
+        if (response.success) {
+            api.clearAuthToken();
+        }
+        return response;
+    },
+
+    async getCurrentUser(userId) {
+        return await api.get(`/auth/current/${userId}`);
+    }
+};
+
+// Users API
+const UsersAPI = {
+    async getAll() {
+        return await api.get('/users');
+    },
+
+    async getById(id) {
+        return await api.get(`/users/${id}`);
+    },
+
+    async create(userData) {
+        return await api.post('/users', userData);
+    },
+
+    async update(id, userData) {
+        return await api.put(`/users/${id}`, userData);
+    },
+
+    async delete(id) {
+        return await api.delete(`/users/${id}`);
+    }
+};
+
+// Patients API
+const PatientsAPI = {
+    async getAll() {
+        return await api.get('/patients');
+    },
+
+    async getById(id) {
+        return await api.get(`/patients/${id}`);
+    },
+
+    async create(patientData) {
+        return await api.post('/patients', patientData);
+    },
+
+    async update(id, patientData) {
+        return await api.put(`/patients/${id}`, patientData);
+    },
+
+    async delete(id) {
+        return await api.delete(`/patients/${id}`);
+    }
+};
+
+// Appointments API
+const AppointmentsAPI = {
+    async getAll() {
+        return await api.get('/appointments');
+    },
+
+    async getById(id) {
+        return await api.get(`/appointments/${id}`);
+    },
+
+    async create(appointmentData) {
+        return await api.post('/appointments', appointmentData);
+    },
+
+    async update(id, appointmentData) {
+        return await api.put(`/appointments/${id}`, appointmentData);
+    },
+
+    async updateStatus(id, status) {
+        return await api.patch(`/appointments/${id}/status`, { status });
+    },
+
+    async cancel(id) {
+        return await api.patch(`/appointments/${id}/cancel`);
+    },
+
+    async delete(id) {
+        return await api.delete(`/appointments/${id}`);
+    }
+};
+
+// Billing API
+const BillingAPI = {
+    async getAll() {
+        return await api.get('/billing');
+    },
+
+    async getById(id) {
+        return await api.get(`/billing/${id}`);
+    },
+
+    async create(billData) {
+        return await api.post('/billing', billData);
+    },
+
+    async update(id, billData) {
+        return await api.put(`/billing/${id}`, billData);
+    },
+
+    async updateStatus(id, status) {
+        return await api.patch(`/billing/${id}/status`, { status });
+    },
+
+    async markPaid(id, paymentData) {
+        return await api.patch(`/billing/${id}/pay`, paymentData);
+    }
+};
+
+// Ambulance API
+const AmbulanceAPI = {
+    async getAllRequests() {
+        return await api.get('/ambulance/requests');
+    },
+
+    async getRequestById(id) {
+        return await api.get(`/ambulance/requests/${id}`);
+    },
+
+    async createRequest(requestData) {
+        return await api.post('/ambulance/requests', requestData);
+    },
+
+    async updateRequest(id, requestData) {
+        return await api.put(`/ambulance/requests/${id}`, requestData);
+    },
+
+    async updateStatus(id, status) {
+        return await api.patch(`/ambulance/requests/${id}/status`, { status });
+    },
+
+    async cancelRequest(id) {
+        return await api.delete(`/ambulance/requests/${id}`);
+    }
+};
+
+// Feedback API
+const FeedbackAPI = {
+    async getAll() {
+        return await api.get('/feedback');
+    },
+
+    async getById(id) {
+        return await api.get(`/feedback/${id}`);
+    },
+
+    async create(feedbackData) {
+        return await api.post('/feedback', feedbackData);
+    },
+
+    async update(id, feedbackData) {
+        return await api.put(`/feedback/${id}`, feedbackData);
+    },
+
+    async updateStatus(id, status) {
+        return await api.patch(`/feedback/${id}/status`, { status });
+    },
+
+    async delete(id) {
+        return await api.delete(`/feedback/${id}`);
+    }
+};
+
+// Beds API
+const BedsAPI = {
+    async getAll() {
+        return await api.get('/beds');
+    },
+
+    async getById(id) {
+        return await api.get(`/beds/${id}`);
+    },
+
+    async getAvailable() {
+        return await api.get('/beds/available');
+    },
+
+    async allocate(id, allocationData) {
+        return await api.put(`/beds/${id}`, allocationData);
+    },
+
+    async release(id) {
+        return await api.patch(`/beds/${id}/release`);
+    }
+};
+
+// Inventory API
+const InventoryAPI = {
+    async getAll() {
+        return await api.get('/inventory');
+    },
+
+    async getById(id) {
+        return await api.get(`/inventory/${id}`);
+    },
+
+    async create(itemData) {
+        return await api.post('/inventory', itemData);
+    },
+
+    async update(id, itemData) {
+        return await api.put(`/inventory/${id}`, itemData);
+    },
+
+    async delete(id) {
+        return await api.delete(`/inventory/${id}`);
+    },
+
+    async updateStock(id, quantity) {
+        return await api.patch(`/inventory/${id}/stock`, { quantity });
+    }
+};
+
+// System API
+const SystemAPI = {
+    async getActivity() {
+        return await api.get('/system/activity');
+    },
+
+    async getSettings() {
+        return await api.get('/system/settings');
+    },
+
+    async updateSettings(settings) {
+        return await api.put('/system/settings', settings);
+    },
+
+    async logActivity(activityData) {
+        return await api.post('/system/activity', activityData);
+    }
+};
+
+// Export all APIs as global window object for easy access
+window.NexCareAPI = {
+    // Core methods
+    get: api.get.bind(api),
+    post: api.post.bind(api),
+    put: api.put.bind(api),
+    patch: api.patch.bind(api),
+    delete: api.delete.bind(api),
+    
+    // Token management
+    setAuthToken: api.setAuthToken.bind(api),
+    clearAuthToken: api.clearAuthToken.bind(api),
+    getAuthToken: api.getAuthToken.bind(api),
+    
+    // API Modules
+    Auth: AuthAPI,
+    Users: UsersAPI,
+    Patients: PatientsAPI,
+    Appointments: AppointmentsAPI,
+    Billing: BillingAPI,
+    Ambulance: AmbulanceAPI,
+    Feedback: FeedbackAPI,
+    Beds: BedsAPI,
+    Inventory: InventoryAPI,
+    System: SystemAPI
+};
+
+// Legacy compatibility aliases for gradual migration
+window.NexCareAPI.login = AuthAPI.login;
+window.NexCareAPI.register = AuthAPI.register;
+window.NexCareAPI.logout = AuthAPI.logout;
+window.NexCareAPI.getUsers = UsersAPI.getAll;
+window.NexCareAPI.getPatients = PatientsAPI.getAll;
+window.NexCareAPI.getAppointments = AppointmentsAPI.getAll;
+window.NexCareAPI.createAppointment = AppointmentsAPI.create;
+window.NexCareAPI.updateAppointment = AppointmentsAPI.update;
+window.NexCareAPI.cancelAppointment = AppointmentsAPI.cancel;
+window.NexCareAPI.deleteAppointment = AppointmentsAPI.delete;
+window.NexCareAPI.getBills = BillingAPI.getAll;
+window.NexCareAPI.createBill = BillingAPI.create;
+window.NexCareAPI.updateBillStatus = BillingAPI.updateStatus;
+window.NexCareAPI.getAmbulanceRequests = AmbulanceAPI.getAllRequests;
+window.NexCareAPI.createAmbulanceRequest = AmbulanceAPI.createRequest;
+window.NexCareAPI.updateAmbulanceRequest = AmbulanceAPI.updateRequest;
+window.NexCareAPI.getFeedback = FeedbackAPI.getAll;
+window.NexCareAPI.createFeedback = FeedbackAPI.create;
+window.NexCareAPI.getBeds = BedsAPI.getAll;
+window.NexCareAPI.getInventory = InventoryAPI.getAll;
+window.NexCareAPI.getSystemActivity = SystemAPI.getActivity;

@@ -1,8 +1,41 @@
-function loginUser(role) {
-
+// Enhanced loginUser function that supports both legacy localStorage and backend API
+async function loginUser(role, credentials = null) {
+    // If credentials are provided, try backend authentication first
+    if (credentials && window.NexCareAPI) {
+        try {
+            const response = await window.NexCareAPI.Auth.login({
+                ...credentials,
+                role: role
+            });
+            
+            if (response.success) {
+                // Store backend session data
+                sessionStorage.setItem("isLoggedIn", "true");
+                sessionStorage.setItem("nexcare_current_role", role);
+                sessionStorage.setItem("nexcare_user_email", credentials.email);
+                sessionStorage.setItem("nexcare_user_data", JSON.stringify(response.data.user));
+                
+                // Redirect based on role
+                redirectByRole(role);
+                return;
+            } else {
+                // Backend auth failed, fall back to localStorage for demo
+                console.warn('Backend authentication failed, using fallback:', response.message);
+            }
+        } catch (error) {
+            console.warn('Backend authentication error, using fallback:', error.message);
+        }
+    }
+    
+    // Legacy fallback: use localStorage/sessionStorage
     sessionStorage.setItem("isLoggedIn", "true");
     sessionStorage.setItem("nexcare_current_role", role);
+    
+    redirectByRole(role);
+}
 
+// Helper function for role-based redirection
+function redirectByRole(role) {
     switch (role) {
         case "superuser":
             window.location.href = "../superuser/dashboard.html";
@@ -25,8 +58,35 @@ function loginUser(role) {
     }
 }
 
-function logoutUser() {
+// Enhanced logoutUser function that supports backend API logout
+async function logoutUser() {
+    const userEmail = sessionStorage.getItem("nexcare_user_email");
+    
+    // Try backend logout if API is available and user email exists
+    if (window.NexCareAPI && userEmail) {
+        try {
+            // Extract user ID from stored user data
+            const userData = sessionStorage.getItem("nexcare_user_data");
+            let userId = null;
+            
+            if (userData) {
+                const user = JSON.parse(userData);
+                userId = user.id;
+            }
+            
+            if (userId) {
+                await window.NexCareAPI.Auth.logout(userId);
+            }
+        } catch (error) {
+            console.warn('Backend logout error, proceeding with local logout:', error.message);
+        }
+    }
+    
+    // Clear all session data
     sessionStorage.clear();
+    localStorage.removeItem("nexcare_auth_token");
+    
+    // Redirect to landing page
     window.location.href = "../landing/landing.html";
 }
 
