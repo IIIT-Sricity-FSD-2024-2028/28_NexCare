@@ -1,6 +1,6 @@
 /**
- * Create Bill DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Create Bill DTO - Simple data transfer object
+ * Transfers bill creation data between client and server
  */
 export class CreateBillDto {
   patientId: string;

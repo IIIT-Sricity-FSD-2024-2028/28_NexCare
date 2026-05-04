@@ -18,18 +18,9 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Global validation pipe (teammates will add proper DTO validation)
-  // Temporarily disabled to allow basic functionality
-  // app.useGlobalPipes(
-  //   new ValidationPipe({
-  //     whitelist: true,
-  //     forbidNonWhitelisted: false, // Allow properties without validation decorators for now
-  //     transform: true,
-  //     transformOptions: {
-  //       enableImplicitConversion: true,
-  //     },
-  //   }),
-  // );
+  // Note: Validation should be handled in service layer, not in DTOs
+  // DTOs are simple data transfer objects - no validation decorators
+  // Validation logic should be separate from data transfer
 
   // Global prefix for all routes
   app.setGlobalPrefix('api');

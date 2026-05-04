@@ -1,3 +1,4 @@
+import { InventoryStatus } from '../../common/interfaces/api-response.interface';
 export declare class UpdateInventoryDto {
     name?: string;
     category?: string;
@@ -5,5 +6,5 @@ export declare class UpdateInventoryDto {
     minStock?: number;
     unit?: string;
     location?: string;
-    status?: string;
+    status?: InventoryStatus;
 }

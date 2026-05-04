@@ -1,6 +1,8 @@
+import { AppointmentStatus } from '../../common/interfaces/api-response.interface';
+
 /**
- * Update Appointment DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Update Appointment DTO - Simple data transfer object
+ * Transfers appointment update data between client and server
  */
 export class UpdateAppointmentDto {
   department?: string;
@@ -8,6 +10,6 @@ export class UpdateAppointmentDto {
   dateLabel?: string;
   timeLabel?: string;
   fee?: number;
-  status?: string;
+  status?: AppointmentStatus;
   reason?: string;
 }

@@ -1,6 +1,6 @@
 /**
- * Create Feedback DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Create Feedback DTO - Simple data transfer object
+ * Transfers feedback submission data between client and server
  */
 export class CreateFeedbackDto {
   patientId: string;

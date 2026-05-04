@@ -1,11 +1,11 @@
 import { UserRole } from '../../common/interfaces/api-response.interface';
 
 /**
- * Login DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Login DTO - Simple data transfer object
+ * Transfers login credentials between client and server
  */
 export class LoginDto {
   email: string;
   password: string;
-  role?: UserRole;
+  role: UserRole;
 }

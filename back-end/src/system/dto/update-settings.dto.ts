@@ -1,6 +1,6 @@
 /**
- * Update System Settings DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Update System Settings DTO - Simple data transfer object
+ * Transfers system settings update data between client and server
  */
 export class UpdateSystemSettingsDto {
   value: string;

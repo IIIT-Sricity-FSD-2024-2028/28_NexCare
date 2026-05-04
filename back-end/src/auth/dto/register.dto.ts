@@ -1,6 +1,6 @@
 /**
- * Register DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Register DTO - Simple data transfer object
+ * Transfers patient registration data between client and server
  */
 export class RegisterDto {
   fullName: string;

@@ -1,6 +1,6 @@
 /**
- * Update Patient DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Update Patient DTO - Simple data transfer object
+ * Transfers patient update data between client and server
  */
 export class UpdatePatientDto {
   fullName?: string;

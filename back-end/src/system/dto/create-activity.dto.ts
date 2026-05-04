@@ -1,6 +1,6 @@
 /**
- * Create System Activity DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Create System Activity DTO - Simple data transfer object
+ * Transfers system activity logging data between client and server
  */
 export class CreateSystemActivityDto {
   userId: string;

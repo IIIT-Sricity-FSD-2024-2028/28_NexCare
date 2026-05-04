@@ -1,6 +1,6 @@
 /**
- * Create Appointment DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Create Appointment DTO - Simple data transfer object
+ * Transfers appointment creation data between client and server
  */
 export class CreateAppointmentDto {
   patientId: string;

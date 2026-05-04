@@ -1,6 +1,6 @@
 /**
- * Create Patient DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Create Patient DTO - Simple data transfer object
+ * Transfers patient creation data between client and server
  */
 export class CreatePatientDto {
   fullName: string;

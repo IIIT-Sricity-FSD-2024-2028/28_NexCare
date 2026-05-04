@@ -1,9 +1,11 @@
+import { BedStatus } from '../../common/interfaces/api-response.interface';
+
 /**
- * Update Bed DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Update Bed DTO - Simple data transfer object
+ * Transfers bed update data between client and server
  */
 export class UpdateBedDto {
   ward?: string;
-  status?: string;
+  status?: BedStatus;
   patient?: string;
 }

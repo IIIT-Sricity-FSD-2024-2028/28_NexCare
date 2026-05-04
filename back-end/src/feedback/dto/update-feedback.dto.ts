@@ -1,11 +1,13 @@
+import { FeedbackStatus } from '../../common/interfaces/api-response.interface';
+
 /**
- * Update Feedback DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Update Feedback DTO - Simple data transfer object
+ * Transfers feedback update data between client and server
  */
 export class UpdateFeedbackDto {
   category?: string;
   subject?: string;
   summary?: string;
   rating?: number;
-  status?: string;
+  status?: FeedbackStatus;
 }

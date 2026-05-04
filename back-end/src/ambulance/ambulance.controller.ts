@@ -9,11 +9,13 @@ import {
   Param, 
   Query,
   HttpCode,
-  HttpStatus 
+  HttpStatus,
+  BadRequestException
 } from '@nestjs/common';
 import { AmbulanceService } from './ambulance.service';
 import { CreateAmbulanceRequestDto } from './dto/create-request.dto';
 import { UpdateAmbulanceRequestDto } from './dto/update-request.dto';
+import { DtoValidatorUtil } from '../common/validation/dto-validator.util';
 
 /**
  * Ambulance Controller
@@ -46,6 +48,17 @@ export class AmbulanceController {
    */
   @Post()
   async create(@Body() createRequestDto: CreateAmbulanceRequestDto) {
+    // Validate DTO before processing
+    const validation = DtoValidatorUtil.validateAmbulanceRequest(createRequestDto);
+    
+    if (!validation.isValid) {
+      throw new BadRequestException({
+        message: 'Validation failed',
+        errors: validation.errors,
+        fieldErrors: validation.fieldErrors
+      });
+    }
+    
     return this.ambulanceService.create(createRequestDto as any);
   }
 

@@ -1,6 +1,6 @@
 /**
- * Create Ambulance Request DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Create Ambulance Request DTO - Simple data transfer object
+ * Transfers ambulance request data between client and server
  */
 export class CreateAmbulanceRequestDto {
   patientId: string;

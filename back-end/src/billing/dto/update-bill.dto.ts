@@ -1,11 +1,13 @@
+import { BillStatus } from '../../common/interfaces/api-response.interface';
+
 /**
- * Update Bill DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Update Bill DTO - Simple data transfer object
+ * Transfers bill update data between client and server
  */
 export class UpdateBillDto {
   visitDate?: string;
   dueDate?: string;
-  status?: string;
+  status?: BillStatus;
   items?: Array<{
     description: string;
     department: string;

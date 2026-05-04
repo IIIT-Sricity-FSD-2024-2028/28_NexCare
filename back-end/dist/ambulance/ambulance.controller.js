@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const ambulance_service_1 = require("./ambulance.service");
 const create_request_dto_1 = require("./dto/create-request.dto");
 const update_request_dto_1 = require("./dto/update-request.dto");
+const dto_validator_util_1 = require("../common/validation/dto-validator.util");
 let AmbulanceController = class AmbulanceController {
     constructor(ambulanceService) {
         this.ambulanceService = ambulanceService;
@@ -25,6 +26,14 @@ let AmbulanceController = class AmbulanceController {
         return this.ambulanceService.findAll(patientId, status);
     }
     async create(createRequestDto) {
+        const validation = dto_validator_util_1.DtoValidatorUtil.validateAmbulanceRequest(createRequestDto);
+        if (!validation.isValid) {
+            throw new common_1.BadRequestException({
+                message: 'Validation failed',
+                errors: validation.errors,
+                fieldErrors: validation.fieldErrors
+            });
+        }
         return this.ambulanceService.create(createRequestDto);
     }
     async getStats() {

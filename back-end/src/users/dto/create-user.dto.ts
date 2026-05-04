@@ -1,11 +1,13 @@
+import { UserRole, UserStatus } from '../../common/interfaces/api-response.interface';
+
 /**
- * Create User DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Create User DTO - Simple data transfer object
+ * Transfers user creation data between client and server
  */
 export class CreateUserDto {
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
   password: string;
   patientId?: string;
   dept?: string;

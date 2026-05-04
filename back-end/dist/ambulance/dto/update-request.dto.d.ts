@@ -1,7 +1,8 @@
+import { AmbulanceStatus } from '../../common/interfaces/api-response.interface';
 export declare class UpdateAmbulanceRequestDto {
     pickupLocation?: string;
     contact?: string;
     notes?: string;
-    status?: string;
+    status?: AmbulanceStatus;
     assignedTo?: string;
 }

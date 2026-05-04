@@ -1,6 +1,8 @@
+import { InventoryStatus } from '../../common/interfaces/api-response.interface';
+
 /**
- * Update Inventory DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Update Inventory DTO - Simple data transfer object
+ * Transfers inventory item update data between client and server
  */
 export class UpdateInventoryDto {
   name?: string;
@@ -9,5 +11,5 @@ export class UpdateInventoryDto {
   minStock?: number;
   unit?: string;
   location?: string;
-  status?: string;
+  status?: InventoryStatus;
 }

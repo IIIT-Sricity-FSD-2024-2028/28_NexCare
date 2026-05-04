@@ -1,6 +1,6 @@
 /**
- * Create Inventory DTO - Placeholder for validation decorators
- * Teammates will add class-validator decorators here
+ * Create Inventory DTO - Simple data transfer object
+ * Transfers inventory item creation data between client and server
  */
 export class CreateInventoryDto {
   name: string;
