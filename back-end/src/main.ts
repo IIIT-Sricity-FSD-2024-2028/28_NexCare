@@ -10,9 +10,13 @@ import { ResponseUtil } from './common/utils/response.util';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for frontend integration
+  // ─── CORS ─────────────────────────────────────────────────────────────────
+  // Allow ALL origins — this is intentional for the evaluation environment.
+  // The backend enforces security via JWT tokens, not CORS.
+  // Restricting CORS here would break access from any non-whitelisted IP/port,
+  // which is unpredictable during evaluation demos.
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:4200'], // Frontend URLs
+    origin: true,   // reflect any Origin header back (allows all)
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -25,13 +29,29 @@ async function bootstrap() {
   // Global prefix for all routes
   app.setGlobalPrefix('api');
 
-  // Start the server
+  // ─── Binding ──────────────────────────────────────────────────────────────
+  // Bind to 0.0.0.0 so the backend is reachable on ALL network interfaces:
+  //   localhost, 127.0.0.1, WSL bridge IP, LAN IP, etc.
   const port = process.env.PORT || 3001;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
-  console.log(`🚀 NexCare Backend API is running on: http://localhost:${port}/api`);
-  console.log(`📚 API Documentation will be available at: http://localhost:${port}/api/docs`);
-  console.log(`🏥 NexCare Hospital Management System - Backend Foundation`);
+  // Show all accessible URLs (helps evaluator know where to connect)
+  const { networkInterfaces } = require('os');
+  const nets = networkInterfaces();
+  const ips: string[] = ['localhost'];
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === 'IPv4' && !net.internal) {
+        ips.push(net.address);
+      }
+    }
+  }
+
+  console.log(`\n🚀 NexCare Backend API is running on port ${port}`);
+  console.log(`📡 Accessible at:`);
+  ips.forEach(ip => console.log(`   http://${ip}:${port}/api`));
+  console.log(`📚 API Docs: http://localhost:${port}/api/docs`);
+  console.log(`🏥 NexCare Hospital Management System\n`);
 }
 
 // Handle uncaught exceptions

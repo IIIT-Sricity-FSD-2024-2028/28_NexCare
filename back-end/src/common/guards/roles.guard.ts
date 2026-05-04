@@ -1,38 +1,52 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { UserRole } from '../interfaces/api-response.interface';
+import { ROLES_KEY } from '../decorators/roles.decorator';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 /**
- * Roles Guard - Placeholder for future RBAC implementation
- * This will be extended by teammates to implement proper role-based access control
+ * Roles Guard
+ *
+ * Runs after AuthGuard (which populates request.user). Behaviour:
+ *  - If the route has no @Roles() decorator, allow all authenticated users.
+ *  - If @Roles(...) is present, the user's role must be in the allowed list.
+ *  - On failure, throws 403 Forbidden.
  */
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private requiredRoles?: UserRole[]) {}
+  constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    // TODO: Implement proper role-based access control here
-    // For now, allowing all requests as placeholder
-    
+    // Public routes skip role checks too
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+
+    // Read required roles from metadata (set by @Roles decorator)
+    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    // No @Roles restriction → any authenticated user is allowed
+    if (!requiredRoles || requiredRoles.length === 0) return true;
+
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    
-    // Placeholder logic - teammates will implement proper role validation
-    if (!user) {
-      console.log('RolesGuard: No user found, but allowing for development');
-      return true;
+
+    if (!user || !requiredRoles.includes(user.role)) {
+      throw new ForbiddenException(
+        `Access denied. Required role(s): ${requiredRoles.join(', ')}. Your role: ${user?.role ?? 'unknown'}.`,
+      );
     }
-    
-    if (!this.requiredRoles || this.requiredRoles.length === 0) {
-      return true; // No specific roles required
-    }
-    
-    // Placeholder: Check if user has required role
-    // In production, this should properly validate user roles
-    const hasRequiredRole = this.requiredRoles.includes(user.role);
-    if (!hasRequiredRole) {
-      console.log(`RolesGuard: User role ${user.role} not in required roles ${this.requiredRoles}, but allowing for development`);
-    }
-    
+
     return true;
   }
 }

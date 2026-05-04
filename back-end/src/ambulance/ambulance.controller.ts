@@ -16,12 +16,15 @@ import { AmbulanceService } from './ambulance.service';
 import { CreateAmbulanceRequestDto } from './dto/create-request.dto';
 import { UpdateAmbulanceRequestDto } from './dto/update-request.dto';
 import { DtoValidatorUtil } from '../common/validation/dto-validator.util';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../common/interfaces/api-response.interface';
 
 /**
  * Ambulance Controller
  * Manages emergency services and ambulance requests in the NexCare system
  * Provides endpoints for ambulance CRUD operations and status management
  */
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT)
 @Controller('ambulance')
 export class AmbulanceController {
   constructor(private readonly ambulanceService: AmbulanceService) {}

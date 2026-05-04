@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
+const core_1 = require("@nestjs/core");
 const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
 const patients_module_1 = require("./patients/patients.module");
@@ -18,6 +19,8 @@ const feedback_module_1 = require("./feedback/feedback.module");
 const beds_module_1 = require("./beds/beds.module");
 const inventory_module_1 = require("./inventory/inventory.module");
 const system_module_1 = require("./system/system.module");
+const auth_guard_1 = require("./common/guards/auth.guard");
+const roles_guard_1 = require("./common/guards/roles.guard");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -34,6 +37,16 @@ exports.AppModule = AppModule = __decorate([
             beds_module_1.BedsModule,
             inventory_module_1.InventoryModule,
             system_module_1.SystemModule,
+        ],
+        providers: [
+            {
+                provide: core_1.APP_GUARD,
+                useClass: auth_guard_1.AuthGuard,
+            },
+            {
+                provide: core_1.APP_GUARD,
+                useClass: roles_guard_1.RolesGuard,
+            },
         ],
     })
 ], AppModule);

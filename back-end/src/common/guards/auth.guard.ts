@@ -1,31 +1,62 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { ResponseUtil } from '../utils/response.util';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { AuthService } from '../../auth/auth.service';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 /**
- * Authentication Guard - Placeholder for future implementation
- * This will be extended by teammates to implement proper JWT/session validation
+ * Authentication Guard
+ *
+ * Runs on every route. Behaviour:
+ *  - Routes decorated with @Public() are passed through without a token.
+ *  - All other routes require a valid Bearer JWT in the Authorization header.
+ *  - On success, the decoded token payload is attached to request.user.
+ *  - On failure, throws 401 Unauthorized.
  */
 @Injectable()
 export class AuthGuard implements CanActivate {
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly authService: AuthService,
+  ) {}
+
   canActivate(context: ExecutionContext): boolean {
-    // TODO: Implement proper JWT token validation here
-    // For now, allowing all requests as placeholder
-    
+    // Skip guard for public routes
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-    
-    // Placeholder logic - teammates will implement proper validation
+
     if (!token) {
-      // For now, proceed without token validation
-      // In production, this should return false and trigger unauthorized response
-      console.log('AuthGuard: No token found, but allowing for development');
+      throw new UnauthorizedException('No authentication token provided. Please log in.');
     }
-    
+
+    const payload = this.authService.verifyToken(token);
+    if (!payload) {
+      throw new UnauthorizedException('Invalid or expired token. Please log in again.');
+    }
+
+    // Attach decoded user info to request so RolesGuard and controllers can use it
+    request.user = {
+      id: payload.sub,
+      email: payload.email,
+      role: payload.role,
+    };
+
     return true;
   }
 
   private extractTokenFromHeader(request: any): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    const authHeader: string = request.headers?.authorization ?? '';
+    const [type, token] = authHeader.split(' ');
     return type === 'Bearer' ? token : undefined;
   }
 }

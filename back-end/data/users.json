@@ -1,0 +1,89 @@
+[
+  {
+    "id": "U001",
+    "name": "System Administrator",
+    "email": "superuser@nexcare.com",
+    "role": "superuser",
+    "status": "Active",
+    "password": "Password123"
+  },
+  {
+    "id": "U002",
+    "name": "Jane Doe (Desk)",
+    "email": "admin@nexcare.com",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123"
+  },
+  {
+    "id": "U003",
+    "name": "Alex Martinez",
+    "email": "ambulance@nexcare.com",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123"
+  },
+  {
+    "id": "U004",
+    "name": "John Anderson",
+    "email": "patient@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P001"
+  },
+  {
+    "id": "U005",
+    "name": "Dr. Sarah Smith",
+    "email": "sarah.smith@nexcare.com",
+    "role": "doctor",
+    "dept": "Cardiology",
+    "status": "Active",
+    "password": "Password123"
+  },
+  {
+    "id": "U006",
+    "name": "Dr. Vikram Patel",
+    "email": "vikram.patel@nexcare.com",
+    "role": "doctor",
+    "dept": "Orthopedics",
+    "status": "Active",
+    "password": "Password123"
+  },
+  {
+    "id": "U007",
+    "name": "Dr. Anjali Desai",
+    "email": "anjali.desai@nexcare.com",
+    "role": "doctor",
+    "dept": "General Medicine",
+    "status": "On Leave",
+    "password": "Password123"
+  },
+  {
+    "id": "U008",
+    "name": "Nurse Emily Davis",
+    "email": "emily.davis@nexcare.com",
+    "role": "nurse",
+    "dept": "ER",
+    "status": "Active",
+    "password": "Password123"
+  },
+  {
+    "id": "U009",
+    "name": "Maria Garcia",
+    "email": "maria@example.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P002"
+  },
+  {
+    "id": "U92280",
+    "name": "Test Eval Patient",
+    "email": "evaltest@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Test1234",
+    "patientId": "P92178"
+  }
+]

@@ -18,6 +18,8 @@ const ambulance_service_1 = require("./ambulance.service");
 const create_request_dto_1 = require("./dto/create-request.dto");
 const update_request_dto_1 = require("./dto/update-request.dto");
 const dto_validator_util_1 = require("../common/validation/dto-validator.util");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let AmbulanceController = class AmbulanceController {
     constructor(ambulanceService) {
         this.ambulanceService = ambulanceService;
@@ -166,6 +168,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AmbulanceController.prototype, "updateStatus", null);
 exports.AmbulanceController = AmbulanceController = __decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.AMBULANCE, api_response_interface_1.UserRole.PATIENT),
     (0, common_1.Controller)('ambulance'),
     __metadata("design:paramtypes", [ambulance_service_1.AmbulanceService])
 ], AmbulanceController);

@@ -14,12 +14,15 @@ import {
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../common/interfaces/api-response.interface';
 
 /**
  * Appointments Controller
  * Manages appointment scheduling and status tracking in the NexCare system
  * Provides endpoints for appointment CRUD operations and management
  */
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT, UserRole.DOCTOR)
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}

@@ -14,12 +14,15 @@ import {
 import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../common/interfaces/api-response.interface';
 
 /**
  * Patients Controller
  * Manages patient records and profiles in the NexCare system
  * Provides endpoints for patient CRUD operations and management
  */
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
 @Controller('patients')
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}

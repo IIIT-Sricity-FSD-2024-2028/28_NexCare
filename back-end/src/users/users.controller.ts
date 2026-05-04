@@ -14,12 +14,15 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../common/interfaces/api-response.interface';
 
 /**
  * Users Controller
  * Manages user accounts across all roles in the NexCare system
  * Provides endpoints for user CRUD operations and management
  */
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

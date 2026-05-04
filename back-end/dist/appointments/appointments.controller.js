@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const appointments_service_1 = require("./appointments.service");
 const create_appointment_dto_1 = require("./dto/create-appointment.dto");
 const update_appointment_dto_1 = require("./dto/update-appointment.dto");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let AppointmentsController = class AppointmentsController {
     constructor(appointmentsService) {
         this.appointmentsService = appointmentsService;
@@ -156,6 +158,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "cancel", null);
 exports.AppointmentsController = AppointmentsController = __decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT, api_response_interface_1.UserRole.DOCTOR),
     (0, common_1.Controller)('appointments'),
     __metadata("design:paramtypes", [appointments_service_1.AppointmentsService])
 ], AppointmentsController);

@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext } from '@nestjs/common';
-import { UserRole } from '../interfaces/api-response.interface';
+import { Reflector } from '@nestjs/core';
 export declare class RolesGuard implements CanActivate {
-    private requiredRoles?;
-    constructor(requiredRoles?: UserRole[]);
+    private readonly reflector;
+    constructor(reflector: Reflector);
     canActivate(context: ExecutionContext): boolean;
 }

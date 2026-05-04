@@ -14,12 +14,15 @@ import {
 import { BedsService } from './beds.service';
 import { CreateBedDto } from './dto/create-bed.dto';
 import { UpdateBedDto } from './dto/update-bed.dto';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../common/interfaces/api-response.interface';
 
 /**
  * Beds Controller
  * Manages hospital bed allocation and ward management in the NexCare system
  * Provides endpoints for bed CRUD operations and allocation management
  */
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
 @Controller('beds')
 export class BedsController {
   constructor(private readonly bedsService: BedsService) {}

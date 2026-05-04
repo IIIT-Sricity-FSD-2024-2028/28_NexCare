@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const patients_service_1 = require("./patients.service");
 const create_patient_dto_1 = require("./dto/create-patient.dto");
 const update_patient_dto_1 = require("./dto/update-patient.dto");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let PatientsController = class PatientsController {
     constructor(patientsService) {
         this.patientsService = patientsService;
@@ -137,6 +139,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PatientsController.prototype, "updateStatus", null);
 exports.PatientsController = PatientsController = __decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, common_1.Controller)('patients'),
     __metadata("design:paramtypes", [patients_service_1.PatientsService])
 ], PatientsController);

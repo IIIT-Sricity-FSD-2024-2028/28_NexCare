@@ -14,12 +14,15 @@ import {
 import { SystemService } from './system.service';
 import { CreateSystemActivityDto } from './dto/create-activity.dto';
 import { UpdateSystemSettingsDto } from './dto/update-settings.dto';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../common/interfaces/api-response.interface';
 
 /**
  * System Controller
  * Manages audit logs and system configuration in the NexCare system
  * Provides endpoints for system activity tracking and settings management
  */
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
 @Controller('system')
 export class SystemController {
   constructor(private readonly systemService: SystemService) {}

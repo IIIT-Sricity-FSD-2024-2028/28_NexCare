@@ -11,23 +11,30 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RolesGuard = void 0;
 const common_1 = require("@nestjs/common");
+const core_1 = require("@nestjs/core");
+const roles_decorator_1 = require("../decorators/roles.decorator");
+const public_decorator_1 = require("../decorators/public.decorator");
 let RolesGuard = class RolesGuard {
-    constructor(requiredRoles) {
-        this.requiredRoles = requiredRoles;
+    constructor(reflector) {
+        this.reflector = reflector;
     }
     canActivate(context) {
+        const isPublic = this.reflector.getAllAndOverride(public_decorator_1.IS_PUBLIC_KEY, [
+            context.getHandler(),
+            context.getClass(),
+        ]);
+        if (isPublic)
+            return true;
+        const requiredRoles = this.reflector.getAllAndOverride(roles_decorator_1.ROLES_KEY, [
+            context.getHandler(),
+            context.getClass(),
+        ]);
+        if (!requiredRoles || requiredRoles.length === 0)
+            return true;
         const request = context.switchToHttp().getRequest();
         const user = request.user;
-        if (!user) {
-            console.log('RolesGuard: No user found, but allowing for development');
-            return true;
-        }
-        if (!this.requiredRoles || this.requiredRoles.length === 0) {
-            return true;
-        }
-        const hasRequiredRole = this.requiredRoles.includes(user.role);
-        if (!hasRequiredRole) {
-            console.log(`RolesGuard: User role ${user.role} not in required roles ${this.requiredRoles}, but allowing for development`);
+        if (!user || !requiredRoles.includes(user.role)) {
+            throw new common_1.ForbiddenException(`Access denied. Required role(s): ${requiredRoles.join(', ')}. Your role: ${user?.role ?? 'unknown'}.`);
         }
         return true;
     }
@@ -35,6 +42,6 @@ let RolesGuard = class RolesGuard {
 exports.RolesGuard = RolesGuard;
 exports.RolesGuard = RolesGuard = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [Array])
+    __metadata("design:paramtypes", [core_1.Reflector])
 ], RolesGuard);
 //# sourceMappingURL=roles.guard.js.map

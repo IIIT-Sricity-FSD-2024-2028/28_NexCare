@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const feedback_service_1 = require("./feedback.service");
 const create_feedback_dto_1 = require("./dto/create-feedback.dto");
 const update_feedback_dto_1 = require("./dto/update-feedback.dto");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let FeedbackController = class FeedbackController {
     constructor(feedbackService) {
         this.feedbackService = feedbackService;
@@ -156,6 +158,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], FeedbackController.prototype, "updateStatus", null);
 exports.FeedbackController = FeedbackController = __decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, common_1.Controller)('feedback'),
     __metadata("design:paramtypes", [feedback_service_1.FeedbackService])
 ], FeedbackController);

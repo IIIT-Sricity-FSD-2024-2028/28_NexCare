@@ -8,98 +8,86 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
-const array_util_1 = require("../common/utils/array.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let AuthService = class AuthService {
     constructor() {
-        this.users = [
-            {
-                id: 'U001',
-                name: 'System Administrator',
-                email: 'superuser@nexcare.com',
-                role: api_response_interface_1.UserRole.SUPERUSER,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123'
-            },
-            {
-                id: 'U002',
-                name: 'Jane Doe (Desk)',
-                email: 'admin@nexcare.com',
-                role: api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123'
-            },
-            {
-                id: 'U003',
-                name: 'Alex Martinez',
-                email: 'ambulance@nexcare.com',
-                role: api_response_interface_1.UserRole.AMBULANCE,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123'
-            },
-            {
-                id: 'U004',
-                name: 'John Anderson',
-                email: 'patient@gmail.com',
-                role: api_response_interface_1.UserRole.PATIENT,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123',
-                patientId: 'P001'
-            },
-            {
-                id: 'U005',
-                name: 'Dr. Sarah Smith',
-                email: 'sarah.smith@nexcare.com',
-                role: api_response_interface_1.UserRole.DOCTOR,
-                dept: 'Cardiology',
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123'
-            },
-            {
-                id: 'U006',
-                name: 'Dr. Vikram Patel',
-                email: 'vikram.patel@nexcare.com',
-                role: api_response_interface_1.UserRole.DOCTOR,
-                dept: 'Orthopedics',
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123'
-            },
-            {
-                id: 'U007',
-                name: 'Dr. Anjali Desai',
-                email: 'anjali.desai@nexcare.com',
-                role: api_response_interface_1.UserRole.DOCTOR,
-                dept: 'General Medicine',
-                status: api_response_interface_1.UserStatus.ON_LEAVE,
-                password: 'Password123'
-            },
-            {
-                id: 'U008',
-                name: 'Nurse Emily Davis',
-                email: 'emily.davis@nexcare.com',
-                role: api_response_interface_1.UserRole.NURSE,
-                dept: 'ER',
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123'
-            },
-            {
-                id: 'U009',
-                name: 'Maria Garcia',
-                email: 'maria@example.com',
-                role: api_response_interface_1.UserRole.PATIENT,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123',
-                patientId: 'P002'
-            }
-        ];
+        this.usersFilePath = path.join(process.cwd(), 'data', 'users.json');
+        this.jwtSecret = process.env.JWT_SECRET || 'nexcare_jwt_secret_key_2024_evaluation';
+        this.jwtExpiresInSeconds = 24 * 60 * 60;
         this.sessions = new Map();
+    }
+    loadUsers() {
+        try {
+            const raw = fs.readFileSync(this.usersFilePath, 'utf-8');
+            return JSON.parse(raw);
+        }
+        catch {
+            return [];
+        }
+    }
+    saveUsers(users) {
+        try {
+            fs.mkdirSync(path.dirname(this.usersFilePath), { recursive: true });
+            fs.writeFileSync(this.usersFilePath, JSON.stringify(users, null, 2), 'utf-8');
+        }
+        catch (err) {
+            console.error('Failed to persist users to disk:', err);
+        }
+    }
+    b64url(input) {
+        const buf = typeof input === 'string' ? Buffer.from(input, 'utf-8') : input;
+        return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    generateToken(user) {
+        const header = this.b64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+        const now = Math.floor(Date.now() / 1000);
+        const payload = this.b64url(JSON.stringify({
+            sub: user.id,
+            email: user.email,
+            role: user.role,
+            name: user.name,
+            iat: now,
+            exp: now + this.jwtExpiresInSeconds,
+        }));
+        const signature = this.b64url(crypto
+            .createHmac('sha256', this.jwtSecret)
+            .update(`${header}.${payload}`)
+            .digest());
+        return `${header}.${payload}.${signature}`;
+    }
+    verifyToken(token) {
+        try {
+            const parts = token.split('.');
+            if (parts.length !== 3)
+                return null;
+            const [header, payload, signature] = parts;
+            const expectedSig = this.b64url(crypto
+                .createHmac('sha256', this.jwtSecret)
+                .update(`${header}.${payload}`)
+                .digest());
+            if (signature.length !== expectedSig.length ||
+                !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+                return null;
+            }
+            const decoded = JSON.parse(Buffer.from(payload, 'base64').toString('utf-8'));
+            if (decoded.exp && Math.floor(Date.now() / 1000) > decoded.exp) {
+                return null;
+            }
+            return decoded;
+        }
+        catch {
+            return null;
+        }
     }
     async login(loginRequest) {
         try {
-            const users = array_util_1.ArrayUtil.searchByText(this.users, loginRequest.email, ['email']);
-            const user = users.length > 0 ? users[0] : null;
+            const users = this.loadUsers();
+            const user = users.find((u) => u.email.toLowerCase() === loginRequest.email.toLowerCase());
             if (!user) {
                 return response_util_1.ResponseUtil.error('Authentication Failed: Email address not found');
             }
@@ -107,10 +95,10 @@ let AuthService = class AuthService {
                 return response_util_1.ResponseUtil.error('Authentication Failed: Incorrect password');
             }
             if (user.role !== loginRequest.role) {
-                return response_util_1.ResponseUtil.error(`Access Denied: User exists but is not registered as '${loginRequest.role}'. (Registered as: ${user.role})`);
+                return response_util_1.ResponseUtil.error(`Access Denied: Account is registered as '${user.role}', not '${loginRequest.role}'`);
             }
             if (user.status === api_response_interface_1.UserStatus.INACTIVE) {
-                return response_util_1.ResponseUtil.error('Account is inactive. Please contact administrator.');
+                return response_util_1.ResponseUtil.error('Account is inactive. Please contact the administrator.');
             }
             const session = {
                 id: user.id,
@@ -118,7 +106,7 @@ let AuthService = class AuthService {
                 email: user.email,
                 role: user.role,
                 status: user.status,
-                loginTime: new Date().toISOString()
+                loginTime: new Date().toISOString(),
             };
             this.sessions.set(user.id, session);
             const authResponse = {
@@ -127,21 +115,23 @@ let AuthService = class AuthService {
                     name: user.name,
                     email: user.email,
                     role: user.role,
-                    status: user.status
+                    status: user.status,
                 },
-                token: this.generateToken(user)
+                token: this.generateToken(user),
             };
             return response_util_1.ResponseUtil.success('Login successful', authResponse);
         }
         catch (error) {
-            return response_util_1.ResponseUtil.serverError('Login failed due to server error');
+            console.error('Login error:', error);
+            return response_util_1.ResponseUtil.serverError('Login failed due to a server error');
         }
     }
     async register(registerRequest) {
         try {
-            const existingUser = array_util_1.ArrayUtil.searchByText(this.users, registerRequest.email, ['email']);
-            if (existingUser.length > 0) {
-                return response_util_1.ResponseUtil.error('Email already registered');
+            const users = this.loadUsers();
+            const existing = users.find((u) => u.email.toLowerCase() === registerRequest.email.toLowerCase());
+            if (existing) {
+                return response_util_1.ResponseUtil.error('Email is already registered');
             }
             const newUserId = id_generator_util_1.IdGenerator.generateUserId();
             const newPatientId = id_generator_util_1.IdGenerator.generatePatientId();
@@ -152,16 +142,17 @@ let AuthService = class AuthService {
                 role: api_response_interface_1.UserRole.PATIENT,
                 status: api_response_interface_1.UserStatus.ACTIVE,
                 password: registerRequest.password,
-                patientId: newPatientId
+                patientId: newPatientId,
             };
-            this.users.push(newUser);
+            users.push(newUser);
+            this.saveUsers(users);
             const session = {
                 id: newUser.id,
                 name: newUser.name,
                 email: newUser.email,
                 role: newUser.role,
                 status: newUser.status,
-                loginTime: new Date().toISOString()
+                loginTime: new Date().toISOString(),
             };
             this.sessions.set(newUser.id, session);
             const authResponse = {
@@ -170,14 +161,15 @@ let AuthService = class AuthService {
                     name: newUser.name,
                     email: newUser.email,
                     role: newUser.role,
-                    status: newUser.status
+                    status: newUser.status,
                 },
-                token: this.generateToken(newUser)
+                token: this.generateToken(newUser),
             };
             return response_util_1.ResponseUtil.created('Patient account created successfully', authResponse);
         }
         catch (error) {
-            return response_util_1.ResponseUtil.serverError('Registration failed due to server error');
+            console.error('Registration error:', error);
+            return response_util_1.ResponseUtil.serverError('Registration failed due to a server error');
         }
     }
     async logout(userId) {
@@ -186,35 +178,19 @@ let AuthService = class AuthService {
             return response_util_1.ResponseUtil.success('Logout successful');
         }
         catch (error) {
-            return response_util_1.ResponseUtil.serverError('Logout failed due to server error');
+            return response_util_1.ResponseUtil.serverError('Logout failed due to a server error');
         }
     }
     async getCurrentUser(userId) {
         try {
             const session = this.sessions.get(userId);
             if (!session) {
-                return response_util_1.ResponseUtil.error('Session not found');
+                return response_util_1.ResponseUtil.error('Session not found — please log in again');
             }
             return response_util_1.ResponseUtil.success('Session retrieved successfully', session);
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to retrieve session');
-        }
-    }
-    generateToken(user) {
-        return `token_${user.id}_${Date.now()}`;
-    }
-    async validateToken(token) {
-        try {
-            if (token.startsWith('token_')) {
-                const parts = token.split('_');
-                const userId = parts[1];
-                return this.sessions.get(userId) || null;
-            }
-            return null;
-        }
-        catch (error) {
-            return null;
         }
     }
     async getActiveSessions() {

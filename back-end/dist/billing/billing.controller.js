@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const billing_service_1 = require("./billing.service");
 const create_bill_dto_1 = require("./dto/create-bill.dto");
 const update_bill_dto_1 = require("./dto/update-bill.dto");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let BillingController = class BillingController {
     constructor(billingService) {
         this.billingService = billingService;
@@ -138,6 +140,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], BillingController.prototype, "processPayment", null);
 exports.BillingController = BillingController = __decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, common_1.Controller)('billing'),
     __metadata("design:paramtypes", [billing_service_1.BillingService])
 ], BillingController);

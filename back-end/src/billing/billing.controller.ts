@@ -14,12 +14,15 @@ import {
 import { BillingService } from './billing.service';
 import { CreateBillDto } from './dto/create-bill.dto';
 import { UpdateBillDto } from './dto/update-bill.dto';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../common/interfaces/api-response.interface';
 
 /**
  * Billing Controller
  * Manages financial operations and bill generation in the NexCare system
  * Provides endpoints for bill CRUD operations and payment processing
  */
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
 @Controller('billing')
 export class BillingController {
   constructor(private readonly billingService: BillingService) {}

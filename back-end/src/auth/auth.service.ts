@@ -1,184 +1,206 @@
 import { Injectable } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
-import { ArrayUtil } from '../common/utils/array.util';
-import { DataSanitizer } from '../common/utils/sanitizer.util';
 import { LoginRequest, RegisterRequest, AuthResponse, UserSession } from './interfaces/auth.interface';
 import { UserRole, UserStatus } from '../common/interfaces/api-response.interface';
 
 /**
  * Authentication Service
- * Handles user authentication, registration, and session management
- * Uses in-memory mock data aligned with frontend db.js structure
+ * Handles user authentication, registration, and session management.
+ *
+ * Key improvements over the placeholder:
+ *  - Users are loaded from / saved to data/users.json → survive backend restarts.
+ *  - Tokens are real HMAC-SHA256 signed JWTs (no external library needed).
+ *  - JWT secret comes from process.env.JWT_SECRET (set in .env).
  */
 @Injectable()
 export class AuthService {
-  // In-memory mock users database (aligned with frontend db.js)
-  private users = [
-    {
-      id: 'U001',
-      name: 'System Administrator',
-      email: 'superuser@nexcare.com',
-      role: UserRole.SUPERUSER,
-      status: UserStatus.ACTIVE,
-      password: 'Password123'
-    },
-    {
-      id: 'U002',
-      name: 'Jane Doe (Desk)',
-      email: 'admin@nexcare.com',
-      role: UserRole.ADMINISTRATIVE_STAFF,
-      status: UserStatus.ACTIVE,
-      password: 'Password123'
-    },
-    {
-      id: 'U003',
-      name: 'Alex Martinez',
-      email: 'ambulance@nexcare.com',
-      role: UserRole.AMBULANCE,
-      status: UserStatus.ACTIVE,
-      password: 'Password123'
-    },
-    {
-      id: 'U004',
-      name: 'John Anderson',
-      email: 'patient@gmail.com',
-      role: UserRole.PATIENT,
-      status: UserStatus.ACTIVE,
-      password: 'Password123',
-      patientId: 'P001'
-    },
-    {
-      id: 'U005',
-      name: 'Dr. Sarah Smith',
-      email: 'sarah.smith@nexcare.com',
-      role: UserRole.DOCTOR,
-      dept: 'Cardiology',
-      status: UserStatus.ACTIVE,
-      password: 'Password123'
-    },
-    {
-      id: 'U006',
-      name: 'Dr. Vikram Patel',
-      email: 'vikram.patel@nexcare.com',
-      role: UserRole.DOCTOR,
-      dept: 'Orthopedics',
-      status: UserStatus.ACTIVE,
-      password: 'Password123'
-    },
-    {
-      id: 'U007',
-      name: 'Dr. Anjali Desai',
-      email: 'anjali.desai@nexcare.com',
-      role: UserRole.DOCTOR,
-      dept: 'General Medicine',
-      status: UserStatus.ON_LEAVE,
-      password: 'Password123'
-    },
-    {
-      id: 'U008',
-      name: 'Nurse Emily Davis',
-      email: 'emily.davis@nexcare.com',
-      role: UserRole.NURSE,
-      dept: 'ER',
-      status: UserStatus.ACTIVE,
-      password: 'Password123'
-    },
-    {
-      id: 'U009',
-      name: 'Maria Garcia',
-      email: 'maria@example.com',
-      role: UserRole.PATIENT,
-      status: UserStatus.ACTIVE,
-      password: 'Password123',
-      patientId: 'P002'
-    }
-  ];
+  // ── Paths ────────────────────────────────────────────────────────────────
+  private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
 
-  // In-memory sessions storage
+  // ── JWT configuration ────────────────────────────────────────────────────
+  private readonly jwtSecret: string =
+    process.env.JWT_SECRET || 'nexcare_jwt_secret_key_2024_evaluation';
+  private readonly jwtExpiresInSeconds: number = 24 * 60 * 60; // 24 hours
+
+  // ── In-memory sessions (intentionally ephemeral) ─────────────────────────
   private sessions: Map<string, UserSession> = new Map();
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // File-backed user store
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /** Load users from disk (falls back to empty array on error) */
+  private loadUsers(): any[] {
+    try {
+      const raw = fs.readFileSync(this.usersFilePath, 'utf-8');
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+
+  /** Persist the full users array to disk */
+  private saveUsers(users: any[]): void {
+    try {
+      fs.mkdirSync(path.dirname(this.usersFilePath), { recursive: true });
+      fs.writeFileSync(this.usersFilePath, JSON.stringify(users, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to persist users to disk:', err);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // JWT helpers (HMAC-SHA256, no external library)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  private b64url(input: string | Buffer): string {
+    const buf = typeof input === 'string' ? Buffer.from(input, 'utf-8') : input;
+    return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  /** Generate a signed JWT containing the user's id, role, and email */
+  private generateToken(user: any): string {
+    const header = this.b64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+    const now = Math.floor(Date.now() / 1000);
+    const payload = this.b64url(
+      JSON.stringify({
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+        iat: now,
+        exp: now + this.jwtExpiresInSeconds,
+      }),
+    );
+    const signature = this.b64url(
+      crypto
+        .createHmac('sha256', this.jwtSecret)
+        .update(`${header}.${payload}`)
+        .digest(),
+    );
+    return `${header}.${payload}.${signature}`;
+  }
+
   /**
-   * Authenticate user with email, password, and role
-   * @param loginRequest Login credentials
-   * @returns Authentication response with user data and token
+   * Verify a JWT token.
+   * Returns the decoded payload if valid, or null if expired / tampered.
+   */
+  verifyToken(token: string): Record<string, any> | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+
+      const [header, payload, signature] = parts;
+      const expectedSig = this.b64url(
+        crypto
+          .createHmac('sha256', this.jwtSecret)
+          .update(`${header}.${payload}`)
+          .digest(),
+      );
+
+      // Constant-time comparison to prevent timing attacks
+      if (
+        signature.length !== expectedSig.length ||
+        !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))
+      ) {
+        return null;
+      }
+
+      const decoded = JSON.parse(Buffer.from(payload, 'base64').toString('utf-8'));
+
+      // Check expiry
+      if (decoded.exp && Math.floor(Date.now() / 1000) > decoded.exp) {
+        return null; // Token expired
+      }
+
+      return decoded;
+    } catch {
+      return null;
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Auth operations
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Authenticate a user with email, password, and role.
    */
   async login(loginRequest: LoginRequest) {
     try {
-      // Find user by email
-      const users = ArrayUtil.searchByText(this.users, loginRequest.email, ['email']);
-      const user = users.length > 0 ? users[0] : null;
-      
+      const users = this.loadUsers();
+      const user = users.find(
+        (u) => u.email.toLowerCase() === loginRequest.email.toLowerCase(),
+      );
+
       if (!user) {
         return ResponseUtil.error('Authentication Failed: Email address not found');
       }
 
-      // Verify password
       if (user.password !== loginRequest.password) {
         return ResponseUtil.error('Authentication Failed: Incorrect password');
       }
 
-      // Verify role
       if (user.role !== loginRequest.role) {
         return ResponseUtil.error(
-          `Access Denied: User exists but is not registered as '${loginRequest.role}'. (Registered as: ${user.role})`
+          `Access Denied: Account is registered as '${user.role}', not '${loginRequest.role}'`,
         );
       }
 
-      // Check user status
       if (user.status === UserStatus.INACTIVE) {
-        return ResponseUtil.error('Account is inactive. Please contact administrator.');
+        return ResponseUtil.error('Account is inactive. Please contact the administrator.');
       }
 
-      // Create user session
+      // Build and store session
       const session: UserSession = {
         id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
         status: user.status,
-        loginTime: new Date().toISOString()
+        loginTime: new Date().toISOString(),
       };
-
-      // Store session (in production, use Redis or database)
       this.sessions.set(user.id, session);
 
-      // Prepare auth response
       const authResponse: AuthResponse = {
         user: {
           id: user.id,
           name: user.name,
           email: user.email,
           role: user.role,
-          status: user.status
+          status: user.status,
         },
-        token: this.generateToken(user) // Placeholder token generation
+        token: this.generateToken(user),
       };
 
       return ResponseUtil.success('Login successful', authResponse);
     } catch (error) {
-      return ResponseUtil.serverError('Login failed due to server error');
+      console.error('Login error:', error);
+      return ResponseUtil.serverError('Login failed due to a server error');
     }
   }
 
   /**
-   * Register new patient account
-   * @param registerRequest Patient registration data
-   * @returns Authentication response for newly registered user
+   * Register a new patient account and persist to disk.
    */
   async register(registerRequest: RegisterRequest) {
     try {
-      // Check if email already exists
-      const existingUser = ArrayUtil.searchByText(this.users, registerRequest.email, ['email']);
-      if (existingUser.length > 0) {
-        return ResponseUtil.error('Email already registered');
+      const users = this.loadUsers();
+
+      const existing = users.find(
+        (u) => u.email.toLowerCase() === registerRequest.email.toLowerCase(),
+      );
+      if (existing) {
+        return ResponseUtil.error('Email is already registered');
       }
 
-      // Generate new user ID
       const newUserId = IdGenerator.generateUserId();
       const newPatientId = IdGenerator.generatePatientId();
 
-      // Create new user
       const newUser = {
         id: newUserId,
         name: registerRequest.fullName,
@@ -186,67 +208,61 @@ export class AuthService {
         role: UserRole.PATIENT,
         status: UserStatus.ACTIVE,
         password: registerRequest.password,
-        patientId: newPatientId
+        patientId: newPatientId,
       };
 
-      // Add to users array (in production, save to database)
-      this.users.push(newUser);
+      users.push(newUser);
+      this.saveUsers(users); // ← persists to data/users.json
 
-      // Create session for new user
       const session: UserSession = {
         id: newUser.id,
         name: newUser.name,
         email: newUser.email,
         role: newUser.role,
         status: newUser.status,
-        loginTime: new Date().toISOString()
+        loginTime: new Date().toISOString(),
       };
-
       this.sessions.set(newUser.id, session);
 
-      // Prepare auth response
       const authResponse: AuthResponse = {
         user: {
           id: newUser.id,
           name: newUser.name,
           email: newUser.email,
           role: newUser.role,
-          status: newUser.status
+          status: newUser.status,
         },
-        token: this.generateToken(newUser)
+        token: this.generateToken(newUser),
       };
 
       return ResponseUtil.created('Patient account created successfully', authResponse);
     } catch (error) {
-      return ResponseUtil.serverError('Registration failed due to server error');
+      console.error('Registration error:', error);
+      return ResponseUtil.serverError('Registration failed due to a server error');
     }
   }
 
   /**
-   * Logout user and invalidate session
-   * @param userId User ID to logout
-   * @returns Logout response
+   * Logout — removes the in-memory session (token becomes orphaned and
+   * will be rejected by the guard on expiry).
    */
   async logout(userId: string) {
     try {
-      // Remove session
       this.sessions.delete(userId);
       return ResponseUtil.success('Logout successful');
     } catch (error) {
-      return ResponseUtil.serverError('Logout failed due to server error');
+      return ResponseUtil.serverError('Logout failed due to a server error');
     }
   }
 
   /**
-   * Get current user session
-   * @param userId User ID
-   * @returns User session data
+   * Get the current in-memory session for a user.
    */
   async getCurrentUser(userId: string) {
     try {
       const session = this.sessions.get(userId);
       if (!session) {
-        return ResponseUtil.error('Session not found');
+        return ResponseUtil.error('Session not found — please log in again');
       }
       return ResponseUtil.success('Session retrieved successfully', session);
     } catch (error) {
@@ -255,37 +271,7 @@ export class AuthService {
   }
 
   /**
-   * Generate placeholder token (teammates will implement proper JWT)
-   * @param user User data
-   * @returns Placeholder token string
-   */
-  private generateToken(user: any): string {
-    // Placeholder token generation - teammates will implement proper JWT
-    return `token_${user.id}_${Date.now()}`;
-  }
-
-  /**
-   * Validate token (placeholder for future JWT validation)
-   * @param token Token string
-   * @returns User session if valid
-   */
-  async validateToken(token: string): Promise<UserSession | null> {
-    // Placeholder token validation - teammates will implement proper JWT validation
-    try {
-      if (token.startsWith('token_')) {
-        const parts = token.split('_');
-        const userId = parts[1];
-        return this.sessions.get(userId) || null;
-      }
-      return null;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  /**
-   * Get all active sessions (for admin monitoring)
-   * @returns All active sessions
+   * Get all active in-memory sessions (superuser only).
    */
   async getActiveSessions() {
     try {

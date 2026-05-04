@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const system_service_1 = require("./system.service");
 const create_activity_dto_1 = require("./dto/create-activity.dto");
 const update_settings_dto_1 = require("./dto/update-settings.dto");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let SystemController = class SystemController {
     constructor(systemService) {
         this.systemService = systemService;
@@ -157,6 +159,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], SystemController.prototype, "updateSetting", null);
 exports.SystemController = SystemController = __decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
     (0, common_1.Controller)('system'),
     __metadata("design:paramtypes", [system_service_1.SystemService])
 ], SystemController);

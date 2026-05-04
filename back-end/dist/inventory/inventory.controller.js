@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const inventory_service_1 = require("./inventory.service");
 const create_inventory_dto_1 = require("./dto/create-inventory.dto");
 const update_inventory_dto_1 = require("./dto/update-inventory.dto");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let InventoryController = class InventoryController {
     constructor(inventoryService) {
         this.inventoryService = inventoryService;
@@ -168,6 +170,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], InventoryController.prototype, "useItem", null);
 exports.InventoryController = InventoryController = __decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
     (0, common_1.Controller)('inventory'),
     __metadata("design:paramtypes", [inventory_service_1.InventoryService])
 ], InventoryController);
