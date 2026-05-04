@@ -51,6 +51,7 @@ let AuthService = class AuthService {
             email: user.email,
             role: user.role,
             name: user.name,
+            patientId: user.patientId || null,
             iat: now,
             exp: now + this.jwtExpiresInSeconds,
         }));

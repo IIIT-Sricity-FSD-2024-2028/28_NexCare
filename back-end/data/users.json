@@ -85,5 +85,50 @@
     "status": "Active",
     "password": "Test1234",
     "patientId": "P92178"
+  },
+  {
+    "id": "U59053",
+    "name": "abcd",
+    "email": "abcd@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "qwerty",
+    "patientId": "P50584"
+  },
+  {
+    "id": "U73646",
+    "name": "Abcd",
+    "email": "abcde@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "qwerty",
+    "patientId": "P53604"
+  },
+  {
+    "id": "U30960",
+    "name": "heya",
+    "email": "heya@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "123456",
+    "patientId": "P53195"
+  },
+  {
+    "id": "U56705",
+    "name": "Test User",
+    "email": "testuser99@test.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Test1234",
+    "patientId": "P59446"
+  },
+  {
+    "id": "U79272",
+    "name": "Vishv reddy",
+    "email": "reddy@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "reddy1",
+    "patientId": "P76800"
   }
 ]
