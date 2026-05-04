@@ -138,7 +138,7 @@ CREATE TABLE Bills (
     FOREIGN KEY (patient_id) REFERENCES Patients(patient_id)
 );
 
-CREATE TABLE Payments (
+CREATE TABLE Payment_gateways (
     payment_id INT PRIMARY KEY AUTO_INCREMENT,
     bill_id INT,
     method VARCHAR(50),
