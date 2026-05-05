@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
-import { ArrayUtil } from '../common/utils/array.util';
 import { Feedback, CreateFeedbackRequest, UpdateFeedbackRequest, FeedbackStats } from './interfaces/feedback.interface';
 import { FeedbackStatus } from '../common/interfaces/api-response.interface';
 
@@ -11,13 +12,17 @@ import { SystemService } from '../system/system.service';
  * Feedback Service
  * Manages communication and feedback system in the NexCare system
  * Handles CRUD operations for feedback with status tracking
+ * Uses file-based persistence (data/feedback.json)
  */
 @Injectable()
 export class FeedbackService {
   constructor(private readonly systemService: SystemService) {}
 
-  // In-memory mock feedback database (aligned with frontend db.js)
-  private feedback: Feedback[] = [
+  // File persistence path
+  private readonly feedbackFilePath = path.join(process.cwd(), 'data', 'feedback.json');
+
+  // Initial seed data (written to file on first access)
+  private readonly seedData: Feedback[] = [
     {
       id: 'FB-001',
       patientId: 'P001',
@@ -56,28 +61,41 @@ export class FeedbackService {
     }
   ];
 
+  /** Load feedback from disk (seeds the file if it doesn't exist) */
+  private loadFeedback(): Feedback[] {
+    try {
+      const raw = fs.readFileSync(this.feedbackFilePath, 'utf-8');
+      return JSON.parse(raw);
+    } catch {
+      // File doesn't exist — seed it
+      this.saveFeedback(this.seedData);
+      return [...this.seedData];
+    }
+  }
+
+  /** Persist the full feedback array to disk */
+  private saveFeedback(feedback: Feedback[]): void {
+    try {
+      fs.mkdirSync(path.dirname(this.feedbackFilePath), { recursive: true });
+      fs.writeFileSync(this.feedbackFilePath, JSON.stringify(feedback, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to persist feedback to disk:', err);
+    }
+  }
+
   /**
    * Get all feedback with optional filtering
-   * @param patientId Optional patient filter
-   * @param status Optional status filter
-   * @param category Optional category filter
-   * @returns List of feedback
    */
   async findAll(patientId?: string, status?: FeedbackStatus, category?: string) {
     try {
-      let filteredFeedback = [...this.feedback];
+      let filteredFeedback = [...this.loadFeedback()];
 
-      // Apply patient filter
       if (patientId) {
         filteredFeedback = filteredFeedback.filter(f => f.patientId === patientId);
       }
-
-      // Apply status filter
       if (status) {
         filteredFeedback = filteredFeedback.filter(f => f.status === status);
       }
-
-      // Apply category filter
       if (category) {
         filteredFeedback = filteredFeedback.filter(f => f.category === category);
       }
@@ -90,12 +108,10 @@ export class FeedbackService {
 
   /**
    * Get feedback by ID
-   * @param id Feedback ID
-   * @returns Feedback data
    */
   async findById(id: string) {
     try {
-      const feedbackItem = this.feedback.find(f => f.id === id);
+      const feedbackItem = this.loadFeedback().find(f => f.id === id);
       
       if (!feedbackItem) {
         return ResponseUtil.notFound('Feedback', id);
@@ -109,24 +125,20 @@ export class FeedbackService {
 
   /**
    * Create new feedback
-   * @param feedbackData Feedback creation data
-   * @returns Created feedback data
    */
   async create(feedbackData: CreateFeedbackRequest) {
     try {
-      // Validate rating
       if (feedbackData.rating < 1 || feedbackData.rating > 5) {
         return ResponseUtil.error('Rating must be between 1 and 5');
       }
 
-      // Generate new feedback ID
+      const feedback = this.loadFeedback();
       const newFeedbackId = IdGenerator.generateFeedbackId();
 
-      // Create new feedback
       const newFeedback: Feedback = {
         id: newFeedbackId,
         patientId: feedbackData.patientId,
-        sender: `User ${feedbackData.patientId}`, // Would fetch from user service
+        sender: feedbackData.sender || `User ${feedbackData.patientId}`,
         type: feedbackData.type,
         category: feedbackData.category,
         subject: feedbackData.subject,
@@ -137,10 +149,9 @@ export class FeedbackService {
         updatedAt: new Date().toISOString()
       };
 
-      // Add to feedback array
-      this.feedback.push(newFeedback);
+      feedback.push(newFeedback);
+      this.saveFeedback(feedback);
 
-      // Log activity
       this.systemService.createActivity({
         userId: feedbackData.patientId,
         action: 'Submit',
@@ -157,33 +168,29 @@ export class FeedbackService {
 
   /**
    * Update feedback
-   * @param id Feedback ID
-   * @param updateData Feedback update data
-   * @returns Updated feedback data
    */
   async update(id: string, updateData: UpdateFeedbackRequest) {
     try {
-      const feedbackIndex = this.feedback.findIndex(f => f.id === id);
+      const feedback = this.loadFeedback();
+      const feedbackIndex = feedback.findIndex(f => f.id === id);
       
       if (feedbackIndex === -1) {
         return ResponseUtil.notFound('Feedback', id);
       }
 
-      // Validate rating if provided
       if (updateData.rating && (updateData.rating < 1 || updateData.rating > 5)) {
         return ResponseUtil.error('Rating must be between 1 and 5');
       }
 
-      // Update feedback
       const updatedFeedback = {
-        ...this.feedback[feedbackIndex],
+        ...feedback[feedbackIndex],
         ...updateData,
         updatedAt: new Date().toISOString()
       };
 
-      this.feedback[feedbackIndex] = updatedFeedback;
+      feedback[feedbackIndex] = updatedFeedback;
+      this.saveFeedback(feedback);
 
-      // Log activity
       this.systemService.createActivity({
         userId: 'System',
         action: 'Update',
@@ -200,21 +207,19 @@ export class FeedbackService {
 
   /**
    * Delete feedback
-   * @param id Feedback ID
-   * @returns Deletion confirmation
    */
   async delete(id: string) {
     try {
-      const feedbackIndex = this.feedback.findIndex(f => f.id === id);
+      const feedback = this.loadFeedback();
+      const feedbackIndex = feedback.findIndex(f => f.id === id);
       
       if (feedbackIndex === -1) {
         return ResponseUtil.notFound('Feedback', id);
       }
 
-      // Remove feedback
-      this.feedback.splice(feedbackIndex, 1);
+      feedback.splice(feedbackIndex, 1);
+      this.saveFeedback(feedback);
 
-      // Log activity
       this.systemService.createActivity({
         userId: 'Admin',
         action: 'Delete',
@@ -231,34 +236,30 @@ export class FeedbackService {
 
   /**
    * Get feedback statistics
-   * @returns Feedback statistics
    */
   async getStats() {
     try {
-      const totalFeedback = this.feedback.length;
-      const openFeedback = this.feedback.filter(f => f.status === FeedbackStatus.OPEN).length;
-      const inProgressFeedback = this.feedback.filter(f => f.status === FeedbackStatus.IN_PROGRESS).length;
-      const resolvedFeedback = this.feedback.filter(f => f.status === FeedbackStatus.RESOLVED).length;
+      const feedback = this.loadFeedback();
+      const totalFeedback = feedback.length;
+      const openFeedback = feedback.filter(f => f.status === FeedbackStatus.OPEN).length;
+      const inProgressFeedback = feedback.filter(f => f.status === FeedbackStatus.IN_PROGRESS).length;
+      const resolvedFeedback = feedback.filter(f => f.status === FeedbackStatus.RESOLVED).length;
 
-      // Average rating
-      const totalRating = this.feedback.reduce((sum, f) => sum + f.rating, 0);
+      const totalRating = feedback.reduce((sum, f) => sum + f.rating, 0);
       const averageRating = totalFeedback > 0 ? Math.round((totalRating / totalFeedback) * 10) / 10 : 0;
 
-      // By category
       const byCategory: Record<string, number> = {};
-      this.feedback.forEach(f => {
+      feedback.forEach(f => {
         byCategory[f.category] = (byCategory[f.category] || 0) + 1;
       });
 
-      // By type
       const byType: Record<string, number> = {};
-      this.feedback.forEach(f => {
+      feedback.forEach(f => {
         byType[f.type] = (byType[f.type] || 0) + 1;
       });
 
-      // By rating
       const byRating: Record<number, number> = {};
-      this.feedback.forEach(f => {
+      feedback.forEach(f => {
         byRating[f.rating] = (byRating[f.rating] || 0) + 1;
       });
 
@@ -281,13 +282,10 @@ export class FeedbackService {
 
   /**
    * Get feedback by patient
-   * @param patientId Patient ID
-   * @returns Patient feedback
    */
   async findByPatient(patientId: string) {
     try {
-      const feedbackItems = this.feedback.filter(f => f.patientId === patientId);
-      
+      const feedbackItems = this.loadFeedback().filter(f => f.patientId === patientId);
       return ResponseUtil.success(`Feedback for patient ${patientId} retrieved successfully`, feedbackItems);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve patient feedback');
@@ -296,13 +294,10 @@ export class FeedbackService {
 
   /**
    * Get feedback by category
-   * @param category Category name
-   * @returns Category feedback
    */
   async findByCategory(category: string) {
     try {
-      const feedbackItems = this.feedback.filter(f => f.category === category);
-      
+      const feedbackItems = this.loadFeedback().filter(f => f.category === category);
       return ResponseUtil.success(`Feedback in category '${category}' retrieved successfully`, feedbackItems);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve category feedback');
@@ -311,17 +306,13 @@ export class FeedbackService {
 
   /**
    * Get feedback by rating
-   * @param rating Rating value
-   * @returns Rating feedback
    */
   async findByRating(rating: number) {
     try {
       if (rating < 1 || rating > 5) {
         return ResponseUtil.error('Rating must be between 1 and 5');
       }
-
-      const feedbackItems = this.feedback.filter(f => f.rating === rating);
-      
+      const feedbackItems = this.loadFeedback().filter(f => f.rating === rating);
       return ResponseUtil.success(`Feedback with rating ${rating} retrieved successfully`, feedbackItems);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve rating feedback');
@@ -330,25 +321,21 @@ export class FeedbackService {
 
   /**
    * Update feedback status
-   * @param id Feedback ID
-   * @param status New status
-   * @returns Updated feedback data
    */
   async updateStatus(id: string, status: FeedbackStatus) {
     try {
-      const feedbackIndex = this.feedback.findIndex(f => f.id === id);
+      const feedback = this.loadFeedback();
+      const feedbackIndex = feedback.findIndex(f => f.id === id);
       
       if (feedbackIndex === -1) {
         return ResponseUtil.notFound('Feedback', id);
       }
 
-      // Update status
-      this.feedback[feedbackIndex].status = status;
-      this.feedback[feedbackIndex].updatedAt = new Date().toISOString();
+      feedback[feedbackIndex].status = status;
+      feedback[feedbackIndex].updatedAt = new Date().toISOString();
+      const updatedFeedback = feedback[feedbackIndex];
+      this.saveFeedback(feedback);
 
-      const updatedFeedback = this.feedback[feedbackIndex];
-
-      // Log activity
       this.systemService.createActivity({
         userId: 'Admin',
         action: 'Resolve',
@@ -365,12 +352,10 @@ export class FeedbackService {
 
   /**
    * Get unresolved feedback
-   * @returns Unresolved feedback
    */
   async getUnresolvedFeedback() {
     try {
-      const unresolvedFeedback = this.feedback.filter(f => f.status !== FeedbackStatus.RESOLVED);
-      
+      const unresolvedFeedback = this.loadFeedback().filter(f => f.status !== FeedbackStatus.RESOLVED);
       return ResponseUtil.success('Unresolved feedback retrieved successfully', unresolvedFeedback);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve unresolved feedback');
@@ -379,12 +364,10 @@ export class FeedbackService {
 
   /**
    * Get high priority feedback (low ratings)
-   * @returns High priority feedback
    */
   async getHighPriorityFeedback() {
     try {
-      const highPriorityFeedback = this.feedback.filter(f => f.rating <= 2 && f.status !== FeedbackStatus.RESOLVED);
-      
+      const highPriorityFeedback = this.loadFeedback().filter(f => f.rating <= 2 && f.status !== FeedbackStatus.RESOLVED);
       return ResponseUtil.success('High priority feedback retrieved successfully', highPriorityFeedback);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve high priority feedback');

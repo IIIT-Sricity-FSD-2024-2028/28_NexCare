@@ -1,16 +1,5 @@
 // Profile Page Functionality
-// Password management is now centralized via NexCareDB/NexCareStore
-// Uses session email to identify the active user and update the users table.
-
-function getStoredPassword() {
-    // Standardize to use the core NexCareDB via Store
-    return window.NexCareStore?.getPassword() || 'NexCare@2026';
-}
-
-function saveStoredPassword(newPw) {
-    // Updates the centralized database record for this user
-    return window.NexCareStore?.updatePassword(newPw);
-}
+// Uses NexCareStore (async) for patient data, NexCareAPI for password changes.
 
 let profileEditMode = false;
 let profileSnapshot = null;
@@ -47,7 +36,7 @@ function setProfileEditMode(enabled) {
     if (saveBtn) saveBtn.style.display = enabled ? 'inline-flex' : 'none';
 }
 
-function saveChanges() {
+async function saveChanges() {
     const { fullName, phoneNumber, emailAddress, currentPassword, newPassword, confirmPassword } = getProfileFormValues();
     
     // Validate personal info
@@ -56,7 +45,7 @@ function saveChanges() {
         return;
     }
     
-    // Validate email format (must include a domain with a dot and at least 2 char TLD)
+    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(emailAddress)) {
         alert('Please enter a valid email address (e.g. user@example.com)');
@@ -77,16 +66,8 @@ function saveChanges() {
     // Password change — only if any password field is filled
     let passwordChanged = false;
     if (currentPassword || newPassword || confirmPassword) {
-        const storedPw = getStoredPassword();
-
         if (!currentPassword) {
             alert('Please enter your current password to change it.');
-            return;
-        }
-        if (currentPassword !== storedPw) {
-            alert('Current password is incorrect. Please try again.');
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('currentPassword').focus();
             return;
         }
         if (!newPassword) {
@@ -97,7 +78,7 @@ function saveChanges() {
             alert('New password must be at least 8 characters long.');
             return;
         }
-        if (newPassword === storedPw) {
+        if (newPassword === currentPassword) {
             alert('New password cannot be the same as your current password.');
             return;
         }
@@ -115,23 +96,73 @@ function saveChanges() {
         saveButton.textContent = 'Saving...';
         saveButton.disabled = true;
     }
-    
-    setTimeout(function() {
-        // Persist profile to NexCareStore
+
+    try {
+        // Persist profile to NexCareStore (async)
         if (window.NexCareStore) {
-            window.NexCareStore.updateActivePatient({
+            await window.NexCareStore.updateActivePatient({
                 fullName,
                 phone: phoneNumber,
                 email: emailAddress
             });
         }
 
-        // Persist new password to localStorage
+        // Change password via backend API
         if (passwordChanged) {
-            saveStoredPassword(newPassword);
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
+            let pwChanged = false;
+            if (isAPIAvailable && isAPIAvailable()) {
+                try {
+                    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+                    const host = window.location.hostname || 'localhost';
+                    const resp = await fetch(`http://${host}:3001/api/auth/change-password`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            email: emailAddress || sessionStorage.getItem('nexcare_user_email'),
+                            currentPassword,
+                            newPassword
+                        })
+                    });
+                    const result = await resp.json();
+                    if (result.success) {
+                        pwChanged = true;
+                    } else {
+                        alert(result.message || 'Failed to change password. Please check your current password.');
+                        if (saveButton) { saveButton.textContent = originalText; saveButton.disabled = false; }
+                        return;
+                    }
+                } catch (err) {
+                    console.warn('Password change API failed, trying fallback:', err.message);
+                }
+            }
+            
+            // Fallback: update password in NexCareDB users table
+            if (!pwChanged && window.NexCareDB) {
+                const sessionEmail = sessionStorage.getItem('nexcare_user_email');
+                if (sessionEmail) {
+                    const userRow = await NexCareDB.getActiveUser(sessionEmail);
+                    if (userRow) {
+                        if (userRow.password !== currentPassword) {
+                            alert('Current password is incorrect. Please try again.');
+                            document.getElementById('currentPassword').value = '';
+                            document.getElementById('currentPassword').focus();
+                            if (saveButton) { saveButton.textContent = originalText; saveButton.disabled = false; }
+                            return;
+                        }
+                        NexCareDB.updateRow('users', userRow.id, { password: newPassword });
+                        pwChanged = true;
+                    }
+                }
+            }
+
+            if (pwChanged) {
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            }
         }
 
         if (saveButton) {
@@ -166,45 +197,53 @@ function saveChanges() {
                 title: 'Profile Updated!',
                 message: 'Your profile has been saved successfully.',
                 details: detailsHtml,
-                onClose: () => {
-                    loadProfileFromStore();
+                onClose: async () => {
+                    await loadProfileFromStore();
                     profileSnapshot = null;
                     setProfileEditMode(false);
                 }
             });
         } else {
             alert('Profile saved successfully!');
-            loadProfileFromStore();
+            await loadProfileFromStore();
             profileSnapshot = null;
             setProfileEditMode(false);
         }
-    }, 800);
+    } catch (error) {
+        console.error('Save profile error:', error);
+        alert('An error occurred while saving your profile. Please try again.');
+        if (saveButton) {
+            saveButton.textContent = originalText;
+            saveButton.disabled = false;
+        }
+    }
 }
 
-function loadProfileFromStore() {
+async function loadProfileFromStore() {
     const store = window.NexCareStore;
     if (!store) return;
-    const p = store.getActivePatient();
+    
+    // getActivePatient is async — must be awaited!
+    const p = await store.getActivePatient();
     if (!p) return;
 
     const fullName = document.getElementById('fullName');
     const phoneNumber = document.getElementById('phoneNumber');
     const emailAddress = document.getElementById('emailAddress');
-    if (fullName) fullName.value = p.fullName || '';
+    if (fullName) fullName.value = p.fullName || p.name || '';
     if (phoneNumber) phoneNumber.value = p.phone || '';
     if (emailAddress) emailAddress.value = p.email || '';
 
-    // Dynamically update Account Information using specific IDs
+    // Dynamically update Account Information
     const patientIdEl = document.getElementById('profilePatientId');
     const memberSinceEl = document.getElementById('profileMemberSince');
     const statusEl = document.getElementById('profileAccountStatus');
 
-    if (patientIdEl) patientIdEl.textContent = p.patientIdDisplay || '--';
+    if (patientIdEl) patientIdEl.textContent = p.patientIdDisplay || p.id || '--';
     if (memberSinceEl) memberSinceEl.textContent = p.memberSince || '--';
     
     if (statusEl) {
         statusEl.textContent = p.status || 'Active';
-        // Reset classes and apply status-specific one
         statusEl.className = 'status-badge'; 
         const status = (p.status || 'Active').toLowerCase();
         
@@ -220,8 +259,8 @@ function loadProfileFromStore() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    loadProfileFromStore();
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadProfileFromStore();
     setProfileEditMode(false);
 
     const editBtn = document.getElementById('editProfileBtn');

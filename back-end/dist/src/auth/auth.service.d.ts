@@ -19,4 +19,9 @@ export declare class AuthService {
     logout(userId: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     getCurrentUser(userId: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     getActiveSessions(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    changePassword(data: {
+        currentPassword: string;
+        newPassword: string;
+        email?: string;
+    }): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
 }

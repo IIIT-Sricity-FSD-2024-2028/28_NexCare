@@ -135,6 +135,29 @@
         ]
       }
     },
+    "/api/auth/change-password": {
+      "patch": {
+        "operationId": "AuthController_changePassword",
+        "summary": "Change user password",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Password changed successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
     "/api/system/activity": {
       "get": {
         "operationId": "SystemController_findAllActivity",
@@ -4277,6 +4300,11 @@
             "type": "string",
             "example": "P001",
             "description": "Patient ID"
+          },
+          "sender": {
+            "type": "string",
+            "example": "John Anderson",
+            "description": "Name of the person submitting feedback"
           },
           "type": {
             "type": "string",

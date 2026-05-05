@@ -22,6 +22,12 @@ __decorate([
     __metadata("design:type", String)
 ], CreateFeedbackDto.prototype, "patientId", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'John Anderson', description: 'Name of the person submitting feedback' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateFeedbackDto.prototype, "sender", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ example: 'Patient', description: 'Type of feedback provider' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)({ message: 'Type is required' }),

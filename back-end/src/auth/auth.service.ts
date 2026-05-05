@@ -331,4 +331,67 @@ export class AuthService {
       return ResponseUtil.serverError('Failed to retrieve active sessions');
     }
   }
+
+  /**
+   * Change password for a user identified by email.
+   * Validates current password and enforces minimum length for new password.
+   */
+  async changePassword(data: { currentPassword: string; newPassword: string; email?: string }) {
+    try {
+      if (!data.currentPassword || !data.newPassword) {
+        return ResponseUtil.error('Both current and new password are required');
+      }
+
+      if (data.newPassword.length < 6) {
+        return ResponseUtil.error('New password must be at least 6 characters long');
+      }
+
+      if (data.currentPassword === data.newPassword) {
+        return ResponseUtil.error('New password must be different from current password');
+      }
+
+      const users = this.loadUsers();
+
+      // Find user by email (if provided), otherwise check all users
+      let user: any = null;
+      let userIndex = -1;
+
+      if (data.email) {
+        userIndex = users.findIndex(u => u.email.toLowerCase() === data.email.toLowerCase());
+        user = userIndex >= 0 ? users[userIndex] : null;
+      }
+
+      if (!user) {
+        // Try to find by matching current password across all users (fallback)
+        userIndex = users.findIndex(u => u.password === data.currentPassword);
+        user = userIndex >= 0 ? users[userIndex] : null;
+      }
+
+      if (!user) {
+        return ResponseUtil.error('Current password is incorrect');
+      }
+
+      if (user.password !== data.currentPassword) {
+        return ResponseUtil.error('Current password is incorrect');
+      }
+
+      // Update password
+      users[userIndex].password = data.newPassword;
+      this.saveUsers(users);
+
+      // Log activity
+      this.systemService.createActivity({
+        userId: user.id,
+        action: 'PasswordChange',
+        details: `Password changed for user ${user.name}`,
+        module: 'Authentication',
+        severity: 'INFO'
+      });
+
+      return ResponseUtil.success('Password changed successfully');
+    } catch (error) {
+      console.error('Change password error:', error);
+      return ResponseUtil.serverError('Failed to change password');
+    }
+  }
 }

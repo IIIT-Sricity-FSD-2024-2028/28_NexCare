@@ -1,5 +1,5 @@
-import { IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
  * Create Feedback DTO
@@ -10,6 +10,11 @@ export class CreateFeedbackDto {
   @IsString()
   @IsNotEmpty({ message: 'Patient ID is required' })
   patientId: string;
+
+  @ApiPropertyOptional({ example: 'John Anderson', description: 'Name of the person submitting feedback' })
+  @IsOptional()
+  @IsString()
+  sender?: string;
 
   @ApiProperty({ example: 'Patient', description: 'Type of feedback provider' })
   @IsString()

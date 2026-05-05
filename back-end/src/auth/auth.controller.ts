@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -67,5 +67,16 @@ export class AuthController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   async getActiveSessions() {
     return this.authService.getActiveSessions();
+  }
+
+  /** @route PATCH /api/auth/change-password — Any authenticated user */
+  @ApiBearerAuth('JWT-auth')
+  @Patch('change-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiResponse({ status: 200, description: 'Password changed successfully' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  async changePassword(@Body() body: { currentPassword: string; newPassword: string }) {
+    return this.authService.changePassword(body);
   }
 }

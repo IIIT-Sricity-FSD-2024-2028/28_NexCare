@@ -7,12 +7,13 @@ function getStore() {
     return window.NexCareStore;
 }
 
-function renderSubmissions() {
+async function renderSubmissions() {
     const store = getStore();
     const list = document.querySelector('.submissions-list');
     if (!store || !list) return;
 
-    const items = store.listFeedback();
+    // listFeedback is async — must be awaited
+    const items = await store.listFeedback();
 
     function badgeClass(status) {
         if (status === 'Open') return 'badge-open';
@@ -25,7 +26,7 @@ function renderSubmissions() {
         return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
 
-    if (!items.length) {
+    if (!items || !items.length) {
         list.innerHTML = `<div class="submission-card"><div class="submission-header"><div class="submission-info"><h3>No submissions</h3><p>Create one in the Submit tab.</p></div></div></div>`;
         return;
     }
@@ -68,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const charCountSpan = document.getElementById('charCount');
     const starButtons = document.querySelectorAll('.star-btn');
     
-    // Initialize Star Icons with SVGs (since text stars are hard to color)
+    // Initialize Star Icons with SVGs
     starButtons.forEach(btn => {
         btn.innerHTML = `
             <svg viewBox="0 0 24 24" fill="none" stroke="#D1D5DC" stroke-width="2">
@@ -103,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const submissionsList = document.querySelector('.submissions-list');
     if (submissionsList) {
-        submissionsList.addEventListener('click', function(e) {
+        submissionsList.addEventListener('click', async function(e) {
             const btn = e.target.closest('button[data-action]');
             if (!btn) return;
             const card = e.target.closest('.submission-card[data-id]');
@@ -116,13 +117,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (action === 'delete') {
                 if (!confirm('Delete this submission?')) return;
-                store.deleteFeedback(id);
-                renderSubmissions();
+                await store.deleteFeedback(id);
+                await renderSubmissions();
                 return;
             }
 
             if (action === 'edit') {
-                const current = store.listFeedback().find(f => String(f.id) === String(id));
+                const allFeedback = await store.listFeedback();
+                const current = allFeedback.find(f => String(f.id) === String(id));
                 if (!current) return;
 
                 editingFeedbackId = current.id;
@@ -151,8 +153,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             if (action === 'resolve') {
-                store.updateFeedback(id, { status: 'Resolved' });
-                renderSubmissions();
+                await store.updateFeedback(id, { status: 'Resolved' });
+                await renderSubmissions();
                 return;
             }
         });
@@ -193,7 +195,7 @@ function updateStarRating(rating) {
     });
 }
 
-function handleFeedbackSubmit(e) {
+async function handleFeedbackSubmit(e) {
     e.preventDefault();
     
     const formData = new FormData(e.target);
@@ -209,7 +211,7 @@ function handleFeedbackSubmit(e) {
     let refId = null;
 
     if (editingFeedbackId) {
-        store?.updateFeedback(editingFeedbackId, {
+        await store?.updateFeedback(editingFeedbackId, {
             category,
             summary: description.trim(),
             rating: selectedRating,
@@ -218,7 +220,7 @@ function handleFeedbackSubmit(e) {
         refId = editingFeedbackId;
         alert(`✓ Feedback Updated!\nReference ID: ${refId}`);
     } else {
-        const created = store?.createFeedback({
+        const created = await store?.createFeedback({
             category,
             description: description.trim(),
             rating: selectedRating,
@@ -236,6 +238,6 @@ function handleFeedbackSubmit(e) {
     const submitBtn = document.querySelector('.btn-submit-feedback');
     if (submitBtn) submitBtn.textContent = 'Submit';
     
-    renderSubmissions();
+    await renderSubmissions();
     setTimeout(() => { showFeedbackTab('submissions'); }, 500);
 }

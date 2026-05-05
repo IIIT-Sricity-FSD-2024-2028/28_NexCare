@@ -40,6 +40,9 @@ let AuthController = class AuthController {
     async getActiveSessions() {
         return this.authService.getActiveSessions();
     }
+    async changePassword(body) {
+        return this.authService.changePassword(body);
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -97,6 +100,18 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getActiveSessions", null);
+__decorate([
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
+    (0, common_1.Patch)('change-password'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Change user password' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Password changed successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "changePassword", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Auth'),
     (0, common_1.Controller)('auth'),

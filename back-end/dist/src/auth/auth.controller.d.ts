@@ -9,4 +9,8 @@ export declare class AuthController {
     logout(userId: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     getCurrentUser(userId: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     getActiveSessions(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    changePassword(body: {
+        currentPassword: string;
+        newPassword: string;
+    }): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
 }

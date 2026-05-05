@@ -14,6 +14,7 @@ export interface Feedback {
 }
 export interface CreateFeedbackRequest {
     patientId: string;
+    sender?: string;
     type: string;
     category: string;
     subject: string;

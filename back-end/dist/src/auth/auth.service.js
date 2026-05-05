@@ -242,6 +242,50 @@ let AuthService = class AuthService {
             return response_util_1.ResponseUtil.serverError('Failed to retrieve active sessions');
         }
     }
+    async changePassword(data) {
+        try {
+            if (!data.currentPassword || !data.newPassword) {
+                return response_util_1.ResponseUtil.error('Both current and new password are required');
+            }
+            if (data.newPassword.length < 6) {
+                return response_util_1.ResponseUtil.error('New password must be at least 6 characters long');
+            }
+            if (data.currentPassword === data.newPassword) {
+                return response_util_1.ResponseUtil.error('New password must be different from current password');
+            }
+            const users = this.loadUsers();
+            let user = null;
+            let userIndex = -1;
+            if (data.email) {
+                userIndex = users.findIndex(u => u.email.toLowerCase() === data.email.toLowerCase());
+                user = userIndex >= 0 ? users[userIndex] : null;
+            }
+            if (!user) {
+                userIndex = users.findIndex(u => u.password === data.currentPassword);
+                user = userIndex >= 0 ? users[userIndex] : null;
+            }
+            if (!user) {
+                return response_util_1.ResponseUtil.error('Current password is incorrect');
+            }
+            if (user.password !== data.currentPassword) {
+                return response_util_1.ResponseUtil.error('Current password is incorrect');
+            }
+            users[userIndex].password = data.newPassword;
+            this.saveUsers(users);
+            this.systemService.createActivity({
+                userId: user.id,
+                action: 'PasswordChange',
+                details: `Password changed for user ${user.name}`,
+                module: 'Authentication',
+                severity: 'INFO'
+            });
+            return response_util_1.ResponseUtil.success('Password changed successfully');
+        }
+        catch (error) {
+            console.error('Change password error:', error);
+            return response_util_1.ResponseUtil.serverError('Failed to change password');
+        }
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([

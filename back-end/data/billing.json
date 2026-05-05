@@ -87,5 +87,36 @@
     ],
     "createdAt": "2026-05-05T17:17:42.408Z",
     "updatedAt": "2026-05-05T17:27:45.997Z"
+  },
+  {
+    "id": "BILL-82462",
+    "patientId": "P001",
+    "visitDate": "July 06, 2026",
+    "dueDate": "20 July, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 9,
+    "sgstAmount": 9,
+    "total": 118,
+    "items": [
+      {
+        "description": "Specialist Consultation",
+        "department": "Cardiology",
+        "amount": 100
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-16107",
+        "amount": 118,
+        "method": "CREDIT",
+        "createdAt": "2026-05-05T17:31:44.119Z"
+      }
+    ],
+    "createdAt": "2026-05-05T17:31:16.867Z",
+    "updatedAt": "2026-05-05T17:31:44.119Z"
   }
 ]

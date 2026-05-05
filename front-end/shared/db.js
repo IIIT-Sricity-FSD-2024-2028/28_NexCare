@@ -707,12 +707,13 @@ window.NexCareStore = {
         if (isAPIAvailable()) {
             try {
                 const result = await window.NexCareAPI.Feedback.create({
-                    ...data,
                     patientId,
-                    sender: patient?.fullName || 'Self',
-                    type: "Patient",
+                    sender: patient?.fullName || 'Patient',
+                    type: 'Patient',
+                    category: data.category,
                     subject: data.category + " Feedback",
-                    summary: data.description
+                    summary: data.description || data.summary || '',
+                    rating: Number(data.rating) || 1
                 });
                 if (result.success) {
                     await NexCareDB.logActivity('Create', 'Feedback', `New feedback submitted (${result.data.id}) in category "${data.category}".`);

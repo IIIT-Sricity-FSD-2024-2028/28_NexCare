@@ -1,0 +1,51 @@
+[
+  {
+    "id": "FB-001",
+    "patientId": "P001",
+    "sender": "John Anderson",
+    "type": "Patient",
+    "category": "service",
+    "subject": "Great doctors",
+    "summary": "Dr. Smith was incredibly thorough and attentive.",
+    "rating": 5,
+    "status": "Resolved",
+    "createdAt": "2026-03-15T10:00:00Z"
+  },
+  {
+    "id": "FB-002",
+    "patientId": "P002",
+    "sender": "Maria Garcia",
+    "type": "Patient",
+    "category": "facilities",
+    "subject": "Wait times in ER",
+    "summary": "Waiting room was cold and wait was an hour.",
+    "rating": 2,
+    "status": "Open",
+    "createdAt": "2026-04-02T14:30:00Z"
+  },
+  {
+    "id": "FB-003",
+    "patientId": "U005",
+    "sender": "Dr. Sarah Smith",
+    "type": "Staff",
+    "category": "software",
+    "subject": "System crash",
+    "summary": "EHR system frequently times out on large files.",
+    "rating": 3,
+    "status": "In Progress",
+    "createdAt": "2026-04-01T09:15:00Z"
+  },
+  {
+    "id": "FB-17967",
+    "patientId": "P001",
+    "sender": "John Anderson",
+    "type": "Patient",
+    "category": "billing",
+    "subject": "billing Feedback",
+    "summary": "billing portal was bad",
+    "rating": 2,
+    "status": "Open",
+    "createdAt": "2026-05-05T17:46:18.745Z",
+    "updatedAt": "2026-05-05T17:46:18.745Z"
+  }
+]

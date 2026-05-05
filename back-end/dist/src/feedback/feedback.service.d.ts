@@ -4,7 +4,10 @@ import { SystemService } from '../system/system.service';
 export declare class FeedbackService {
     private readonly systemService;
     constructor(systemService: SystemService);
-    private feedback;
+    private readonly feedbackFilePath;
+    private readonly seedData;
+    private loadFeedback;
+    private saveFeedback;
     findAll(patientId?: string, status?: FeedbackStatus, category?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     create(feedbackData: CreateFeedbackRequest): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

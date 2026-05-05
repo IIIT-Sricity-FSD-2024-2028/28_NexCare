@@ -11,6 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FeedbackService = void 0;
 const common_1 = require("@nestjs/common");
+const fs = require("fs");
+const path = require("path");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
@@ -18,7 +20,8 @@ const system_service_1 = require("../system/system.service");
 let FeedbackService = class FeedbackService {
     constructor(systemService) {
         this.systemService = systemService;
-        this.feedback = [
+        this.feedbackFilePath = path.join(process.cwd(), 'data', 'feedback.json');
+        this.seedData = [
             {
                 id: 'FB-001',
                 patientId: 'P001',
@@ -57,9 +60,28 @@ let FeedbackService = class FeedbackService {
             }
         ];
     }
+    loadFeedback() {
+        try {
+            const raw = fs.readFileSync(this.feedbackFilePath, 'utf-8');
+            return JSON.parse(raw);
+        }
+        catch {
+            this.saveFeedback(this.seedData);
+            return [...this.seedData];
+        }
+    }
+    saveFeedback(feedback) {
+        try {
+            fs.mkdirSync(path.dirname(this.feedbackFilePath), { recursive: true });
+            fs.writeFileSync(this.feedbackFilePath, JSON.stringify(feedback, null, 2), 'utf-8');
+        }
+        catch (err) {
+            console.error('Failed to persist feedback to disk:', err);
+        }
+    }
     async findAll(patientId, status, category) {
         try {
-            let filteredFeedback = [...this.feedback];
+            let filteredFeedback = [...this.loadFeedback()];
             if (patientId) {
                 filteredFeedback = filteredFeedback.filter(f => f.patientId === patientId);
             }
@@ -77,7 +99,7 @@ let FeedbackService = class FeedbackService {
     }
     async findById(id) {
         try {
-            const feedbackItem = this.feedback.find(f => f.id === id);
+            const feedbackItem = this.loadFeedback().find(f => f.id === id);
             if (!feedbackItem) {
                 return response_util_1.ResponseUtil.notFound('Feedback', id);
             }
@@ -92,11 +114,12 @@ let FeedbackService = class FeedbackService {
             if (feedbackData.rating < 1 || feedbackData.rating > 5) {
                 return response_util_1.ResponseUtil.error('Rating must be between 1 and 5');
             }
+            const feedback = this.loadFeedback();
             const newFeedbackId = id_generator_util_1.IdGenerator.generateFeedbackId();
             const newFeedback = {
                 id: newFeedbackId,
                 patientId: feedbackData.patientId,
-                sender: `User ${feedbackData.patientId}`,
+                sender: feedbackData.sender || `User ${feedbackData.patientId}`,
                 type: feedbackData.type,
                 category: feedbackData.category,
                 subject: feedbackData.subject,
@@ -106,7 +129,8 @@ let FeedbackService = class FeedbackService {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
-            this.feedback.push(newFeedback);
+            feedback.push(newFeedback);
+            this.saveFeedback(feedback);
             this.systemService.createActivity({
                 userId: feedbackData.patientId,
                 action: 'Submit',
@@ -122,7 +146,8 @@ let FeedbackService = class FeedbackService {
     }
     async update(id, updateData) {
         try {
-            const feedbackIndex = this.feedback.findIndex(f => f.id === id);
+            const feedback = this.loadFeedback();
+            const feedbackIndex = feedback.findIndex(f => f.id === id);
             if (feedbackIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Feedback', id);
             }
@@ -130,11 +155,12 @@ let FeedbackService = class FeedbackService {
                 return response_util_1.ResponseUtil.error('Rating must be between 1 and 5');
             }
             const updatedFeedback = {
-                ...this.feedback[feedbackIndex],
+                ...feedback[feedbackIndex],
                 ...updateData,
                 updatedAt: new Date().toISOString()
             };
-            this.feedback[feedbackIndex] = updatedFeedback;
+            feedback[feedbackIndex] = updatedFeedback;
+            this.saveFeedback(feedback);
             this.systemService.createActivity({
                 userId: 'System',
                 action: 'Update',
@@ -150,11 +176,13 @@ let FeedbackService = class FeedbackService {
     }
     async delete(id) {
         try {
-            const feedbackIndex = this.feedback.findIndex(f => f.id === id);
+            const feedback = this.loadFeedback();
+            const feedbackIndex = feedback.findIndex(f => f.id === id);
             if (feedbackIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Feedback', id);
             }
-            this.feedback.splice(feedbackIndex, 1);
+            feedback.splice(feedbackIndex, 1);
+            this.saveFeedback(feedback);
             this.systemService.createActivity({
                 userId: 'Admin',
                 action: 'Delete',
@@ -170,22 +198,23 @@ let FeedbackService = class FeedbackService {
     }
     async getStats() {
         try {
-            const totalFeedback = this.feedback.length;
-            const openFeedback = this.feedback.filter(f => f.status === api_response_interface_1.FeedbackStatus.OPEN).length;
-            const inProgressFeedback = this.feedback.filter(f => f.status === api_response_interface_1.FeedbackStatus.IN_PROGRESS).length;
-            const resolvedFeedback = this.feedback.filter(f => f.status === api_response_interface_1.FeedbackStatus.RESOLVED).length;
-            const totalRating = this.feedback.reduce((sum, f) => sum + f.rating, 0);
+            const feedback = this.loadFeedback();
+            const totalFeedback = feedback.length;
+            const openFeedback = feedback.filter(f => f.status === api_response_interface_1.FeedbackStatus.OPEN).length;
+            const inProgressFeedback = feedback.filter(f => f.status === api_response_interface_1.FeedbackStatus.IN_PROGRESS).length;
+            const resolvedFeedback = feedback.filter(f => f.status === api_response_interface_1.FeedbackStatus.RESOLVED).length;
+            const totalRating = feedback.reduce((sum, f) => sum + f.rating, 0);
             const averageRating = totalFeedback > 0 ? Math.round((totalRating / totalFeedback) * 10) / 10 : 0;
             const byCategory = {};
-            this.feedback.forEach(f => {
+            feedback.forEach(f => {
                 byCategory[f.category] = (byCategory[f.category] || 0) + 1;
             });
             const byType = {};
-            this.feedback.forEach(f => {
+            feedback.forEach(f => {
                 byType[f.type] = (byType[f.type] || 0) + 1;
             });
             const byRating = {};
-            this.feedback.forEach(f => {
+            feedback.forEach(f => {
                 byRating[f.rating] = (byRating[f.rating] || 0) + 1;
             });
             const stats = {
@@ -206,7 +235,7 @@ let FeedbackService = class FeedbackService {
     }
     async findByPatient(patientId) {
         try {
-            const feedbackItems = this.feedback.filter(f => f.patientId === patientId);
+            const feedbackItems = this.loadFeedback().filter(f => f.patientId === patientId);
             return response_util_1.ResponseUtil.success(`Feedback for patient ${patientId} retrieved successfully`, feedbackItems);
         }
         catch (error) {
@@ -215,7 +244,7 @@ let FeedbackService = class FeedbackService {
     }
     async findByCategory(category) {
         try {
-            const feedbackItems = this.feedback.filter(f => f.category === category);
+            const feedbackItems = this.loadFeedback().filter(f => f.category === category);
             return response_util_1.ResponseUtil.success(`Feedback in category '${category}' retrieved successfully`, feedbackItems);
         }
         catch (error) {
@@ -227,7 +256,7 @@ let FeedbackService = class FeedbackService {
             if (rating < 1 || rating > 5) {
                 return response_util_1.ResponseUtil.error('Rating must be between 1 and 5');
             }
-            const feedbackItems = this.feedback.filter(f => f.rating === rating);
+            const feedbackItems = this.loadFeedback().filter(f => f.rating === rating);
             return response_util_1.ResponseUtil.success(`Feedback with rating ${rating} retrieved successfully`, feedbackItems);
         }
         catch (error) {
@@ -236,13 +265,15 @@ let FeedbackService = class FeedbackService {
     }
     async updateStatus(id, status) {
         try {
-            const feedbackIndex = this.feedback.findIndex(f => f.id === id);
+            const feedback = this.loadFeedback();
+            const feedbackIndex = feedback.findIndex(f => f.id === id);
             if (feedbackIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Feedback', id);
             }
-            this.feedback[feedbackIndex].status = status;
-            this.feedback[feedbackIndex].updatedAt = new Date().toISOString();
-            const updatedFeedback = this.feedback[feedbackIndex];
+            feedback[feedbackIndex].status = status;
+            feedback[feedbackIndex].updatedAt = new Date().toISOString();
+            const updatedFeedback = feedback[feedbackIndex];
+            this.saveFeedback(feedback);
             this.systemService.createActivity({
                 userId: 'Admin',
                 action: 'Resolve',
@@ -258,7 +289,7 @@ let FeedbackService = class FeedbackService {
     }
     async getUnresolvedFeedback() {
         try {
-            const unresolvedFeedback = this.feedback.filter(f => f.status !== api_response_interface_1.FeedbackStatus.RESOLVED);
+            const unresolvedFeedback = this.loadFeedback().filter(f => f.status !== api_response_interface_1.FeedbackStatus.RESOLVED);
             return response_util_1.ResponseUtil.success('Unresolved feedback retrieved successfully', unresolvedFeedback);
         }
         catch (error) {
@@ -267,7 +298,7 @@ let FeedbackService = class FeedbackService {
     }
     async getHighPriorityFeedback() {
         try {
-            const highPriorityFeedback = this.feedback.filter(f => f.rating <= 2 && f.status !== api_response_interface_1.FeedbackStatus.RESOLVED);
+            const highPriorityFeedback = this.loadFeedback().filter(f => f.rating <= 2 && f.status !== api_response_interface_1.FeedbackStatus.RESOLVED);
             return response_util_1.ResponseUtil.success('High priority feedback retrieved successfully', highPriorityFeedback);
         }
         catch (error) {
