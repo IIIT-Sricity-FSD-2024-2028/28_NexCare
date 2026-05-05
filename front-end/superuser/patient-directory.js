@@ -1,11 +1,25 @@
 let allPatients = [];
 
+function getToken() {
+    return sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+}
+
+function apiRequest(method, path, body) {
+    const token = getToken();
+    const host = window.location.hostname || 'localhost';
+    return fetch(`http://${host}:3001/api${path}`, {
+        method,
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined
+    }).then(r => r.json());
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     fetchPatients();
 
     document.getElementById('searchInput').addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase().trim();
-        const filtered = allPatients.filter(p => 
+        const filtered = allPatients.filter(p =>
             (p.fullName && p.fullName.toLowerCase().includes(term)) ||
             (p.email && p.email.toLowerCase().includes(term)) ||
             (p.patientIdDisplay && p.patientIdDisplay.toLowerCase().includes(term)) ||
@@ -15,33 +29,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function fetchPatients() {
-    if (window.NexCareDB) {
-        allPatients = window.NexCareDB.getTable('patients');
+async function fetchPatients() {
+    const tbody = document.getElementById('patientsTableBody');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:#6b7280;">Loading patients…</td></tr>`;
+
+    try {
+        const host  = window.location.hostname || 'localhost';
+        const token = getToken();
+        const res   = await fetch(`http://${host}:3001/api/users`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const resp = await res.json();
+        const users = (resp.data || []).filter(u => u.role === 'patient');
+
+        // Map user fields → patient display format
+        allPatients = users.map(u => ({
+            id:             u.patientId || u.id,
+            patientIdDisplay: u.patientId || u.id,
+            fullName:       u.name,
+            email:          u.email,
+            phone:          u.phone || '-',
+            status:         u.status || 'Active',
+            _userId:        u.id    // keep original user ID for delete
+        }));
+    } catch (e) {
+        console.error('Failed to fetch patients from API:', e);
+        allPatients = [];
     }
+
     renderPatients(allPatients);
 }
 
-function deletePatient(id) {
+async function deletePatient(id) {
+    // id here is the _userId (the original user ID we stored)
+    const patient = allPatients.find(p => p.id === id);
+    const patientName = patient ? patient.fullName : id;
+    const userId = patient ? patient._userId : id;
+
     if (confirm("WARNING: Are you sure you want to permanently delete this patient from the NexCare records?")) {
-        if (window.NexCareDB) {
-            const patient = window.NexCareDB.getTable('patients').find(p => p.id === id);
-            const patientName = patient ? patient.fullName : id;
-            
-            // 1. Delete from patients table
-            window.NexCareDB.deleteRow('patients', id);
-            
-            // 2. Cascade Delete: Find and delete corresponding user account (FR-17)
-            const users = window.NexCareDB.getTable('users');
-            const user = users.find(u => u.patientId === id);
-            if (user) {
-                window.NexCareDB.deleteRow('users', user.id);
-            }
-            
-            // 3. Log the activity
+        try {
+            // Delete the user account (cascades patient records on backend)
+            await apiRequest('DELETE', `/users/${userId}`);
             if (window.NexCareStore) {
                 window.NexCareStore.logActivity('Delete', 'Patient Directory', `Full deletion of patient: ${patientName} (ID: ${id})`);
             }
+        } catch (err) {
+            console.error('Delete patient failed:', err);
+            alert('Failed to delete patient. Please try again.');
+            return;
         }
         fetchPatients();
     }

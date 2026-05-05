@@ -1,5 +1,24 @@
 import { validateBillForm } from "./validation.js";
 
+// ---------------- API HELPER ----------------
+function apiGet(path) {
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    const host = window.location.hostname || 'localhost';
+    return fetch(`http://${host}:3001/api${path}`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    }).then(r => r.json());
+}
+
+function apiRequest(method, path, body) {
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    const host = window.location.hostname || 'localhost';
+    return fetch(`http://${host}:3001/api${path}`, {
+        method,
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined
+    }).then(r => r.json());
+}
+
 // ---------------- STATE ----------------
 const WARD_RATES = {
     "Emergency": { service: "Emergency Ward Care & Monitoring", amount: 5000 },
@@ -9,67 +28,40 @@ const WARD_RATES = {
 };
 
 let bills = [];
-
 let filteredBills = [];
+let patientsCache = [];
 
-// ---------------- LOAD MOCK DATA FROM bills.json ----------------
-
+// ---------------- LOAD DATA FROM API ----------------
 async function loadBills() {
-    if (!window.NexCareDB) return;
+    try {
+        const [billsResp, patientsResp] = await Promise.all([
+            apiGet('/billing'),
+            apiGet('/patients')
+        ]);
 
-    // 1. Get all patients for name resolution
-    const patients = window.NexCareDB.getTable('patients');
-    
-    // 2. Fetch bills from persistent database
-    let dbBills = window.NexCareDB.getTable('bills');
+        patientsCache = patientsResp.data || [];
+        const dbBills = billsResp.data || [];
 
-    // 3. SEED: If no bills in DB, load mock data once and save it
-    if (dbBills.length === 0) {
-        try {
-            const res = await fetch("./bills.json");
-            const seedData = await res.json();
-            seedData.forEach(b => {
-                // Find matching patient ID or use first available (mockup sync)
-                const mockP = patients.find(p => p.fullName === b.patient);
-                const pid = mockP ? mockP.id : "P001";
-                
-                window.NexCareDB.addRow('bills', {
-                    id: b.id, // Keep legacy ID for initial seed
-                    patientId: pid,
-                    visitDate: b.date,
-                    dueDate: b.date,
-                    status: b.status,
-                    currency: "₹",
-                    subtotal: Number(b.amount),
-                    cgstRate: 0,
-                    sgstRate: 0,
-                    items: [{ description: b.services, amount: Number(b.amount) }],
-                    payments: []
-                });
-            });
-            // Reload after seeding
-            dbBills = window.NexCareDB.getTable('bills');
-        } catch (err) {
-            console.error("Failed to seed bills:", err);
-        }
+        bills = dbBills.map(db => {
+            const patient = patientsCache.find(p => p.id === db.patientId);
+            return {
+                id: db.id,
+                patient: patient ? patient.fullName : (db.patientName || "Unknown Patient"),
+                date: db.visitDate || db.date || '',
+                services: db.items && db.items.length > 0 ? db.items[0].description : "Medical Services",
+                amount: db.subtotal || db.amount || 0,
+                status: db.status || 'Pending',
+                payment: db.payments && db.payments.length > 0 ? "Paid" : "-"
+            };
+        });
+
+        filteredBills = [...bills];
+        render();
+    } catch (err) {
+        console.error("Error loading bills:", err);
+        const table = document.getElementById("bills");
+        if (table) table.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:#dc2626;">Failed to load bills. Backend may be offline.</td></tr>`;
     }
-
-    // 4. TRANSFORM DB bills for Admin View
-    bills = dbBills.map(db => {
-        const patient = patients.find(p => p.id === db.patientId);
-        return {
-            id: db.id,
-            patient: patient ? patient.fullName : (db.patientName || "Unknown Patient"),
-            date: db.visitDate || db.date,
-            services: db.items && db.items.length > 0 ? db.items[0].description : "Medical Services",
-            amount: db.subtotal || db.amount,
-            status: db.status,
-            payment: db.payments && db.payments.length > 0 ? "Paid" : "-"
-        };
-    });
-
-    filteredBills = [...bills];
-    render();
 }
 
 function render() {
@@ -125,14 +117,8 @@ function render() {
 
 function updateStats() {
     const total = bills.length;
-    const revenue = bills
-        .filter(b => b.status === "Paid")
-        .reduce((sum, b) => sum + Number(b.amount), 0);
-
-    const pending = bills
-        .filter(b => b.status !== "Paid")
-        .reduce((sum, b) => sum + Number(b.amount), 0);
-
+    const revenue = bills.filter(b => b.status === "Paid").reduce((sum, b) => sum + Number(b.amount), 0);
+    const pending = bills.filter(b => b.status !== "Paid").reduce((sum, b) => sum + Number(b.amount), 0);
     const paidCount = bills.filter(b => b.status === "Paid").length;
 
     document.getElementById("totalBills").innerText = total;
@@ -142,18 +128,13 @@ function updateStats() {
 }
 
 /* ---------------- SEARCH + FILTER ---------------- */
-
 function applyFilters() {
     const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
     const status = document.getElementById("statusFilter")?.value || "";
 
     filteredBills = bills.filter(b => {
-        const matchesSearch =
-            b.patient.toLowerCase().includes(search) ||
-            b.id.toLowerCase().includes(search);
-
+        const matchesSearch = b.patient.toLowerCase().includes(search) || b.id.toLowerCase().includes(search);
         const matchesStatus = status ? b.status === status : true;
-
         return matchesSearch && matchesStatus;
     });
 
@@ -173,46 +154,46 @@ window.closeModal = () => {
     document.getElementById("modal").style.display = "none";
 };
 
-window.fetchPatientDetails = () => {
+window.fetchPatientDetails = async () => {
     const patientId = document.getElementById("patientId").value.trim();
     if (!patientId) {
         alert("Please enter a Patient ID first.");
         return;
     }
 
-    if (!window.NexCareDB) {
-        alert("Database connection not found.");
-        return;
-    }
+    try {
+        // Fetch patient from API
+        const pResp = await apiGet('/patients');
+        const patients = pResp.data || [];
+        const patient = patients.find(p => p.id === patientId || p.patientIdDisplay === patientId);
 
-    // 1. Fetch patient name
-    const patients = window.NexCareDB.getTable('patients');
-    const patient = patients.find(p => p.id === patientId || p.patientIdDisplay === patientId);
+        if (!patient) {
+            alert("Patient not found. Please check the ID.");
+            return;
+        }
 
-    if (!patient) {
-        alert("Patient not found. Please check the ID.");
-        return;
-    }
+        document.getElementById("name").value = patient.fullName;
 
-    document.getElementById("name").value = patient.fullName;
+        // Fetch beds to find ward allocation
+        const bedsResp = await apiGet('/beds');
+        const beds = bedsResp.data || [];
+        const bed = beds.find(b => b.patientId === patient.id || (b.patient && b.patient === patient.fullName));
 
-    // 2. Fetch bed allocation
-    const beds = window.NexCareDB.getTable('beds');
-    // FIX: Look for patientId match first, then fallback to name for sync robustness
-    const bed = beds.find(b => b.patientId === patient.id || (b.patient && b.patient === patient.fullName));
-
-    if (bed && bed.ward && WARD_RATES[bed.ward]) {
-        document.getElementById("services").value = WARD_RATES[bed.ward].service;
-        document.getElementById("amount").value = WARD_RATES[bed.ward].amount;
-    } else {
-        alert("No active bed allocation found for this patient. Please enter services and amount manually.");
-        document.getElementById("services").value = "";
-        document.getElementById("amount").value = "";
+        if (bed && bed.ward && WARD_RATES[bed.ward]) {
+            document.getElementById("services").value = WARD_RATES[bed.ward].service;
+            document.getElementById("amount").value = WARD_RATES[bed.ward].amount;
+        } else {
+            alert("No active bed allocation found for this patient. Please enter services and amount manually.");
+            document.getElementById("services").value = "";
+            document.getElementById("amount").value = "";
+        }
+    } catch (err) {
+        console.error("fetchPatientDetails error:", err);
+        alert("Failed to fetch patient details. Backend may be offline.");
     }
 };
 
-window.save = () => {
-
+window.save = async () => {
     const patientId = document.getElementById("patientId").value.trim();
     const name = document.getElementById("name").value;
     const amount = document.getElementById("amount").value;
@@ -230,57 +211,58 @@ window.save = () => {
         return;
     }
 
-    // 1. Create native bill first in NexCareDB (Source of Truth)
-    const billId = "BILL-" + Math.floor(Math.random() * 9000 + 1000);
-    const dateStr = new Date().toISOString().split("T")[0];
-
-    if (window.NexCareDB) {
-        const patients = window.NexCareDB.getTable('patients');
+    try {
+        const pResp = await apiGet('/patients');
+        const patients = pResp.data || [];
         const patient = patients.find(p => p.id === patientId || p.patientIdDisplay === patientId);
-        
-        if (patient) {
-            window.NexCareDB.addRow('bills', {
-                id: billId,
-                patientId: patient.id,
-                visitDate: dateStr,
-                dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-                status: "Pending",
-                currency: "₹",
-                subtotal: Number(amount),
-                cgstRate: 0.09,
-                sgstRate: 0.09,
-                items: [
-                    { description: services, department: "Administrative", amount: Number(amount) }
-                ],
-                payments: []
-            });
-            window.NexCareDB.logActivity('Create', 'Billing', `Admin generated new persistent bill for ${name} (ID: ${patient.id})`);
+
+        if (!patient) {
+            alert("Patient not found. Please verify the Patient ID.");
+            return;
         }
+
+        const dateStr = new Date().toISOString().split("T")[0];
+        const payload = {
+            patientId: patient.id,
+            visitDate: dateStr,
+            dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+            status: "Pending",
+            currency: "₹",
+            subtotal: Number(amount),
+            cgstRate: 0.09,
+            sgstRate: 0.09,
+            items: [{ description: services, department: "Administrative", amount: Number(amount) }],
+            payments: []
+        };
+
+        await apiRequest('POST', '/billing', payload);
+
+        if (window.NexCareStore) {
+            window.NexCareStore.logActivity('Create', 'Billing', `Admin generated new bill for ${name} (ID: ${patient.id})`);
+        }
+    } catch (err) {
+        console.error("Save bill error:", err);
+        alert("Failed to save bill. Please try again.");
+        return;
     }
 
-    // 2. Clear modal and reset UI
     document.getElementById("modal").style.display = "none";
     document.getElementById("patientId").value = "";
     document.getElementById("name").value = "";
     document.getElementById("amount").value = "";
     document.getElementById("services").value = "";
 
-    // 3. PERSISTENT REFRESH: Reload everything from database to reflect the new ID
     loadBills();
 };
 
 /* ---------------- EXPORT ---------------- */
-
 window.exportData = () => {
     let csv = "ID,Patient,Date,Services,Amount,Status,Payment\n";
-
     bills.forEach(b => {
         csv += `${b.id},${b.patient},${b.date},${b.services},${b.amount},${b.status},${b.payment}\n`;
     });
-
     const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-
     const a = document.createElement("a");
     a.href = url;
     a.download = "bills.csv";
@@ -288,12 +270,10 @@ window.exportData = () => {
 };
 
 /* ---------------- INIT ---------------- */
-
 loadBills();
 
 window.viewBill = (id) => {
     const bill = bills.find(b => b.id === id);
-
     const html = `
         <div>
             <p><strong>Bill ID:</strong> ${bill.id}</p>
@@ -305,7 +285,6 @@ window.viewBill = (id) => {
             <p><strong>Payment:</strong> ${bill.payment}</p>
         </div>
     `;
-
     document.getElementById("billContent").innerHTML = html;
     document.getElementById("viewModal").style.display = "flex";
 };
@@ -314,37 +293,22 @@ window.closeViewModal = () => {
     document.getElementById("viewModal").style.display = "none";
 };
 
-window.printBill = (id) => {
-    viewBill(id);
-};
+window.printBill = (id) => { viewBill(id); };
 
 window.printBillContent = () => {
     const content = document.getElementById("billContent").innerHTML;
-
     const win = window.open("", "", "width=600,height=600");
-
-    win.document.write(`
-        <html>
-        <head><title>Print Bill</title></head>
-        <body>${content}</body>
-        </html>
-    `);
-
+    win.document.write(`<html><head><title>Print Bill</title></head><body>${content}</body></html>`);
     win.document.close();
     win.print();
 };
 
-window.downloadBill = (id) => {
-    viewBill(id);
-};
+window.downloadBill = (id) => { viewBill(id); };
 
 window.downloadPDF = () => {
     const { jsPDF } = window.jspdf;
-
     const doc = new jsPDF();
-
     const content = document.getElementById("billContent").innerText;
-
     doc.text(content, 10, 10);
     doc.save("bill.pdf");
 };

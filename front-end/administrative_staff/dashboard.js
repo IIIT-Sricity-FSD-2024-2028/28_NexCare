@@ -6,27 +6,41 @@ document.querySelectorAll('.menu li').forEach(item => {
     });
 });
 
-
-// ---------------- DATA FROM NexCareDB ----------------
+// ---------------- STATE ----------------
 let appointments = [];
 let filteredAppointments = [];
 
+// ---------------- API HELPER ----------------
+function apiGet(path) {
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    const host = window.location.hostname || 'localhost';
+    return fetch(`http://${host}:3001/api${path}`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    }).then(r => r.json());
+}
 
 // ---------------- FETCH DATA ----------------
-function loadDashboardData() {
-    if (!window.NexCareDB) return;
+async function loadDashboardData() {
+    try {
+        const [patientsResp, apptResp] = await Promise.all([
+            apiGet('/patients'),
+            apiGet('/appointments')
+        ]);
 
-    // 1. Sync Stats
-    const patients = window.NexCareDB.getTable('patients');
-    const allAppointments = window.NexCareDB.getTable('appointments');
+        const patients = patientsResp.data || [];
+        const allAppointments = apptResp.data || [];
 
-    document.getElementById('totalPatientsCount').textContent = patients.length;
-    document.getElementById('todayApptCount').textContent = allAppointments.length; // Simplified for "System Total"
+        document.getElementById('totalPatientsCount').textContent = patients.length;
+        document.getElementById('todayApptCount').textContent = allAppointments.length;
 
-    // 2. Load Appointments List
-    appointments = allAppointments;
-    filteredAppointments = [...appointments];
-    render();
+        appointments = allAppointments;
+        filteredAppointments = [...appointments];
+        render();
+    } catch (err) {
+        console.error('Dashboard load failed:', err);
+        document.getElementById('totalPatientsCount').textContent = 'N/A';
+        document.getElementById('todayApptCount').textContent = 'N/A';
+    }
 }
 
 function getStatusClass(status) {
@@ -43,7 +57,7 @@ function render() {
     if (!container) return;
 
     if (filteredAppointments.length === 0) {
-        container.innerHTML = `<div style="padding:20px; text-align:center; color:#666;">No recent appointments found in database.</div>`;
+        container.innerHTML = `<div style="padding:20px; text-align:center; color:#666;">No recent appointments found.</div>`;
         return;
     }
 
@@ -51,17 +65,16 @@ function render() {
         <div class="appointment">
             <div class="avatar">⚕</div>
             <div class="info">
-                <strong>${a.patientName || a.name}</strong>
-                <div class="small">${a.doctor} • ${a.department || a.dept}</div>
+                <strong>${a.patientName || a.name || 'Unknown'}</strong>
+                <div class="small">${a.doctor || 'TBD'} • ${a.department || a.dept || 'General'}</div>
             </div>
-            <div class="time">${a.timeLabel || a.time}</div>
+            <div class="time">${a.timeLabel || a.time || ''}</div>
             <div class="status-wrap">
-                <span class="badge ${getStatusClass(a.status)}">${a.status}</span>
+                <span class="badge ${getStatusClass(a.status)}">${a.status || 'Pending'}</span>
             </div>
         </div>
     `).join("");
 }
-
 
 // ---------------- SEARCH ----------------
 function applyFilters() {
@@ -77,10 +90,8 @@ function applyFilters() {
     render();
 }
 
-
 // ---------------- EVENTS ----------------
 document.getElementById("searchInput")?.addEventListener("input", applyFilters);
-
 
 // ---------------- INIT ----------------
 loadDashboardData();

@@ -34,6 +34,7 @@ export class UsersController {
    * @query status Optional status filter
    * @access Private (Admin)
    */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @Get()
   async findAll(@Query('role') role?: string, @Query('status') status?: string) {
     return this.usersService.findAll(role as any, status as any);

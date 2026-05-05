@@ -40,9 +40,9 @@ window.closeSystemModal = function() {
     if (modal) modal.style.display = 'none';
 };
 
-window.cancelAppointment = function(id) {
+window.cancelAppointment = async function(id) {
     if (!window.NexCareStore) return;
-    window.NexCareStore.updateAppointment(id, { status: 'Cancelled' });
+    await window.NexCareStore.updateAppointment(id, { status: 'Cancelled' });
     // Dynamic UI update (no reload)
     loadAppointments();
     loadRecords();
@@ -56,9 +56,9 @@ window.payBill = function(id, subtotal) {
     window.location.href = 'billing.html';
 };
 
-window.showNotifications = function() {
-    const appointments = window.NexCareStore.listAppointments();
-    const bills = window.NexCareStore.listBills();
+window.showNotifications = async function() {
+    const appointments = await window.NexCareStore.listAppointments();
+    const bills = await window.NexCareStore.listBills();
     
     let html = '';
     
@@ -88,42 +88,77 @@ window.showNotifications = function() {
 };
 
 function loadUserInfo() {
-    const userEmail = sessionStorage.getItem("nexcare_user_email") || localStorage.getItem("nexcare_currentUser");
-    if (!userEmail || !window.NexCareDB) return;
-    
-    let emailToFind = userEmail;
-    if (userEmail.startsWith('{')) {
+    // ── Read user identity from the JWT token ─────────────────────────────
+    // The JWT (stored by login/signup via api.js) contains sub, email, name,
+    // role, and patientId. We decode it client-side to avoid an extra API call.
+    // This means ANY registered patient sees their own data, not "John Anderson".
+    const token = sessionStorage.getItem('nexcare_auth_token')
+               || localStorage.getItem('nexcare_auth_token');
+
+    let user = null;
+
+    if (token) {
         try {
-            const parsed = JSON.parse(userEmail);
-            emailToFind = parsed.email;
-        } catch(e) {}
+            const parts = token.split('.');
+            if (parts.length === 3) {
+                const raw  = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                const json = decodeURIComponent(
+                    atob(raw).split('').map(c =>
+                        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                    ).join('')
+                );
+                user = JSON.parse(json); // { sub, email, name, role, patientId, exp, iat }
+            }
+        } catch (e) {
+            console.warn('JWT decode failed in loadUserInfo:', e);
+        }
     }
 
-    const user = window.NexCareDB.getTable('users').find(u => u.email === emailToFind);
-    if (user) {
-        const nameNode = document.querySelector('.profile-name');
-        if (nameNode) nameNode.textContent = user.name;
-        
-        const avatarNode = document.querySelector('.profile-avatar');
-        if (avatarNode) {
-            const initials = user.name.split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase();
-            avatarNode.textContent = initials;
-        }
-        
-        const heroHeading = document.querySelector('.hero-content h1');
-        if (heroHeading) {
-            heroHeading.textContent = `Welcome Back, ${user.name.split(' ')[0]}!`;
-        }
-        
-        const idNode = document.querySelector('.profile-id');
-        if (idNode && user.patientId) {
-            idNode.textContent = `Patient ID: ${user.patientId}`;
-        }
+    // Fallback: try sessionStorage user_data blob (set by login.html)
+    if (!user) {
+        try {
+            const blob = sessionStorage.getItem('nexcare_user_data');
+            if (blob) user = JSON.parse(blob);
+        } catch (e) {}
+    }
+
+    if (!user) return; // Nothing to populate
+
+    // ── Populate name ──────────────────────────────────────────────────────
+    const displayName = user.name || user.email.split('@')[0];
+    const firstName   = displayName.split(' ')[0];
+
+    const nameNode = document.querySelector('.profile-name');
+    if (nameNode) nameNode.textContent = displayName;
+
+    const avatarNode = document.querySelector('.profile-avatar');
+    if (avatarNode) {
+        const initials = displayName.split(' ')
+            .map(p => p[0]).join('').substring(0, 2).toUpperCase();
+        avatarNode.textContent = initials;
+    }
+
+    const heroHeading = document.querySelector('.hero-content h1');
+    if (heroHeading) heroHeading.textContent = `Welcome Back, ${firstName}!`;
+
+    // ── Populate Patient ID ────────────────────────────────────────────────
+    // patientId may come from the JWT (if added to payload) or from the
+    // nexcare_user_data blob stored after login.
+    const patientId = user.patientId || user.sub || '';
+    const idNode = document.querySelector('.profile-id');
+    if (idNode && patientId) idNode.textContent = `Patient ID: ${patientId}`;
+
+    // ── Scope NexCareStore to this patient ─────────────────────────────────
+    // So appointments/bills/ambulance data only show THIS user's records.
+    if (window.NexCareDB && user.email) {
+        window.NexCareDB.setActivePatientScope
+            ? window.NexCareDB.setActivePatientScope(patientId || user.email)
+            : null;
     }
 }
 
-function loadAppointments() {
-    const appointments = window.NexCareStore.listAppointments();
+async function loadAppointments() {
+    const appointments = await window.NexCareStore.listAppointments();
     const table = document.querySelector("#appointmentsTable tbody");
     const stat = document.getElementById("statAppointments");
     
@@ -164,8 +199,8 @@ function loadAppointments() {
     }
 }
 
-function loadBills() {
-    const bills = window.NexCareStore.listBills();
+async function loadBills() {
+    const bills = await window.NexCareStore.listBills();
     const table = document.querySelector("#billingTable tbody");
     const stat = document.getElementById("statBills");
     
@@ -207,14 +242,14 @@ function loadBills() {
     }
 }
 
-function loadAmbulance() {
-    const reqs = window.NexCareStore.listAmbulanceRequests();
+async function loadAmbulance() {
+    const reqs = await window.NexCareStore.listAmbulanceRequests();
     const stat = document.getElementById("statAmbulance");
     if (stat) stat.textContent = reqs.filter(r => r.status !== 'Completed').length;
 }
 
-function loadRecords() {
-    const appointments = window.NexCareStore.listAppointments();
+async function loadRecords() {
+    const appointments = await window.NexCareStore.listAppointments();
     const completed = appointments.filter(a => a.status === 'Completed');
     
     const grid = document.getElementById("recordsGrid");

@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { ArrayUtil } from '../common/utils/array.util';
@@ -14,95 +16,26 @@ import { UserRole, UserStatus } from '../common/interfaces/api-response.interfac
 @Injectable()
 export class UsersService {
   // In-memory mock users database (aligned with frontend db.js)
-  private users: User[] = [
-    {
-      id: 'U001',
-      name: 'System Administrator',
-      email: 'superuser@nexcare.com',
-      role: UserRole.SUPERUSER,
-      status: UserStatus.ACTIVE,
-      password: 'Password123',
-      createdAt: '2024-01-01T00:00:00Z'
-    },
-    {
-      id: 'U002',
-      name: 'Jane Doe (Desk)',
-      email: 'admin@nexcare.com',
-      role: UserRole.ADMINISTRATIVE_STAFF,
-      status: UserStatus.ACTIVE,
-      password: 'Password123',
-      createdAt: '2024-01-01T00:00:00Z'
-    },
-    {
-      id: 'U003',
-      name: 'Alex Martinez',
-      email: 'ambulance@nexcare.com',
-      role: UserRole.AMBULANCE,
-      status: UserStatus.ACTIVE,
-      password: 'Password123',
-      createdAt: '2024-01-01T00:00:00Z'
-    },
-    {
-      id: 'U004',
-      name: 'John Anderson',
-      email: 'patient@gmail.com',
-      role: UserRole.PATIENT,
-      status: UserStatus.ACTIVE,
-      password: 'Password123',
-      patientId: 'P001',
-      createdAt: '2024-01-01T00:00:00Z'
-    },
-    {
-      id: 'U005',
-      name: 'Dr. Sarah Smith',
-      email: 'sarah.smith@nexcare.com',
-      role: UserRole.DOCTOR,
-      status: UserStatus.ACTIVE,
-      password: 'Password123',
-      dept: 'Cardiology',
-      createdAt: '2024-01-01T00:00:00Z'
-    },
-    {
-      id: 'U006',
-      name: 'Dr. Vikram Patel',
-      email: 'vikram.patel@nexcare.com',
-      role: UserRole.DOCTOR,
-      status: UserStatus.ACTIVE,
-      password: 'Password123',
-      dept: 'Orthopedics',
-      createdAt: '2024-01-01T00:00:00Z'
-    },
-    {
-      id: 'U007',
-      name: 'Dr. Anjali Desai',
-      email: 'anjali.desai@nexcare.com',
-      role: UserRole.DOCTOR,
-      status: UserStatus.ON_LEAVE,
-      password: 'Password123',
-      dept: 'General Medicine',
-      createdAt: '2024-01-01T00:00:00Z'
-    },
-    {
-      id: 'U008',
-      name: 'Nurse Emily Davis',
-      email: 'emily.davis@nexcare.com',
-      role: UserRole.NURSE,
-      status: UserStatus.ACTIVE,
-      password: 'Password123',
-      dept: 'ER',
-      createdAt: '2024-01-01T00:00:00Z'
-    },
-    {
-      id: 'U009',
-      name: 'Maria Garcia',
-      email: 'maria@example.com',
-      role: UserRole.PATIENT,
-      status: UserStatus.ACTIVE,
-      password: 'Password123',
-      patientId: 'P002',
-      createdAt: '2024-01-01T00:00:00Z'
+private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
+
+  private get users(): User[] {
+    try {
+      const raw = fs.readFileSync(this.usersFilePath, 'utf-8');
+      return JSON.parse(raw) as User[];
+    } catch {
+      return [];
     }
-  ];
+  }
+
+  private set users(val: User[]) {
+    try {
+      fs.mkdirSync(path.dirname(this.usersFilePath), { recursive: true });
+      fs.writeFileSync(this.usersFilePath, JSON.stringify(val, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to persist users to disk:', err);
+    }
+  }
+
 
   /**
    * Get all users with optional filtering
@@ -186,7 +119,9 @@ export class UsersService {
       };
 
       // Add to users array
-      this.users.push(newUser);
+      const currentUsers = this.users;
+      currentUsers.push(newUser);
+      this.users = currentUsers;
 
       // Remove password from response using utility
       const userWithoutPassword = DataSanitizer.removePassword(newUser);
@@ -221,10 +156,12 @@ export class UsersService {
       }
 
       // Update user
-      const updatedUser = ArrayUtil.updateById(this.users, id, {
+      const currentUsers = this.users;
+      const updatedUser = ArrayUtil.updateById(currentUsers, id, {
         ...updateData,
         updatedAt: new Date().toISOString()
       });
+      this.users = currentUsers;
 
       if (!updatedUser) {
         return ResponseUtil.notFound('User', id);
@@ -258,7 +195,9 @@ export class UsersService {
       }
 
       // Remove user
-      ArrayUtil.removeById(this.users, id);
+      const currentUsers = this.users;
+      ArrayUtil.removeById(currentUsers, id);
+      this.users = currentUsers;
 
       return ResponseUtil.deleted('User');
     } catch (error) {
@@ -324,10 +263,12 @@ export class UsersService {
       }
 
       // Update status
-      const updatedUser = ArrayUtil.updateById(this.users, id, {
+      const currentUsers = this.users;
+      const updatedUser = ArrayUtil.updateById(currentUsers, id, {
         status,
         updatedAt: new Date().toISOString()
       });
+      this.users = currentUsers;
 
       if (!updatedUser) {
         return ResponseUtil.notFound('User', id);

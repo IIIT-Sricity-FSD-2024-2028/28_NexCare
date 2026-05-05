@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Force Firefox to never serve this page from cache -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>NexCare - Login</title>
     <link rel="stylesheet" href="auth.css">
 </head>
@@ -74,36 +78,85 @@
         </div>
     </div>
 
-    <script src="../shared/db.js"></script>
-    <script src="../shared/session.js"></script>
+    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/db.js?v=6"></script>
+    <script src="../shared/session.js?v=8"></script>
     <script>
-        function handleAuth(event) {
-            event.preventDefault(); 
-            
-            const emailInput = document.querySelector('input[type="email"]').value.trim();
-            const passwordInput = document.querySelector('input[type="password"]').value;
-            const selectedRole = document.querySelector('input[name="role"]:checked').value;
+        async function handleAuth(event) {
+            event.preventDefault();
+            clearError();
 
-            // Use the shared mock Database to authenticate
-            if (window.NexCareDB) {
-                const users = window.NexCareDB.getTable('users');
-                const emailMatch = users.find(u => u.email === emailInput);
-                
-                if (!emailMatch) {
-                    alert("Authentication Failed: Email address not found.");
-                } else if (emailMatch.password !== passwordInput) {
-                    alert("Authentication Failed: Incorrect password.");
-                } else if (emailMatch.role !== selectedRole) {
-                    alert(`Access Denied: User exists but is not registered as '${selectedRole}'. (\u2714 Registered as: ${emailMatch.role})`);
-                } else {
-                    sessionStorage.setItem("nexcare_user_email", emailMatch.email);
-                    loginUser(selectedRole); 
-                    return;
+            const emailInput    = document.querySelector('input[type="email"]').value.trim();
+            const passwordInput = document.querySelector('input[type="password"]').value;
+            const selectedRole  = document.querySelector('input[name="role"]:checked');
+
+            if (!selectedRole) {
+                showError('Please select a role before signing in.');
+                return;
+            }
+
+            const role = selectedRole.value;
+            const btn  = document.querySelector('.btn-primary');
+            btn.disabled = true;
+            btn.textContent = 'Signing in…';
+
+            try {
+                if (!window.NexCareAPI) {
+                    throw new Error('API module not loaded. Please refresh the page.');
                 }
-            } else {
-                alert("Critical Error: Database system not initialized.");
+
+                const response = await window.NexCareAPI.Auth.login({
+                    email: emailInput,
+                    password: passwordInput,
+                    role: role
+                });
+
+                if (response.success) {
+                    // Store session — only on confirmed backend success
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('nexcare_current_role', role);
+                    sessionStorage.setItem('nexcare_user_email', emailInput);
+                    sessionStorage.setItem('nexcare_user_data', JSON.stringify(response.data.user));
+                    if (response.data.token) {
+                        sessionStorage.setItem('nexcare_auth_token', response.data.token);
+                        localStorage.setItem('nexcare_auth_token', response.data.token);
+                    }
+                    loginUser(role);
+                } else {
+                    showError(response.message || 'Authentication failed. Check your credentials.');
+                }
+            } catch (err) {
+                const backendHost = window.location.hostname;
+                if (err.message && err.message.toLowerCase().includes('fetch')) {
+                    showError(`Cannot reach the backend server at ${backendHost}:3001. Make sure the backend is running (npm run start:dev).`);
+                } else {
+                    showError(err.message || 'An unexpected error occurred.');
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `Sign in <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polyline points="0,60 25,60 40,25 55,60 70,90 85,60 100,60" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
             }
         }
+
+        function showError(msg) {
+            let el = document.getElementById('loginError');
+            if (!el) {
+                el = document.createElement('p');
+                el.id = 'loginError';
+                el.style.cssText = 'color:#dc2626;font-size:13px;margin:8px 0 0;font-weight:500;';
+                document.getElementById('loginForm').insertBefore(el, document.querySelector('.role-grid').previousElementSibling);
+            }
+            el.textContent = msg;
+            
+            // Show HTTP popup alert as requested by user
+            window.alert("Login Error: " + msg);
+        }
+
+        function clearError() {
+            const el = document.getElementById('loginError');
+            if (el) el.textContent = '';
+        }
+
     </script>
     <script src="../logo.js"></script>
 </body>

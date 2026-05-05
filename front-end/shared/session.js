@@ -1,60 +1,39 @@
-// Enhanced loginUser function that supports both legacy localStorage and backend API
-async function loginUser(role, credentials = null) {
-    // If credentials are provided, try backend authentication first
-    if (credentials && window.NexCareAPI) {
-        try {
-            const response = await window.NexCareAPI.Auth.login({
-                ...credentials,
-                role: role
-            });
-            
-            if (response.success) {
-                // Store backend session data
-                sessionStorage.setItem("isLoggedIn", "true");
-                sessionStorage.setItem("nexcare_current_role", role);
-                sessionStorage.setItem("nexcare_user_email", credentials.email);
-                sessionStorage.setItem("nexcare_user_data", JSON.stringify(response.data.user));
-                
-                // Redirect based on role
-                redirectByRole(role);
-                return;
-            } else {
-                // Backend auth failed, fall back to localStorage for demo
-                console.warn('Backend authentication failed, using fallback:', response.message);
-            }
-        } catch (error) {
-            console.warn('Backend authentication error, using fallback:', error.message);
-        }
-    }
-    
-    // Legacy fallback: use localStorage/sessionStorage
-    sessionStorage.setItem("isLoggedIn", "true");
-    sessionStorage.setItem("nexcare_current_role", role);
-    
+// ─── Anti-flash: hide page immediately ────────────────────────────────────
+// This runs before any HTML is painted. If auth fails → redirect happens
+// invisibly. If auth passes → page is revealed with a smooth fade-in.
+// Without this, the page briefly flashes protected content before redirecting.
+document.documentElement.style.visibility = 'hidden';
+
+// It sets session data and redirects — it does NOT re-authenticate.
+function loginUser(role) {
     redirectByRole(role);
 }
 
 // Helper function for role-based redirection
 function redirectByRole(role) {
+    // Use root-relative absolute paths pointing directly to the entry-point file.
+    // Avoids npx serve directory listing (no index.html in most portals) and
+    // avoids the 301 slash-stripping redirect that breaks relative asset paths.
     switch (role) {
         case "superuser":
-            window.location.href = "../superuser/dashboard.html";
+            window.location.href = "/superuser/dashboard.html";
             break;
 
         case "administrative_staff":
-            window.location.href = "../administrative_staff/dashboard.html";
+            window.location.href = "/administrative_staff/dashboard.html";
             break;
 
         case "patient":
-            window.location.href = "../patient/dashboard.html";
+            window.location.href = "/patient/dashboard.html";
             break;
 
         case "ambulance":
-            window.location.href = "../ambulance/index.html";
+            // ambulance uses index.html, trailing slash avoids 301 redirect
+            window.location.href = "/ambulance/";
             break;
 
         default:
-            window.location.href = "../landing/landing.html";
+            window.location.href = "/landing/landing.html";
     }
 }
 
@@ -90,53 +69,122 @@ async function logoutUser() {
     window.location.href = "../landing/landing.html";
 }
 
-function checkAuth() {
-
-    const isLoggedIn = sessionStorage.getItem("isLoggedIn");
-    // Only truly public pages should bypass auth checks
-    const publicPages = ["login.html", "signup.html", "landing.html"];
-    const path = window.location.pathname;
-
-    const isPublic = publicPages.some(page => path.includes(page));
-
-    if (isLoggedIn !== 'true' && !isPublic) {
-        window.location.href = "../auth/login.html";
+// ─────────────────────────────────────────────────────────────────────────────
+// JWT Token Validation (client-side, no external libraries)
+// Decodes and validates the JWT payload WITHOUT contacting the backend.
+// The signature is not re-verified on client-side (that's the backend's job),
+// but we DO check expiry and ensure the payload is structurally sound.
+// ─────────────────────────────────────────────────────────────────────────────
+function parseJWTPayload(token) {
+    try {
+        const parts = token.split('.');
+        if (parts.length !== 3) return null;
+        // Base64url decode the payload
+        const raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const json = decodeURIComponent(
+            atob(raw).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+        );
+        return JSON.parse(json);
+    } catch {
+        return null;
     }
 }
 
-// Ensures that users can only access dashboards meant for their role
-function checkRoleAccess() {
+function getValidSession() {
+    const token = sessionStorage.getItem('nexcare_auth_token') ||
+                  localStorage.getItem('nexcare_auth_token');
+    if (!token) return null;
 
-    // Get the role stored during login
-    const role = sessionStorage.getItem("nexcare_current_role");
+    const payload = parseJWTPayload(token);
+    if (!payload) return null;
 
-    // Get the current page path (e.g., /administrative_staff/dashboard.html)
+    // Check token expiry (exp is Unix seconds)
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp && now > payload.exp) {
+        // Token expired — clear session
+        sessionStorage.clear();
+        localStorage.removeItem('nexcare_auth_token');
+        return null;
+    }
+
+    return {
+        userId: payload.sub,
+        email:  payload.email,
+        role:   payload.role,
+        token:  token,
+    };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Page routing helpers
+// ─────────────────────────────────────────────────────────────────────────────
+function isPublicPage() {
     const path = window.location.pathname;
+    return ['login', 'signup', 'landing'].some(s => path.includes('/' + s));
+}
 
-    // If no role is found, stop the function
-    if (!role) return;
+function checkAuth() {
+    const session = getValidSession();
 
-    // If a user tries to access the administrative_staff section but is not an administrative_staff, redirect to login
-    if (path.includes("/administrative_staff/") && role !== "administrative_staff")
-        window.location.href = "../auth/login.html";
+    if (isPublicPage()) {
+        // On a public page — always show it regardless of session state.
+        // Do NOT auto-redirect logged-in users; they navigated here intentionally
+        // (e.g. to log in as a different role, or they just loaded the landing page).
+        return;
+    }
 
-    // If a user tries to access the superuser section but is not a superuser, redirect
-    if (path.includes("/superuser/") && role !== "superuser")
-        window.location.href = "../auth/login.html";
+    // Protected page — require a valid session
+    if (!session) {
+        sessionStorage.clear();
+        window.location.replace('../auth/login.html');
+        // Page stays hidden until navigation completes
+    }
+}
 
-    // If a user tries to access the patient section but is not a patient, redirect
-    if (path.includes("/patient/") && role !== "patient")
-        window.location.href = "../auth/login.html";
+function checkRoleAccess() {
+    if (isPublicPage()) return;
 
-    // If a user tries to access the ambulance section but is not ambulance staff, redirect
-    if (path.includes("/ambulance/") && role !== "ambulance")
-        window.location.href = "../auth/login.html";
+    const session = getValidSession();
+    if (!session) return; // checkAuth already handles the redirect
+
+    const path = window.location.pathname;
+    const role  = session.role;
+
+    const rolePathMap = {
+        superuser:             '/superuser/',
+        administrative_staff:  '/administrative_staff/',
+        patient:               '/patient/',
+        ambulance:             '/ambulance/',
+        doctor:                '/doctor/',
+        nurse:                 '/nurse/',
+    };
+
+    // Find which portal this path belongs to
+    const currentPortal = Object.entries(rolePathMap).find(([, p]) => path.includes(p));
+    if (!currentPortal) return; // Not a role-specific path, allow
+
+    const [requiredRole] = currentPortal;
+    if (role !== requiredRole) {
+        // Wrong role — kick back to login
+        sessionStorage.clear();
+        window.location.replace('../auth/login.html');
+    }
 }
 
 
-// Run auth/role checks immediately (prevents flashing protected content)
+// Run auth/role checks immediately (before paint — prevents flash)
 checkAuth();
 checkRoleAccess();
+
+// ─── Reveal page after auth passes ─────────────────────────────────────────
+// If we reach this line, no redirect was triggered → user is allowed here.
+// Fade the page in smoothly instead of a hard visibility toggle.
+document.documentElement.style.transition = 'opacity 0.18s ease';
+document.documentElement.style.opacity = '0';
+document.documentElement.style.visibility = '';
+requestAnimationFrame(() => {
+    document.documentElement.style.opacity = '1';
+});
 
 // Inject UI helpers after DOM is ready
 document.addEventListener("DOMContentLoaded", function () {

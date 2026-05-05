@@ -2,21 +2,43 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Feedback & Complaints - NexCare Patient Portal</title>
 
 <link rel="stylesheet" href="styles.css">
 
-<script>
-    // Early auth guard: block direct portal access without sign-in
-    (function () {
-        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
-        const role = sessionStorage.getItem('nexcare_current_role');
-        if (isLoggedIn !== 'true' || role !== 'patient') {
-            window.location.replace('../auth/login.html');
-        }
-    })();
-</script>
+    <script>
+        // JWT-based early auth guard (runs before body renders, prevents flash)
+        (function () {
+            function decodeJWT(token) {
+                try {
+                    var parts = token.split('.');
+                    if (parts.length !== 3) return null;
+                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(json);
+                } catch(e) { return null; }
+            }
+            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            var payload = token ? decodeJWT(token) : null;
+            var now = Math.floor(Date.now() / 1000);
+            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'patient') {
+                sessionStorage.clear();
+                window.location.replace('../auth/login.html');
+            }
+            // Sync legacy keys so other inline scripts don't break
+            if (payload) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('nexcare_current_role', payload.role);
+            }
+        })();
+    </script>
 
 </head>
 
@@ -297,7 +319,9 @@ Submit
 
 
 <script src="../logo.js"></script>
-<script src="../shared/db.js"></script>
+<script src="../shared/api.js?v=8"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script src="../shared/db.js"></script>
 <script src="feedback.js"></script>
 
 </body>

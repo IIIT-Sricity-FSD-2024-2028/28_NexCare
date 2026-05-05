@@ -4,7 +4,24 @@
 
 class NexCareAPI {
     constructor() {
-        this.baseURL = 'http://localhost:3001/api';
+        // ── Dynamic backend URL resolution ─────────────────────────────────
+        // The backend always runs on port 3001.
+        // The frontend could be served on ANY port (8080, 3000, 80, etc.) or
+        // any host (localhost, 172.18.x.x, LAN IP, WSL IP…).
+        //
+        // Strategy: mirror the frontend's hostname, but always port 3001.
+        // This works for every evaluation scenario without hardcoding anything.
+        //
+        // Edge cases handled:
+        //   - file:// protocol (opened directly as a file) → fallback localhost
+        //   - empty hostname                               → fallback localhost
+        //   - any HTTP/HTTPS host                         → use that host:3001
+        const protocol = window.location.protocol;
+        const hostname  = window.location.hostname;
+        const backendHost = (protocol === 'http:' || protocol === 'https:') && hostname
+            ? hostname
+            : 'localhost';
+        this.baseURL = `http://${backendHost}:3001/api`;
         this.defaultHeaders = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -114,10 +131,20 @@ class NexCareAPI {
         try {
             const data = await response.json();
             
+            // If the backend JSON explicitly sets success: false, respect it!
+            // Even if the HTTP status is 2xx (like 201 Created default for NestJS Post)
+            if (data && typeof data.success === 'boolean' && !data.success) {
+                return {
+                    success: false,
+                    data: data.data || null,
+                    message: data.message || 'API Error'
+                };
+            }
+
             if (response.ok) {
                 return {
                     success: true,
-                    data: data.data || data,
+                    data: data.data !== undefined ? data.data : data,
                     message: data.message || 'Success'
                 };
             } else {

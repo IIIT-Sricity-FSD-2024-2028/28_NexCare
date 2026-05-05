@@ -87,15 +87,6 @@
     "patientId": "P92178"
   },
   {
-    "id": "U59053",
-    "name": "abcd",
-    "email": "abcd@gmail.com",
-    "role": "patient",
-    "status": "Active",
-    "password": "qwerty",
-    "patientId": "P50584"
-  },
-  {
     "id": "U73646",
     "name": "Abcd",
     "email": "abcde@gmail.com",
@@ -130,5 +121,14 @@
     "status": "Active",
     "password": "reddy1",
     "patientId": "P76800"
+  },
+  {
+    "id": "U12514",
+    "name": "Vivian",
+    "email": "mathew@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "123456",
+    "patientId": "P90268"
   }
 ]

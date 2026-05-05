@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NexCare - Super User Dashboard</title>
     <link rel="stylesheet" href="../shared/global.css">
@@ -427,98 +431,39 @@
         </div>
     </main>
 
-    <script src="../shared/session.js"></script>
-    <script src="../shared/db.js"></script>
+    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script src="../shared/db.js?v=5"></script>
     <script src="../logo.js"></script>
     <script src="../shared/nav.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const role = sessionStorage.getItem('nexcare_current_role');
-            if (role !== 'superuser') {
-                alert("Unauthorized Access. System Administrators only.");
-                window.location.href = '../auth/login.html';
+    <script src="dashboard.js?v=1"></script>
+        <script>
+        // JWT-based early auth guard (runs before body renders, prevents flash)
+        (function () {
+            function decodeJWT(token) {
+                try {
+                    var parts = token.split('.');
+                    if (parts.length !== 3) return null;
+                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(json);
+                } catch(e) { return null; }
             }
-
-            // Sync Hospital Stats from NexCareDB
-            if (window.NexCareDB) {
-                const users = window.NexCareDB.getTable('users');
-                const patients = window.NexCareDB.getTable('patients');
-                const feedback = window.NexCareDB.getTable('feedback');
-
-                // Update Counts (Staff vs Patients)
-                const staffCount = users.filter(u => u.role !== 'patient').length;
-                document.getElementById('totalUsersCount').textContent = staffCount;
-                document.getElementById('totalPatientsCount').textContent = patients.length;
-                
-                const doctors = users.filter(u => u.role === 'doctor');
-                document.getElementById('activeDoctorsCount').textContent = doctors.length;
-
-                const openFeedback = feedback.filter(f => f.status === 'Open' || f.status === 'In Progress');
-                document.getElementById('pendingFeedbackCount').textContent = openFeedback.length;
-
-                // Sync Header Profile
-                const currentUserEmail = sessionStorage.getItem('nexcare_user_email');
-                const user = window.NexCareDB.getActiveUser(currentUserEmail);
-                if (user) {
-                    document.getElementById('userNameDisplay').textContent = user.name;
-                    const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-                    document.getElementById('userInitials').textContent = initials;
-                }
-
-                // Initial Log Render
-                renderActivityLog();
-
-                // Background Auto-Refresh (FR-12)
-                setInterval(() => {
-                    renderActivityLog(true);
-                }, 10000);
+            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            var payload = token ? decodeJWT(token) : null;
+            var now = Math.floor(Date.now() / 1000);
+            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'superuser') {
+                sessionStorage.clear();
+                window.location.replace('../auth/login.html');
             }
-        });
-
-        // Safe DOM Helper (Anti-Flicker)
-        function safeSetInnerHTML(element, newHTML) {
-            if (!element) return;
-            if (element.innerHTML.trim() === newHTML.trim()) return;
-            element.innerHTML = newHTML;
-        }
-
-        function escapeHtml(unsafe) {
-            return String(unsafe)
-                 .replace(/&/g, "&amp;")
-                 .replace(/</g, "&lt;")
-                 .replace(/>/g, "&gt;")
-                 .replace(/"/g, "&quot;")
-                 .replace(/'/g, "&#039;");
-        }
-
-        function renderActivityLog(isBackground = false) {
-            const tbody = document.getElementById('activityTableBody');
-            if(!tbody || !window.NexCareDB) return;
-
-            const activity = window.NexCareDB.getTable('systemActivity') || [];
-            
-            // Sort by createdAt (newest first)
-            const sorted = activity.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            // Show only latest 10
-            const latest = sorted.slice(0, 10);
-
-            if(latest.length === 0) {
-                safeSetInnerHTML(tbody, '<tr><td colspan="5" style="text-align:center; padding: 40px; color: #64748b;">No recent system activity.</td></tr>');
-                return;
+            // Sync legacy keys so other inline scripts don't break
+            if (payload) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('nexcare_current_role', payload.role);
             }
-
-            const html = latest.map(item => `
-                <tr>
-                    <td>${escapeHtml(item.date)}</td>
-                    <td class="actor-cell">${escapeHtml(item.actor)}</td>
-                    <td><span class="badge-action badge-${item.action.toLowerCase()}">${escapeHtml(item.action)}</span></td>
-                    <td>${escapeHtml(item.module)}</td>
-                    <td class="details-cell">${escapeHtml(item.details)}</td>
-                </tr>
-            `).join('');
-
-            safeSetInnerHTML(tbody, html);
-        }
+        })();
     </script>
 </body>
 </html>

@@ -1,7 +1,9 @@
 import { CreateUserRequest, UpdateUserRequest } from './interfaces/user.interface';
 import { UserRole, UserStatus } from '../common/interfaces/api-response.interface';
 export declare class UsersService {
-    private users;
+    private readonly usersFilePath;
+    private get users();
+    private set users(value);
     findAll(role?: UserRole, status?: UserStatus): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     create(userData: CreateUserRequest): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

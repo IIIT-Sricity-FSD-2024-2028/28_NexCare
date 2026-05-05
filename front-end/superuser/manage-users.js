@@ -1,11 +1,24 @@
 let usersCache = [];
 
-function getUsers() {
-    if (!window.NexCareDB) return [];
-    // Superuser sees all users universally
-    usersCache = window.NexCareDB.getTable('users');
-    return usersCache;
+/** Helper: get JWT + call backend API */
+function getToken() {
+    return sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
 }
+
+async function apiCall(method, path, body) {
+    const host = window.location.hostname || 'localhost';
+    const opts = {
+        method,
+        headers: { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json' }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(`http://${host}:3001/api${path}`, opts);
+    return res.json();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderTable();
+});
 
 const ROLE_DEPARTMENTS = {
     'admin': ['Management', 'IT Support', 'Human Resources', 'Billing'],
@@ -16,30 +29,32 @@ const ROLE_DEPARTMENTS = {
     'ambulance': ['Transport']
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Rely solely on universal NexCareDB
-    renderTable();
-});
-
-// Read: Render Table Dynamically
-function renderTable() {
+// Read: Render Table Dynamically (fetches live from backend)
+async function renderTable() {
     const tbody = document.getElementById('usersTableBody');
-    tbody.innerHTML = ''; // Clear existing rows
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:#6b7280;">Loading users…</td></tr>`;
 
-    const usersList = getUsers();
+    try {
+        const resp = await apiCall('GET', '/users');
+        usersCache = resp.data || [];
+    } catch (e) {
+        console.error('Failed to load users from API:', e);
+        usersCache = [];
+    }
 
-    if(usersList.length === 0) {
+    tbody.innerHTML = '';
+
+    // Staff management: exclude patients (they are in Patient Directory)
+    const staffList = usersCache.filter(u => u.role !== 'patient');
+
+    if (staffList.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--text-muted);">No users found. Add one to get started.</td></tr>`;
         return;
     }
 
-    usersList.forEach(user => {
-        // Obfuscate the patients from the staff management list, keep it clean
-        if(user.role === 'patient') return; 
-
+    staffList.forEach(user => {
         const row = document.createElement('tr');
         const roleDisp = user.role.replace('_', ' ').toUpperCase();
-        
         row.innerHTML = `
             <td style="font-weight: 500;">${user.name}</td>
             <td style="color: var(--text-muted);">${user.email}</td>
@@ -47,7 +62,7 @@ function renderTable() {
             <td><span class="badge ${user.role}">${roleDisp}</span></td>
             <td>
                 <span style="color: ${user.status === 'Active' ? 'var(--success)' : 'var(--danger)'}">
-                    • ${user.status}
+                    • ${user.status || 'Active'}
                 </span>
             </td>
             <td>
@@ -115,7 +130,7 @@ function showError(fieldId, errorId) {
 }
 
 // Create & Update (Save)
-function handleSaveUser(e) {
+async function handleSaveUser(e) {
     e.preventDefault();
     clearValidation();
 
@@ -153,48 +168,50 @@ function handleSaveUser(e) {
 
     if(!isValid) return; // Stop processing if invalid
 
-    // Save Data
-    if (!window.NexCareDB) return;
+    // Save Data via API
+    try {
+        if(idInput === '') {
+            // Create new user
+            await apiCall('POST', '/users', { 
+                name, 
+                email, 
+                role, 
+                dept, 
+                status,
+                password: "Password123"
+            });
+            
+            if (window.NexCareStore) {
+                window.NexCareStore.logActivity('Create', 'Users', `New ${role} account created: ${name} (${dept})`);
+            }
+        } else {
+            // Update existing user
+            await apiCall('PUT', `/users/${idInput}`, { 
+                name, 
+                email, 
+                role, 
+                dept, 
+                status 
+            });
 
-    if(idInput === '') {
-        // Create new user
-        const newId = window.NexCareDB.generateId("U");
-        window.NexCareDB.addRow('users', { 
-            id: newId, 
-            name, 
-            email, 
-            role, 
-            dept, 
-            status,
-            password: "Password123" // Setup dummy password
-        });
-        
-        if (window.NexCareStore) {
-            window.NexCareStore.logActivity('Create', 'Users', `New ${role} account created: ${name} (${dept})`);
+            if (window.NexCareStore) {
+                window.NexCareStore.logActivity('Update', 'Users', `Updated user details for ${name} (ID: ${idInput})`);
+            }
         }
-    } else {
-        // Update existing user
-        window.NexCareDB.updateRow('users', idInput, { 
-            name, 
-            email, 
-            role, 
-            dept, 
-            status 
-        });
-
-        if (window.NexCareStore) {
-            window.NexCareStore.logActivity('Update', 'Users', `Updated user details for ${name} (ID: ${idInput})`);
-        }
+    } catch (err) {
+        console.error('Save user failed:', err);
+        alert('Failed to save user. Please try again.');
+        return;
     }
 
     renderTable();
     closeUserModal();
 }
 
-// Edit (Populate Form)
+// Edit (Populate Form from cached list)
 function editUser(id) {
-    const user = getUsers().find(u => u.id === id);
-    if(!user) return;
+    const user = usersCache.find(u => u.id === id);
+    if (!user) return;
 
     clearValidation();
     document.getElementById('modalTitle').textContent = 'Edit User';
@@ -203,23 +220,19 @@ function editUser(id) {
     document.getElementById('userEmail').value = user.email;
     document.getElementById('userRole').value = user.role;
     updateDeptDropdown(user.role, user.dept);
-    document.getElementById('userStatus').value = user.status;
-    
+    document.getElementById('userStatus').value = user.status || 'Active';
+
     modalOverlay.classList.add('active');
 }
 
-// Delete
-function deleteUser(id) {
-    if(confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
-        if(window.NexCareDB) {
-            const user = window.NexCareDB.getTable('users').find(u => u.id === id);
-            const userName = user ? user.name : id;
-            window.NexCareDB.deleteRow('users', id);
-            
-            if (window.NexCareStore) {
-                window.NexCareStore.logActivity('Delete', 'Users', `Removed user account: ${userName} (ID: ${id})`);
-            }
+// Delete — calls backend API
+async function deleteUser(id) {
+    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+        try {
+            await apiCall('DELETE', `/users/${id}`);
+        } catch (e) {
+            console.warn('Delete API call failed, removing from local cache only:', e);
         }
-        renderTable(); // Update instantly without reloading
+        renderTable();
     }
 }

@@ -15,10 +15,18 @@ function getStore() {
     return window.NexCareStore;
 }
 
-function getDoctorsForDepartment(deptName) {
+async function getDoctorsForDepartment(deptName) {
     let users = [];
-    if (window.NexCareDB) {
-        users = window.NexCareDB.getTable('users');
+    try {
+        const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+        const host = window.location.hostname || 'localhost';
+        const resp = await fetch(`http://${host}:3001/api/users`, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        const data = await resp.json();
+        users = data.data || [];
+    } catch (err) {
+        console.error('Failed to load doctors:', err);
     }
     
     return users.filter(u => 
@@ -29,11 +37,11 @@ function getDoctorsForDepartment(deptName) {
     );
 }
 
-function renderAppointmentsFromStore() {
+async function renderAppointmentsFromStore() {
     const store = getStore();
     if (!store) return;
 
-    const all = store.listAppointments();
+    const all = await store.listAppointments();
     const upcoming = all.filter(a => a.status !== 'Canceled' && a.status !== 'Completed');
     const past = all.filter(a => a.status === 'Completed' || a.status === 'Canceled');
 
@@ -150,7 +158,7 @@ function renderAppointmentsFromStore() {
     }
 }
 
-function handleAppointmentListAction(e) {
+async function handleAppointmentListAction(e) {
     const btn = e.target.closest('[data-action][data-id]');
     if (!btn) return;
     const action = btn.dataset.action;
@@ -160,21 +168,21 @@ function handleAppointmentListAction(e) {
 
     if (action === 'cancel') {
         if (!confirm('Cancel this appointment?')) return;
-        store.updateAppointment(id, { status: 'Canceled' });
-        renderAppointmentsFromStore();
+        await store.updateAppointment(id, { status: 'Canceled' });
+        await renderAppointmentsFromStore();
         return;
     }
 
     if (action === 'complete') {
-        store.updateAppointment(id, { status: 'Completed' });
-        renderAppointmentsFromStore();
+        await store.updateAppointment(id, { status: 'Completed' });
+        await renderAppointmentsFromStore();
         return;
     }
 
     if (action === 'delete') {
         if (!confirm('Delete this appointment permanently?')) return;
-        store.deleteAppointment(id);
-        renderAppointmentsFromStore();
+        await store.deleteAppointment(id);
+        await renderAppointmentsFromStore();
         return;
     }
 }
@@ -201,16 +209,17 @@ function showBookingFlow() {
     renderBookingStep();
 }
 
-function renderBookingStep() {
+async function renderBookingStep() {
     const container = document.getElementById('bookingFlow');
     
     if (currentStep === 1) {
         container.innerHTML = renderStep1();
     } else if (currentStep === 2) {
         container.innerHTML = renderStep2();
+        await populateDoctorDropdown();
         initializeCalendar();
     } else if (currentStep === 3) {
-        container.innerHTML = renderStep3();
+        container.innerHTML = await renderStep3();
     } else if (currentStep === 4) {
         container.innerHTML = renderConfirmation();
     }
@@ -298,8 +307,7 @@ function renderStep2() {
             <div class="form-group" style="margin-bottom: 24px;">
                 <label style="display:block; margin-bottom: 8px; font-weight: 500;">Select Doctor:</label>
                 <select id="doctorSelect" class="form-control" onchange="selectDoctor(this.value)" style="width: 100%; max-width: 400px; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px;">
-                    <option value="" disabled ${!bookingData.doctor ? 'selected' : ''}>Choose a doctor...</option>
-                    ${getDoctorsForDepartment(bookingData.department).map(d => `<option value="${d.name}" ${bookingData.doctor === d.name ? 'selected' : ''}>${d.name}</option>`).join('') || '<option value="" disabled>No doctors available</option>'}
+                    <option value="" disabled selected>Loading doctors...</option>
                 </select>
             </div>
             
@@ -386,9 +394,23 @@ function renderTimeSlots() {
     `).join('');
 }
 
-function renderStep3() {
+async function populateDoctorDropdown() {
+    const select = document.getElementById('doctorSelect');
+    if (!select) return;
+    
+    const doctors = await getDoctorsForDepartment(bookingData.department);
+    
+    if (doctors.length === 0) {
+        select.innerHTML = '<option value="" disabled selected>No doctors available</option>';
+    } else {
+        select.innerHTML = '<option value="" disabled ' + (!bookingData.doctor ? 'selected' : '') + '>Choose a doctor...</option>' +
+            doctors.map(d => `<option value="${d.name}" ${bookingData.doctor === d.name ? 'selected' : ''}>${d.name}</option>`).join('');
+    }
+}
+
+async function renderStep3() {
     const store = getStore();
-    const p = store?.getActivePatient() || {};
+    const p = store ? (await store.getActivePatient() || {}) : {};
 
     return `
         <div class="booking-header">
@@ -585,7 +607,7 @@ function prevStep() {
     }
 }
 
-function confirmBooking() {
+async function confirmBooking() {
     const form = document.getElementById('patientForm');
     const formData = new FormData(form);
     
@@ -623,7 +645,7 @@ function confirmBooking() {
     // Persist to shared store (Create)
     const store = getStore();
     if (store) {
-        store.createAppointment({
+        await store.createAppointment({
             department: bookingData.department,
             dateLabel: bookingData.date,
             timeLabel: bookingData.time,
@@ -645,7 +667,7 @@ function confirmBooking() {
         } catch(e) {}
 
         if (store.createBill) {
-            store.createBill({
+            await store.createBill({
                 visitDate: bookingData.date,
                 dueDate: dueDateStr,
                 subtotal: 100, // Matching the appointment fee

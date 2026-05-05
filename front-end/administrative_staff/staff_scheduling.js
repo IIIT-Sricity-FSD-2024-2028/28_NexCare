@@ -1,21 +1,55 @@
-let staffCache = [];
-
-function getStaff() {
-    if (!window.NexCareDB) return [];
-    const dbUsers = window.NexCareDB.getTable('users');
-    staffCache = dbUsers.filter(u => u.role !== 'patient' && u.role !== 'superuser').map(u => ({
-        id: u.id,
-        name: u.name || 'Unknown',
-        role: u.role || 'Staff',
-        dept: u.dept || 'General',
-        shift: u.shift || 'Morning (08:00 - 16:00)',
-        status: u.status || 'Scheduled'
-    }));
-    return staffCache;
+// ---------------- API HELPER ----------------
+function apiGet(path) {
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    const host = window.location.hostname || 'localhost';
+    return fetch(`http://${host}:3001/api${path}`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    }).then(r => r.json());
 }
 
-function renderStaff(data = getStaff()) {
+function apiRequest(method, path, body) {
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    const host = window.location.hostname || 'localhost';
+    return fetch(`http://${host}:3001/api${path}`, {
+        method,
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined
+    }).then(r => r.json());
+}
+
+// ---------------- STATE ----------------
+let staffCache = [];
+
+async function loadStaff() {
+    try {
+        const resp = await apiGet('/users');
+        const users = resp.data || [];
+        staffCache = users
+            .filter(u => u.role !== 'patient' && u.role !== 'superuser')
+            .map(u => ({
+                id: u.id,
+                name: u.name || 'Unknown',
+                role: u.role || 'Staff',
+                dept: u.dept || 'General',
+                shift: u.shift || 'Morning (08:00 - 16:00)',
+                status: u.status || 'Scheduled'
+            }));
+        return staffCache;
+    } catch (err) {
+        console.error('Failed to load staff:', err);
+        return [];
+    }
+}
+
+function renderStaff(data) {
     const tbody = document.getElementById('staffTableBody');
+    if (!tbody) return;
+
+    if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:#6b7280;">No staff members found.</td></tr>`;
+        return;
+    }
+
     tbody.innerHTML = data.map(s => {
         let badgeColor = s.status === 'On Duty' ? 'status-onduty' : s.status === 'On Leave' ? 'status-onleave' : 'status-scheduled';
         return `
@@ -39,9 +73,15 @@ function renderStaff(data = getStaff()) {
     `}).join('');
 }
 
-function deleteShift(id) {
+async function deleteShift(id) {
     if (confirm('Are you sure you want to delete this staff member?')) {
-        if(window.NexCareDB) window.NexCareDB.deleteRow('users', id);
+        try {
+            await apiRequest('DELETE', `/users/${id}`);
+        } catch (err) {
+            console.error('Delete staff failed:', err);
+            alert('Failed to delete staff member.');
+            return;
+        }
         applyFilters();
     }
 }
@@ -58,9 +98,9 @@ function closeShiftModal() {
 }
 
 function editShift(id) {
-    const s = getStaff().find(st => st.id === id);
-    if(!s) return;
-    
+    const s = staffCache.find(st => st.id === id);
+    if (!s) return;
+
     document.getElementById('modalTitle').textContent = 'Edit Staff Shift';
     document.getElementById('staffId').value = s.id;
     document.getElementById('staffName').value = s.name;
@@ -68,67 +108,65 @@ function editShift(id) {
     document.getElementById('staffDept').value = s.dept;
     document.getElementById('staffShift').value = s.shift;
     document.getElementById('staffStatus').value = s.status;
-    
+
     document.getElementById('shiftModal').classList.add('active');
 }
 
-function saveShift(e) {
+async function saveShift(e) {
     e.preventDefault();
-    if(!window.NexCareDB) return;
-    
+
     const id = document.getElementById('staffId').value;
     const name = document.getElementById('staffName').value.trim();
     const role = document.getElementById('staffRole').value.trim();
     const dept = document.getElementById('staffDept').value;
     const shift = document.getElementById('staffShift').value;
     const status = document.getElementById('staffStatus').value;
-    
-    if(!name || !role || !dept || !shift) {
+
+    if (!name || !role || !dept || !shift) {
         alert("Please fill all required fields correctly.");
         return;
     }
 
-    const payload = {
-        name,
-        role,
-        dept,
-        shift,
-        status,
-        email: name.replace(/\s+/g,"").toLowerCase() + "@nexcare.com"
-    };
+    const payload = { name, role, dept, shift, status, email: name.replace(/\s+/g, "").toLowerCase() + "@nexcare.com" };
 
-    if (id) {
-        window.NexCareDB.updateRow('users', id, payload);
-    } else {
-        payload.id = window.NexCareDB.generateId("STF");
-        payload.password = "Password123";
-        window.NexCareDB.addRow('users', payload);
+    try {
+        if (id) {
+            await apiRequest('PUT', `/users/${id}`, payload);
+        } else {
+            payload.password = "Password123";
+            await apiRequest('POST', '/users', payload);
+        }
+    } catch (err) {
+        alert('Failed to save staff member. Please try again.');
+        console.error(err);
+        return;
     }
-    
+
     closeShiftModal();
     applyFilters();
 }
 
-function applyFilters() {
+async function applyFilters() {
     const term = document.getElementById('searchTable').value.toLowerCase();
     const stat = document.getElementById('filterStatus').value;
-    
-    const filtered = getStaff().filter(s => {
+
+    const all = await loadStaff();
+    const filtered = all.filter(s => {
         const matchesTerm = s.name.toLowerCase().includes(term) || s.dept.toLowerCase().includes(term);
         const matchesStat = (stat === 'All' || s.status === stat);
         return matchesTerm && matchesStat;
     });
-    
+
     renderStaff(filtered);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     applyFilters();
-    
+
     document.getElementById('searchTable').addEventListener('input', applyFilters);
     document.getElementById('filterStatus').addEventListener('change', applyFilters);
-    
-    window.addEventListener('click', function(event) {
+
+    window.addEventListener('click', function (event) {
         if (event.target == document.getElementById('shiftModal')) {
             closeShiftModal();
         }

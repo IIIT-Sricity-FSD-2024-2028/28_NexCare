@@ -8,6 +8,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
+const fs = require("fs");
+const path = require("path");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
 const array_util_1 = require("../common/utils/array.util");
@@ -15,95 +17,25 @@ const sanitizer_util_1 = require("../common/utils/sanitizer.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let UsersService = class UsersService {
     constructor() {
-        this.users = [
-            {
-                id: 'U001',
-                name: 'System Administrator',
-                email: 'superuser@nexcare.com',
-                role: api_response_interface_1.UserRole.SUPERUSER,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123',
-                createdAt: '2024-01-01T00:00:00Z'
-            },
-            {
-                id: 'U002',
-                name: 'Jane Doe (Desk)',
-                email: 'admin@nexcare.com',
-                role: api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123',
-                createdAt: '2024-01-01T00:00:00Z'
-            },
-            {
-                id: 'U003',
-                name: 'Alex Martinez',
-                email: 'ambulance@nexcare.com',
-                role: api_response_interface_1.UserRole.AMBULANCE,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123',
-                createdAt: '2024-01-01T00:00:00Z'
-            },
-            {
-                id: 'U004',
-                name: 'John Anderson',
-                email: 'patient@gmail.com',
-                role: api_response_interface_1.UserRole.PATIENT,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123',
-                patientId: 'P001',
-                createdAt: '2024-01-01T00:00:00Z'
-            },
-            {
-                id: 'U005',
-                name: 'Dr. Sarah Smith',
-                email: 'sarah.smith@nexcare.com',
-                role: api_response_interface_1.UserRole.DOCTOR,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123',
-                dept: 'Cardiology',
-                createdAt: '2024-01-01T00:00:00Z'
-            },
-            {
-                id: 'U006',
-                name: 'Dr. Vikram Patel',
-                email: 'vikram.patel@nexcare.com',
-                role: api_response_interface_1.UserRole.DOCTOR,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123',
-                dept: 'Orthopedics',
-                createdAt: '2024-01-01T00:00:00Z'
-            },
-            {
-                id: 'U007',
-                name: 'Dr. Anjali Desai',
-                email: 'anjali.desai@nexcare.com',
-                role: api_response_interface_1.UserRole.DOCTOR,
-                status: api_response_interface_1.UserStatus.ON_LEAVE,
-                password: 'Password123',
-                dept: 'General Medicine',
-                createdAt: '2024-01-01T00:00:00Z'
-            },
-            {
-                id: 'U008',
-                name: 'Nurse Emily Davis',
-                email: 'emily.davis@nexcare.com',
-                role: api_response_interface_1.UserRole.NURSE,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123',
-                dept: 'ER',
-                createdAt: '2024-01-01T00:00:00Z'
-            },
-            {
-                id: 'U009',
-                name: 'Maria Garcia',
-                email: 'maria@example.com',
-                role: api_response_interface_1.UserRole.PATIENT,
-                status: api_response_interface_1.UserStatus.ACTIVE,
-                password: 'Password123',
-                patientId: 'P002',
-                createdAt: '2024-01-01T00:00:00Z'
-            }
-        ];
+        this.usersFilePath = path.join(process.cwd(), 'data', 'users.json');
+    }
+    get users() {
+        try {
+            const raw = fs.readFileSync(this.usersFilePath, 'utf-8');
+            return JSON.parse(raw);
+        }
+        catch {
+            return [];
+        }
+    }
+    set users(val) {
+        try {
+            fs.mkdirSync(path.dirname(this.usersFilePath), { recursive: true });
+            fs.writeFileSync(this.usersFilePath, JSON.stringify(val, null, 2), 'utf-8');
+        }
+        catch (err) {
+            console.error('Failed to persist users to disk:', err);
+        }
     }
     async findAll(role, status) {
         try {
@@ -153,7 +85,9 @@ let UsersService = class UsersService {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
-            this.users.push(newUser);
+            const currentUsers = this.users;
+            currentUsers.push(newUser);
+            this.users = currentUsers;
             const userWithoutPassword = sanitizer_util_1.DataSanitizer.removePassword(newUser);
             return response_util_1.ResponseUtil.created('User created successfully', userWithoutPassword);
         }
@@ -174,10 +108,12 @@ let UsersService = class UsersService {
                     return response_util_1.ResponseUtil.error('Email already exists');
                 }
             }
-            const updatedUser = array_util_1.ArrayUtil.updateById(this.users, id, {
+            const currentUsers = this.users;
+            const updatedUser = array_util_1.ArrayUtil.updateById(currentUsers, id, {
                 ...updateData,
                 updatedAt: new Date().toISOString()
             });
+            this.users = currentUsers;
             if (!updatedUser) {
                 return response_util_1.ResponseUtil.notFound('User', id);
             }
@@ -197,7 +133,9 @@ let UsersService = class UsersService {
             if (user.role === api_response_interface_1.UserRole.SUPERUSER) {
                 return response_util_1.ResponseUtil.error('Cannot delete superuser account');
             }
-            array_util_1.ArrayUtil.removeById(this.users, id);
+            const currentUsers = this.users;
+            array_util_1.ArrayUtil.removeById(currentUsers, id);
+            this.users = currentUsers;
             return response_util_1.ResponseUtil.deleted('User');
         }
         catch (error) {
@@ -238,10 +176,12 @@ let UsersService = class UsersService {
             if (!user) {
                 return response_util_1.ResponseUtil.notFound('User', id);
             }
-            const updatedUser = array_util_1.ArrayUtil.updateById(this.users, id, {
+            const currentUsers = this.users;
+            const updatedUser = array_util_1.ArrayUtil.updateById(currentUsers, id, {
                 status,
                 updatedAt: new Date().toISOString()
             });
+            this.users = currentUsers;
             if (!updatedUser) {
                 return response_util_1.ResponseUtil.notFound('User', id);
             }

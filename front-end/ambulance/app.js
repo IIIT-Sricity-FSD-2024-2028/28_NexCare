@@ -12,9 +12,47 @@ const SessionManager = {
         this.setupNavigation();
         this.setupLogout();
     },
-    
-    // Check if user is logged in
+       // Check if user is logged in
     checkAuthStatus: function() {
+        // ── JWT Bridge ────────────────────────────────────────────────────────
+        // Read the auth token stored by the global login (session.js / api.js).
+        // Decode it client-side to get the user's name, email, and role without
+        // an extra API round-trip. This replaces the old NexCareDB bridge.
+        const token = sessionStorage.getItem('nexcare_auth_token')
+                   || localStorage.getItem('nexcare_auth_token');
+
+        if (token) {
+            try {
+                const parts = token.split('.');
+                if (parts.length === 3) {
+                    const raw  = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    const json = decodeURIComponent(
+                        atob(raw).split('').map(c =>
+                            '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                        ).join('')
+                    );
+                    const payload = JSON.parse(json);
+
+                    // Validate token is not expired and is for an ambulance user
+                    const now = Math.floor(Date.now() / 1000);
+                    if (payload.role === 'ambulance' && (!payload.exp || now <= payload.exp)) {
+                        this.currentUser = {
+                            id:        payload.sub   || 'emp-001',
+                            name:      payload.name  || payload.email.split('@')[0],
+                            email:     payload.email || 'ambulance@nexcare.com',
+                            role:      'ambulance',
+                            loginTime: new Date().toISOString()
+                        };
+                        this.updateUIForLoggedInUser();
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not decode auth token:', e);
+            }
+        }
+
+        // Fallback: check legacy ambulanceUser key (for backward compat)
         const userData = localStorage.getItem('ambulanceUser');
         if (userData) {
             try {
@@ -26,30 +64,12 @@ const SessionManager = {
             }
         }
 
-        // Bridge from global login (NexCareDB)
-        const globalEmail = sessionStorage.getItem("nexcare_user_email");
-        if (globalEmail && window.NexCareDB) {
-            const dbUser = window.NexCareDB.getActiveUser(globalEmail);
-            if (dbUser && dbUser.role === 'ambulance') {
-                this.login({
-                    id: dbUser.id,
-                    name: dbUser.name,
-                    email: dbUser.email,
-                    role: dbUser.role
-                });
-                return true;
-            }
-        }
-        
-        // If not logged in at all, redirect
-        if (typeof logoutUser === 'function') {
-            logoutUser();
-        } else {
-            window.location.href = '../landing/landing.html';
-        }
+        // Not logged in — redirect to login
+        sessionStorage.clear();
+        window.location.replace('../auth/login.html');
         return false;
     },
-    
+
     // Login user
     login: function(userData) {
         this.currentUser = {
@@ -1073,7 +1093,7 @@ function formatCompletedDate() {
     return new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
-function loadAppState() {
+async function loadAppState() {
     let state = {
         nextSeq: 20,
         profile: {
@@ -1085,68 +1105,55 @@ function loadAppState() {
         requests: []
     };
     
-    if (window.NexCareDB && window.NexCareStore) {
-        // Use the new listAllAmbulanceRequests to see everyone's requests
-        const dbReqs = window.NexCareStore.listAllAmbulanceRequests();
-        if (dbReqs && dbReqs.length > 0) {
-            state.requests = dbReqs.map(req => ({
-                id: req.id,
-                patient: req.patientName || 'Emergency Patient', // Use the stored patient name
-                location: req.pickupLocation || 'Unknown Location',
-                contact: req.contact || '-',
-                time: req.createdAt ? new Date(req.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '12:00 PM',
-                priority: req.priority || 'Medium',
-                status: (function(s) {
-                    const ls = s.toLowerCase();
-                    if (ls === 'pending') return 'pending';
-                    if (ls === 'assigned') return 'assigned';
-                    if (ls === 'active') return 'in_transit';
-                    if (ls === 'completed') return 'completed';
-                    return 'pending'; // Fallback
-                })(req.status),
-                stepIndex: req.stepIndex != null ? req.stepIndex : 0,
-                completedDate: req.completedDate || null,
-                completedTime: req.completedTime || null
-            }));
+    if (window.NexCareStore) {
+        try {
+            // Use the async listAllAmbulanceRequests to see everyone's requests
+            const dbReqs = await window.NexCareStore.listAllAmbulanceRequests();
+            if (dbReqs && dbReqs.length > 0) {
+                state.requests = dbReqs.map(req => ({
+                    id: req.id,
+                    patient: req.patientName || 'Emergency Patient',
+                    location: req.pickupLocation || 'Unknown Location',
+                    contact: req.contact || '-',
+                    time: req.createdAt ? new Date(req.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '12:00 PM',
+                    priority: req.priority || 'Medium',
+                    status: (function(s) {
+                        const ls = s.toLowerCase();
+                        if (ls === 'pending') return 'pending';
+                        if (ls === 'assigned') return 'assigned';
+                        if (ls === 'active') return 'in_transit';
+                        if (ls === 'completed') return 'completed';
+                        return 'pending';
+                    })(req.status),
+                    stepIndex: req.stepIndex != null ? req.stepIndex : 0,
+                    completedDate: req.completedDate || null,
+                    completedTime: req.completedTime || null
+                }));
+            }
+        } catch (err) {
+            console.warn('Failed to load ambulance requests from API:', err);
         }
     }
     return state;
 }
 
-let appState = loadAppState();
+let appState = {
+    nextSeq: 20,
+    profile: { name: 'Alex Martinez', phone: '+1 (555) 987-6543', vehicle: 'AMB-05', status: 'Available' },
+    requests: []
+};
+
+// Initialize appState asynchronously
+(async function initAppState() {
+    appState = await loadAppState();
+    refreshAllViews();
+})();
 
 function persistAppState() {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-        if(window.NexCareDB) {
-            appState.requests.forEach(req => {
-                const mapped = {
-                    patientName: req.patient,
-                    pickupLocation: req.location,
-                    contact: req.contact,
-                    priority: req.priority,
-                    status: (function(s) {
-                        if (s === 'pending') return 'Pending';
-                        if (s === 'assigned') return 'Assigned';
-                        if (s === 'in_transit') return 'Active';
-                        if (s === 'completed') return 'Completed';
-                        return 'Pending';
-                    })(req.status),
-                    stepIndex: req.stepIndex,
-                    completedDate: req.completedDate,
-                    completedTime: req.completedTime
-                };
-                const existing = window.NexCareDB.getTable('ambulanceRequests').find(r => r.id === req.id);
-                if(existing) {
-                    window.NexCareDB.updateRow('ambulanceRequests', req.id, mapped);
-                } else {
-                    mapped.id = req.id;
-                    mapped.patientId = 'P001';
-                    mapped.createdAt = new Date().toISOString();
-                    window.NexCareDB.addRow('ambulanceRequests', mapped);
-                }
-            });
-        }
+        // Backend persistence is handled by NexCareStore API calls
+        // (updateAmbulanceRequest, etc.) at the point of mutation
     } catch (e) {}
 }
 
@@ -1202,9 +1209,9 @@ function getActiveTransportRequest() {
     return appState.requests.find((r) => r.status === 'in_transit');
 }
 
-function refreshAllViews(isBackground = false) {
+async function refreshAllViews(isBackground = false) {
     // CRITICAL: Re-read the database into the appState before each render
-    appState = loadAppState();
+    appState = await loadAppState();
     
     renderDashboard();
     renderAmbulanceRequests();
@@ -2892,24 +2899,45 @@ function initializeLogout() {
 
 // Dynamic UI Rendering System
 const DynamicRenderer = {
-    // Get live data from NexCareDB instead of sampleData
+    // Get data from appState cache (populated by async loadAppState)
     getData: function() {
-        const store = window.NexCareStore;
-        // MUST USE UNFILTERED LIST for Ambulance Portal
-        if (!store) return { requests: [], stats: { pending: 0, assigned: 0, active: 0, completed: 0 } };
+        const requests = appState.requests || [];
 
-        const requests = store.listAllAmbulanceRequests() || [];
-        
         return {
             requests: requests,
             stats: {
-                pending: requests.filter(r => r.status.toLowerCase() === 'pending').length,
-                assigned: requests.filter(r => r.status.toLowerCase() === 'assigned').length,
-                active: requests.filter(r => r.status.toLowerCase() === 'dispatched' || r.status.toLowerCase() === 'active').length,
-                completed: requests.filter(r => r.status.toLowerCase() === 'completed').length
+                pending:   requests.filter(r => r.status === 'pending').length,
+                assigned:  requests.filter(r => r.status === 'assigned').length,
+                active:    requests.filter(r => r.status === 'in_transit').length,
+                completed: requests.filter(r => r.status === 'completed').length
             }
         };
     },
+
+    // Async refresh: fetches live data from backend, then re-renders
+    refreshAsync: async function() {
+        try {
+            const store = window.NexCareStore;
+            if (!store) return;
+            const requests = await store.listAllAmbulanceRequests() || [];
+            const stats = {
+                pending:   requests.filter(r => r.status && r.status.toLowerCase() === 'pending').length,
+                assigned:  requests.filter(r => r.status && r.status.toLowerCase() === 'assigned').length,
+                active:    requests.filter(r => r.status && (r.status.toLowerCase() === 'dispatched' || r.status.toLowerCase() === 'active')).length,
+                completed: requests.filter(r => r.status && r.status.toLowerCase() === 'completed').length
+            };
+            // Re-render with live data
+            Object.keys(stats).forEach(key => {
+                const el = document.getElementById(`stat-${key}`);
+                if (el) el.textContent = stats[key];
+            });
+            this._liveRequests = requests;
+            this.renderRecentRequests(true);
+        } catch (e) {
+            console.warn('Ambulance async refresh failed:', e);
+        }
+    },
+
     
     // Initialize dynamic rendering
     init: function() {
@@ -2917,6 +2945,8 @@ const DynamicRenderer = {
         this.renderStats(false);
         this.renderRecentRequests(false);
         this.setupRoleBasedUI();
+        // Kick off async refresh to populate with live backend data
+        setTimeout(() => this.refreshAsync(), 100);
     },
     
     // Render dashboard statistics dynamically

@@ -1,22 +1,55 @@
-let appointmentsCache = [];
-
-function getAppointments() {
-    if (!window.NexCareDB) return [];
-    appointmentsCache = window.NexCareDB.getTable('appointments').map(a => ({
-        id: a.id,
-        patient: a.patientName || 'Unknown Patient',
-        patientId: a.patientId || 'N/A',
-        doctor: a.doctor || 'TBD',
-        dept: a.department || 'General',
-        date: a.dateLabel || 'Unscheduled',
-        time: a.timeLabel || 'TBD',
-        status: a.status || 'Pending'
-    }));
-    return appointmentsCache;
+// ---------------- API HELPER ----------------
+function apiGet(path) {
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    const host = window.location.hostname || 'localhost';
+    return fetch(`http://${host}:3001/api${path}`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    }).then(r => r.json());
 }
 
-function renderAppointments(data = getAppointments()) {
+function apiRequest(method, path, body) {
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    const host = window.location.hostname || 'localhost';
+    return fetch(`http://${host}:3001/api${path}`, {
+        method,
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined
+    }).then(r => r.json());
+}
+
+// ---------------- STATE ----------------
+let appointmentsCache = [];
+
+async function loadAppointments() {
+    try {
+        const resp = await apiGet('/appointments');
+        return (resp.data || []).map(a => ({
+            id: a.id,
+            patient: a.patientName || 'Unknown Patient',
+            patientId: a.patientId || 'N/A',
+            doctor: a.doctor || 'TBD',
+            dept: a.department || 'General',
+            date: a.dateLabel || 'Unscheduled',
+            time: a.timeLabel || 'TBD',
+            status: a.status || 'Pending'
+        }));
+    } catch (err) {
+        console.error('Failed to load appointments:', err);
+        return [];
+    }
+}
+
+async function renderAppointments(data) {
+    if (!data) data = await loadAppointments();
+    appointmentsCache = data;
     const tbody = document.getElementById('appointmentsTableBody');
+    if (!tbody) return;
+
+    if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:#6b7280;">No appointments found.</td></tr>`;
+        return;
+    }
+
     tbody.innerHTML = data.map(apt => `
         <tr id="row-${apt.id}">
             <td><strong>${apt.id}</strong></td>
@@ -44,9 +77,7 @@ function deleteAppt(id) {
     if (row) {
         const actionBtnContainer = row.querySelector('.action-buttons');
         if (actionBtnContainer) {
-            // Store original buttons to restore on cancel
             actionBtnContainer.setAttribute('data-original-html', actionBtnContainer.innerHTML);
-            
             actionBtnContainer.innerHTML = `
                 <button class="action-btn confirm" onclick="confirmDelete('${id}')" title="Confirm Delete">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -59,20 +90,18 @@ function deleteAppt(id) {
     }
 }
 
-function confirmDelete(id) {
+async function confirmDelete(id) {
     const row = document.getElementById(`row-${id}`);
     if (row) {
         row.classList.add('row-fade-out');
-        
-        // Wait for animation to complete
-        setTimeout(() => {
-            const apt = getAppointments().find(a => a.id === id);
-            const patientName = apt ? apt.patient : id;
-            
-            if(window.NexCareDB) window.NexCareDB.deleteRow('appointments', id);
-            
-            if (window.NexCareStore) {
-                window.NexCareStore.logActivity('Delete', 'Appointments', `Cancelled appointment for ${patientName} (ID: ${id})`);
+        setTimeout(async () => {
+            try {
+                await apiRequest('DELETE', `/appointments/${id}`);
+                if (window.NexCareStore) {
+                    window.NexCareStore.logActivity('Delete', 'Appointments', `Cancelled appointment (ID: ${id})`);
+                }
+            } catch (err) {
+                console.error('Delete appointment failed:', err);
             }
             applyFilters();
         }, 500);
@@ -87,7 +116,6 @@ function cancelDelete(id) {
         if (originalHtml) {
             actionBtnContainer.innerHTML = originalHtml;
         } else {
-            // Fallback: full re-render
             applyFilters();
         }
     }
@@ -105,31 +133,28 @@ function closeAppointmentModal() {
 }
 
 function editAppt(id) {
-    const apt = getAppointments().find(a => a.id === id);
-    if(!apt) return;
-    
+    const apt = appointmentsCache.find(a => a.id === id);
+    if (!apt) return;
+
     document.getElementById('modalTitle').textContent = 'Edit Appointment';
     document.getElementById('apptId').value = apt.id;
     document.getElementById('patientName').value = apt.patient;
     document.getElementById('patientId').value = apt.patientId;
     document.getElementById('deptName').value = apt.dept;
-    
-    // Update doctor dropdown dynamically based on department
+
     updateDoctorsDropdown(apt.dept, apt.doctor);
-    
-    // Parse date for HTML5 Date Input
+
     let rawDate = apt.date;
     try {
         const d = new Date(apt.date);
-        if(!isNaN(d)) {
+        if (!isNaN(d)) {
             const yy = d.getFullYear();
             const mm = String(d.getMonth() + 1).padStart(2, '0');
             const dd = String(d.getDate()).padStart(2, '0');
             rawDate = `${yy}-${mm}-${dd}`;
         }
-    } catch(e) {}
-    
-    // Parse time for HTML5 Time Input
+    } catch (e) {}
+
     let rawTime = apt.time;
     if (apt.time && apt.time.toLowerCase().includes('m')) {
         let [time, modifier] = apt.time.split(' ');
@@ -144,14 +169,13 @@ function editAppt(id) {
     document.getElementById('apptDate').value = rawDate;
     document.getElementById('apptTime').value = rawTime;
     document.getElementById('apptStatus').value = apt.status;
-    
+
     document.getElementById('appointmentModal').classList.add('active');
 }
 
-function saveAppointment(e) {
+async function saveAppointment(e) {
     e.preventDefault();
-    if(!window.NexCareDB) { alert("Database offline"); return; }
-    
+
     const id = document.getElementById('apptId').value;
     const patientName = document.getElementById('patientName').value.trim();
     const patientId = document.getElementById('patientId').value.trim();
@@ -160,20 +184,18 @@ function saveAppointment(e) {
     const apptDate = document.getElementById('apptDate').value;
     const apptTime = document.getElementById('apptTime').value;
     const apptStatus = document.getElementById('apptStatus').value;
-    
-    if(!patientName || !patientId || !doctorName || !deptName || !apptDate || !apptTime) {
+
+    if (!patientName || !patientId || !doctorName || !deptName || !apptDate || !apptTime) {
         alert("Please fill all required fields correctly.");
         return;
     }
 
-    // Format Date beautifully
     let formattedDate = apptDate;
     if (apptDate) {
         const d = new Date(apptDate);
         if (!isNaN(d)) formattedDate = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     }
-    
-    // Format Time beautifully
+
     let formattedTime = apptTime;
     if (apptTime && apptTime.includes(':')) {
         let [hh, mm] = apptTime.split(':');
@@ -184,8 +206,8 @@ function saveAppointment(e) {
     }
 
     const payload = {
-        patientName: patientName,
-        patientId: patientId,
+        patientName,
+        patientId,
         doctor: doctorName,
         department: deptName,
         dateLabel: formattedDate || apptDate,
@@ -193,73 +215,80 @@ function saveAppointment(e) {
         status: apptStatus
     };
 
-    if (id) {
-        window.NexCareDB.updateRow('appointments', id, payload);
-        if (window.NexCareStore) {
-            window.NexCareStore.logActivity('Update', 'Appointments', `Updated appointment status to ${apptStatus} for ${patientName} (Dr. ${doctorName})`);
+    try {
+        if (id) {
+            await apiRequest('PUT', `/appointments/${id}`, payload);
+            if (window.NexCareStore) {
+                window.NexCareStore.logActivity('Update', 'Appointments', `Updated appointment to ${apptStatus} for ${patientName} (Dr. ${doctorName})`);
+            }
+        } else {
+            payload.fee = 100;
+            await apiRequest('POST', '/appointments', payload);
+            if (window.NexCareStore) {
+                window.NexCareStore.logActivity('Create', 'Appointments', `New appointment: ${patientName} with Dr. ${doctorName} (${deptName})`);
+            }
         }
-    } else {
-        payload.id = window.NexCareDB.generateId("APT");
-        payload.fee = 100;
-        payload.createdAt = new Date().toISOString();
-        window.NexCareDB.addRow('appointments', payload);
-        
-        if (window.NexCareStore) {
-            window.NexCareStore.logActivity('Create', 'Appointments', `New appointment scheduled: ${patientName} with Dr. ${doctorName} (${deptName})`);
-        }
+    } catch (err) {
+        alert('Failed to save appointment. Please try again.');
+        console.error(err);
+        return;
     }
-    
+
     closeAppointmentModal();
     applyFilters();
 }
 
-function applyFilters() {
+async function applyFilters() {
     const term = document.getElementById('searchTable').value.toLowerCase();
     const stat = document.getElementById('filterStatus').value;
-    
-    const filtered = getAppointments().filter(a => {
+
+    const all = await loadAppointments();
+    const filtered = all.filter(a => {
         const matchesTerm = a.patient.toLowerCase().includes(term) || a.patientId.toLowerCase().includes(term) || a.doctor.toLowerCase().includes(term) || a.id.toLowerCase().includes(term);
         const matchesStat = (stat === 'All' || a.status === stat);
         return matchesTerm && matchesStat;
     });
-    
+
     renderAppointments(filtered);
 }
 
-function updateDoctorsDropdown(selectedDept, selectedDoctor = null) {
+async function updateDoctorsDropdown(selectedDept, selectedDoctor = null) {
     const doctorSelect = document.getElementById('doctorName');
-    doctorSelect.innerHTML = '<option value="" disabled selected>Choosing doctor...</option>';
-    if (!window.NexCareDB) return;
+    doctorSelect.innerHTML = '<option value="" disabled selected>Loading doctors...</option>';
 
-    const allUsers = window.NexCareDB.getTable('users');
-    const doctors = allUsers.filter(u => u.role && u.role.toLowerCase() === 'doctor' && u.dept === selectedDept && u.status === 'Active');
+    try {
+        const resp = await apiGet('/users');
+        const users = resp.data || [];
+        const doctors = users.filter(u => u.role && u.role.toLowerCase() === 'doctor' && u.dept === selectedDept && u.status === 'Active');
 
-    if (doctors.length === 0) {
-        doctorSelect.innerHTML = '<option value="" disabled selected>No doctors available</option>';
-        return;
-    }
+        if (doctors.length === 0) {
+            doctorSelect.innerHTML = '<option value="" disabled selected>No doctors available</option>';
+            return;
+        }
 
-    doctorSelect.innerHTML = '<option value="" disabled selected>Select Doctor</option>' + doctors.map(d => 
-        `<option value="${d.name}">${d.name}</option>`
-    ).join('');
+        doctorSelect.innerHTML = '<option value="" disabled selected>Select Doctor</option>' + doctors.map(d =>
+            `<option value="${d.name}">${d.name}</option>`
+        ).join('');
 
-    if (selectedDoctor) {
-        doctorSelect.value = selectedDoctor;
+        if (selectedDoctor) {
+            doctorSelect.value = selectedDoctor;
+        }
+    } catch (err) {
+        doctorSelect.innerHTML = '<option value="" disabled selected>Failed to load</option>';
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     applyFilters();
-    
+
     document.getElementById('searchTable').addEventListener('input', applyFilters);
     document.getElementById('filterStatus').addEventListener('change', applyFilters);
 
     document.getElementById('deptName').addEventListener('change', (e) => {
         updateDoctorsDropdown(e.target.value);
     });
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
+
+    window.addEventListener('click', function (event) {
         if (event.target == document.getElementById('appointmentModal')) {
             closeAppointmentModal();
         }

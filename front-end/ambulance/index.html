@@ -2,13 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Base href ensures relative paths (app.js, styles.css) resolve to /ambulance/ -->
+    <!-- even when npx serve strips the trailing slash from the URL -->
+    <base href="/ambulance/">
+    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXCARE - Ambulance Portal</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
-    <script src="../shared/session.js"></script>
+    <script src="../shared/session.js?v=8"></script>
 </head>
 <body>
     <div class="portal-shell">
@@ -655,8 +662,8 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
-    <script src="../shared/db.js"></script>
+    <script src="app.js?v=2"></script>
+    <script src="../shared/db.js?v=5"></script>
     <script src="../logo.js"></script>
 </body>
 </html>

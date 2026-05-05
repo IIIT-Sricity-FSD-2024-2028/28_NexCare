@@ -2,13 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Hospital Management System - Staff Scheduling</title>
     <meta name="description" content="Hospital Management System - Staff Scheduling">
     
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="logo.css">
     <script src="../shared/db.js"></script>
-    <script src="../shared/session.js"></script>
+    <script src="../shared/session.js?v=8"></script>
     <script defer src="logo.js"></script>
     <style>
         .table-wrapper { overflow-y: auto; max-height: 500px; width: 100%; }
@@ -77,19 +81,34 @@
 </head>
 <body>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const role = sessionStorage.getItem('nexcare_current_role');
-        const email = sessionStorage.getItem('nexcare_user_email');
-        if (!role || role !== 'administrative_staff' || email !== 'admin@nexcare.com') {
-            window.location.href = '../auth/login.html';
-        }
-        if (window.NexCareDB && document.getElementById('displayUserName')) {
-            const user = window.NexCareDB.getActiveUser(email);
-            if (user) document.getElementById('displayUserName').textContent = user.name;
-        }
-    });
-</script>
+    <script>
+        // JWT-based early auth guard (runs before body renders, prevents flash)
+        (function () {
+            function decodeJWT(token) {
+                try {
+                    var parts = token.split('.');
+                    if (parts.length !== 3) return null;
+                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(json);
+                } catch(e) { return null; }
+            }
+            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            var payload = token ? decodeJWT(token) : null;
+            var now = Math.floor(Date.now() / 1000);
+            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'administrative_staff') {
+                sessionStorage.clear();
+                window.location.replace('../auth/login.html');
+            }
+            // Sync legacy keys so other inline scripts don't break
+            if (payload) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('nexcare_current_role', payload.role);
+            }
+        })();
+    </script>
 
 <div class="layout">
     <!-- SIDEBAR -->

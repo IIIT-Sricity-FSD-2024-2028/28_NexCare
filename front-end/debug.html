@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+<title>NexCare Debug</title>
+<style>
+  body { font-family: monospace; padding: 24px; background: #111; color: #0f0; }
+  h2 { color: #fff; }
+  pre { background: #222; padding: 12px; border-radius: 6px; white-space: pre-wrap; word-break: break-all; }
+  button { margin: 6px 4px; padding: 8px 14px; cursor: pointer; border-radius: 4px; border: none; font-weight: bold; }
+  .red { background: #dc2626; color: #fff; }
+  .blue { background: #2563eb; color: #fff; }
+  .green { background: #16a34a; color: #fff; }
+</style>
+</head>
+<body>
+<h2>🔍 NexCare Auth Diagnostic</h2>
+<button class="red" onclick="clearAll()">🗑 CLEAR ALL STORAGE</button>
+<button class="blue" onclick="diagnose()">🔄 RE-RUN DIAGNOSIS</button>
+<button class="green" onclick="testLogin()">🔑 TEST PATIENT LOGIN</button>
+<button class="green" onclick="testSuperLogin()">🔑 TEST SUPERUSER LOGIN</button>
+<pre id="out">Running...</pre>
+
+<script>
+function decodeJWT(token) {
+  try {
+    var parts = token.split('.');
+    if (parts.length !== 3) return null;
+    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(json);
+  } catch(e) { return null; }
+}
+
+function clearAll() {
+  sessionStorage.clear();
+  localStorage.clear();
+  document.getElementById('out').textContent = '✅ ALL STORAGE CLEARED. Run diagnosis again.';
+}
+
+function diagnose() {
+  var out = [];
+  out.push('=== sessionStorage ===');
+  for (var i = 0; i < sessionStorage.length; i++) {
+    var k = sessionStorage.key(i);
+    out.push('  ' + k + ' = ' + sessionStorage.getItem(k));
+  }
+  if (!sessionStorage.length) out.push('  (empty)');
+
+  out.push('\n=== localStorage ===');
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    out.push('  ' + k + ' = ' + localStorage.getItem(k));
+  }
+  if (!localStorage.length) out.push('  (empty)');
+
+  var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+  out.push('\n=== JWT Token ===');
+  if (token) {
+    out.push('  RAW: ' + token.substring(0, 60) + '...');
+    var payload = decodeJWT(token);
+    if (payload) {
+      out.push('  DECODED: ' + JSON.stringify(payload, null, 2));
+      var now = Math.floor(Date.now() / 1000);
+      out.push('  NOW (unix): ' + now);
+      out.push('  EXP (unix): ' + payload.exp);
+      out.push('  EXPIRED?: ' + (payload.exp && now > payload.exp ? 'YES ⚠️' : 'NO ✅'));
+      out.push('  ROLE: ' + payload.role);
+    } else {
+      out.push('  ⚠️ Could not decode JWT payload');
+    }
+  } else {
+    out.push('  ❌ NO TOKEN FOUND IN STORAGE');
+  }
+
+  var host = window.location.hostname;
+  out.push('\n=== Network ===');
+  out.push('  Page served from: ' + host);
+  out.push('  Backend URL will be: http://' + host + ':3001/api');
+
+  document.getElementById('out').textContent = out.join('\n');
+}
+
+async function testLogin() {
+  var host = window.location.hostname;
+  var url = 'http://' + host + ':3001/api/auth/login';
+  var out = ['=== Testing patient login ===', 'POST ' + url];
+  try {
+    var r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'patient@gmail.com', password: 'Password123', role: 'patient' })
+    });
+    var data = await r.json();
+    out.push('Status: ' + r.status);
+    out.push('Response: ' + JSON.stringify(data, null, 2));
+  } catch(e) {
+    out.push('❌ FETCH FAILED: ' + e.message);
+    out.push('This is why login shows "Network error"');
+  }
+  document.getElementById('out').textContent = out.join('\n');
+}
+
+async function testSuperLogin() {
+  var host = window.location.hostname;
+  var url = 'http://' + host + ':3001/api/auth/login';
+  var out = ['=== Testing superuser login ===', 'POST ' + url];
+  try {
+    var r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'superuser@nexcare.com', password: 'Password123', role: 'superuser' })
+    });
+    var data = await r.json();
+    out.push('Status: ' + r.status);
+    out.push('Response: ' + JSON.stringify(data, null, 2));
+  } catch(e) {
+    out.push('❌ FETCH FAILED: ' + e.message);
+  }
+  document.getElementById('out').textContent = out.join('\n');
+}
+
+diagnose();
+</script>
+</body>
+</html>
