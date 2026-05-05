@@ -16,17 +16,29 @@ document.addEventListener('DOMContentLoaded', function() {
     prefetchPatientData();
 });
 
-function prefetchPatientData() {
-    const store = window.NexCareStore;
-    if (!store) return;
 
-    const patient = store.getActivePatient();
-    if (patient && patient.phone) {
+function getPatientIdFromToken() {
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    if (!token) return null;
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+        return payload.patientId || payload.sub;
+    } catch(e) { return null; }
+}
+
+async function prefetchPatientData() {
+    const patientId = getPatientIdFromToken();
+    if (!patientId) return;
+    try {
+        const res = await window.NexCareAPI.Patients.getById(patientId);
+        const patient = res.data;
+        if (patient && patient.phone) {
         const contactInput = document.getElementById('contactNumber');
         if (contactInput) {
             contactInput.value = patient.phone;
         }
     }
+    } catch (err) { console.error("Failed to prefetch patient", err); }
 }
 
 function handleAmbulanceRequest(e) {
@@ -60,12 +72,17 @@ function handleAmbulanceRequest(e) {
             isConfirm: true, 
             onConfirm: () => {
                 // Create request in shared store (Create)
-                const req = window.NexCareStore?.createAmbulanceRequest({
+                
+                const patientId = getPatientIdFromToken() || 'P001';
+                window.NexCareAPI.Ambulance.createRequest({
+                    patientId: patientId,
                     pickupLocation: location,
-                    contact,
-                    notes
-                });
-                const requestId = req?.id || ('AMB-2026-' + String(Math.floor(Math.random() * 900 + 100)).padStart(3, '0'));
+                    contact: contact,
+                    notes: notes || ''
+                }).then(res => {
+                    const req = res.data;
+                    const requestId = req?.id || ('AMB-2026-' + String(Math.floor(Math.random() * 900 + 100)).padStart(3, '0'));
+
                 
                 // Show success modal
                 showNexCareModal('Request Submitted!', 
@@ -78,17 +95,30 @@ function handleAmbulanceRequest(e) {
                         }
                     }
                 );
+            }).catch(err => {
+                showNexCareModal('Error', 'Failed to dispatch ambulance.', { isError: true });
+            });
             }
         }
     );
 }
 
-function renderAmbulanceRequests() {
-    const store = window.NexCareStore;
+async function renderAmbulanceRequests() {
     const tbody = document.querySelector('.status-table tbody');
-    if (!store || !tbody) return;
+    if (!tbody) return;
+    const patientId = getPatientIdFromToken();
+    let rows = [];
+    if (patientId) {
+        try {
+            const res = await window.NexCareAPI.get(`/ambulance/patient/${patientId}`);
+            rows = res.data || [];
+            // Sort by createdAt desc
+            rows.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        } catch(err) {
+            console.error('Failed to load requests', err);
+        }
+    }
 
-    const rows = store.listAmbulanceRequests();
 
     function badge(status) {
         if (status === 'Completed') return 'badge-completed';
@@ -135,14 +165,12 @@ function handleAmbulanceTableClick(e) {
 
     const id = tr.dataset.id;
     const action = btn.dataset.action;
-    const store = window.NexCareStore;
-    if (!store) return;
-
+    
     if (action === 'cancel') {
         showNexCareModal('Cancel Request', 'Are you sure you want to cancel this ambulance request?', {
             isConfirm: true,
-            onConfirm: () => {
-                store.updateAmbulanceRequest(id, { status: 'Canceled' });
+            onConfirm: async () => {
+                await window.NexCareAPI.Ambulance.updateStatus(id, 'Canceled');
                 renderAmbulanceRequests();
             }
         });
@@ -152,13 +180,14 @@ function handleAmbulanceTableClick(e) {
     if (action === 'delete') {
         showNexCareModal('Delete History', 'Are you sure you want to delete this record permanently?', {
             isConfirm: true,
-            onConfirm: () => {
-                store.deleteAmbulanceRequest(id);
+            onConfirm: async () => {
+                await window.NexCareAPI.Ambulance.cancelRequest(id); // delete route
                 renderAmbulanceRequests();
             }
         });
         return;
     }
+
 }
 
 /**

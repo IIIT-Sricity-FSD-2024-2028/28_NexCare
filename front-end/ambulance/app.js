@@ -1108,7 +1108,8 @@ async function loadAppState() {
     if (window.NexCareStore) {
         try {
             // Use the async listAllAmbulanceRequests to see everyone's requests
-            const dbReqs = await window.NexCareStore.listAllAmbulanceRequests();
+            const res = await window.NexCareAPI.Ambulance.getAllRequests();
+            const dbReqs = res.data;
             if (dbReqs && dbReqs.length > 0) {
                 state.requests = dbReqs.map(req => ({
                     id: req.id,
@@ -1412,7 +1413,7 @@ function setupGlobalDelegation() {
             
             record.status = 'assigned';
             if (window.NexCareStore) {
-                window.NexCareStore.updateAmbulanceRequest(id, { status: 'Assigned' });
+                window.NexCareAPI.Ambulance.updateRequest(id, { status: 'Assigned' });
             }
             persistAppState();
             refreshAllViews();
@@ -1435,7 +1436,7 @@ function setupGlobalDelegation() {
                 record.status = 'in_transit';
                 record.stepIndex = 0;
                 if (window.NexCareStore) {
-                    window.NexCareStore.updateAmbulanceRequest(id, { status: 'Active', stepIndex: 0 });
+                    window.NexCareAPI.Ambulance.updateRequest(id, { status: 'Active', stepIndex: 0 });
                 }
                 persistAppState();
                 refreshAllViews();
@@ -1451,7 +1452,7 @@ function setupGlobalDelegation() {
                 if (confirm(`Cancel assignment for ${record.patient}?`)) {
                     record.status = 'pending';
                     if (window.NexCareStore) {
-                        window.NexCareStore.updateAmbulanceRequest(id, { status: 'Pending' });
+                        window.NexCareAPI.Ambulance.updateRequest(id, { status: 'Pending' });
                     }
                     persistAppState();
                     refreshAllViews();
@@ -1474,7 +1475,7 @@ function setupGlobalDelegation() {
 
             if (confirm(`Remove ${id} from history? This action cannot be undone.`)) {
                 if (window.NexCareStore) {
-                    window.NexCareStore.deleteAmbulanceRequest(id);
+                    window.NexCareAPI.Ambulance.cancelRequest(id);
                 }
                 appState.requests = appState.requests.filter(r => r.id !== id);
                 persistAppState();
@@ -1861,7 +1862,7 @@ function bindActiveTransportControls() {
             if (r.stepIndex < lastStep) {
                 r.stepIndex++;
                 if (window.NexCareStore) {
-                    window.NexCareStore.updateAmbulanceRequest(r.id, { stepIndex: r.stepIndex, status: 'Active' });
+                    window.NexCareAPI.Ambulance.updateRequest(r.id, { stepIndex: r.stepIndex, status: 'Active' });
                 }
                 persistAppState();
                 refreshAllViews();
@@ -1877,7 +1878,7 @@ function bindActiveTransportControls() {
             r.completedDate = formatCompletedDate();
             r.completedTime = formatRequestTime();
             if (window.NexCareStore) {
-                window.NexCareStore.updateAmbulanceRequest(r.id, { 
+                window.NexCareAPI.Ambulance.updateRequest(r.id, { 
                     status: 'Completed',
                     completedDate: r.completedDate,
                     completedTime: r.completedTime
