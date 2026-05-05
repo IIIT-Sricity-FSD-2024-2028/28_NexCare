@@ -35,6 +35,7 @@ export declare class ValidationControllerExample {
 export declare class ValidationServiceExample {
     processAmbulanceRequest(dto: CreateAmbulanceRequestDto): Promise<{
         patientId: string;
+        patientName?: string;
         pickupLocation: string;
         contact: string;
         notes?: string;
@@ -43,6 +44,7 @@ export declare class ValidationServiceExample {
     }>;
     processMultipleRequests(dtos: CreateAmbulanceRequestDto[]): Promise<{
         patientId: string;
+        patientName?: string;
         pickupLocation: string;
         contact: string;
         notes?: string;

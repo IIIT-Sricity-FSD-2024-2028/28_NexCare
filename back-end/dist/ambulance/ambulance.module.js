@@ -10,11 +10,13 @@ exports.AmbulanceModule = void 0;
 const common_1 = require("@nestjs/common");
 const ambulance_controller_1 = require("./ambulance.controller");
 const ambulance_service_1 = require("./ambulance.service");
+const system_module_1 = require("../system/system.module");
 let AmbulanceModule = class AmbulanceModule {
 };
 exports.AmbulanceModule = AmbulanceModule;
 exports.AmbulanceModule = AmbulanceModule = __decorate([
     (0, common_1.Module)({
+        imports: [system_module_1.SystemModule],
         controllers: [ambulance_controller_1.AmbulanceController],
         providers: [ambulance_service_1.AmbulanceService],
         exports: [ambulance_service_1.AmbulanceService],

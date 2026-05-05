@@ -1,6 +1,9 @@
 import { CreateFeedbackRequest, UpdateFeedbackRequest } from './interfaces/feedback.interface';
 import { FeedbackStatus } from '../common/interfaces/api-response.interface';
+import { SystemService } from '../system/system.service';
 export declare class FeedbackService {
+    private readonly systemService;
+    constructor(systemService: SystemService);
     private feedback;
     findAll(patientId?: string, status?: FeedbackStatus, category?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

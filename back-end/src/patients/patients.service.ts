@@ -3,6 +3,7 @@ import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { ArrayUtil } from '../common/utils/array.util';
 import { Patient, CreatePatientRequest, UpdatePatientRequest, PatientStats } from './interfaces/patient.interface';
+import { SystemService } from '../system/system.service';
 
 /**
  * Patients Service
@@ -11,6 +12,8 @@ import { Patient, CreatePatientRequest, UpdatePatientRequest, PatientStats } fro
  */
 @Injectable()
 export class PatientsService {
+  constructor(private readonly systemService: SystemService) {}
+
   // In-memory mock patients database (aligned with frontend db.js)
   private patients: Patient[] = [
     {
@@ -275,6 +278,14 @@ export class PatientsService {
 
       // Add to patients array
       this.patients.push(newPatient);
+      // Log activity
+      this.systemService.createActivity({
+        userId: newPatient.id,
+        action: 'Create',
+        details: `New patient record created for ${newPatient.fullName}`,
+        module: 'Patients',
+        severity: 'INFO'
+      });
 
       return ResponseUtil.created('Patient created successfully', newPatient);
     } catch (error) {
@@ -324,6 +335,15 @@ export class PatientsService {
         return ResponseUtil.notFound('Patient', id);
       }
 
+      // Log activity
+      this.systemService.createActivity({
+        userId: 'Admin',
+        action: 'Update',
+        details: `Patient record ${id} (${updatedPatient.fullName}) updated`,
+        module: 'Patients',
+        severity: 'INFO'
+      });
+
       return ResponseUtil.updated('Patient updated successfully', updatedPatient);
     } catch (error) {
       return ResponseUtil.serverError('Failed to update patient');
@@ -345,6 +365,15 @@ export class PatientsService {
 
       // Remove patient
       ArrayUtil.removeById(this.patients, id);
+
+      // Log activity
+      this.systemService.createActivity({
+        userId: 'Admin',
+        action: 'Delete',
+        details: `Patient record ${id} (${patient.fullName}) deleted`,
+        module: 'Patients',
+        severity: 'WARNING'
+      });
 
       return ResponseUtil.deleted('Patient');
     } catch (error) {

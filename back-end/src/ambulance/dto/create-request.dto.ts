@@ -11,6 +11,11 @@ export class CreateAmbulanceRequestDto {
   @IsNotEmpty({ message: 'Patient ID is required' })
   patientId: string;
 
+  @ApiPropertyOptional({ example: 'John Doe', description: 'Name of the patient requesting' })
+  @IsOptional()
+  @IsString()
+  patientName?: string;
+
   @ApiProperty({ example: '123 Main Street', description: 'Pickup location address' })
   @IsString()
   @IsNotEmpty({ message: 'Pickup location is required' })

@@ -46,4 +46,22 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateAmbulanceRequestDto.prototype, "assignedTo", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 0, description: 'Current step index in transport' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], UpdateAmbulanceRequestDto.prototype, "stepIndex", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'May 5, 2026', description: 'Date the transport was completed' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateAmbulanceRequestDto.prototype, "completedDate", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: '10:30 AM', description: 'Time the transport was completed' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateAmbulanceRequestDto.prototype, "completedTime", void 0);
 //# sourceMappingURL=update-request.dto.js.map

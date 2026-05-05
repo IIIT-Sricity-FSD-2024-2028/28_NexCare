@@ -5,6 +5,8 @@ import { ArrayUtil } from '../common/utils/array.util';
 import { Bill, CreateBillRequest, UpdateBillRequest, PaymentRequest, BillStats, BillItem, Payment } from './interfaces/bill.interface';
 import { BillStatus } from '../common/interfaces/api-response.interface';
 
+import { SystemService } from '../system/system.service';
+
 /**
  * Billing Service
  * Manages financial operations and bill generation in the NexCare system
@@ -12,6 +14,8 @@ import { BillStatus } from '../common/interfaces/api-response.interface';
  */
 @Injectable()
 export class BillingService {
+  constructor(private readonly systemService: SystemService) {}
+
   // In-memory mock bills database (aligned with frontend db.js)
   private bills: Bill[] = [
     {
@@ -143,6 +147,15 @@ export class BillingService {
       // Add to bills array
       this.bills.push(newBill);
 
+      // Log activity
+      this.systemService.createActivity({
+        userId: billData.patientId,
+        action: 'Create',
+        details: `New bill ${newBillId} generated for ₹${total}`,
+        module: 'Billing',
+        severity: 'INFO'
+      });
+
       return ResponseUtil.created('Bill created successfully', newBill);
     } catch (error) {
       return ResponseUtil.serverError('Failed to create bill');
@@ -190,6 +203,15 @@ export class BillingService {
       }
 
       this.bills[billIndex] = updatedBill;
+
+      // Log activity
+      this.systemService.createActivity({
+        userId: 'Admin',
+        action: 'Update',
+        details: `Bill ${id} details updated`,
+        module: 'Billing',
+        severity: 'INFO'
+      });
 
       return ResponseUtil.updated('Bill updated successfully', updatedBill);
     } catch (error) {
@@ -274,6 +296,15 @@ export class BillingService {
       }
 
       bill.updatedAt = new Date().toISOString();
+
+      // Log activity
+      this.systemService.createActivity({
+        userId: bill.patientId,
+        action: 'Payment',
+        details: `Payment of ₹${paymentData.amount} processed for bill ${id}`,
+        module: 'Billing',
+        severity: 'SUCCESS'
+      });
 
       return ResponseUtil.updated('Payment processed successfully', bill);
     } catch (error) {

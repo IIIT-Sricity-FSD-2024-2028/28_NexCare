@@ -1,6 +1,9 @@
 import { CreateAmbulanceRequest, UpdateAmbulanceRequest } from './interfaces/ambulance-request.interface';
 import { AmbulanceStatus } from '../common/interfaces/api-response.interface';
+import { SystemService } from '../system/system.service';
 export declare class AmbulanceService {
+    private readonly systemService;
+    constructor(systemService: SystemService);
     private ambulanceRequests;
     findAll(patientId?: string, status?: AmbulanceStatus): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

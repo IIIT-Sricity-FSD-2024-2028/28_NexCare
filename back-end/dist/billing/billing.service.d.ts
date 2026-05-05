@@ -1,6 +1,9 @@
 import { CreateBillRequest, UpdateBillRequest, PaymentRequest } from './interfaces/bill.interface';
 import { BillStatus } from '../common/interfaces/api-response.interface';
+import { SystemService } from '../system/system.service';
 export declare class BillingService {
+    private readonly systemService;
+    constructor(systemService: SystemService);
     private bills;
     findAll(patientId?: string, status?: BillStatus): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

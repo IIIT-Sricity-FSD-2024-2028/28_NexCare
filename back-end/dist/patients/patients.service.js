@@ -5,14 +5,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PatientsService = void 0;
 const common_1 = require("@nestjs/common");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
 const array_util_1 = require("../common/utils/array.util");
+const system_service_1 = require("../system/system.service");
 let PatientsService = class PatientsService {
-    constructor() {
+    constructor(systemService) {
+        this.systemService = systemService;
         this.patients = [
             {
                 id: 'P001',
@@ -247,6 +252,13 @@ let PatientsService = class PatientsService {
                 updatedAt: new Date().toISOString()
             };
             this.patients.push(newPatient);
+            this.systemService.createActivity({
+                userId: newPatient.id,
+                action: 'Create',
+                details: `New patient record created for ${newPatient.fullName}`,
+                module: 'Patients',
+                severity: 'INFO'
+            });
             return response_util_1.ResponseUtil.created('Patient created successfully', newPatient);
         }
         catch (error) {
@@ -280,6 +292,13 @@ let PatientsService = class PatientsService {
             if (!updatedPatient) {
                 return response_util_1.ResponseUtil.notFound('Patient', id);
             }
+            this.systemService.createActivity({
+                userId: 'Admin',
+                action: 'Update',
+                details: `Patient record ${id} (${updatedPatient.fullName}) updated`,
+                module: 'Patients',
+                severity: 'INFO'
+            });
             return response_util_1.ResponseUtil.updated('Patient updated successfully', updatedPatient);
         }
         catch (error) {
@@ -293,6 +312,13 @@ let PatientsService = class PatientsService {
                 return response_util_1.ResponseUtil.notFound('Patient', id);
             }
             array_util_1.ArrayUtil.removeById(this.patients, id);
+            this.systemService.createActivity({
+                userId: 'Admin',
+                action: 'Delete',
+                details: `Patient record ${id} (${patient.fullName}) deleted`,
+                module: 'Patients',
+                severity: 'WARNING'
+            });
             return response_util_1.ResponseUtil.deleted('Patient');
         }
         catch (error) {
@@ -372,6 +398,7 @@ let PatientsService = class PatientsService {
 };
 exports.PatientsService = PatientsService;
 exports.PatientsService = PatientsService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [system_service_1.SystemService])
 ], PatientsService);
 //# sourceMappingURL=patients.service.js.map

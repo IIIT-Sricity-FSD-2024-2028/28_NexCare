@@ -5,4 +5,7 @@ export declare class UpdateAmbulanceRequestDto {
     notes?: string;
     status?: AmbulanceStatus;
     assignedTo?: string;
+    stepIndex?: number;
+    completedDate?: string;
+    completedTime?: string;
 }

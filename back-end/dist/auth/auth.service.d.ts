@@ -1,5 +1,8 @@
 import { LoginRequest, RegisterRequest } from './interfaces/auth.interface';
+import { SystemService } from '../system/system.service';
 export declare class AuthService {
+    private readonly systemService;
+    constructor(systemService: SystemService);
     private readonly usersFilePath;
     private readonly jwtSecret;
     private readonly jwtExpiresInSeconds;

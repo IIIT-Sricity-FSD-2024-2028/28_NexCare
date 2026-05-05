@@ -22,6 +22,12 @@ __decorate([
     __metadata("design:type", String)
 ], CreateAmbulanceRequestDto.prototype, "patientId", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'John Doe', description: 'Name of the patient requesting' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateAmbulanceRequestDto.prototype, "patientName", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ example: '123 Main Street', description: 'Pickup location address' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)({ message: 'Pickup location is required' }),

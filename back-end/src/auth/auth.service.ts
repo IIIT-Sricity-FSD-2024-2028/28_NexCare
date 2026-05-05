@@ -7,6 +7,8 @@ import { IdGenerator } from '../common/utils/id-generator.util';
 import { LoginRequest, RegisterRequest, AuthResponse, UserSession } from './interfaces/auth.interface';
 import { UserRole, UserStatus } from '../common/interfaces/api-response.interface';
 
+import { SystemService } from '../system/system.service';
+
 /**
  * Authentication Service
  * Handles user authentication, registration, and session management.
@@ -18,6 +20,8 @@ import { UserRole, UserStatus } from '../common/interfaces/api-response.interfac
  */
 @Injectable()
 export class AuthService {
+  constructor(private readonly systemService: SystemService) {}
+
   // ── Paths ────────────────────────────────────────────────────────────────
   private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
 
@@ -178,6 +182,15 @@ export class AuthService {
         token: this.generateToken(user),
       };
 
+      // Log activity
+      this.systemService.createActivity({
+        userId: user.id,
+        action: 'Login',
+        details: `User ${user.name} logged in successfully as ${user.role}`,
+        module: 'Authentication',
+        severity: 'INFO'
+      });
+
       return ResponseUtil.success('Login successful', authResponse);
     } catch (error) {
       console.error('Login error:', error);
@@ -236,6 +249,15 @@ export class AuthService {
         token: this.generateToken(newUser),
       };
 
+      // Log activity
+      this.systemService.createActivity({
+        userId: newUser.id,
+        action: 'Register',
+        details: `New patient account registered: ${newUser.name} (${newUser.email})`,
+        module: 'Authentication',
+        severity: 'INFO'
+      });
+
       return ResponseUtil.created('Patient account created successfully', authResponse);
     } catch (error) {
       console.error('Registration error:', error);
@@ -250,6 +272,16 @@ export class AuthService {
   async logout(userId: string) {
     try {
       this.sessions.delete(userId);
+      
+      // Log activity
+      this.systemService.createActivity({
+        userId: userId,
+        action: 'Logout',
+        details: `User logged out`,
+        module: 'Authentication',
+        severity: 'INFO'
+      });
+
       return ResponseUtil.success('Logout successful');
     } catch (error) {
       return ResponseUtil.serverError('Logout failed due to a server error');

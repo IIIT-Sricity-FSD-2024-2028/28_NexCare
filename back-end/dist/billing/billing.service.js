@@ -5,14 +5,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BillingService = void 0;
 const common_1 = require("@nestjs/common");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
+const system_service_1 = require("../system/system.service");
 let BillingService = class BillingService {
-    constructor() {
+    constructor(systemService) {
+        this.systemService = systemService;
         this.bills = [
             {
                 id: 'BILL-001',
@@ -112,6 +117,13 @@ let BillingService = class BillingService {
                 updatedAt: new Date().toISOString()
             };
             this.bills.push(newBill);
+            this.systemService.createActivity({
+                userId: billData.patientId,
+                action: 'Create',
+                details: `New bill ${newBillId} generated for ₹${total}`,
+                module: 'Billing',
+                severity: 'INFO'
+            });
             return response_util_1.ResponseUtil.created('Bill created successfully', newBill);
         }
         catch (error) {
@@ -143,6 +155,13 @@ let BillingService = class BillingService {
                 };
             }
             this.bills[billIndex] = updatedBill;
+            this.systemService.createActivity({
+                userId: 'Admin',
+                action: 'Update',
+                details: `Bill ${id} details updated`,
+                module: 'Billing',
+                severity: 'INFO'
+            });
             return response_util_1.ResponseUtil.updated('Bill updated successfully', updatedBill);
         }
         catch (error) {
@@ -193,6 +212,13 @@ let BillingService = class BillingService {
                 bill.status = api_response_interface_1.BillStatus.PAID;
             }
             bill.updatedAt = new Date().toISOString();
+            this.systemService.createActivity({
+                userId: bill.patientId,
+                action: 'Payment',
+                details: `Payment of ₹${paymentData.amount} processed for bill ${id}`,
+                module: 'Billing',
+                severity: 'SUCCESS'
+            });
             return response_util_1.ResponseUtil.updated('Payment processed successfully', bill);
         }
         catch (error) {
@@ -295,6 +321,7 @@ let BillingService = class BillingService {
 };
 exports.BillingService = BillingService;
 exports.BillingService = BillingService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [system_service_1.SystemService])
 ], BillingService);
 //# sourceMappingURL=billing.service.js.map

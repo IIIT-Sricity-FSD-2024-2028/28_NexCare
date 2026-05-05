@@ -5,6 +5,8 @@ import { ArrayUtil } from '../common/utils/array.util';
 import { AmbulanceRequest, CreateAmbulanceRequest, UpdateAmbulanceRequest, AmbulanceStats } from './interfaces/ambulance-request.interface';
 import { AmbulanceStatus } from '../common/interfaces/api-response.interface';
 
+import { SystemService } from '../system/system.service';
+
 /**
  * Ambulance Service
  * Manages emergency services and ambulance requests in the NexCare system
@@ -12,6 +14,8 @@ import { AmbulanceStatus } from '../common/interfaces/api-response.interface';
  */
 @Injectable()
 export class AmbulanceService {
+  constructor(private readonly systemService: SystemService) {}
+
   // In-memory mock ambulance requests database (aligned with frontend db.js)
   private ambulanceRequests: AmbulanceRequest[] = [
     {
@@ -99,7 +103,7 @@ export class AmbulanceService {
       const newRequest: AmbulanceRequest = {
         id: newRequestId,
         patientId: requestData.patientId,
-        patientName: `Patient ${requestData.patientId}`, // Would fetch from patient service
+        patientName: requestData.patientName || `Patient ${requestData.patientId}`, // Fetch from DTO or fallback
         pickupLocation: requestData.pickupLocation,
         contact: requestData.contact,
         notes: requestData.notes || '',
@@ -110,6 +114,15 @@ export class AmbulanceService {
 
       // Add to requests array
       this.ambulanceRequests.push(newRequest);
+
+      // Log activity
+      this.systemService.createActivity({
+        userId: requestData.patientId,
+        action: 'Create',
+        details: `Ambulance request ${newRequestId} created for ${newRequest.patientName}`,
+        module: 'Ambulance',
+        severity: 'INFO'
+      });
 
       return ResponseUtil.created('Ambulance request created successfully', newRequest);
     } catch (error) {
@@ -140,6 +153,18 @@ export class AmbulanceService {
 
       this.ambulanceRequests[requestIndex] = updatedRequest;
 
+      // Log activity
+      const isCompleted = updateData.status === AmbulanceStatus.COMPLETED;
+      this.systemService.createActivity({
+        userId: updatedRequest.assignedTo || 'System',
+        action: isCompleted ? 'Complete' : 'Update',
+        details: isCompleted 
+          ? `Ambulance transport ${id} completed for ${updatedRequest.patientName}`
+          : `Ambulance request ${id} updated to ${updatedRequest.status}`,
+        module: 'Ambulance',
+        severity: isCompleted ? 'SUCCESS' : 'INFO'
+      });
+
       return ResponseUtil.updated('Ambulance request updated successfully', updatedRequest);
     } catch (error) {
       return ResponseUtil.serverError('Failed to update ambulance request');
@@ -166,10 +191,19 @@ export class AmbulanceService {
         return ResponseUtil.error('Cannot delete completed ambulance requests');
       }
 
-      // Remove request
+      // Delete from requests array
       this.ambulanceRequests.splice(requestIndex, 1);
 
-      return ResponseUtil.deleted('Ambulance request');
+      // Log activity
+      this.systemService.createActivity({
+        userId: 'Admin',
+        action: 'Delete',
+        details: `Ambulance request ${id} deleted`,
+        module: 'Ambulance',
+        severity: 'WARNING'
+      });
+
+      return ResponseUtil.success('Ambulance request deleted successfully');
     } catch (error) {
       return ResponseUtil.serverError('Failed to delete ambulance request');
     }

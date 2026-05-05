@@ -5,6 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
@@ -14,8 +17,10 @@ const crypto = require("crypto");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
+const system_service_1 = require("../system/system.service");
 let AuthService = class AuthService {
-    constructor() {
+    constructor(systemService) {
+        this.systemService = systemService;
         this.usersFilePath = path.join(process.cwd(), 'data', 'users.json');
         this.jwtSecret = process.env.JWT_SECRET || 'nexcare_jwt_secret_key_2024_evaluation';
         this.jwtExpiresInSeconds = 24 * 60 * 60;
@@ -120,6 +125,13 @@ let AuthService = class AuthService {
                 },
                 token: this.generateToken(user),
             };
+            this.systemService.createActivity({
+                userId: user.id,
+                action: 'Login',
+                details: `User ${user.name} logged in successfully as ${user.role}`,
+                module: 'Authentication',
+                severity: 'INFO'
+            });
             return response_util_1.ResponseUtil.success('Login successful', authResponse);
         }
         catch (error) {
@@ -166,6 +178,13 @@ let AuthService = class AuthService {
                 },
                 token: this.generateToken(newUser),
             };
+            this.systemService.createActivity({
+                userId: newUser.id,
+                action: 'Register',
+                details: `New patient account registered: ${newUser.name} (${newUser.email})`,
+                module: 'Authentication',
+                severity: 'INFO'
+            });
             return response_util_1.ResponseUtil.created('Patient account created successfully', authResponse);
         }
         catch (error) {
@@ -176,6 +195,13 @@ let AuthService = class AuthService {
     async logout(userId) {
         try {
             this.sessions.delete(userId);
+            this.systemService.createActivity({
+                userId: userId,
+                action: 'Logout',
+                details: `User logged out`,
+                module: 'Authentication',
+                severity: 'INFO'
+            });
             return response_util_1.ResponseUtil.success('Logout successful');
         }
         catch (error) {
@@ -206,6 +232,7 @@ let AuthService = class AuthService {
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [system_service_1.SystemService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

@@ -141,7 +141,7 @@ const SessionManager = {
     },
     
     // Navigate to specific page
-    navigateToPage: function(pageId) {
+    navigateToPage: async function(pageId) {
         // Hide all pages
         const pages = document.querySelectorAll('.page');
         pages.forEach(page => {
@@ -163,12 +163,18 @@ const SessionManager = {
             }
         });
         
-        // Store current page in session
+        // Store current page in session and update URL hash
         sessionStorage.setItem('currentPage', pageId);
+        window.location.hash = pageId;
+        
+        // Track navigation history for back button
+        if (typeof NavigationHistory !== 'undefined' && NavigationHistory.navigateToPage) {
+            NavigationHistory.navigateToPage(pageId);
+        }
         
         // RE-FETCH AND RE-RENDER ON EVERY NAVIGATION (FR-12)
         if (typeof refreshAllViews === 'function') {
-            refreshAllViews(false); // Direct navigation = show animations
+            await refreshAllViews(false); // Direct navigation = show animations
             console.log(`NexCare: Navigated to ${pageId}, data refreshed.`);
         }
     },
@@ -1105,9 +1111,9 @@ async function loadAppState() {
         requests: []
     };
     
-    if (window.NexCareStore) {
+    if (window.NexCareAPI && window.NexCareAPI.Ambulance) {
         try {
-            // Use the async listAllAmbulanceRequests to see everyone's requests
+            // Use the API to fetch all ambulance requests from backend
             const res = await window.NexCareAPI.Ambulance.getAllRequests();
             const dbReqs = res.data;
             if (dbReqs && dbReqs.length > 0) {
@@ -1117,13 +1123,16 @@ async function loadAppState() {
                     location: req.pickupLocation || 'Unknown Location',
                     contact: req.contact || '-',
                     time: req.createdAt ? new Date(req.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '12:00 PM',
+                    createdAt: req.createdAt || new Date().toISOString(), // Preserve raw timestamp for sorting/formatting
                     priority: req.priority || 'Medium',
                     status: (function(s) {
+                        if (!s) return 'pending';
                         const ls = s.toLowerCase();
                         if (ls === 'pending') return 'pending';
-                        if (ls === 'assigned') return 'assigned';
-                        if (ls === 'active') return 'in_transit';
+                        if (ls === 'dispatched') return 'assigned';
+                        if (ls === 'en route' || ls === 'picked up' || ls === 'at hospital') return 'in_transit';
                         if (ls === 'completed') return 'completed';
+                        if (ls === 'canceled' || ls === 'cancelled') return 'completed';
                         return 'pending';
                     })(req.status),
                     stepIndex: req.stepIndex != null ? req.stepIndex : 0,
@@ -1397,7 +1406,7 @@ function setupGlobalDelegation() {
     // 1. Incoming Requests
     const reqTbody = document.getElementById('ambulance-requests-tbody');
     if (reqTbody) {
-        reqTbody.addEventListener('click', function(e) {
+        reqTbody.addEventListener('click', async function(e) {
             const btn = e.target.closest('.accept-btn');
             if (!btn || btn.disabled) return;
             
@@ -1407,24 +1416,25 @@ function setupGlobalDelegation() {
             
             if (record.status !== 'pending') {
                 ToastNotifications.warning('This request is no longer pending');
-                refreshAllViews();
+                await refreshAllViews();
                 return;
             }
             
             record.status = 'assigned';
-            if (window.NexCareStore) {
-                window.NexCareAPI.Ambulance.updateRequest(id, { status: 'Assigned' });
+            if (window.NexCareAPI) {
+                await window.NexCareAPI.Ambulance.updateRequest(id, { status: 'Dispatched' });
             }
             persistAppState();
-            refreshAllViews();
             ToastNotifications.success(`Accepted request ${record.id} - ${record.patient}`);
+            // Navigate to Assigned Dispatch page (this will refresh data)
+            await SessionManager.navigateToPage('assigned-dispatch');
         });
     }
 
     // 2. Assigned Dispatch
     const dispatchContainer = document.getElementById('assigned-requests-container');
     if (dispatchContainer) {
-        dispatchContainer.addEventListener('click', function(e) {
+        dispatchContainer.addEventListener('click', async function(e) {
             const startBtn = e.target.closest('.start-transport-btn');
             const cancelBtn = e.target.closest('.cancel-assignment-btn');
 
@@ -1435,12 +1445,14 @@ function setupGlobalDelegation() {
                 
                 record.status = 'in_transit';
                 record.stepIndex = 0;
-                if (window.NexCareStore) {
-                    window.NexCareAPI.Ambulance.updateRequest(id, { status: 'Active', stepIndex: 0 });
+                if (window.NexCareAPI) {
+                    await window.NexCareAPI.Ambulance.updateRequest(id, { status: 'En Route', stepIndex: 0 });
                 }
                 persistAppState();
-                refreshAllViews();
                 ToastNotifications.success(`Transport started for ${record.patient}`);
+                // Navigate to Active Transport page (this will refresh data and render)
+                await SessionManager.navigateToPage('active-transport');
+                // Start ETA timer after page is rendered
                 ETATimer.startTimer(record.id, record.stepIndex);
             }
 
@@ -1451,11 +1463,11 @@ function setupGlobalDelegation() {
                 
                 if (confirm(`Cancel assignment for ${record.patient}?`)) {
                     record.status = 'pending';
-                    if (window.NexCareStore) {
-                        window.NexCareAPI.Ambulance.updateRequest(id, { status: 'Pending' });
+                    if (window.NexCareAPI) {
+                        await window.NexCareAPI.Ambulance.updateRequest(id, { status: 'Pending' });
                     }
                     persistAppState();
-                    refreshAllViews();
+                    await refreshAllViews();
                     ToastNotifications.info(`Assignment canceled for ${record.patient}`);
                 }
             }
@@ -1474,7 +1486,7 @@ function setupGlobalDelegation() {
             if (!record) return;
 
             if (confirm(`Remove ${id} from history? This action cannot be undone.`)) {
-                if (window.NexCareStore) {
+                if (window.NexCareAPI) {
                     window.NexCareAPI.Ambulance.cancelRequest(id);
                 }
                 appState.requests = appState.requests.filter(r => r.id !== id);
@@ -1854,39 +1866,52 @@ function bindActiveTransportControls() {
     const nextBtn = document.getElementById('next-step-btn');
     const completeBtn = document.getElementById('complete-transport-btn');
 
+    // Map step index to backend AmbulanceStatus enum values
+    const STEP_TO_BACKEND_STATUS = [
+        'Dispatched',   // Step 0: Dispatch Accepted
+        'En Route',     // Step 1: Ambulance En Route
+        'Picked Up',    // Step 2: Patient Picked Up
+        'At Hospital',  // Step 3: Reached Hospital
+        'Completed'     // Step 4: Transport Completed
+    ];
+
     if (nextBtn) {
-        nextBtn.addEventListener('click', function () {
+        nextBtn.addEventListener('click', async function () {
             const r = getActiveTransportRequest();
             if (!r) return;
             const lastStep = TRANSPORT_STEPS.length - 1;
             if (r.stepIndex < lastStep) {
                 r.stepIndex++;
-                if (window.NexCareStore) {
-                    window.NexCareAPI.Ambulance.updateRequest(r.id, { stepIndex: r.stepIndex, status: 'Active' });
+                const backendStatus = STEP_TO_BACKEND_STATUS[r.stepIndex] || 'En Route';
+                if (window.NexCareAPI) {
+                    await window.NexCareAPI.Ambulance.updateRequest(r.id, { stepIndex: r.stepIndex, status: backendStatus });
                 }
                 persistAppState();
-                refreshAllViews();
+                await refreshAllViews();
             }
         });
     }
 
     if (completeBtn) {
-        completeBtn.addEventListener('click', function () {
+        completeBtn.addEventListener('click', async function () {
             const r = getActiveTransportRequest();
             if (!r) return;
             r.status = 'completed';
             r.completedDate = formatCompletedDate();
             r.completedTime = formatRequestTime();
-            if (window.NexCareStore) {
-                window.NexCareAPI.Ambulance.updateRequest(r.id, { 
+            if (window.NexCareAPI) {
+                await window.NexCareAPI.Ambulance.updateRequest(r.id, { 
                     status: 'Completed',
                     completedDate: r.completedDate,
                     completedTime: r.completedTime
                 });
-                
-                // Log the transport completion to recent system activity (FR-12)
+            }
+            
+            // Log the transport completion to recent system activity (FR-12)
+            if (window.NexCareStore && window.NexCareStore.logActivity) {
                 window.NexCareStore.logActivity('Complete', 'Ambulance', `Transport for ${r.patient} (ID: ${r.id}) completed successfully.`);
             }
+
             delete r.stepIndex;
             persistAppState();
             
@@ -1895,14 +1920,9 @@ function bindActiveTransportControls() {
                 ETATimer.stopTimer(r.id);
             }
             
-            refreshAllViews();
-            
-            // Explicitly redirect to history (FR-15)
-            if (typeof AmbulancePortal !== 'undefined' && AmbulancePortal.navigateToPage) {
-                AmbulancePortal.navigateToPage('completed-transports');
-            }
-            
             ToastNotifications.success(`Transport for ${r.patient} completed successfully!`);
+            // Navigate to completed transports page (this will refresh data)
+            await SessionManager.navigateToPage('completed-transports');
         });
     }
 }
@@ -1912,7 +1932,9 @@ function renderCompletedTransports() {
     if (!tbody) return;
 
     try {
-        const completed = appState.requests.filter((r) => r.status === 'completed');
+        const completed = [...appState.requests]
+            .filter((r) => r.status === 'completed')
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Newest first
 
         // Update dynamic stats with error handling
         try {
@@ -1922,7 +1944,7 @@ function renderCompletedTransports() {
         }
 
         if (completed.length === 0) {
-            // Show empty state with proper messaging
+            // ... (keep empty state logic)
             tbody.innerHTML = `
                 <tr class="empty-row">
                     <td colspan="8">
@@ -1942,7 +1964,7 @@ function renderCompletedTransports() {
         const html = completed
             .map(
                 (t) => {
-                    const priorityClass = `priority-${t.priority.toLowerCase()}`;
+                    const priorityClass = `priority-${(t.priority || 'Medium').toLowerCase()}`;
                     return `
         <tr>
             <td><span class="request-id">${escapeHtml(t.id)}</span></td>
@@ -1999,7 +2021,7 @@ function updateCompletedTransportStats(completed) {
         const latestTimeEl = document.getElementById('stat-latest-time');
         if (latestPatientEl && latestTimeEl) {
             if (completed.length > 0) {
-                const latest = completed[completed.length - 1];
+                const latest = completed[0];
                 latestPatientEl.textContent = latest.patient || '—';
                 const dateStr = latest.completedDate || '';
                 const timeStr = latest.completedTime || '';
@@ -2918,13 +2940,14 @@ const DynamicRenderer = {
     // Async refresh: fetches live data from backend, then re-renders
     refreshAsync: async function() {
         try {
-            const store = window.NexCareStore;
-            if (!store) return;
-            const requests = await store.listAllAmbulanceRequests() || [];
+            const api = window.NexCareAPI;
+            if (!api || !api.Ambulance) return;
+            const res = await api.Ambulance.getAllRequests();
+            const requests = (res && res.data) || [];
             const stats = {
                 pending:   requests.filter(r => r.status && r.status.toLowerCase() === 'pending').length,
-                assigned:  requests.filter(r => r.status && r.status.toLowerCase() === 'assigned').length,
-                active:    requests.filter(r => r.status && (r.status.toLowerCase() === 'dispatched' || r.status.toLowerCase() === 'active')).length,
+                assigned:  requests.filter(r => r.status && r.status.toLowerCase() === 'dispatched').length,
+                active:    requests.filter(r => r.status && ['en route', 'picked up', 'at hospital'].includes(r.status.toLowerCase())).length,
                 completed: requests.filter(r => r.status && r.status.toLowerCase() === 'completed').length
             };
             // Re-render with live data
@@ -3005,8 +3028,12 @@ const DynamicRenderer = {
             return;
         }
         
-        // Generate table rows dynamically
-        data.requests.slice(0, 10).forEach((request, index) => { // Show last 10
+        // Generate table rows dynamically (Sorted newest first)
+        const sortedRequests = [...data.requests]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 10);
+
+        sortedRequests.forEach((request, index) => {
             const row = this.createRequestRow(request);
             tbody.appendChild(row);
             
@@ -3031,9 +3058,9 @@ const DynamicRenderer = {
         
         row.innerHTML = `
             <td>${request.id}</td>
-            <td>${request.patientName || 'Emergency Request'}</td>
-            <td>${request.pickupLocation}</td>
-            <td>${new Date(request.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+            <td>${request.patient || 'Emergency Request'}</td>
+            <td>${request.location || 'Unknown Location'}</td>
+            <td>${request.time || '12:00 PM'}</td>
             <td>${this.createPriorityBadge(request.priority || 'high')}</td>
             <td>${this.createStatusBadge(request.status)}</td>
         `;
@@ -3180,13 +3207,12 @@ const DynamicRenderer = {
     // Delete request (admin only)
     deleteRequest: function(requestId) {
         if (confirm(`Are you sure you want to delete request ${requestId}?`)) {
-            const store = window.NexCareStore;
-            if (store) {
-                store.deleteAmbulanceRequest(requestId);
+            if (window.NexCareAPI && window.NexCareAPI.Ambulance) {
+                window.NexCareAPI.Ambulance.cancelRequest(requestId);
                 this.refreshData();
                 SessionManager.showNotification(`Request ${requestId} deleted`, 'success');
             } else {
-                SessionManager.showNotification('Store not initialized', 'error');
+                SessionManager.showNotification('API not initialized', 'error');
             }
         }
     },

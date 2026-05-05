@@ -5,6 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppointmentsService = void 0;
 const common_1 = require("@nestjs/common");
@@ -12,8 +15,10 @@ const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
 const array_util_1 = require("../common/utils/array.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
+const system_service_1 = require("../system/system.service");
 let AppointmentsService = class AppointmentsService {
-    constructor() {
+    constructor(systemService) {
+        this.systemService = systemService;
         this.appointments = [
             {
                 id: 'APT-001',
@@ -165,6 +170,13 @@ let AppointmentsService = class AppointmentsService {
                 updatedAt: new Date().toISOString()
             };
             this.appointments.push(newAppointment);
+            this.systemService.createActivity({
+                userId: newAppointment.patientId,
+                action: 'Create',
+                details: `New appointment scheduled for ${newAppointment.patientName} with ${newAppointment.doctor}`,
+                module: 'Appointments',
+                severity: 'INFO'
+            });
             return response_util_1.ResponseUtil.created('Appointment created successfully', newAppointment);
         }
         catch (error) {
@@ -181,9 +193,13 @@ let AppointmentsService = class AppointmentsService {
                 ...updateData,
                 updatedAt: new Date().toISOString()
             });
-            if (!updatedAppointment) {
-                return response_util_1.ResponseUtil.notFound('Appointment', id);
-            }
+            this.systemService.createActivity({
+                userId: 'System',
+                action: 'Update',
+                details: `Appointment ${id} details updated`,
+                module: 'Appointments',
+                severity: 'INFO'
+            });
             return response_util_1.ResponseUtil.updated('Appointment updated successfully', updatedAppointment);
         }
         catch (error) {
@@ -196,7 +212,15 @@ let AppointmentsService = class AppointmentsService {
             if (appointmentIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Appointment', id);
             }
+            const appointment = this.appointments[appointmentIndex];
             this.appointments.splice(appointmentIndex, 1);
+            this.systemService.createActivity({
+                userId: appointment.patientId,
+                action: 'Delete',
+                details: `Appointment deleted: ${id}`,
+                module: 'Appointments',
+                severity: 'WARNING'
+            });
             return response_util_1.ResponseUtil.deleted('Appointment');
         }
         catch (error) {
@@ -212,6 +236,13 @@ let AppointmentsService = class AppointmentsService {
             this.appointments[appointmentIndex].status = api_response_interface_1.AppointmentStatus.CONFIRMED;
             this.appointments[appointmentIndex].updatedAt = new Date().toISOString();
             const updatedAppointment = this.appointments[appointmentIndex];
+            this.systemService.createActivity({
+                userId: 'Admin',
+                action: 'Confirm',
+                details: `Appointment ${id} confirmed for ${updatedAppointment.patientName}`,
+                module: 'Appointments',
+                severity: 'SUCCESS'
+            });
             return response_util_1.ResponseUtil.updated('Appointment confirmed successfully', updatedAppointment);
         }
         catch (error) {
@@ -227,6 +258,13 @@ let AppointmentsService = class AppointmentsService {
             this.appointments[appointmentIndex].status = api_response_interface_1.AppointmentStatus.COMPLETED;
             this.appointments[appointmentIndex].updatedAt = new Date().toISOString();
             const updatedAppointment = this.appointments[appointmentIndex];
+            this.systemService.createActivity({
+                userId: 'Admin',
+                action: 'Complete',
+                details: `Appointment ${id} marked as completed for ${updatedAppointment.patientName}`,
+                module: 'Appointments',
+                severity: 'SUCCESS'
+            });
             return response_util_1.ResponseUtil.updated('Appointment completed successfully', updatedAppointment);
         }
         catch (error) {
@@ -242,6 +280,13 @@ let AppointmentsService = class AppointmentsService {
             this.appointments[appointmentIndex].status = api_response_interface_1.AppointmentStatus.CANCELLED;
             this.appointments[appointmentIndex].updatedAt = new Date().toISOString();
             const updatedAppointment = this.appointments[appointmentIndex];
+            this.systemService.createActivity({
+                userId: updatedAppointment.patientId,
+                action: 'Cancel',
+                details: `Appointment ${id} cancelled`,
+                module: 'Appointments',
+                severity: 'WARNING'
+            });
             return response_util_1.ResponseUtil.updated('Appointment cancelled successfully', updatedAppointment);
         }
         catch (error) {
@@ -314,6 +359,7 @@ let AppointmentsService = class AppointmentsService {
 };
 exports.AppointmentsService = AppointmentsService;
 exports.AppointmentsService = AppointmentsService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [system_service_1.SystemService])
 ], AppointmentsService);
 //# sourceMappingURL=appointments.service.js.map

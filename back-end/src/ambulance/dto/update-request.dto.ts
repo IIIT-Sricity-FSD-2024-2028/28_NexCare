@@ -1,5 +1,5 @@
 import { AmbulanceStatus } from '../../common/interfaces/api-response.interface';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsNumber } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
@@ -31,4 +31,19 @@ export class UpdateAmbulanceRequestDto {
   @IsOptional()
   @IsString()
   assignedTo?: string;
+
+  @ApiPropertyOptional({ example: 0, description: 'Current step index in transport' })
+  @IsOptional()
+  @IsNumber()
+  stepIndex?: number;
+
+  @ApiPropertyOptional({ example: 'May 5, 2026', description: 'Date the transport was completed' })
+  @IsOptional()
+  @IsString()
+  completedDate?: string;
+
+  @ApiPropertyOptional({ example: '10:30 AM', description: 'Time the transport was completed' })
+  @IsOptional()
+  @IsString()
+  completedTime?: string;
 }

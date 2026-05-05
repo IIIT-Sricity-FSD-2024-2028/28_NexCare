@@ -5,6 +5,8 @@ import { ArrayUtil } from '../common/utils/array.util';
 import { Feedback, CreateFeedbackRequest, UpdateFeedbackRequest, FeedbackStats } from './interfaces/feedback.interface';
 import { FeedbackStatus } from '../common/interfaces/api-response.interface';
 
+import { SystemService } from '../system/system.service';
+
 /**
  * Feedback Service
  * Manages communication and feedback system in the NexCare system
@@ -12,6 +14,8 @@ import { FeedbackStatus } from '../common/interfaces/api-response.interface';
  */
 @Injectable()
 export class FeedbackService {
+  constructor(private readonly systemService: SystemService) {}
+
   // In-memory mock feedback database (aligned with frontend db.js)
   private feedback: Feedback[] = [
     {
@@ -136,6 +140,15 @@ export class FeedbackService {
       // Add to feedback array
       this.feedback.push(newFeedback);
 
+      // Log activity
+      this.systemService.createActivity({
+        userId: feedbackData.patientId,
+        action: 'Submit',
+        details: `${newFeedback.type} feedback ${newFeedbackId} submitted: ${newFeedback.subject}`,
+        module: 'Feedback',
+        severity: newFeedback.rating <= 2 ? 'WARNING' : 'INFO'
+      });
+
       return ResponseUtil.created('Feedback created successfully', newFeedback);
     } catch (error) {
       return ResponseUtil.serverError('Failed to create feedback');
@@ -170,6 +183,15 @@ export class FeedbackService {
 
       this.feedback[feedbackIndex] = updatedFeedback;
 
+      // Log activity
+      this.systemService.createActivity({
+        userId: 'System',
+        action: 'Update',
+        details: `Feedback ${id} updated`,
+        module: 'Feedback',
+        severity: 'INFO'
+      });
+
       return ResponseUtil.updated('Feedback updated successfully', updatedFeedback);
     } catch (error) {
       return ResponseUtil.serverError('Failed to update feedback');
@@ -191,6 +213,15 @@ export class FeedbackService {
 
       // Remove feedback
       this.feedback.splice(feedbackIndex, 1);
+
+      // Log activity
+      this.systemService.createActivity({
+        userId: 'Admin',
+        action: 'Delete',
+        details: `Feedback ${id} deleted`,
+        module: 'Feedback',
+        severity: 'WARNING'
+      });
 
       return ResponseUtil.deleted('Feedback');
     } catch (error) {
@@ -316,6 +347,15 @@ export class FeedbackService {
       this.feedback[feedbackIndex].updatedAt = new Date().toISOString();
 
       const updatedFeedback = this.feedback[feedbackIndex];
+
+      // Log activity
+      this.systemService.createActivity({
+        userId: 'Admin',
+        action: 'Resolve',
+        details: `Feedback ${id} status updated to ${status}`,
+        module: 'Feedback',
+        severity: status === FeedbackStatus.RESOLVED ? 'SUCCESS' : 'INFO'
+      });
 
       return ResponseUtil.updated('Feedback status updated successfully', updatedFeedback);
     } catch (error) {

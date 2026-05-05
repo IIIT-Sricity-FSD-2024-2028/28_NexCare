@@ -10,12 +10,16 @@ export interface AmbulanceRequest {
     assignedTo?: string;
     createdAt: string;
     updatedAt?: string;
+    stepIndex?: number;
+    completedDate?: string;
+    completedTime?: string;
 }
 export interface CreateAmbulanceRequest {
     patientId: string;
     pickupLocation: string;
     contact: string;
     notes?: string;
+    patientName?: string;
 }
 export interface UpdateAmbulanceRequest {
     pickupLocation?: string;

@@ -10,11 +10,13 @@ exports.AppointmentsModule = void 0;
 const common_1 = require("@nestjs/common");
 const appointments_controller_1 = require("./appointments.controller");
 const appointments_service_1 = require("./appointments.service");
+const system_module_1 = require("../system/system.module");
 let AppointmentsModule = class AppointmentsModule {
 };
 exports.AppointmentsModule = AppointmentsModule;
 exports.AppointmentsModule = AppointmentsModule = __decorate([
     (0, common_1.Module)({
+        imports: [system_module_1.SystemModule],
         controllers: [appointments_controller_1.AppointmentsController],
         providers: [appointments_service_1.AppointmentsService],
         exports: [appointments_service_1.AppointmentsService],

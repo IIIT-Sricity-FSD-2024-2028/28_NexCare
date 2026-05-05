@@ -5,14 +5,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AmbulanceService = void 0;
 const common_1 = require("@nestjs/common");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
+const system_service_1 = require("../system/system.service");
 let AmbulanceService = class AmbulanceService {
-    constructor() {
+    constructor(systemService) {
+        this.systemService = systemService;
         this.ambulanceRequests = [
             {
                 id: 'AMB-001',
@@ -73,7 +78,7 @@ let AmbulanceService = class AmbulanceService {
             const newRequest = {
                 id: newRequestId,
                 patientId: requestData.patientId,
-                patientName: `Patient ${requestData.patientId}`,
+                patientName: requestData.patientName || `Patient ${requestData.patientId}`,
                 pickupLocation: requestData.pickupLocation,
                 contact: requestData.contact,
                 notes: requestData.notes || '',
@@ -82,6 +87,13 @@ let AmbulanceService = class AmbulanceService {
                 updatedAt: new Date().toISOString()
             };
             this.ambulanceRequests.push(newRequest);
+            this.systemService.createActivity({
+                userId: requestData.patientId,
+                action: 'Create',
+                details: `Ambulance request ${newRequestId} created for ${newRequest.patientName}`,
+                module: 'Ambulance',
+                severity: 'INFO'
+            });
             return response_util_1.ResponseUtil.created('Ambulance request created successfully', newRequest);
         }
         catch (error) {
@@ -100,6 +112,16 @@ let AmbulanceService = class AmbulanceService {
                 updatedAt: new Date().toISOString()
             };
             this.ambulanceRequests[requestIndex] = updatedRequest;
+            const isCompleted = updateData.status === api_response_interface_1.AmbulanceStatus.COMPLETED;
+            this.systemService.createActivity({
+                userId: updatedRequest.assignedTo || 'System',
+                action: isCompleted ? 'Complete' : 'Update',
+                details: isCompleted
+                    ? `Ambulance transport ${id} completed for ${updatedRequest.patientName}`
+                    : `Ambulance request ${id} updated to ${updatedRequest.status}`,
+                module: 'Ambulance',
+                severity: isCompleted ? 'SUCCESS' : 'INFO'
+            });
             return response_util_1.ResponseUtil.updated('Ambulance request updated successfully', updatedRequest);
         }
         catch (error) {
@@ -117,7 +139,14 @@ let AmbulanceService = class AmbulanceService {
                 return response_util_1.ResponseUtil.error('Cannot delete completed ambulance requests');
             }
             this.ambulanceRequests.splice(requestIndex, 1);
-            return response_util_1.ResponseUtil.deleted('Ambulance request');
+            this.systemService.createActivity({
+                userId: 'Admin',
+                action: 'Delete',
+                details: `Ambulance request ${id} deleted`,
+                module: 'Ambulance',
+                severity: 'WARNING'
+            });
+            return response_util_1.ResponseUtil.success('Ambulance request deleted successfully');
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to delete ambulance request');
@@ -256,6 +285,7 @@ let AmbulanceService = class AmbulanceService {
 };
 exports.AmbulanceService = AmbulanceService;
 exports.AmbulanceService = AmbulanceService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [system_service_1.SystemService])
 ], AmbulanceService);
 //# sourceMappingURL=ambulance.service.js.map

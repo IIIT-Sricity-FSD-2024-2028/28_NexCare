@@ -5,6 +5,8 @@ import { ArrayUtil } from '../common/utils/array.util';
 import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest, AppointmentStats } from './interfaces/appointment.interface';
 import { AppointmentStatus } from '../common/interfaces/api-response.interface';
 
+import { SystemService } from '../system/system.service';
+
 /**
  * Appointments Service
  * Manages appointment scheduling and status tracking in the NexCare system
@@ -12,6 +14,8 @@ import { AppointmentStatus } from '../common/interfaces/api-response.interface';
  */
 @Injectable()
 export class AppointmentsService {
+  constructor(private readonly systemService: SystemService) {}
+
   // In-memory mock appointments database (aligned with frontend db.js)
   private appointments: Appointment[] = [
     {
@@ -198,6 +202,15 @@ export class AppointmentsService {
       // Add to appointments array
       this.appointments.push(newAppointment);
 
+      // Log activity
+      this.systemService.createActivity({
+        userId: newAppointment.patientId,
+        action: 'Create',
+        details: `New appointment scheduled for ${newAppointment.patientName} with ${newAppointment.doctor}`,
+        module: 'Appointments',
+        severity: 'INFO'
+      });
+
       return ResponseUtil.created('Appointment created successfully', newAppointment);
     } catch (error) {
       return ResponseUtil.serverError('Failed to create appointment');
@@ -224,9 +237,14 @@ export class AppointmentsService {
         updatedAt: new Date().toISOString()
       });
 
-      if (!updatedAppointment) {
-        return ResponseUtil.notFound('Appointment', id);
-      }
+      // Log activity
+      this.systemService.createActivity({
+        userId: 'System',
+        action: 'Update',
+        details: `Appointment ${id} details updated`,
+        module: 'Appointments',
+        severity: 'INFO'
+      });
 
       return ResponseUtil.updated('Appointment updated successfully', updatedAppointment);
     } catch (error) {
@@ -247,8 +265,19 @@ export class AppointmentsService {
         return ResponseUtil.notFound('Appointment', id);
       }
 
+      const appointment = this.appointments[appointmentIndex];
+
       // Remove appointment
       this.appointments.splice(appointmentIndex, 1);
+
+      // Log activity
+      this.systemService.createActivity({
+        userId: appointment.patientId,
+        action: 'Delete',
+        details: `Appointment deleted: ${id}`,
+        module: 'Appointments',
+        severity: 'WARNING'
+      });
 
       return ResponseUtil.deleted('Appointment');
     } catch (error) {
@@ -275,6 +304,15 @@ export class AppointmentsService {
 
       const updatedAppointment = this.appointments[appointmentIndex];
 
+      // Log activity
+      this.systemService.createActivity({
+        userId: 'Admin',
+        action: 'Confirm',
+        details: `Appointment ${id} confirmed for ${updatedAppointment.patientName}`,
+        module: 'Appointments',
+        severity: 'SUCCESS'
+      });
+
       return ResponseUtil.updated('Appointment confirmed successfully', updatedAppointment);
     } catch (error) {
       return ResponseUtil.serverError('Failed to confirm appointment');
@@ -300,6 +338,15 @@ export class AppointmentsService {
 
       const updatedAppointment = this.appointments[appointmentIndex];
 
+      // Log activity
+      this.systemService.createActivity({
+        userId: 'Admin',
+        action: 'Complete',
+        details: `Appointment ${id} marked as completed for ${updatedAppointment.patientName}`,
+        module: 'Appointments',
+        severity: 'SUCCESS'
+      });
+
       return ResponseUtil.updated('Appointment completed successfully', updatedAppointment);
     } catch (error) {
       return ResponseUtil.serverError('Failed to complete appointment');
@@ -324,6 +371,15 @@ export class AppointmentsService {
       this.appointments[appointmentIndex].updatedAt = new Date().toISOString();
 
       const updatedAppointment = this.appointments[appointmentIndex];
+
+      // Log activity
+      this.systemService.createActivity({
+        userId: updatedAppointment.patientId,
+        action: 'Cancel',
+        details: `Appointment ${id} cancelled`,
+        module: 'Appointments',
+        severity: 'WARNING'
+      });
 
       return ResponseUtil.updated('Appointment cancelled successfully', updatedAppointment);
     } catch (error) {

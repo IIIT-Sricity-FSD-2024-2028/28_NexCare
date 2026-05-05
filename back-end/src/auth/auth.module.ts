@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { SystemModule } from '../system/system.module';
 
 /**
  * Authentication Module
@@ -8,6 +9,7 @@ import { AuthService } from './auth.service';
  * Provides services for login, registration, and user session tracking
  */
 @Module({
+  imports: [SystemModule],
   controllers: [AuthController],
   providers: [AuthService],
   exports: [AuthService],

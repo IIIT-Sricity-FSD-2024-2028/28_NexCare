@@ -15,6 +15,9 @@ export interface AmbulanceRequest {
   assignedTo?: string;
   createdAt: string;
   updatedAt?: string;
+  stepIndex?: number;
+  completedDate?: string;
+  completedTime?: string;
 }
 
 /**
@@ -25,6 +28,7 @@ export interface CreateAmbulanceRequest {
   pickupLocation: string;
   contact: string;
   notes?: string;
+  patientName?: string;
 }
 
 /**

@@ -5,14 +5,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FeedbackService = void 0;
 const common_1 = require("@nestjs/common");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
+const system_service_1 = require("../system/system.service");
 let FeedbackService = class FeedbackService {
-    constructor() {
+    constructor(systemService) {
+        this.systemService = systemService;
         this.feedback = [
             {
                 id: 'FB-001',
@@ -102,6 +107,13 @@ let FeedbackService = class FeedbackService {
                 updatedAt: new Date().toISOString()
             };
             this.feedback.push(newFeedback);
+            this.systemService.createActivity({
+                userId: feedbackData.patientId,
+                action: 'Submit',
+                details: `${newFeedback.type} feedback ${newFeedbackId} submitted: ${newFeedback.subject}`,
+                module: 'Feedback',
+                severity: newFeedback.rating <= 2 ? 'WARNING' : 'INFO'
+            });
             return response_util_1.ResponseUtil.created('Feedback created successfully', newFeedback);
         }
         catch (error) {
@@ -123,6 +135,13 @@ let FeedbackService = class FeedbackService {
                 updatedAt: new Date().toISOString()
             };
             this.feedback[feedbackIndex] = updatedFeedback;
+            this.systemService.createActivity({
+                userId: 'System',
+                action: 'Update',
+                details: `Feedback ${id} updated`,
+                module: 'Feedback',
+                severity: 'INFO'
+            });
             return response_util_1.ResponseUtil.updated('Feedback updated successfully', updatedFeedback);
         }
         catch (error) {
@@ -136,6 +155,13 @@ let FeedbackService = class FeedbackService {
                 return response_util_1.ResponseUtil.notFound('Feedback', id);
             }
             this.feedback.splice(feedbackIndex, 1);
+            this.systemService.createActivity({
+                userId: 'Admin',
+                action: 'Delete',
+                details: `Feedback ${id} deleted`,
+                module: 'Feedback',
+                severity: 'WARNING'
+            });
             return response_util_1.ResponseUtil.deleted('Feedback');
         }
         catch (error) {
@@ -217,6 +243,13 @@ let FeedbackService = class FeedbackService {
             this.feedback[feedbackIndex].status = status;
             this.feedback[feedbackIndex].updatedAt = new Date().toISOString();
             const updatedFeedback = this.feedback[feedbackIndex];
+            this.systemService.createActivity({
+                userId: 'Admin',
+                action: 'Resolve',
+                details: `Feedback ${id} status updated to ${status}`,
+                module: 'Feedback',
+                severity: status === api_response_interface_1.FeedbackStatus.RESOLVED ? 'SUCCESS' : 'INFO'
+            });
             return response_util_1.ResponseUtil.updated('Feedback status updated successfully', updatedFeedback);
         }
         catch (error) {
@@ -244,6 +277,7 @@ let FeedbackService = class FeedbackService {
 };
 exports.FeedbackService = FeedbackService;
 exports.FeedbackService = FeedbackService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [system_service_1.SystemService])
 ], FeedbackService);
 //# sourceMappingURL=feedback.service.js.map

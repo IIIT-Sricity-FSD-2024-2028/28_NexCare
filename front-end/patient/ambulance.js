@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     renderAmbulanceRequests();
 
+    const tbody = document.querySelector('.status-table tbody');
     if (tbody) {
         tbody.addEventListener('click', handleAmbulanceTableClick);
     }
@@ -74,8 +75,26 @@ function handleAmbulanceRequest(e) {
                 // Create request in shared store (Create)
                 
                 const patientId = getPatientIdFromToken() || 'P001';
+                
+                let patientName = 'Unknown Patient';
+                try {
+                    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+                    if (token) {
+                        const payload = JSON.parse(decodeURIComponent(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+                        patientName = payload.name || payload.email.split('@')[0];
+                    }
+                    if (patientName === 'Unknown Patient') {
+                        const blob = sessionStorage.getItem('nexcare_user_data');
+                        if (blob) {
+                            const user = JSON.parse(blob);
+                            patientName = user.name || user.email.split('@')[0];
+                        }
+                    }
+                } catch(e) {}
+                
                 window.NexCareAPI.Ambulance.createRequest({
                     patientId: patientId,
+                    patientName: patientName,
                     pickupLocation: location,
                     contact: contact,
                     notes: notes || ''
@@ -123,7 +142,11 @@ async function renderAmbulanceRequests() {
     function badge(status) {
         if (status === 'Completed') return 'badge-completed';
         if (status === 'Pending') return 'badge-pending';
-        if (status === 'Canceled') return 'badge-canceled';
+        if (status === 'Canceled' || status === 'Cancelled') return 'badge-canceled';
+        if (status === 'Dispatched') return 'badge-dispatched';
+        if (status === 'En Route') return 'badge-enroute';
+        if (status === 'Picked Up') return 'badge-pickedup';
+        if (status === 'At Hospital') return 'badge-athospital';
         return 'badge-gray';
     }
 
@@ -150,7 +173,9 @@ async function renderAmbulanceRequests() {
             <td>
                 ${r.status === 'Pending'
                     ? `<button type="button" class="btn-primary-sm" data-action="cancel">Cancel</button>`
-                    : `<button type="button" class="btn-outline-sm" data-action="delete">Delete</button>`
+                    : (r.status === 'Completed' || r.status === 'Canceled' || r.status === 'Cancelled')
+                        ? `<button type="button" class="btn-outline-sm" data-action="delete">Delete</button>`
+                        : `<span class="badge badge-gray" style="font-size:11px;">In Progress</span>`
                 }
             </td>
         </tr>
