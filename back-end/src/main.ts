@@ -1,41 +1,114 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe, BadRequestException } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { ResponseUtil } from './common/utils/response.util';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 /**
  * Bootstrap function
  * Initializes and starts the NestJS application
- * Configures global pipes, CORS, and middleware
+ * Configures global pipes, CORS, Swagger, and middleware
  */
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // ─── CORS ─────────────────────────────────────────────────────────────────
-  // Allow ALL origins — this is intentional for the evaluation environment.
-  // The backend enforces security via JWT tokens, not CORS.
-  // Restricting CORS here would break access from any non-whitelisted IP/port,
-  // which is unpredictable during evaluation demos.
   app.enableCors({
-    origin: true,   // reflect any Origin header back (allows all)
+    origin: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-user-role'],
     credentials: true,
   });
-
-  // Note: Validation should be handled in service layer, not in DTOs
-  // DTOs are simple data transfer objects - no validation decorators
-  // Validation logic should be separate from data transfer
 
   // Global prefix for all routes
   app.setGlobalPrefix('api');
 
+  // ─── Global Validation Pipe ────────────────────────────────────────────────
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+      exceptionFactory: (errors) => {
+        const errorMessages = errors.map((error) => ({
+          field: error.property,
+          messages: Object.values(error.constraints || {}),
+        }));
+        throw new BadRequestException({
+          message: 'Validation failed',
+          errors: errorMessages,
+        });
+      },
+    }),
+  );
+
+  // ─── Global Exception Filter ──────────────────────────────────────────────
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  // ─── Swagger Documentation ────────────────────────────────────────────────
+  const config = new DocumentBuilder()
+    .setTitle('NexCare Hospital Management API')
+    .setDescription(
+      'Complete REST API for the NexCare Hospital Administrative Operations Platform. ' +
+      'Features role-based access control (RBAC), JWT authentication, and comprehensive ' +
+      'modules for patients, appointments, billing, beds, ambulance, inventory, feedback, and system management.',
+    )
+    .setVersion('1.0.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Enter your JWT token',
+      },
+      'JWT-auth',
+    )
+    .addApiKey(
+      {
+        type: 'apiKey',
+        in: 'header',
+        name: 'x-user-role',
+        description: 'User role for RBAC (superuser, administrative_staff, patient, ambulance, doctor, nurse)',
+      },
+      'x-user-role',
+    )
+    .addServer(
+      process.env.API_URL || `http://localhost:${process.env.PORT || 3001}`,
+      'Local Server',
+    )
+    .addTag('Auth', 'Authentication & session management')
+    .addTag('Users', 'User account management (Admin)')
+    .addTag('Patients', 'Patient records & profiles')
+    .addTag('Appointments', 'Appointment scheduling & tracking')
+    .addTag('Billing', 'Financial operations & bill management')
+    .addTag('Beds', 'Bed allocation & ward management')
+    .addTag('Ambulance', 'Emergency services & ambulance requests')
+    .addTag('Inventory', 'Supply chain & inventory tracking')
+    .addTag('Feedback', 'Communication & feedback system')
+    .addTag('System', 'Audit logs & system configuration')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayOperationId: true,
+      docExpansion: 'none',
+      filter: true,
+      tagsSorter: 'alpha',
+    },
+    customCss: '.topbar { display: none }',
+    customSiteTitle: 'NexCare API Documentation',
+  });
+
   // ─── Binding ──────────────────────────────────────────────────────────────
-  // Bind to 0.0.0.0 so the backend is reachable on ALL network interfaces:
-  //   localhost, 127.0.0.1, WSL bridge IP, LAN IP, etc.
   const port = process.env.PORT || 3001;
   await app.listen(port, '0.0.0.0');
 
-  // Show all accessible URLs (helps evaluator know where to connect)
+  // Show all accessible URLs
   const { networkInterfaces } = require('os');
   const nets = networkInterfaces();
   const ips: string[] = ['localhost'];
@@ -50,7 +123,7 @@ async function bootstrap() {
   console.log(`\n🚀 NexCare Backend API is running on port ${port}`);
   console.log(`📡 Accessible at:`);
   ips.forEach(ip => console.log(`   http://${ip}:${port}/api`));
-  console.log(`📚 API Docs: http://localhost:${port}/api/docs`);
+  console.log(`📚 Swagger Docs: http://localhost:${port}/api/docs`);
   console.log(`🏥 NexCare Hospital Management System\n`);
 }
 

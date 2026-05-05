@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const users_service_1 = require("./users.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
 const update_user_dto_1 = require("./dto/update-user.dto");
@@ -58,6 +59,10 @@ exports.UsersController = UsersController;
 __decorate([
     (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all users' }),
+    (0, swagger_1.ApiQuery)({ name: 'role', required: false, enum: api_response_interface_1.UserRole }),
+    (0, swagger_1.ApiQuery)({ name: 'status', required: false }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of users' }),
     __param(0, (0, common_1.Query)('role')),
     __param(1, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
@@ -66,6 +71,8 @@ __decorate([
 ], UsersController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a new user' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'User created successfully' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
@@ -73,12 +80,16 @@ __decorate([
 ], UsersController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)('stats/overview'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get user statistics' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User statistics retrieved successfully' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('role/:role'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get users by role' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Users retrieved successfully' }),
     __param(0, (0, common_1.Param)('role')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -86,6 +97,8 @@ __decorate([
 ], UsersController.prototype, "findByRole", null);
 __decorate([
     (0, common_1.Get)('search/:query'),
+    (0, swagger_1.ApiOperation)({ summary: 'Search users' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Search results' }),
     __param(0, (0, common_1.Param)('query')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -93,6 +106,9 @@ __decorate([
 ], UsersController.prototype, "search", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get user by ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User retrieved successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'User not found' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -100,6 +116,9 @@ __decorate([
 ], UsersController.prototype, "findById", null);
 __decorate([
     (0, common_1.Put)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update user' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User updated successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'User not found' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -108,6 +127,9 @@ __decorate([
 ], UsersController.prototype, "update", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Partial update user' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User updated successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'User not found' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -116,6 +138,9 @@ __decorate([
 ], UsersController.prototype, "patchUpdate", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete user' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User deleted successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'User not found' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -123,6 +148,9 @@ __decorate([
 ], UsersController.prototype, "delete", null);
 __decorate([
     (0, common_1.Patch)(':id/status'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update user status' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User status updated successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'User not found' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)('status')),
     __metadata("design:type", Function),
@@ -130,6 +158,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateStatus", null);
 exports.UsersController = UsersController = __decorate([
+    (0, swagger_1.ApiTags)('Users'),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])

@@ -1,6 +1,7 @@
 import { BillingService } from './billing.service';
 import { CreateBillDto } from './dto/create-bill.dto';
 import { UpdateBillDto } from './dto/update-bill.dto';
+import { ProcessPaymentDto } from './dto/process-payment.dto';
 export declare class BillingController {
     private readonly billingService;
     constructor(billingService: BillingService);
@@ -14,5 +15,5 @@ export declare class BillingController {
     update(id: string, updateBillDto: UpdateBillDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     patchUpdate(id: string, updateBillDto: UpdateBillDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     delete(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
-    processPayment(id: string, amount: number, method: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    processPayment(id: string, processPaymentDto: ProcessPaymentDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
 }

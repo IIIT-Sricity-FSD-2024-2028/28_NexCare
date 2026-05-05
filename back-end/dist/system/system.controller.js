@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SystemController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const system_service_1 = require("./system.service");
 const create_activity_dto_1 = require("./dto/create-activity.dto");
 const update_settings_dto_1 = require("./dto/update-settings.dto");
@@ -66,6 +67,11 @@ let SystemController = class SystemController {
 exports.SystemController = SystemController;
 __decorate([
     (0, common_1.Get)('activity'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get system audit logs' }),
+    (0, swagger_1.ApiQuery)({ name: 'userId', required: false }),
+    (0, swagger_1.ApiQuery)({ name: 'module', required: false }),
+    (0, swagger_1.ApiQuery)({ name: 'severity', required: false }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of audit logs' }),
     __param(0, (0, common_1.Query)('userId')),
     __param(1, (0, common_1.Query)('module')),
     __param(2, (0, common_1.Query)('severity')),
@@ -75,6 +81,8 @@ __decorate([
 ], SystemController.prototype, "findAllActivity", null);
 __decorate([
     (0, common_1.Post)('activity'),
+    (0, swagger_1.ApiOperation)({ summary: 'Log a new system activity' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Activity logged successfully' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_activity_dto_1.CreateSystemActivityDto]),
@@ -82,6 +90,9 @@ __decorate([
 ], SystemController.prototype, "createActivity", null);
 __decorate([
     (0, common_1.Get)('settings'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all system settings' }),
+    (0, swagger_1.ApiQuery)({ name: 'category', required: false }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of system settings' }),
     __param(0, (0, common_1.Query)('category')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -89,6 +100,8 @@ __decorate([
 ], SystemController.prototype, "findAllSettings", null);
 __decorate([
     (0, common_1.Get)('settings/key/:key'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get system setting by key' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'System setting retrieved' }),
     __param(0, (0, common_1.Param)('key')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -96,12 +109,18 @@ __decorate([
 ], SystemController.prototype, "findSettingByKey", null);
 __decorate([
     (0, common_1.Get)('stats'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get system statistics' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'System statistics retrieved' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], SystemController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('activity/date-range'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get activities by date range' }),
+    (0, swagger_1.ApiQuery)({ name: 'startDate', type: String }),
+    (0, swagger_1.ApiQuery)({ name: 'endDate', type: String }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Activities retrieved' }),
     __param(0, (0, common_1.Query)('startDate')),
     __param(1, (0, common_1.Query)('endDate')),
     __metadata("design:type", Function),
@@ -110,6 +129,8 @@ __decorate([
 ], SystemController.prototype, "getActivitiesByDateRange", null);
 __decorate([
     (0, common_1.Get)('activity/user/:userId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get activities by user ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User activities retrieved' }),
     __param(0, (0, common_1.Param)('userId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -117,6 +138,9 @@ __decorate([
 ], SystemController.prototype, "getActivitiesByUser", null);
 __decorate([
     (0, common_1.Get)('activity/recent'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get recent activities' }),
+    (0, swagger_1.ApiQuery)({ name: 'limit', type: Number, required: false }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Recent activities retrieved' }),
     __param(0, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -124,6 +148,8 @@ __decorate([
 ], SystemController.prototype, "getRecentActivities", null);
 __decorate([
     (0, common_1.Get)('settings/category/:category'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get settings by category' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Category settings retrieved' }),
     __param(0, (0, common_1.Param)('category')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -131,6 +157,8 @@ __decorate([
 ], SystemController.prototype, "getSettingsByCategory", null);
 __decorate([
     (0, common_1.Get)('activity/search/:query'),
+    (0, swagger_1.ApiOperation)({ summary: 'Search system activities' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Search results' }),
     __param(0, (0, common_1.Param)('query')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -138,6 +166,8 @@ __decorate([
 ], SystemController.prototype, "searchActivities", null);
 __decorate([
     (0, common_1.Get)('activity/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get activity by ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Activity details retrieved' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -145,6 +175,8 @@ __decorate([
 ], SystemController.prototype, "findActivityById", null);
 __decorate([
     (0, common_1.Get)('settings/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get setting by ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Setting details retrieved' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -152,6 +184,8 @@ __decorate([
 ], SystemController.prototype, "findSettingById", null);
 __decorate([
     (0, common_1.Put)('settings/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update system setting' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Setting updated successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -159,6 +193,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], SystemController.prototype, "updateSetting", null);
 exports.SystemController = SystemController = __decorate([
+    (0, swagger_1.ApiTags)('System'),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
     (0, common_1.Controller)('system'),
     __metadata("design:paramtypes", [system_service_1.SystemService])

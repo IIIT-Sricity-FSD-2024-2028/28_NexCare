@@ -11,17 +11,20 @@ import {
   HttpCode,
   HttpStatus 
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 import { Roles } from '../common/decorators/roles.decorator';
-import { UserRole } from '../common/interfaces/api-response.interface';
+import { UserRole, FeedbackStatus } from '../common/interfaces/api-response.interface';
 
 /**
  * Feedback Controller
  * Manages communication and feedback system in the NexCare system
  * Provides endpoints for feedback CRUD operations and status management
  */
+@ApiTags('Feedback')
+@ApiBearerAuth('JWT-auth')
 @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
 @Controller('feedback')
 export class FeedbackController {
@@ -29,13 +32,13 @@ export class FeedbackController {
 
   /**
    * Get all feedback with optional filtering
-   * @route GET /feedback
-   * @query patientId Optional patient filter
-   * @query status Optional status filter
-   * @query category Optional category filter
-   * @access Private (Admin/Staff/Patient)
    */
   @Get()
+  @ApiOperation({ summary: 'Get all feedback' })
+  @ApiQuery({ name: 'patientId', required: false })
+  @ApiQuery({ name: 'status', required: false, enum: FeedbackStatus })
+  @ApiQuery({ name: 'category', required: false })
+  @ApiResponse({ status: 200, description: 'List of feedback' })
   async findAll(
     @Query('patientId') patientId?: string,
     @Query('status') status?: string,
@@ -46,120 +49,120 @@ export class FeedbackController {
 
   /**
    * Create new feedback
-   * @route POST /feedback
-   * @access Private (Admin/Staff/Patient)
    */
   @Post()
+  @ApiOperation({ summary: 'Submit new feedback' })
+  @ApiResponse({ status: 201, description: 'Feedback submitted successfully' })
   async create(@Body() createFeedbackDto: CreateFeedbackDto) {
     return this.feedbackService.create(createFeedbackDto as any);
   }
 
   /**
    * Get feedback statistics
-   * @route GET /feedback/stats
-   * @access Private (Admin/Staff)
    */
   @Get('stats/overview')
+  @ApiOperation({ summary: 'Get feedback statistics' })
+  @ApiResponse({ status: 200, description: 'Feedback statistics retrieved' })
   async getStats() {
     return this.feedbackService.getStats();
   }
 
   /**
    * Get feedback by patient
-   * @route GET /feedback/patient/:patientId
-   * @access Private (Admin/Staff/Patient)
    */
   @Get('patient/:patientId')
+  @ApiOperation({ summary: 'Get feedback by patient ID' })
+  @ApiResponse({ status: 200, description: 'Patient feedback retrieved' })
   async findByPatient(@Param('patientId') patientId: string) {
     return this.feedbackService.findByPatient(patientId);
   }
 
   /**
    * Get feedback by category
-   * @route GET /feedback/category/:category
-   * @access Private (Admin/Staff)
    */
   @Get('category/:category')
+  @ApiOperation({ summary: 'Get feedback by category' })
+  @ApiResponse({ status: 200, description: 'Feedback retrieved by category' })
   async findByCategory(@Param('category') category: string) {
     return this.feedbackService.findByCategory(category);
   }
 
   /**
    * Get feedback by rating
-   * @route GET /feedback/rating/:rating
-   * @access Private (Admin/Staff)
    */
   @Get('rating/:rating')
+  @ApiOperation({ summary: 'Get feedback by rating (1-5)' })
+  @ApiResponse({ status: 200, description: 'Feedback retrieved by rating' })
   async findByRating(@Param('rating') rating: number) {
     return this.feedbackService.findByRating(rating);
   }
 
   /**
    * Get unresolved feedback
-   * @route GET /feedback/unresolved
-   * @access Private (Admin/Staff)
    */
   @Get('unresolved')
+  @ApiOperation({ summary: 'Get all unresolved feedback' })
+  @ApiResponse({ status: 200, description: 'Unresolved feedback retrieved' })
   async getUnresolvedFeedback() {
     return this.feedbackService.getUnresolvedFeedback();
   }
 
   /**
    * Get high priority feedback
-   * @route GET /feedback/high-priority
-   * @access Private (Admin/Staff)
    */
   @Get('high-priority')
+  @ApiOperation({ summary: 'Get high priority feedback (low ratings)' })
+  @ApiResponse({ status: 200, description: 'High priority feedback retrieved' })
   async getHighPriorityFeedback() {
     return this.feedbackService.getHighPriorityFeedback();
   }
 
   /**
    * Get feedback by ID
-   * @route GET /feedback/:id
-   * @access Private (Admin/Staff/Patient)
    */
   @Get(':id')
+  @ApiOperation({ summary: 'Get feedback by ID' })
+  @ApiResponse({ status: 200, description: 'Feedback details retrieved' })
   async findById(@Param('id') id: string) {
     return this.feedbackService.findById(id);
   }
 
   /**
    * Update feedback
-   * @route PUT /feedback/:id
-   * @access Private (Admin/Staff)
    */
   @Put(':id')
+  @ApiOperation({ summary: 'Update feedback details' })
+  @ApiResponse({ status: 200, description: 'Feedback updated successfully' })
   async update(@Param('id') id: string, @Body() updateFeedbackDto: UpdateFeedbackDto) {
     return this.feedbackService.update(id, updateFeedbackDto as any);
   }
 
   /**
    * Partial update feedback
-   * @route PATCH /feedback/:id
-   * @access Private (Admin/Staff)
    */
   @Patch(':id')
+  @ApiOperation({ summary: 'Partially update feedback details' })
+  @ApiResponse({ status: 200, description: 'Feedback updated successfully' })
   async patchUpdate(@Param('id') id: string, @Body() updateFeedbackDto: UpdateFeedbackDto) {
     return this.feedbackService.update(id, updateFeedbackDto as any);
   }
 
   /**
    * Delete feedback
-   * @route DELETE /feedback/:id
-   * @access Private (Admin)
    */
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete feedback' })
+  @ApiResponse({ status: 200, description: 'Feedback deleted successfully' })
   async delete(@Param('id') id: string) {
     return this.feedbackService.delete(id);
   }
 
   /**
    * Update feedback status
-   * @route PATCH /feedback/:id/status
-   * @access Private (Admin/Staff)
    */
   @Patch(':id/status')
+  @ApiOperation({ summary: 'Update feedback status' })
+  @ApiResponse({ status: 200, description: 'Feedback status updated successfully' })
   async updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.feedbackService.updateStatus(id, status as any);
   }

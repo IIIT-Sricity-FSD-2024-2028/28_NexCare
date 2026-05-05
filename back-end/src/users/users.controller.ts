@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus 
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -22,6 +23,8 @@ import { UserRole } from '../common/interfaces/api-response.interface';
  * Manages user accounts across all roles in the NexCare system
  * Provides endpoints for user CRUD operations and management
  */
+@ApiTags('Users')
+@ApiBearerAuth('JWT-auth')
 @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
 @Controller('users')
 export class UsersController {
@@ -29,103 +32,108 @@ export class UsersController {
 
   /**
    * Get all users with optional filtering
-   * @route GET /users
-   * @query role Optional role filter
-   * @query status Optional status filter
-   * @access Private (Admin)
    */
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @Get()
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiQuery({ name: 'role', required: false, enum: UserRole })
+  @ApiQuery({ name: 'status', required: false })
+  @ApiResponse({ status: 200, description: 'List of users' })
   async findAll(@Query('role') role?: string, @Query('status') status?: string) {
     return this.usersService.findAll(role as any, status as any);
   }
 
   /**
    * Create new user
-   * @route POST /users
-   * @access Private (Admin)
    */
   @Post()
+  @ApiOperation({ summary: 'Create a new user' })
+  @ApiResponse({ status: 201, description: 'User created successfully' })
   async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto as any);
   }
 
   /**
    * Get user statistics
-   * @route GET /users/stats
-   * @access Private (Admin)
    */
   @Get('stats/overview')
+  @ApiOperation({ summary: 'Get user statistics' })
+  @ApiResponse({ status: 200, description: 'User statistics retrieved successfully' })
   async getStats() {
     return this.usersService.getStats();
   }
 
   /**
    * Get users by role
-   * @route GET /users/role/:role
-   * @access Private (Admin)
    */
   @Get('role/:role')
+  @ApiOperation({ summary: 'Get users by role' })
+  @ApiResponse({ status: 200, description: 'Users retrieved successfully' })
   async findByRole(@Param('role') role: string) {
     return this.usersService.findByRole(role as any);
   }
 
   /**
    * Search users
-   * @route GET /users/search/:query
-   * @access Private (Admin)
    */
   @Get('search/:query')
+  @ApiOperation({ summary: 'Search users' })
+  @ApiResponse({ status: 200, description: 'Search results' })
   async search(@Param('query') query: string) {
     return this.usersService.search(query);
   }
 
   /**
    * Get user by ID
-   * @route GET /users/:id
-   * @access Private (Admin/User)
    */
   @Get(':id')
+  @ApiOperation({ summary: 'Get user by ID' })
+  @ApiResponse({ status: 200, description: 'User retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
   async findById(@Param('id') id: string) {
     return this.usersService.findById(id);
   }
 
   /**
    * Update user
-   * @route PUT /users/:id
-   * @access Private (Admin/User)
    */
   @Put(':id')
+  @ApiOperation({ summary: 'Update user' })
+  @ApiResponse({ status: 200, description: 'User updated successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto as any);
   }
 
   /**
    * Partial update user
-   * @route PATCH /users/:id
-   * @access Private (Admin/User)
    */
   @Patch(':id')
+  @ApiOperation({ summary: 'Partial update user' })
+  @ApiResponse({ status: 200, description: 'User updated successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
   async patchUpdate(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto as any);
   }
 
   /**
    * Delete user
-   * @route DELETE /users/:id
-   * @access Private (Admin)
    */
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete user' })
+  @ApiResponse({ status: 200, description: 'User deleted successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
   async delete(@Param('id') id: string) {
     return this.usersService.delete(id);
   }
 
   /**
    * Update user status
-   * @route PATCH /users/:id/status
-   * @access Private (Admin)
    */
   @Patch(':id/status')
+  @ApiOperation({ summary: 'Update user status' })
+  @ApiResponse({ status: 200, description: 'User status updated successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
   async updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.usersService.updateStatus(id, status as any);
   }

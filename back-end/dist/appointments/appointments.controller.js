@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppointmentsController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const appointments_service_1 = require("./appointments.service");
 const create_appointment_dto_1 = require("./dto/create-appointment.dto");
 const update_appointment_dto_1 = require("./dto/update-appointment.dto");
@@ -66,6 +67,11 @@ let AppointmentsController = class AppointmentsController {
 exports.AppointmentsController = AppointmentsController;
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all appointments' }),
+    (0, swagger_1.ApiQuery)({ name: 'patientId', required: false }),
+    (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: api_response_interface_1.AppointmentStatus }),
+    (0, swagger_1.ApiQuery)({ name: 'department', required: false }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of appointments' }),
     __param(0, (0, common_1.Query)('patientId')),
     __param(1, (0, common_1.Query)('status')),
     __param(2, (0, common_1.Query)('department')),
@@ -75,6 +81,8 @@ __decorate([
 ], AppointmentsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Book a new appointment' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Appointment booked successfully' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_appointment_dto_1.CreateAppointmentDto]),
@@ -82,12 +90,16 @@ __decorate([
 ], AppointmentsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)('stats/overview'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get appointment statistics' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment statistics retrieved' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('patient/:patientId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get appointments by patient ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of patient appointments' }),
     __param(0, (0, common_1.Param)('patientId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -95,6 +107,8 @@ __decorate([
 ], AppointmentsController.prototype, "findByPatient", null);
 __decorate([
     (0, common_1.Get)('department/:department'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get appointments by department' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of department appointments' }),
     __param(0, (0, common_1.Param)('department')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -102,12 +116,16 @@ __decorate([
 ], AppointmentsController.prototype, "findByDepartment", null);
 __decorate([
     (0, common_1.Get)('today'),
+    (0, swagger_1.ApiOperation)({ summary: "Get today's appointments" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of appointments for today' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "getTodayAppointments", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get appointment by ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment details' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -115,6 +133,8 @@ __decorate([
 ], AppointmentsController.prototype, "findById", null);
 __decorate([
     (0, common_1.Put)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update appointment details' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment updated successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -123,6 +143,8 @@ __decorate([
 ], AppointmentsController.prototype, "update", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Partially update appointment details' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment updated successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -131,6 +153,8 @@ __decorate([
 ], AppointmentsController.prototype, "patchUpdate", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete an appointment' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment deleted successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -138,6 +162,8 @@ __decorate([
 ], AppointmentsController.prototype, "delete", null);
 __decorate([
     (0, common_1.Patch)(':id/confirm'),
+    (0, swagger_1.ApiOperation)({ summary: 'Confirm an appointment' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment confirmed successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -145,6 +171,8 @@ __decorate([
 ], AppointmentsController.prototype, "confirm", null);
 __decorate([
     (0, common_1.Patch)(':id/complete'),
+    (0, swagger_1.ApiOperation)({ summary: 'Mark an appointment as completed' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment completed successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -152,12 +180,16 @@ __decorate([
 ], AppointmentsController.prototype, "complete", null);
 __decorate([
     (0, common_1.Patch)(':id/cancel'),
+    (0, swagger_1.ApiOperation)({ summary: 'Cancel an appointment' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment cancelled successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "cancel", null);
 exports.AppointmentsController = AppointmentsController = __decorate([
+    (0, swagger_1.ApiTags)('Appointments'),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT, api_response_interface_1.UserRole.DOCTOR),
     (0, common_1.Controller)('appointments'),
     __metadata("design:paramtypes", [appointments_service_1.AppointmentsService])
