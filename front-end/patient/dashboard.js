@@ -1,5 +1,5 @@
-document.addEventListener("DOMContentLoaded", () => {
-    loadUserInfo();
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadUserInfo();
     loadAppointments();
     loadBills();
     loadAmbulance();
@@ -87,11 +87,8 @@ window.showNotifications = async function() {
     window.showSystemModal('Notifications Center', html);
 };
 
-function loadUserInfo() {
+async function loadUserInfo() {
     // ── Read user identity from the JWT token ─────────────────────────────
-    // The JWT (stored by login/signup via api.js) contains sub, email, name,
-    // role, and patientId. We decode it client-side to avoid an extra API call.
-    // This means ANY registered patient sees their own data, not "John Anderson".
     const token = sessionStorage.getItem('nexcare_auth_token')
                || localStorage.getItem('nexcare_auth_token');
 
@@ -125,8 +122,28 @@ function loadUserInfo() {
 
     if (!user) return; // Nothing to populate
 
+    const patientId = user.patientId || user.sub || '';
+
+    // ── Scope NexCareStore to this patient ─────────────────────────────────
+    // So appointments/bills/ambulance data only show THIS user's records.
+    if (window.NexCareDB && user.email) {
+        window.NexCareDB.setActivePatientScope
+            ? window.NexCareDB.setActivePatientScope(patientId || user.email)
+            : null;
+    }
+
+    // ── Fetch latest patient data ──────────────────────────────────────────
+    let patientProfile = null;
+    try {
+        if (window.NexCareStore && window.NexCareStore.getActivePatient) {
+            patientProfile = await window.NexCareStore.getActivePatient();
+        }
+    } catch (e) {
+        console.warn('Could not fetch latest patient profile:', e);
+    }
+
     // ── Populate name ──────────────────────────────────────────────────────
-    const displayName = user.name || user.email.split('@')[0];
+    const displayName = (patientProfile && patientProfile.fullName) ? patientProfile.fullName : (user.name || user.email.split('@')[0]);
     const firstName   = displayName.split(' ')[0];
 
     const nameNode = document.querySelector('.profile-name');
@@ -143,19 +160,8 @@ function loadUserInfo() {
     if (heroHeading) heroHeading.textContent = `Welcome Back, ${firstName}!`;
 
     // ── Populate Patient ID ────────────────────────────────────────────────
-    // patientId may come from the JWT (if added to payload) or from the
-    // nexcare_user_data blob stored after login.
-    const patientId = user.patientId || user.sub || '';
     const idNode = document.querySelector('.profile-id');
     if (idNode && patientId) idNode.textContent = `Patient ID: ${patientId}`;
-
-    // ── Scope NexCareStore to this patient ─────────────────────────────────
-    // So appointments/bills/ambulance data only show THIS user's records.
-    if (window.NexCareDB && user.email) {
-        window.NexCareDB.setActivePatientScope
-            ? window.NexCareDB.setActivePatientScope(patientId || user.email)
-            : null;
-    }
 }
 
 async function loadAppointments() {
