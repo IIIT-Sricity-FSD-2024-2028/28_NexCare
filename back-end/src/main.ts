@@ -1,8 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ResponseUtil } from './common/utils/response.util';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-
 
 /**
  * Bootstrap function
@@ -11,17 +9,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
  */
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  // 🔥 SWAGGER SETUP
-const config = new DocumentBuilder()
-  .setTitle('NexCare API')
-  .setDescription('Hospital Management System APIs')
-  .setVersion('1.0')
-  .build();
 
-const document = SwaggerModule.createDocument(app, config);
-
-// ⚠️ IMPORTANT: because you used global prefix 'api'
-SwaggerModule.setup('api/docs', app, document);
   // ─── CORS ─────────────────────────────────────────────────────────────────
   // Allow ALL origins — this is intentional for the evaluation environment.
   // The backend enforces security via JWT tokens, not CORS.
