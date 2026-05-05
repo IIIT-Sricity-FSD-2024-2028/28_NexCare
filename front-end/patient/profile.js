@@ -221,31 +221,73 @@ async function saveChanges() {
 
 async function loadProfileFromStore() {
     const store = window.NexCareStore;
-    if (!store) return;
     
-    // getActivePatient is async — must be awaited!
-    const p = await store.getActivePatient();
-    if (!p) return;
+    // Extract user from JWT to ensure patient scope is initialized
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    let user = null;
+    if (token) {
+        try {
+            const parts = token.split('.');
+            if (parts.length === 3) {
+                let raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                while (raw.length % 4) raw += '=';
+                const json = decodeURIComponent(atob(raw).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                user = JSON.parse(json);
+            }
+        } catch (e) {}
+    }
+    if (!user) {
+        try {
+            const blob = sessionStorage.getItem('nexcare_user_data');
+            if (blob) user = JSON.parse(blob);
+        } catch (e) {}
+    }
+
+    if (!user) return; // Cannot load profile if not logged in
+
+    const patientId = user.patientId || user.sub || '';
+
+    // Scope NexCareStore to this patient BEFORE fetching
+    if (window.NexCareDB && user.email) {
+        window.NexCareDB.setActivePatientScope
+            ? window.NexCareDB.setActivePatientScope(patientId || user.email)
+            : null;
+    }
+
+    let p = null;
+    if (store) {
+        p = await store.getActivePatient();
+    }
+
+    // Fallback to user data if patient profile is missing (e.g. newly registered)
+    const profileData = p || {
+        fullName: user.name || user.email.split('@')[0],
+        email: user.email,
+        phone: '',
+        patientIdDisplay: patientId,
+        memberSince: 'Just now',
+        status: 'Active'
+    };
 
     const fullName = document.getElementById('fullName');
     const phoneNumber = document.getElementById('phoneNumber');
     const emailAddress = document.getElementById('emailAddress');
-    if (fullName) fullName.value = p.fullName || p.name || '';
-    if (phoneNumber) phoneNumber.value = p.phone || '';
-    if (emailAddress) emailAddress.value = p.email || '';
+    if (fullName) fullName.value = profileData.fullName || profileData.name || '';
+    if (phoneNumber) phoneNumber.value = profileData.phone || '';
+    if (emailAddress) emailAddress.value = profileData.email || '';
 
     // Dynamically update Account Information
     const patientIdEl = document.getElementById('profilePatientId');
     const memberSinceEl = document.getElementById('profileMemberSince');
     const statusEl = document.getElementById('profileAccountStatus');
 
-    if (patientIdEl) patientIdEl.textContent = p.patientIdDisplay || p.id || '--';
-    if (memberSinceEl) memberSinceEl.textContent = p.memberSince || '--';
+    if (patientIdEl) patientIdEl.textContent = profileData.patientIdDisplay || profileData.id || '--';
+    if (memberSinceEl) memberSinceEl.textContent = profileData.memberSince || '--';
     
     if (statusEl) {
-        statusEl.textContent = p.status || 'Active';
+        statusEl.textContent = profileData.status || 'Active';
         statusEl.className = 'status-badge'; 
-        const status = (p.status || 'Active').toLowerCase();
+        const status = (profileData.status || 'Active').toLowerCase();
         
         if (status === 'active') {
             statusEl.classList.add('active');
@@ -256,6 +298,17 @@ async function loadProfileFromStore() {
         } else {
             statusEl.classList.add('inactive');
         }
+    }
+    
+    // Update the header name if it exists (for immediate reflection)
+    const headerName = document.querySelector('.profile-name');
+    if (headerName) {
+        headerName.textContent = profileData.fullName || profileData.name;
+    }
+    const headerAvatar = document.querySelector('.profile-avatar');
+    if (headerAvatar) {
+        const nameStr = profileData.fullName || profileData.name || 'User';
+        headerAvatar.textContent = nameStr.split(' ').map(x => x[0]).join('').substring(0,2).toUpperCase();
     }
 }
 

@@ -60,6 +60,42 @@
     "password": "Password123"
   },
   {
+    "id": "U010",
+    "name": "Dr. Priya Nair",
+    "email": "priya.nair@nexcare.com",
+    "role": "doctor",
+    "dept": "Pediatrics",
+    "status": "Active",
+    "password": "Password123"
+  },
+  {
+    "id": "U011",
+    "name": "Dr. Rajesh Khanna",
+    "email": "rajesh.khanna@nexcare.com",
+    "role": "doctor",
+    "dept": "Neurology",
+    "status": "Active",
+    "password": "Password123"
+  },
+  {
+    "id": "U012",
+    "name": "Dr. Meera Iyer",
+    "email": "meera.iyer@nexcare.com",
+    "role": "doctor",
+    "dept": "Dermatology",
+    "status": "Active",
+    "password": "Password123"
+  },
+  {
+    "id": "U013",
+    "name": "Dr. Arjun Mehta",
+    "email": "arjun.mehta@nexcare.com",
+    "role": "doctor",
+    "dept": "General Medicine",
+    "status": "Active",
+    "password": "Password123"
+  },
+  {
     "id": "U008",
     "name": "Nurse Emily Davis",
     "email": "emily.davis@nexcare.com",

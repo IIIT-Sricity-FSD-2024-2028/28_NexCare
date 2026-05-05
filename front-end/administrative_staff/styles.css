@@ -391,6 +391,10 @@ tr:hover {
     z-index: 1000;
 }
 
+.modal.active {
+    display: flex;
+}
+
 .modal-card {
     width: 320px;
 }

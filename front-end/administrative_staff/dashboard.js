@@ -19,21 +19,73 @@ function apiGet(path) {
     }).then(r => r.json());
 }
 
-// ---------------- FETCH DATA ----------------
 async function loadDashboardData() {
     try {
-        const [patientsResp, apptResp] = await Promise.all([
-            apiGet('/patients'),
-            apiGet('/appointments')
+        const [patientsResp, apptResp, bedsResp, feedbackResp] = await Promise.all([
+            apiGet('/patients').catch(() => ({ data: [] })),
+            apiGet('/appointments').catch(() => ({ data: [] })),
+            apiGet('/beds').catch(() => ({ data: [] })),
+            apiGet('/feedback').catch(() => ({ data: [] }))
         ]);
 
         const patients = patientsResp.data || [];
         const allAppointments = apptResp.data || [];
+        const beds = bedsResp.data || [];
+        const feedbacks = feedbackResp.data || [];
 
+        // 1. Total Patients
         document.getElementById('totalPatientsCount').textContent = patients.length;
-        document.getElementById('todayApptCount').textContent = allAppointments.length;
 
-        appointments = allAppointments;
+        // 2. Today's Appointments
+        // Get today's date string in a format that might match dateLabel (e.g., 'May 06, 2026')
+        // Or just count all appointments for now if filtering is too strict, but let's try to filter by current month/year
+        const now = new Date();
+        const currentYear = now.getFullYear().toString();
+        const currentMonth = now.toLocaleString('default', { month: 'long' });
+        
+        const todaysAppointments = allAppointments.filter(a => {
+            if (!a.dateLabel) return false;
+            return a.dateLabel.includes(currentYear) && a.dateLabel.includes(currentMonth);
+        });
+        document.getElementById('todayApptCount').textContent = todaysAppointments.length;
+
+        // 3. Available Beds
+        if (beds.length > 0) {
+            const availableBeds = beds.filter(b => b.status && b.status.toLowerCase() === 'available').length;
+            const totalBeds = beds.length;
+            const bedsPercent = Math.round((availableBeds / totalBeds) * 100);
+            const bedsEl = document.getElementById('availableBedsCount');
+            if (bedsEl) bedsEl.textContent = `${availableBeds}/${totalBeds}`;
+            const bedsTrend = document.getElementById('bedsTrend');
+            if (bedsTrend) {
+                bedsTrend.textContent = `${bedsPercent}% available`;
+                bedsTrend.className = bedsPercent > 20 ? 'trend success' : 'trend down';
+            }
+        }
+
+        // 4. Pending Feedback (Replacing Critical Alerts)
+        const criticalAlerts = feedbacks.filter(f => f.status === 'Open' || !f.status).length;
+        const alertsEl = document.getElementById('criticalAlertsCount');
+        if (alertsEl) alertsEl.textContent = criticalAlerts;
+        const alertsTrend = document.getElementById('alertsTrend');
+        if (alertsTrend) {
+            alertsTrend.textContent = criticalAlerts > 0 ? 'Needs Attention' : 'All clear';
+            alertsTrend.className = criticalAlerts > 0 ? 'trend down' : 'trend success';
+        }
+
+        // Map proper patient names to appointments
+        appointments = allAppointments.map(appt => {
+            // Find actual patient record to get the true full name
+            const patientRecord = patients.find(p => p.id === appt.patientId);
+            return {
+                ...appt,
+                patientName: patientRecord ? patientRecord.fullName : (appt.patientName || 'Unknown')
+            };
+        });
+
+        // Sort appointments by creation date (newest first)
+        appointments.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
         filteredAppointments = [...appointments];
         render();
     } catch (err) {

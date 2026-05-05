@@ -118,5 +118,132 @@
     ],
     "createdAt": "2026-05-05T17:31:16.867Z",
     "updatedAt": "2026-05-05T17:31:44.119Z"
+  },
+  {
+    "id": "BILL-97716",
+    "patientId": "P90268",
+    "visitDate": "May 12, 2026",
+    "dueDate": "26 May, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 9,
+    "sgstAmount": 9,
+    "total": 118,
+    "items": [
+      {
+        "description": "Specialist Consultation",
+        "department": "Cardiology",
+        "amount": 100
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-60331",
+        "amount": 118,
+        "method": "CREDIT",
+        "createdAt": "2026-05-05T18:30:32.604Z"
+      }
+    ],
+    "createdAt": "2026-05-05T18:29:27.731Z",
+    "updatedAt": "2026-05-05T18:30:32.604Z"
+  },
+  {
+    "id": "BILL-88167",
+    "patientId": "P001",
+    "visitDate": "2026-05-05T19:54:37.541Z",
+    "dueDate": "2026-05-19T19:54:37.541Z",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 2500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 225,
+    "sgstAmount": 225,
+    "total": 2950,
+    "items": [
+      {
+        "description": "Pediatric Care & Ward Services",
+        "department": "Pediatrics",
+        "amount": 2500
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-05-05T19:54:37.549Z",
+    "updatedAt": "2026-05-05T19:54:37.549Z"
+  },
+  {
+    "id": "BILL-18532",
+    "patientId": "P76800",
+    "visitDate": "May 18, 2026",
+    "dueDate": "1 June, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 9,
+    "sgstAmount": 9,
+    "total": 118,
+    "items": [
+      {
+        "description": "Specialist Consultation",
+        "department": "Cardiology",
+        "amount": 100
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-05-05T20:04:23.618Z",
+    "updatedAt": "2026-05-05T20:04:23.618Z"
+  },
+  {
+    "id": "BILL-34734",
+    "patientId": "P001",
+    "visitDate": "May 24, 2026",
+    "dueDate": "7 June, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 9,
+    "sgstAmount": 9,
+    "total": 118,
+    "items": [
+      {
+        "description": "Specialist Consultation",
+        "department": "General Medicine",
+        "amount": 100
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-05-05T20:20:23.781Z",
+    "updatedAt": "2026-05-05T20:20:23.781Z"
+  },
+  {
+    "id": "BILL-14256",
+    "patientId": "P001",
+    "visitDate": "May 23, 2026",
+    "dueDate": "6 June, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 9,
+    "sgstAmount": 9,
+    "total": 118,
+    "items": [
+      {
+        "description": "Specialist Consultation",
+        "department": "Cardiology",
+        "amount": 100
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-05-05T20:21:17.151Z",
+    "updatedAt": "2026-05-05T20:21:17.151Z"
   }
 ]

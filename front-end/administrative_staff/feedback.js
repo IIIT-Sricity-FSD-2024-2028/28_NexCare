@@ -71,9 +71,6 @@ function renderFeedback(data) {
                     <button class="action-btn" onclick="viewFeedback('${f.id}')" title="Read Feedback">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
-                    <button class="action-btn" onclick="deleteFeedback('${f.id}')" title="Delete">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    </button>
                 </div>
             </td>
         </tr>
@@ -101,58 +98,9 @@ function closeViewModal() {
     document.getElementById('viewFeedbackModal').classList.remove('active');
 }
 
-async function deleteFeedback(id) {
-    if (confirm('Are you sure you want to permanently delete this feedback?')) {
-        try {
-            await apiRequest('DELETE', `/feedback/${id}`);
-        } catch (err) {
-            console.error('Delete feedback failed:', err);
-        }
-        applyFilters();
-    }
-}
 
-function openAddFeedbackModal() {
-    document.getElementById('addFeedbackForm').reset();
-    document.getElementById('addFeedbackModal').classList.add('active');
-}
 
-function closeAddFeedbackModal() {
-    document.getElementById('addFeedbackModal').classList.remove('active');
-}
 
-async function saveFeedback(e) {
-    e.preventDefault();
-
-    const type = document.getElementById('newType').value;
-    const name = document.getElementById('newName').value.trim();
-    const subject = document.getElementById('newSubject').value.trim();
-    const rating = parseInt(document.getElementById('newRating').value);
-    const comment = document.getElementById('newDesc').value.trim();
-
-    if (!type || !name || !subject || !comment) {
-        alert("Please fill all required fields correctly.");
-        return;
-    }
-
-    try {
-        await apiRequest('POST', '/feedback', {
-            type,
-            sender: name,
-            rating,
-            subject,
-            summary: comment,
-            status: "Open"
-        });
-    } catch (err) {
-        alert("Failed to save feedback.");
-        console.error(err);
-        return;
-    }
-
-    closeAddFeedbackModal();
-    applyFilters();
-}
 
 async function applyFilters() {
     const term = document.getElementById('searchTable').value.toLowerCase();
@@ -175,9 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('filterType').addEventListener('change', applyFilters);
 
     window.addEventListener('click', function (event) {
-        if (event.target == document.getElementById('addFeedbackModal')) {
-            closeAddFeedbackModal();
-        } else if (event.target == document.getElementById('viewFeedbackModal')) {
+        if (event.target == document.getElementById('viewFeedbackModal')) {
             closeViewModal();
         }
     });

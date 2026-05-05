@@ -40,20 +40,23 @@ async function apiGet(path) {
 /** Load system-wide stats and populate the 4 stat cards */
 async function loadDashboardStats() {
     try {
-        const [usersResp, feedbackResp] = await Promise.all([
+        const [usersResp, patientsResp, feedbackResp] = await Promise.all([
             apiGet('/users'),
+            apiGet('/patients'),
             apiGet('/feedback')
         ]);
 
         const users    = usersResp.data    || [];
+        const patients = patientsResp.data || [];
         const feedback = feedbackResp.data || [];
 
-        const totalUsers    = users.length;
-        const totalPatients = users.filter(u => u.role === 'patient').length;
+        // Staff users only (exclude patients — they have their own Patient Directory)
+        const staffUsers    = users.filter(u => u.role !== 'patient').length;
+        const totalPatients = patients.length;
         const activeDoctors = users.filter(u => u.role === 'doctor' && u.status === 'Active').length;
         const pendingFB     = feedback.filter(f => f.status === 'Open' || f.status === 'Pending' || !f.resolved).length;
 
-        setStatCard('totalUsersCount',    totalUsers);
+        setStatCard('totalUsersCount',    staffUsers);
         setStatCard('totalPatientsCount', totalPatients);
         setStatCard('activeDoctorsCount', activeDoctors);
         setStatCard('pendingFeedbackCount', pendingFB);

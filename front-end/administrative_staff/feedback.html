@@ -202,9 +202,8 @@
         <div class="header-row" style="display:flex; justify-content: space-between; align-items:center;">
             <div>
                 <h1>Feedback & Reports</h1>
-                <div class="sub">View and manage feedback from patients and staff.</div>
+                <div class="sub">View feedback from patients and staff.</div>
             </div>
-            <button class="btn-dark" onclick="openAddFeedbackModal()">+ Add Feedback</button>
         </div>
         
         <div class="card" style="margin-bottom: 20px; display: flex; gap: 10px;">
@@ -238,49 +237,7 @@
     </div>
 </div>
 
-<!-- Add Feedback Modal -->
-<div class="modal" id="addFeedbackModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="addModalTitle">Submit Local Feedback</h2>
-            <button class="modal-close" onclick="closeAddFeedbackModal()">&times;</button>
-        </div>
-        <form id="addFeedbackForm" onsubmit="saveFeedback(event)">
-            <div class="form-group">
-                <label>Sender Type</label>
-                <select id="newType" class="form-select" required>
-                    <option value="Staff" selected>Staff</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Sender Name</label>
-                <input type="text" id="newName" class="form-input" placeholder="Name" required>
-            </div>
-            <div class="form-group">
-                <label>Subject</label>
-                <input type="text" id="newSubject" class="form-input" placeholder="Brief subject" required>
-            </div>
-            <div class="form-group">
-                <label>Rating (1-5)</label>
-                <select id="newRating" class="form-select" required>
-                    <option value="5">5 - Excellent</option>
-                    <option value="4">4 - Good</option>
-                    <option value="3">3 - Average</option>
-                    <option value="2">2 - Poor</option>
-                    <option value="1">1 - Terrible</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Detailed Feedback</label>
-                <textarea id="newDesc" class="form-textarea" rows="4" placeholder="Enter comments..." required></textarea>
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                <button type="button" class="btn-light" onclick="closeAddFeedbackModal()">Cancel</button>
-                <button type="submit" class="btn-dark">Save Feedback</button>
-            </div>
-        </form>
-    </div>
-</div>
+
 
 <!-- View Feedback Modal -->
 <div class="modal" id="viewFeedbackModal">
