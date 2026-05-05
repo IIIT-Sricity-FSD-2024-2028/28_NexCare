@@ -1964,8 +1964,7 @@ function renderCompletedTransports() {
             <td><span class="request-id">${escapeHtml(t.id)}</span></td>
             <td><span class="patient-name">${escapeHtml(t.patient)}</span></td>
             <td><span class="text-gray">${escapeHtml(t.location)}</span></td>
-            <td><span class="text-gray">${escapeHtml(t.completedDate || '—')}</span></td>
-            <td><span class="text-gray">${escapeHtml(t.completedTime || '—')}</span></td>
+
             <td><span class="priority-badge ${priorityClass}">${escapeHtml(t.priority)}</span></td>
             <td><span class="badge badge-green">Completed</span></td>
             <td>
