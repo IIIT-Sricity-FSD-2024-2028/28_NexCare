@@ -3,6 +3,8 @@ import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * Bootstrap function
@@ -92,6 +94,18 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+  
+  // ============================================
+  // SAVE SWAGGER JSON TO FILE
+  // ============================================
+  const docsDir = path.join(process.cwd(), 'docs');
+  if (!fs.existsSync(docsDir)) {
+    fs.mkdirSync(docsDir);
+  }
+  const swaggerPath = path.join(docsDir, 'swagger.json');
+  fs.writeFileSync(swaggerPath, JSON.stringify(document, null, 2));
+  console.log(`✅ Swagger JSON saved to: ${swaggerPath}`);
+
   SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
