@@ -1,6 +1,7 @@
 import { InventoryService } from './inventory.service';
 import { CreateInventoryDto } from './dto/create-inventory.dto';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
+import { RestockInventoryDto } from './dto/restock-inventory.dto';
 export declare class InventoryController {
     private readonly inventoryService;
     constructor(inventoryService: InventoryService);
@@ -16,6 +17,6 @@ export declare class InventoryController {
     update(id: string, updateInventoryDto: UpdateInventoryDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     patchUpdate(id: string, updateInventoryDto: UpdateInventoryDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     delete(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
-    restock(id: string, quantity: number, notes?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    restock(id: string, restockDto: RestockInventoryDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     useItem(id: string, quantity: number): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
 }

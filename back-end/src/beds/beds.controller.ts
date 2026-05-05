@@ -11,17 +11,21 @@ import {
   HttpCode,
   HttpStatus 
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { BedsService } from './beds.service';
 import { CreateBedDto } from './dto/create-bed.dto';
 import { UpdateBedDto } from './dto/update-bed.dto';
+import { AllocateBedDto } from './dto/allocate-bed.dto';
 import { Roles } from '../common/decorators/roles.decorator';
-import { UserRole } from '../common/interfaces/api-response.interface';
+import { UserRole, BedStatus } from '../common/interfaces/api-response.interface';
 
 /**
  * Beds Controller
  * Manages hospital bed allocation and ward management in the NexCare system
  * Provides endpoints for bed CRUD operations and allocation management
  */
+@ApiTags('Beds')
+@ApiBearerAuth('JWT-auth')
 @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
 @Controller('beds')
 export class BedsController {
@@ -29,142 +33,142 @@ export class BedsController {
 
   /**
    * Get all beds with optional filtering
-   * @route GET /beds
-   * @query ward Optional ward filter
-   * @query status Optional status filter
-   * @access Private (Admin/Staff)
    */
   @Get()
+  @ApiOperation({ summary: 'Get all beds' })
+  @ApiQuery({ name: 'ward', required: false })
+  @ApiQuery({ name: 'status', required: false, enum: BedStatus })
+  @ApiResponse({ status: 200, description: 'List of beds' })
   async findAll(@Query('ward') ward?: string, @Query('status') status?: string) {
     return this.bedsService.findAll(ward, status as any);
   }
 
   /**
    * Create new bed
-   * @route POST /beds
-   * @access Private (Admin)
    */
   @Post()
+  @ApiOperation({ summary: 'Create a new bed record' })
+  @ApiResponse({ status: 201, description: 'Bed created successfully' })
   async create(@Body() createBedDto: CreateBedDto) {
     return this.bedsService.create(createBedDto as any);
   }
 
   /**
    * Get bed statistics
-   * @route GET /beds/stats
-   * @access Private (Admin/Staff)
    */
   @Get('stats/overview')
+  @ApiOperation({ summary: 'Get bed statistics' })
+  @ApiResponse({ status: 200, description: 'Bed statistics retrieved' })
   async getStats() {
     return this.bedsService.getStats();
   }
 
   /**
    * Get beds by ward
-   * @route GET /beds/ward/:ward
-   * @access Private (Admin/Staff)
    */
   @Get('ward/:ward')
+  @ApiOperation({ summary: 'Get beds by ward' })
+  @ApiResponse({ status: 200, description: 'List of ward beds retrieved' })
   async findByWard(@Param('ward') ward: string) {
     return this.bedsService.findByWard(ward);
   }
 
   /**
    * Get available beds
-   * @route GET /beds/available
-   * @access Private (Admin/Staff)
    */
   @Get('available')
+  @ApiOperation({ summary: 'Get all available beds' })
+  @ApiResponse({ status: 200, description: 'List of available beds' })
   async getAvailableBeds() {
     return this.bedsService.getAvailableBeds();
   }
 
   /**
    * Get beds by patient
-   * @route GET /beds/patient/:patient
-   * @access Private (Admin/Staff)
    */
   @Get('patient/:patient')
+  @ApiOperation({ summary: 'Get bed by patient name' })
+  @ApiResponse({ status: 200, description: 'Bed retrieved' })
   async findByPatient(@Param('patient') patient: string) {
     return this.bedsService.findByPatient(patient);
   }
 
   /**
    * Get occupancy by ward
-   * @route GET /beds/occupancy
-   * @access Private (Admin/Staff)
    */
   @Get('occupancy')
+  @ApiOperation({ summary: 'Get bed occupancy statistics by ward' })
+  @ApiResponse({ status: 200, description: 'Occupancy statistics retrieved' })
   async getOccupancyByWard() {
     return this.bedsService.getOccupancyByWard();
   }
 
   /**
    * Get bed by ID
-   * @route GET /beds/:id
-   * @access Private (Admin/Staff)
    */
   @Get(':id')
+  @ApiOperation({ summary: 'Get bed by ID' })
+  @ApiResponse({ status: 200, description: 'Bed details retrieved' })
   async findById(@Param('id') id: string) {
     return this.bedsService.findById(id);
   }
 
   /**
    * Update bed
-   * @route PUT /beds/:id
-   * @access Private (Admin/Staff)
    */
   @Put(':id')
+  @ApiOperation({ summary: 'Update bed details' })
+  @ApiResponse({ status: 200, description: 'Bed updated successfully' })
   async update(@Param('id') id: string, @Body() updateBedDto: UpdateBedDto) {
     return this.bedsService.update(id, updateBedDto as any);
   }
 
   /**
    * Partial update bed
-   * @route PATCH /beds/:id
-   * @access Private (Admin/Staff)
    */
   @Patch(':id')
+  @ApiOperation({ summary: 'Partially update bed details' })
+  @ApiResponse({ status: 200, description: 'Bed updated successfully' })
   async patchUpdate(@Param('id') id: string, @Body() updateBedDto: UpdateBedDto) {
     return this.bedsService.update(id, updateBedDto as any);
   }
 
   /**
    * Delete bed
-   * @route DELETE /beds/:id
-   * @access Private (Admin)
    */
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a bed' })
+  @ApiResponse({ status: 200, description: 'Bed deleted successfully' })
   async delete(@Param('id') id: string) {
     return this.bedsService.delete(id);
   }
 
   /**
    * Allocate bed to patient
-   * @route PATCH /beds/:id/allocate
-   * @access Private (Admin/Staff)
    */
   @Patch(':id/allocate')
-  async allocate(@Param('id') id: string, @Body('patient') patient: string) {
-    return this.bedsService.allocate(id, patient);
+  @ApiOperation({ summary: 'Allocate a bed to a patient' })
+  @ApiResponse({ status: 200, description: 'Bed allocated successfully' })
+  async allocate(@Param('id') id: string, @Body() allocateBedDto: AllocateBedDto) {
+    return this.bedsService.allocate(id, allocateBedDto.patientId);
   }
 
   /**
    * Release bed from patient
-   * @route PATCH /beds/:id/release
-   * @access Private (Admin/Staff)
    */
   @Patch(':id/release')
+  @ApiOperation({ summary: 'Release a bed from a patient' })
+  @ApiResponse({ status: 200, description: 'Bed released successfully' })
   async release(@Param('id') id: string) {
     return this.bedsService.release(id);
   }
 
   /**
    * Update bed status
-   * @route PATCH /beds/:id/status
-   * @access Private (Admin/Staff)
    */
   @Patch(':id/status')
+  @ApiOperation({ summary: 'Update bed status' })
+  @ApiResponse({ status: 200, description: 'Bed status updated successfully' })
   async updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.bedsService.updateStatus(id, status as any);
   }

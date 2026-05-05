@@ -14,9 +14,11 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BillingController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const billing_service_1 = require("./billing.service");
 const create_bill_dto_1 = require("./dto/create-bill.dto");
 const update_bill_dto_1 = require("./dto/update-bill.dto");
+const process_payment_dto_1 = require("./dto/process-payment.dto");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let BillingController = class BillingController {
@@ -53,13 +55,20 @@ let BillingController = class BillingController {
     async delete(id) {
         return this.billingService.delete(id);
     }
-    async processPayment(id, amount, method) {
-        return this.billingService.processPayment(id, { amount, method });
+    async processPayment(id, processPaymentDto) {
+        return this.billingService.processPayment(id, {
+            amount: processPaymentDto.amount,
+            method: processPaymentDto.method
+        });
     }
 };
 exports.BillingController = BillingController;
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all bills' }),
+    (0, swagger_1.ApiQuery)({ name: 'patientId', required: false }),
+    (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: api_response_interface_1.BillStatus }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of bills' }),
     __param(0, (0, common_1.Query)('patientId')),
     __param(1, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
@@ -68,6 +77,8 @@ __decorate([
 ], BillingController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a new bill' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Bill created successfully' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_bill_dto_1.CreateBillDto]),
@@ -75,12 +86,16 @@ __decorate([
 ], BillingController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)('stats/overview'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get billing statistics' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Billing statistics retrieved' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], BillingController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('patient/:patientId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get bills by patient ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of patient bills' }),
     __param(0, (0, common_1.Param)('patientId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -88,12 +103,18 @@ __decorate([
 ], BillingController.prototype, "findByPatient", null);
 __decorate([
     (0, common_1.Get)('overdue'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all overdue bills' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of overdue bills' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], BillingController.prototype, "getOverdueBills", null);
 __decorate([
     (0, common_1.Get)('revenue'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get revenue by date range' }),
+    (0, swagger_1.ApiQuery)({ name: 'startDate', type: String }),
+    (0, swagger_1.ApiQuery)({ name: 'endDate', type: String }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Revenue statistics retrieved' }),
     __param(0, (0, common_1.Query)('startDate')),
     __param(1, (0, common_1.Query)('endDate')),
     __metadata("design:type", Function),
@@ -102,6 +123,8 @@ __decorate([
 ], BillingController.prototype, "getRevenueByDateRange", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get bill by ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Bill details retrieved' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -109,6 +132,8 @@ __decorate([
 ], BillingController.prototype, "findById", null);
 __decorate([
     (0, common_1.Put)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update bill details' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Bill updated successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -117,6 +142,8 @@ __decorate([
 ], BillingController.prototype, "update", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Partially update bill details' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Bill updated successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -125,6 +152,8 @@ __decorate([
 ], BillingController.prototype, "patchUpdate", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a bill' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Bill deleted successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -132,14 +161,17 @@ __decorate([
 ], BillingController.prototype, "delete", null);
 __decorate([
     (0, common_1.Patch)(':id/pay'),
+    (0, swagger_1.ApiOperation)({ summary: 'Process payment for a bill' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Payment processed successfully' }),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('amount')),
-    __param(2, (0, common_1.Body)('method')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number, String]),
+    __metadata("design:paramtypes", [String, process_payment_dto_1.ProcessPaymentDto]),
     __metadata("design:returntype", Promise)
 ], BillingController.prototype, "processPayment", null);
 exports.BillingController = BillingController = __decorate([
+    (0, swagger_1.ApiTags)('Billing'),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, common_1.Controller)('billing'),
     __metadata("design:paramtypes", [billing_service_1.BillingService])

@@ -1,6 +1,7 @@
 import { BedsService } from './beds.service';
 import { CreateBedDto } from './dto/create-bed.dto';
 import { UpdateBedDto } from './dto/update-bed.dto';
+import { AllocateBedDto } from './dto/allocate-bed.dto';
 export declare class BedsController {
     private readonly bedsService;
     constructor(bedsService: BedsService);
@@ -15,7 +16,7 @@ export declare class BedsController {
     update(id: string, updateBedDto: UpdateBedDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     patchUpdate(id: string, updateBedDto: UpdateBedDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     delete(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
-    allocate(id: string, patient: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    allocate(id: string, allocateBedDto: AllocateBedDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     release(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     updateStatus(id: string, status: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
 }

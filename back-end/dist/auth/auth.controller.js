@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const auth_service_1 = require("./auth.service");
 const login_dto_1 = require("./dto/login.dto");
 const register_dto_1 = require("./dto/register.dto");
@@ -45,6 +46,9 @@ __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)('login'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'User login' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Successful login' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
@@ -53,34 +57,48 @@ __decorate([
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)('register'),
+    (0, swagger_1.ApiOperation)({ summary: 'Register a new patient account' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'User successfully registered' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [register_dto_1.RegisterDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "register", null);
 __decorate([
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.Post)('logout/:userId'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'User logout' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Successful logout' }),
     __param(0, (0, common_1.Param)('userId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "logout", null);
 __decorate([
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.Get)('current/:userId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get current user profile' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User profile retrieved successfully' }),
     __param(0, (0, common_1.Param)('userId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getCurrentUser", null);
 __decorate([
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER),
     (0, common_1.Get)('sessions'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get active user sessions (Superuser only)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Active sessions retrieved successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getActiveSessions", null);
 exports.AuthController = AuthController = __decorate([
+    (0, swagger_1.ApiTags)('Auth'),
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);

@@ -1,14 +1,40 @@
-import { UserRole, UserStatus } from '../../common/interfaces/api-response.interface';
+import { UserRole } from '../../common/interfaces/api-response.interface';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
- * Create User DTO - Simple data transfer object
+ * Create User DTO
  * Transfers user creation data between client and server
  */
 export class CreateUserDto {
+  @ApiProperty({ example: 'Jane Smith', description: 'Full name of the user' })
+  @IsString()
+  @IsNotEmpty({ message: 'Name is required' })
   name: string;
+
+  @ApiProperty({ example: 'jane@nexcare.com', description: 'Email address' })
+  @IsEmail({}, { message: 'Please provide a valid email address' })
+  @IsNotEmpty({ message: 'Email is required' })
   email: string;
+
+  @ApiProperty({ enum: UserRole, example: UserRole.DOCTOR, description: 'User role' })
+  @IsEnum(UserRole, { message: 'Invalid user role' })
+  @IsNotEmpty({ message: 'Role is required' })
   role: UserRole;
+
+  @ApiProperty({ example: 'password123', description: 'User password' })
+  @IsString()
+  @IsNotEmpty({ message: 'Password is required' })
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
+
+  @ApiPropertyOptional({ example: 'P1002', description: 'Associated patient ID if applicable' })
+  @IsOptional()
+  @IsString()
   patientId?: string;
+
+  @ApiPropertyOptional({ example: 'Cardiology', description: 'Department (for doctors/staff)' })
+  @IsOptional()
+  @IsString()
   dept?: string;
 }
