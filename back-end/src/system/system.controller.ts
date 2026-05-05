@@ -51,8 +51,10 @@ export class SystemController {
    * Create new system activity
    */
   @Post('activity')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Log a new system activity' })
-  @ApiResponse({ status: 201, description: 'Activity logged successfully' })
+  @ApiResponse({ status: 200, description: 'Activity logging result (check success field)' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async createActivity(@Body() createActivityDto: CreateSystemActivityDto) {
     return this.systemService.createActivity(createActivityDto as any);
   }

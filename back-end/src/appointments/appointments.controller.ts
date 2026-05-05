@@ -51,8 +51,10 @@ export class AppointmentsController {
    * Create new appointment
    */
   @Post()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Book a new appointment' })
-  @ApiResponse({ status: 201, description: 'Appointment booked successfully' })
+  @ApiResponse({ status: 200, description: 'Appointment booking result (check success field)' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async create(@Body() createAppointmentDto: CreateAppointmentDto) {
     return this.appointmentsService.create(createAppointmentDto as any);
   }

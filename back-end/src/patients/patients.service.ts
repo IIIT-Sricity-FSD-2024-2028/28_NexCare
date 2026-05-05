@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { Injectable } from '@nestjs/common';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
@@ -13,6 +15,62 @@ import { SystemService } from '../system/system.service';
 @Injectable()
 export class PatientsService {
   constructor(private readonly systemService: SystemService) {}
+
+  private readonly patientsFilePath = path.join(process.cwd(), 'data', 'patients.json');
+
+  /** Load patients from disk */
+  private loadPatients(): Patient[] {
+    try {
+      if (!fs.existsSync(this.patientsFilePath)) {
+        const initial = this.getInitialMockData();
+        this.savePatients(initial);
+        return initial;
+      }
+      const raw = fs.readFileSync(this.patientsFilePath, 'utf-8');
+      return JSON.parse(raw);
+    } catch {
+      return this.getInitialMockData();
+    }
+  }
+
+  /** Persist patients to disk */
+  private savePatients(patients: Patient[]): void {
+    try {
+      fs.mkdirSync(path.dirname(this.patientsFilePath), { recursive: true });
+      fs.writeFileSync(this.patientsFilePath, JSON.stringify(patients, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to persist patients:', err);
+    }
+  }
+
+  private getInitialMockData(): Patient[] {
+    return [
+      {
+        id: 'P001',
+        fullName: 'John Anderson',
+        phone: '5551234567',
+        email: 'patient@gmail.com',
+        patientIdDisplay: 'PAT-2026-001',
+        memberSince: 'January 2024',
+        status: 'Active',
+        bloodGroup: 'O+',
+        age: 45,
+        createdAt: '2024-01-01T00:00:00Z'
+      },
+      {
+        id: 'P002',
+        fullName: 'Maria Garcia',
+        phone: '5559876543',
+        email: 'maria@example.com',
+        patientIdDisplay: 'PAT-2026-002',
+        memberSince: 'March 2025',
+        status: 'Critical',
+        bloodGroup: 'AB-',
+        age: 62,
+        createdAt: '2025-03-01T00:00:00Z'
+      }
+    ];
+  }
 
   // In-memory mock patients database (aligned with frontend db.js)
   private patients: Patient[] = [
@@ -205,7 +263,8 @@ export class PatientsService {
    */
   async findAll(status?: string) {
     try {
-      let filteredPatients = [...this.patients];
+      const patients = this.loadPatients();
+      let filteredPatients = [...patients];
 
       // Apply status filter
       if (status) {
@@ -225,7 +284,8 @@ export class PatientsService {
    */
   async findById(id: string) {
     try {
-      const patient = ArrayUtil.findById(this.patients, id);
+      const patients = this.loadPatients();
+      const patient = patients.find(p => p.id === id);
       
       if (!patient) {
         return ResponseUtil.notFound('Patient', id);
@@ -244,15 +304,17 @@ export class PatientsService {
    */
   async create(patientData: CreatePatientRequest) {
     try {
+      const patients = this.loadPatients();
+      
       // Check if email already exists
-      const existingPatient = ArrayUtil.searchByText(this.patients, patientData.email, ['email']);
-      if (existingPatient.length > 0) {
+      const existingPatient = patients.find(p => p.email.toLowerCase() === patientData.email.toLowerCase());
+      if (existingPatient) {
         return ResponseUtil.error('Email already exists');
       }
 
       // Check if phone already exists
-      const existingPhone = ArrayUtil.searchByText(this.patients, patientData.phone, ['phone']);
-      if (existingPhone.length > 0) {
+      const existingPhone = patients.find(p => p.phone === patientData.phone);
+      if (existingPhone) {
         return ResponseUtil.error('Phone number already exists');
       }
 
@@ -277,7 +339,9 @@ export class PatientsService {
       };
 
       // Add to patients array
-      this.patients.push(newPatient);
+      patients.push(newPatient);
+      this.savePatients(patients);
+
       // Log activity
       this.systemService.createActivity({
         userId: newPatient.id,
@@ -301,50 +365,40 @@ export class PatientsService {
    */
   async update(id: string, updateData: UpdatePatientRequest) {
     try {
-      const patient = ArrayUtil.findById(this.patients, id);
+      const patients = this.loadPatients();
+      const patientIndex = patients.findIndex(p => p.id === id);
       
-      if (!patient) {
+      if (patientIndex === -1) {
         return ResponseUtil.notFound('Patient', id);
       }
 
       // Check if email is being updated and already exists
       if (updateData.email) {
-        const allPatientsWithEmail = ArrayUtil.searchByText(this.patients, updateData.email, ['email']);
-        const existingPatient = allPatientsWithEmail.find(p => p.id !== id);
-        if (existingPatient) {
+        const existing = patients.find(p => p.email.toLowerCase() === updateData.email.toLowerCase() && p.id !== id);
+        if (existing) {
           return ResponseUtil.error('Email already exists');
         }
       }
 
-      // Check if phone is being updated and already exists
-      if (updateData.phone) {
-        const allPatientsWithPhone = ArrayUtil.searchByText(this.patients, updateData.phone, ['phone']);
-        const existingPhone = allPatientsWithPhone.find(p => p.id !== id);
-        if (existingPhone) {
-          return ResponseUtil.error('Phone number already exists');
-        }
-      }
-
       // Update patient
-      const updatedPatient = ArrayUtil.updateById(this.patients, id, {
+      patients[patientIndex] = {
+        ...patients[patientIndex],
         ...updateData,
         updatedAt: new Date().toISOString()
-      });
-
-      if (!updatedPatient) {
-        return ResponseUtil.notFound('Patient', id);
-      }
+      };
+      
+      this.savePatients(patients);
 
       // Log activity
       this.systemService.createActivity({
         userId: 'Admin',
         action: 'Update',
-        details: `Patient record ${id} (${updatedPatient.fullName}) updated`,
+        details: `Patient record ${id} (${patients[patientIndex].fullName}) updated`,
         module: 'Patients',
         severity: 'INFO'
       });
 
-      return ResponseUtil.updated('Patient updated successfully', updatedPatient);
+      return ResponseUtil.updated('Patient updated successfully', patients[patientIndex]);
     } catch (error) {
       return ResponseUtil.serverError('Failed to update patient');
     }
@@ -357,14 +411,18 @@ export class PatientsService {
    */
   async delete(id: string) {
     try {
-      const patient = ArrayUtil.findById(this.patients, id);
+      const patients = this.loadPatients();
+      const patientIndex = patients.findIndex(p => p.id === id);
       
-      if (!patient) {
+      if (patientIndex === -1) {
         return ResponseUtil.notFound('Patient', id);
       }
 
+      const patient = patients[patientIndex];
+
       // Remove patient
-      ArrayUtil.removeById(this.patients, id);
+      patients.splice(patientIndex, 1);
+      this.savePatients(patients);
 
       // Log activity
       this.systemService.createActivity({
@@ -422,8 +480,9 @@ export class PatientsService {
    */
   async search(query: string) {
     try {
+      const patients = this.loadPatients();
       const searchTerm = query.toLowerCase();
-      const matchingPatients = this.patients.filter(patient => 
+      const matchingPatients = patients.filter(patient => 
         patient.fullName.toLowerCase().includes(searchTerm) ||
         patient.email.toLowerCase().includes(searchTerm) ||
         patient.patientIdDisplay.toLowerCase().includes(searchTerm) ||

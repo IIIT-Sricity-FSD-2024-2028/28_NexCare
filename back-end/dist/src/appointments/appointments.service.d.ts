@@ -4,6 +4,10 @@ import { SystemService } from '../system/system.service';
 export declare class AppointmentsService {
     private readonly systemService;
     constructor(systemService: SystemService);
+    private readonly appointmentsFilePath;
+    private loadAppointments;
+    private saveAppointments;
+    private getInitialMockData;
     private appointments;
     findAll(patientId?: string, status?: AppointmentStatus, department?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

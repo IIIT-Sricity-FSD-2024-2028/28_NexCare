@@ -1,13 +1,18 @@
 // NEXCARE COMPATIBILITY BRIDGE - Backend API + LocalStorage Fallback
 // This file provides backward compatibility while routing to backend API when available
 
+// Global helper: check if the NexCareAPI layer is loaded
+function isAPIAvailable() {
+    return window.NexCareAPI && typeof window.NexCareAPI.get === 'function';
+}
+
 const NexCareDB = (() => {
     const DB_KEY = 'nexcare_db_v3';
+    let activePatientId = null;
 
-    // Helper function to check if API is available
-    function isAPIAvailable() {
-        return window.NexCareAPI && typeof window.NexCareAPI.get === 'function';
-    }
+    // Helper function to check if API is available (uses global)
+    // Kept for internal IIFE usage — delegates to the global function
+    // so NexCareStore (defined outside the IIFE) can also call it.
 
     // Helper function to try API first, fallback to localStorage
     async function tryAPIFirst(apiCall, fallbackCall, tableName = null) {
@@ -188,16 +193,47 @@ const NexCareDB = (() => {
         return { userId, pId };
     }
 
+    function setActivePatientScope(id) {
+        activePatientId = id;
+    }
+
     function getActivePatientScope() {
-        const email = sessionStorage.getItem("nexcare_user_email");
-        if(email) {
-            const userData = sessionStorage.getItem('nexcare_user_data');
-            if (userData) {
-                const user = JSON.parse(userData);
-                if (user.patientId) return user.patientId;
+        // 1. Check in-memory override (set by portals from JWT)
+        if (activePatientId) return activePatientId;
+
+        // 2. Try to get from JWT token (most reliable)
+        const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+        if (token) {
+            try {
+                const parts = token.split('.');
+                if (parts.length === 3) {
+                    let raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    while (raw.length % 4) raw += '=';
+                    const json = decodeURIComponent(atob(raw).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    const payload = JSON.parse(json);
+                    if (payload.patientId) {
+                        activePatientId = payload.patientId; // Cache it
+                        return payload.patientId;
+                    }
+                }
+            } catch (e) {
+                console.warn('JWT decode failed in getActivePatientScope:', e);
             }
         }
-        return "P001"; // Default fallback
+
+        // 3. Fallback to session storage user blob
+        const userData = sessionStorage.getItem('nexcare_user_data');
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                if (user.patientId) return user.patientId;
+            } catch (e) {}
+        }
+
+        // 4. Final fallback
+        return "P001";
     }
 
     async function logActivity(action, module, details) {
@@ -253,6 +289,7 @@ const NexCareDB = (() => {
         
         // Legacy DataStore Bridging Context
         getActivePatientScope,
+        setActivePatientScope,
         
         // Custom Helpers
         logActivity,
@@ -324,7 +361,6 @@ window.NexCareStore = {
 
             if (nextEmail && nextEmail !== sessionEmail) {
                 sessionStorage.setItem("nexcare_user_email", nextEmail);
-                localStorage.setItem("nexcare_currentUser", nextEmail);
             }
         }
 
@@ -338,9 +374,9 @@ window.NexCareStore = {
         
         if (isAPIAvailable()) {
             try {
-                const result = await window.NexCareAPI.Appointments.getAll();
+                const result = await window.NexCareAPI.Appointments.getAll(patientId);
                 if (result.success) {
-                    return result.data.filter(a => a.patientId === patientId);
+                    return result.data;
                 }
             } catch (error) {
                 console.warn('List appointments API failed, using fallback:', error.message);
@@ -356,11 +392,17 @@ window.NexCareStore = {
         
         if (isAPIAvailable()) {
             try {
-                const result = await window.NexCareAPI.Appointments.create({
-                    ...data,
+                // White-list fields for backend DTO validation
+                const payload = {
                     patientId,
-                    patientName: patient?.fullName || 'Self'
-                });
+                    department: data.department,
+                    doctor: data.doctor || "TBD",
+                    dateLabel: data.dateLabel,
+                    timeLabel: data.timeLabel,
+                    reason: data.reason || "",
+                    fee: data.fee || 100
+                };
+                const result = await window.NexCareAPI.Appointments.create(payload);
                 if (result.success) {
                     await NexCareDB.logActivity('Create', 'Appointments', `Booked appointment (${result.data.id}) for ${data.department} with ${data.doctor} on ${data.dateLabel} at ${data.timeLabel}.`);
                     return result.data;
@@ -533,9 +575,9 @@ window.NexCareStore = {
         
         if (isAPIAvailable()) {
             try {
-                const result = await window.NexCareAPI.Billing.getAll();
+                const result = await window.NexCareAPI.Billing.getAll(patientId);
                 if (result.success) {
-                    return result.data.filter(b => b.patientId === patientId);
+                    return result.data;
                 }
             } catch (error) {
                 console.warn('List bills API failed, using fallback:', error.message);
@@ -563,11 +605,14 @@ window.NexCareStore = {
         if (isAPIAvailable()) {
             try {
                 const result = await window.NexCareAPI.Billing.create({
-                    ...data,
-                    patientId
+                    patientId,
+                    visitDate: data.visitDate,
+                    dueDate: data.dueDate,
+                    items: data.items || []
                 });
                 if (result.success) {
-                    await NexCareDB.logActivity('Create', 'Billing', `Generated bill (${result.data.id}) amount ${data.currency || '₹'}${data.subtotal}.`);
+                    const amt = result.data.total || data.subtotal || 0;
+                    await NexCareDB.logActivity('Create', 'Billing', `Generated bill (${result.data.id}) amount ${data.currency || '₹'}${amt}.`);
                     return result.data;
                 }
             } catch (error) {
@@ -595,7 +640,13 @@ window.NexCareStore = {
     async markBillPaid(id, payment) {
         if (isAPIAvailable()) {
             try {
-                const result = await window.NexCareAPI.Billing.markPaid(id, payment);
+                // Whitelist fields for ProcessPaymentDto validation
+                const payload = {
+                    method: payment.method || 'CARD',
+                    amount: Number(payment.amount) || 0
+                };
+                if (payment.transactionId) payload.transactionId = payment.transactionId;
+                const result = await window.NexCareAPI.Billing.markPaid(id, payload);
                 if (result.success) {
                     await NexCareDB.logActivity('Update', 'Billing', `Payment received for ${id}. Amount: ${payment.amount}.`);
                     return result.data;

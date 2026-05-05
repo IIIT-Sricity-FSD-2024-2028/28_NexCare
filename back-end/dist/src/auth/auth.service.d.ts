@@ -1,8 +1,10 @@
 import { LoginRequest, RegisterRequest } from './interfaces/auth.interface';
 import { SystemService } from '../system/system.service';
+import { PatientsService } from '../patients/patients.service';
 export declare class AuthService {
     private readonly systemService;
-    constructor(systemService: SystemService);
+    private readonly patientsService;
+    constructor(systemService: SystemService, patientsService: PatientsService);
     private readonly usersFilePath;
     private readonly jwtSecret;
     private readonly jwtExpiresInSeconds;

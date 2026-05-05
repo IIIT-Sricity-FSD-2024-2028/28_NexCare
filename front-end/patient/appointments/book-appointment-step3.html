@@ -178,9 +178,9 @@
         });
 
         // Load saved data
-        const savedDepartment = localStorage.getItem('selectedDepartment') || 'Cardiology';
-        const savedDate = localStorage.getItem('selectedDate') || 'March 09, 2026';
-        const savedTime = localStorage.getItem('selectedTime') || '10:00 AM';
+        const savedDepartment = sessionStorage.getItem('selectedDepartment') || 'Cardiology';
+        const savedDate = sessionStorage.getItem('selectedDate') || 'March 09, 2026';
+        const savedTime = sessionStorage.getItem('selectedTime') || '10:00 AM';
 
         document.getElementById('summaryDept').textContent = savedDepartment;
         document.getElementById('summaryDate').textContent = savedDate;
@@ -191,18 +191,48 @@
         const form = document.getElementById('patientForm');
         const modal = document.getElementById('successModal');
 
-        confirmBtn.addEventListener('click', function() {
+        confirmBtn.addEventListener('click', async function() {
             if (form.checkValidity()) {
-                // Show success modal
-                document.getElementById('modalDept').textContent = savedDepartment;
-                document.getElementById('modalDate').textContent = savedDate;
-                document.getElementById('modalTime').textContent = savedTime;
-                modal.style.display = 'flex';
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = 'Processing...';
 
-                // Clear saved data
-                localStorage.removeItem('selectedDepartment');
-                localStorage.removeItem('selectedDate');
-                localStorage.removeItem('selectedTime');
+                try {
+                    const store = window.NexCareStore;
+                    if (store) {
+                        const apptData = {
+                            department: savedDepartment,
+                            doctor: "Dr. Smith", 
+                            dateLabel: savedDate,
+                            timeLabel: savedTime,
+                            reason: document.getElementById('reason').value.trim()
+                        };
+
+                        const result = await store.createAppointment(apptData);
+                        
+                        // Show success modal
+                        document.getElementById('modalDept').textContent = savedDepartment;
+                        document.getElementById('modalDate').textContent = savedDate;
+                        document.getElementById('modalTime').textContent = savedTime;
+                        
+                        // Update token in modal if available
+                        if (result && result.token) {
+                            const tokenEl = modal.querySelector('.token');
+                            if (tokenEl) tokenEl.textContent = result.token;
+                        }
+
+                        modal.style.display = 'flex';
+
+                        // Clear saved data
+                        sessionStorage.removeItem('selectedDepartment');
+                        sessionStorage.removeItem('selectedDate');
+                        sessionStorage.removeItem('selectedTime');
+                    }
+                } catch (error) {
+                    console.error('Error creating appointment:', error);
+                    alert('Failed to book appointment. Please try again.');
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = 'Confirm Appointment';
+                }
             } else {
                 form.reportValidity();
             }

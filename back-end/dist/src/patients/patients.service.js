@@ -10,6 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PatientsService = void 0;
+const fs = require("fs");
+const path = require("path");
 const common_1 = require("@nestjs/common");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
@@ -18,6 +20,7 @@ const system_service_1 = require("../system/system.service");
 let PatientsService = class PatientsService {
     constructor(systemService) {
         this.systemService = systemService;
+        this.patientsFilePath = path.join(process.cwd(), 'data', 'patients.json');
         this.patients = [
             {
                 id: 'P001',
@@ -201,9 +204,61 @@ let PatientsService = class PatientsService {
             }
         ];
     }
+    loadPatients() {
+        try {
+            if (!fs.existsSync(this.patientsFilePath)) {
+                const initial = this.getInitialMockData();
+                this.savePatients(initial);
+                return initial;
+            }
+            const raw = fs.readFileSync(this.patientsFilePath, 'utf-8');
+            return JSON.parse(raw);
+        }
+        catch {
+            return this.getInitialMockData();
+        }
+    }
+    savePatients(patients) {
+        try {
+            fs.mkdirSync(path.dirname(this.patientsFilePath), { recursive: true });
+            fs.writeFileSync(this.patientsFilePath, JSON.stringify(patients, null, 2), 'utf-8');
+        }
+        catch (err) {
+            console.error('Failed to persist patients:', err);
+        }
+    }
+    getInitialMockData() {
+        return [
+            {
+                id: 'P001',
+                fullName: 'John Anderson',
+                phone: '5551234567',
+                email: 'patient@gmail.com',
+                patientIdDisplay: 'PAT-2026-001',
+                memberSince: 'January 2024',
+                status: 'Active',
+                bloodGroup: 'O+',
+                age: 45,
+                createdAt: '2024-01-01T00:00:00Z'
+            },
+            {
+                id: 'P002',
+                fullName: 'Maria Garcia',
+                phone: '5559876543',
+                email: 'maria@example.com',
+                patientIdDisplay: 'PAT-2026-002',
+                memberSince: 'March 2025',
+                status: 'Critical',
+                bloodGroup: 'AB-',
+                age: 62,
+                createdAt: '2025-03-01T00:00:00Z'
+            }
+        ];
+    }
     async findAll(status) {
         try {
-            let filteredPatients = [...this.patients];
+            const patients = this.loadPatients();
+            let filteredPatients = [...patients];
             if (status) {
                 filteredPatients = filteredPatients.filter(patient => patient.status === status);
             }
@@ -215,7 +270,8 @@ let PatientsService = class PatientsService {
     }
     async findById(id) {
         try {
-            const patient = array_util_1.ArrayUtil.findById(this.patients, id);
+            const patients = this.loadPatients();
+            const patient = patients.find(p => p.id === id);
             if (!patient) {
                 return response_util_1.ResponseUtil.notFound('Patient', id);
             }
@@ -227,12 +283,13 @@ let PatientsService = class PatientsService {
     }
     async create(patientData) {
         try {
-            const existingPatient = array_util_1.ArrayUtil.searchByText(this.patients, patientData.email, ['email']);
-            if (existingPatient.length > 0) {
+            const patients = this.loadPatients();
+            const existingPatient = patients.find(p => p.email.toLowerCase() === patientData.email.toLowerCase());
+            if (existingPatient) {
                 return response_util_1.ResponseUtil.error('Email already exists');
             }
-            const existingPhone = array_util_1.ArrayUtil.searchByText(this.patients, patientData.phone, ['phone']);
-            if (existingPhone.length > 0) {
+            const existingPhone = patients.find(p => p.phone === patientData.phone);
+            if (existingPhone) {
                 return response_util_1.ResponseUtil.error('Phone number already exists');
             }
             const newPatientId = id_generator_util_1.IdGenerator.generatePatientId();
@@ -251,7 +308,8 @@ let PatientsService = class PatientsService {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
-            this.patients.push(newPatient);
+            patients.push(newPatient);
+            this.savePatients(patients);
             this.systemService.createActivity({
                 userId: newPatient.id,
                 action: 'Create',
@@ -267,39 +325,31 @@ let PatientsService = class PatientsService {
     }
     async update(id, updateData) {
         try {
-            const patient = array_util_1.ArrayUtil.findById(this.patients, id);
-            if (!patient) {
+            const patients = this.loadPatients();
+            const patientIndex = patients.findIndex(p => p.id === id);
+            if (patientIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Patient', id);
             }
             if (updateData.email) {
-                const allPatientsWithEmail = array_util_1.ArrayUtil.searchByText(this.patients, updateData.email, ['email']);
-                const existingPatient = allPatientsWithEmail.find(p => p.id !== id);
-                if (existingPatient) {
+                const existing = patients.find(p => p.email.toLowerCase() === updateData.email.toLowerCase() && p.id !== id);
+                if (existing) {
                     return response_util_1.ResponseUtil.error('Email already exists');
                 }
             }
-            if (updateData.phone) {
-                const allPatientsWithPhone = array_util_1.ArrayUtil.searchByText(this.patients, updateData.phone, ['phone']);
-                const existingPhone = allPatientsWithPhone.find(p => p.id !== id);
-                if (existingPhone) {
-                    return response_util_1.ResponseUtil.error('Phone number already exists');
-                }
-            }
-            const updatedPatient = array_util_1.ArrayUtil.updateById(this.patients, id, {
+            patients[patientIndex] = {
+                ...patients[patientIndex],
                 ...updateData,
                 updatedAt: new Date().toISOString()
-            });
-            if (!updatedPatient) {
-                return response_util_1.ResponseUtil.notFound('Patient', id);
-            }
+            };
+            this.savePatients(patients);
             this.systemService.createActivity({
                 userId: 'Admin',
                 action: 'Update',
-                details: `Patient record ${id} (${updatedPatient.fullName}) updated`,
+                details: `Patient record ${id} (${patients[patientIndex].fullName}) updated`,
                 module: 'Patients',
                 severity: 'INFO'
             });
-            return response_util_1.ResponseUtil.updated('Patient updated successfully', updatedPatient);
+            return response_util_1.ResponseUtil.updated('Patient updated successfully', patients[patientIndex]);
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to update patient');
@@ -307,11 +357,14 @@ let PatientsService = class PatientsService {
     }
     async delete(id) {
         try {
-            const patient = array_util_1.ArrayUtil.findById(this.patients, id);
-            if (!patient) {
+            const patients = this.loadPatients();
+            const patientIndex = patients.findIndex(p => p.id === id);
+            if (patientIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Patient', id);
             }
-            array_util_1.ArrayUtil.removeById(this.patients, id);
+            const patient = patients[patientIndex];
+            patients.splice(patientIndex, 1);
+            this.savePatients(patients);
             this.systemService.createActivity({
                 userId: 'Admin',
                 action: 'Delete',
@@ -351,8 +404,9 @@ let PatientsService = class PatientsService {
     }
     async search(query) {
         try {
+            const patients = this.loadPatients();
             const searchTerm = query.toLowerCase();
-            const matchingPatients = this.patients.filter(patient => patient.fullName.toLowerCase().includes(searchTerm) ||
+            const matchingPatients = patients.filter(patient => patient.fullName.toLowerCase().includes(searchTerm) ||
                 patient.email.toLowerCase().includes(searchTerm) ||
                 patient.patientIdDisplay.toLowerCase().includes(searchTerm) ||
                 patient.phone.includes(searchTerm));

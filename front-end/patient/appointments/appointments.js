@@ -42,8 +42,8 @@ async function renderAppointmentsFromStore() {
     if (!store) return;
 
     const all = await store.listAppointments();
-    const upcoming = all.filter(a => a.status !== 'Canceled' && a.status !== 'Completed');
-    const past = all.filter(a => a.status === 'Completed' || a.status === 'Canceled');
+    const upcoming = all.filter(a => a.status !== 'Cancelled' && a.status !== 'Completed');
+    const past = all.filter(a => a.status === 'Completed' || a.status === 'Cancelled');
 
     // Update stats using specific IDs
     const upcomingCountEl = document.getElementById('upcomingCount');
@@ -73,7 +73,7 @@ async function renderAppointmentsFromStore() {
         if (status === 'Confirmed') return 'badge-confirmed';
         if (status === 'Pending') return 'badge-pending';
         if (status === 'Completed') return 'badge-completed';
-        if (status === 'Canceled') return 'badge-canceled';
+        if (status === 'Cancelled') return 'badge-canceled';
         return 'badge-gray';
     }
 
@@ -91,7 +91,7 @@ async function renderAppointmentsFromStore() {
         const id = escapeHtml(a.id);
         const completedClass = a.status === 'Completed' ? ' completed' : '';
 
-        const primaryAction = a.status === 'Canceled'
+        const primaryAction = a.status === 'Cancelled'
             ? `<button class="btn-icon-action" data-action="delete" data-id="${id}" title="Delete">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <path d="M3 6h14" stroke="#6A7282" stroke-width="1.5" stroke-linecap="round"/>
@@ -168,7 +168,7 @@ async function handleAppointmentListAction(e) {
 
     if (action === 'cancel') {
         if (!confirm('Cancel this appointment?')) return;
-        await store.updateAppointment(id, { status: 'Canceled' });
+        await store.updateAppointment(id, { status: 'Cancelled' });
         await renderAppointmentsFromStore();
         return;
     }

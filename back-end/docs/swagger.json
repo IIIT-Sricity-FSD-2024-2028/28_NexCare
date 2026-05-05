@@ -18,10 +18,7 @@
         },
         "responses": {
           "200": {
-            "description": "Successful login"
-          },
-          "401": {
-            "description": "Unauthorized"
+            "description": "Login result (check success field)"
           }
         },
         "tags": [
@@ -45,11 +42,11 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "User successfully registered"
+          "200": {
+            "description": "Registration result (check success field)"
           },
           "400": {
-            "description": "Bad request"
+            "description": "Validation error"
           }
         },
         "tags": [
@@ -197,8 +194,11 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "Activity logged successfully"
+          "200": {
+            "description": "Activity logging result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
           }
         },
         "tags": [
@@ -537,331 +537,6 @@
         ]
       }
     },
-    "/api/users": {
-      "get": {
-        "operationId": "UsersController_findAll",
-        "summary": "Get all users",
-        "parameters": [
-          {
-            "name": "role",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "enum": [
-                "patient",
-                "administrative_staff",
-                "superuser",
-                "ambulance",
-                "doctor",
-                "nurse"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of users"
-          }
-        },
-        "tags": [
-          "Users"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "post": {
-        "operationId": "UsersController_create",
-        "summary": "Create a new user",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUserDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "User created successfully"
-          }
-        },
-        "tags": [
-          "Users"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/users/stats/overview": {
-      "get": {
-        "operationId": "UsersController_getStats",
-        "summary": "Get user statistics",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "User statistics retrieved successfully"
-          }
-        },
-        "tags": [
-          "Users"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/users/role/{role}": {
-      "get": {
-        "operationId": "UsersController_findByRole",
-        "summary": "Get users by role",
-        "parameters": [
-          {
-            "name": "role",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Users retrieved successfully"
-          }
-        },
-        "tags": [
-          "Users"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/users/search/{query}": {
-      "get": {
-        "operationId": "UsersController_search",
-        "summary": "Search users",
-        "parameters": [
-          {
-            "name": "query",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Search results"
-          }
-        },
-        "tags": [
-          "Users"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/users/{id}": {
-      "get": {
-        "operationId": "UsersController_findById",
-        "summary": "Get user by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User retrieved successfully"
-          },
-          "404": {
-            "description": "User not found"
-          }
-        },
-        "tags": [
-          "Users"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "put": {
-        "operationId": "UsersController_update",
-        "summary": "Update user",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "User updated successfully"
-          },
-          "404": {
-            "description": "User not found"
-          }
-        },
-        "tags": [
-          "Users"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "patch": {
-        "operationId": "UsersController_patchUpdate",
-        "summary": "Partial update user",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "User updated successfully"
-          },
-          "404": {
-            "description": "User not found"
-          }
-        },
-        "tags": [
-          "Users"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "UsersController_delete",
-        "summary": "Delete user",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User deleted successfully"
-          },
-          "404": {
-            "description": "User not found"
-          }
-        },
-        "tags": [
-          "Users"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/users/{id}/status": {
-      "patch": {
-        "operationId": "UsersController_updateStatus",
-        "summary": "Update user status",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User status updated successfully"
-          },
-          "404": {
-            "description": "User not found"
-          }
-        },
-        "tags": [
-          "Users"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
     "/api/patients": {
       "get": {
         "operationId": "PatientsController_findAll",
@@ -906,8 +581,11 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "Patient created successfully"
+          "200": {
+            "description": "Patient creation result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
           }
         },
         "tags": [
@@ -1051,10 +729,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Patient details retrieved"
-          },
-          "404": {
-            "description": "Patient not found"
+            "description": "Patient details (check success field for not-found)"
           }
         },
         "tags": [
@@ -1197,6 +872,319 @@
         ]
       }
     },
+    "/api/users": {
+      "get": {
+        "operationId": "UsersController_findAll",
+        "summary": "Get all users",
+        "parameters": [
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "patient",
+                "administrative_staff",
+                "superuser",
+                "ambulance",
+                "doctor",
+                "nurse"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "UsersController_create",
+        "summary": "Create a new user",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User creation result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/stats/overview": {
+      "get": {
+        "operationId": "UsersController_getStats",
+        "summary": "Get user statistics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "User statistics retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/role/{role}": {
+      "get": {
+        "operationId": "UsersController_findByRole",
+        "summary": "Get users by role",
+        "parameters": [
+          {
+            "name": "role",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/search/{query}": {
+      "get": {
+        "operationId": "UsersController_search",
+        "summary": "Search users",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "operationId": "UsersController_findById",
+        "summary": "Get user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved (check success field for not-found)"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "UsersController_update",
+        "summary": "Update user",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User update result (check success field)"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "UsersController_patchUpdate",
+        "summary": "Partial update user",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User update result (check success field)"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "UsersController_delete",
+        "summary": "Delete user",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deletion result (check success field)"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/{id}/status": {
+      "patch": {
+        "operationId": "UsersController_updateStatus",
+        "summary": "Update user status",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status update result (check success field)"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
     "/api/appointments": {
       "get": {
         "operationId": "AppointmentsController_findAll",
@@ -1262,8 +1250,11 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "Appointment booked successfully"
+          "200": {
+            "description": "Appointment booking result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
           }
         },
         "tags": [
@@ -1648,8 +1639,11 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "Bill created successfully"
+          "200": {
+            "description": "Bill creation result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
           }
         },
         "tags": [
@@ -1996,8 +1990,11 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "Request created successfully"
+          "200": {
+            "description": "Request creation result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
           }
         },
         "tags": [
@@ -2399,8 +2396,11 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "Feedback submitted successfully"
+          "200": {
+            "description": "Feedback submission result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
           }
         },
         "tags": [
@@ -2776,8 +2776,11 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "Bed created successfully"
+          "200": {
+            "description": "Bed creation result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
           }
         },
         "tags": [
@@ -3199,8 +3202,11 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "Item created successfully"
+          "200": {
+            "description": "Item creation result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
           }
         },
         "tags": [
@@ -3758,6 +3764,76 @@
           "value"
         ]
       },
+      "CreatePatientDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "Full name of the patient"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+1 (555) 123-4567",
+            "description": "Contact phone number"
+          },
+          "email": {
+            "type": "string",
+            "example": "john@example.com",
+            "description": "Email address"
+          },
+          "bloodGroup": {
+            "type": "string",
+            "example": "O+",
+            "description": "Blood group"
+          },
+          "age": {
+            "type": "number",
+            "example": 35,
+            "description": "Age of the patient"
+          }
+        },
+        "required": [
+          "fullName",
+          "phone",
+          "email"
+        ]
+      },
+      "UpdatePatientDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "Full name of the patient"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+1 (555) 123-4567",
+            "description": "Contact phone number"
+          },
+          "email": {
+            "type": "string",
+            "example": "john@example.com",
+            "description": "Email address"
+          },
+          "status": {
+            "type": "string",
+            "example": "Active",
+            "description": "Patient status"
+          },
+          "bloodGroup": {
+            "type": "string",
+            "example": "O+",
+            "description": "Blood group"
+          },
+          "age": {
+            "type": "number",
+            "example": 35,
+            "description": "Age of the patient"
+          }
+        }
+      },
       "CreateUserDto": {
         "type": "object",
         "properties": {
@@ -3857,76 +3933,6 @@
             "type": "string",
             "example": "Cardiology",
             "description": "Department (for doctors/staff)"
-          }
-        }
-      },
-      "CreatePatientDto": {
-        "type": "object",
-        "properties": {
-          "fullName": {
-            "type": "string",
-            "example": "John Doe",
-            "description": "Full name of the patient"
-          },
-          "phone": {
-            "type": "string",
-            "example": "+1 (555) 123-4567",
-            "description": "Contact phone number"
-          },
-          "email": {
-            "type": "string",
-            "example": "john@example.com",
-            "description": "Email address"
-          },
-          "bloodGroup": {
-            "type": "string",
-            "example": "O+",
-            "description": "Blood group"
-          },
-          "age": {
-            "type": "number",
-            "example": 35,
-            "description": "Age of the patient"
-          }
-        },
-        "required": [
-          "fullName",
-          "phone",
-          "email"
-        ]
-      },
-      "UpdatePatientDto": {
-        "type": "object",
-        "properties": {
-          "fullName": {
-            "type": "string",
-            "example": "John Doe",
-            "description": "Full name of the patient"
-          },
-          "phone": {
-            "type": "string",
-            "example": "+1 (555) 123-4567",
-            "description": "Contact phone number"
-          },
-          "email": {
-            "type": "string",
-            "example": "john@example.com",
-            "description": "Email address"
-          },
-          "status": {
-            "type": "string",
-            "example": "Active",
-            "description": "Patient status"
-          },
-          "bloodGroup": {
-            "type": "string",
-            "example": "O+",
-            "description": "Blood group"
-          },
-          "age": {
-            "type": "number",
-            "example": 35,
-            "description": "Age of the patient"
           }
         }
       },

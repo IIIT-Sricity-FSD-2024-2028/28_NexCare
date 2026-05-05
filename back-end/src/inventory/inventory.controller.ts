@@ -52,8 +52,10 @@ export class InventoryController {
    * Create new inventory item
    */
   @Post()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Create a new inventory item' })
-  @ApiResponse({ status: 201, description: 'Item created successfully' })
+  @ApiResponse({ status: 200, description: 'Item creation result (check success field)' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async create(@Body() createInventoryDto: CreateInventoryDto) {
     return this.inventoryService.create(createInventoryDto as any);
   }

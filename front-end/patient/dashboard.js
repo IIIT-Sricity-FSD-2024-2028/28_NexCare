@@ -101,7 +101,8 @@ function loadUserInfo() {
         try {
             const parts = token.split('.');
             if (parts.length === 3) {
-                const raw  = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                let raw  = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                while (raw.length % 4) raw += '=';
                 const json = decodeURIComponent(
                     atob(raw).split('').map(c =>
                         '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)

@@ -10,15 +10,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppointmentsService = void 0;
+const fs = require("fs");
+const path = require("path");
 const common_1 = require("@nestjs/common");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
-const array_util_1 = require("../common/utils/array.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 const system_service_1 = require("../system/system.service");
 let AppointmentsService = class AppointmentsService {
     constructor(systemService) {
         this.systemService = systemService;
+        this.appointmentsFilePath = path.join(process.cwd(), 'data', 'appointments.json');
         this.appointments = [
             {
                 id: 'APT-001',
@@ -120,9 +122,79 @@ let AppointmentsService = class AppointmentsService {
             }
         ];
     }
+    loadAppointments() {
+        try {
+            if (!fs.existsSync(this.appointmentsFilePath)) {
+                const initial = this.getInitialMockData();
+                this.saveAppointments(initial);
+                return initial;
+            }
+            const raw = fs.readFileSync(this.appointmentsFilePath, 'utf-8');
+            return JSON.parse(raw);
+        }
+        catch {
+            return this.getInitialMockData();
+        }
+    }
+    saveAppointments(appointments) {
+        try {
+            fs.mkdirSync(path.dirname(this.appointmentsFilePath), { recursive: true });
+            fs.writeFileSync(this.appointmentsFilePath, JSON.stringify(appointments, null, 2), 'utf-8');
+        }
+        catch (err) {
+            console.error('Failed to persist appointments:', err);
+        }
+    }
+    getInitialMockData() {
+        return [
+            {
+                id: 'APT-001',
+                patientId: 'P001',
+                patientName: 'John Anderson',
+                department: 'Cardiology',
+                doctor: 'Dr. Sarah Smith',
+                dateLabel: 'March 15, 2026',
+                timeLabel: '10:00 AM',
+                token: 'TKN-1234',
+                fee: 150,
+                status: api_response_interface_1.AppointmentStatus.CONFIRMED,
+                reason: 'Routine heart checkup',
+                createdAt: '2026-03-01T00:00:00Z'
+            },
+            {
+                id: 'APT-002',
+                patientId: 'P002',
+                patientName: 'Maria Garcia',
+                department: 'Orthopedics',
+                doctor: 'Dr. Vikram Patel',
+                dateLabel: 'April 02, 2026',
+                timeLabel: '02:30 PM',
+                token: 'TKN-5678',
+                fee: 200,
+                status: api_response_interface_1.AppointmentStatus.PENDING,
+                reason: 'Severe knee pain - Emergency Consult',
+                createdAt: '2026-03-25T00:00:00Z'
+            },
+            {
+                id: 'APT-003',
+                patientId: 'P001',
+                patientName: 'John Anderson',
+                department: 'General Medicine',
+                doctor: 'Dr. Anjali Desai',
+                dateLabel: 'March 01, 2026',
+                timeLabel: '11:00 AM',
+                token: 'TKN-9012',
+                fee: 100,
+                status: api_response_interface_1.AppointmentStatus.COMPLETED,
+                reason: 'Annual physical',
+                createdAt: '2026-02-15T00:00:00Z'
+            }
+        ];
+    }
     async findAll(patientId, status, department) {
         try {
-            let filteredAppointments = [...this.appointments];
+            const appointments = this.loadAppointments();
+            let filteredAppointments = [...appointments];
             if (patientId) {
                 filteredAppointments = filteredAppointments.filter(apt => apt.patientId === patientId);
             }
@@ -140,7 +212,8 @@ let AppointmentsService = class AppointmentsService {
     }
     async findById(id) {
         try {
-            const appointment = this.appointments.find(a => a.id === id);
+            const appointments = this.loadAppointments();
+            const appointment = appointments.find(a => a.id === id);
             if (!appointment) {
                 return response_util_1.ResponseUtil.notFound('Appointment', id);
             }
@@ -152,6 +225,7 @@ let AppointmentsService = class AppointmentsService {
     }
     async create(appointmentData) {
         try {
+            const appointments = this.loadAppointments();
             const newAppointmentId = id_generator_util_1.IdGenerator.generateAppointmentId();
             const token = id_generator_util_1.IdGenerator.generateTokenId();
             const newAppointment = {
@@ -169,7 +243,8 @@ let AppointmentsService = class AppointmentsService {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
-            this.appointments.push(newAppointment);
+            appointments.push(newAppointment);
+            this.saveAppointments(appointments);
             this.systemService.createActivity({
                 userId: newAppointment.patientId,
                 action: 'Create',
@@ -180,19 +255,24 @@ let AppointmentsService = class AppointmentsService {
             return response_util_1.ResponseUtil.created('Appointment created successfully', newAppointment);
         }
         catch (error) {
+            console.error('Create appointment error:', error);
             return response_util_1.ResponseUtil.serverError('Failed to create appointment');
         }
     }
     async update(id, updateData) {
         try {
-            const appointment = array_util_1.ArrayUtil.findById(this.appointments, id);
+            const appointments = this.loadAppointments();
+            const appointment = appointments.find(a => a.id === id);
             if (!appointment) {
                 return response_util_1.ResponseUtil.notFound('Appointment', id);
             }
-            const updatedAppointment = array_util_1.ArrayUtil.updateById(this.appointments, id, {
+            const updatedIndex = appointments.findIndex(a => a.id === id);
+            appointments[updatedIndex] = {
+                ...appointments[updatedIndex],
                 ...updateData,
                 updatedAt: new Date().toISOString()
-            });
+            };
+            this.saveAppointments(appointments);
             this.systemService.createActivity({
                 userId: 'System',
                 action: 'Update',
@@ -200,7 +280,7 @@ let AppointmentsService = class AppointmentsService {
                 module: 'Appointments',
                 severity: 'INFO'
             });
-            return response_util_1.ResponseUtil.updated('Appointment updated successfully', updatedAppointment);
+            return response_util_1.ResponseUtil.updated('Appointment updated successfully', appointments[updatedIndex]);
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to update appointment');
@@ -208,12 +288,14 @@ let AppointmentsService = class AppointmentsService {
     }
     async delete(id) {
         try {
-            const appointmentIndex = this.appointments.findIndex(a => a.id === id);
+            const appointments = this.loadAppointments();
+            const appointmentIndex = appointments.findIndex(a => a.id === id);
             if (appointmentIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Appointment', id);
             }
-            const appointment = this.appointments[appointmentIndex];
-            this.appointments.splice(appointmentIndex, 1);
+            const appointment = appointments[appointmentIndex];
+            appointments.splice(appointmentIndex, 1);
+            this.saveAppointments(appointments);
             this.systemService.createActivity({
                 userId: appointment.patientId,
                 action: 'Delete',
@@ -229,13 +311,15 @@ let AppointmentsService = class AppointmentsService {
     }
     async confirm(id) {
         try {
-            const appointmentIndex = this.appointments.findIndex(a => a.id === id);
+            const appointments = this.loadAppointments();
+            const appointmentIndex = appointments.findIndex(a => a.id === id);
             if (appointmentIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Appointment', id);
             }
-            this.appointments[appointmentIndex].status = api_response_interface_1.AppointmentStatus.CONFIRMED;
-            this.appointments[appointmentIndex].updatedAt = new Date().toISOString();
-            const updatedAppointment = this.appointments[appointmentIndex];
+            appointments[appointmentIndex].status = api_response_interface_1.AppointmentStatus.CONFIRMED;
+            appointments[appointmentIndex].updatedAt = new Date().toISOString();
+            this.saveAppointments(appointments);
+            const updatedAppointment = appointments[appointmentIndex];
             this.systemService.createActivity({
                 userId: 'Admin',
                 action: 'Confirm',
@@ -251,13 +335,15 @@ let AppointmentsService = class AppointmentsService {
     }
     async complete(id) {
         try {
-            const appointmentIndex = this.appointments.findIndex(a => a.id === id);
+            const appointments = this.loadAppointments();
+            const appointmentIndex = appointments.findIndex(a => a.id === id);
             if (appointmentIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Appointment', id);
             }
-            this.appointments[appointmentIndex].status = api_response_interface_1.AppointmentStatus.COMPLETED;
-            this.appointments[appointmentIndex].updatedAt = new Date().toISOString();
-            const updatedAppointment = this.appointments[appointmentIndex];
+            appointments[appointmentIndex].status = api_response_interface_1.AppointmentStatus.COMPLETED;
+            appointments[appointmentIndex].updatedAt = new Date().toISOString();
+            this.saveAppointments(appointments);
+            const updatedAppointment = appointments[appointmentIndex];
             this.systemService.createActivity({
                 userId: 'Admin',
                 action: 'Complete',
@@ -273,13 +359,15 @@ let AppointmentsService = class AppointmentsService {
     }
     async cancel(id) {
         try {
-            const appointmentIndex = this.appointments.findIndex(a => a.id === id);
+            const appointments = this.loadAppointments();
+            const appointmentIndex = appointments.findIndex(a => a.id === id);
             if (appointmentIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Appointment', id);
             }
-            this.appointments[appointmentIndex].status = api_response_interface_1.AppointmentStatus.CANCELLED;
-            this.appointments[appointmentIndex].updatedAt = new Date().toISOString();
-            const updatedAppointment = this.appointments[appointmentIndex];
+            appointments[appointmentIndex].status = api_response_interface_1.AppointmentStatus.CANCELLED;
+            appointments[appointmentIndex].updatedAt = new Date().toISOString();
+            this.saveAppointments(appointments);
+            const updatedAppointment = appointments[appointmentIndex];
             this.systemService.createActivity({
                 userId: updatedAppointment.patientId,
                 action: 'Cancel',
@@ -295,18 +383,19 @@ let AppointmentsService = class AppointmentsService {
     }
     async getStats() {
         try {
-            const totalAppointments = this.appointments.length;
-            const pendingAppointments = this.appointments.filter(a => a.status === api_response_interface_1.AppointmentStatus.PENDING).length;
-            const confirmedAppointments = this.appointments.filter(a => a.status === api_response_interface_1.AppointmentStatus.CONFIRMED).length;
-            const completedAppointments = this.appointments.filter(a => a.status === api_response_interface_1.AppointmentStatus.COMPLETED).length;
-            const cancelledAppointments = this.appointments.filter(a => a.status === api_response_interface_1.AppointmentStatus.CANCELLED).length;
+            const appointments = this.loadAppointments();
+            const totalAppointments = appointments.length;
+            const pendingAppointments = appointments.filter(a => a.status === api_response_interface_1.AppointmentStatus.PENDING).length;
+            const confirmedAppointments = appointments.filter(a => a.status === api_response_interface_1.AppointmentStatus.CONFIRMED).length;
+            const completedAppointments = appointments.filter(a => a.status === api_response_interface_1.AppointmentStatus.COMPLETED).length;
+            const cancelledAppointments = appointments.filter(a => a.status === api_response_interface_1.AppointmentStatus.CANCELLED).length;
             const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            const todayAppointments = this.appointments.filter(a => a.dateLabel === today).length;
+            const todayAppointments = appointments.filter(a => a.dateLabel === today).length;
             const byDepartment = {};
-            this.appointments.forEach(apt => {
+            appointments.forEach(apt => {
                 byDepartment[apt.department] = (byDepartment[apt.department] || 0) + 1;
             });
-            const revenue = this.appointments
+            const revenue = appointments
                 .filter(a => a.status === api_response_interface_1.AppointmentStatus.COMPLETED)
                 .reduce((sum, apt) => sum + apt.fee, 0);
             const stats = {
@@ -327,8 +416,9 @@ let AppointmentsService = class AppointmentsService {
     }
     async findByPatient(patientId) {
         try {
-            const appointments = this.appointments.filter(a => a.patientId === patientId);
-            return response_util_1.ResponseUtil.success(`Appointments for patient ${patientId} retrieved successfully`, appointments);
+            const appointments = this.loadAppointments();
+            const patientAppointments = appointments.filter(a => a.patientId === patientId);
+            return response_util_1.ResponseUtil.success(`Appointments for patient ${patientId} retrieved successfully`, patientAppointments);
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to retrieve patient appointments');
@@ -336,7 +426,7 @@ let AppointmentsService = class AppointmentsService {
     }
     async findByDepartment(department) {
         try {
-            const appointments = this.appointments.filter(a => a.department === department);
+            const appointments = this.loadAppointments().filter(a => a.department === department);
             return response_util_1.ResponseUtil.success(`Appointments for ${department} department retrieved successfully`, appointments);
         }
         catch (error) {
@@ -349,7 +439,7 @@ let AppointmentsService = class AppointmentsService {
     async getTodayAppointments() {
         try {
             const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            const todayAppointments = this.appointments.filter(a => a.dateLabel === today);
+            const todayAppointments = this.loadAppointments().filter(a => a.dateLabel === today);
             return response_util_1.ResponseUtil.success('Today\'s appointments retrieved successfully', todayAppointments);
         }
         catch (error) {

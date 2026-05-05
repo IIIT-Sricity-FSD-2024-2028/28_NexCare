@@ -71,8 +71,10 @@ __decorate([
 ], PatientsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new patient record' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Patient created successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Patient creation result (check success field)' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_patient_dto_1.CreatePatientDto]),
@@ -119,8 +121,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get patient by ID' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Patient details retrieved' }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: 'Patient not found' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Patient details (check success field for not-found)' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

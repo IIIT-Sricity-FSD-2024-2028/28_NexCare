@@ -50,8 +50,10 @@ export class BillingController {
    * Create new bill
    */
   @Post()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Create a new bill' })
-  @ApiResponse({ status: 201, description: 'Bill created successfully' })
+  @ApiResponse({ status: 200, description: 'Bill creation result (check success field)' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async create(@Body() createBillDto: CreateBillDto) {
     return this.billingService.create(createBillDto as any);
   }

@@ -51,8 +51,10 @@ export class FeedbackController {
    * Create new feedback
    */
   @Post()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Submit new feedback' })
-  @ApiResponse({ status: 201, description: 'Feedback submitted successfully' })
+  @ApiResponse({ status: 200, description: 'Feedback submission result (check success field)' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async create(@Body() createFeedbackDto: CreateFeedbackDto) {
     return this.feedbackService.create(createFeedbackDto as any);
   }

@@ -32,11 +32,11 @@ function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-function renderBillFromStore() {
+async function renderBillFromStore() {
     const store = window.NexCareStore;
     if (!store) return;
 
-    const bills = store.listBills();
+    const bills = await store.listBills();
     const pendingBills = bills.filter(b => String(b.status).toLowerCase() === 'pending');
     const paidBills = bills.filter(b => String(b.status).toLowerCase() === 'paid');
 
@@ -49,7 +49,7 @@ function renderBillFromStore() {
     let bill = selectedId ? bills.find(b => String(b.id) === String(selectedId)) : null;
     if (!bill) bill = pendingBills[0] || bills[0] || null;
 
-    const patient = store.getActivePatient?.() || {};
+    const patient = (await store.getActivePatient?.()) || {};
 
     // Update Top Branding & Header
     const nameDisplay = document.getElementById('activePatientNameDisplay');
@@ -396,7 +396,7 @@ function handlePayment(e) {
     submitBtn.disabled = true;
     
     // Simulate payment processing
-    setTimeout(function() {
+    setTimeout(async function() {
         closePaymentModal();
 
         // Persist paid status (Update)
@@ -405,13 +405,13 @@ function handlePayment(e) {
         const transactionId = 'TXN' + Date.now().toString().slice(-10);
 
         if (store) {
-            const bills = store.listBills();
+            const bills = await store.listBills();
             const selectedId = getSelectedBillId();
             const bill = selectedId ? bills.find(b => String(b.id) === String(selectedId)) : bills[0];
             if (bill) {
                 const totals = computeBillTotal(bill);
                 paidAmountText = formatMoneyINR(totals.total);
-                store.markBillPaid(bill.id, {
+                await store.markBillPaid(bill.id, {
                     method: String(formData.get('paymentMethod') || 'CARD').toUpperCase(),
                     amount: totals.total,
                     transactionId: transactionId
@@ -435,9 +435,9 @@ function handlePayment(e) {
             title: 'Payment Successful!',
             message: 'Your payment has been processed and a confirmation email has been sent.',
             details: detailsHtml,
-            onClose: () => {
+            onClose: async () => {
                 // Receipt download prompt removed as requested
-                renderBillFromStore();
+                await renderBillFromStore();
             }
         });
         
@@ -448,7 +448,7 @@ function handlePayment(e) {
         // Clear form
         e.target.reset();
 
-        renderBillFromStore();
+        await renderBillFromStore();
         
         // Redirect to dashboard or show receipt
         setTimeout(function() {

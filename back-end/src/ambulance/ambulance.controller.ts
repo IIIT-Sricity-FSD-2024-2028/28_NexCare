@@ -52,8 +52,10 @@ export class AmbulanceController {
    * Create new ambulance request
    */
   @Post()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Create an ambulance request' })
-  @ApiResponse({ status: 201, description: 'Request created successfully' })
+  @ApiResponse({ status: 200, description: 'Request creation result (check success field)' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async create(@Body() createRequestDto: CreateAmbulanceRequestDto) {
     // Validate DTO before processing
     const validation = DtoValidatorUtil.validateAmbulanceRequest(createRequestDto);

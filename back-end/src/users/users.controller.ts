@@ -47,8 +47,10 @@ export class UsersController {
    * Create new user
    */
   @Post()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Create a new user' })
-  @ApiResponse({ status: 201, description: 'User created successfully' })
+  @ApiResponse({ status: 200, description: 'User creation result (check success field)' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto as any);
   }
@@ -88,8 +90,7 @@ export class UsersController {
    */
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID' })
-  @ApiResponse({ status: 200, description: 'User retrieved successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 200, description: 'User retrieved (check success field for not-found)' })
   async findById(@Param('id') id: string) {
     return this.usersService.findById(id);
   }
@@ -99,8 +100,7 @@ export class UsersController {
    */
   @Put(':id')
   @ApiOperation({ summary: 'Update user' })
-  @ApiResponse({ status: 200, description: 'User updated successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 200, description: 'User update result (check success field)' })
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto as any);
   }
@@ -110,8 +110,7 @@ export class UsersController {
    */
   @Patch(':id')
   @ApiOperation({ summary: 'Partial update user' })
-  @ApiResponse({ status: 200, description: 'User updated successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 200, description: 'User update result (check success field)' })
   async patchUpdate(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto as any);
   }
@@ -121,8 +120,7 @@ export class UsersController {
    */
   @Delete(':id')
   @ApiOperation({ summary: 'Delete user' })
-  @ApiResponse({ status: 200, description: 'User deleted successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 200, description: 'User deletion result (check success field)' })
   async delete(@Param('id') id: string) {
     return this.usersService.delete(id);
   }
@@ -132,8 +130,7 @@ export class UsersController {
    */
   @Patch(':id/status')
   @ApiOperation({ summary: 'Update user status' })
-  @ApiResponse({ status: 200, description: 'User status updated successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 200, description: 'Status update result (check success field)' })
   async updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.usersService.updateStatus(id, status as any);
   }

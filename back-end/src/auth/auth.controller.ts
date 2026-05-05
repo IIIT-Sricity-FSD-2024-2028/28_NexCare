@@ -23,8 +23,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login' })
-  @ApiResponse({ status: 200, description: 'Successful login' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 200, description: 'Login result (check success field)' })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
@@ -32,9 +31,10 @@ export class AuthController {
   /** @route POST /api/auth/register — Public (patient self-registration) */
   @Public()
   @Post('register')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Register a new patient account' })
-  @ApiResponse({ status: 201, description: 'User successfully registered' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 200, description: 'Registration result (check success field)' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }

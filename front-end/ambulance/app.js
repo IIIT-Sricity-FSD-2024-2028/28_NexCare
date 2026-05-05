@@ -16,8 +16,6 @@ const SessionManager = {
     checkAuthStatus: function() {
         // ── JWT Bridge ────────────────────────────────────────────────────────
         // Read the auth token stored by the global login (session.js / api.js).
-        // Decode it client-side to get the user's name, email, and role without
-        // an extra API round-trip. This replaces the old NexCareDB bridge.
         const token = sessionStorage.getItem('nexcare_auth_token')
                    || localStorage.getItem('nexcare_auth_token');
 
@@ -33,11 +31,10 @@ const SessionManager = {
                     );
                     const payload = JSON.parse(json);
 
-                    // Validate token is not expired and is for an ambulance user
                     const now = Math.floor(Date.now() / 1000);
                     if (payload.role === 'ambulance' && (!payload.exp || now <= payload.exp)) {
                         this.currentUser = {
-                            id:        payload.sub   || 'emp-001',
+                            id:        payload.sub,
                             name:      payload.name  || payload.email.split('@')[0],
                             email:     payload.email || 'ambulance@nexcare.com',
                             role:      'ambulance',
@@ -52,8 +49,8 @@ const SessionManager = {
             }
         }
 
-        // Fallback: check legacy ambulanceUser key (for backward compat)
-        const userData = localStorage.getItem('ambulanceUser');
+        // Fallback: check session-only ambulanceUser key
+        const userData = sessionStorage.getItem('ambulanceUser');
         if (userData) {
             try {
                 this.currentUser = JSON.parse(userData);
@@ -80,7 +77,7 @@ const SessionManager = {
             loginTime: new Date().toISOString()
         };
         
-        localStorage.setItem('ambulanceUser', JSON.stringify(this.currentUser));
+        sessionStorage.setItem('ambulanceUser', JSON.stringify(this.currentUser));
         this.updateUIForLoggedInUser();
         
         // Show welcome message
@@ -91,7 +88,7 @@ const SessionManager = {
     
     // Logout user
     logout: function() {
-        localStorage.removeItem('ambulanceUser');
+        sessionStorage.removeItem('ambulanceUser');
         this.currentUser = null;
         
         // Clear all session data
@@ -308,7 +305,7 @@ const StateManager = {
     // Set selected request
     setSelectedRequest: function(request) {
         this.state.selectedRequest = request;
-        localStorage.setItem('selectedRequest', JSON.stringify(request));
+        sessionStorage.setItem('selectedRequest', JSON.stringify(request));
         this.saveState();
     },
     
@@ -318,7 +315,7 @@ const StateManager = {
             return this.state.selectedRequest;
         }
         
-        const saved = localStorage.getItem('selectedRequest');
+        const saved = sessionStorage.getItem('selectedRequest');
         if (saved) {
             try {
                 return JSON.parse(saved);
@@ -356,7 +353,7 @@ const StateManager = {
             sortBy: 'time'
         };
         sessionStorage.removeItem('ambulanceState');
-        localStorage.removeItem('selectedRequest');
+        sessionStorage.removeItem('selectedRequest');
     }
 };
 
@@ -950,7 +947,7 @@ const ChecklistManager = {
     
     getChecklistState: function() {
         try {
-            const stored = localStorage.getItem(this.storageKey);
+            const stored = sessionStorage.getItem(this.storageKey);
             return stored ? JSON.parse(stored) : {};
         } catch (e) {
             return {};
@@ -959,7 +956,7 @@ const ChecklistManager = {
     
     saveChecklistState: function(state) {
         try {
-            localStorage.setItem(this.storageKey, JSON.stringify(state));
+            sessionStorage.setItem(this.storageKey, JSON.stringify(state));
         } catch (e) {
             console.warn('Could not save checklist state:', e);
         }
@@ -1160,11 +1157,8 @@ let appState = {
 })();
 
 function persistAppState() {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-        // Backend persistence is handled by NexCareStore API calls
-        // (updateAmbulanceRequest, etc.) at the point of mutation
-    } catch (e) {}
+    // Deprecated: State is now managed by backend via NexCareAPI
+    console.log('NexCare: Local persistence skipped, data is backend-driven.');
 }
 
 function newRequestId() {
@@ -2712,7 +2706,7 @@ function initializeProfile() {
             return;
         }
         
-        // Save to localStorage (in a real app, this would be sent to server)
+        // Save to sessionStorage
         const profileData = {
             name,
             phone,
@@ -2721,7 +2715,14 @@ function initializeProfile() {
             updatedAt: new Date().toISOString()
         };
         
-        localStorage.setItem('ambulanceProfile', JSON.stringify(profileData));
+        sessionStorage.setItem('ambulanceProfile', JSON.stringify(profileData));
+        
+        // Sync name with backend if possible
+        if (window.NexCareAPI && SessionManager.currentUser && SessionManager.currentUser.id) {
+            window.NexCareAPI.Users.update(SessionManager.currentUser.id, { name })
+                .then(() => console.log('NexCare: Profile name synced with backend'))
+                .catch(err => console.warn('NexCare: Profile sync failed', err));
+        }
         
         // Update UI
         updateProfileUI(profileData);
@@ -2807,7 +2808,7 @@ function initializeProfile() {
     
     // Load saved profile data if exists
     function loadSavedProfile() {
-        const savedProfile = localStorage.getItem('ambulanceProfile');
+        const savedProfile = sessionStorage.getItem('ambulanceProfile');
         if (savedProfile) {
             try {
                 const profileData = JSON.parse(savedProfile);
@@ -3423,7 +3424,7 @@ function setupAutoSave() {
                 for (let [key, value] of formData.entries()) {
                     data[key] = value;
                 }
-                localStorage.setItem(`formData_${form.id}`, JSON.stringify(data));
+                sessionStorage.setItem(`formData_${form.id}`, JSON.stringify(data));
             });
         });
     });
@@ -3431,7 +3432,7 @@ function setupAutoSave() {
 
 // Restore form data
 function restoreFormData(formId) {
-    const savedData = localStorage.getItem(`formData_${formId}`);
+    const savedData = sessionStorage.getItem(`formData_${formId}`);
     if (savedData) {
         try {
             const data = JSON.parse(savedData);

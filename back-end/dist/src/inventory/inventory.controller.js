@@ -85,8 +85,10 @@ __decorate([
 ], InventoryController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new inventory item' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Item created successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Item creation result (check success field)' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_inventory_dto_1.CreateInventoryDto]),

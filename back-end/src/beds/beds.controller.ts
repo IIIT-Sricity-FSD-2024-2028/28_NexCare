@@ -47,8 +47,10 @@ export class BedsController {
    * Create new bed
    */
   @Post()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Create a new bed record' })
-  @ApiResponse({ status: 201, description: 'Bed created successfully' })
+  @ApiResponse({ status: 200, description: 'Bed creation result (check success field)' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async create(@Body() createBedDto: CreateBedDto) {
     return this.bedsService.create(createBedDto as any);
   }

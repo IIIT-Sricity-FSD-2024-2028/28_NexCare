@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { ArrayUtil } from '../common/utils/array.util';
@@ -16,50 +18,78 @@ import { SystemService } from '../system/system.service';
 export class BillingService {
   constructor(private readonly systemService: SystemService) {}
 
-  // In-memory mock bills database (aligned with frontend db.js)
-  private bills: Bill[] = [
-    {
-      id: 'BILL-001',
-      patientId: 'P001',
-      visitDate: '1 March, 2026',
-      dueDate: '15 March, 2026',
-      status: BillStatus.PAID,
-      currency: '₹',
-      subtotal: 1000,
-      cgstRate: 0.09,
-      sgstRate: 0.09,
-      cgstAmount: 90,
-      sgstAmount: 90,
-      total: 1180,
-      items: [
-        { description: 'General Consultation', department: 'General Medicine', amount: 1000 }
-      ],
-      payments: [
-        { id: 'PAY-001', amount: 1180, method: 'CARD', createdAt: '2026-03-10T10:00:00Z' }
-      ],
-      createdAt: '2026-03-01T00:00:00Z'
-    },
-    {
-      id: 'BILL-002',
-      patientId: 'P002',
-      visitDate: '2 April, 2026',
-      dueDate: '16 April, 2026',
-      status: BillStatus.PENDING,
-      currency: '₹',
-      subtotal: 5500,
-      cgstRate: 0.09,
-      sgstRate: 0.09,
-      cgstAmount: 495,
-      sgstAmount: 495,
-      total: 6490,
-      items: [
-        { description: 'Emergency Room Admittance', department: 'ER', amount: 2500 },
-        { description: 'MRI Scan', department: 'Radiology', amount: 3000 }
-      ],
-      payments: [],
-      createdAt: '2026-04-02T00:00:00Z'
+  private readonly billsFilePath = path.join(process.cwd(), 'data', 'billing.json');
+
+  /** Load bills from disk */
+  private loadBills(): Bill[] {
+    try {
+      if (!fs.existsSync(this.billsFilePath)) {
+        const initial = this.getInitialMockData();
+        this.saveBills(initial);
+        return initial;
+      }
+      const raw = fs.readFileSync(this.billsFilePath, 'utf-8');
+      return JSON.parse(raw);
+    } catch {
+      return this.getInitialMockData();
     }
-  ];
+  }
+
+  /** Persist bills to disk */
+  private saveBills(bills: Bill[]): void {
+    try {
+      fs.mkdirSync(path.dirname(this.billsFilePath), { recursive: true });
+      fs.writeFileSync(this.billsFilePath, JSON.stringify(bills, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to persist bills:', err);
+    }
+  }
+
+  private getInitialMockData(): Bill[] {
+    return [
+      {
+        id: 'BILL-001',
+        patientId: 'P001',
+        visitDate: '1 March, 2026',
+        dueDate: '15 March, 2026',
+        status: BillStatus.PAID,
+        currency: '₹',
+        subtotal: 1000,
+        cgstRate: 0.09,
+        sgstRate: 0.09,
+        cgstAmount: 90,
+        sgstAmount: 90,
+        total: 1180,
+        items: [
+          { description: 'General Consultation', department: 'General Medicine', amount: 1000 }
+        ],
+        payments: [
+          { id: 'PAY-001', amount: 1180, method: 'CARD', createdAt: '2026-03-10T10:00:00Z' }
+        ],
+        createdAt: '2026-03-01T00:00:00Z'
+      },
+      {
+        id: 'BILL-002',
+        patientId: 'P002',
+        visitDate: '2 April, 2026',
+        dueDate: '16 April, 2026',
+        status: BillStatus.PENDING,
+        currency: '₹',
+        subtotal: 5500,
+        cgstRate: 0.09,
+        sgstRate: 0.09,
+        cgstAmount: 495,
+        sgstAmount: 495,
+        total: 6490,
+        items: [
+          { description: 'Emergency Room Admittance', department: 'ER', amount: 2500 },
+          { description: 'MRI Scan', department: 'Radiology', amount: 3000 }
+        ],
+        payments: [],
+        createdAt: '2026-04-02T00:00:00Z'
+      }
+    ];
+  }
 
   /**
    * Get all bills with optional filtering
@@ -69,7 +99,7 @@ export class BillingService {
    */
   async findAll(patientId?: string, status?: BillStatus) {
     try {
-      let filteredBills = [...this.bills];
+      let filteredBills = [...this.loadBills()];
 
       // Apply patient filter
       if (patientId) {
@@ -94,7 +124,8 @@ export class BillingService {
    */
   async findById(id: string) {
     try {
-      const bill = this.bills.find(b => b.id === id);
+      const bills = this.loadBills();
+      const bill = bills.find(b => b.id === id);
       
       if (!bill) {
         return ResponseUtil.notFound('Bill', id);
@@ -113,6 +144,8 @@ export class BillingService {
    */
   async create(billData: CreateBillRequest) {
     try {
+      const bills = this.loadBills();
+
       // Generate new bill ID
       const newBillId = IdGenerator.generateBillId();
 
@@ -144,8 +177,9 @@ export class BillingService {
         updatedAt: new Date().toISOString()
       };
 
-      // Add to bills array
-      this.bills.push(newBill);
+      // Add to bills array and persist
+      bills.push(newBill);
+      this.saveBills(bills);
 
       // Log activity
       this.systemService.createActivity({
@@ -170,13 +204,14 @@ export class BillingService {
    */
   async update(id: string, updateData: UpdateBillRequest) {
     try {
-      const billIndex = this.bills.findIndex(b => b.id === id);
+      const bills = this.loadBills();
+      const billIndex = bills.findIndex(b => b.id === id);
       
       if (billIndex === -1) {
         return ResponseUtil.notFound('Bill', id);
       }
 
-      const bill = this.bills[billIndex];
+      const bill = bills[billIndex];
 
       // Prevent modification of paid bills
       if (bill.status === BillStatus.PAID) {
@@ -202,7 +237,8 @@ export class BillingService {
         };
       }
 
-      this.bills[billIndex] = updatedBill;
+      bills[billIndex] = updatedBill;
+      this.saveBills(bills);
 
       // Log activity
       this.systemService.createActivity({
@@ -226,21 +262,23 @@ export class BillingService {
    */
   async delete(id: string) {
     try {
-      const billIndex = this.bills.findIndex(b => b.id === id);
+      const bills = this.loadBills();
+      const billIndex = bills.findIndex(b => b.id === id);
       
       if (billIndex === -1) {
         return ResponseUtil.notFound('Bill', id);
       }
 
-      const bill = this.bills[billIndex];
+      const bill = bills[billIndex];
 
       // Prevent deletion of paid bills
       if (bill.status === BillStatus.PAID) {
         return ResponseUtil.error('Cannot delete paid bills');
       }
 
-      // Remove bill
-      this.bills.splice(billIndex, 1);
+      // Remove bill and persist
+      bills.splice(billIndex, 1);
+      this.saveBills(bills);
 
       return ResponseUtil.deleted('Bill');
     } catch (error) {
@@ -256,13 +294,14 @@ export class BillingService {
    */
   async processPayment(id: string, paymentData: PaymentRequest) {
     try {
-      const billIndex = this.bills.findIndex(b => b.id === id);
+      const bills = this.loadBills();
+      const billIndex = bills.findIndex(b => b.id === id);
       
       if (billIndex === -1) {
         return ResponseUtil.notFound('Bill', id);
       }
 
-      const bill = this.bills[billIndex];
+      const bill = bills[billIndex];
 
       // Prevent payment for already paid bills
       if (bill.status === BillStatus.PAID) {
@@ -296,6 +335,8 @@ export class BillingService {
       }
 
       bill.updatedAt = new Date().toISOString();
+      bills[billIndex] = bill;
+      this.saveBills(bills);
 
       // Log activity
       this.systemService.createActivity({
@@ -318,28 +359,29 @@ export class BillingService {
    */
   async getStats() {
     try {
-      const totalBills = this.bills.length;
-      const pendingBills = this.bills.filter(b => b.status === BillStatus.PENDING).length;
-      const paidBills = this.bills.filter(b => b.status === BillStatus.PAID).length;
-      const overdueBills = this.bills.filter(b => b.status === BillStatus.OVERDUE).length;
+      const bills = this.loadBills();
+      const totalBills = bills.length;
+      const pendingBills = bills.filter(b => b.status === BillStatus.PENDING).length;
+      const paidBills = bills.filter(b => b.status === BillStatus.PAID).length;
+      const overdueBills = bills.filter(b => b.status === BillStatus.OVERDUE).length;
       
       // Revenue calculations
-      const totalRevenue = this.bills
+      const totalRevenue = bills
         .filter(b => b.status === BillStatus.PAID)
         .reduce((sum, bill) => sum + bill.total, 0);
       
-      const pendingRevenue = this.bills
+      const pendingRevenue = bills
         .filter(b => b.status === BillStatus.PENDING)
         .reduce((sum, bill) => sum + bill.total, 0);
 
       // Average bill amount
       const averageBillAmount = totalBills > 0 ? Math.round(
-        this.bills.reduce((sum, bill) => sum + bill.total, 0) / totalBills
+        bills.reduce((sum, bill) => sum + bill.total, 0) / totalBills
       ) : 0;
 
       // By department
       const byDepartment: Record<string, number> = {};
-      this.bills.forEach(bill => {
+      bills.forEach(bill => {
         bill.items.forEach(item => {
           byDepartment[item.department] = (byDepartment[item.department] || 0) + item.amount;
         });
@@ -369,7 +411,7 @@ export class BillingService {
    */
   async findByPatient(patientId: string) {
     try {
-      const bills = this.bills.filter(b => b.patientId === patientId);
+      const bills = this.loadBills().filter(b => b.patientId === patientId);
       
       return ResponseUtil.success(`Bills for patient ${patientId} retrieved successfully`, bills);
     } catch (error) {
@@ -384,7 +426,7 @@ export class BillingService {
   async getOverdueBills() {
     try {
       const today = new Date();
-      const overdueBills = this.bills.filter(bill => {
+      const overdueBills = this.loadBills().filter(bill => {
         if (bill.status === BillStatus.PAID) return false;
         const dueDate = new Date(bill.dueDate);
         return dueDate < today;
@@ -429,7 +471,7 @@ export class BillingService {
       const start = new Date(startDate);
       const end = new Date(endDate);
       
-      const billsInRange = this.bills.filter(bill => {
+      const billsInRange = this.loadBills().filter(bill => {
         const billDate = new Date(bill.visitDate);
         return billDate >= start && billDate <= end && bill.status === BillStatus.PAID;
       });
@@ -446,3 +488,4 @@ export class BillingService {
     }
   }
 }
+

@@ -45,8 +45,10 @@ export class PatientsController {
    * Create new patient
    */
   @Post()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Create a new patient record' })
-  @ApiResponse({ status: 201, description: 'Patient created successfully' })
+  @ApiResponse({ status: 200, description: 'Patient creation result (check success field)' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async create(@Body() createPatientDto: CreatePatientDto) {
     return this.patientsService.create(createPatientDto as any);
   }
@@ -98,8 +100,7 @@ export class PatientsController {
    */
   @Get(':id')
   @ApiOperation({ summary: 'Get patient by ID' })
-  @ApiResponse({ status: 200, description: 'Patient details retrieved' })
-  @ApiResponse({ status: 404, description: 'Patient not found' })
+  @ApiResponse({ status: 200, description: 'Patient details (check success field for not-found)' })
   async findById(@Param('id') id: string) {
     return this.patientsService.findById(id);
   }

@@ -3,6 +3,10 @@ import { SystemService } from '../system/system.service';
 export declare class PatientsService {
     private readonly systemService;
     constructor(systemService: SystemService);
+    private readonly patientsFilePath;
+    private loadPatients;
+    private savePatients;
+    private getInitialMockData;
     private patients;
     findAll(status?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

@@ -262,8 +262,9 @@ const PatientsAPI = {
 
 // Appointments API
 const AppointmentsAPI = {
-    async getAll() {
-        return await api.get('/appointments');
+    async getAll(patientId) {
+        const query = patientId ? `?patientId=${encodeURIComponent(patientId)}` : '';
+        return await api.get(`/appointments${query}`);
     },
 
     async getById(id) {
@@ -293,8 +294,9 @@ const AppointmentsAPI = {
 
 // Billing API
 const BillingAPI = {
-    async getAll() {
-        return await api.get('/billing');
+    async getAll(patientId) {
+        const query = patientId ? `?patientId=${encodeURIComponent(patientId)}` : '';
+        return await api.get(`/billing${query}`);
     },
 
     async getById(id) {

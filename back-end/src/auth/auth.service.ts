@@ -8,6 +8,7 @@ import { LoginRequest, RegisterRequest, AuthResponse, UserSession } from './inte
 import { UserRole, UserStatus } from '../common/interfaces/api-response.interface';
 
 import { SystemService } from '../system/system.service';
+import { PatientsService } from '../patients/patients.service';
 
 /**
  * Authentication Service
@@ -20,7 +21,10 @@ import { SystemService } from '../system/system.service';
  */
 @Injectable()
 export class AuthService {
-  constructor(private readonly systemService: SystemService) {}
+  constructor(
+    private readonly systemService: SystemService,
+    private readonly patientsService: PatientsService,
+  ) {}
 
   // ── Paths ────────────────────────────────────────────────────────────────
   private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
@@ -168,6 +172,7 @@ export class AuthService {
         role: user.role,
         status: user.status,
         loginTime: new Date().toISOString(),
+        patientId: user.patientId || null,
       };
       this.sessions.set(user.id, session);
 
@@ -178,6 +183,7 @@ export class AuthService {
           email: user.email,
           role: user.role,
           status: user.status,
+          patientId: user.patientId || null,
         },
         token: this.generateToken(user),
       };
@@ -228,6 +234,15 @@ export class AuthService {
       users.push(newUser);
       this.saveUsers(users); // ← persists to data/users.json
 
+      // Create patient record in PatientsService
+      await this.patientsService.create({
+        fullName: registerRequest.fullName,
+        email: registerRequest.email,
+        phone: registerRequest.phone || '',
+        bloodGroup: 'Unknown',
+        age: 0
+      });
+
       const session: UserSession = {
         id: newUser.id,
         name: newUser.name,
@@ -235,6 +250,7 @@ export class AuthService {
         role: newUser.role,
         status: newUser.status,
         loginTime: new Date().toISOString(),
+        patientId: newUser.patientId,
       };
       this.sessions.set(newUser.id, session);
 
@@ -245,6 +261,7 @@ export class AuthService {
           email: newUser.email,
           role: newUser.role,
           status: newUser.status,
+          patientId: newUser.patientId,
         },
         token: this.generateToken(newUser),
       };

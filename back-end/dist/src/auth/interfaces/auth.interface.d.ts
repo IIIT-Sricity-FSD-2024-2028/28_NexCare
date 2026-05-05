@@ -19,6 +19,7 @@ export interface AuthResponse {
         email: string;
         role: UserRole;
         status: string;
+        patientId?: string;
     };
     token?: string;
 }
@@ -29,4 +30,5 @@ export interface UserSession {
     role: UserRole;
     status: string;
     loginTime: string;
+    patientId?: string;
 }

@@ -11,6 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BillingService = void 0;
 const common_1 = require("@nestjs/common");
+const fs = require("fs");
+const path = require("path");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
@@ -18,7 +20,33 @@ const system_service_1 = require("../system/system.service");
 let BillingService = class BillingService {
     constructor(systemService) {
         this.systemService = systemService;
-        this.bills = [
+        this.billsFilePath = path.join(process.cwd(), 'data', 'billing.json');
+    }
+    loadBills() {
+        try {
+            if (!fs.existsSync(this.billsFilePath)) {
+                const initial = this.getInitialMockData();
+                this.saveBills(initial);
+                return initial;
+            }
+            const raw = fs.readFileSync(this.billsFilePath, 'utf-8');
+            return JSON.parse(raw);
+        }
+        catch {
+            return this.getInitialMockData();
+        }
+    }
+    saveBills(bills) {
+        try {
+            fs.mkdirSync(path.dirname(this.billsFilePath), { recursive: true });
+            fs.writeFileSync(this.billsFilePath, JSON.stringify(bills, null, 2), 'utf-8');
+        }
+        catch (err) {
+            console.error('Failed to persist bills:', err);
+        }
+    }
+    getInitialMockData() {
+        return [
             {
                 id: 'BILL-001',
                 patientId: 'P001',
@@ -64,7 +92,7 @@ let BillingService = class BillingService {
     }
     async findAll(patientId, status) {
         try {
-            let filteredBills = [...this.bills];
+            let filteredBills = [...this.loadBills()];
             if (patientId) {
                 filteredBills = filteredBills.filter(bill => bill.patientId === patientId);
             }
@@ -79,7 +107,8 @@ let BillingService = class BillingService {
     }
     async findById(id) {
         try {
-            const bill = this.bills.find(b => b.id === id);
+            const bills = this.loadBills();
+            const bill = bills.find(b => b.id === id);
             if (!bill) {
                 return response_util_1.ResponseUtil.notFound('Bill', id);
             }
@@ -91,6 +120,7 @@ let BillingService = class BillingService {
     }
     async create(billData) {
         try {
+            const bills = this.loadBills();
             const newBillId = id_generator_util_1.IdGenerator.generateBillId();
             const subtotal = billData.items.reduce((sum, item) => sum + item.amount, 0);
             const cgstRate = 0.09;
@@ -116,7 +146,8 @@ let BillingService = class BillingService {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
-            this.bills.push(newBill);
+            bills.push(newBill);
+            this.saveBills(bills);
             this.systemService.createActivity({
                 userId: billData.patientId,
                 action: 'Create',
@@ -132,11 +163,12 @@ let BillingService = class BillingService {
     }
     async update(id, updateData) {
         try {
-            const billIndex = this.bills.findIndex(b => b.id === id);
+            const bills = this.loadBills();
+            const billIndex = bills.findIndex(b => b.id === id);
             if (billIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Bill', id);
             }
-            const bill = this.bills[billIndex];
+            const bill = bills[billIndex];
             if (bill.status === api_response_interface_1.BillStatus.PAID) {
                 return response_util_1.ResponseUtil.error('Cannot modify paid bills');
             }
@@ -154,7 +186,8 @@ let BillingService = class BillingService {
                     total
                 };
             }
-            this.bills[billIndex] = updatedBill;
+            bills[billIndex] = updatedBill;
+            this.saveBills(bills);
             this.systemService.createActivity({
                 userId: 'Admin',
                 action: 'Update',
@@ -170,15 +203,17 @@ let BillingService = class BillingService {
     }
     async delete(id) {
         try {
-            const billIndex = this.bills.findIndex(b => b.id === id);
+            const bills = this.loadBills();
+            const billIndex = bills.findIndex(b => b.id === id);
             if (billIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Bill', id);
             }
-            const bill = this.bills[billIndex];
+            const bill = bills[billIndex];
             if (bill.status === api_response_interface_1.BillStatus.PAID) {
                 return response_util_1.ResponseUtil.error('Cannot delete paid bills');
             }
-            this.bills.splice(billIndex, 1);
+            bills.splice(billIndex, 1);
+            this.saveBills(bills);
             return response_util_1.ResponseUtil.deleted('Bill');
         }
         catch (error) {
@@ -187,11 +222,12 @@ let BillingService = class BillingService {
     }
     async processPayment(id, paymentData) {
         try {
-            const billIndex = this.bills.findIndex(b => b.id === id);
+            const bills = this.loadBills();
+            const billIndex = bills.findIndex(b => b.id === id);
             if (billIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Bill', id);
             }
-            const bill = this.bills[billIndex];
+            const bill = bills[billIndex];
             if (bill.status === api_response_interface_1.BillStatus.PAID) {
                 return response_util_1.ResponseUtil.error('Bill is already paid');
             }
@@ -212,6 +248,8 @@ let BillingService = class BillingService {
                 bill.status = api_response_interface_1.BillStatus.PAID;
             }
             bill.updatedAt = new Date().toISOString();
+            bills[billIndex] = bill;
+            this.saveBills(bills);
             this.systemService.createActivity({
                 userId: bill.patientId,
                 action: 'Payment',
@@ -227,19 +265,20 @@ let BillingService = class BillingService {
     }
     async getStats() {
         try {
-            const totalBills = this.bills.length;
-            const pendingBills = this.bills.filter(b => b.status === api_response_interface_1.BillStatus.PENDING).length;
-            const paidBills = this.bills.filter(b => b.status === api_response_interface_1.BillStatus.PAID).length;
-            const overdueBills = this.bills.filter(b => b.status === api_response_interface_1.BillStatus.OVERDUE).length;
-            const totalRevenue = this.bills
+            const bills = this.loadBills();
+            const totalBills = bills.length;
+            const pendingBills = bills.filter(b => b.status === api_response_interface_1.BillStatus.PENDING).length;
+            const paidBills = bills.filter(b => b.status === api_response_interface_1.BillStatus.PAID).length;
+            const overdueBills = bills.filter(b => b.status === api_response_interface_1.BillStatus.OVERDUE).length;
+            const totalRevenue = bills
                 .filter(b => b.status === api_response_interface_1.BillStatus.PAID)
                 .reduce((sum, bill) => sum + bill.total, 0);
-            const pendingRevenue = this.bills
+            const pendingRevenue = bills
                 .filter(b => b.status === api_response_interface_1.BillStatus.PENDING)
                 .reduce((sum, bill) => sum + bill.total, 0);
-            const averageBillAmount = totalBills > 0 ? Math.round(this.bills.reduce((sum, bill) => sum + bill.total, 0) / totalBills) : 0;
+            const averageBillAmount = totalBills > 0 ? Math.round(bills.reduce((sum, bill) => sum + bill.total, 0) / totalBills) : 0;
             const byDepartment = {};
-            this.bills.forEach(bill => {
+            bills.forEach(bill => {
                 bill.items.forEach(item => {
                     byDepartment[item.department] = (byDepartment[item.department] || 0) + item.amount;
                 });
@@ -262,7 +301,7 @@ let BillingService = class BillingService {
     }
     async findByPatient(patientId) {
         try {
-            const bills = this.bills.filter(b => b.patientId === patientId);
+            const bills = this.loadBills().filter(b => b.patientId === patientId);
             return response_util_1.ResponseUtil.success(`Bills for patient ${patientId} retrieved successfully`, bills);
         }
         catch (error) {
@@ -272,7 +311,7 @@ let BillingService = class BillingService {
     async getOverdueBills() {
         try {
             const today = new Date();
-            const overdueBills = this.bills.filter(bill => {
+            const overdueBills = this.loadBills().filter(bill => {
                 if (bill.status === api_response_interface_1.BillStatus.PAID)
                     return false;
                 const dueDate = new Date(bill.dueDate);
@@ -303,7 +342,7 @@ let BillingService = class BillingService {
         try {
             const start = new Date(startDate);
             const end = new Date(endDate);
-            const billsInRange = this.bills.filter(bill => {
+            const billsInRange = this.loadBills().filter(bill => {
                 const billDate = new Date(bill.visitDate);
                 return billDate >= start && billDate <= end && bill.status === api_response_interface_1.BillStatus.PAID;
             });

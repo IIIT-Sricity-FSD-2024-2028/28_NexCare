@@ -140,7 +140,7 @@
     <script src="app.js"></script>
     <script>
         // Load department
-        const savedDepartment = localStorage.getItem('selectedDepartment');
+        const savedDepartment = sessionStorage.getItem('selectedDepartment');
         if (savedDepartment) {
             document.getElementById('selectedDept').textContent = savedDepartment;
         }
@@ -209,7 +209,7 @@
                     document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
                     this.classList.add('selected');
                     selectedDate = this.dataset.date;
-                    localStorage.setItem('selectedDate', selectedDate);
+                    sessionStorage.setItem('selectedDate', selectedDate);
                     checkSelection();
                 });
             });
@@ -243,7 +243,7 @@
                 timeSlots.forEach(s => s.classList.remove('selected'));
                 this.classList.add('selected');
                 selectedTime = this.dataset.time;
-                localStorage.setItem('selectedTime', selectedTime);
+                sessionStorage.setItem('selectedTime', selectedTime);
                 checkSelection();
             });
         });
@@ -260,8 +260,8 @@
 
         // Load saved selections
         window.addEventListener('DOMContentLoaded', function() {
-            const savedDate = localStorage.getItem('selectedDate');
-            const savedTime = localStorage.getItem('selectedTime');
+            const savedDate = sessionStorage.getItem('selectedDate');
+            const savedTime = sessionStorage.getItem('selectedTime');
 
             if (savedTime) {
                 timeSlots.forEach(slot => {

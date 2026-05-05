@@ -18,9 +18,11 @@ const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 const system_service_1 = require("../system/system.service");
+const patients_service_1 = require("../patients/patients.service");
 let AuthService = class AuthService {
-    constructor(systemService) {
+    constructor(systemService, patientsService) {
         this.systemService = systemService;
+        this.patientsService = patientsService;
         this.usersFilePath = path.join(process.cwd(), 'data', 'users.json');
         this.jwtSecret = process.env.JWT_SECRET || 'nexcare_jwt_secret_key_2024_evaluation';
         this.jwtExpiresInSeconds = 24 * 60 * 60;
@@ -113,6 +115,7 @@ let AuthService = class AuthService {
                 role: user.role,
                 status: user.status,
                 loginTime: new Date().toISOString(),
+                patientId: user.patientId || null,
             };
             this.sessions.set(user.id, session);
             const authResponse = {
@@ -122,6 +125,7 @@ let AuthService = class AuthService {
                     email: user.email,
                     role: user.role,
                     status: user.status,
+                    patientId: user.patientId || null,
                 },
                 token: this.generateToken(user),
             };
@@ -159,6 +163,13 @@ let AuthService = class AuthService {
             };
             users.push(newUser);
             this.saveUsers(users);
+            await this.patientsService.create({
+                fullName: registerRequest.fullName,
+                email: registerRequest.email,
+                phone: registerRequest.phone || '',
+                bloodGroup: 'Unknown',
+                age: 0
+            });
             const session = {
                 id: newUser.id,
                 name: newUser.name,
@@ -166,6 +177,7 @@ let AuthService = class AuthService {
                 role: newUser.role,
                 status: newUser.status,
                 loginTime: new Date().toISOString(),
+                patientId: newUser.patientId,
             };
             this.sessions.set(newUser.id, session);
             const authResponse = {
@@ -175,6 +187,7 @@ let AuthService = class AuthService {
                     email: newUser.email,
                     role: newUser.role,
                     status: newUser.status,
+                    patientId: newUser.patientId,
                 },
                 token: this.generateToken(newUser),
             };
@@ -233,6 +246,7 @@ let AuthService = class AuthService {
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [system_service_1.SystemService])
+    __metadata("design:paramtypes", [system_service_1.SystemService,
+        patients_service_1.PatientsService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

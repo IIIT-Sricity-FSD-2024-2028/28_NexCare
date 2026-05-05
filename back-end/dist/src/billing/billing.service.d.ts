@@ -4,7 +4,10 @@ import { SystemService } from '../system/system.service';
 export declare class BillingService {
     private readonly systemService;
     constructor(systemService: SystemService);
-    private bills;
+    private readonly billsFilePath;
+    private loadBills;
+    private saveBills;
+    private getInitialMockData;
     findAll(patientId?: string, status?: BillStatus): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     create(billData: CreateBillRequest): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

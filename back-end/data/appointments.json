@@ -1,0 +1,59 @@
+[
+  {
+    "id": "APT-001",
+    "patientId": "P001",
+    "patientName": "John Anderson",
+    "department": "Cardiology",
+    "doctor": "Dr. Sarah Smith",
+    "dateLabel": "March 15, 2026",
+    "timeLabel": "10:00 AM",
+    "token": "TKN-1234",
+    "fee": 150,
+    "status": "Confirmed",
+    "reason": "Routine heart checkup",
+    "createdAt": "2026-03-01T00:00:00Z"
+  },
+  {
+    "id": "APT-002",
+    "patientId": "P002",
+    "patientName": "Maria Garcia",
+    "department": "Orthopedics",
+    "doctor": "Dr. Vikram Patel",
+    "dateLabel": "April 02, 2026",
+    "timeLabel": "02:30 PM",
+    "token": "TKN-5678",
+    "fee": 200,
+    "status": "Pending",
+    "reason": "Severe knee pain - Emergency Consult",
+    "createdAt": "2026-03-25T00:00:00Z"
+  },
+  {
+    "id": "APT-003",
+    "patientId": "P001",
+    "patientName": "John Anderson",
+    "department": "General Medicine",
+    "doctor": "Dr. Anjali Desai",
+    "dateLabel": "March 01, 2026",
+    "timeLabel": "11:00 AM",
+    "token": "TKN-9012",
+    "fee": 100,
+    "status": "Completed",
+    "reason": "Annual physical",
+    "createdAt": "2026-02-15T00:00:00Z"
+  },
+  {
+    "id": "APT-47778",
+    "patientId": "P001",
+    "patientName": "Patient P001",
+    "department": "Cardiology",
+    "doctor": "Dr. Sarah Smith",
+    "dateLabel": "May 13, 2026",
+    "timeLabel": "10:00 AM",
+    "token": "TKN-68699",
+    "fee": 100,
+    "status": "Confirmed",
+    "reason": "",
+    "createdAt": "2026-05-05T17:17:42.380Z",
+    "updatedAt": "2026-05-05T17:17:42.380Z"
+  }
+]

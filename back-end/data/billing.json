@@ -1,0 +1,91 @@
+[
+  {
+    "id": "BILL-001",
+    "patientId": "P001",
+    "visitDate": "1 March, 2026",
+    "dueDate": "15 March, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 90,
+    "sgstAmount": 90,
+    "total": 1180,
+    "items": [
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 1000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-001",
+        "amount": 1180,
+        "method": "CARD",
+        "createdAt": "2026-03-10T10:00:00Z"
+      }
+    ],
+    "createdAt": "2026-03-01T00:00:00Z"
+  },
+  {
+    "id": "BILL-002",
+    "patientId": "P002",
+    "visitDate": "2 April, 2026",
+    "dueDate": "16 April, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 5500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 495,
+    "sgstAmount": 495,
+    "total": 6490,
+    "items": [
+      {
+        "description": "Emergency Room Admittance",
+        "department": "ER",
+        "amount": 2500
+      },
+      {
+        "description": "MRI Scan",
+        "department": "Radiology",
+        "amount": 3000
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-04-02T00:00:00Z"
+  },
+  {
+    "id": "BILL-75807",
+    "patientId": "P001",
+    "visitDate": "May 13, 2026",
+    "dueDate": "27 May, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 9,
+    "sgstAmount": 9,
+    "total": 118,
+    "items": [
+      {
+        "description": "Specialist Consultation",
+        "department": "Cardiology",
+        "amount": 100
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-35652",
+        "amount": 118,
+        "method": "CREDIT",
+        "createdAt": "2026-05-05T17:27:45.996Z"
+      }
+    ],
+    "createdAt": "2026-05-05T17:17:42.408Z",
+    "updatedAt": "2026-05-05T17:27:45.997Z"
+  }
+]

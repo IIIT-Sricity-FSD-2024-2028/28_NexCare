@@ -1,0 +1,26 @@
+[
+  {
+    "id": "P001",
+    "fullName": "John Anderson",
+    "phone": "5551234567",
+    "email": "patient@gmail.com",
+    "patientIdDisplay": "PAT-2026-001",
+    "memberSince": "January 2024",
+    "status": "Active",
+    "bloodGroup": "O+",
+    "age": 45,
+    "createdAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "P002",
+    "fullName": "Maria Garcia",
+    "phone": "5559876543",
+    "email": "maria@example.com",
+    "patientIdDisplay": "PAT-2026-002",
+    "memberSince": "March 2025",
+    "status": "Critical",
+    "bloodGroup": "AB-",
+    "age": 62,
+    "createdAt": "2025-03-01T00:00:00Z"
+  }
+]
