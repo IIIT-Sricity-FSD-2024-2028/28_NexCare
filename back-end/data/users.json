@@ -95,12 +95,12 @@
     "status": "Active",
     "password": "Password123"
   },
-  {
+ {
     "id": "U008",
-    "name": "Nurse Emily Davis",
+    "name": "administrative_staff",
     "email": "emily.davis@nexcare.com",
-    "role": "nurse",
-    "dept": "ER",
+    "role": "administrative_staff",
+    "dept": "Front_desk",
     "status": "Active",
     "password": "Password123"
   },
