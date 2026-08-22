@@ -224,6 +224,19 @@
 
         <!-- Main Sections -->
         <section class="content-sections">
+            <!-- Hospitals Near You -->
+            <div class="section-card">
+                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Hospitals Near You</h2>
+                    <span id="patientLocationBadge" style="font-size: 13px; color: #1D4ED8; background: #EFF6FF; padding: 4px 10px; border-radius: 6px; font-weight: 500;">
+                        Location: Tirupati (517501)
+                    </span>
+                </div>
+                <div id="nearbyHospitalsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">
+                    <div style="grid-column: 1/-1; text-align: center; padding: 24px; color: #6A7282;">Loading nearby verified hospitals...</div>
+                </div>
+            </div>
+
             <!-- Upcoming Appointments -->
             <div class="section-card">
                 <div class="section-header">

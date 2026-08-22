@@ -18,11 +18,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Define links based on Role
     let navLinks = '';
 
+    let displayRoleName = 'User';
+    if (role === 'superuser') displayRoleName = 'Superuser';
+    else if (role === 'regional_manager') displayRoleName = 'Regional Officer';
+    else if (role === 'administrative_staff') displayRoleName = 'Front Desk';
+    else if (role === 'doctor') displayRoleName = 'Doctor';
+    else if (role === 'patient') displayRoleName = 'Patient';
+    else if (role === 'ambulance') displayRoleName = 'Ambulance Staff';
+
     if (role === 'superuser') {
         navLinks = `
             <a href="../superuser/dashboard.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 System Dashboard
+            </a>
+            <a href="../superuser/hospital-registrations.html" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Hospital Registrations
             </a>
             <a href="../superuser/patient-directory.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -41,11 +53,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 Feedback Review
             </a>
         `;
+    } else if (role === 'regional_manager') {
+        navLinks = `
+            <a href="../regional-officer/dashboard.html" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Regional Dashboard
+            </a>
+        `;
     } else if (role === 'administrative_staff') {
         navLinks = `
             <a href="../administrative_staff/dashboard.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                Operations Dashboard
+                Front Desk Operations
             </a>
             <a href="../administrative_staff/bed-allocation.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4"/><path d="M2 13v6"/><path d="M22 13v6"/><path d="M2 19h20"/><path d="M2 13h20"/></svg>
@@ -77,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebar.innerHTML = `
         <div class="sidebar-brand">
             <nex-care-logo></nex-care-logo>
-            <span class="sidebar-role-tag">System Administrator</span>
+            <span class="sidebar-role-tag">${displayRoleName}</span>
         </div>
         <nav class="nav-menu">
             ${navLinks}

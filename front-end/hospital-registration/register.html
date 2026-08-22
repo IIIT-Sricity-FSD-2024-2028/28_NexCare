@@ -2,178 +2,146 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Registration - NexCare</title>
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="../shared/global.css">
-    <link rel="stylesheet" href="../shared/nav.css">
+    <title>Register Your Hospital | NexCare</title>
     <link rel="stylesheet" href="../auth/auth.css">
-    <link rel="stylesheet" href="register.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .auth-card { max-width: 720px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
-    <div id="nav-container"></div>
-    
-    <div class="auth-container">
-        <!-- Reusing auth container for layout consistency -->
-        <div class="auth-left">
-            <div class="brand-showcase">
-                <h1>Join the NexCare Network</h1>
-                <p>Register your hospital to leverage our multi-speciality management platform.</p>
-                
-                <div class="features-list">
-                    <div class="feature-item">
-                        <i class="fas fa-hospital"></i>
-                        <span>Streamline hospital operations</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fas fa-users"></i>
-                        <span>Manage your dedicated staff seamlessly</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Secure and isolated patient data</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="auth-graphic">
-                <div class="abstract-shape shape-1"></div>
-                <div class="abstract-shape shape-2"></div>
-                <img src="../assets/wave-image.png" alt="Decorative Wave" onerror="this.style.display='none'">
-            </div>
-        </div>
-        
-        <div class="auth-right">
-            <div class="auth-box registration-box">
-                <div class="logo-container" id="logo-container"></div>
-                
-                <h2 class="auth-title">Hospital Registration</h2>
-                <p class="auth-subtitle">Fill in the details below to register your institution.</p>
-                
-                <form id="hospitalRegisterForm" class="auth-form">
-                    
-                    <div class="form-section">
-                        <h3>Hospital Details</h3>
-                        <div class="form-group">
-                            <label for="hospitalName">Hospital Name</label>
-                            <div class="input-with-icon">
-                                <i class="fas fa-hospital-alt"></i>
-                                <input type="text" id="hospitalName" name="hospitalName" required placeholder="e.g. Apollo Multispeciality">
-                            </div>
-                        </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="registrationNumber">Registration Number</label>
-                                <input type="text" id="registrationNumber" name="registrationNumber" required placeholder="Reg. ID">
-                            </div>
-                            <div class="form-group">
-                                <label for="hospitalType">Hospital Type</label>
-                                <select id="hospitalType" name="hospitalType" required>
-                                    <option value="" disabled selected>Select Type</option>
-                                    <option value="CLINIC">Clinic</option>
-                                    <option value="HOSPITAL">Hospital</option>
-                                    <option value="MULTISPECIALITY">Multispeciality</option>
-                                    <option value="SUPER_SPECIALITY">Super Speciality</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-section">
-                        <h3>Contact & Location</h3>
+    <div class="auth-wrapper">
+        <header class="header">
+            <a href="../landing/landing.html" style="text-decoration:none;"><nex-care-logo></nex-care-logo></a>
+        </header>
+
+        <div class="auth-card reverse" style="margin-top: 20px;">
+            <div class="auth-form-section" style="width: 100%;">
+                <h2>HOSPITAL REGISTRATION</h2>
+                <p style="color: #64748B; font-size: 14px; margin-bottom: 20px;">Register your institution on NexCare. All registrations start in PENDING status for Superuser review.</p>
+
+                <form id="hospitalRegisterForm">
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label for="address">Full Address</label>
-                            <input type="text" id="address" name="address" required placeholder="Street, Building...">
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="city">City</label>
-                                <input type="text" id="city" name="city" required placeholder="City">
-                            </div>
-                            <div class="form-group">
-                                <label for="state">State</label>
-                                <input type="text" id="state" name="state" required placeholder="State">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="pincode">PIN Code</label>
-                                <input type="text" id="pincode" name="pincode" required placeholder="000000">
-                            </div>
-                            <div class="form-group">
-                                <label for="phone">Contact Number</label>
-                                <input type="tel" id="phone" name="phone" required placeholder="Phone Number">
-                            </div>
+                            <label>Hospital Name</label>
+                            <input type="text" id="hospName" class="form-control" placeholder="e.g. AIIMS Speciality" required>
                         </div>
                         <div class="form-group">
-                            <label for="email">Official Email</label>
-                            <input type="email" id="email" name="email" required placeholder="hospital@domain.com">
+                            <label>Registration Number</label>
+                            <input type="text" id="regNum" class="form-control" placeholder="e.g. AP-MED-517501" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Hospital Type</label>
+                            <select id="hospType" class="form-control" required>
+                                <option value="Multi-Speciality">Multi-Speciality</option>
+                                <option value="Super Speciality">Super Speciality</option>
+                                <option value="General Hospital">General Hospital</option>
+                                <option value="Clinic">Clinic / Nursing Home</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" id="city" class="form-control" placeholder="e.g. Tirupati" required>
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" id="state" class="form-control" placeholder="e.g. Andhra Pradesh" required>
+                        </div>
+                        <div class="form-group">
+                            <label>PIN Code</label>
+                            <input type="text" id="pincode" class="form-control" pattern="[0-9]{6}" placeholder="e.g. 517501" required>
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Address</label>
+                            <input type="text" id="address" class="form-control" placeholder="Street / Area details" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Total Beds</label>
+                            <input type="number" id="totalBeds" class="form-control" min="1" value="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label>ICU Beds</label>
+                            <input type="number" id="icuBeds" class="form-control" min="0" value="20" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Admin Name</label>
+                            <input type="text" id="adminName" class="form-control" placeholder="Administrator Full Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Admin Email</label>
+                            <input type="email" id="adminEmail" class="form-control" placeholder="admin@hospital.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Admin Phone</label>
+                            <input type="tel" id="adminPhone" class="form-control" pattern="[0-9]{10}" placeholder="10-digit mobile" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Hospital Contact Phone</label>
+                            <input type="tel" id="phone" class="form-control" placeholder="Landline / Desk phone" required>
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <h3>Capacity & Specialities</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="totalBeds">Total Beds</label>
-                                <input type="number" id="totalBeds" name="totalBeds" required min="1">
-                            </div>
-                            <div class="form-group">
-                                <label for="totalWards">Total Wards</label>
-                                <input type="number" id="totalWards" name="totalWards" required min="1">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="specialties">Specialities (Comma separated)</label>
-                            <input type="text" id="specialties" name="specialties" required placeholder="e.g. Cardiology, Orthopedics">
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3>Hospital Admin Account</h3>
-                        <p class="help-text">This will be the primary login for your hospital.</p>
-                        <div class="form-group">
-                            <label for="adminName">Admin Name</label>
-                            <input type="text" id="adminName" name="adminName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="adminEmail">Admin Email</label>
-                            <input type="email" id="adminEmail" name="adminEmail" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="adminPassword">Admin Password</label>
-                            <div class="input-with-icon">
-                                <i class="fas fa-lock"></i>
-                                <input type="password" id="adminPassword" name="adminPassword" required>
-                                <button type="button" class="toggle-password" id="togglePassword">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="registerError" class="alert error-alert hidden"></div>
-                    <div id="registerSuccess" class="alert success-alert hidden"></div>
-
-                    <button type="submit" class="btn btn-primary full-width" id="registerBtn">
-                        <span>Submit Registration</span>
-                        <div class="spinner hidden"></div>
+                    <button type="submit" class="btn-primary" style="margin-top: 20px; width: 100%;">
+                        Submit Registration
+                        <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <polyline points="0,60 25,60 40,25 55,60 70,90 85,60 100,60" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </button>
-                    
-                    <div class="auth-links">
-                        <p>Already registered? <a href="../auth/login.html">Login here</a></p>
+
+                    <div class="auth-links" style="margin-top: 16px; text-align: center;">
+                        Return to <a href="../auth/login.html">Main Login</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="../shared/api.js"></script>
+    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script>
+        document.getElementById('hospitalRegisterForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const data = {
+                name: document.getElementById('hospName').value.trim(),
+                registrationNumber: document.getElementById('regNum').value.trim(),
+                type: document.getElementById('hospType').value,
+                ownershipType: 'Private',
+                city: document.getElementById('city').value.trim(),
+                state: document.getElementById('state').value.trim(),
+                pincode: document.getElementById('pincode').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                email: document.getElementById('adminEmail').value.trim(),
+                totalBeds: parseInt(document.getElementById('totalBeds').value) || 50,
+                icuBeds: parseInt(document.getElementById('icuBeds').value) || 10,
+                specialities: ['General Medicine', 'Emergency'],
+                emergency24x7: true,
+                ambulanceService: true,
+                adminName: document.getElementById('adminName').value.trim(),
+                adminEmail: document.getElementById('adminEmail').value.trim(),
+                adminPhone: document.getElementById('adminPhone').value.trim()
+            };
+
+            try {
+                const res = await window.NexCareAPI.request('/hospitals/register', 'POST', data);
+                if (res.success) {
+                    alert('Hospital Registration Submitted Successfully!\nYour application is now PENDING verification by the Superuser.');
+                    window.location.href = '../auth/login.html';
+                } else {
+                    alert(res.message || 'Registration failed.');
+                }
+            } catch (err) {
+                alert('Error submitting registration: ' + err.message);
+            }
+        });
+    </script>
     <script src="../logo.js"></script>
-    <script src="register.js"></script>
 </body>
 </html>

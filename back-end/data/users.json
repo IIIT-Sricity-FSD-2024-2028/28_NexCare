@@ -8,12 +8,21 @@
     "password": "Password123"
   },
   {
+    "id": "M001",
+    "name": "Rajesh Sharma",
+    "email": "regional@nexcare.com",
+    "role": "regional_manager",
+    "status": "Active",
+    "password": "Password123"
+  },
+  {
     "id": "U002",
-    "name": "Jane Doe (Desk)",
+    "name": "Priya Reddy",
     "email": "admin@nexcare.com",
     "role": "administrative_staff",
     "status": "Active",
-    "password": "Password123"
+    "password": "Password123",
+    "hospitalId": "H001"
   },
   {
     "id": "U003",
@@ -21,7 +30,8 @@
     "email": "ambulance@nexcare.com",
     "role": "ambulance",
     "status": "Active",
-    "password": "Password123"
+    "password": "Password123",
+    "hospitalId": "H001"
   },
   {
     "id": "U004",
@@ -30,7 +40,10 @@
     "role": "patient",
     "status": "Active",
     "password": "Password123",
-    "patientId": "P001"
+    "patientId": "P001",
+    "city": "Tirupati",
+    "state": "Andhra Pradesh",
+    "pincode": "517501"
   },
   {
     "id": "U005",
@@ -39,7 +52,8 @@
     "role": "doctor",
     "dept": "Cardiology",
     "status": "Active",
-    "password": "Password123"
+    "password": "Password123",
+    "hospitalId": "H001"
   },
   {
     "id": "U006",
@@ -48,7 +62,8 @@
     "role": "doctor",
     "dept": "Orthopedics",
     "status": "Active",
-    "password": "Password123"
+    "password": "Password123",
+    "hospitalId": "H001"
   },
   {
     "id": "U007",
@@ -57,7 +72,8 @@
     "role": "doctor",
     "dept": "General Medicine",
     "status": "On Leave",
-    "password": "Password123"
+    "password": "Password123",
+    "hospitalId": "H001"
   },
   {
     "id": "U010",
@@ -66,7 +82,8 @@
     "role": "doctor",
     "dept": "Pediatrics",
     "status": "Active",
-    "password": "Password123"
+    "password": "Password123",
+    "hospitalId": "H001"
   },
   {
     "id": "U011",
@@ -75,7 +92,8 @@
     "role": "doctor",
     "dept": "Neurology",
     "status": "Active",
-    "password": "Password123"
+    "password": "Password123",
+    "hospitalId": "H002"
   },
   {
     "id": "U012",
@@ -84,7 +102,8 @@
     "role": "doctor",
     "dept": "Dermatology",
     "status": "Active",
-    "password": "Password123"
+    "password": "Password123",
+    "hospitalId": "H002"
   },
   {
     "id": "U013",
@@ -93,78 +112,7 @@
     "role": "doctor",
     "dept": "General Medicine",
     "status": "Active",
-    "password": "Password123"
-  },
- {
-    "id": "U008",
-    "name": "administrative_staff",
-    "email": "emily.davis@nexcare.com",
-    "role": "administrative_staff",
-    "dept": "Front_desk",
-    "status": "Active",
-    "password": "Password123"
-  },
-  {
-    "id": "U009",
-    "name": "Maria Garcia",
-    "email": "maria@example.com",
-    "role": "patient",
-    "status": "Active",
     "password": "Password123",
-    "patientId": "P002"
-  },
-  {
-    "id": "U92280",
-    "name": "Test Eval Patient",
-    "email": "evaltest@gmail.com",
-    "role": "patient",
-    "status": "Active",
-    "password": "Test1234",
-    "patientId": "P92178"
-  },
-  {
-    "id": "U73646",
-    "name": "Abcd",
-    "email": "abcde@gmail.com",
-    "role": "patient",
-    "status": "Active",
-    "password": "qwerty",
-    "patientId": "P53604"
-  },
-  {
-    "id": "U30960",
-    "name": "heya",
-    "email": "heya@gmail.com",
-    "role": "patient",
-    "status": "Active",
-    "password": "123456",
-    "patientId": "P53195"
-  },
-  {
-    "id": "U56705",
-    "name": "Test User",
-    "email": "testuser99@test.com",
-    "role": "patient",
-    "status": "Active",
-    "password": "Test1234",
-    "patientId": "P59446"
-  },
-  {
-    "id": "U79272",
-    "name": "Vishv reddy",
-    "email": "reddy@gmail.com",
-    "role": "patient",
-    "status": "Active",
-    "password": "reddy1",
-    "patientId": "P76800"
-  },
-  {
-    "id": "U12514",
-    "name": "Vivian",
-    "email": "mathew@gmail.com",
-    "role": "patient",
-    "status": "Active",
-    "password": "123456",
-    "patientId": "P90268"
+    "hospitalId": "H001"
   }
 ]

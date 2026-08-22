@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
     await loadUserInfo();
+    loadNearbyHospitals();
     loadAppointments();
     loadBills();
     loadAmbulance();
@@ -335,4 +336,60 @@ function setupDashboardSearch() {
             applySearch();
         }
     });
+}
+
+async function loadNearbyHospitals() {
+    const grid = document.getElementById('nearbyHospitalsGrid');
+    if (!grid) return;
+
+    try {
+        const res = await window.NexCareAPI.Hospitals.getAll();
+        if (!res.success) throw new Error("Failed to fetch hospitals");
+
+        const allHospitals = res.data || [];
+
+        // STRICT REQUIREMENT: Only show VERIFIED hospitals to patients
+        const verifiedHospitals = allHospitals.filter(h => h.verificationStatus === 'verified');
+
+        const patientPincode = "517501";
+        const patientCity = "Tirupati";
+
+        // Prioritize by PIN code -> City -> State
+        const samePin = verifiedHospitals.filter(h => h.pincode === patientPincode);
+        const sameCity = verifiedHospitals.filter(h => h.city.toLowerCase() === patientCity.toLowerCase() && h.pincode !== patientPincode);
+        const otherVerified = verifiedHospitals.filter(h => h.city.toLowerCase() !== patientCity.toLowerCase());
+
+        const sortedHospitals = [...samePin, ...sameCity, ...otherVerified];
+
+        if (sortedHospitals.length === 0) {
+            grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 24px; color: #6A7282;">No verified NexCare hospitals found near your location.</div>`;
+            return;
+        }
+
+        grid.innerHTML = sortedHospitals.map(h => {
+            let proximityTag = '';
+            if (h.pincode === patientPincode) proximityTag = '<span style="background:#DCFCE7; color:#15803D; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600;">Same PIN (517501)</span>';
+            else if (h.city.toLowerCase() === patientCity.toLowerCase()) proximityTag = '<span style="background:#EFF6FF; color:#1D4ED8; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600;">In Your City</span>';
+            else proximityTag = '<span style="background:#F3F4F6; color:#4B5563; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:500;">Nearby State</span>';
+
+            return `
+                <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:12px; padding:16px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                    <div>
+                        <div style="display:flex; justify-space-between; align-items:start; gap:8px; margin-bottom:8px;">
+                            <h3 style="margin:0; font-size:15px; font-weight:700; color:#111827;">${h.name}</h3>
+                        </div>
+                        <div style="margin-bottom:10px;">${proximityTag}</div>
+                        <p style="font-size:12px; color:#6A7282; margin:0 0 6px;">📍 ${h.address || ''}, ${h.city} - ${h.pincode}</p>
+                        <p style="font-size:12px; color:#4B5563; margin:0 0 4px;">🛏️ Total Beds: <strong>${h.totalBeds || 0}</strong> (ICU: ${h.icuBeds || 0})</p>
+                        <p style="font-size:12px; color:#4B5563; margin:0 0 12px;">🚨 Emergency 24x7: <strong>${h.emergency24x7 ? 'Available' : 'No'}</strong></p>
+                    </div>
+                    <button class="btn-primary-sm" onclick="location.href='appointments/appointments.html'" style="width:100%; text-align:center;">Book Appointment</button>
+                </div>
+            `;
+        }).join('');
+
+    } catch (err) {
+        console.error("Error loading nearby hospitals:", err);
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 24px; color: #DC2626;">Error loading hospitals: ${err.message}</div>`;
+    }
 }

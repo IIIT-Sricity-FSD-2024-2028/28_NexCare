@@ -19,8 +19,16 @@ function redirectByRole(role) {
             window.location.href = "/superuser/dashboard.html";
             break;
 
+        case "regional_manager":
+            window.location.href = "/regional-officer/dashboard.html";
+            break;
+
         case "administrative_staff":
             window.location.href = "/administrative_staff/dashboard.html";
+            break;
+
+        case "doctor":
+            window.location.href = "/doctor/dashboard.html";
             break;
 
         case "patient":
@@ -119,8 +127,21 @@ function getValidSession() {
 // Page routing helpers
 // ─────────────────────────────────────────────────────────────────────────────
 function isPublicPage() {
-    const path = window.location.pathname;
-    return ['login', 'signup', 'landing'].some(s => path.includes('/' + s));
+    const path = window.location.pathname.toLowerCase();
+    const publicPaths = [
+        '/auth/login',
+        '/auth/patient-login',
+        '/auth/patient-register',
+        '/auth/staff-login',
+        '/auth/staff-register',
+        '/auth/regional-officer-login',
+        '/auth/superuser-login',
+        '/auth/signup',
+        '/landing/landing',
+        '/landing/hospital-registration',
+        '/hospital-registration/register'
+    ];
+    return publicPaths.some(p => path.includes(p));
 }
 
 function checkAuth() {
@@ -152,6 +173,7 @@ function checkRoleAccess() {
 
     const rolePathMap = {
         superuser:             '/superuser/',
+        regional_manager:      '/regional-officer/',
         administrative_staff:  '/administrative_staff/',
         patient:               '/patient/',
         ambulance:             '/ambulance/',
@@ -194,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function injectBackButton() {
     // Avoid injecting on explicitly public pages
     const path = window.location.pathname || "";
-    const publicPages = ["login.html", "signup.html", "landing.html"];
+    const publicPages = ["login", "signup", "register", "landing"];
     if (publicPages.some(page => path.includes(page))) return;
 
     // Avoid duplicates if session.js is included multiple times
