@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCare - Sign Up</title>
+    <link rel="stylesheet" href="auth.css">
+</head>
+
+<body>
+
+    <div class="auth-wrapper">
+        <header class="header">
+        <a href="../landing/landing.html" style="text-decoration:none;"><nex-care-logo></nex-care-logo></a>
+    </header>
+
+        <div class="auth-card reverse">
+            <div class="auth-form-section">
+                <h2>PATIENT SIGN UP</h2>
+
+                <form id="signupForm">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" class="form-control" pattern="[A-Za-z ]+" title="Only letters and spaces allowed" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" class="form-control" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>PIN Code</label>
+                        <input type="text" class="form-control" pattern="[0-9]{6}" title="Please enter exactly 6 digits" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" class="form-control" required>
+                    </div>
+
+                         <button type="submit" class="btn-primary">
+    Sign up
+    <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <polyline
+        points="0,60 25,60 40,25 55,60 70,90 85,60 100,60"
+        fill="none"
+        stroke="white"
+        stroke-width="6"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+</svg>
+</button>
+
+                    <div class="auth-links">
+                        Already have an account? <a href="patient-login.html">Sign in</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="auth-image-section"></div>
+        </div>
+    </div>
+
+    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/db.js?v=5"></script>
+    <script src="../shared/session.js?v=8"></script>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const inputs         = document.querySelectorAll('.form-control');
+            const fullName       = inputs[0].value.trim();
+            const emailVal       = inputs[1].value.trim();
+            const phoneVal       = inputs[2].value.trim();
+            const cityVal        = inputs[3].value.trim();
+            const pinVal         = inputs[4].value.trim();
+            const passVal        = inputs[5].value;
+            const confirmPassVal = inputs[6].value;
+
+            // ── Validation ──────────────────────────────────────────────────
+            const nameRegex = /^[A-Za-z\s]+$/;
+            if (!nameRegex.test(fullName)) {
+                showSignupError('Name must only contain letters and spaces.');
+                return;
+            }
+
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(emailVal)) {
+                showSignupError('Please enter a valid email address (e.g., name@example.com).');
+                return;
+            }
+
+            const phoneRegex = /^\d{10}$/;
+            if (!phoneRegex.test(phoneVal) || phoneVal === '0000000000') {
+                showSignupError('Phone number must be exactly 10 digits and cannot be all zeros.');
+                return;
+            }
+
+            if (passVal !== confirmPassVal) {
+                showSignupError('Passwords do not match.');
+                return;
+            }
+
+            if (passVal.length < 6) {
+                showSignupError('Password must be at least 6 characters.');
+                return;
+            }
+
+            // ── Backend registration ─────────────────────────────────────────
+            const btn = document.querySelector('.btn-primary');
+            btn.disabled = true;
+            btn.textContent = 'Creating account…';
+
+            try {
+                if (!window.NexCareAPI) {
+                    throw new Error('API module not loaded. Please refresh the page (Ctrl+Shift+R).');
+                }
+
+                const response = await window.NexCareAPI.Auth.register({
+                    fullName: fullName,
+                    email: emailVal,
+                    phone: phoneVal,
+                    city: cityVal,
+                    pincode: pinVal,
+                    password: passVal
+                });
+
+                console.log('[Signup] Registration response:', response);
+
+                if (response.success) {
+                    showSignupError('Registration successful! Redirecting to login...', 'green');
+                    btn.textContent = 'Redirecting…';
+                    
+                    setTimeout(function() {
+                        window.location.href = 'patient-login.html';
+                    }, 1500);
+                } else {
+                    showSignupError(response.message || 'Registration failed. Please try again.');
+                    btn.disabled = false;
+                    btn.innerHTML = `Sign up <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polyline points="0,60 25,60 40,25 55,60 70,90 85,60 100,60" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                }
+            } catch (err) {
+                console.error('[Signup] Error:', err);
+                const backendHost = window.location.hostname;
+                if (err.message && err.message.toLowerCase().includes('fetch')) {
+                    showSignupError(`Cannot reach the backend at ${backendHost}:3001. Make sure the backend is running.`);
+                } else {
+                    showSignupError(err.message || 'An unexpected error occurred.');
+                }
+                btn.disabled = false;
+                btn.innerHTML = `Sign up <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polyline points="0,60 25,60 40,25 55,60 70,90 85,60 100,60" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+            }
+        });
+
+        function showSignupError(msg, color = '#dc2626') {
+            let el = document.getElementById('signupError');
+            if (!el) {
+                el = document.createElement('p');
+                el.id = 'signupError';
+                el.style.cssText = `color:${color};font-size:13px;margin:8px 0 0;font-weight:500;`;
+                document.getElementById('signupForm').insertBefore(el, document.querySelector('.btn-primary'));
+            } else {
+                el.style.color = color;
+            }
+            el.textContent = msg;
+        }
+    </script>
+    <script src="../logo.js"></script>
+</body>
+
+</html>

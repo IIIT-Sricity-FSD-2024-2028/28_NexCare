@@ -1,0 +1,57 @@
+[
+  {
+    "id": "H001",
+    "name": "NexCare General Hospital",
+    "registrationNumber": "REG-12345",
+    "type": "General Hospital",
+    "ownershipType": "Private",
+    "address": "123 Main St",
+    "city": "Metropolis",
+    "state": "NY",
+    "pincode": "10001",
+    "phone": "555-0100",
+    "email": "contact@nexcare.com",
+    "website": "www.nexcare.com",
+    "totalBeds": 150,
+    "icuBeds": 20,
+    "specialities": [
+      "General Medicine",
+      "Pediatrics"
+    ],
+    "emergency24x7": true,
+    "ambulanceService": true,
+    "adminName": "System Administrator",
+    "adminEmail": "superuser@nexcare.com",
+    "adminPhone": "555-0101",
+    "verificationStatus": "verified",
+    "assignedManagerId": "M001",
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z"
+  },
+  {
+    "name": "apolo",
+    "registrationNumber": "1",
+    "type": "Multi-Speciality",
+    "ownershipType": "Private",
+    "address": "123",
+    "city": "CHIRALA",
+    "state": "ap",
+    "pincode": "123",
+    "phone": "1234567890",
+    "email": "apolo@gmail.com",
+    "totalBeds": 100,
+    "icuBeds": 50,
+    "emergency24x7": true,
+    "ambulanceService": true,
+    "adminName": "nikitha",
+    "adminEmail": "nikitha@gmail.com",
+    "adminPhone": "1234567891",
+    "specialities": [
+      "General"
+    ],
+    "id": "H93939",
+    "verificationStatus": "pending_verification",
+    "createdAt": "2026-08-21T06:56:15.134Z",
+    "updatedAt": "2026-08-21T06:56:15.134Z"
+  }
+]
