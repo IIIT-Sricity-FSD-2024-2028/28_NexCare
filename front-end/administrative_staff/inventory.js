@@ -21,22 +21,38 @@ function apiRequest(method, path, body) {
 
 // ---------------- STATE ----------------
 let selectedItem = null;
+let selectedRestockItem = null;
+let selectedUseItem = null;
 let modalMode = "edit"; // 'edit' | 'create'
 let inventory = [];
 let filteredInventory = [];
 
+
 // ---------------- HELPERS ----------------
-function getStatus(qty) {
-    return qty < 20 ? "Low Stock" : "In Stock";
+function getStatus(qty, minStock = 20) {
+    if (qty === 0) return "Out of Stock";
+    if (qty < minStock) return "Low Stock";
+    return "In Stock";
+}
+
+function getStatusClass(statusText) {
+    if (statusText === "Out of Stock") return "overdue";
+    if (statusText === "Low Stock") return "pending";
+    return "paid";
 }
 
 function normalizeInventoryRow(row) {
     if (!row) return null;
     const qty = Number(row.qty ?? row.quantity ?? 0);
+    const minStock = Number(row.minStock ?? 20);
     return {
         id: row.id,
         name: row.name ?? "",
-        qty: Number.isFinite(qty) ? qty : 0
+        category: row.category ?? "General",
+        location: row.location ?? "General",
+        qty: Number.isFinite(qty) ? qty : 0,
+        minStock: Number.isFinite(minStock) ? minStock : 20,
+        status: row.status ?? getStatus(qty, minStock)
     };
 }
 
@@ -61,47 +77,69 @@ function render() {
     if (!table) return;
 
     if (!filteredInventory.length) {
-        table.innerHTML = `<tr><td colspan="4">No items found</td></tr>`;
+        table.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;">No items found</td></tr>`;
         updateStats();
         return;
     }
 
-    table.innerHTML = filteredInventory.map(item => `
+    table.innerHTML = filteredInventory.map(item => {
+        const statusText = getStatus(item.qty, item.minStock);
+        const statusClass = getStatusClass(statusText);
+        const safeId = String(item.id).replaceAll("'", "\\'");
+        return `
         <tr>
-            <td>${item.name}</td>
-            <td>${item.qty}</td>
             <td>
-                <span class="status ${item.qty < 20 ? "pending" : "paid"}">
-                    ${getStatus(item.qty)}
+                <strong style="color:#1e293b;">${item.name}</strong>
+                <div style="font-size:12px;color:#6b7280;">${item.category} • ${item.id}</div>
+            </td>
+            <td>
+                <span style="font-size:15px;font-weight:600;">${item.qty}</span>
+                <span style="font-size:12px;color:#6b7280;margin-left:4px;">(Min: ${item.minStock})</span>
+            </td>
+            <td>
+                <span class="status ${statusClass}">
+                    ${statusText}
                 </span>
             </td>
             <td>
-                <div class="actions">
-                    <button class="btn" onclick="editItem('${String(item.id).replaceAll("'", "\\'")}')">Edit</button>
-                    <button class="btn-outline" onclick="deleteItem('${String(item.id).replaceAll("'", "\\'")}')">Delete</button>
+                <div class="actions" style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <button class="btn" style="padding:6px 12px;font-size:12px;background:#10b981;" onclick="openRestockModal('${safeId}')">Restock</button>
+                    <button class="btn" style="padding:6px 12px;font-size:12px;background:#f59e0b;" onclick="openUseModal('${safeId}')">Use</button>
+                    <button class="btn-outline" style="padding:6px 10px;font-size:12px;" onclick="openAuditHistoryModal('${safeId}')">History</button>
+                    <button class="btn-outline" style="padding:6px 10px;font-size:12px;color:#dc2626;border-color:#fca5a5;" onclick="deleteItem('${safeId}')">Delete</button>
                 </div>
             </td>
         </tr>
-    `).join("");
+    `}).join("");
 
     updateStats();
 }
 
+
+
 // ---------------- STATS ----------------
 function updateStats() {
-    document.getElementById("totalItems").innerText = inventory.length;
-    document.getElementById("inStock").innerText = inventory.filter(i => i.qty >= 20).length;
-    document.getElementById("lowStock").innerText = inventory.filter(i => i.qty < 20).length;
+    const totalEl = document.getElementById("totalItems");
+    const inStockEl = document.getElementById("inStock");
+    const lowStockEl = document.getElementById("lowStock");
+
+    if (totalEl) totalEl.innerText = inventory.length;
+    if (inStockEl) inStockEl.innerText = inventory.filter(i => i.qty >= (i.minStock || 20)).length;
+    if (lowStockEl) lowStockEl.innerText = inventory.filter(i => i.qty > 0 && i.qty < (i.minStock || 20)).length;
 }
 
 // ---------------- SEARCH ----------------
 function applySearch() {
     const value = document.getElementById("searchInput")?.value.toLowerCase() || "";
-    filteredInventory = inventory.filter(i => i.name.toLowerCase().includes(value));
+    filteredInventory = inventory.filter(i => 
+        i.name.toLowerCase().includes(value) || 
+        i.category.toLowerCase().includes(value) ||
+        i.id.toLowerCase().includes(value)
+    );
     render();
 }
 
-// ---------------- MODAL ----------------
+// ---------------- EDIT / CREATE MODAL ----------------
 window.editItem = (id) => {
     selectedItem = inventory.find(i => String(i.id) === String(id));
     if (!selectedItem) return;
@@ -122,10 +160,21 @@ window.openCreateItemModal = () => {
     const title = document.getElementById("modalTitle");
     if (title) title.textContent = "Add Item";
     const nameEl = document.getElementById("itemName");
-    nameEl.disabled = false;
-    nameEl.value = "";
-    document.getElementById("quantity").value = "";
-    nameEl.focus();
+    if (nameEl) {
+        nameEl.disabled = false;
+        nameEl.value = "";
+        nameEl.focus();
+    }
+    const catEl = document.getElementById("itemCategory");
+    if (catEl) catEl.value = "";
+    const qtyEl = document.getElementById("quantity");
+    if (qtyEl) qtyEl.value = "";
+    const minEl = document.getElementById("minStock");
+    if (minEl) minEl.value = "20";
+    const unitEl = document.getElementById("itemUnit");
+    if (unitEl) unitEl.value = "";
+    const locEl = document.getElementById("itemLocation");
+    if (locEl) locEl.value = "";
 };
 
 window.closeModal = () => {
@@ -133,52 +182,58 @@ window.closeModal = () => {
 };
 
 window.saveItem = async () => {
-    const name = (document.getElementById("itemName").value || "").trim();
-    const qty = document.getElementById("quantity").value;
+    const name = (document.getElementById("itemName")?.value || "").trim();
+    const category = (document.getElementById("itemCategory")?.value || "").trim() || "General";
+    const qtyVal = document.getElementById("quantity")?.value;
+    const minStockVal = document.getElementById("minStock")?.value;
+    const unit = (document.getElementById("itemUnit")?.value || "").trim() || "units";
+    const location = (document.getElementById("itemLocation")?.value || "").trim() || "Pharmacy";
 
-    const error = validateInventoryUpdate({ qty });
-    if (error) { alert(error); return; }
-
-    if (modalMode === "create") {
-        if (name.length < 2) { alert("Item name is required."); return; }
-
-        try {
-            const resp = await apiRequest('POST', '/inventory', {
-                name,
-                category: "General",
-                quantity: Number(qty),
-                status: getStatus(Number(qty))
-            });
-            if (window.NexCareStore) {
-                window.NexCareStore.logActivity("Create", "Inventory", `Added inventory item: ${name} (${qty})`);
-            }
-        } catch (err) {
-            alert("Failed to create inventory item.");
-            console.error(err);
-            return;
-        }
-    } else {
-        if (!selectedItem) return;
-
-        try {
-            await apiRequest('PUT', `/inventory/${selectedItem.id}`, {
-                name: selectedItem.name,
-                quantity: Number(qty),
-                status: getStatus(Number(qty))
-            });
-            if (window.NexCareStore) {
-                window.NexCareStore.logActivity("Update", "Inventory", `Updated inventory item: ${selectedItem.name} (${qty})`);
-            }
-        } catch (err) {
-            alert("Failed to update inventory item.");
-            console.error(err);
-            return;
-        }
+    if (!name || name.length < 2) {
+        alert("Please enter a valid item name (minimum 2 characters).");
+        return;
     }
 
-    closeModal();
-    await loadInventory(); // Refresh from API
+    const qty = Number(qtyVal);
+    if (isNaN(qty) || qty < 0 || !Number.isInteger(qty)) {
+        alert("Please enter a valid initial quantity (0 or positive integer).");
+        return;
+    }
+
+    const minStock = Number(minStockVal);
+    if (isNaN(minStock) || minStock < 1 || !Number.isInteger(minStock)) {
+        alert("Please enter a valid minimum stock threshold (positive integer).");
+        return;
+    }
+
+    try {
+        const resp = await apiRequest('POST', '/inventory', {
+            name,
+            category,
+            quantity: qty,
+            minStock: minStock,
+            unit,
+            location,
+            status: getStatus(qty, minStock)
+        });
+
+        if (resp && resp.success === false) {
+            alert(resp.message || "Failed to create inventory item.");
+            return;
+        }
+
+        if (window.NexCareStore) {
+            window.NexCareStore.logActivity("Create", "Inventory", `Added inventory item: ${name} (Qty: ${qty}, Min: ${minStock})`);
+        }
+
+        closeModal();
+        await loadInventory(); // Refresh from API
+    } catch (err) {
+        alert("Failed to create inventory item.");
+        console.error(err);
+    }
 };
+
 
 window.deleteItem = async (id) => {
     const item = inventory.find(i => String(i.id) === String(id));
@@ -199,8 +254,222 @@ window.deleteItem = async (id) => {
     await loadInventory();
 };
 
+// ---------------- RESTOCK MODAL ----------------
+window.openRestockModal = (id) => {
+    selectedRestockItem = inventory.find(i => String(i.id) === String(id));
+    if (!selectedRestockItem) return;
+
+    const modal = document.getElementById("restockModal");
+    if (!modal) return;
+
+    document.getElementById("restockModalTitle").textContent = `Restock ${selectedRestockItem.name}`;
+    document.getElementById("restockItemSubtitle").textContent = `Current Stock: ${selectedRestockItem.qty} units (ID: ${selectedRestockItem.id})`;
+
+    document.getElementById("restockQuantity").value = "";
+    document.getElementById("restockSupplier").value = "";
+    document.getElementById("restockBatch").value = "";
+    document.getElementById("restockNotes").value = "";
+
+    modal.style.display = "flex";
+    document.getElementById("restockQuantity").focus();
+};
+
+window.closeRestockModal = () => {
+    const modal = document.getElementById("restockModal");
+    if (modal) modal.style.display = "none";
+    selectedRestockItem = null;
+};
+
+window.submitRestock = async () => {
+    if (!selectedRestockItem) return;
+
+    const qtyInput = document.getElementById("restockQuantity");
+    const quantityToAdd = Number(qtyInput.value);
+
+    if (!quantityToAdd || quantityToAdd <= 0 || !Number.isInteger(quantityToAdd)) {
+        alert("Please enter a valid positive integer quantity to add.");
+        qtyInput.focus();
+        return;
+    }
+
+    const supplier = document.getElementById("restockSupplier").value.trim() || undefined;
+    const batchNumber = document.getElementById("restockBatch").value.trim() || undefined;
+    const notes = document.getElementById("restockNotes").value.trim() || undefined;
+
+    // Extract current user ID from token
+    let userId = "ADMIN";
+    try {
+        const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+        if (token) {
+            const raw = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+            const json = decodeURIComponent(atob(raw).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            const payload = JSON.parse(json);
+            userId = payload.sub || payload.id || payload.email || "ADMIN";
+        }
+    } catch (e) {}
+
+    try {
+        const resp = await apiRequest('PATCH', `/inventory/${selectedRestockItem.id}/restock`, {
+            quantity: quantityToAdd,
+            supplier,
+            batchNumber,
+            notes,
+            restockedBy: userId
+        });
+
+        if (resp && resp.success === false) {
+            alert(resp.message || "Failed to restock item.");
+            return;
+        }
+
+        if (window.NexCareStore) {
+            window.NexCareStore.logActivity("Restock", "Inventory", `Restocked ${selectedRestockItem.name}: +${quantityToAdd} units (new total: ${selectedRestockItem.qty + quantityToAdd})`);
+        }
+
+        closeRestockModal();
+        await loadInventory(); // Refresh data from API
+    } catch (err) {
+        console.error("Restock error:", err);
+        alert("Failed to restock item. Please check network/backend.");
+    }
+};
+
+// ---------------- USE / CONSUME STOCK MODAL ----------------
+window.openUseModal = (id) => {
+    selectedUseItem = inventory.find(i => String(i.id) === String(id));
+    if (!selectedUseItem) return;
+
+    if (selectedUseItem.qty <= 0) {
+        alert(`"${selectedUseItem.name}" is currently Out of Stock.`);
+        return;
+    }
+
+    const modal = document.getElementById("useModal");
+    if (!modal) return;
+
+    document.getElementById("useModalTitle").textContent = `Use / Consume ${selectedUseItem.name}`;
+    document.getElementById("useItemSubtitle").textContent = `Available Stock: ${selectedUseItem.qty} units (ID: ${selectedUseItem.id})`;
+
+    const qtyInput = document.getElementById("useQuantity");
+    qtyInput.value = "";
+    qtyInput.max = selectedUseItem.qty;
+    document.getElementById("useNotes").value = "";
+
+    modal.style.display = "flex";
+    qtyInput.focus();
+};
+
+window.closeUseModal = () => {
+    const modal = document.getElementById("useModal");
+    if (modal) modal.style.display = "none";
+    selectedUseItem = null;
+};
+
+window.submitUse = async () => {
+    if (!selectedUseItem) return;
+
+    const qtyInput = document.getElementById("useQuantity");
+    const quantityToUse = Number(qtyInput.value);
+
+    if (!quantityToUse || quantityToUse <= 0 || !Number.isInteger(quantityToUse)) {
+        alert("Please enter a valid positive integer quantity to consume.");
+        qtyInput.focus();
+        return;
+    }
+
+    if (quantityToUse > selectedUseItem.qty) {
+        alert(`Cannot use ${quantityToUse} units. Only ${selectedUseItem.qty} units available.`);
+        qtyInput.focus();
+        return;
+    }
+
+    const notes = document.getElementById("useNotes").value.trim() || undefined;
+
+    try {
+        const resp = await apiRequest('PATCH', `/inventory/${selectedUseItem.id}/use`, {
+            quantity: quantityToUse,
+            notes
+        });
+
+        if (resp && resp.success === false) {
+            alert(resp.message || "Failed to consume item.");
+            return;
+        }
+
+        if (window.NexCareStore) {
+            window.NexCareStore.logActivity("Use", "Inventory", `Used ${selectedUseItem.name}: -${quantityToUse} units (remaining: ${selectedUseItem.qty - quantityToUse})`);
+        }
+
+        closeUseModal();
+        await loadInventory(); // Refresh data from API
+    } catch (err) {
+        console.error("Use/Consume error:", err);
+        alert("Failed to consume item. Please check network/backend.");
+    }
+};
+
+// ---------------- RESTOCKING HISTORY / AUDIT TRAIL MODAL ----------------
+
+window.openAuditHistoryModal = async (id) => {
+    const item = inventory.find(i => String(i.id) === String(id));
+    const modal = document.getElementById("auditModal");
+    if (!modal) return;
+
+    const title = document.getElementById("auditModalTitle");
+    const subtitle = document.getElementById("auditModalSubtitle");
+    const tableBody = document.getElementById("auditHistoryTable");
+
+    if (title) title.textContent = item ? `Audit Trail: ${item.name}` : "Item Audit Trail";
+    if (subtitle) subtitle.textContent = item ? `Item ID: ${item.id} | Current Stock: ${item.qty} units` : `Item ID: ${id}`;
+    if (tableBody) tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:#6b7280;">Loading audit history...</td></tr>`;
+
+    modal.style.display = "flex";
+
+    try {
+        const resp = await apiGet(`/inventory/audit/${id}`);
+        const logs = resp.data || [];
+
+        if (!logs.length) {
+            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:#6b7280;">No audit records found for this item yet.</td></tr>`;
+            return;
+        }
+
+        tableBody.innerHTML = logs.map(entry => {
+            const isRestock = entry.action === 'restock';
+            const badgeClass = isRestock ? 'paid' : 'pending';
+            const actionLabel = isRestock ? 'RESTOCK' : 'USE';
+            const dateStr = entry.timestamp ? new Date(entry.timestamp).toLocaleString() : 'N/A';
+            const diff = (entry.quantityAfter ?? 0) - (entry.quantityBefore ?? 0);
+            const changeStr = diff >= 0 ? `+${diff}` : `${diff}`;
+            const changeColor = diff >= 0 ? '#16a34a' : '#dc2626';
+
+            return `
+                <tr>
+                    <td style="font-size:12px;white-space:nowrap;color:#4b5563;">${dateStr}</td>
+                    <td>
+                        <span class="status ${badgeClass}" style="font-size:11px;font-weight:600;">${actionLabel}</span>
+                    </td>
+                    <td style="font-weight:500;">${entry.quantityBefore ?? '-'}</td>
+                    <td style="font-weight:700;color:${changeColor};">${changeStr}</td>
+                    <td style="font-weight:600;color:#1e293b;">${entry.quantityAfter ?? '-'}</td>
+                    <td style="font-size:12px;color:#6b7280;">${entry.userId || 'ADMIN'}</td>
+                    <td style="font-size:12px;color:#6b7280;">${entry.notes || '-'}</td>
+                </tr>
+            `;
+        }).join("");
+    } catch (err) {
+        console.error("Failed to load audit trail:", err);
+        if (tableBody) tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:#dc2626;">Failed to load audit history.</td></tr>`;
+    }
+};
+
+window.closeAuditModal = () => {
+    const modal = document.getElementById("auditModal");
+    if (modal) modal.style.display = "none";
+};
+
 // ---------------- EVENTS ----------------
 document.getElementById("searchInput")?.addEventListener("input", applySearch);
 
 // ---------------- INIT ----------------
-loadInventory();
+loadInventory();

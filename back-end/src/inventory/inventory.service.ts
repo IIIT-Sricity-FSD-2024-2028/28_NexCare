@@ -1,9 +1,12 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { Injectable } from '@nestjs/common';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { ArrayUtil } from '../common/utils/array.util';
-import { Inventory, CreateInventoryRequest, UpdateInventoryRequest, RestockRequest, InventoryStats } from './interfaces/inventory.interface';
+import { Inventory, CreateInventoryRequest, UpdateInventoryRequest, RestockRequest, InventoryStats, InventoryAudit } from './interfaces/inventory.interface';
 import { InventoryStatus } from '../common/interfaces/api-response.interface';
+
 
 /**
  * Inventory Service
@@ -12,129 +15,164 @@ import { InventoryStatus } from '../common/interfaces/api-response.interface';
  */
 @Injectable()
 export class InventoryService {
-  // In-memory mock inventory database (aligned with frontend db.js)
-  private inventory: Inventory[] = [
-    {
-      id: 'INV-001',
-      name: 'Paracetamol',
-      category: 'Medication',
-      quantity: 500,
-      minStock: 100,
-      unit: 'tablets',
-      location: 'Pharmacy',
-      status: InventoryStatus.IN_STOCK,
-      lastRestocked: '2026-03-15T00:00:00Z',
-      createdAt: '2026-01-01T00:00:00Z'
-    },
-    {
-      id: 'INV-002',
-      name: 'Surgical Gloves',
-      category: 'Medical Supplies',
-      quantity: 2000,
-      minStock: 500,
-      unit: 'pairs',
-      location: 'ER',
-      status: InventoryStatus.IN_STOCK,
-      lastRestocked: '2026-03-20T00:00:00Z',
-      createdAt: '2026-01-01T00:00:00Z'
-    },
-    {
-      id: 'INV-003',
-      name: 'IV Catheters',
-      category: 'Medical Supplies',
-      quantity: 150,
-      minStock: 200,
-      unit: 'units',
-      location: 'ER',
-      status: InventoryStatus.LOW_STOCK,
-      lastRestocked: '2026-02-10T00:00:00Z',
-      createdAt: '2026-01-01T00:00:00Z'
-    },
-    {
-      id: 'INV-004',
-      name: 'Face Masks',
-      category: 'PPE',
-      quantity: 0,
-      minStock: 1000,
-      unit: 'units',
-      location: 'Reception',
-      status: InventoryStatus.OUT_OF_STOCK,
-      lastRestocked: '2026-01-15T00:00:00Z',
-      createdAt: '2026-01-01T00:00:00Z'
-    },
-    {
-      id: 'INV-005',
-      name: 'Bandages',
-      category: 'Medical Supplies',
-      quantity: 800,
-      minStock: 300,
-      unit: 'rolls',
-      location: 'ER',
-      status: InventoryStatus.IN_STOCK,
-      lastRestocked: '2026-03-25T00:00:00Z',
-      createdAt: '2026-01-01T00:00:00Z'
-    },
-    {
-      id: 'INV-006',
-      name: 'Syringes 5ml',
-      category: 'Medical Supplies',
-      quantity: 3000,
-      minStock: 1000,
-      unit: 'units',
-      location: 'Pharmacy',
-      status: InventoryStatus.IN_STOCK,
-      lastRestocked: '2026-03-22T00:00:00Z',
-      createdAt: '2026-01-01T00:00:00Z'
-    },
-    {
-      id: 'INV-007',
-      name: 'Antiseptic Solution',
-      category: 'Medication',
-      quantity: 50,
-      minStock: 75,
-      unit: 'bottles',
-      location: 'ER',
-      status: InventoryStatus.LOW_STOCK,
-      lastRestocked: '2026-02-28T00:00:00Z',
-      createdAt: '2026-01-01T00:00:00Z'
-    },
-    {
-      id: 'INV-008',
-      name: 'Thermometer',
-      category: 'Equipment',
-      quantity: 25,
-      minStock: 10,
-      unit: 'units',
-      location: 'ER',
-      status: InventoryStatus.IN_STOCK,
-      lastRestocked: '2026-01-10T00:00:00Z',
-      createdAt: '2026-01-01T00:00:00Z'
-    },
-    {
-      id: 'INV-009',
-      name: 'Blood Pressure Monitor',
-      category: 'Equipment',
-      quantity: 8,
-      minStock: 5,
-      unit: 'units',
-      location: 'ER',
-      status: InventoryStatus.IN_STOCK,
-      lastRestocked: '2026-01-05T00:00:00Z',
-      createdAt: '2026-01-01T00:00:00Z'
-    },
-    {
-      id: 'INV-010',
-      name: 'Stethoscope',
-      category: 'Equipment',
-      quantity: 15,
-      minStock: 10,
-      unit: 'units',
-      location: 'General',
-      status: InventoryStatus.IN_STOCK,
-      lastRestocked: '2026-02-15T00:00:00Z',
-      createdAt: '2026-01-01T00:00:00Z'
+  private readonly inventoryFilePath = path.join(process.cwd(), 'data', 'inventory.json');
+  private inventory: Inventory[] = [];
+
+  constructor() {
+    this.inventory = this.loadInventory();
+  }
+
+  /** Load inventory from disk */
+  private loadInventory(): Inventory[] {
+    try {
+      if (!fs.existsSync(this.inventoryFilePath)) {
+        const initial = this.getInitialMockData();
+        this.saveInventory(initial);
+        return initial;
+      }
+      const raw = fs.readFileSync(this.inventoryFilePath, 'utf-8');
+      return JSON.parse(raw);
+    } catch {
+      return this.getInitialMockData();
     }
-  ];
+  }
+
+  /** Persist inventory to disk */
+  private saveInventory(items: Inventory[]): void {
+    try {
+      fs.mkdirSync(path.dirname(this.inventoryFilePath), { recursive: true });
+      fs.writeFileSync(this.inventoryFilePath, JSON.stringify(items, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to persist inventory:', err);
+    }
+  }
+
+  // In-memory mock inventory database (aligned with frontend db.js)
+  private getInitialMockData(): Inventory[] {
+    return [
+      {
+        id: 'INV-001',
+        name: 'Paracetamol',
+        category: 'Medication',
+        quantity: 500,
+        minStock: 100,
+        unit: 'tablets',
+        location: 'Pharmacy',
+        status: InventoryStatus.IN_STOCK,
+        lastRestocked: '2026-03-15T00:00:00Z',
+        createdAt: '2026-01-01T00:00:00Z'
+      },
+      {
+        id: 'INV-002',
+        name: 'Surgical Gloves',
+        category: 'Medical Supplies',
+        quantity: 2000,
+        minStock: 500,
+        unit: 'pairs',
+        location: 'ER',
+        status: InventoryStatus.IN_STOCK,
+        lastRestocked: '2026-03-20T00:00:00Z',
+        createdAt: '2026-01-01T00:00:00Z'
+      },
+      {
+        id: 'INV-003',
+        name: 'IV Catheters',
+        category: 'Medical Supplies',
+        quantity: 150,
+        minStock: 200,
+        unit: 'units',
+        location: 'ER',
+        status: InventoryStatus.LOW_STOCK,
+        lastRestocked: '2026-02-10T00:00:00Z',
+        createdAt: '2026-01-01T00:00:00Z'
+      },
+      {
+        id: 'INV-004',
+        name: 'Face Masks',
+        category: 'PPE',
+        quantity: 0,
+        minStock: 1000,
+        unit: 'units',
+        location: 'Reception',
+        status: InventoryStatus.OUT_OF_STOCK,
+        lastRestocked: '2026-01-15T00:00:00Z',
+        createdAt: '2026-01-01T00:00:00Z'
+      },
+      {
+        id: 'INV-005',
+        name: 'Bandages',
+        category: 'Medical Supplies',
+        quantity: 800,
+        minStock: 300,
+        unit: 'rolls',
+        location: 'ER',
+        status: InventoryStatus.IN_STOCK,
+        lastRestocked: '2026-03-25T00:00:00Z',
+        createdAt: '2026-01-01T00:00:00Z'
+      },
+      {
+        id: 'INV-006',
+        name: 'Syringes 5ml',
+        category: 'Medical Supplies',
+        quantity: 3000,
+        minStock: 1000,
+        unit: 'units',
+        location: 'Pharmacy',
+        status: InventoryStatus.IN_STOCK,
+        lastRestocked: '2026-03-22T00:00:00Z',
+        createdAt: '2026-01-01T00:00:00Z'
+      },
+      {
+        id: 'INV-007',
+        name: 'Antiseptic Solution',
+        category: 'Medication',
+        quantity: 50,
+        minStock: 75,
+        unit: 'bottles',
+        location: 'ER',
+        status: InventoryStatus.LOW_STOCK,
+        lastRestocked: '2026-02-28T00:00:00Z',
+        createdAt: '2026-01-01T00:00:00Z'
+      },
+      {
+        id: 'INV-008',
+        name: 'Thermometer',
+        category: 'Equipment',
+        quantity: 25,
+        minStock: 10,
+        unit: 'units',
+        location: 'ER',
+        status: InventoryStatus.IN_STOCK,
+        lastRestocked: '2026-01-10T00:00:00Z',
+        createdAt: '2026-01-01T00:00:00Z'
+      },
+      {
+        id: 'INV-009',
+        name: 'Blood Pressure Monitor',
+        category: 'Equipment',
+        quantity: 8,
+        minStock: 5,
+        unit: 'units',
+        location: 'ER',
+        status: InventoryStatus.IN_STOCK,
+        lastRestocked: '2026-01-05T00:00:00Z',
+        createdAt: '2026-01-01T00:00:00Z'
+      },
+      {
+        id: 'INV-010',
+        name: 'Stethoscope',
+        category: 'Equipment',
+        quantity: 15,
+        minStock: 10,
+        unit: 'units',
+        location: 'General',
+        status: InventoryStatus.IN_STOCK,
+        lastRestocked: '2026-02-15T00:00:00Z',
+        createdAt: '2026-01-01T00:00:00Z'
+      }
+    ];
+  }
+
 
   /**
    * Get all inventory with optional filtering
@@ -224,6 +262,7 @@ export class InventoryService {
 
       // Add to inventory array
       this.inventory.push(newItem);
+      this.saveInventory(this.inventory);
 
       return ResponseUtil.created('Inventory item created successfully', newItem);
     } catch (error) {
@@ -264,6 +303,7 @@ export class InventoryService {
       }
 
       this.inventory[itemIndex] = updatedItem;
+      this.saveInventory(this.inventory);
 
       return ResponseUtil.updated('Inventory item updated successfully', updatedItem);
     } catch (error) {
@@ -286,6 +326,7 @@ export class InventoryService {
 
       // Remove item
       this.inventory.splice(itemIndex, 1);
+      this.saveInventory(this.inventory);
 
       return ResponseUtil.deleted('Inventory item');
     } catch (error) {
@@ -322,6 +363,8 @@ export class InventoryService {
         item.status = InventoryStatus.IN_STOCK;
       }
 
+      this.saveInventory(this.inventory);
+
       return ResponseUtil.updated('Item restocked successfully', item);
     } catch (error) {
       return ResponseUtil.serverError('Failed to restock item');
@@ -332,11 +375,13 @@ export class InventoryService {
    * Use inventory item (decrease quantity)
    * @param id Item ID
    * @param quantity Quantity to use
+   * @param notes Optional usage notes
    * @returns Updated item data
    */
-  async useItem(id: string, quantity: number) {
+  async useItem(id: string, quantity: number, notes?: string) {
     try {
       const itemIndex = this.inventory.findIndex(i => i.id === id);
+
       
       if (itemIndex === -1) {
         return ResponseUtil.notFound('Inventory item', id);
@@ -361,6 +406,8 @@ export class InventoryService {
       } else {
         item.status = InventoryStatus.IN_STOCK;
       }
+
+      this.saveInventory(this.inventory);
 
       return ResponseUtil.updated('Item used successfully', item);
     } catch (error) {
@@ -489,4 +536,73 @@ export class InventoryService {
       return ResponseUtil.serverError('Failed to search inventory');
     }
   }
+
+  // ==================== AUDIT TRAIL PERSISTENCE & RETRIEVAL ====================
+
+  private readonly auditFilePath = path.join(process.cwd(), 'data', 'inventory-audit.json');
+
+  /**
+   * Load audit logs from disk
+   */
+  private loadAuditLogs(): InventoryAudit[] {
+    try {
+      if (!fs.existsSync(this.auditFilePath)) {
+        return [];
+      }
+      const raw = fs.readFileSync(this.auditFilePath, 'utf-8');
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Persist audit logs to disk
+   */
+  private saveAuditLogs(logs: InventoryAudit[]): void {
+    try {
+      fs.mkdirSync(path.dirname(this.auditFilePath), { recursive: true });
+      fs.writeFileSync(this.auditFilePath, JSON.stringify(logs, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to persist inventory audit logs:', err);
+    }
+  }
+
+  /**
+   * Record a new audit log entry
+   * @param entry Audit entry object
+   */
+  recordAuditEntry(entry: InventoryAudit): void {
+    const logs = this.loadAuditLogs();
+    logs.push(entry);
+    this.saveAuditLogs(logs);
+  }
+
+  /**
+   * Get audit trail for a specific inventory item
+   * @param itemId Inventory item ID
+   * @returns Audit trail history for the item
+   */
+  async getAuditTrail(itemId: string) {
+    try {
+      const logs = this.loadAuditLogs();
+      const itemLogs = logs
+        .filter(entry => entry.itemId === itemId)
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+      return ResponseUtil.success('Inventory audit trail retrieved successfully', itemLogs);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve inventory audit trail');
+    }
+  }
+
+  /**
+   * Helper method to get raw inventory item state
+   * @param id Inventory item ID
+   * @returns Inventory item or undefined
+   */
+  getRawItem(id: string): Inventory | undefined {
+    return this.inventory.find(i => i.id === id);
+  }
 }
+
