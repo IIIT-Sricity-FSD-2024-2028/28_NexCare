@@ -61,3 +61,8 @@ export declare enum InventoryStatus {
     LOW_STOCK = "Low Stock",
     OUT_OF_STOCK = "Out of Stock"
 }
+export declare enum LeaveStatus {
+    PENDING = "pending",
+    APPROVED = "approved",
+    REJECTED = "rejected"
+}
