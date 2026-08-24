@@ -35,11 +35,54 @@ let HospitalsService = class HospitalsService {
             console.error('Failed to persist hospitals to disk:', err);
         }
     }
-    async findAll(status) {
+    async findAll(status, speciality, city, pincode) {
         try {
             let result = this.hospitals;
             if (status) {
                 result = result.filter(h => h.verificationStatus === status);
+            }
+            if (speciality && speciality.trim() !== '') {
+                const targetSpec = speciality.trim().toLowerCase();
+                result = result.filter((h) => {
+                    const specsArray = Array.isArray(h.specialities)
+                        ? h.specialities
+                        : Array.isArray(h.specialties)
+                            ? h.specialties
+                            : null;
+                    if (specsArray) {
+                        const hasMatch = specsArray.some((s) => typeof s === 'string' && s.trim().toLowerCase() === targetSpec);
+                        if (hasMatch)
+                            return true;
+                    }
+                    if (typeof h.speciality === 'string' && h.speciality.trim().toLowerCase() === targetSpec) {
+                        return true;
+                    }
+                    if (typeof h.specialty === 'string' && h.specialty.trim().toLowerCase() === targetSpec) {
+                        return true;
+                    }
+                    if (Array.isArray(h.doctors)) {
+                        const docMatch = h.doctors.some((d) => (typeof d.speciality === 'string' && d.speciality.trim().toLowerCase() === targetSpec) ||
+                            (typeof d.specialty === 'string' && d.specialty.trim().toLowerCase() === targetSpec) ||
+                            (typeof d.department === 'string' && d.department.trim().toLowerCase() === targetSpec));
+                        if (docMatch)
+                            return true;
+                    }
+                    if (Array.isArray(h.departments)) {
+                        const deptMatch = h.departments.some((d) => (typeof d === 'string' && d.trim().toLowerCase() === targetSpec) ||
+                            (typeof d?.name === 'string' && d.name.trim().toLowerCase() === targetSpec));
+                        if (deptMatch)
+                            return true;
+                    }
+                    return false;
+                });
+            }
+            if (city && city.trim() !== '') {
+                const targetCity = city.trim().toLowerCase();
+                result = result.filter(h => h.city && h.city.trim().toLowerCase() === targetCity);
+            }
+            if (pincode && pincode.trim() !== '') {
+                const targetPincode = pincode.trim();
+                result = result.filter(h => h.pincode && h.pincode.trim() === targetPincode);
             }
             return response_util_1.ResponseUtil.success('Hospitals retrieved successfully', result);
         }
@@ -101,21 +144,24 @@ let HospitalsService = class HospitalsService {
     }
     async findNearby(city, state, pincode) {
         try {
-            const verified = this.hospitals.filter((h) => h.verificationStatus === api_response_interface_1.VerificationStatus.VERIFIED);
+            const verified = this.hospitals.filter((h) => !h.verificationStatus || h.verificationStatus === api_response_interface_1.VerificationStatus.VERIFIED);
+            const targetCity = city ? city.trim().toLowerCase() : null;
+            const targetState = state ? state.trim().toLowerCase() : null;
+            const targetPincode = pincode ? pincode.trim() : null;
             verified.sort((a, b) => {
                 let scoreA = 0;
                 let scoreB = 0;
-                if (pincode && a.pincode === pincode)
+                if (targetPincode && String(a.pincode || '').trim() === targetPincode)
                     scoreA += 3;
-                if (pincode && b.pincode === pincode)
+                if (targetPincode && String(b.pincode || '').trim() === targetPincode)
                     scoreB += 3;
-                if (city && a.city?.toLowerCase() === city.toLowerCase())
+                if (targetCity && String(a.city || '').trim().toLowerCase() === targetCity)
                     scoreA += 2;
-                if (city && b.city?.toLowerCase() === city.toLowerCase())
+                if (targetCity && String(b.city || '').trim().toLowerCase() === targetCity)
                     scoreB += 2;
-                if (state && a.state?.toLowerCase() === state.toLowerCase())
+                if (targetState && String(a.state || '').trim().toLowerCase() === targetState)
                     scoreA += 1;
-                if (state && b.state?.toLowerCase() === state.toLowerCase())
+                if (targetState && String(b.state || '').trim().toLowerCase() === targetState)
                     scoreB += 1;
                 return scoreB - scoreA;
             });
