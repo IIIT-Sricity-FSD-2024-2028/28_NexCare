@@ -9,6 +9,7 @@ import { AmbulanceModule } from './ambulance/ambulance.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { BedsModule } from './beds/beds.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { HospitalsModule } from './hospitals/hospitals.module';
 import { SystemModule } from './system/system.module';
 import { LeavesModule } from './leaves/leaves.module';
 import { AuthGuard } from './common/guards/auth.guard';
@@ -33,6 +34,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     FeedbackModule,
     BedsModule,
     InventoryModule,
+    HospitalsModule,
     SystemModule,
     LeavesModule,
   ],

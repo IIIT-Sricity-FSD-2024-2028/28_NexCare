@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Hospitals - NexCare Patient Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // Early Auth Guard
+        (function () {
+            function decodeJWT(token) {
+                try {
+                    var parts = token.split('.');
+                    if (parts.length !== 3) return null;
+                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(json);
+                } catch(e) { return null; }
+            }
+            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            var payload = token ? decodeJWT(token) : null;
+            var now = Math.floor(Date.now() / 1000);
+            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'patient') {
+                sessionStorage.clear();
+                window.location.replace('../auth/login.html');
+            }
+            if (payload) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('nexcare_current_role', payload.role);
+            }
+        })();
+    </script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="dashboard.html" aria-label="NexCare Patient Portal Home">
+            <nex-care-logo></nex-care-logo>
+            <span class="sidebar-brand-subtitle">Patient Portal</span>
+        </a>
+
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect width="8" height="8" x="2" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="2" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="12" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="12" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="hospital-search.html" class="nav-item active">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M14 14l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Search Hospitals</span>
+            </a>
+            <a href="appointments/appointments.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M6.667 1.667v3.333M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.917 7.5h14.166" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="2.5" y="3.333" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.667"/>
+                </svg>
+                <span>Appointments</span>
+            </a>
+            <a href="ambulance.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M17 8H15V6C15 4.89543 14.1046 4 13 4H5C3.89543 4 3 4.89543 3 6V16C3 17.1046 3.89543 18 5 18H6.18421C6.58354 19.165 7.69351 20 9 20C10.3065 20 11.4165 19.165 11.8158 18H16.1842C16.5835 19.165 17.6935 20 19 20C20.3065 20 21.4165 19.165 21.8158 18H23V14L20 10V8C20 6.89543 19.1046 6 18 6H17V8Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Ambulance Request</span>
+            </a>
+            <a href="billing.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M2 8h16" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Billing & Payments</span>
+            </a>
+            <a href="feedback.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M14 2v4M2 8h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Feedback and Complaint</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M17 18c0-3.866-3.134-7-7-7s-7 3.134-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Profile</span>
+            </a>
+            <a href="#" onclick="sessionStorage.clear(); localStorage.removeItem('nexcare_currentUser'); window.location.href='../landing/landing.html'; return false;" class="nav-item nav-logout">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M13 15l5-5-5-5M18 10H8M12 5v-.5a2 2 0 00-2-2H4a2 2 0 00-2 2v11a2 2 0 002 2h6a2 2 0 002-2V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Logout</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header with Back Button -->
+        <header class="header" style="justify-content: flex-start; gap: 16px;">
+            <a href="dashboard.html" class="btn-outline-sm" id="backToDashboardBtn" style="display: flex; align-items: center; gap: 6px; text-decoration: none; font-weight: 600;">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M10 12L4 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to Dashboard
+            </a>
+            <h1 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0;">Search Hospitals</h1>
+        </header>
+
+        <!-- Main Body -->
+        <div style="padding: 32px;">
+            <!-- Filter Controls Card -->
+            <div class="section-card" style="margin-bottom: 24px; padding: 24px;">
+                <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #1F2937;">Search & Filter</h2>
+                <form id="hospitalSearchForm" onsubmit="return false;" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: end;">
+                    <div>
+                        <label for="specialitySelect" style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Speciality</label>
+                        <select id="specialitySelect" style="width: 100%; padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 14px; background: #FFF; outline: none;">
+                            <option value="">All Specialities</option>
+                            <option value="General Medicine">General Medicine</option>
+                            <option value="Cardiology">Cardiology</option>
+                            <option value="Neurology">Neurology</option>
+                            <option value="Orthopaedics">Orthopaedics</option>
+                            <option value="Orthopedics">Orthopedics</option>
+                            <option value="Paediatrics">Paediatrics</option>
+                            <option value="Pediatrics">Pediatrics</option>
+                            <option value="Dermatology">Dermatology</option>
+                            <option value="Gynaecology">Gynaecology</option>
+                            <option value="Gynecology">Gynecology</option>
+                            <option value="Emergency Medicine">Emergency Medicine</option>
+                            <option value="Oncology">Oncology</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="cityInput" style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">City</label>
+                        <input type="text" id="cityInput" placeholder="Enter city name..." style="width: 100%; padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 14px; outline: none;">
+                    </div>
+
+                    <div>
+                        <label for="pincodeInput" style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">PIN Code</label>
+                        <input type="text" id="pincodeInput" placeholder="Enter PIN code..." style="width: 100%; padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 14px; outline: none;">
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" id="searchBtn" class="btn-primary" style="flex: 1; padding: 10px 16px; font-size: 14px; font-weight: 600; justify-content: center;">
+                            Search
+                        </button>
+                        <button type="button" id="clearBtn" class="btn-outline-sm" style="padding: 10px 16px; font-size: 14px; font-weight: 600;">
+                            Clear Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Status Alert Container -->
+            <div id="statusContainer" style="margin-bottom: 16px;"></div>
+
+            <!-- Results Grid -->
+            <div id="resultsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+                <!-- Hospital cards dynamically loaded -->
+            </div>
+        </div>
+    </main>
+
+    <script src="../logo.js"></script>
+    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/mock-hospitals.js"></script>
+    <script src="hospital-search.js"></script>
+</body>
+</html>
