@@ -10,7 +10,15 @@ export declare enum UserRole {
     SUPERUSER = "superuser",
     AMBULANCE = "ambulance",
     DOCTOR = "doctor",
-    NURSE = "nurse"
+    NURSE = "nurse",
+    REGIONAL_MANAGER = "regional_manager",
+    HOSPITAL_MANAGER = "hospital_manager"
+}
+export declare enum VerificationStatus {
+    PENDING = "pending_verification",
+    PENDING_VERIFICATION = "pending_verification",
+    VERIFIED = "verified",
+    REJECTED = "rejected"
 }
 export declare enum UserStatus {
     ACTIVE = "Active",

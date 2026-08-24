@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCare - Regional Officer Dashboard</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="../shared/nav.css">
+    <style>
+        /* Page padding inside main-content */
+        .page-body { padding: 32px; }
+
+        /* Hero banner — matches patient portal hero gradient */
+        .hero {
+            background: linear-gradient(135deg, #2563EB 0%, #0EA5E9 100%);
+            padding: 32px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            color: #FFFFFF;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+        .hero p  { font-size: 16px; opacity: 0.85; margin: 0; }
+
+        /* Stats grid — matches patient portal stats-grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 24px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        .stat-card:hover {
+            border-color: #155DFC;
+            box-shadow: 0 4px 12px rgba(21, 93, 252, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6A7282;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .stat-value {
+            font-size: 30px;
+            font-weight: 700;
+            color: #101828;
+            line-height: 1;
+        }
+        .stat-trend {
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 8px;
+            display: block;
+        }
+        .trend-up   { color: #00A63E; }
+        .trend-down { color: #E7000B; }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .stat-icon.blue   { background: #DBEAFE; }
+        .stat-icon.green  { background: #DCFCE7; }
+        .stat-icon.purple { background: #F3E8FF; }
+        .stat-icon.orange { background: #FFEDD5; }
+
+        /* Header bar — matches patient portal .header */
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #101828;
+        }
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #2563EB;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .header-user-info p { margin: 0; }
+        .header-user-name { font-size: 14px; font-weight: 700; color: #101828; }
+        .header-user-role { font-size: 12px; color: #6A7282; }
+
+        /* Quick Actions Section */
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #101828;
+            margin-bottom: 20px;
+            margin-top: 40px;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .action-card {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .action-card:hover {
+            border-color: #155DFC;
+            box-shadow: 0 4px 12px rgba(21, 93, 252, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .action-info h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #101828;
+            margin: 0 0 2px 0;
+        }
+
+        .action-info p {
+            font-size: 12px;
+            color: #6A7282;
+            margin: 0;
+        }
+
+        /* Icon Colors */
+        .bg-blue   { background: #EFF6FF; }
+        .bg-green  { background: #F0FDF4; }
+        .bg-purple { background: #FAF5FF; }
+        .bg-orange { background: #FFF7ED; }
+        .bg-pink   { background: #FDF2F8; }
+
+        /* Recent Activity Table */
+        .activity-card {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 32px;
+            margin-top: 24px;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .activity-table th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: #6A7282;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 16px;
+            border-bottom: 1px solid #F3F4F6;
+        }
+
+        .activity-table td {
+            padding: 16px;
+            font-size: 14px;
+            color: #1E293B;
+            border-bottom: 1px solid #F3F4F6;
+        }
+
+        .activity-table tr:hover {
+            background-color: #F8FAFC;
+        }
+
+        .actor-cell {
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .badge-action {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-create { background: #DCFCE7; color: #15803D; }
+        .badge-update { background: #DBEAFE; color: #1D4ED8; }
+        .badge-delete { background: #FEE2E2; color: #B91C1C; }
+
+        .details-cell {
+            max-width: 400px;
+            color: #475569;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="main-content">
+
+        <!-- Sticky header inside main so it respects margin-left -->
+        <header class="header">
+            <span class="header-title">Regional Overview</span>
+            <div class="header-user">
+                <div class="header-avatar" id="userInitials">RO</div>
+                <div class="header-user-info">
+                    <p class="header-user-name" id="userNameDisplay">Regional Officer</p>
+                    <p class="header-user-role">Regional Manager</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-body">
+
+            <!-- Hero Banner -->
+            <div class="hero">
+                <h1>Welcome back, Regional Officer</h1>
+                <p>Hospital management and regional oversight dashboard.</p>
+            </div>
+
+                        <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p class="stat-label">Assigned Hospitals</p>
+                        <p class="stat-value" id="assignedHospitalsCount">--</p>
+                    </div>
+                    <div class="stat-icon blue">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p class="stat-label">Total Doctors</p>
+                        <p class="stat-value" id="totalDoctorsCount">--</p>
+                    </div>
+                    <div class="stat-icon purple">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM9 19c-1.3 0-2.4-.4-3.1-.9-.8-.5-1.4-1.2-1.9-2.1L2 21h14l-2-5c-.5.9-1.1 1.6-1.9 2.1-.7.5-1.8.9-3.1.9zm13-8h-3V8a2 2 0 0 0-2-2h-3a2 2 0 0 0-2 2v3h-3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3h3a2 2 0 0 0 2 2v-3a2 2 0 0 0-2-2z"/></svg>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p class="stat-label">Available Beds</p>
+                        <p class="stat-value" id="availableBedsCount">--</p>
+                    </div>
+                    <div class="stat-icon green">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p class="stat-label">Low Stock Items</p>
+                        <p class="stat-value" id="lowStockCount">--</p>
+                    </div>
+                    <div class="stat-icon orange">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Table -->
+            <div class="activity-card">
+                <div class="activity-header">
+                    <h2 class="section-title" style="margin:0;">Hospitals Under Me</h2>
+                </div>
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th>Hospital Name</th>
+                            <th>City</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hospitalsTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #6A7282;">Loading hospitals...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script>
+        if (typeof checkAuth === "function") {
+            checkAuth();
+            checkRoleAccess();
+        }
+    </script>
+    <script src="../shared/db.js?v=5"></script>
+    <script src="../logo.js"></script>
+    <script src="../shared/nav.js"></script>
+    <script src="dashboard.js?v=2"></script>
+        <script>
+        // JWT-based early auth guard (runs before body renders, prevents flash)
+        (function () {
+            function decodeJWT(token) {
+                try {
+                    var parts = token.split('.');
+                    if (parts.length !== 3) return null;
+                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(json);
+                } catch(e) { return null; }
+            }
+            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            var payload = token ? decodeJWT(token) : null;
+            var now = Math.floor(Date.now() / 1000);
+            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'regional_manager') {
+                sessionStorage.clear();
+                window.location.replace('../auth/login.html');
+            }
+            // Sync legacy keys so other inline scripts don't break
+            if (payload) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('nexcare_current_role', payload.role);
+            }
+        })();
+    </script>
+</body>
+</html>

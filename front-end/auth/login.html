@@ -43,10 +43,10 @@
                             <input type="radio" name="role" value="patient" required> Patient
                         </label>
                         <label class="role-option">
-                            <input type="radio" name="role" value="administrative_staff" required> Admininstrative Staff
+                            <input type="radio" name="role" value="administrative_staff" required> Front Desk
                         </label>
                         <label class="role-option">
-                            <input type="radio" name="role" value="superuser" required> Super User (System)
+                            <input type="radio" name="role" value="doctor" required> Doctor
                         </label>
                         <label class="role-option">
                             <input type="radio" name="role" value="ambulance" required> Ambulance Staff
@@ -66,8 +66,13 @@
 </svg>
 </button>
                     
-                    <div class="auth-links">
-                        Don't have an account? <a href="signup.html">Sign up</a>
+                    <div class="auth-links" style="display:flex; flex-direction:column; gap:8px; align-items:center; margin-top:16px;">
+                        <div>New Patient? <a href="patient-register.html" style="font-weight:600;">Register Patient</a></div>
+                        <div>Hospital Administrator? <a href="../hospital-registration/register.html" style="font-weight:600;">Register Your Hospital</a></div>
+                        <div style="margin-top:12px; display:flex; gap:16px;">
+                            <a href="regional-officer-login.html" style="font-size:12px; color:#64748B;">Regional Officer Login</a>
+                            <a href="superuser-login.html" style="font-size:12px; color:#64748B;">Superuser Login</a>
+                        </div>
                     </div>
 
 

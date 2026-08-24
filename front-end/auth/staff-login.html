@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Force Firefox to never serve this page from cache -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>NexCare - Login</title>
+    <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+    <div class="auth-wrapper">
+        <header class="header">
+        <a href="../landing/landing.html" style="text-decoration:none;"><nex-care-logo></nex-care-logo></a>
+    </header>
+        <div class="auth-card">
+            <div class="auth-form-section">
+                <h2>STAFF LOGIN</h2>
+                
+                <form id="loginForm" onsubmit="handleAuth(event)">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" required>
+                    </div>
+
+                    <div class="form-actions-row">
+                        <label style="font-weight: normal; font-size: 14px; color: #666;">
+                            <input type="checkbox"> Remember me
+                        </label>
+                        <a href="#">Forgot Password?</a>
+                    </div>
+
+                    <label style="font-size: 14px; font-weight: 600; margin-bottom: 5px; display: block;">Role</label>
+                    <div class="role-grid">
+                        <label class="role-option">
+                            <input type="radio" name="role" value="doctor" required> Doctor
+                        </label>
+                        <label class="role-option">
+                            <input type="radio" name="role" value="administrative_staff" required> Front Desk
+                        </label>
+                        <label class="role-option">
+                            <input type="radio" name="role" value="ambulance" required> Ambulance Staff
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+    Sign in
+    <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <polyline 
+        points="0,60 25,60 40,25 55,60 70,90 85,60 100,60"
+        fill="none"
+        stroke="white"
+        stroke-width="6"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+</svg>
+</button>
+                    
+                    <div class="auth-links">
+                        Don't have an account? <a href="staff-register.html">Register Staff</a>
+                    </div>
+
+
+                </form>
+            </div>
+
+            <div class="auth-image-section"></div>
+        </div>
+    </div>
+
+    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/db.js?v=6"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script>
+        async function handleAuth(event) {
+            event.preventDefault();
+            clearError();
+
+            const emailInput    = document.querySelector('input[type="email"]').value.trim();
+            const passwordInput = document.querySelector('input[type="password"]').value;
+            const selectedRole  = document.querySelector('input[name="role"]:checked');
+
+            if (!selectedRole) {
+                showError('Please select a role before signing in.');
+                return;
+            }
+
+            const role = selectedRole.value;
+            const btn  = document.querySelector('.btn-primary');
+            btn.disabled = true;
+            btn.textContent = 'Signing in…';
+
+            try {
+                if (!window.NexCareAPI) {
+                    throw new Error('API module not loaded. Please refresh the page.');
+                }
+
+                const response = await window.NexCareAPI.Auth.login({
+                    email: emailInput,
+                    password: passwordInput,
+                    role: role
+                });
+
+                if (response.success) {
+                    // Store session — only on confirmed backend success
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('nexcare_current_role', role);
+                    sessionStorage.setItem('nexcare_user_email', emailInput);
+                    sessionStorage.setItem('nexcare_user_data', JSON.stringify(response.data.user));
+                    if (response.data.token) {
+                        sessionStorage.setItem('nexcare_auth_token', response.data.token);
+                        localStorage.setItem('nexcare_auth_token', response.data.token);
+                    }
+                    loginUser(role);
+                } else {
+                    showError(response.message || 'Authentication failed. Check your credentials.');
+                }
+            } catch (err) {
+                const backendHost = window.location.hostname;
+                if (err.message && err.message.toLowerCase().includes('fetch')) {
+                    showError(`Cannot reach the backend server at ${backendHost}:3001. Make sure the backend is running (npm run start:dev).`);
+                } else {
+                    showError(err.message || 'An unexpected error occurred.');
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `Sign in <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polyline points="0,60 25,60 40,25 55,60 70,90 85,60 100,60" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+            }
+        }
+
+        function showError(msg) {
+            let el = document.getElementById('loginError');
+            if (!el) {
+                el = document.createElement('p');
+                el.id = 'loginError';
+                el.style.cssText = 'color:#dc2626;font-size:13px;margin:8px 0 0;font-weight:500;';
+                document.getElementById('loginForm').insertBefore(el, document.querySelector('.role-grid').previousElementSibling);
+            }
+            el.textContent = msg;
+            
+            // Show HTTP popup alert as requested by user
+            window.alert("Login Error: " + msg);
+        }
+
+        function clearError() {
+            const el = document.getElementById('loginError');
+            if (el) el.textContent = '';
+        }
+
+    </script>
+    <script src="../logo.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.InventoryStatus = exports.FeedbackStatus = exports.BedStatus = exports.AmbulanceStatus = exports.BillStatus = exports.AppointmentStatus = exports.UserStatus = exports.UserRole = void 0;
+exports.InventoryStatus = exports.FeedbackStatus = exports.BedStatus = exports.AmbulanceStatus = exports.BillStatus = exports.AppointmentStatus = exports.UserStatus = exports.VerificationStatus = exports.UserRole = void 0;
 var UserRole;
 (function (UserRole) {
     UserRole["PATIENT"] = "patient";
@@ -9,7 +9,16 @@ var UserRole;
     UserRole["AMBULANCE"] = "ambulance";
     UserRole["DOCTOR"] = "doctor";
     UserRole["NURSE"] = "nurse";
+    UserRole["REGIONAL_MANAGER"] = "regional_manager";
+    UserRole["HOSPITAL_MANAGER"] = "hospital_manager";
 })(UserRole || (exports.UserRole = UserRole = {}));
+var VerificationStatus;
+(function (VerificationStatus) {
+    VerificationStatus["PENDING"] = "pending_verification";
+    VerificationStatus["PENDING_VERIFICATION"] = "pending_verification";
+    VerificationStatus["VERIFIED"] = "verified";
+    VerificationStatus["REJECTED"] = "rejected";
+})(VerificationStatus || (exports.VerificationStatus = VerificationStatus = {}));
 var UserStatus;
 (function (UserStatus) {
     UserStatus["ACTIVE"] = "Active";

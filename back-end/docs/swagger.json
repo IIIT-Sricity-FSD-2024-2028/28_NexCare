@@ -911,7 +911,9 @@
                 "superuser",
                 "ambulance",
                 "doctor",
-                "nurse"
+                "nurse",
+                "regional_manager",
+                "hospital_manager"
               ],
               "type": "string"
             }
@@ -3679,7 +3681,9 @@
               "superuser",
               "ambulance",
               "doctor",
-              "nurse"
+              "nurse",
+              "regional_manager",
+              "hospital_manager"
             ],
             "example": "superuser",
             "description": "Role to login as"
@@ -3878,7 +3882,9 @@
               "superuser",
               "ambulance",
               "doctor",
-              "nurse"
+              "nurse",
+              "regional_manager",
+              "hospital_manager"
             ],
             "example": "doctor",
             "description": "User role"
@@ -3927,7 +3933,9 @@
               "superuser",
               "ambulance",
               "doctor",
-              "nurse"
+              "nurse",
+              "regional_manager",
+              "hospital_manager"
             ],
             "example": "doctor",
             "description": "User role"
