@@ -10,6 +10,7 @@ import { FeedbackModule } from './feedback/feedback.module';
 import { BedsModule } from './beds/beds.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { SystemModule } from './system/system.module';
+import { LeavesModule } from './leaves/leaves.module';
 import { AuthGuard } from './common/guards/auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -33,6 +34,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     BedsModule,
     InventoryModule,
     SystemModule,
+    LeavesModule,
   ],
   providers: [
     // AuthGuard runs first — validates the JWT and populates request.user
