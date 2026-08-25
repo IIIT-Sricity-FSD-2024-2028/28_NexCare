@@ -30,6 +30,9 @@ let UsersController = class UsersController {
     async create(createUserDto) {
         return this.usersService.create(createUserDto);
     }
+    async findDoctors(dept) {
+        return this.usersService.findDoctors(dept);
+    }
     async getStats() {
         return this.usersService.getStats();
     }
@@ -57,7 +60,6 @@ let UsersController = class UsersController {
 };
 exports.UsersController = UsersController;
 __decorate([
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all users' }),
     (0, swagger_1.ApiQuery)({ name: 'role', required: false, enum: api_response_interface_1.UserRole }),
@@ -80,6 +82,17 @@ __decorate([
     __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "create", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT, api_response_interface_1.UserRole.DOCTOR),
+    (0, common_1.Get)('doctors'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get active doctors, optionally filtered by department' }),
+    (0, swagger_1.ApiQuery)({ name: 'dept', required: false }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Doctors retrieved successfully' }),
+    __param(0, (0, common_1.Query)('dept')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "findDoctors", null);
 __decorate([
     (0, common_1.Get)('stats/overview'),
     (0, swagger_1.ApiOperation)({ summary: 'Get user statistics' }),

@@ -102,24 +102,24 @@ let HospitalsService = class HospitalsService {
     async findNearby(city, state, pincode) {
         try {
             const verified = this.hospitals.filter((h) => h.verificationStatus === api_response_interface_1.VerificationStatus.VERIFIED);
-            verified.sort((a, b) => {
-                let scoreA = 0;
-                let scoreB = 0;
-                if (pincode && a.pincode === pincode)
-                    scoreA += 3;
-                if (pincode && b.pincode === pincode)
-                    scoreB += 3;
-                if (city && a.city?.toLowerCase() === city.toLowerCase())
-                    scoreA += 2;
-                if (city && b.city?.toLowerCase() === city.toLowerCase())
-                    scoreB += 2;
-                if (state && a.state?.toLowerCase() === state.toLowerCase())
-                    scoreA += 1;
-                if (state && b.state?.toLowerCase() === state.toLowerCase())
-                    scoreB += 1;
-                return scoreB - scoreA;
-            });
-            return response_util_1.ResponseUtil.success('Nearby hospitals retrieved successfully', verified);
+            const score = (h) => {
+                let s = 0;
+                if (pincode && h.pincode === pincode)
+                    s += 3;
+                if (city && h.city?.toLowerCase() === city.toLowerCase())
+                    s += 2;
+                if (state && h.state?.toLowerCase() === state.toLowerCase())
+                    s += 1;
+                return s;
+            };
+            const hasLocation = !!(pincode || city || state);
+            let result = verified;
+            if (hasLocation) {
+                const local = verified.filter(h => score(h) > 0);
+                result = local.length > 0 ? local : verified;
+            }
+            result.sort((a, b) => score(b) - score(a));
+            return response_util_1.ResponseUtil.success('Nearby hospitals retrieved successfully', result);
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to retrieve nearby hospitals');

@@ -65,6 +65,33 @@ export class AuthService {
   // JWT helpers (HMAC-SHA256, no external library)
   // ─────────────────────────────────────────────────────────────────────────
 
+  // ── Password hashing (scrypt, no external library) ───────────────────────
+  // Stored format: "scrypt$<saltHex>$<hashHex>". Legacy plaintext passwords in
+  // seed data are still accepted and transparently upgraded on next login.
+
+  private hashPassword(plain: string): string {
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.scryptSync(plain, salt, 64).toString('hex');
+    return `scrypt$${salt}$${hash}`;
+  }
+
+  /** True if `stored` is a hashed password (vs legacy plaintext). */
+  private isHashed(stored: string): boolean {
+    return typeof stored === 'string' && stored.startsWith('scrypt$');
+  }
+
+  /** Verify a plaintext password against a stored hash OR legacy plaintext. */
+  private verifyPassword(plain: string, stored: string): boolean {
+    if (!this.isHashed(stored)) {
+      return stored === plain; // legacy plaintext
+    }
+    const [, salt, hash] = stored.split('$');
+    if (!salt || !hash) return false;
+    const computed = crypto.scryptSync(plain, salt, 64);
+    const expected = Buffer.from(hash, 'hex');
+    return computed.length === expected.length && crypto.timingSafeEqual(computed, expected);
+  }
+
   private b64url(input: string | Buffer): string {
     const buf = typeof input === 'string' ? Buffer.from(input, 'utf-8') : input;
     return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -81,6 +108,7 @@ export class AuthService {
         role: user.role,
         name: user.name,
         patientId: user.patientId || null,
+        hospitalId: user.hospitalId || null,
         iat: now,
         exp: now + this.jwtExpiresInSeconds,
       }),
@@ -119,7 +147,7 @@ export class AuthService {
         return null;
       }
 
-      const decoded = JSON.parse(Buffer.from(payload, 'base64').toString('utf-8'));
+      const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf-8'));
 
       // Check expiry
       if (decoded.exp && Math.floor(Date.now() / 1000) > decoded.exp) {
@@ -142,16 +170,23 @@ export class AuthService {
   async login(loginRequest: LoginRequest) {
     try {
       const users = this.loadUsers();
-      const user = users.find(
+      const userIndex = users.findIndex(
         (u) => u.email.toLowerCase() === loginRequest.email.toLowerCase(),
       );
+      const user = userIndex >= 0 ? users[userIndex] : null;
 
       if (!user) {
         return ResponseUtil.error('Authentication Failed: Email address not found');
       }
 
-      if (user.password !== loginRequest.password) {
+      if (!this.verifyPassword(loginRequest.password, user.password)) {
         return ResponseUtil.error('Authentication Failed: Incorrect password');
+      }
+
+      // Transparently upgrade legacy plaintext passwords to a hash on login.
+      if (!this.isHashed(user.password)) {
+        users[userIndex].password = this.hashPassword(loginRequest.password);
+        this.saveUsers(users);
       }
 
       if (user.role !== loginRequest.role) {
@@ -173,6 +208,7 @@ export class AuthService {
         status: user.status,
         loginTime: new Date().toISOString(),
         patientId: user.patientId || null,
+        hospitalId: user.hospitalId || null,
       };
       this.sessions.set(user.id, session);
 
@@ -184,6 +220,7 @@ export class AuthService {
           role: user.role,
           status: user.status,
           patientId: user.patientId || null,
+          hospitalId: user.hospitalId || null,
         },
         token: this.generateToken(user),
       };
@@ -227,7 +264,7 @@ export class AuthService {
         email: registerRequest.email,
         role: UserRole.PATIENT,
         status: UserStatus.ACTIVE,
-        password: registerRequest.password,
+        password: this.hashPassword(registerRequest.password),
         patientId: newPatientId,
       };
 
@@ -279,6 +316,83 @@ export class AuthService {
     } catch (error) {
       console.error('Registration error:', error);
       return ResponseUtil.serverError('Registration failed due to a server error');
+    }
+  }
+
+  /**
+   * Register a new staff account (administrative_staff, doctor, ambulance, nurse).
+   * Unlike patient registration, the role is supplied by the applicant and the
+   * account is scoped to a hospital. No patient record is created.
+   */
+  async registerStaff(data: {
+    fullName: string;
+    email: string;
+    password: string;
+    phone: string;
+    role: UserRole;
+    hospitalId: string;
+    dept?: string;
+  }) {
+    try {
+      const users = this.loadUsers();
+
+      const existing = users.find(
+        (u) => u.email.toLowerCase() === data.email.toLowerCase(),
+      );
+      if (existing) {
+        return ResponseUtil.error('Email is already registered');
+      }
+
+      const newUser = {
+        id: IdGenerator.generateUserId(),
+        name: data.fullName,
+        email: data.email,
+        role: data.role,
+        status: UserStatus.ACTIVE,
+        password: this.hashPassword(data.password),
+        phone: data.phone,
+        hospitalId: data.hospitalId,
+        dept: data.dept,
+      };
+
+      users.push(newUser);
+      this.saveUsers(users);
+
+      const session: UserSession = {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        status: newUser.status,
+        loginTime: new Date().toISOString(),
+        hospitalId: newUser.hospitalId,
+      };
+      this.sessions.set(newUser.id, session);
+
+      const authResponse: AuthResponse = {
+        user: {
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role,
+          status: newUser.status,
+          hospitalId: newUser.hospitalId,
+        },
+        token: this.generateToken(newUser),
+      };
+
+      this.systemService.createActivity({
+        userId: newUser.id,
+        action: 'Register',
+        details: `New staff account registered: ${newUser.name} (${newUser.role}) at ${newUser.hospitalId}`,
+        module: 'Authentication',
+        severity: 'INFO',
+      });
+
+      return ResponseUtil.created('Staff account created successfully', authResponse);
+    } catch (error) {
+      console.error('Staff registration error:', error);
+      return ResponseUtil.serverError('Staff registration failed due to a server error');
     }
   }
 
@@ -336,8 +450,12 @@ export class AuthService {
    * Change password for a user identified by email.
    * Validates current password and enforces minimum length for new password.
    */
-  async changePassword(data: { currentPassword: string; newPassword: string; email?: string }) {
+  async changePassword(data: { currentPassword: string; newPassword: string; userId?: string }) {
     try {
+      if (!data.userId) {
+        return ResponseUtil.unauthorized('You must be logged in to change your password');
+      }
+
       if (!data.currentPassword || !data.newPassword) {
         return ResponseUtil.error('Both current and new password are required');
       }
@@ -352,31 +470,20 @@ export class AuthService {
 
       const users = this.loadUsers();
 
-      // Find user by email (if provided), otherwise check all users
-      let user: any = null;
-      let userIndex = -1;
-
-      if (data.email) {
-        userIndex = users.findIndex(u => u.email.toLowerCase() === data.email.toLowerCase());
-        user = userIndex >= 0 ? users[userIndex] : null;
-      }
+      // Only ever operate on the authenticated user's own record.
+      const userIndex = users.findIndex(u => u.id === data.userId);
+      const user = userIndex >= 0 ? users[userIndex] : null;
 
       if (!user) {
-        // Try to find by matching current password across all users (fallback)
-        userIndex = users.findIndex(u => u.password === data.currentPassword);
-        user = userIndex >= 0 ? users[userIndex] : null;
+        return ResponseUtil.error('User account not found');
       }
 
-      if (!user) {
+      if (!this.verifyPassword(data.currentPassword, user.password)) {
         return ResponseUtil.error('Current password is incorrect');
       }
 
-      if (user.password !== data.currentPassword) {
-        return ResponseUtil.error('Current password is incorrect');
-      }
-
-      // Update password
-      users[userIndex].password = data.newPassword;
+      // Update password (stored hashed)
+      users[userIndex].password = this.hashPassword(data.newPassword);
       this.saveUsers(users);
 
       // Log activity

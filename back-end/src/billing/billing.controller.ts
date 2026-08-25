@@ -1,15 +1,17 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Put, 
-  Patch, 
-  Delete, 
-  Param, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Patch,
+  Delete,
+  Param,
   Query,
+  Req,
+  ForbiddenException,
   HttpCode,
-  HttpStatus 
+  HttpStatus
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { BillingService } from './billing.service';
@@ -21,28 +23,48 @@ import { UserRole, BillStatus } from '../common/interfaces/api-response.interfac
 
 /**
  * Billing Controller
- * Manages financial operations and bill generation in the NexCare system
- * Provides endpoints for bill CRUD operations and payment processing
+ * Manages financial operations and bill generation in the NexCare system.
+ *
+ * RBAC: staff/superuser manage bills. Patients may view and pay their OWN
+ * bills only (enforced against req.user.patientId).
  */
 @ApiTags('Billing')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
 @Controller('billing')
 export class BillingController {
   constructor(private readonly billingService: BillingService) {}
+
+  private isPatient(req: any): boolean {
+    return req?.user?.role === UserRole.PATIENT;
+  }
+
+  /** For a patient caller, verify the bill belongs to them (else 403). */
+  private async assertOwnsBill(req: any, id: string) {
+    if (!this.isPatient(req)) return;
+    const res: any = await this.billingService.findById(id);
+    if (res?.success && res.data && res.data.patientId !== req.user.patientId) {
+      throw new ForbiddenException('You can only access your own bills.');
+    }
+  }
 
   /**
    * Get all bills with optional filtering
    */
   @Get()
-  @ApiOperation({ summary: 'Get all bills' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Get all bills (patients: only their own)' })
   @ApiQuery({ name: 'patientId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: BillStatus })
   @ApiResponse({ status: 200, description: 'List of bills' })
   async findAll(
+    @Req() req: any,
     @Query('patientId') patientId?: string,
     @Query('status') status?: string
   ) {
+    if (this.isPatient(req)) {
+      patientId = req.user.patientId;
+    }
     return this.billingService.findAll(patientId, status as any);
   }
 
@@ -72,9 +94,13 @@ export class BillingController {
    * Get bills by patient
    */
   @Get('patient/:patientId')
-  @ApiOperation({ summary: 'Get bills by patient ID' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Get bills by patient ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'List of patient bills' })
-  async findByPatient(@Param('patientId') patientId: string) {
+  async findByPatient(@Req() req: any, @Param('patientId') patientId: string) {
+    if (this.isPatient(req) && patientId !== req.user.patientId) {
+      throw new ForbiddenException('You can only view your own bills.');
+    }
     return this.billingService.findByPatient(patientId);
   }
 
@@ -107,9 +133,11 @@ export class BillingController {
    * Get bill by ID
    */
   @Get(':id')
-  @ApiOperation({ summary: 'Get bill by ID' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Get bill by ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Bill details retrieved' })
-  async findById(@Param('id') id: string) {
+  async findById(@Req() req: any, @Param('id') id: string) {
+    await this.assertOwnsBill(req, id);
     return this.billingService.findById(id);
   }
 
@@ -147,15 +175,18 @@ export class BillingController {
    * Process payment for bill
    */
   @Patch(':id/pay')
-  @ApiOperation({ summary: 'Process payment for a bill' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Process payment for a bill (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Payment processed successfully' })
   async processPayment(
+    @Req() req: any,
     @Param('id') id: string,
     @Body() processPaymentDto: ProcessPaymentDto
   ) {
-    return this.billingService.processPayment(id, { 
-      amount: processPaymentDto.amount, 
-      method: processPaymentDto.method 
+    await this.assertOwnsBill(req, id);
+    return this.billingService.processPayment(id, {
+      amount: processPaymentDto.amount,
+      method: processPaymentDto.method
     });
   }
 }

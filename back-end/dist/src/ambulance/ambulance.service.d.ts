@@ -1,13 +1,19 @@
 import { CreateAmbulanceRequest, UpdateAmbulanceRequest } from './interfaces/ambulance-request.interface';
 import { AmbulanceStatus } from '../common/interfaces/api-response.interface';
 import { SystemService } from '../system/system.service';
+import { PatientsService } from '../patients/patients.service';
 export declare class AmbulanceService {
     private readonly systemService;
-    constructor(systemService: SystemService);
-    private ambulanceRequests;
-    findAll(patientId?: string, status?: AmbulanceStatus): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    private readonly patientsService;
+    constructor(systemService: SystemService, patientsService: PatientsService);
+    private readonly store;
+    private static seed;
+    private resolvePatientName;
+    findAll(patientId?: string, status?: AmbulanceStatus, hospitalId?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
-    create(requestData: CreateAmbulanceRequest): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    create(requestData: CreateAmbulanceRequest & {
+        hospitalId?: string;
+    }): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     update(id: string, updateData: UpdateAmbulanceRequest): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     delete(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     dispatch(id: string, assignedTo?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

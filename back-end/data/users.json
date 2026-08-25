@@ -39,7 +39,7 @@
     "email": "patient@gmail.com",
     "role": "patient",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$5c05985ef7a9c83e1e0c0ce8cac01bb5$15f489fd79cf00a87a045657f67c2ed1fedc2f81a2b89a2ddaa92a1880d6a95ac28db469aa73b653d182edd0a3e70efdbcc1ba250355595c5b5d5a709dd180cb",
     "patientId": "P001",
     "city": "Tirupati",
     "state": "Andhra Pradesh",

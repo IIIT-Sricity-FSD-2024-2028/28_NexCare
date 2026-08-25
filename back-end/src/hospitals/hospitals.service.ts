@@ -101,27 +101,29 @@ export class HospitalsService {
         (h) => h.verificationStatus === VerificationStatus.VERIFIED,
       );
 
-      // Sort logic: 
-      // 1. Same pincode
-      // 2. Same city
-      // 3. Same state
-      verified.sort((a, b) => {
-        let scoreA = 0;
-        let scoreB = 0;
-        
-        if (pincode && a.pincode === pincode) scoreA += 3;
-        if (pincode && b.pincode === pincode) scoreB += 3;
-        
-        if (city && a.city?.toLowerCase() === city.toLowerCase()) scoreA += 2;
-        if (city && b.city?.toLowerCase() === city.toLowerCase()) scoreB += 2;
-        
-        if (state && a.state?.toLowerCase() === state.toLowerCase()) scoreA += 1;
-        if (state && b.state?.toLowerCase() === state.toLowerCase()) scoreB += 1;
-        
-        return scoreB - scoreA;
-      });
+      // Proximity score: same pincode (3) > same city (2) > same state (1).
+      const score = (h: Hospital) => {
+        let s = 0;
+        if (pincode && h.pincode === pincode) s += 3;
+        if (city && h.city?.toLowerCase() === city.toLowerCase()) s += 2;
+        if (state && h.state?.toLowerCase() === state.toLowerCase()) s += 1;
+        return s;
+      };
 
-      return ResponseUtil.success('Nearby hospitals retrieved successfully', verified);
+      const hasLocation = !!(pincode || city || state);
+
+      // When a location is supplied, actually narrow to hospitals that share
+      // at least the state/city/pincode. If nothing matches locally, fall back
+      // to the full verified list so the patient still sees options.
+      let result = verified;
+      if (hasLocation) {
+        const local = verified.filter(h => score(h) > 0);
+        result = local.length > 0 ? local : verified;
+      }
+
+      result.sort((a, b) => score(b) - score(a));
+
+      return ResponseUtil.success('Nearby hospitals retrieved successfully', result);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve nearby hospitals');
     }

@@ -50,6 +50,7 @@ let HospitalsController = class HospitalsController {
 };
 exports.HospitalsController = HospitalsController;
 __decorate([
+    (0, public_decorator_1.Public)(),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
@@ -57,6 +58,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], HospitalsController.prototype, "findAll", null);
 __decorate([
+    (0, public_decorator_1.Public)(),
     (0, common_1.Get)('nearby'),
     __param(0, (0, common_1.Query)('city')),
     __param(1, (0, common_1.Query)('state')),

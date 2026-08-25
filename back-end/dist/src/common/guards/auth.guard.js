@@ -39,6 +39,9 @@ let AuthGuard = class AuthGuard {
             id: payload.sub,
             email: payload.email,
             role: payload.role,
+            name: payload.name,
+            patientId: payload.patientId ?? undefined,
+            hospitalId: payload.hospitalId ?? undefined,
         };
         return true;
     }

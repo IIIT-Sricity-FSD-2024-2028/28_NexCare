@@ -33,7 +33,6 @@ export class UsersController {
   /**
    * Get all users with optional filtering
    */
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiQuery({ name: 'role', required: false, enum: UserRole })
@@ -53,6 +52,18 @@ export class UsersController {
   @ApiResponse({ status: 400, description: 'Validation error' })
   async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto as any);
+  }
+
+  /**
+   * Get active doctors (available to patients for appointment booking)
+   */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT, UserRole.DOCTOR)
+  @Get('doctors')
+  @ApiOperation({ summary: 'Get active doctors, optionally filtered by department' })
+  @ApiQuery({ name: 'dept', required: false })
+  @ApiResponse({ status: 200, description: 'Doctors retrieved successfully' })
+  async findDoctors(@Query('dept') dept?: string) {
+    return this.usersService.findDoctors(dept);
   }
 
   /**

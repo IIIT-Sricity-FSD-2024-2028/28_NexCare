@@ -10,6 +10,7 @@ export declare class UsersService {
     update(id: string, updateData: UpdateUserRequest): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     delete(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     getStats(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    findDoctors(dept?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findByRole(role: UserRole): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     updateStatus(id: string, status: UserStatus): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     search(query: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

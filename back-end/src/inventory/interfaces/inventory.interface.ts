@@ -14,6 +14,7 @@ export interface Inventory {
   location: string;
   status: InventoryStatus;
   lastRestocked?: string;
+  hospitalId?: string;
   createdAt?: string;
   updatedAt?: string;
 }

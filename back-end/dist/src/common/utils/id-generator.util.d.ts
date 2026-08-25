@@ -1,4 +1,5 @@
 export declare class IdGenerator {
+    private static counter;
     static generate(prefix: string): string;
     static generateUserId(): string;
     static generatePatientId(): string;

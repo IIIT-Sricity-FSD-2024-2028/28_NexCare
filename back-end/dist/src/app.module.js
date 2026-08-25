@@ -19,6 +19,11 @@ const feedback_module_1 = require("./feedback/feedback.module");
 const beds_module_1 = require("./beds/beds.module");
 const inventory_module_1 = require("./inventory/inventory.module");
 const system_module_1 = require("./system/system.module");
+const hospitals_module_1 = require("./hospitals/hospitals.module");
+const departments_module_1 = require("./departments/departments.module");
+const wards_module_1 = require("./wards/wards.module");
+const equipment_module_1 = require("./equipment/equipment.module");
+const support_requests_module_1 = require("./support-requests/support-requests.module");
 const auth_guard_1 = require("./common/guards/auth.guard");
 const roles_guard_1 = require("./common/guards/roles.guard");
 let AppModule = class AppModule {
@@ -37,6 +42,11 @@ exports.AppModule = AppModule = __decorate([
             beds_module_1.BedsModule,
             inventory_module_1.InventoryModule,
             system_module_1.SystemModule,
+            hospitals_module_1.HospitalsModule,
+            departments_module_1.DepartmentsModule,
+            wards_module_1.WardsModule,
+            equipment_module_1.EquipmentModule,
+            support_requests_module_1.SupportRequestsModule,
         ],
         providers: [
             {

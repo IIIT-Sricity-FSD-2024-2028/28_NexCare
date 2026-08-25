@@ -54,6 +54,34 @@
         ]
       }
     },
+    "/api/auth/register-staff": {
+      "post": {
+        "operationId": "AuthController_registerStaff",
+        "summary": "Register a new staff account (doctor/administrative_staff/ambulance/nurse)",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterStaffDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registration result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/api/auth/logout/{userId}": {
       "post": {
         "operationId": "AuthController_logout",
@@ -251,6 +279,24 @@
         "responses": {
           "200": {
             "description": "List of system settings"
+          }
+        },
+        "tags": [
+          "System"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "SystemController_updateSettingsBulk",
+        "summary": "Bulk update system settings (key→value map)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Settings updated successfully"
           }
         },
         "tags": [
@@ -739,7 +785,7 @@
     "/api/patients/{id}": {
       "get": {
         "operationId": "PatientsController_findById",
-        "summary": "Get patient by ID",
+        "summary": "Get patient by ID (patients: own record only)",
         "parameters": [
           {
             "name": "id",
@@ -766,7 +812,7 @@
       },
       "put": {
         "operationId": "PatientsController_update",
-        "summary": "Update patient details",
+        "summary": "Update patient details (patients: own record only)",
         "parameters": [
           {
             "name": "id",
@@ -803,7 +849,7 @@
       },
       "patch": {
         "operationId": "PatientsController_patchUpdate",
-        "summary": "Partially update patient details",
+        "summary": "Partially update patient details (patients: own record only)",
         "parameters": [
           {
             "name": "id",
@@ -961,6 +1007,35 @@
           },
           "400": {
             "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/doctors": {
+      "get": {
+        "operationId": "UsersController_findDoctors",
+        "summary": "Get active doctors, optionally filtered by department",
+        "parameters": [
+          {
+            "name": "dept",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Doctors retrieved successfully"
           }
         },
         "tags": [
@@ -1213,7 +1288,7 @@
     "/api/appointments": {
       "get": {
         "operationId": "AppointmentsController_findAll",
-        "summary": "Get all appointments",
+        "summary": "Get all appointments (patients: only their own)",
         "parameters": [
           {
             "name": "patientId",
@@ -1315,7 +1390,7 @@
     "/api/appointments/patient/{patientId}": {
       "get": {
         "operationId": "AppointmentsController_findByPatient",
-        "summary": "Get appointments by patient ID",
+        "summary": "Get appointments by patient ID (patients: own only)",
         "parameters": [
           {
             "name": "patientId",
@@ -1393,7 +1468,7 @@
     "/api/appointments/{id}": {
       "get": {
         "operationId": "AppointmentsController_findById",
-        "summary": "Get appointment by ID",
+        "summary": "Get appointment by ID (patients: own only)",
         "parameters": [
           {
             "name": "id",
@@ -1581,7 +1656,7 @@
     "/api/appointments/{id}/cancel": {
       "patch": {
         "operationId": "AppointmentsController_cancel",
-        "summary": "Cancel an appointment",
+        "summary": "Cancel an appointment (patients: own only)",
         "parameters": [
           {
             "name": "id",
@@ -1610,7 +1685,7 @@
     "/api/billing": {
       "get": {
         "operationId": "BillingController_findAll",
-        "summary": "Get all bills",
+        "summary": "Get all bills (patients: only their own)",
         "parameters": [
           {
             "name": "patientId",
@@ -1704,7 +1779,7 @@
     "/api/billing/patient/{patientId}": {
       "get": {
         "operationId": "BillingController_findByPatient",
-        "summary": "Get bills by patient ID",
+        "summary": "Get bills by patient ID (patients: own only)",
         "parameters": [
           {
             "name": "patientId",
@@ -1790,7 +1865,7 @@
     "/api/billing/{id}": {
       "get": {
         "operationId": "BillingController_findById",
-        "summary": "Get bill by ID",
+        "summary": "Get bill by ID (patients: own only)",
         "parameters": [
           {
             "name": "id",
@@ -1920,7 +1995,7 @@
     "/api/billing/{id}/pay": {
       "patch": {
         "operationId": "BillingController_processPayment",
-        "summary": "Process payment for a bill",
+        "summary": "Process payment for a bill (patients: own only)",
         "parameters": [
           {
             "name": "id",
@@ -1959,7 +2034,7 @@
     "/api/ambulance": {
       "get": {
         "operationId": "AmbulanceController_findAll",
-        "summary": "Get all ambulance requests",
+        "summary": "Get all ambulance requests (patients: only their own)",
         "parameters": [
           {
             "name": "patientId",
@@ -2055,7 +2130,7 @@
     "/api/ambulance/patient/{patientId}": {
       "get": {
         "operationId": "AmbulanceController_findByPatient",
-        "summary": "Get ambulance requests by patient ID",
+        "summary": "Get ambulance requests by patient ID (patients: own only)",
         "parameters": [
           {
             "name": "patientId",
@@ -2133,7 +2208,7 @@
     "/api/ambulance/{id}": {
       "get": {
         "operationId": "AmbulanceController_findById",
-        "summary": "Get ambulance request by ID",
+        "summary": "Get ambulance request by ID (patients: own only)",
         "parameters": [
           {
             "name": "id",
@@ -2234,7 +2309,7 @@
       },
       "delete": {
         "operationId": "AmbulanceController_delete",
-        "summary": "Delete an ambulance request",
+        "summary": "Delete/cancel an ambulance request (patients: own only)",
         "parameters": [
           {
             "name": "id",
@@ -2360,7 +2435,7 @@
     "/api/feedback": {
       "get": {
         "operationId": "FeedbackController_findAll",
-        "summary": "Get all feedback",
+        "summary": "Get all feedback (patients: only their own)",
         "parameters": [
           {
             "name": "patientId",
@@ -2461,7 +2536,7 @@
     "/api/feedback/patient/{patientId}": {
       "get": {
         "operationId": "FeedbackController_findByPatient",
-        "summary": "Get feedback by patient ID",
+        "summary": "Get feedback by patient ID (patients: own only)",
         "parameters": [
           {
             "name": "patientId",
@@ -3588,6 +3663,304 @@
           }
         ]
       }
+    },
+    "/api/hospitals": {
+      "get": {
+        "operationId": "HospitalsController_findAll",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/nearby": {
+      "get": {
+        "operationId": "HospitalsController_findNearby",
+        "parameters": [
+          {
+            "name": "city",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pincode",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}": {
+      "get": {
+        "operationId": "HospitalsController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "operationId": "HospitalsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/register": {
+      "post": {
+        "operationId": "HospitalsController_register",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/verify": {
+      "patch": {
+        "operationId": "HospitalsController_verify",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/reject": {
+      "patch": {
+        "operationId": "HospitalsController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/assign-manager": {
+      "patch": {
+        "operationId": "HospitalsController_assignManager",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/departments": {
+      "get": {
+        "operationId": "DepartmentsController_findAll",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Departments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/wards": {
+      "get": {
+        "operationId": "WardsController_findAll",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Wards"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/equipment": {
+      "get": {
+        "operationId": "EquipmentController_findAll",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Equipment"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/support-requests": {
+      "get": {
+        "operationId": "SupportRequestsController_findAll",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "SupportRequestsController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/support-requests/{id}": {
+      "put": {
+        "operationId": "SupportRequestsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "info": {
@@ -3734,6 +4107,60 @@
           "email",
           "password",
           "phone"
+        ]
+      },
+      "RegisterStaffDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Jane Smith",
+            "description": "Full name of the staff member"
+          },
+          "email": {
+            "type": "string",
+            "example": "jane@nexcare.com",
+            "description": "Email address"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123",
+            "description": "Account password"
+          },
+          "phone": {
+            "type": "string",
+            "example": "5551234567",
+            "description": "Contact phone number"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "administrative_staff",
+              "doctor",
+              "ambulance",
+              "nurse"
+            ],
+            "example": "administrative_staff",
+            "description": "Staff role to register as"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the staff member belongs to"
+          },
+          "dept": {
+            "type": "string",
+            "example": "Cardiology",
+            "description": "Department (for doctors/nurses)"
+          }
+        },
+        "required": [
+          "fullName",
+          "email",
+          "password",
+          "phone",
+          "role",
+          "hospitalId"
         ]
       },
       "CreateSystemActivityDto": {
@@ -3903,6 +4330,11 @@
             "type": "string",
             "example": "Cardiology",
             "description": "Department (for doctors/staff)"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the user belongs to (for staff/doctor/ambulance)"
           }
         },
         "required": [
@@ -3964,6 +4396,11 @@
             "type": "string",
             "example": "Cardiology",
             "description": "Department (for doctors/staff)"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the user belongs to (for staff/doctor/ambulance)"
           }
         }
       },

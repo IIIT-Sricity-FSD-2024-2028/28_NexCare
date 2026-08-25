@@ -1,15 +1,16 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Put, 
-  Patch, 
-  Delete, 
-  Param, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Patch,
+  Delete,
+  Param,
   Query,
+  Req,
   HttpCode,
-  HttpStatus 
+  HttpStatus
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { InventoryService } from './inventory.service';
@@ -21,8 +22,8 @@ import { UserRole, InventoryStatus } from '../common/interfaces/api-response.int
 
 /**
  * Inventory Controller
- * Manages supply chain and inventory tracking in the NexCare system
- * Provides endpoints for inventory CRUD operations and stock management
+ * Manages supply chain and inventory tracking in the NexCare system.
+ * Staff are scoped to their own hospital; superuser sees all hospitals.
  */
 @ApiTags('Inventory')
 @ApiBearerAuth('JWT-auth')
@@ -30,6 +31,12 @@ import { UserRole, InventoryStatus } from '../common/interfaces/api-response.int
 @Controller('inventory')
 export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
+
+  /** Hospital to scope queries to: undefined (all) for superuser, else the user's hospital. */
+  private scopeHospitalId(req: any): string | undefined {
+    const user = req?.user;
+    return user?.role === UserRole.SUPERUSER ? undefined : user?.hospitalId;
+  }
 
   /**
    * Get all inventory with optional filtering
@@ -41,11 +48,12 @@ export class InventoryController {
   @ApiQuery({ name: 'location', required: false })
   @ApiResponse({ status: 200, description: 'List of inventory items' })
   async findAll(
+    @Req() req: any,
     @Query('category') category?: string,
     @Query('status') status?: string,
     @Query('location') location?: string
   ) {
-    return this.inventoryService.findAll(category, status as any, location);
+    return this.inventoryService.findAll(category, status as any, location, this.scopeHospitalId(req));
   }
 
   /**
@@ -56,8 +64,9 @@ export class InventoryController {
   @ApiOperation({ summary: 'Create a new inventory item' })
   @ApiResponse({ status: 200, description: 'Item creation result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async create(@Body() createInventoryDto: CreateInventoryDto) {
-    return this.inventoryService.create(createInventoryDto as any);
+  async create(@Req() req: any, @Body() createInventoryDto: CreateInventoryDto) {
+    const hospitalId = this.scopeHospitalId(req) || (createInventoryDto as any).hospitalId;
+    return this.inventoryService.create({ ...(createInventoryDto as any), hospitalId });
   }
 
   /**
@@ -66,8 +75,8 @@ export class InventoryController {
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get inventory statistics' })
   @ApiResponse({ status: 200, description: 'Inventory statistics retrieved' })
-  async getStats() {
-    return this.inventoryService.getStats();
+  async getStats(@Req() req: any) {
+    return this.inventoryService.getStats(this.scopeHospitalId(req));
   }
 
   /**

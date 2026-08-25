@@ -4,6 +4,7 @@ export interface Bed {
     ward: string;
     status: BedStatus;
     patient?: string;
+    hospitalId?: string;
     createdAt?: string;
     updatedAt?: string;
 }

@@ -10,11 +10,13 @@ import { Public } from '../common/decorators/public.decorator';
 export class HospitalsController {
   constructor(private readonly hospitalsService: HospitalsService) {}
 
+  @Public()
   @Get()
   async findAll(@Query('status') status?: VerificationStatus) {
     return this.hospitalsService.findAll(status);
   }
 
+  @Public()
   @Get('nearby')
   async findNearby(
     @Query('city') city: string,

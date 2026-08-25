@@ -3,7 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.IdGenerator = void 0;
 class IdGenerator {
     static generate(prefix) {
-        return `${prefix}${Math.floor(Math.random() * 90000 + 10000)}`;
+        const time = Date.now().toString(36);
+        const seq = (IdGenerator.counter = (IdGenerator.counter + 1) % 1_000_000)
+            .toString(36);
+        const rand = Math.floor(Math.random() * 1296).toString(36).padStart(2, '0');
+        return `${prefix}${time}${seq}${rand}`.toUpperCase();
     }
     static generateUserId() {
         return this.generate('U');
@@ -40,4 +44,5 @@ class IdGenerator {
     }
 }
 exports.IdGenerator = IdGenerator;
+IdGenerator.counter = 0;
 //# sourceMappingURL=id-generator.util.js.map

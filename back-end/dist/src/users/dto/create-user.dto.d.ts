@@ -6,4 +6,5 @@ export declare class CreateUserDto {
     password: string;
     patientId?: string;
     dept?: string;
+    hospitalId?: string;
 }

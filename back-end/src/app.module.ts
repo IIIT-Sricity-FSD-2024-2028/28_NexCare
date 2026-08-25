@@ -10,6 +10,11 @@ import { FeedbackModule } from './feedback/feedback.module';
 import { BedsModule } from './beds/beds.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { SystemModule } from './system/system.module';
+import { HospitalsModule } from './hospitals/hospitals.module';
+import { DepartmentsModule } from './departments/departments.module';
+import { WardsModule } from './wards/wards.module';
+import { EquipmentModule } from './equipment/equipment.module';
+import { SupportRequestsModule } from './support-requests/support-requests.module';
 import { AuthGuard } from './common/guards/auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -33,6 +38,11 @@ import { RolesGuard } from './common/guards/roles.guard';
     BedsModule,
     InventoryModule,
     SystemModule,
+    HospitalsModule,
+    DepartmentsModule,
+    WardsModule,
+    EquipmentModule,
+    SupportRequestsModule,
   ],
   providers: [
     // AuthGuard runs first — validates the JWT and populates request.user

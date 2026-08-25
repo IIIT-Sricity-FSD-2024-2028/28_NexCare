@@ -25,14 +25,19 @@ let InventoryController = class InventoryController {
     constructor(inventoryService) {
         this.inventoryService = inventoryService;
     }
-    async findAll(category, status, location) {
-        return this.inventoryService.findAll(category, status, location);
+    scopeHospitalId(req) {
+        const user = req?.user;
+        return user?.role === api_response_interface_1.UserRole.SUPERUSER ? undefined : user?.hospitalId;
     }
-    async create(createInventoryDto) {
-        return this.inventoryService.create(createInventoryDto);
+    async findAll(req, category, status, location) {
+        return this.inventoryService.findAll(category, status, location, this.scopeHospitalId(req));
     }
-    async getStats() {
-        return this.inventoryService.getStats();
+    async create(req, createInventoryDto) {
+        const hospitalId = this.scopeHospitalId(req) || createInventoryDto.hospitalId;
+        return this.inventoryService.create({ ...createInventoryDto, hospitalId });
+    }
+    async getStats(req) {
+        return this.inventoryService.getStats(this.scopeHospitalId(req));
     }
     async getLowStockItems() {
         return this.inventoryService.getLowStockItems();
@@ -76,11 +81,12 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: api_response_interface_1.InventoryStatus }),
     (0, swagger_1.ApiQuery)({ name: 'location', required: false }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of inventory items' }),
-    __param(0, (0, common_1.Query)('category')),
-    __param(1, (0, common_1.Query)('status')),
-    __param(2, (0, common_1.Query)('location')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)('category')),
+    __param(2, (0, common_1.Query)('status')),
+    __param(3, (0, common_1.Query)('location')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [Object, String, String, String]),
     __metadata("design:returntype", Promise)
 ], InventoryController.prototype, "findAll", null);
 __decorate([
@@ -89,17 +95,19 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Create a new inventory item' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Item creation result (check success field)' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_inventory_dto_1.CreateInventoryDto]),
+    __metadata("design:paramtypes", [Object, create_inventory_dto_1.CreateInventoryDto]),
     __metadata("design:returntype", Promise)
 ], InventoryController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)('stats/overview'),
     (0, swagger_1.ApiOperation)({ summary: 'Get inventory statistics' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Inventory statistics retrieved' }),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], InventoryController.prototype, "getStats", null);
 __decorate([
