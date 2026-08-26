@@ -8,6 +8,49 @@
     <link rel="stylesheet" href="../shared/nav.css">
     <style>
         .page-body { padding: 32px; max-width: 1200px; margin: 0 auto; }
+
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 16px 32px 16px 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #101828;
+            white-space: nowrap;
+        }
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .header-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #2563EB;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .header-user-info { text-align: right; }
+        .header-user-info p { margin: 0; }
+        .header-user-name { font-size: 14px; font-weight: 700; color: #101828; }
+        .header-user-role { font-size: 12px; color: #6A7282; }
         
         .hospital-header {
             background: #FFFFFF;
@@ -42,16 +85,48 @@
             color: #6A7282;
             cursor: pointer;
             border-bottom: 2px solid transparent;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
         }
-        .tab:hover { color: #111827; }
+        .tab:hover { color: #111827; background: #F8FAFC; }
         .tab.active {
             color: #2563EB;
             border-bottom-color: #2563EB;
+            background: #EFF6FF;
         }
 
         /* Tab Content */
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; animation: fadeIn 0.35s ease; }
+
+        .tab-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1E293B;
+            min-width: 220px;
+        }
+        .stat-card span {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6A7282;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
@@ -115,15 +190,18 @@
                 </div>
             </div>
 
-            <div class="tabs">
-                <div class="tab active" onclick="switchTab('overview')">Overview</div>
-                <div class="tab" onclick="switchTab('staff')">Staff & Doctors</div>
-                <div class="tab" onclick="switchTab('beds')">Beds & Wards</div>
-                <div class="tab" onclick="switchTab('inventory')">Inventory</div>
-                <div class="tab" onclick="switchTab('ambulances')">Ambulances</div>
+            <div class="tabs" role="tablist">
+                <button type="button" class="tab active" data-tab="overview">Overview</button>
+                <button type="button" class="tab" data-tab="staff">Staff & Doctors</button>
+                <button type="button" class="tab" data-tab="beds">Beds & Wards</button>
+                <button type="button" class="tab" data-tab="inventory">Inventory</button>
+                <button type="button" class="tab" data-tab="ambulances">Ambulances</button>
             </div>
 
             <div id="overview" class="tab-content active">
+                <div class="tab-stats">
+                    <div class="stat-card"><span>Hospital Snapshot</span><div id="overviewStatsSummary">Loading...</div></div>
+                </div>
                 <table class="data-table">
                     <tr><th>Registration Number</th><td id="overviewReg">--</td></tr>
                     <tr><th>Phone</th><td id="overviewPhone">--</td></tr>
@@ -136,6 +214,9 @@
             </div>
 
             <div id="staff" class="tab-content">
+                <div class="tab-stats">
+                    <div class="stat-card"><span>Doctors</span><div id="staffStatsSummary">Open this tab to load</div></div>
+                </div>
                 <table class="data-table">
                     <thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead>
                     <tbody id="staffTable"><tr class="empty-state"><td colspan="3">Loading...</td></tr></tbody>
@@ -143,6 +224,9 @@
             </div>
 
             <div id="beds" class="tab-content">
+                <div class="tab-stats">
+                    <div class="stat-card"><span>Bed Availability</span><div id="bedsStatsSummary">Open this tab to load</div></div>
+                </div>
                 <table class="data-table">
                     <thead><tr><th>Ward</th><th>Bed Number</th><th>Status</th></tr></thead>
                     <tbody id="bedsTable"><tr class="empty-state"><td colspan="3">Loading...</td></tr></tbody>
@@ -150,6 +234,9 @@
             </div>
 
             <div id="inventory" class="tab-content">
+                <div class="tab-stats">
+                    <div class="stat-card"><span>Inventory Status</span><div id="inventoryStatsSummary">Open this tab to load</div></div>
+                </div>
                 <table class="data-table">
                     <thead><tr><th>Item</th><th>Category</th><th>Quantity</th><th>Status</th></tr></thead>
                     <tbody id="inventoryTable"><tr class="empty-state"><td colspan="4">Loading...</td></tr></tbody>
@@ -157,6 +244,9 @@
             </div>
 
             <div id="ambulances" class="tab-content">
+                <div class="tab-stats">
+                    <div class="stat-card"><span>Ambulances</span><div id="ambulanceStatsSummary">Open this tab to load</div></div>
+                </div>
                 <table class="data-table">
                     <thead><tr><th>Vehicle ID</th><th>Driver Name</th><th>Status</th></tr></thead>
                     <tbody id="ambulanceTable"><tr class="empty-state"><td colspan="3">Loading...</td></tr></tbody>
