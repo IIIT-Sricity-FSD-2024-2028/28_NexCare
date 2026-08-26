@@ -288,5 +288,15 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-26T19:08:50.231Z"
+  },
+  {
+    "id": "ACT-MTAHHCQ7126",
+    "timestamp": "2026-08-26T19:25:22.735Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:25:22.735Z"
   }
 ]
