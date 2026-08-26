@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.InventoryStatus = exports.FeedbackStatus = exports.BedStatus = exports.AmbulanceStatus = exports.BillStatus = exports.AppointmentStatus = exports.UserStatus = exports.VerificationStatus = exports.UserRole = void 0;
+exports.LeaveStatus = exports.InventoryStatus = exports.FeedbackStatus = exports.BedStatus = exports.AmbulanceStatus = exports.BillStatus = exports.AppointmentStatus = exports.UserStatus = exports.VerificationStatus = exports.UserRole = void 0;
 var UserRole;
 (function (UserRole) {
     UserRole["PATIENT"] = "patient";
@@ -67,4 +67,10 @@ var InventoryStatus;
     InventoryStatus["LOW_STOCK"] = "Low Stock";
     InventoryStatus["OUT_OF_STOCK"] = "Out of Stock";
 })(InventoryStatus || (exports.InventoryStatus = InventoryStatus = {}));
+var LeaveStatus;
+(function (LeaveStatus) {
+    LeaveStatus["PENDING"] = "pending";
+    LeaveStatus["APPROVED"] = "approved";
+    LeaveStatus["REJECTED"] = "rejected";
+})(LeaveStatus || (exports.LeaveStatus = LeaveStatus = {}));
 //# sourceMappingURL=api-response.interface.js.map
