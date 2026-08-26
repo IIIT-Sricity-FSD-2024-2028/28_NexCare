@@ -19,25 +19,21 @@ const inventory_service_1 = require("./inventory.service");
 const create_inventory_dto_1 = require("./dto/create-inventory.dto");
 const update_inventory_dto_1 = require("./dto/update-inventory.dto");
 const restock_inventory_dto_1 = require("./dto/restock-inventory.dto");
+const inventory_audit_interceptor_1 = require("./interceptors/inventory-audit.interceptor");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let InventoryController = class InventoryController {
     constructor(inventoryService) {
         this.inventoryService = inventoryService;
     }
-    scopeHospitalId(req) {
-        const user = req?.user;
-        return user?.role === api_response_interface_1.UserRole.SUPERUSER ? undefined : user?.hospitalId;
+    async findAll(category, status, location) {
+        return this.inventoryService.findAll(category, status, location);
     }
-    async findAll(req, category, status, location) {
-        return this.inventoryService.findAll(category, status, location, this.scopeHospitalId(req));
+    async create(createInventoryDto) {
+        return this.inventoryService.create(createInventoryDto);
     }
-    async create(req, createInventoryDto) {
-        const hospitalId = this.scopeHospitalId(req) || createInventoryDto.hospitalId;
-        return this.inventoryService.create({ ...createInventoryDto, hospitalId });
-    }
-    async getStats(req) {
-        return this.inventoryService.getStats(this.scopeHospitalId(req));
+    async getStats() {
+        return this.inventoryService.getStats();
     }
     async getLowStockItems() {
         return this.inventoryService.getLowStockItems();
@@ -54,6 +50,9 @@ let InventoryController = class InventoryController {
     async search(query) {
         return this.inventoryService.search(query);
     }
+    async getAuditTrail(itemId) {
+        return this.inventoryService.getAuditTrail(itemId);
+    }
     async findById(id) {
         return this.inventoryService.findById(id);
     }
@@ -67,10 +66,11 @@ let InventoryController = class InventoryController {
         return this.inventoryService.delete(id);
     }
     async restock(id, restockDto) {
-        return this.inventoryService.restock(id, { quantity: restockDto.quantity, notes: restockDto.notes });
+        return this.inventoryService.restock(id, restockDto);
     }
-    async useItem(id, quantity) {
-        return this.inventoryService.useItem(id, quantity);
+    async useItem(id, body) {
+        const quantity = typeof body === 'number' ? body : Number(body?.quantity);
+        return this.inventoryService.useItem(id, quantity, body?.notes);
     }
 };
 exports.InventoryController = InventoryController;
@@ -82,12 +82,11 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: api_response_interface_1.InventoryStatus }),
     (0, swagger_1.ApiQuery)({ name: 'location', required: false }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of inventory items' }),
-    __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Query)('category')),
-    __param(2, (0, common_1.Query)('status')),
-    __param(3, (0, common_1.Query)('location')),
+    __param(0, (0, common_1.Query)('category')),
+    __param(1, (0, common_1.Query)('status')),
+    __param(2, (0, common_1.Query)('location')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], InventoryController.prototype, "findAll", null);
 __decorate([
@@ -96,19 +95,17 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Create a new inventory item' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Item creation result (check success field)' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
-    __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, create_inventory_dto_1.CreateInventoryDto]),
+    __metadata("design:paramtypes", [create_inventory_dto_1.CreateInventoryDto]),
     __metadata("design:returntype", Promise)
 ], InventoryController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)('stats/overview'),
     (0, swagger_1.ApiOperation)({ summary: 'Get inventory statistics' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Inventory statistics retrieved' }),
-    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], InventoryController.prototype, "getStats", null);
 __decorate([
@@ -155,6 +152,15 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], InventoryController.prototype, "search", null);
 __decorate([
+    (0, common_1.Get)('audit/:itemId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get inventory audit trail for an item' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Audit trail retrieved' }),
+    __param(0, (0, common_1.Param)('itemId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], InventoryController.prototype, "getAuditTrail", null);
+__decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get inventory item by ID' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Item details retrieved' }),
@@ -194,6 +200,7 @@ __decorate([
 ], InventoryController.prototype, "delete", null);
 __decorate([
     (0, common_1.Patch)(':id/restock'),
+    (0, common_1.UseInterceptors)(inventory_audit_interceptor_1.InventoryAuditInterceptor),
     (0, swagger_1.ApiOperation)({ summary: 'Restock an inventory item' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Item restocked successfully' }),
     __param(0, (0, common_1.Param)('id')),
@@ -204,12 +211,13 @@ __decorate([
 ], InventoryController.prototype, "restock", null);
 __decorate([
     (0, common_1.Patch)(':id/use'),
+    (0, common_1.UseInterceptors)(inventory_audit_interceptor_1.InventoryAuditInterceptor),
     (0, swagger_1.ApiOperation)({ summary: 'Consume/use an inventory item' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Item consumed successfully' }),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('quantity')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], InventoryController.prototype, "useItem", null);
 exports.InventoryController = InventoryController = __decorate([

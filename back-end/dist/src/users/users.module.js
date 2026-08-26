@@ -16,7 +16,7 @@ let UsersModule = class UsersModule {
 exports.UsersModule = UsersModule;
 exports.UsersModule = UsersModule = __decorate([
     (0, common_1.Module)({
-        imports: [hospitals_module_1.HospitalsModule],
+        imports: [(0, common_1.forwardRef)(() => hospitals_module_1.HospitalsModule)],
         controllers: [users_controller_1.UsersController],
         providers: [users_service_1.UsersService],
         exports: [users_service_1.UsersService],

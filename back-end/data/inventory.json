@@ -10,7 +10,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-001-002",
@@ -23,7 +24,8 @@
     "status": "Low Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-001-003",
@@ -36,7 +38,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-001-004",
@@ -49,7 +52,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-001-005",
@@ -62,7 +66,8 @@
     "status": "Low Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-001-006",
@@ -75,7 +80,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-001-007",
@@ -88,7 +94,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-001-008",
@@ -101,7 +108,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-001-009",
@@ -114,7 +122,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-001-010",
@@ -127,7 +136,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-001-011",
@@ -140,7 +150,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-001-012",
@@ -153,7 +164,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-002-001",
@@ -166,7 +178,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-002-002",
@@ -179,7 +192,8 @@
     "status": "Low Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-002-003",
@@ -192,7 +206,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-002-004",
@@ -205,7 +220,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-002-005",
@@ -218,7 +234,8 @@
     "status": "Low Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-002-006",
@@ -231,7 +248,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-002-007",
@@ -244,7 +262,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-002-008",
@@ -257,7 +276,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-002-009",
@@ -270,7 +290,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-002-010",
@@ -283,7 +304,8 @@
     "status": "Low Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-002-011",
@@ -296,7 +318,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-002-012",
@@ -309,7 +332,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-003-001",
@@ -322,7 +346,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-003-002",
@@ -335,7 +360,8 @@
     "status": "Low Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-003-003",
@@ -348,7 +374,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-003-004",
@@ -361,7 +388,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-003-005",
@@ -374,7 +402,8 @@
     "status": "Low Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-003-006",
@@ -387,7 +416,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-003-007",
@@ -400,7 +430,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-003-008",
@@ -413,7 +444,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-003-009",
@@ -426,7 +458,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-003-010",
@@ -439,7 +472,8 @@
     "status": "Low Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-003-011",
@@ -452,7 +486,8 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "updatedAt": "2026-08-01T00:00:00Z"
   },
   {
     "id": "INV-003-012",
@@ -465,6 +500,7 @@
     "status": "In Stock",
     "lastRestocked": "2026-08-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "updatedAt": "2026-08-01T00:00:00Z"
   }
 ]

@@ -5,50 +5,183 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var InventoryService_1;
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InventoryService = void 0;
+const fs = require("fs");
+const path = require("path");
 const common_1 = require("@nestjs/common");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
-const file_store_util_1 = require("../common/utils/file-store.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
-let InventoryService = InventoryService_1 = class InventoryService {
+let InventoryService = class InventoryService {
     constructor() {
-        this.store = new file_store_util_1.FileStore('inventory.json', () => InventoryService_1.seed());
+        this.inventoryFilePath = path.join(process.cwd(), 'data', 'inventory.json');
+        this.inventory = [];
+        this.auditFilePath = path.join(process.cwd(), 'data', 'inventory-audit.json');
+        this.inventory = this.loadInventory();
     }
-    static seed() {
+    loadInventory() {
+        try {
+            if (!fs.existsSync(this.inventoryFilePath)) {
+                const initial = this.getInitialMockData();
+                this.saveInventory(initial);
+                return initial;
+            }
+            const raw = fs.readFileSync(this.inventoryFilePath, 'utf-8');
+            return JSON.parse(raw);
+        }
+        catch {
+            return this.getInitialMockData();
+        }
+    }
+    saveInventory(items) {
+        try {
+            fs.mkdirSync(path.dirname(this.inventoryFilePath), { recursive: true });
+            fs.writeFileSync(this.inventoryFilePath, JSON.stringify(items, null, 2), 'utf-8');
+        }
+        catch (err) {
+            console.error('Failed to persist inventory:', err);
+        }
+    }
+    getInitialMockData() {
         return [
-            { id: 'INV-001', name: 'Paracetamol', category: 'Medication', quantity: 500, minStock: 100, unit: 'tablets', location: 'Pharmacy', status: api_response_interface_1.InventoryStatus.IN_STOCK, lastRestocked: '2026-03-15T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', hospitalId: 'H001' },
-            { id: 'INV-002', name: 'Surgical Gloves', category: 'Medical Supplies', quantity: 2000, minStock: 500, unit: 'pairs', location: 'ER', status: api_response_interface_1.InventoryStatus.IN_STOCK, lastRestocked: '2026-03-20T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', hospitalId: 'H001' },
-            { id: 'INV-003', name: 'IV Catheters', category: 'Medical Supplies', quantity: 150, minStock: 200, unit: 'units', location: 'ER', status: api_response_interface_1.InventoryStatus.LOW_STOCK, lastRestocked: '2026-02-10T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', hospitalId: 'H001' },
-            { id: 'INV-004', name: 'Face Masks', category: 'PPE', quantity: 0, minStock: 1000, unit: 'units', location: 'Reception', status: api_response_interface_1.InventoryStatus.OUT_OF_STOCK, lastRestocked: '2026-01-15T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', hospitalId: 'H001' },
-            { id: 'INV-005', name: 'Bandages', category: 'Medical Supplies', quantity: 800, minStock: 300, unit: 'rolls', location: 'ER', status: api_response_interface_1.InventoryStatus.IN_STOCK, lastRestocked: '2026-03-25T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', hospitalId: 'H001' },
-            { id: 'INV-006', name: 'Syringes 5ml', category: 'Medical Supplies', quantity: 3000, minStock: 1000, unit: 'units', location: 'Pharmacy', status: api_response_interface_1.InventoryStatus.IN_STOCK, lastRestocked: '2026-03-22T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', hospitalId: 'H001' },
-            { id: 'INV-007', name: 'Antiseptic Solution', category: 'Medication', quantity: 50, minStock: 75, unit: 'bottles', location: 'ER', status: api_response_interface_1.InventoryStatus.LOW_STOCK, lastRestocked: '2026-02-28T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', hospitalId: 'H001' },
-            { id: 'INV-008', name: 'Thermometer', category: 'Equipment', quantity: 25, minStock: 10, unit: 'units', location: 'ER', status: api_response_interface_1.InventoryStatus.IN_STOCK, lastRestocked: '2026-01-10T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', hospitalId: 'H001' },
-            { id: 'INV-009', name: 'Blood Pressure Monitor', category: 'Equipment', quantity: 8, minStock: 5, unit: 'units', location: 'ER', status: api_response_interface_1.InventoryStatus.IN_STOCK, lastRestocked: '2026-01-05T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', hospitalId: 'H001' },
-            { id: 'INV-010', name: 'Stethoscope', category: 'Equipment', quantity: 15, minStock: 10, unit: 'units', location: 'General', status: api_response_interface_1.InventoryStatus.IN_STOCK, lastRestocked: '2026-02-15T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', hospitalId: 'H001' },
+            {
+                id: 'INV-001',
+                name: 'Paracetamol',
+                category: 'Medication',
+                quantity: 500,
+                minStock: 100,
+                unit: 'tablets',
+                location: 'Pharmacy',
+                status: api_response_interface_1.InventoryStatus.IN_STOCK,
+                lastRestocked: '2026-03-15T00:00:00Z',
+                createdAt: '2026-01-01T00:00:00Z'
+            },
+            {
+                id: 'INV-002',
+                name: 'Surgical Gloves',
+                category: 'Medical Supplies',
+                quantity: 2000,
+                minStock: 500,
+                unit: 'pairs',
+                location: 'ER',
+                status: api_response_interface_1.InventoryStatus.IN_STOCK,
+                lastRestocked: '2026-03-20T00:00:00Z',
+                createdAt: '2026-01-01T00:00:00Z'
+            },
+            {
+                id: 'INV-003',
+                name: 'IV Catheters',
+                category: 'Medical Supplies',
+                quantity: 150,
+                minStock: 200,
+                unit: 'units',
+                location: 'ER',
+                status: api_response_interface_1.InventoryStatus.LOW_STOCK,
+                lastRestocked: '2026-02-10T00:00:00Z',
+                createdAt: '2026-01-01T00:00:00Z'
+            },
+            {
+                id: 'INV-004',
+                name: 'Face Masks',
+                category: 'PPE',
+                quantity: 0,
+                minStock: 1000,
+                unit: 'units',
+                location: 'Reception',
+                status: api_response_interface_1.InventoryStatus.OUT_OF_STOCK,
+                lastRestocked: '2026-01-15T00:00:00Z',
+                createdAt: '2026-01-01T00:00:00Z'
+            },
+            {
+                id: 'INV-005',
+                name: 'Bandages',
+                category: 'Medical Supplies',
+                quantity: 800,
+                minStock: 300,
+                unit: 'rolls',
+                location: 'ER',
+                status: api_response_interface_1.InventoryStatus.IN_STOCK,
+                lastRestocked: '2026-03-25T00:00:00Z',
+                createdAt: '2026-01-01T00:00:00Z'
+            },
+            {
+                id: 'INV-006',
+                name: 'Syringes 5ml',
+                category: 'Medical Supplies',
+                quantity: 3000,
+                minStock: 1000,
+                unit: 'units',
+                location: 'Pharmacy',
+                status: api_response_interface_1.InventoryStatus.IN_STOCK,
+                lastRestocked: '2026-03-22T00:00:00Z',
+                createdAt: '2026-01-01T00:00:00Z'
+            },
+            {
+                id: 'INV-007',
+                name: 'Antiseptic Solution',
+                category: 'Medication',
+                quantity: 50,
+                minStock: 75,
+                unit: 'bottles',
+                location: 'ER',
+                status: api_response_interface_1.InventoryStatus.LOW_STOCK,
+                lastRestocked: '2026-02-28T00:00:00Z',
+                createdAt: '2026-01-01T00:00:00Z'
+            },
+            {
+                id: 'INV-008',
+                name: 'Thermometer',
+                category: 'Equipment',
+                quantity: 25,
+                minStock: 10,
+                unit: 'units',
+                location: 'ER',
+                status: api_response_interface_1.InventoryStatus.IN_STOCK,
+                lastRestocked: '2026-01-10T00:00:00Z',
+                createdAt: '2026-01-01T00:00:00Z'
+            },
+            {
+                id: 'INV-009',
+                name: 'Blood Pressure Monitor',
+                category: 'Equipment',
+                quantity: 8,
+                minStock: 5,
+                unit: 'units',
+                location: 'ER',
+                status: api_response_interface_1.InventoryStatus.IN_STOCK,
+                lastRestocked: '2026-01-05T00:00:00Z',
+                createdAt: '2026-01-01T00:00:00Z'
+            },
+            {
+                id: 'INV-010',
+                name: 'Stethoscope',
+                category: 'Equipment',
+                quantity: 15,
+                minStock: 10,
+                unit: 'units',
+                location: 'General',
+                status: api_response_interface_1.InventoryStatus.IN_STOCK,
+                lastRestocked: '2026-02-15T00:00:00Z',
+                createdAt: '2026-01-01T00:00:00Z'
+            }
         ];
     }
-    computeStatus(item) {
-        if (item.quantity === 0)
-            return api_response_interface_1.InventoryStatus.OUT_OF_STOCK;
-        if (item.quantity < item.minStock)
-            return api_response_interface_1.InventoryStatus.LOW_STOCK;
-        return api_response_interface_1.InventoryStatus.IN_STOCK;
-    }
-    async findAll(category, status, location, hospitalId) {
+    async findAll(category, status, location) {
         try {
-            let filteredInventory = [...this.store.load()];
-            if (hospitalId)
-                filteredInventory = filteredInventory.filter(item => item.hospitalId === hospitalId);
-            if (category)
+            let filteredInventory = [...this.inventory];
+            if (category) {
                 filteredInventory = filteredInventory.filter(item => item.category === category);
-            if (status)
+            }
+            if (status) {
                 filteredInventory = filteredInventory.filter(item => item.status === status);
-            if (location)
+            }
+            if (location) {
                 filteredInventory = filteredInventory.filter(item => item.location === location);
+            }
             return response_util_1.ResponseUtil.success('Inventory retrieved successfully', filteredInventory);
         }
         catch (error) {
@@ -57,9 +190,10 @@ let InventoryService = InventoryService_1 = class InventoryService {
     }
     async findById(id) {
         try {
-            const item = this.store.load().find(i => i.id === id);
-            if (!item)
+            const item = this.inventory.find(i => i.id === id);
+            if (!item) {
                 return response_util_1.ResponseUtil.notFound('Inventory item', id);
+            }
             return response_util_1.ResponseUtil.success('Inventory item retrieved successfully', item);
         }
         catch (error) {
@@ -68,23 +202,32 @@ let InventoryService = InventoryService_1 = class InventoryService {
     }
     async create(itemData) {
         try {
-            const inventory = this.store.load();
+            const newItemId = id_generator_util_1.IdGenerator.generateInventoryId();
+            let status;
+            if (itemData.quantity === 0) {
+                status = api_response_interface_1.InventoryStatus.OUT_OF_STOCK;
+            }
+            else if (itemData.quantity < itemData.minStock) {
+                status = api_response_interface_1.InventoryStatus.LOW_STOCK;
+            }
+            else {
+                status = api_response_interface_1.InventoryStatus.IN_STOCK;
+            }
             const newItem = {
-                id: id_generator_util_1.IdGenerator.generateInventoryId(),
+                id: newItemId,
                 name: itemData.name,
                 category: itemData.category,
                 quantity: itemData.quantity,
                 minStock: itemData.minStock,
                 unit: itemData.unit,
                 location: itemData.location,
-                status: this.computeStatus(itemData),
+                status,
                 lastRestocked: new Date().toISOString(),
-                hospitalId: itemData.hospitalId || 'H001',
                 createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
             };
-            inventory.push(newItem);
-            this.store.save(inventory);
+            this.inventory.push(newItem);
+            this.saveInventory(this.inventory);
             return response_util_1.ResponseUtil.created('Inventory item created successfully', newItem);
         }
         catch (error) {
@@ -93,16 +236,28 @@ let InventoryService = InventoryService_1 = class InventoryService {
     }
     async update(id, updateData) {
         try {
-            const inventory = this.store.load();
-            const itemIndex = inventory.findIndex(i => i.id === id);
-            if (itemIndex === -1)
+            const itemIndex = this.inventory.findIndex(i => i.id === id);
+            if (itemIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Inventory item', id);
-            const updatedItem = { ...inventory[itemIndex], ...updateData, updatedAt: new Date().toISOString() };
-            if (updateData.quantity !== undefined || updateData.minStock !== undefined) {
-                updatedItem.status = this.computeStatus(updatedItem);
             }
-            inventory[itemIndex] = updatedItem;
-            this.store.save(inventory);
+            let updatedItem = {
+                ...this.inventory[itemIndex],
+                ...updateData,
+                updatedAt: new Date().toISOString()
+            };
+            if (updateData.quantity !== undefined || updateData.minStock !== undefined) {
+                if (updatedItem.quantity === 0) {
+                    updatedItem.status = api_response_interface_1.InventoryStatus.OUT_OF_STOCK;
+                }
+                else if (updatedItem.quantity < updatedItem.minStock) {
+                    updatedItem.status = api_response_interface_1.InventoryStatus.LOW_STOCK;
+                }
+                else {
+                    updatedItem.status = api_response_interface_1.InventoryStatus.IN_STOCK;
+                }
+            }
+            this.inventory[itemIndex] = updatedItem;
+            this.saveInventory(this.inventory);
             return response_util_1.ResponseUtil.updated('Inventory item updated successfully', updatedItem);
         }
         catch (error) {
@@ -111,12 +266,12 @@ let InventoryService = InventoryService_1 = class InventoryService {
     }
     async delete(id) {
         try {
-            const inventory = this.store.load();
-            const itemIndex = inventory.findIndex(i => i.id === id);
-            if (itemIndex === -1)
+            const itemIndex = this.inventory.findIndex(i => i.id === id);
+            if (itemIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Inventory item', id);
-            inventory.splice(itemIndex, 1);
-            this.store.save(inventory);
+            }
+            this.inventory.splice(itemIndex, 1);
+            this.saveInventory(this.inventory);
             return response_util_1.ResponseUtil.deleted('Inventory item');
         }
         catch (error) {
@@ -125,65 +280,90 @@ let InventoryService = InventoryService_1 = class InventoryService {
     }
     async restock(id, restockData) {
         try {
-            const inventory = this.store.load();
-            const itemIndex = inventory.findIndex(i => i.id === id);
-            if (itemIndex === -1)
+            const quantity = Number(restockData?.quantity);
+            if (isNaN(quantity) || quantity <= 0 || !Number.isInteger(quantity)) {
+                return response_util_1.ResponseUtil.error('Restock quantity must be a positive integer');
+            }
+            const itemIndex = this.inventory.findIndex(i => i.id === id);
+            if (itemIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Inventory item', id);
-            const item = inventory[itemIndex];
-            item.quantity += restockData.quantity;
-            item.lastRestocked = new Date().toISOString();
-            item.updatedAt = new Date().toISOString();
-            item.status = this.computeStatus(item);
-            this.store.save(inventory);
+            }
+            this.inventory[itemIndex].quantity += quantity;
+            this.inventory[itemIndex].lastRestocked = new Date().toISOString();
+            this.inventory[itemIndex].updatedAt = new Date().toISOString();
+            const item = this.inventory[itemIndex];
+            if (item.quantity === 0) {
+                item.status = api_response_interface_1.InventoryStatus.OUT_OF_STOCK;
+            }
+            else if (item.quantity < item.minStock) {
+                item.status = api_response_interface_1.InventoryStatus.LOW_STOCK;
+            }
+            else {
+                item.status = api_response_interface_1.InventoryStatus.IN_STOCK;
+            }
+            this.saveInventory(this.inventory);
             return response_util_1.ResponseUtil.updated('Item restocked successfully', item);
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to restock item');
         }
     }
-    async useItem(id, quantity) {
+    async useItem(id, quantity, notes) {
         try {
-            const inventory = this.store.load();
-            const itemIndex = inventory.findIndex(i => i.id === id);
-            if (itemIndex === -1)
+            if (typeof quantity !== 'number' || isNaN(quantity) || quantity <= 0 || !Number.isInteger(quantity)) {
+                return response_util_1.ResponseUtil.error('Quantity must be a positive integer');
+            }
+            const itemIndex = this.inventory.findIndex(i => i.id === id);
+            if (itemIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Inventory item', id);
-            const item = inventory[itemIndex];
+            }
+            const item = this.inventory[itemIndex];
             if (item.quantity < quantity) {
                 return response_util_1.ResponseUtil.error(`Insufficient quantity. Available: ${item.quantity}, Requested: ${quantity}`);
             }
-            item.quantity -= quantity;
-            item.updatedAt = new Date().toISOString();
-            item.status = this.computeStatus(item);
-            this.store.save(inventory);
+            this.inventory[itemIndex].quantity -= quantity;
+            this.inventory[itemIndex].updatedAt = new Date().toISOString();
+            if (item.quantity === 0) {
+                item.status = api_response_interface_1.InventoryStatus.OUT_OF_STOCK;
+            }
+            else if (item.quantity < item.minStock) {
+                item.status = api_response_interface_1.InventoryStatus.LOW_STOCK;
+            }
+            else {
+                item.status = api_response_interface_1.InventoryStatus.IN_STOCK;
+            }
+            this.saveInventory(this.inventory);
             return response_util_1.ResponseUtil.updated('Item used successfully', item);
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to use item');
         }
     }
-    async getStats(hospitalId) {
+    async getStats() {
         try {
-            let inventory = this.store.load();
-            if (hospitalId)
-                inventory = inventory.filter(i => i.hospitalId === hospitalId);
-            const totalItems = inventory.length;
-            const inStockItems = inventory.filter(i => i.status === api_response_interface_1.InventoryStatus.IN_STOCK).length;
-            const lowStockItems = inventory.filter(i => i.status === api_response_interface_1.InventoryStatus.LOW_STOCK).length;
-            const outOfStockItems = inventory.filter(i => i.status === api_response_interface_1.InventoryStatus.OUT_OF_STOCK).length;
+            const totalItems = this.inventory.length;
+            const inStockItems = this.inventory.filter(i => i.status === api_response_interface_1.InventoryStatus.IN_STOCK).length;
+            const lowStockItems = this.inventory.filter(i => i.status === api_response_interface_1.InventoryStatus.LOW_STOCK).length;
+            const outOfStockItems = this.inventory.filter(i => i.status === api_response_interface_1.InventoryStatus.OUT_OF_STOCK).length;
+            const discontinuedItems = 0;
             const byCategory = {};
-            inventory.forEach(item => { byCategory[item.category] = (byCategory[item.category] || 0) + 1; });
+            this.inventory.forEach(item => {
+                byCategory[item.category] = (byCategory[item.category] || 0) + 1;
+            });
             const byLocation = {};
-            inventory.forEach(item => { byLocation[item.location] = (byLocation[item.location] || 0) + 1; });
-            const totalValue = inventory.reduce((sum, item) => sum + (item.quantity * 10), 0);
+            this.inventory.forEach(item => {
+                byLocation[item.location] = (byLocation[item.location] || 0) + 1;
+            });
+            const totalValue = this.inventory.reduce((sum, item) => sum + (item.quantity * 10), 0);
             const stats = {
                 total: totalItems,
                 inStock: inStockItems,
                 lowStock: lowStockItems,
                 outOfStock: outOfStockItems,
-                discontinued: 0,
+                discontinued: discontinuedItems,
                 byCategory,
                 byLocation,
-                totalValue,
+                totalValue
             };
             return response_util_1.ResponseUtil.success('Inventory statistics retrieved successfully', stats);
         }
@@ -193,7 +373,7 @@ let InventoryService = InventoryService_1 = class InventoryService {
     }
     async getLowStockItems() {
         try {
-            const lowStockItems = this.store.load().filter(i => i.status === api_response_interface_1.InventoryStatus.LOW_STOCK);
+            const lowStockItems = this.inventory.filter(i => i.status === api_response_interface_1.InventoryStatus.LOW_STOCK);
             return response_util_1.ResponseUtil.success('Low stock items retrieved successfully', lowStockItems);
         }
         catch (error) {
@@ -202,7 +382,7 @@ let InventoryService = InventoryService_1 = class InventoryService {
     }
     async getOutOfStockItems() {
         try {
-            const outOfStockItems = this.store.load().filter(i => i.status === api_response_interface_1.InventoryStatus.OUT_OF_STOCK);
+            const outOfStockItems = this.inventory.filter(i => i.status === api_response_interface_1.InventoryStatus.OUT_OF_STOCK);
             return response_util_1.ResponseUtil.success('Out of stock items retrieved successfully', outOfStockItems);
         }
         catch (error) {
@@ -211,7 +391,7 @@ let InventoryService = InventoryService_1 = class InventoryService {
     }
     async findByCategory(category) {
         try {
-            const items = this.store.load().filter(i => i.category === category);
+            const items = this.inventory.filter(i => i.category === category);
             return response_util_1.ResponseUtil.success(`Items in category '${category}' retrieved successfully`, items);
         }
         catch (error) {
@@ -220,7 +400,7 @@ let InventoryService = InventoryService_1 = class InventoryService {
     }
     async findByLocation(location) {
         try {
-            const items = this.store.load().filter(i => i.location === location);
+            const items = this.inventory.filter(i => i.location === location);
             return response_util_1.ResponseUtil.success(`Items in location '${location}' retrieved successfully`, items);
         }
         catch (error) {
@@ -230,7 +410,7 @@ let InventoryService = InventoryService_1 = class InventoryService {
     async search(query) {
         try {
             const searchTerm = query.toLowerCase();
-            const matchingItems = this.store.load().filter(item => item.name.toLowerCase().includes(searchTerm) ||
+            const matchingItems = this.inventory.filter(item => item.name.toLowerCase().includes(searchTerm) ||
                 item.category.toLowerCase().includes(searchTerm) ||
                 item.location.toLowerCase().includes(searchTerm));
             return response_util_1.ResponseUtil.success('Search results retrieved successfully', matchingItems);
@@ -239,9 +419,51 @@ let InventoryService = InventoryService_1 = class InventoryService {
             return response_util_1.ResponseUtil.serverError('Failed to search inventory');
         }
     }
+    loadAuditLogs() {
+        try {
+            if (!fs.existsSync(this.auditFilePath)) {
+                return [];
+            }
+            const raw = fs.readFileSync(this.auditFilePath, 'utf-8');
+            return JSON.parse(raw);
+        }
+        catch {
+            return [];
+        }
+    }
+    saveAuditLogs(logs) {
+        try {
+            fs.mkdirSync(path.dirname(this.auditFilePath), { recursive: true });
+            fs.writeFileSync(this.auditFilePath, JSON.stringify(logs, null, 2), 'utf-8');
+        }
+        catch (err) {
+            console.error('Failed to persist inventory audit logs:', err);
+        }
+    }
+    recordAuditEntry(entry) {
+        const logs = this.loadAuditLogs();
+        logs.push(entry);
+        this.saveAuditLogs(logs);
+    }
+    async getAuditTrail(itemId) {
+        try {
+            const logs = this.loadAuditLogs();
+            const itemLogs = logs
+                .filter(entry => entry.itemId === itemId)
+                .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+            return response_util_1.ResponseUtil.success('Inventory audit trail retrieved successfully', itemLogs);
+        }
+        catch (error) {
+            return response_util_1.ResponseUtil.serverError('Failed to retrieve inventory audit trail');
+        }
+    }
+    getRawItem(id) {
+        return this.inventory.find(i => i.id === id);
+    }
 };
 exports.InventoryService = InventoryService;
-exports.InventoryService = InventoryService = InventoryService_1 = __decorate([
-    (0, common_1.Injectable)()
+exports.InventoryService = InventoryService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [])
 ], InventoryService);
 //# sourceMappingURL=inventory.service.js.map

@@ -426,6 +426,18 @@ const InventoryAPI = {
 
     async updateStock(id, quantity) {
         return await api.patch(`/inventory/${id}/stock`, { quantity });
+    },
+
+    async restock(id, restockData) {
+        return await api.patch(`/inventory/${id}/restock`, restockData);
+    },
+
+    async use(id, quantity) {
+        return await api.patch(`/inventory/${id}/use`, { quantity });
+    },
+
+    async getAudit(id) {
+        return await api.get(`/inventory/audit/${id}`);
     }
 };
 

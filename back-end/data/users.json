@@ -21,7 +21,7 @@
     "email": "admin@nexcare.com",
     "role": "administrative_staff",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$b3b248e737ab235d2c3b931dcc45d7e2$e3105900f9af9520b4830a3917b25499cbe5176e40e5c633c459ce746e6b454e3edbc8f6482da39417f25952e557774a333b4ab7ff6fffff961e335e901c638a",
     "hospitalId": "H001"
   },
   {

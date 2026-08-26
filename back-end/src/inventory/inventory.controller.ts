@@ -1,29 +1,31 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Put,
-  Patch,
-  Delete,
-  Param,
+import { 
+  Controller, 
+  Get, 
+  Post, 
+  Body, 
+  Put, 
+  Patch, 
+  Delete, 
+  Param, 
   Query,
-  Req,
   HttpCode,
-  HttpStatus
+  HttpStatus,
+  UseInterceptors
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { InventoryService } from './inventory.service';
 import { CreateInventoryDto } from './dto/create-inventory.dto';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { RestockInventoryDto } from './dto/restock-inventory.dto';
+import { InventoryAuditInterceptor } from './interceptors/inventory-audit.interceptor';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole, InventoryStatus } from '../common/interfaces/api-response.interface';
 
+
 /**
  * Inventory Controller
- * Manages supply chain and inventory tracking in the NexCare system.
- * Staff are scoped to their own hospital; superuser sees all hospitals.
+ * Manages supply chain and inventory tracking in the NexCare system
+ * Provides endpoints for inventory CRUD operations and stock management
  */
 @ApiTags('Inventory')
 @ApiBearerAuth('JWT-auth')
@@ -31,12 +33,6 @@ import { UserRole, InventoryStatus } from '../common/interfaces/api-response.int
 @Controller('inventory')
 export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
-
-  /** Hospital to scope queries to: undefined (all) for superuser, else the user's hospital. */
-  private scopeHospitalId(req: any): string | undefined {
-    const user = req?.user;
-    return user?.role === UserRole.SUPERUSER ? undefined : user?.hospitalId;
-  }
 
   /**
    * Get all inventory with optional filtering
@@ -50,12 +46,11 @@ export class InventoryController {
   @ApiQuery({ name: 'location', required: false })
   @ApiResponse({ status: 200, description: 'List of inventory items' })
   async findAll(
-    @Req() req: any,
     @Query('category') category?: string,
     @Query('status') status?: string,
     @Query('location') location?: string
   ) {
-    return this.inventoryService.findAll(category, status as any, location, this.scopeHospitalId(req));
+    return this.inventoryService.findAll(category, status as any, location);
   }
 
   /**
@@ -66,9 +61,8 @@ export class InventoryController {
   @ApiOperation({ summary: 'Create a new inventory item' })
   @ApiResponse({ status: 200, description: 'Item creation result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async create(@Req() req: any, @Body() createInventoryDto: CreateInventoryDto) {
-    const hospitalId = this.scopeHospitalId(req) || (createInventoryDto as any).hospitalId;
-    return this.inventoryService.create({ ...(createInventoryDto as any), hospitalId });
+  async create(@Body() createInventoryDto: CreateInventoryDto) {
+    return this.inventoryService.create(createInventoryDto as any);
   }
 
   /**
@@ -77,8 +71,8 @@ export class InventoryController {
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get inventory statistics' })
   @ApiResponse({ status: 200, description: 'Inventory statistics retrieved' })
-  async getStats(@Req() req: any) {
-    return this.inventoryService.getStats(this.scopeHospitalId(req));
+  async getStats() {
+    return this.inventoryService.getStats();
   }
 
   /**
@@ -132,6 +126,16 @@ export class InventoryController {
   }
 
   /**
+   * Get inventory audit trail for an item
+   */
+  @Get('audit/:itemId')
+  @ApiOperation({ summary: 'Get inventory audit trail for an item' })
+  @ApiResponse({ status: 200, description: 'Audit trail retrieved' })
+  async getAuditTrail(@Param('itemId') itemId: string) {
+    return this.inventoryService.getAuditTrail(itemId);
+  }
+
+  /**
    * Get inventory item by ID
    */
   @Get(':id')
@@ -175,19 +179,26 @@ export class InventoryController {
    * Restock inventory item
    */
   @Patch(':id/restock')
+  @UseInterceptors(InventoryAuditInterceptor)
   @ApiOperation({ summary: 'Restock an inventory item' })
   @ApiResponse({ status: 200, description: 'Item restocked successfully' })
   async restock(@Param('id') id: string, @Body() restockDto: RestockInventoryDto) {
-    return this.inventoryService.restock(id, { quantity: restockDto.quantity, notes: restockDto.notes });
+    return this.inventoryService.restock(id, restockDto);
   }
+
 
   /**
    * Use inventory item
    */
   @Patch(':id/use')
+  @UseInterceptors(InventoryAuditInterceptor)
   @ApiOperation({ summary: 'Consume/use an inventory item' })
   @ApiResponse({ status: 200, description: 'Item consumed successfully' })
-  async useItem(@Param('id') id: string, @Body('quantity') quantity: number) {
-    return this.inventoryService.useItem(id, quantity);
+  async useItem(@Param('id') id: string, @Body() body: any) {
+    const quantity = typeof body === 'number' ? body : Number(body?.quantity);
+    return this.inventoryService.useItem(id, quantity, body?.notes);
   }
 }
+
+
+

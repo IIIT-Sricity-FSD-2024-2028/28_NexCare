@@ -99,4 +99,12 @@ export class IdGenerator {
   static generateTokenId(): string {
     return this.generate('TKN-');
   }
+
+  /**
+   * Generate audit log ID
+   */
+  static generateAuditId(): string {
+    return this.generate('AUD-');
+  }
 }
+

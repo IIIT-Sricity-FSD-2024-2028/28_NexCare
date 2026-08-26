@@ -12,4 +12,5 @@ export declare class IdGenerator {
     static generateSystemActivityId(): string;
     static generatePaymentId(): string;
     static generateTokenId(): string;
+    static generateAuditId(): string;
 }

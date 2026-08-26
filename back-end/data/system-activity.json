@@ -298,5 +298,55 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-26T19:25:22.735Z"
+  },
+  {
+    "id": "ACT-MTAHSMVC10Z",
+    "timestamp": "2026-08-26T19:34:09.096Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:34:09.096Z"
+  },
+  {
+    "id": "ACT-MTAHSY1S21N",
+    "timestamp": "2026-08-26T19:34:23.584Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:34:23.584Z"
+  },
+  {
+    "id": "ACT-MTAHSY3M47A",
+    "timestamp": "2026-08-26T19:34:23.650Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:34:23.650Z"
+  },
+  {
+    "id": "ACT-MTAHT5JR5Y9",
+    "timestamp": "2026-08-26T19:34:33.303Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:34:33.303Z"
+  },
+  {
+    "id": "ACT-MTAHTCX770A",
+    "timestamp": "2026-08-26T19:34:42.859Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:34:42.859Z"
   }
 ]

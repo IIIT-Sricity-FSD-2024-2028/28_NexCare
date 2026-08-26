@@ -12,5 +12,8 @@ back-end/logs/*.log.*
 back-end/uploads/*
 !back-end/uploads/.gitkeep
 
+# Compiled backend output
+back-end/dist/
+
 # Second clone of this repo that used to live here — never commit it
 28_NexCare/
