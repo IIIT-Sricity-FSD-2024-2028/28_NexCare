@@ -20,5 +20,7 @@
     "paths": {
       "@/*": ["src/*"]
     }
-  }
+  },
+  "include": ["src/**/*", "generate-swagger.ts"],
+  "exclude": ["node_modules", "dist", "coverage", "uploads", "logs", "data"]
 }
