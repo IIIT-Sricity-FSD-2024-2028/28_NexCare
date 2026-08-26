@@ -389,7 +389,12 @@ const BedsAPI = {
     },
 
     async allocate(id, allocationData) {
-        return await api.put(`/beds/${id}`, allocationData);
+        // Use the dedicated allocate endpoint (PATCH /beds/:id/allocate).
+        // Accept either a bare patientId string or a full payload object.
+        const body = typeof allocationData === 'string'
+            ? { patientId: allocationData }
+            : allocationData;
+        return await api.patch(`/beds/${id}/allocate`, body);
     },
 
     async release(id) {

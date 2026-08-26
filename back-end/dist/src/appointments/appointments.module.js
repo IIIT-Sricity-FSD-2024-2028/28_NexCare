@@ -11,12 +11,13 @@ const common_1 = require("@nestjs/common");
 const appointments_controller_1 = require("./appointments.controller");
 const appointments_service_1 = require("./appointments.service");
 const system_module_1 = require("../system/system.module");
+const patients_module_1 = require("../patients/patients.module");
 let AppointmentsModule = class AppointmentsModule {
 };
 exports.AppointmentsModule = AppointmentsModule;
 exports.AppointmentsModule = AppointmentsModule = __decorate([
     (0, common_1.Module)({
-        imports: [system_module_1.SystemModule],
+        imports: [system_module_1.SystemModule, patients_module_1.PatientsModule],
         controllers: [appointments_controller_1.AppointmentsController],
         providers: [appointments_service_1.AppointmentsService],
         exports: [appointments_service_1.AppointmentsService],

@@ -44,11 +44,16 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid or expired token. Please log in again.');
     }
 
-    // Attach decoded user info to request so RolesGuard and controllers can use it
+    // Attach decoded user info to request so RolesGuard and controllers can use it.
+    // hospitalId/patientId/name are needed by hospital-scoped and patient-scoped
+    // controllers (requests, support-requests, departments, wards, equipment, …).
     request.user = {
       id: payload.sub,
       email: payload.email,
       role: payload.role,
+      name: payload.name,
+      patientId: payload.patientId ?? undefined,
+      hospitalId: payload.hospitalId ?? undefined,
     };
 
     return true;

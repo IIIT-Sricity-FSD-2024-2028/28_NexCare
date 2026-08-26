@@ -13,6 +13,7 @@ export interface User {
   password: string;
   patientId?: string; // For patient users
   dept?: string; // For doctor/nurse users
+  hospitalId?: string; // For staff/doctor/ambulance users scoped to a hospital
   createdAt?: string;
   updatedAt?: string;
 }
@@ -27,6 +28,7 @@ export interface CreateUserRequest {
   password: string;
   patientId?: string;
   dept?: string;
+  hospitalId?: string;
 }
 
 /**
@@ -40,6 +42,7 @@ export interface UpdateUserRequest {
   password?: string;
   patientId?: string;
   dept?: string;
+  hospitalId?: string;
 }
 
 /**

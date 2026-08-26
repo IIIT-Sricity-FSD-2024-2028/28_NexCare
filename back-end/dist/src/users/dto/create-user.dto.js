@@ -53,4 +53,10 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "dept", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'H001', description: 'Hospital the user belongs to (for staff/doctor/ambulance)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "hospitalId", void 0);
 //# sourceMappingURL=create-user.dto.js.map

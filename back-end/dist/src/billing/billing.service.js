@@ -22,6 +22,9 @@ let BillingService = class BillingService {
         this.systemService = systemService;
         this.billsFilePath = path.join(process.cwd(), 'data', 'billing.json');
     }
+    round2(n) {
+        return Math.round((n + Number.EPSILON) * 100) / 100;
+    }
     loadBills() {
         try {
             if (!fs.existsSync(this.billsFilePath)) {
@@ -122,12 +125,12 @@ let BillingService = class BillingService {
         try {
             const bills = this.loadBills();
             const newBillId = id_generator_util_1.IdGenerator.generateBillId();
-            const subtotal = billData.items.reduce((sum, item) => sum + item.amount, 0);
+            const subtotal = this.round2(billData.items.reduce((sum, item) => sum + item.amount, 0));
             const cgstRate = 0.09;
             const sgstRate = 0.09;
-            const cgstAmount = subtotal * cgstRate;
-            const sgstAmount = subtotal * sgstRate;
-            const total = subtotal + cgstAmount + sgstAmount;
+            const cgstAmount = this.round2(subtotal * cgstRate);
+            const sgstAmount = this.round2(subtotal * sgstRate);
+            const total = this.round2(subtotal + cgstAmount + sgstAmount);
             const newBill = {
                 id: newBillId,
                 patientId: billData.patientId,
@@ -174,10 +177,10 @@ let BillingService = class BillingService {
             }
             let updatedBill = { ...bill, ...updateData, updatedAt: new Date().toISOString() };
             if (updateData.items) {
-                const subtotal = updateData.items.reduce((sum, item) => sum + item.amount, 0);
-                const cgstAmount = subtotal * updatedBill.cgstRate;
-                const sgstAmount = subtotal * updatedBill.sgstRate;
-                const total = subtotal + cgstAmount + sgstAmount;
+                const subtotal = this.round2(updateData.items.reduce((sum, item) => sum + item.amount, 0));
+                const cgstAmount = this.round2(subtotal * updatedBill.cgstRate);
+                const sgstAmount = this.round2(subtotal * updatedBill.sgstRate);
+                const total = this.round2(subtotal + cgstAmount + sgstAmount);
                 updatedBill = {
                     ...updatedBill,
                     subtotal,
@@ -326,9 +329,9 @@ let BillingService = class BillingService {
     calculateGST(amount) {
         const cgstRate = 0.09;
         const sgstRate = 0.09;
-        const cgstAmount = amount * cgstRate;
-        const sgstAmount = amount * sgstRate;
-        const total = amount + cgstAmount + sgstAmount;
+        const cgstAmount = this.round2(amount * cgstRate);
+        const sgstAmount = this.round2(amount * sgstRate);
+        const total = this.round2(amount + cgstAmount + sgstAmount);
         return {
             subtotal: amount,
             cgstRate,

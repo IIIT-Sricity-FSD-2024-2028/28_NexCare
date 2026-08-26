@@ -42,4 +42,9 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   dept?: string;
+
+  @ApiPropertyOptional({ example: 'H001', description: 'Hospital the user belongs to (for staff/doctor/ambulance)' })
+  @IsOptional()
+  @IsString()
+  hospitalId?: string;
 }

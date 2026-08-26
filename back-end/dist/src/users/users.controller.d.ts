@@ -6,6 +6,7 @@ export declare class UsersController {
     constructor(usersService: UsersService);
     findAll(role?: string, status?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     create(createUserDto: CreateUserDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    findDoctors(dept?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     getStats(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findByRole(role: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     search(query: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

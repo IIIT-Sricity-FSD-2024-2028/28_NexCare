@@ -25,14 +25,19 @@ let BedsController = class BedsController {
     constructor(bedsService) {
         this.bedsService = bedsService;
     }
-    async findAll(ward, status) {
-        return this.bedsService.findAll(ward, status);
+    scopeHospitalId(req) {
+        const user = req?.user;
+        return user?.role === api_response_interface_1.UserRole.SUPERUSER ? undefined : user?.hospitalId;
     }
-    async create(createBedDto) {
-        return this.bedsService.create(createBedDto);
+    async findAll(req, ward, status) {
+        return this.bedsService.findAll(ward, status, this.scopeHospitalId(req));
     }
-    async getStats() {
-        return this.bedsService.getStats();
+    async create(req, createBedDto) {
+        const hospitalId = this.scopeHospitalId(req) || createBedDto.hospitalId;
+        return this.bedsService.create({ ...createBedDto, hospitalId });
+    }
+    async getStats(req) {
+        return this.bedsService.getStats(this.scopeHospitalId(req));
     }
     async findByWard(ward) {
         return this.bedsService.findByWard(ward);
@@ -75,10 +80,11 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'ward', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: api_response_interface_1.BedStatus }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of beds' }),
-    __param(0, (0, common_1.Query)('ward')),
-    __param(1, (0, common_1.Query)('status')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)('ward')),
+    __param(2, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], BedsController.prototype, "findAll", null);
 __decorate([
@@ -87,17 +93,19 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Create a new bed record' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Bed creation result (check success field)' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_bed_dto_1.CreateBedDto]),
+    __metadata("design:paramtypes", [Object, create_bed_dto_1.CreateBedDto]),
     __metadata("design:returntype", Promise)
 ], BedsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)('stats/overview'),
     (0, swagger_1.ApiOperation)({ summary: 'Get bed statistics' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Bed statistics retrieved' }),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], BedsController.prototype, "getStats", null);
 __decorate([

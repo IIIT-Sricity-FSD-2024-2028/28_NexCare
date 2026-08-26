@@ -46,6 +46,25 @@ let AuthService = class AuthService {
             console.error('Failed to persist users to disk:', err);
         }
     }
+    hashPassword(plain) {
+        const salt = crypto.randomBytes(16).toString('hex');
+        const hash = crypto.scryptSync(plain, salt, 64).toString('hex');
+        return `scrypt$${salt}$${hash}`;
+    }
+    isHashed(stored) {
+        return typeof stored === 'string' && stored.startsWith('scrypt$');
+    }
+    verifyPassword(plain, stored) {
+        if (!this.isHashed(stored)) {
+            return stored === plain;
+        }
+        const [, salt, hash] = stored.split('$');
+        if (!salt || !hash)
+            return false;
+        const computed = crypto.scryptSync(plain, salt, 64);
+        const expected = Buffer.from(hash, 'hex');
+        return computed.length === expected.length && crypto.timingSafeEqual(computed, expected);
+    }
     b64url(input) {
         const buf = typeof input === 'string' ? Buffer.from(input, 'utf-8') : input;
         return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -59,6 +78,7 @@ let AuthService = class AuthService {
             role: user.role,
             name: user.name,
             patientId: user.patientId || null,
+            hospitalId: user.hospitalId || null,
             iat: now,
             exp: now + this.jwtExpiresInSeconds,
         }));
@@ -82,7 +102,7 @@ let AuthService = class AuthService {
                 !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
                 return null;
             }
-            const decoded = JSON.parse(Buffer.from(payload, 'base64').toString('utf-8'));
+            const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf-8'));
             if (decoded.exp && Math.floor(Date.now() / 1000) > decoded.exp) {
                 return null;
             }
@@ -95,12 +115,17 @@ let AuthService = class AuthService {
     async login(loginRequest) {
         try {
             const users = this.loadUsers();
-            const user = users.find((u) => u.email.toLowerCase() === loginRequest.email.toLowerCase());
+            const userIndex = users.findIndex((u) => u.email.toLowerCase() === loginRequest.email.toLowerCase());
+            const user = userIndex >= 0 ? users[userIndex] : null;
             if (!user) {
                 return response_util_1.ResponseUtil.error('Authentication Failed: Email address not found');
             }
-            if (user.password !== loginRequest.password) {
+            if (!this.verifyPassword(loginRequest.password, user.password)) {
                 return response_util_1.ResponseUtil.error('Authentication Failed: Incorrect password');
+            }
+            if (!this.isHashed(user.password)) {
+                users[userIndex].password = this.hashPassword(loginRequest.password);
+                this.saveUsers(users);
             }
             if (user.role !== loginRequest.role) {
                 return response_util_1.ResponseUtil.error(`Access Denied: Account is registered as '${user.role}', not '${loginRequest.role}'`);
@@ -116,6 +141,7 @@ let AuthService = class AuthService {
                 status: user.status,
                 loginTime: new Date().toISOString(),
                 patientId: user.patientId || null,
+                hospitalId: user.hospitalId || null,
             };
             this.sessions.set(user.id, session);
             const authResponse = {
@@ -126,6 +152,7 @@ let AuthService = class AuthService {
                     role: user.role,
                     status: user.status,
                     patientId: user.patientId || null,
+                    hospitalId: user.hospitalId || null,
                 },
                 token: this.generateToken(user),
             };
@@ -158,7 +185,7 @@ let AuthService = class AuthService {
                 email: registerRequest.email,
                 role: api_response_interface_1.UserRole.PATIENT,
                 status: api_response_interface_1.UserStatus.ACTIVE,
-                password: registerRequest.password,
+                password: this.hashPassword(registerRequest.password),
                 patientId: newPatientId,
             };
             users.push(newUser);
@@ -205,6 +232,61 @@ let AuthService = class AuthService {
             return response_util_1.ResponseUtil.serverError('Registration failed due to a server error');
         }
     }
+    async registerStaff(data) {
+        try {
+            const users = this.loadUsers();
+            const existing = users.find((u) => u.email.toLowerCase() === data.email.toLowerCase());
+            if (existing) {
+                return response_util_1.ResponseUtil.error('Email is already registered');
+            }
+            const newUser = {
+                id: id_generator_util_1.IdGenerator.generateUserId(),
+                name: data.fullName,
+                email: data.email,
+                role: data.role,
+                status: api_response_interface_1.UserStatus.ACTIVE,
+                password: this.hashPassword(data.password),
+                phone: data.phone,
+                hospitalId: data.hospitalId,
+                dept: data.dept,
+            };
+            users.push(newUser);
+            this.saveUsers(users);
+            const session = {
+                id: newUser.id,
+                name: newUser.name,
+                email: newUser.email,
+                role: newUser.role,
+                status: newUser.status,
+                loginTime: new Date().toISOString(),
+                hospitalId: newUser.hospitalId,
+            };
+            this.sessions.set(newUser.id, session);
+            const authResponse = {
+                user: {
+                    id: newUser.id,
+                    name: newUser.name,
+                    email: newUser.email,
+                    role: newUser.role,
+                    status: newUser.status,
+                    hospitalId: newUser.hospitalId,
+                },
+                token: this.generateToken(newUser),
+            };
+            this.systemService.createActivity({
+                userId: newUser.id,
+                action: 'Register',
+                details: `New staff account registered: ${newUser.name} (${newUser.role}) at ${newUser.hospitalId}`,
+                module: 'Authentication',
+                severity: 'INFO',
+            });
+            return response_util_1.ResponseUtil.created('Staff account created successfully', authResponse);
+        }
+        catch (error) {
+            console.error('Staff registration error:', error);
+            return response_util_1.ResponseUtil.serverError('Staff registration failed due to a server error');
+        }
+    }
     async logout(userId) {
         try {
             this.sessions.delete(userId);
@@ -244,6 +326,9 @@ let AuthService = class AuthService {
     }
     async changePassword(data) {
         try {
+            if (!data.userId) {
+                return response_util_1.ResponseUtil.unauthorized('You must be logged in to change your password');
+            }
             if (!data.currentPassword || !data.newPassword) {
                 return response_util_1.ResponseUtil.error('Both current and new password are required');
             }
@@ -254,23 +339,15 @@ let AuthService = class AuthService {
                 return response_util_1.ResponseUtil.error('New password must be different from current password');
             }
             const users = this.loadUsers();
-            let user = null;
-            let userIndex = -1;
-            if (data.email) {
-                userIndex = users.findIndex(u => u.email.toLowerCase() === data.email.toLowerCase());
-                user = userIndex >= 0 ? users[userIndex] : null;
-            }
+            const userIndex = users.findIndex(u => u.id === data.userId);
+            const user = userIndex >= 0 ? users[userIndex] : null;
             if (!user) {
-                userIndex = users.findIndex(u => u.password === data.currentPassword);
-                user = userIndex >= 0 ? users[userIndex] : null;
+                return response_util_1.ResponseUtil.error('User account not found');
             }
-            if (!user) {
+            if (!this.verifyPassword(data.currentPassword, user.password)) {
                 return response_util_1.ResponseUtil.error('Current password is incorrect');
             }
-            if (user.password !== data.currentPassword) {
-                return response_util_1.ResponseUtil.error('Current password is incorrect');
-            }
-            users[userIndex].password = data.newPassword;
+            users[userIndex].password = this.hashPassword(data.newPassword);
             this.saveUsers(users);
             this.systemService.createActivity({
                 userId: user.id,

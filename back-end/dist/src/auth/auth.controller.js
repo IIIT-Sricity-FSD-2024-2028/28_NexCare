@@ -18,6 +18,7 @@ const swagger_1 = require("@nestjs/swagger");
 const auth_service_1 = require("./auth.service");
 const login_dto_1 = require("./dto/login.dto");
 const register_dto_1 = require("./dto/register.dto");
+const register_staff_dto_1 = require("./dto/register-staff.dto");
 const public_decorator_1 = require("../common/decorators/public.decorator");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
@@ -31,17 +32,20 @@ let AuthController = class AuthController {
     async register(registerDto) {
         return this.authService.register(registerDto);
     }
-    async logout(userId) {
-        return this.authService.logout(userId);
+    async registerStaff(registerStaffDto) {
+        return this.authService.registerStaff(registerStaffDto);
     }
-    async getCurrentUser(userId) {
-        return this.authService.getCurrentUser(userId);
+    async logout(req, userId) {
+        return this.authService.logout(req.user?.id || userId);
+    }
+    async getCurrentUser(req, userId) {
+        return this.authService.getCurrentUser(req.user?.id || userId);
     }
     async getActiveSessions() {
         return this.authService.getActiveSessions();
     }
-    async changePassword(body) {
-        return this.authService.changePassword(body);
+    async changePassword(req, body) {
+        return this.authService.changePassword({ ...body, userId: req.user?.id });
     }
 };
 exports.AuthController = AuthController;
@@ -69,14 +73,27 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "register", null);
 __decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('register-staff'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Register a new staff account (doctor/administrative_staff/ambulance/nurse)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Registration result (check success field)' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [register_staff_dto_1.RegisterStaffDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "registerStaff", null);
+__decorate([
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.Post)('logout/:userId'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'User logout' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Successful logout' }),
-    __param(0, (0, common_1.Param)('userId')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('userId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "logout", null);
 __decorate([
@@ -84,9 +101,10 @@ __decorate([
     (0, common_1.Get)('current/:userId'),
     (0, swagger_1.ApiOperation)({ summary: 'Get current user profile' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'User profile retrieved successfully' }),
-    __param(0, (0, common_1.Param)('userId')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('userId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getCurrentUser", null);
 __decorate([
@@ -107,9 +125,10 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Change user password' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Password changed successfully' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "changePassword", null);
 exports.AuthController = AuthController = __decorate([

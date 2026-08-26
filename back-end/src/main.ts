@@ -10,6 +10,40 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /**
+ * Minimal .env loader (no external dependency).
+ * Populates process.env from a .env file for keys that aren't already set,
+ * so JWT_SECRET / PORT / etc. are picked up without requiring dotenv.
+ */
+function loadEnv() {
+  try {
+    const envPath = path.join(process.cwd(), '.env');
+    if (!fs.existsSync(envPath)) return;
+    for (const rawLine of fs.readFileSync(envPath, 'utf-8').split('\n')) {
+      const line = rawLine.trim();
+      if (!line || line.startsWith('#')) continue;
+      const eq = line.indexOf('=');
+      if (eq === -1) continue;
+      const key = line.slice(0, eq).trim();
+      let val = line.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
+      if (key && process.env[key] === undefined) process.env[key] = val;
+    }
+  } catch (err) {
+    console.warn('Could not load .env file:', (err as Error).message);
+  }
+}
+
+loadEnv();
+
+// Security guard-rail: warn loudly if the JWT secret is missing or left at the
+// well-known default. In production this should be a real, unique secret.
+const KNOWN_DEFAULT_SECRET = 'nexcare_jwt_secret_key_2024_evaluation';
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️  JWT_SECRET is not set — tokens are signed with a fallback secret. Set JWT_SECRET in .env.');
+} else if (process.env.JWT_SECRET === KNOWN_DEFAULT_SECRET) {
+  console.warn('⚠️  JWT_SECRET is the shipped default — change it before any real deployment.');
+}
+
+/**
  * Bootstrap function
  * Initializes and starts the NestJS application
  * Configures global pipes, CORS, Swagger, and middleware
@@ -18,8 +52,15 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // ─── CORS ─────────────────────────────────────────────────────────────────
+  // Default is permissive (reflect any origin) to support the multi-host/WSL dev
+  // setup. Set CORS_ORIGIN to a comma-separated allowlist to lock it down in prod.
+  const corsEnv = process.env.CORS_ORIGIN?.trim();
+  const corsOrigin =
+    corsEnv && corsEnv !== '*'
+      ? corsEnv.split(',').map((o) => o.trim()).filter(Boolean)
+      : true;
   app.enableCors({
-    origin: true,
+    origin: corsOrigin,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-user-role'],
     exposedHeaders: ['x-query-timestamp', 'x-request-id', 'x-ratelimit-remaining'],

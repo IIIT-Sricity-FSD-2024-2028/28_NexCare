@@ -5,9 +5,10 @@ import { RestockInventoryDto } from './dto/restock-inventory.dto';
 export declare class InventoryController {
     private readonly inventoryService;
     constructor(inventoryService: InventoryService);
-    findAll(category?: string, status?: string, location?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
-    create(createInventoryDto: CreateInventoryDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
-    getStats(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    private scopeHospitalId;
+    findAll(req: any, category?: string, status?: string, location?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    create(req: any, createInventoryDto: CreateInventoryDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    getStats(req: any): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     getLowStockItems(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     getOutOfStockItems(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findByCategory(category: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

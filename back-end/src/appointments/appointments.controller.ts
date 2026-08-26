@@ -1,15 +1,17 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Put, 
-  Patch, 
-  Delete, 
-  Param, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Patch,
+  Delete,
+  Param,
   Query,
+  Req,
+  ForbiddenException,
   HttpCode,
-  HttpStatus 
+  HttpStatus
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { AppointmentsService } from './appointments.service';
@@ -20,30 +22,51 @@ import { UserRole, AppointmentStatus } from '../common/interfaces/api-response.i
 
 /**
  * Appointments Controller
- * Manages appointment scheduling and status tracking in the NexCare system
- * Provides endpoints for appointment CRUD operations and management
+ * Manages appointment scheduling and status tracking in the NexCare system.
+ *
+ * RBAC: staff/superuser/doctor manage all appointments. Patients may book and
+ * view/cancel their OWN appointments only (enforced against req.user.patientId).
  */
 @ApiTags('Appointments')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT, UserRole.DOCTOR)
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR)
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
+
+  private isPatient(req: any): boolean {
+    return req?.user?.role === UserRole.PATIENT;
+  }
+
+  /** For a patient caller, verify the appointment belongs to them (else 403). */
+  private async assertOwnsAppointment(req: any, id: string) {
+    if (!this.isPatient(req)) return;
+    const res: any = await this.appointmentsService.findById(id);
+    if (res?.success && res.data && res.data.patientId !== req.user.patientId) {
+      throw new ForbiddenException('You can only access your own appointments.');
+    }
+  }
 
   /**
    * Get all appointments with optional filtering
    */
   @Get()
-  @ApiOperation({ summary: 'Get all appointments' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Get all appointments (patients: only their own)' })
   @ApiQuery({ name: 'patientId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: AppointmentStatus })
   @ApiQuery({ name: 'department', required: false })
   @ApiResponse({ status: 200, description: 'List of appointments' })
   async findAll(
+    @Req() req: any,
     @Query('patientId') patientId?: string,
     @Query('status') status?: string,
     @Query('department') department?: string
   ) {
+    // Patients are always scoped to their own appointments regardless of query.
+    if (this.isPatient(req)) {
+      patientId = req.user.patientId;
+    }
     return this.appointmentsService.findAll(patientId, status as any, department);
   }
 
@@ -51,12 +74,18 @@ export class AppointmentsController {
    * Create new appointment
    */
   @Post()
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR, UserRole.PATIENT)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Book a new appointment' })
   @ApiResponse({ status: 200, description: 'Appointment booking result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async create(@Body() createAppointmentDto: CreateAppointmentDto) {
-    return this.appointmentsService.create(createAppointmentDto as any);
+  async create(@Req() req: any, @Body() createAppointmentDto: CreateAppointmentDto) {
+    const dto: any = { ...createAppointmentDto };
+    // A patient can only book for themselves.
+    if (this.isPatient(req)) {
+      dto.patientId = req.user.patientId;
+    }
+    return this.appointmentsService.create(dto);
   }
 
   /**
@@ -73,9 +102,13 @@ export class AppointmentsController {
    * Get appointments by patient
    */
   @Get('patient/:patientId')
-  @ApiOperation({ summary: 'Get appointments by patient ID' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Get appointments by patient ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'List of patient appointments' })
-  async findByPatient(@Param('patientId') patientId: string) {
+  async findByPatient(@Req() req: any, @Param('patientId') patientId: string) {
+    if (this.isPatient(req) && patientId !== req.user.patientId) {
+      throw new ForbiddenException('You can only view your own appointments.');
+    }
     return this.appointmentsService.findByPatient(patientId);
   }
 
@@ -103,9 +136,11 @@ export class AppointmentsController {
    * Get appointment by ID
    */
   @Get(':id')
-  @ApiOperation({ summary: 'Get appointment by ID' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Get appointment by ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Appointment details' })
-  async findById(@Param('id') id: string) {
+  async findById(@Req() req: any, @Param('id') id: string) {
+    await this.assertOwnsAppointment(req, id);
     return this.appointmentsService.findById(id);
   }
 
@@ -163,9 +198,11 @@ export class AppointmentsController {
    * Cancel appointment
    */
   @Patch(':id/cancel')
-  @ApiOperation({ summary: 'Cancel an appointment' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Cancel an appointment (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Appointment cancelled successfully' })
-  async cancel(@Param('id') id: string) {
+  async cancel(@Req() req: any, @Param('id') id: string) {
+    await this.assertOwnsAppointment(req, id);
     return this.appointmentsService.cancel(id);
   }
 }

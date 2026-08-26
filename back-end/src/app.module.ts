@@ -11,6 +11,10 @@ import { BedsModule } from './beds/beds.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { HospitalsModule } from './hospitals/hospitals.module';
 import { SystemModule } from './system/system.module';
+import { DepartmentsModule } from './departments/departments.module';
+import { WardsModule } from './wards/wards.module';
+import { EquipmentModule } from './equipment/equipment.module';
+import { SupportRequestsModule } from './support-requests/support-requests.module';
 import { LeavesModule } from './leaves/leaves.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { LoggingModule } from './common/logging/logging.module';
@@ -49,6 +53,10 @@ import { SecurityMiddleware } from './common/middleware/security.middleware';
     InventoryModule,
     HospitalsModule,
     SystemModule,
+    DepartmentsModule,
+    WardsModule,
+    EquipmentModule,
+    SupportRequestsModule,
     LeavesModule,
     UploadsModule,
     LoggingModule,

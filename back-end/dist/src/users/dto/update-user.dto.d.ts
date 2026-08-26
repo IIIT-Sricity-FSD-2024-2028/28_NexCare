@@ -7,4 +7,5 @@ export declare class UpdateUserDto {
     password?: string;
     patientId?: string;
     dept?: string;
+    hospitalId?: string;
 }

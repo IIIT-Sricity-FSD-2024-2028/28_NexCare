@@ -1,0 +1,72 @@
+[
+  {
+    "id": "ACT-001",
+    "timestamp": "2026-04-02T10:15:00Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User logged in successfully",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-04-02T10:15:00Z"
+  },
+  {
+    "id": "ACT-002",
+    "timestamp": "2026-04-02T10:20:00Z",
+    "userId": "U002",
+    "action": "View",
+    "details": "Viewed patient directory",
+    "module": "Patients",
+    "severity": "INFO",
+    "createdAt": "2026-04-02T10:20:00Z"
+  },
+  {
+    "id": "ACT-003",
+    "timestamp": "2026-04-02T10:25:00Z",
+    "userId": "U003",
+    "action": "Dispatch",
+    "details": "Ambulance dispatched to 742 Evergreen Terrace",
+    "module": "Ambulance",
+    "severity": "HIGH",
+    "createdAt": "2026-04-02T10:25:00Z"
+  },
+  {
+    "id": "ACT-004",
+    "timestamp": "2026-04-02T11:00:00Z",
+    "userId": "U005",
+    "action": "Create",
+    "details": "Created appointment for John Anderson",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-04-02T11:00:00Z"
+  },
+  {
+    "id": "ACT-005",
+    "timestamp": "2026-04-02T14:30:00Z",
+    "userId": "U002",
+    "action": "Create",
+    "details": "Generated bill for Maria Garcia",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-04-02T14:30:00Z"
+  },
+  {
+    "id": "ACT-MT93K2RD2H3",
+    "timestamp": "2026-08-25T20:07:48.985Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-25T20:07:48.985Z"
+  },
+  {
+    "id": "ACT-MT93KXG35CC",
+    "timestamp": "2026-08-25T20:08:28.755Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "New appointment scheduled for John Anderson with Dr. Sarah Smith",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-25T20:08:28.755Z"
+  }
+]
