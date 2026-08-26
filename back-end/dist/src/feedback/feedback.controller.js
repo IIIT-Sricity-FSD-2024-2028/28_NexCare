@@ -24,16 +24,29 @@ let FeedbackController = class FeedbackController {
     constructor(feedbackService) {
         this.feedbackService = feedbackService;
     }
-    async findAll(patientId, status, category) {
+    isPatient(req) {
+        return req?.user?.role === api_response_interface_1.UserRole.PATIENT;
+    }
+    async findAll(req, patientId, status, category) {
+        if (this.isPatient(req)) {
+            patientId = req.user.patientId;
+        }
         return this.feedbackService.findAll(patientId, status, category);
     }
-    async create(createFeedbackDto) {
-        return this.feedbackService.create(createFeedbackDto);
+    async create(req, createFeedbackDto) {
+        const dto = { ...createFeedbackDto };
+        if (this.isPatient(req)) {
+            dto.patientId = req.user.patientId;
+        }
+        return this.feedbackService.create(dto);
     }
     async getStats() {
         return this.feedbackService.getStats();
     }
-    async findByPatient(patientId) {
+    async findByPatient(req, patientId) {
+        if (this.isPatient(req) && patientId !== req.user.patientId) {
+            throw new common_1.ForbiddenException('You can only view your own feedback.');
+        }
         return this.feedbackService.findByPatient(patientId);
     }
     async findByCategory(category) {
@@ -67,27 +80,31 @@ let FeedbackController = class FeedbackController {
 exports.FeedbackController = FeedbackController;
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all feedback' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all feedback (patients: only their own)' }),
     (0, swagger_1.ApiQuery)({ name: 'patientId', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: api_response_interface_1.FeedbackStatus }),
     (0, swagger_1.ApiQuery)({ name: 'category', required: false }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of feedback' }),
-    __param(0, (0, common_1.Query)('patientId')),
-    __param(1, (0, common_1.Query)('status')),
-    __param(2, (0, common_1.Query)('category')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)('patientId')),
+    __param(2, (0, common_1.Query)('status')),
+    __param(3, (0, common_1.Query)('category')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [Object, String, String, String]),
     __metadata("design:returntype", Promise)
 ], FeedbackController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Submit new feedback' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Feedback submission result (check success field)' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_feedback_dto_1.CreateFeedbackDto]),
+    __metadata("design:paramtypes", [Object, create_feedback_dto_1.CreateFeedbackDto]),
     __metadata("design:returntype", Promise)
 ], FeedbackController.prototype, "create", null);
 __decorate([
@@ -100,11 +117,13 @@ __decorate([
 ], FeedbackController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('patient/:patientId'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get feedback by patient ID' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Get feedback by patient ID (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Patient feedback retrieved' }),
-    __param(0, (0, common_1.Param)('patientId')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('patientId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], FeedbackController.prototype, "findByPatient", null);
 __decorate([
@@ -192,7 +211,7 @@ __decorate([
 exports.FeedbackController = FeedbackController = __decorate([
     (0, swagger_1.ApiTags)('Feedback'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
     (0, common_1.Controller)('feedback'),
     __metadata("design:paramtypes", [feedback_service_1.FeedbackService])
 ], FeedbackController);

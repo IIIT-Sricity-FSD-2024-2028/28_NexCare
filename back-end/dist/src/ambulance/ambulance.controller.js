@@ -26,10 +26,30 @@ let AmbulanceController = class AmbulanceController {
     constructor(ambulanceService) {
         this.ambulanceService = ambulanceService;
     }
-    async findAll(patientId, status) {
-        return this.ambulanceService.findAll(patientId, status);
+    isPatient(req) {
+        return req?.user?.role === api_response_interface_1.UserRole.PATIENT;
     }
-    async create(createRequestDto) {
+    scopeHospitalId(req) {
+        const user = req?.user;
+        if (user?.role === api_response_interface_1.UserRole.SUPERUSER || user?.role === api_response_interface_1.UserRole.PATIENT)
+            return undefined;
+        return user?.hospitalId;
+    }
+    async assertOwnsRequest(req, id) {
+        if (!this.isPatient(req))
+            return;
+        const res = await this.ambulanceService.findById(id);
+        if (res?.success && res.data && res.data.patientId !== req.user.patientId) {
+            throw new common_1.ForbiddenException('You can only access your own ambulance requests.');
+        }
+    }
+    async findAll(req, patientId, status) {
+        if (this.isPatient(req)) {
+            patientId = req.user.patientId;
+        }
+        return this.ambulanceService.findAll(patientId, status, this.scopeHospitalId(req));
+    }
+    async create(req, createRequestDto) {
         const validation = dto_validator_util_1.DtoValidatorUtil.validateAmbulanceRequest(createRequestDto);
         if (!validation.isValid) {
             throw new common_1.BadRequestException({
@@ -38,12 +58,22 @@ let AmbulanceController = class AmbulanceController {
                 fieldErrors: validation.fieldErrors
             });
         }
-        return this.ambulanceService.create(createRequestDto);
+        const dto = { ...createRequestDto };
+        if (this.isPatient(req)) {
+            dto.patientId = req.user.patientId;
+        }
+        const scopedHospital = this.scopeHospitalId(req);
+        if (scopedHospital)
+            dto.hospitalId = scopedHospital;
+        return this.ambulanceService.create(dto);
     }
     async getStats() {
         return this.ambulanceService.getStats();
     }
-    async findByPatient(patientId) {
+    async findByPatient(req, patientId) {
+        if (this.isPatient(req) && patientId !== req.user.patientId) {
+            throw new common_1.ForbiddenException('You can only view your own ambulance requests.');
+        }
         return this.ambulanceService.findByPatient(patientId);
     }
     async getActiveRequests() {
@@ -52,7 +82,8 @@ let AmbulanceController = class AmbulanceController {
     async findByAssignedStaff(assignedTo) {
         return this.ambulanceService.findByAssignedStaff(assignedTo);
     }
-    async findById(id) {
+    async findById(req, id) {
+        await this.assertOwnsRequest(req, id);
         return this.ambulanceService.findById(id);
     }
     async update(id, updateRequestDto) {
@@ -61,7 +92,8 @@ let AmbulanceController = class AmbulanceController {
     async patchUpdate(id, updateRequestDto) {
         return this.ambulanceService.update(id, updateRequestDto);
     }
-    async delete(id) {
+    async delete(req, id) {
+        await this.assertOwnsRequest(req, id);
         return this.ambulanceService.delete(id);
     }
     async dispatch(id, dispatchDto) {
@@ -77,25 +109,29 @@ let AmbulanceController = class AmbulanceController {
 exports.AmbulanceController = AmbulanceController;
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all ambulance requests' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.AMBULANCE, api_response_interface_1.UserRole.PATIENT, api_response_interface_1.UserRole.REGIONAL_MANAGER),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all ambulance requests (patients: only their own)' }),
     (0, swagger_1.ApiQuery)({ name: 'patientId', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: api_response_interface_1.AmbulanceStatus }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of ambulance requests' }),
-    __param(0, (0, common_1.Query)('patientId')),
-    __param(1, (0, common_1.Query)('status')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)('patientId')),
+    __param(2, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], AmbulanceController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.AMBULANCE, api_response_interface_1.UserRole.PATIENT),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Create an ambulance request' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Request creation result (check success field)' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_request_dto_1.CreateAmbulanceRequestDto]),
+    __metadata("design:paramtypes", [Object, create_request_dto_1.CreateAmbulanceRequestDto]),
     __metadata("design:returntype", Promise)
 ], AmbulanceController.prototype, "create", null);
 __decorate([
@@ -108,11 +144,13 @@ __decorate([
 ], AmbulanceController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('patient/:patientId'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get ambulance requests by patient ID' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.AMBULANCE, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Get ambulance requests by patient ID (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Patient requests retrieved' }),
-    __param(0, (0, common_1.Param)('patientId')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('patientId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AmbulanceController.prototype, "findByPatient", null);
 __decorate([
@@ -134,11 +172,13 @@ __decorate([
 ], AmbulanceController.prototype, "findByAssignedStaff", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get ambulance request by ID' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.AMBULANCE, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Get ambulance request by ID (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Request details retrieved' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AmbulanceController.prototype, "findById", null);
 __decorate([
@@ -163,11 +203,13 @@ __decorate([
 ], AmbulanceController.prototype, "patchUpdate", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Delete an ambulance request' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.AMBULANCE, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete/cancel an ambulance request (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Request deleted successfully' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AmbulanceController.prototype, "delete", null);
 __decorate([
@@ -202,7 +244,7 @@ __decorate([
 exports.AmbulanceController = AmbulanceController = __decorate([
     (0, swagger_1.ApiTags)('Ambulance'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.AMBULANCE, api_response_interface_1.UserRole.PATIENT),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.AMBULANCE),
     (0, common_1.Controller)('ambulance'),
     __metadata("design:paramtypes", [ambulance_service_1.AmbulanceService])
 ], AmbulanceController);

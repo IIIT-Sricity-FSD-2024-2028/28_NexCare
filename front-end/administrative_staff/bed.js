@@ -7,14 +7,22 @@ function apiGet(path) {
     }).then(r => r.json());
 }
 
-function apiRequest(method, path, body) {
+// Rejects with the API's own message so middleware errors (e.g. an illegal bed
+// status transition) can be shown to the user instead of being swallowed.
+async function apiRequest(method, path, body) {
     const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
     const host = window.location.hostname || 'localhost';
-    return fetch(`http://${host}:3001/api${path}`, {
+    const res = await fetch(`http://${host}:3001/api${path}`, {
         method,
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: body ? JSON.stringify(body) : undefined
-    }).then(r => r.json());
+    });
+
+    const payload = await res.json().catch(() => ({}));
+    if (!res.ok || payload.success === false) {
+        throw new Error(payload.message || `Request failed (${res.status})`);
+    }
+    return payload;
 }
 
 // ---------------- STATE ----------------
@@ -53,7 +61,10 @@ async function loadData() {
         ]);
         bedsCache = bedsResp.data || [];
         patientsCache = patientsResp.data || [];
-        
+
+        // Hospital-wide stat cards
+        renderBedStats();
+
         // Render Wards
         renderWardCards();
         
@@ -74,6 +85,41 @@ async function loadData() {
     }
 }
 
+// ---------------- LIVE STAT CARDS ----------------
+// Recomputed from the freshly fetched bed list after every status change,
+// so the totals always match what the API reports.
+function countByStatus(beds, status) {
+    return beds.filter(b => (b.status || 'available').toLowerCase() === status).length;
+}
+
+function renderBedStats() {
+    const container = document.getElementById('bedStats');
+    if (!container) return;
+
+    const total = bedsCache.length;
+    const available = countByStatus(bedsCache, 'available');
+    const occupied = countByStatus(bedsCache, 'occupied');
+    const critical = countByStatus(bedsCache, 'critical');
+    const maintenance = countByStatus(bedsCache, 'maintenance');
+    const occupancyRate = total > 0 ? Math.round(((occupied + critical) / total) * 100) : 0;
+
+    const cards = [
+        { label: 'Total Beds', value: total, note: `${occupancyRate}% occupancy`, trend: 'neutral' },
+        { label: 'Available', value: available, note: 'Ready for admission', trend: available > 0 ? 'up' : 'down' },
+        { label: 'Occupied', value: occupied, note: 'Patients admitted', trend: 'neutral' },
+        { label: 'Critical', value: critical, note: 'Needs intensive care', trend: critical > 0 ? 'down' : 'neutral' },
+        { label: 'Maintenance', value: maintenance, note: 'Out of service', trend: 'neutral' }
+    ];
+
+    container.innerHTML = cards.map(c => `
+        <div class="card stat">
+            <p>${c.label}</p>
+            <h3>${c.value}</h3>
+            <span class="trend ${c.trend}">${c.note}</span>
+        </div>
+    `).join('');
+}
+
 // ---------------- RENDER WARD CARDS ----------------
 function renderWardCards() {
     const container = document.getElementById('wardCards');
@@ -83,18 +129,17 @@ function renderWardCards() {
     
     container.innerHTML = wards.map(ward => {
         const wardBeds = bedsCache.filter(b => b.ward === ward);
-        const available = wardBeds.filter(b => b.status && b.status.toLowerCase() === 'available').length;
-        const occupied = wardBeds.length - available;
+        const available = countByStatus(wardBeds, 'available');
+        const occupied = countByStatus(wardBeds, 'occupied') + countByStatus(wardBeds, 'critical');
         const total = wardBeds.length;
-        
-        const isActive = ward === currentWard ? 'active' : '';
+
         const borderStyle = ward === currentWard ? 'border: 2px solid #2563EB;' : 'border: 1px solid #E5E7EB;';
-        
+
         return `
             <div class="card stat" style="cursor: pointer; ${borderStyle}" onclick="window.selectWard('${ward}')">
                 <p>${ward} Ward</p>
                 <h3>${total} Beds</h3>
-                <span class="trend ${available > 0 ? 'success' : 'down'}">${available} Available • ${occupied} Occupied</span>
+                <span class="trend ${available > 0 ? 'up' : 'down'}">${available} Available • ${occupied} Occupied</span>
             </div>
         `;
     }).join('');
@@ -110,12 +155,13 @@ window.selectWard = function(ward) {
 // ---------------- RENDER WARD DETAILS ----------------
 function renderWardDetails(ward) {
     const wardBeds = bedsCache.filter(b => b.ward === ward);
-    const available = wardBeds.filter(b => b.status && b.status.toLowerCase() === 'available').length;
+    const available = countByStatus(wardBeds, 'available');
+    const maintenance = countByStatus(wardBeds, 'maintenance');
     const total = wardBeds.length;
-    const occupied = total - available;
-    
+    const occupied = countByStatus(wardBeds, 'occupied') + countByStatus(wardBeds, 'critical');
+
     document.getElementById('wardTitle').textContent = `${ward} Ward`;
-    document.getElementById('wardMeta').textContent = `Total Beds: ${total}`;
+    document.getElementById('wardMeta').textContent = `Total Beds: ${total}${maintenance ? ` • ${maintenance} under maintenance` : ''}`;
     document.getElementById('occupiedInfo').textContent = `Occupied/Critical: ${occupied}/${total}`;
     document.getElementById('availableCount').textContent = available;
     document.getElementById('availableCount').style.color = available > 0 ? '#22c55e' : '#ef4444';
@@ -218,24 +264,52 @@ function renderBeds(ward) {
 // ---------------- UPDATE MODAL ----------------
 let selectedBedId = null;
 
+// Mirrors BedStatusChangeMiddleware on the backend — shown as a hint only.
+// The API remains the authority and rejects illegal transitions with a 400.
+const ALLOWED_TRANSITIONS = {
+    available: ['occupied', 'maintenance'],
+    occupied: ['critical', 'available'],
+    critical: ['occupied', 'available'],
+    maintenance: ['available']
+};
+
 window.openUpdateModal = function(bedId) {
     selectedBedId = bedId;
     const bed = bedsCache.find(b => b.id === bedId);
     if (!bed) return;
-    
+
     document.getElementById('patientId').value = '';
     document.getElementById('patientName').value = bed.patient || '';
-    
+
+    const current = (bed.status || 'available').toLowerCase();
     const statusSelect = document.getElementById('status');
     if (statusSelect) {
-        statusSelect.value = (bed.status || 'available').toLowerCase();
+        statusSelect.value = current;
     }
-    
+
+    const hint = document.getElementById('bedModalHint');
+    if (hint) {
+        const allowed = ALLOWED_TRANSITIONS[current] || [];
+        hint.textContent = `Bed ${bed.id} is currently ${current}. Allowed next: ${allowed.join(', ') || 'none'}.`;
+    }
+    showBedError('');
+
     document.getElementById('modal').classList.add('active');
+}
+
+function showBedError(message) {
+    const box = document.getElementById('bedModalError');
+    if (!box) {
+        if (message) alert(message);
+        return;
+    }
+    box.textContent = message;
+    box.style.display = message ? 'block' : 'none';
 }
 
 window.closeModal = function() {
     selectedBedId = null;
+    showBedError('');
     document.getElementById('modal').classList.remove('active');
 }
 
@@ -254,33 +328,83 @@ window.fetchPatientForUpdate = function() {
     }
 }
 
-window.saveBed = async function() {
-    if (!selectedBedId) return;
-    
-    const status = document.getElementById('status').value;
-    const patientName = document.getElementById('patientName').value.trim();
-    
-    if ((status === 'occupied' || status === 'critical') && !patientName) {
-        alert('Occupied or Critical beds must have a patient assigned.');
+/**
+ * Send a status change through the dedicated bed endpoints so it passes
+ * BedStatusChangeMiddleware:
+ *   allocate -> occupied, release -> available, everything else via /status.
+ */
+async function applyStatusChange(bed, target, patientName) {
+    const id = bed.id;
+    const current = (bed.status || 'available').toLowerCase();
+
+    // Status unchanged — the only thing that can differ is the patient
+    if (target === current) {
+        if ((target === 'occupied' || target === 'critical') && patientName && patientName !== bed.patient) {
+            await apiRequest('PUT', `/beds/${id}`, { status: target, patient: patientName });
+        }
         return;
     }
-    
-    if (status === 'available' && patientName) {
-        alert('Available beds cannot have a patient assigned. Patient will be cleared.');
+
+    if (target === 'available') {
+        // A bed holding a patient is freed by releasing it
+        if (current === 'occupied' || current === 'critical') {
+            await apiRequest('PATCH', `/beds/${id}/release`);
+        } else {
+            await apiRequest('PATCH', `/beds/${id}/status`, { status: 'available' });
+        }
+        return;
     }
-    
-    const updateData = {
-        status: status,
-        patient: status === 'available' ? '' : patientName
-    };
-    
+
+    if (target === 'occupied' || target === 'critical') {
+        // No patient on the bed yet: allocate first, then escalate if needed.
+        // From maintenance the allocate call is what the middleware rejects,
+        // and its message explains the required maintenance -> available step.
+        if (!bed.patient) {
+            await apiRequest('PATCH', `/beds/${id}/allocate`, { patientId: patientName });
+            if (target === 'critical') {
+                await apiRequest('PATCH', `/beds/${id}/status`, { status: 'critical' });
+            }
+            return;
+        }
+
+        // Patient already on the bed — update the name first if it changed
+        if (patientName && patientName !== bed.patient) {
+            await apiRequest('PUT', `/beds/${id}`, { status: current, patient: patientName });
+        }
+        await apiRequest('PATCH', `/beds/${id}/status`, { status: target });
+        return;
+    }
+
+    // maintenance (rejected by the middleware while a patient is assigned)
+    await apiRequest('PATCH', `/beds/${id}/status`, { status: target });
+}
+
+window.saveBed = async function() {
+    if (!selectedBedId) return;
+
+    const bed = bedsCache.find(b => b.id === selectedBedId);
+    if (!bed) return;
+
+    const status = document.getElementById('status').value;
+    const patientName = document.getElementById('patientName').value.trim();
+
+    if ((status === 'occupied' || status === 'critical') && !patientName) {
+        showBedError('Occupied or Critical beds must have a patient assigned.');
+        return;
+    }
+
+    showBedError('');
+
     try {
-        await apiRequest('PUT', `/beds/${selectedBedId}`, updateData);
-        await loadData(); // Reload all data to refresh UI
+        await applyStatusChange(bed, status, patientName);
+        await loadData(); // Reload from the API so the stat cards match the server
         closeModal();
     } catch (err) {
         console.error('Failed to update bed:', err);
-        alert('Failed to update bed. Please try again.');
+        // Surfaces the middleware's transition message, e.g.
+        // "Illegal bed status transition: maintenance -> occupied. ..."
+        showBedError(err.message || 'Failed to update bed. Please try again.');
+        await loadData();
     }
 }
 
@@ -341,6 +465,6 @@ window.admitPatient = async function() {
         alert(`Successfully admitted ${patientName} to Bed ${availableBed.id} in ${ward} Ward.`);
     } catch (err) {
         console.error('Failed to admit patient:', err);
-        alert('Failed to admit patient. Please try again.');
+        alert(err.message || 'Failed to admit patient. Please try again.');
     }
 }

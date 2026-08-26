@@ -23,11 +23,14 @@ let SupportRequestsController = class SupportRequestsController {
     }
     async findAll(req, hospitalId) {
         const user = req.user;
-        if (user.role === api_response_interface_1.UserRole.HOSPITAL_MANAGER || user.role === api_response_interface_1.UserRole.REGIONAL_MANAGER) {
+        if (user.role === api_response_interface_1.UserRole.SUPERUSER) {
+            return this.supportRequestsService.findAll(hospitalId);
+        }
+        else if (user.role === api_response_interface_1.UserRole.REGIONAL_MANAGER) {
             return this.supportRequestsService.findAll(hospitalId, user.id);
         }
-        else if (user.role === api_response_interface_1.UserRole.SUPERUSER) {
-            return this.supportRequestsService.findAll(hospitalId);
+        else if (user.role === api_response_interface_1.UserRole.HOSPITAL_MANAGER) {
+            return this.supportRequestsService.findAll(user.hospitalId, user.id);
         }
         else {
             return this.supportRequestsService.findAll(user.hospitalId);

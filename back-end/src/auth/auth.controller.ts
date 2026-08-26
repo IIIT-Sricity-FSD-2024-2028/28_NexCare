@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Get, Patch, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, Req, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { RegisterStaffDto } from './dto/register-staff.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/interfaces/api-response.interface';
@@ -39,14 +40,26 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
+  /** @route POST /api/auth/register-staff — Public (staff self-registration) */
+  @Public()
+  @Post('register-staff')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Register a new staff account (administrative_staff/ambulance)' })
+  @ApiResponse({ status: 200, description: 'Registration result (check success field)' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  async registerStaff(@Body() registerStaffDto: RegisterStaffDto) {
+    return this.authService.registerStaff(registerStaffDto);
+  }
+
   /** @route POST /api/auth/logout/:userId — Any authenticated user */
   @ApiBearerAuth('JWT-auth')
   @Post('logout/:userId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User logout' })
   @ApiResponse({ status: 200, description: 'Successful logout' })
-  async logout(@Param('userId') userId: string) {
-    return this.authService.logout(userId);
+  async logout(@Req() req: any, @Param('userId') userId: string) {
+    // Only ever act on the authenticated user — ignore a mismatched path param.
+    return this.authService.logout(req.user?.id || userId);
   }
 
   /** @route GET /api/auth/current/:userId — Any authenticated user */
@@ -54,8 +67,9 @@ export class AuthController {
   @Get('current/:userId')
   @ApiOperation({ summary: 'Get current user profile' })
   @ApiResponse({ status: 200, description: 'User profile retrieved successfully' })
-  async getCurrentUser(@Param('userId') userId: string) {
-    return this.authService.getCurrentUser(userId);
+  async getCurrentUser(@Req() req: any, @Param('userId') userId: string) {
+    // A user may only read their own session.
+    return this.authService.getCurrentUser(req.user?.id || userId);
   }
 
   /** @route GET /api/auth/sessions — Superuser only */
@@ -76,7 +90,11 @@ export class AuthController {
   @ApiOperation({ summary: 'Change user password' })
   @ApiResponse({ status: 200, description: 'Password changed successfully' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async changePassword(@Body() body: { currentPassword: string; newPassword: string }) {
-    return this.authService.changePassword(body);
+  async changePassword(
+    @Req() req: any,
+    @Body() body: { currentPassword: string; newPassword: string },
+  ) {
+    // Bind the change to the authenticated user only — never trust a client id.
+    return this.authService.changePassword({ ...body, userId: req.user?.id });
   }
 }

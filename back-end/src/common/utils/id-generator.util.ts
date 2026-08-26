@@ -4,13 +4,23 @@
  */
 
 export class IdGenerator {
+  // Per-process monotonic counter — guarantees uniqueness for IDs minted within
+  // the same millisecond, which a bare Math.random() could not.
+  private static counter = 0;
+
   /**
-   * Generate a unique ID with specified prefix
+   * Generate a collision-resistant unique ID with the specified prefix.
+   * Combines a millisecond timestamp, a per-process sequence, and randomness,
+   * so IDs stay unique both within a burst and across server restarts.
    * @param prefix - The prefix for the ID (e.g., 'U', 'P', 'APT-')
    * @returns Generated unique ID string
    */
   static generate(prefix: string): string {
-    return `${prefix}${Math.floor(Math.random() * 90000 + 10000)}`;
+    const time = Date.now().toString(36);
+    const seq = (IdGenerator.counter = (IdGenerator.counter + 1) % 1_000_000)
+      .toString(36);
+    const rand = Math.floor(Math.random() * 1296).toString(36).padStart(2, '0');
+    return `${prefix}${time}${seq}${rand}`.toUpperCase();
   }
 
   /**

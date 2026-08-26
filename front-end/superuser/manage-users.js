@@ -20,13 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTable();
 });
 
+// Keyed by the canonical UserRole values from the backend enum. 'doctor' and
+// 'nurse' are directory-only records — they have no portal and cannot log in.
 const ROLE_DEPARTMENTS = {
-    'admin': ['Management', 'IT Support', 'Human Resources', 'Billing'],
     'administrative_staff': ['Management', 'Front Desk', 'Billing'],
+    'ambulance': ['Transport', 'Maintenance'],
     'doctor': ['Cardiology', 'Orthopedics', 'Pediatrics', 'Neurology', 'General Medicine', 'Dermatology', 'Emergency'],
-    'nurse': ['ER', 'ICU', 'General Ward', 'Pediatrics'],
-    'driver': ['Transport', 'Maintenance'],
-    'ambulance': ['Transport']
+    'nurse': ['ER', 'ICU', 'General Ward', 'Pediatrics']
 };
 
 // Read: Render Table Dynamically (fetches live from backend)

@@ -5,6 +5,7 @@ export declare class BillingService {
     private readonly systemService;
     constructor(systemService: SystemService);
     private readonly billsFilePath;
+    private round2;
     private loadBills;
     private saveBills;
     private getInitialMockData;

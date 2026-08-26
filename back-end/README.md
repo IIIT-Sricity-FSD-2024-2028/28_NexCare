@@ -199,6 +199,84 @@ The API will be available at `http://localhost:3001/api`
 - `GET /system/settings/category/:category` - Settings by category
 - `GET /system/activity/search/:query` - Search activities
 
+### Uploads
+- `POST /uploads` - Upload a document (multipart/form-data, field `file`)
+- `GET /uploads?entityType=patient&entityId=P001` - List documents for a record
+- `GET /uploads/:id` - Upload metadata
+- `GET /uploads/:id/download` - Download the stored file
+- `DELETE /uploads/:id` - Delete an upload
+
+### Logs
+- `GET /logs?stream=access|error|app&limit=100` - Recent log entries
+- `GET /logs/files` - Log files on disk with sizes
+
+## 🛡️ Middleware
+
+Every request passes through the chain below. Nest runs middleware first, then
+guards, then interceptors and pipes, then the controller; exception filters
+format anything that fails on the way.
+
+```
+request
+  → SecurityMiddleware        (headers, rate limit, payload limit)
+  → RequestLoggerMiddleware   (request id, access log)
+  → router-level middleware   (only on the routes it is bound to)
+  → AuthGuard → RolesGuard    (JWT, role check)
+  → interceptors / pipes      (query shaping, DTO validation)
+  → controller
+  ← AllExceptionsFilter       (formats + logs any failure)
+  ← errorHandlerMiddleware    (Express-level: parser errors, unknown routes)
+```
+
+| Type | Implementation | Where it runs | What it does |
+|---|---|---|---|
+| **Logging** | `common/middleware/request-logger.middleware.ts` | every route | Assigns `x-request-id`, records method, path, status, duration, user and IP to `logs/access-*.log`; copies 4xx/5xx into `logs/error-*.log` |
+| **Error handling** | `common/filters/all-exceptions.filter.ts` + `common/middleware/error-handler.middleware.ts` | every route | Filter catches *any* exception in a handler and returns the standard envelope; the Express-level handler covers what the filter cannot see — malformed JSON, oversized bodies, unknown routes. Both write to `logs/error-*.log` |
+| **File upload** | `uploads/uploads.module.ts` (multer via `MulterModule`/`FileInterceptor`) + `uploads/middleware/file-upload.middleware.ts` | `POST /uploads` | Stores documents on disk with generated filenames, 5 MB limit, MIME allowlist; the router-level middleware rejects non-multipart or oversized requests before any bytes are written |
+| **Security** | `common/middleware/security.middleware.ts` | every route | helmet security headers, per-IP sliding-window rate limiting (stricter on `/auth/login` and `/auth/register`), request body size limit; blocked requests are logged |
+| **Router-level** | `beds/middleware/bed-status-change.middleware.ts`, `uploads/middleware/file-upload.middleware.ts` | bound routes only | Bed middleware validates status transitions (`maintenance → occupied` is refused) and logs every change with user and old → new status |
+
+Application-level middleware is registered in `app.module.ts` via
+`configure(consumer)`; router-level middleware is registered the same way
+inside the feature module it belongs to (`beds.module.ts`, `uploads.module.ts`).
+
+Also in the chain: `AuthGuard` and `RolesGuard` (global, `app.module.ts`),
+`HospitalQueryInterceptor` (hospital search), `LeaveRequestGuard` (leave
+requests) and the global `ValidationPipe`.
+
+## 📝 Log & Error Management
+
+Logs are buffered in memory and written to disk on a timer — see
+`common/logging/file-logger.ts`.
+
+| File | Contents |
+|---|---|
+| `logs/access-YYYY-MM-DD.log` | one entry per request |
+| `logs/error-YYYY-MM-DD.log` | every 4xx/5xx response and every exception, with stack traces |
+| `logs/app-YYYY-MM-DD.log` | lifecycle and business events (startup, uploads, shutdown) |
+
+- Format is JSON lines — `tail -f logs/access-$(date +%F).log | jq .`
+- Flushed every **5 s** (`LOG_FLUSH_INTERVAL_MS`), immediately for errors, and
+  on shutdown (`SIGINT`/`SIGTERM`, uncaught exceptions).
+- Rotated daily by filename, and whenever a file passes 5 MB.
+- Readable through the API — `GET /logs?stream=error&limit=100` and
+  `GET /logs/files` (superuser / administrative staff) — and in the admin
+  portal under **System Logs**.
+
+Passwords and tokens are redacted before anything is written.
+
+### Environment variables
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `LOG_FLUSH_INTERVAL_MS` | `5000` | How often buffered logs are written |
+| `RATE_LIMIT_GENERAL` | `300` | Requests per IP per window |
+| `RATE_LIMIT_AUTH` | `20` | Login/register attempts per IP per window |
+| `RATE_LIMIT_WINDOW_MS` | `60000` | Rate limit window |
+| `RATE_LIMIT_DISABLED` | `false` | Set `true` to switch rate limiting off |
+| `MAX_BODY_BYTES` | `1048576` | Largest JSON body accepted |
+| `MAX_UPLOAD_BYTES` | `5242880` | Largest file accepted |
+
 ## 🎯 API Response Format
 
 All endpoints return a consistent JSON response format:

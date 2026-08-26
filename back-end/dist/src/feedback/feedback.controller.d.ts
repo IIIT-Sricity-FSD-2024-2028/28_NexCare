@@ -4,10 +4,11 @@ import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 export declare class FeedbackController {
     private readonly feedbackService;
     constructor(feedbackService: FeedbackService);
-    findAll(patientId?: string, status?: string, category?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
-    create(createFeedbackDto: CreateFeedbackDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    private isPatient;
+    findAll(req: any, patientId?: string, status?: string, category?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    create(req: any, createFeedbackDto: CreateFeedbackDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     getStats(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
-    findByPatient(patientId: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    findByPatient(req: any, patientId: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findByCategory(category: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findByRating(rating: number): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     getUnresolvedFeedback(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

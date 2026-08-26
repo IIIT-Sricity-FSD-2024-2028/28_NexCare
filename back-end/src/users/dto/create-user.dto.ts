@@ -17,7 +17,7 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Email is required' })
   email: string;
 
-  @ApiProperty({ enum: UserRole, example: UserRole.DOCTOR, description: 'User role' })
+  @ApiProperty({ enum: UserRole, example: UserRole.ADMINISTRATIVE_STAFF, description: 'User role' })
   @IsEnum(UserRole, { message: 'Invalid user role' })
   @IsNotEmpty({ message: 'Role is required' })
   role: UserRole;
@@ -33,8 +33,13 @@ export class CreateUserDto {
   @IsString()
   patientId?: string;
 
-  @ApiPropertyOptional({ example: 'Cardiology', description: 'Department (for doctors/staff)' })
+  @ApiPropertyOptional({ example: 'Cardiology', description: 'Department within the hospital' })
   @IsOptional()
   @IsString()
   dept?: string;
+
+  @ApiPropertyOptional({ example: 'H001', description: 'Hospital the user belongs to' })
+  @IsOptional()
+  @IsString()
+  hospitalId?: string;
 }

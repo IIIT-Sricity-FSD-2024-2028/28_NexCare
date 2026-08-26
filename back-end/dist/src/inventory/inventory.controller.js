@@ -69,12 +69,13 @@ let InventoryController = class InventoryController {
         return this.inventoryService.restock(id, restockDto);
     }
     async useItem(id, body) {
-        const quantity = typeof body === 'number' ? body : (body?.quantity ? Number(body.quantity) : 1);
+        const quantity = typeof body === 'number' ? body : Number(body?.quantity);
         return this.inventoryService.useItem(id, quantity, body?.notes);
     }
 };
 exports.InventoryController = InventoryController;
 __decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.REGIONAL_MANAGER),
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all inventory items' }),
     (0, swagger_1.ApiQuery)({ name: 'category', required: false }),

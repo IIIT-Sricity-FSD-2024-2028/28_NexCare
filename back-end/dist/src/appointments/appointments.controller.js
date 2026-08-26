@@ -24,16 +24,37 @@ let AppointmentsController = class AppointmentsController {
     constructor(appointmentsService) {
         this.appointmentsService = appointmentsService;
     }
-    async findAll(patientId, status, department) {
+    isPatient(req) {
+        return req?.user?.role === api_response_interface_1.UserRole.PATIENT;
+    }
+    async assertOwnsAppointment(req, id) {
+        if (!this.isPatient(req))
+            return;
+        const res = await this.appointmentsService.findById(id);
+        if (res?.success && res.data && res.data.patientId !== req.user.patientId) {
+            throw new common_1.ForbiddenException('You can only access your own appointments.');
+        }
+    }
+    async findAll(req, patientId, status, department) {
+        if (this.isPatient(req)) {
+            patientId = req.user.patientId;
+        }
         return this.appointmentsService.findAll(patientId, status, department);
     }
-    async create(createAppointmentDto) {
-        return this.appointmentsService.create(createAppointmentDto);
+    async create(req, createAppointmentDto) {
+        const dto = { ...createAppointmentDto };
+        if (this.isPatient(req)) {
+            dto.patientId = req.user.patientId;
+        }
+        return this.appointmentsService.create(dto);
     }
     async getStats() {
         return this.appointmentsService.getStats();
     }
-    async findByPatient(patientId) {
+    async findByPatient(req, patientId) {
+        if (this.isPatient(req) && patientId !== req.user.patientId) {
+            throw new common_1.ForbiddenException('You can only view your own appointments.');
+        }
         return this.appointmentsService.findByPatient(patientId);
     }
     async findByDepartment(department) {
@@ -42,7 +63,8 @@ let AppointmentsController = class AppointmentsController {
     async getTodayAppointments() {
         return this.appointmentsService.getTodayAppointments();
     }
-    async findById(id) {
+    async findById(req, id) {
+        await this.assertOwnsAppointment(req, id);
         return this.appointmentsService.findById(id);
     }
     async update(id, updateAppointmentDto) {
@@ -60,34 +82,39 @@ let AppointmentsController = class AppointmentsController {
     async complete(id) {
         return this.appointmentsService.complete(id);
     }
-    async cancel(id) {
+    async cancel(req, id) {
+        await this.assertOwnsAppointment(req, id);
         return this.appointmentsService.cancel(id);
     }
 };
 exports.AppointmentsController = AppointmentsController;
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all appointments' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all appointments (patients: only their own)' }),
     (0, swagger_1.ApiQuery)({ name: 'patientId', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: api_response_interface_1.AppointmentStatus }),
     (0, swagger_1.ApiQuery)({ name: 'department', required: false }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of appointments' }),
-    __param(0, (0, common_1.Query)('patientId')),
-    __param(1, (0, common_1.Query)('status')),
-    __param(2, (0, common_1.Query)('department')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)('patientId')),
+    __param(2, (0, common_1.Query)('status')),
+    __param(3, (0, common_1.Query)('department')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [Object, String, String, String]),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Book a new appointment' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment booking result (check success field)' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_appointment_dto_1.CreateAppointmentDto]),
+    __metadata("design:paramtypes", [Object, create_appointment_dto_1.CreateAppointmentDto]),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "create", null);
 __decorate([
@@ -100,11 +127,13 @@ __decorate([
 ], AppointmentsController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('patient/:patientId'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get appointments by patient ID' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Get appointments by patient ID (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of patient appointments' }),
-    __param(0, (0, common_1.Param)('patientId')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('patientId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "findByPatient", null);
 __decorate([
@@ -126,11 +155,13 @@ __decorate([
 ], AppointmentsController.prototype, "getTodayAppointments", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get appointment by ID' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Get appointment by ID (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment details' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "findById", null);
 __decorate([
@@ -182,17 +213,19 @@ __decorate([
 ], AppointmentsController.prototype, "complete", null);
 __decorate([
     (0, common_1.Patch)(':id/cancel'),
-    (0, swagger_1.ApiOperation)({ summary: 'Cancel an appointment' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Cancel an appointment (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment cancelled successfully' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "cancel", null);
 exports.AppointmentsController = AppointmentsController = __decorate([
     (0, swagger_1.ApiTags)('Appointments'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT, api_response_interface_1.UserRole.DOCTOR),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
     (0, common_1.Controller)('appointments'),
     __metadata("design:paramtypes", [appointments_service_1.AppointmentsService])
 ], AppointmentsController);

@@ -16,19 +16,38 @@ exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const users_service_1 = require("./users.service");
+const hospitals_service_1 = require("../hospitals/hospitals.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
 const update_user_dto_1 = require("./dto/update-user.dto");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let UsersController = class UsersController {
-    constructor(usersService) {
+    constructor(usersService, hospitalsService) {
         this.usersService = usersService;
+        this.hospitalsService = hospitalsService;
     }
-    async findAll(role, status) {
-        return this.usersService.findAll(role, status);
+    async findAll(req, role, status) {
+        const result = await this.usersService.findAll(role, status);
+        if (req.user?.role !== api_response_interface_1.UserRole.REGIONAL_MANAGER || !result?.success) {
+            return result;
+        }
+        const managedIds = await this.managedHospitalIds(req.user.id);
+        return {
+            ...result,
+            data: (result.data || []).filter((u) => u.hospitalId && managedIds.includes(u.hospitalId)),
+        };
+    }
+    async managedHospitalIds(managerId) {
+        const res = await this.hospitalsService.findAll();
+        return (res?.data || [])
+            .filter((h) => h.assignedManagerId === managerId)
+            .map((h) => h.id);
     }
     async create(createUserDto) {
         return this.usersService.create(createUserDto);
+    }
+    async findDoctors(dept) {
+        return this.usersService.findDoctors(dept);
     }
     async getStats() {
         return this.usersService.getStats();
@@ -57,16 +76,17 @@ let UsersController = class UsersController {
 };
 exports.UsersController = UsersController;
 __decorate([
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.REGIONAL_MANAGER),
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all users' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all users (Regional Officers see only their hospitals)' }),
     (0, swagger_1.ApiQuery)({ name: 'role', required: false, enum: api_response_interface_1.UserRole }),
     (0, swagger_1.ApiQuery)({ name: 'status', required: false }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of users' }),
-    __param(0, (0, common_1.Query)('role')),
-    __param(1, (0, common_1.Query)('status')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)('role')),
+    __param(2, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "findAll", null);
 __decorate([
@@ -80,6 +100,17 @@ __decorate([
     __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "create", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, common_1.Get)('doctors'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get active doctors, optionally filtered by department' }),
+    (0, swagger_1.ApiQuery)({ name: 'dept', required: false }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Doctors retrieved successfully' }),
+    __param(0, (0, common_1.Query)('dept')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "findDoctors", null);
 __decorate([
     (0, common_1.Get)('stats/overview'),
     (0, swagger_1.ApiOperation)({ summary: 'Get user statistics' }),
@@ -159,6 +190,7 @@ exports.UsersController = UsersController = __decorate([
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
     (0, common_1.Controller)('users'),
-    __metadata("design:paramtypes", [users_service_1.UsersService])
+    __metadata("design:paramtypes", [users_service_1.UsersService,
+        hospitals_service_1.HospitalsService])
 ], UsersController);
 //# sourceMappingURL=users.controller.js.map

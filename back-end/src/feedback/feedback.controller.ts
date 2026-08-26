@@ -1,15 +1,17 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Put, 
-  Patch, 
-  Delete, 
-  Param, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Patch,
+  Delete,
+  Param,
   Query,
+  Req,
+  ForbiddenException,
   HttpCode,
-  HttpStatus 
+  HttpStatus
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { FeedbackService } from './feedback.service';
@@ -20,30 +22,42 @@ import { UserRole, FeedbackStatus } from '../common/interfaces/api-response.inte
 
 /**
  * Feedback Controller
- * Manages communication and feedback system in the NexCare system
- * Provides endpoints for feedback CRUD operations and status management
+ * Manages communication and feedback system in the NexCare system.
+ *
+ * RBAC: staff/superuser triage and resolve all feedback. Patients may submit
+ * feedback and view their OWN submissions only (enforced against
+ * req.user.patientId).
  */
 @ApiTags('Feedback')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
 @Controller('feedback')
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
+
+  private isPatient(req: any): boolean {
+    return req?.user?.role === UserRole.PATIENT;
+  }
 
   /**
    * Get all feedback with optional filtering
    */
   @Get()
-  @ApiOperation({ summary: 'Get all feedback' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Get all feedback (patients: only their own)' })
   @ApiQuery({ name: 'patientId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: FeedbackStatus })
   @ApiQuery({ name: 'category', required: false })
   @ApiResponse({ status: 200, description: 'List of feedback' })
   async findAll(
+    @Req() req: any,
     @Query('patientId') patientId?: string,
     @Query('status') status?: string,
     @Query('category') category?: string
   ) {
+    if (this.isPatient(req)) {
+      patientId = req.user.patientId;
+    }
     return this.feedbackService.findAll(patientId, status as any, category);
   }
 
@@ -51,12 +65,17 @@ export class FeedbackController {
    * Create new feedback
    */
   @Post()
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Submit new feedback' })
   @ApiResponse({ status: 200, description: 'Feedback submission result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async create(@Body() createFeedbackDto: CreateFeedbackDto) {
-    return this.feedbackService.create(createFeedbackDto as any);
+  async create(@Req() req: any, @Body() createFeedbackDto: CreateFeedbackDto) {
+    const dto: any = { ...createFeedbackDto };
+    if (this.isPatient(req)) {
+      dto.patientId = req.user.patientId;
+    }
+    return this.feedbackService.create(dto);
   }
 
   /**
@@ -73,9 +92,13 @@ export class FeedbackController {
    * Get feedback by patient
    */
   @Get('patient/:patientId')
-  @ApiOperation({ summary: 'Get feedback by patient ID' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Get feedback by patient ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Patient feedback retrieved' })
-  async findByPatient(@Param('patientId') patientId: string) {
+  async findByPatient(@Req() req: any, @Param('patientId') patientId: string) {
+    if (this.isPatient(req) && patientId !== req.user.patientId) {
+      throw new ForbiddenException('You can only view your own feedback.');
+    }
     return this.feedbackService.findByPatient(patientId);
   }
 

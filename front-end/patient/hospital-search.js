@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
             actionBtn.onclick = () => {
                 if (h && h.id) {
                     try { localStorage.setItem('selectedHospitalId', h.id); } catch(e) {}
-                    window.location.href = `appointments/appointments.html?hospitalId=${encodeURIComponent(h.id)}`;
+                    window.location.href = pageLink('appointments/appointments', { hospitalId: h.id });
                 } else {
                     window.location.href = 'appointments/appointments.html';
                 }

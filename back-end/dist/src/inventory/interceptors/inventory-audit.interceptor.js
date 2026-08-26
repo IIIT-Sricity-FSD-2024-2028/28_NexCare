@@ -42,11 +42,15 @@ let InventoryAuditInterceptor = class InventoryAuditInterceptor {
             response.header('Access-Control-Expose-Headers', 'x-audit-id');
         }
         return next.handle().pipe((0, operators_1.tap)((resData) => {
-            const afterItem = resData?.data || (itemId ? this.inventoryService.getRawItem(itemId) : undefined);
-            const quantityAfter = afterItem && typeof afterItem.quantity === 'number'
-                ? afterItem.quantity
-                : quantityBefore;
-            const statusAfter = afterItem?.status || statusBefore;
+            if (!resData || resData.success === false || !itemId || !itemBefore) {
+                return;
+            }
+            const afterItem = resData?.data || this.inventoryService.getRawItem(itemId);
+            if (!afterItem || typeof afterItem.quantity !== 'number') {
+                return;
+            }
+            const quantityAfter = afterItem.quantity;
+            const statusAfter = afterItem.status || statusBefore;
             const auditEntry = {
                 id: auditId,
                 itemId,

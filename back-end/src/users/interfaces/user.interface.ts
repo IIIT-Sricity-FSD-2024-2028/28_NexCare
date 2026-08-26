@@ -12,7 +12,8 @@ export interface User {
   status: UserStatus;
   password: string;
   patientId?: string; // For patient users
-  dept?: string; // For doctor/nurse users
+  dept?: string; // Department within the hospital (e.g. Front Desk, Cardiology)
+  hospitalId?: string; // For any user scoped to a single hospital
   createdAt?: string;
   updatedAt?: string;
 }
@@ -27,6 +28,7 @@ export interface CreateUserRequest {
   password: string;
   patientId?: string;
   dept?: string;
+  hospitalId?: string;
 }
 
 /**
@@ -40,6 +42,7 @@ export interface UpdateUserRequest {
   password?: string;
   patientId?: string;
   dept?: string;
+  hospitalId?: string;
 }
 
 /**

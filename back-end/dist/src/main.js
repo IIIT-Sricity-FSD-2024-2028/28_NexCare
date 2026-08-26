@@ -4,19 +4,59 @@ const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
-const http_exception_filter_1 = require("./common/filters/http-exception.filter");
+const all_exceptions_filter_1 = require("./common/filters/all-exceptions.filter");
+const error_handler_middleware_1 = require("./common/middleware/error-handler.middleware");
+const file_logger_1 = require("./common/logging/file-logger");
+const express_1 = require("express");
 const fs = require("fs");
 const path = require("path");
+function loadEnv() {
+    try {
+        const envPath = path.join(process.cwd(), '.env');
+        if (!fs.existsSync(envPath))
+            return;
+        for (const rawLine of fs.readFileSync(envPath, 'utf-8').split('\n')) {
+            const line = rawLine.trim();
+            if (!line || line.startsWith('#'))
+                continue;
+            const eq = line.indexOf('=');
+            if (eq === -1)
+                continue;
+            const key = line.slice(0, eq).trim();
+            let val = line.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
+            if (key && process.env[key] === undefined)
+                process.env[key] = val;
+        }
+    }
+    catch (err) {
+        console.warn('Could not load .env file:', err.message);
+    }
+}
+loadEnv();
+const KNOWN_DEFAULT_SECRET = 'nexcare_jwt_secret_key_2024_evaluation';
+if (!process.env.JWT_SECRET) {
+    console.warn('⚠️  JWT_SECRET is not set — tokens are signed with a fallback secret. Set JWT_SECRET in .env.');
+}
+else if (process.env.JWT_SECRET === KNOWN_DEFAULT_SECRET) {
+    console.warn('⚠️  JWT_SECRET is the shipped default — change it before any real deployment.');
+}
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    const corsEnv = process.env.CORS_ORIGIN?.trim();
+    const corsOrigin = corsEnv && corsEnv !== '*'
+        ? corsEnv.split(',').map((o) => o.trim()).filter(Boolean)
+        : true;
     app.enableCors({
-        origin: true,
+        origin: corsOrigin,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         allowedHeaders: '*',
-        exposedHeaders: ['x-query-timestamp', 'Authorization'],
+        exposedHeaders: ['x-query-timestamp', 'Authorization', 'x-request-id', 'x-ratelimit-remaining'],
         credentials: true,
     });
     app.setGlobalPrefix('api');
+    const maxBodyBytes = Number(process.env.MAX_BODY_BYTES) || 1024 * 1024;
+    app.use((0, express_1.json)({ limit: maxBodyBytes }));
+    app.use((0, express_1.urlencoded)({ extended: true, limit: maxBodyBytes }));
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         forbidNonWhitelisted: true,
@@ -35,7 +75,8 @@ async function bootstrap() {
             });
         },
     }));
-    app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter());
+    app.useGlobalFilters(new all_exceptions_filter_1.AllExceptionsFilter());
+    app.enableShutdownHooks();
     const config = new swagger_1.DocumentBuilder()
         .setTitle('NexCare Hospital Management API')
         .setDescription('Complete REST API for the NexCare Hospital Administrative Operations Platform. ' +
@@ -52,7 +93,7 @@ async function bootstrap() {
         type: 'apiKey',
         in: 'header',
         name: 'x-user-role',
-        description: 'User role for RBAC (superuser, administrative_staff, patient, ambulance, doctor, nurse)',
+        description: 'User role for RBAC (superuser, administrative_staff, patient, ambulance, regional_manager, hospital_manager)',
     }, 'x-user-role')
         .addServer(process.env.API_URL || `http://localhost:${process.env.PORT || 3001}`, 'Local Server')
         .addTag('Auth', 'Authentication & session management')
@@ -85,8 +126,13 @@ async function bootstrap() {
         customCss: '.topbar { display: none }',
         customSiteTitle: 'NexCare API Documentation',
     });
+    await app.init();
+    const expressApp = app.getHttpAdapter().getInstance();
+    expressApp.use(error_handler_middleware_1.notFoundMiddleware);
+    expressApp.use(error_handler_middleware_1.errorHandlerMiddleware);
     const port = process.env.PORT || 3001;
     await app.listen(port, '0.0.0.0');
+    file_logger_1.fileLogger.info('app', 'Application started', { port: Number(port), pid: process.pid });
     const { networkInterfaces } = require('os');
     const nets = networkInterfaces();
     const ips = ['localhost'];
@@ -105,11 +151,25 @@ async function bootstrap() {
 }
 process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
+    file_logger_1.fileLogger.error('Uncaught exception', { name: error.name, detail: error.message, stack: error.stack });
+    file_logger_1.fileLogger.stop();
     process.exit(1);
 });
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on('unhandledRejection', (reason) => {
+    console.error('Unhandled Rejection reason:', reason);
+    file_logger_1.fileLogger.error('Unhandled promise rejection', {
+        detail: reason instanceof Error ? reason.message : String(reason),
+        stack: reason instanceof Error ? reason.stack : undefined,
+    });
+    file_logger_1.fileLogger.stop();
     process.exit(1);
 });
+for (const signal of ['SIGINT', 'SIGTERM']) {
+    process.on(signal, () => {
+        file_logger_1.fileLogger.info('app', 'Process signal received', { signal });
+        file_logger_1.fileLogger.stop();
+        process.exit(0);
+    });
+}
 bootstrap();
 //# sourceMappingURL=main.js.map

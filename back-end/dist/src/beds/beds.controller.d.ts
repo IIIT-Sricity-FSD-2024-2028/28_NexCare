@@ -5,9 +5,10 @@ import { AllocateBedDto } from './dto/allocate-bed.dto';
 export declare class BedsController {
     private readonly bedsService;
     constructor(bedsService: BedsService);
-    findAll(ward?: string, status?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
-    create(createBedDto: CreateBedDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
-    getStats(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    private scopeHospitalId;
+    findAll(req: any, ward?: string, status?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    create(req: any, createBedDto: CreateBedDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    getStats(req: any): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findByWard(ward: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     getAvailableBeds(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findByPatient(patient: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

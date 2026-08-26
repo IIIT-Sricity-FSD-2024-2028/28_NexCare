@@ -68,8 +68,9 @@ let UsersService = class UsersService {
     }
     async create(userData) {
         try {
-            const existingUser = array_util_1.ArrayUtil.searchByText(this.users, userData.email, ['email']);
-            if (existingUser.length > 0) {
+            const email = userData.email.toLowerCase();
+            const existingUser = this.users.find(u => u.email.toLowerCase() === email);
+            if (existingUser) {
                 return response_util_1.ResponseUtil.error('Email already exists');
             }
             const newUserId = id_generator_util_1.IdGenerator.generateUserId();
@@ -82,6 +83,7 @@ let UsersService = class UsersService {
                 password: userData.password,
                 patientId: userData.patientId,
                 dept: userData.dept,
+                hospitalId: userData.hospitalId,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
@@ -102,8 +104,8 @@ let UsersService = class UsersService {
                 return response_util_1.ResponseUtil.notFound('User', id);
             }
             if (updateData.email) {
-                const allUsersWithEmail = array_util_1.ArrayUtil.searchByText(this.users, updateData.email, ['email']);
-                const existingUser = allUsersWithEmail.find(u => u.id !== id);
+                const email = updateData.email.toLowerCase();
+                const existingUser = this.users.find(u => u.email.toLowerCase() === email && u.id !== id);
                 if (existingUser) {
                     return response_util_1.ResponseUtil.error('Email already exists');
                 }
@@ -158,6 +160,19 @@ let UsersService = class UsersService {
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to retrieve user statistics');
+        }
+    }
+    async findDoctors(dept) {
+        try {
+            let doctors = this.users.filter(u => u.role === api_response_interface_1.UserRole.DOCTOR && u.status === api_response_interface_1.UserStatus.ACTIVE);
+            if (dept) {
+                doctors = doctors.filter(u => u.dept === dept);
+            }
+            const sanitized = sanitizer_util_1.DataSanitizer.removePasswords(doctors);
+            return response_util_1.ResponseUtil.success('Doctors retrieved successfully', sanitized);
+        }
+        catch (error) {
+            return response_util_1.ResponseUtil.serverError('Failed to retrieve doctors');
         }
     }
     async findByRole(role) {

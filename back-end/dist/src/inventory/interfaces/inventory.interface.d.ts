@@ -9,6 +9,7 @@ export interface Inventory {
     location: string;
     status: InventoryStatus;
     lastRestocked?: string;
+    hospitalId?: string;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -53,8 +54,8 @@ export interface InventoryAudit {
     action: 'restock' | 'use';
     quantityBefore: number;
     quantityAfter: number;
-    statusBefore: InventoryStatus;
-    statusAfter: InventoryStatus;
+    statusBefore?: InventoryStatus;
+    statusAfter?: InventoryStatus;
     userId: string;
     timestamp: string;
     notes?: string;

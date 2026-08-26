@@ -158,9 +158,11 @@
                             <label>Role</label>
                             <select id="userRole" class="form-control" onchange="updateDeptDropdown(this.value)">
                                 <option value="">Select Role...</option>
-                                <option value="admin">Operations Admin</option>
-                                <option value="doctor">Doctor</option>
-                                <option value="driver">Ambulance Driver</option>
+                                <option value="administrative_staff">Administrative Staff</option>
+                                <option value="ambulance">Ambulance Staff</option>
+                                <!-- Directory-only records: clinical staff cannot log in to NexCare. -->
+                                <option value="doctor">Doctor (directory record)</option>
+                                <option value="nurse">Nurse (directory record)</option>
                             </select>
                             <span class="error-message" id="errorRole">Role is required.</span>
                         </div>

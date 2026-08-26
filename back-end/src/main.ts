@@ -2,9 +2,46 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { errorHandlerMiddleware, notFoundMiddleware } from './common/middleware/error-handler.middleware';
+import { fileLogger } from './common/logging/file-logger';
+import { json, urlencoded } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
+
+/**
+ * Minimal .env loader (no external dependency).
+ * Populates process.env from a .env file for keys that aren't already set,
+ * so JWT_SECRET / PORT / etc. are picked up without requiring dotenv.
+ */
+function loadEnv() {
+  try {
+    const envPath = path.join(process.cwd(), '.env');
+    if (!fs.existsSync(envPath)) return;
+    for (const rawLine of fs.readFileSync(envPath, 'utf-8').split('\n')) {
+      const line = rawLine.trim();
+      if (!line || line.startsWith('#')) continue;
+      const eq = line.indexOf('=');
+      if (eq === -1) continue;
+      const key = line.slice(0, eq).trim();
+      let val = line.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
+      if (key && process.env[key] === undefined) process.env[key] = val;
+    }
+  } catch (err) {
+    console.warn('Could not load .env file:', (err as Error).message);
+  }
+}
+
+loadEnv();
+
+// Security guard-rail: warn loudly if the JWT secret is missing or left at the
+// well-known default. In production this should be a real, unique secret.
+const KNOWN_DEFAULT_SECRET = 'nexcare_jwt_secret_key_2024_evaluation';
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️  JWT_SECRET is not set — tokens are signed with a fallback secret. Set JWT_SECRET in .env.');
+} else if (process.env.JWT_SECRET === KNOWN_DEFAULT_SECRET) {
+  console.warn('⚠️  JWT_SECRET is the shipped default — change it before any real deployment.');
+}
 
 /**
  * Bootstrap function
@@ -15,17 +52,31 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // ─── CORS ─────────────────────────────────────────────────────────────────
+  // Default is permissive (reflect any origin) to support the multi-host/WSL dev
+  // setup. Set CORS_ORIGIN to a comma-separated allowlist to lock it down in prod.
+  const corsEnv = process.env.CORS_ORIGIN?.trim();
+  const corsOrigin =
+    corsEnv && corsEnv !== '*'
+      ? corsEnv.split(',').map((o) => o.trim()).filter(Boolean)
+      : true;
   app.enableCors({
-    origin: true,
+    origin: corsOrigin,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: '*',
-    exposedHeaders: ['x-query-timestamp', 'Authorization'],
+    exposedHeaders: ['x-query-timestamp', 'Authorization', 'x-request-id', 'x-ratelimit-remaining'],
     credentials: true,
   });
 
 
   // Global prefix for all routes
   app.setGlobalPrefix('api');
+
+  // Body size limits, matching the check in SecurityMiddleware. The parser
+  // runs before application middleware, so this is what actually stops an
+  // oversized body; AllExceptionsFilter turns the refusal into a 413.
+  const maxBodyBytes = Number(process.env.MAX_BODY_BYTES) || 1024 * 1024;
+  app.use(json({ limit: maxBodyBytes }));
+  app.use(urlencoded({ extended: true, limit: maxBodyBytes }));
 
   // ─── Global Validation Pipe ────────────────────────────────────────────────
   app.useGlobalPipes(
@@ -50,7 +101,12 @@ async function bootstrap() {
   );
 
   // ─── Global Exception Filter ──────────────────────────────────────────────
-  app.useGlobalFilters(new HttpExceptionFilter());
+  // Catches every exception thrown inside a route handler, returns the
+  // standard JSON envelope and writes the failure to logs/error-<date>.log
+  app.useGlobalFilters(new AllExceptionsFilter());
+
+  // Flush buffered logs when the process is asked to stop
+  app.enableShutdownHooks();
 
   // ─── Swagger Documentation ────────────────────────────────────────────────
   const config = new DocumentBuilder()
@@ -75,7 +131,7 @@ async function bootstrap() {
         type: 'apiKey',
         in: 'header',
         name: 'x-user-role',
-        description: 'User role for RBAC (superuser, administrative_staff, patient, ambulance, doctor, nurse)',
+        description: 'User role for RBAC (superuser, administrative_staff, patient, ambulance, regional_manager, hospital_manager)',
       },
       'x-user-role',
     )
@@ -120,9 +176,20 @@ async function bootstrap() {
     customSiteTitle: 'NexCare API Documentation',
   });
 
+  // ─── Express-level error handling ─────────────────────────────────────────
+  // These have to be registered after the routes are mounted, which is what
+  // init() does — hence init() here and listen() below. They catch what the
+  // Nest exception filter cannot see: body-parser failures, errors thrown by
+  // middleware, and requests for routes that do not exist.
+  await app.init();
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.use(notFoundMiddleware);
+  expressApp.use(errorHandlerMiddleware);
+
   // ─── Binding ──────────────────────────────────────────────────────────────
   const port = process.env.PORT || 3001;
   await app.listen(port, '0.0.0.0');
+  fileLogger.info('app', 'Application started', { port: Number(port), pid: process.pid });
 
   // Show all accessible URLs
   const { networkInterfaces } = require('os');
@@ -143,17 +210,33 @@ async function bootstrap() {
   console.log(`🏥 NexCare Hospital Management System\n`);
 }
 
-// Handle uncaught exceptions
+// Handle uncaught exceptions — record them before the process dies
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
+  fileLogger.error('Uncaught exception', { name: error.name, detail: error.message, stack: error.stack });
+  fileLogger.stop(); // synchronous flush
   process.exit(1);
 });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection reason:', reason);
+  fileLogger.error('Unhandled promise rejection', {
+    detail: reason instanceof Error ? reason.message : String(reason),
+    stack: reason instanceof Error ? reason.stack : undefined,
+  });
+  fileLogger.stop();
   process.exit(1);
 });
+
+// Write out anything still buffered on a normal shutdown
+for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+  process.on(signal, () => {
+    fileLogger.info('app', 'Process signal received', { signal });
+    fileLogger.stop();
+    process.exit(0);
+  });
+}
 
 // Start the application
 bootstrap();
