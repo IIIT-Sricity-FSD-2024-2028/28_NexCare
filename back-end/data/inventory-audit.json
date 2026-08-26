@@ -1,0 +1,72 @@
+[
+  {
+    "id": "AUD-10001",
+    "itemId": "INV-001",
+    "action": "restock",
+    "quantityBefore": 300,
+    "quantityAfter": 500,
+    "userId": "U002",
+    "timestamp": "2026-03-15T09:30:00.000Z",
+    "notes": "Initial quarterly replenishment"
+  },
+  {
+    "id": "AUD-10002",
+    "itemId": "INV-002",
+    "action": "restock",
+    "quantityBefore": 1000,
+    "quantityAfter": 2000,
+    "userId": "U002",
+    "timestamp": "2026-03-20T11:15:00.000Z",
+    "notes": "Surgical batch restock"
+  },
+  {
+    "id": "AUD-10003",
+    "itemId": "INV-003",
+    "action": "use",
+    "quantityBefore": 200,
+    "quantityAfter": 150,
+    "userId": "U003",
+    "timestamp": "2026-03-22T14:45:00.000Z",
+    "notes": "Dispatched to ER Ward B"
+  },
+  {
+    "id": "AUD-18894",
+    "itemId": "INV-001",
+    "action": "restock",
+    "quantityBefore": 500,
+    "quantityAfter": 600,
+    "userId": "U002",
+    "timestamp": "2026-08-24T16:03:07.667Z"
+  },
+  {
+    "id": "AUD-85594",
+    "itemId": "INV-001",
+    "action": "restock",
+    "quantityBefore": 600,
+    "quantityAfter": 650,
+    "userId": "U002",
+    "timestamp": "2026-08-24T16:03:33.431Z"
+  },
+  {
+    "id": "AUD-48851",
+    "itemId": "INV-002",
+    "action": "restock",
+    "quantityBefore": 2000,
+    "quantityAfter": 2015,
+    "statusBefore": "In Stock",
+    "statusAfter": "In Stock",
+    "userId": "U002",
+    "timestamp": "2026-08-24T17:17:11.137Z"
+  },
+  {
+    "id": "AUD-31152",
+    "itemId": "INV-002",
+    "action": "use",
+    "quantityBefore": 2015,
+    "quantityAfter": 2005,
+    "statusBefore": "In Stock",
+    "statusAfter": "In Stock",
+    "userId": "U002",
+    "timestamp": "2026-08-24T17:17:25.507Z"
+  }
+]

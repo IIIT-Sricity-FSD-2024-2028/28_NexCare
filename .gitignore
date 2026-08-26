@@ -4,3 +4,4 @@ front-end/node_modules/
 .env
 *.log
 
+back-end/dist/
