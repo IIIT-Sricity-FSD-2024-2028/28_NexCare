@@ -102,3 +102,12 @@ export enum InventoryStatus {
   LOW_STOCK = 'Low Stock',
   OUT_OF_STOCK = 'Out of Stock'
 }
+
+/**
+ * Leave Status Enumeration
+ */
+export enum LeaveStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected'
+}
