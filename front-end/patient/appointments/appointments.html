@@ -26,9 +26,9 @@
             var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
             var payload = token ? decodeJWT(token) : null;
             var now = Math.floor(Date.now() / 1000);
-            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'patient') {
+            if (!payload || (payload.exp && now > payload.exp) || (payload.role !== 'patient' && payload.role !== 'doctor')) {
                 sessionStorage.clear();
-                window.location.replace('../auth/login.html');
+                window.location.replace('/auth/login.html');
             }
             // Sync legacy keys so other inline scripts don't break
             if (payload) {

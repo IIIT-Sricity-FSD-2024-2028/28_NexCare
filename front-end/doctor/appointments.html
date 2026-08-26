@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCare - Doctor Patient Appointments</title>
+    <link rel="stylesheet" href="../patient/styles.css">
+    <script>
+        // JWT-based early auth guard
+        (function () {
+            function decodeJWT(token) {
+                try {
+                    var parts = token.split('.');
+                    if (parts.length !== 3) return null;
+                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(json);
+                } catch(e) { return null; }
+            }
+            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            var payload = token ? decodeJWT(token) : null;
+            var now = Math.floor(Date.now() / 1000);
+            if (!payload || (payload.exp && now > payload.exp) || (payload.role !== 'doctor' && payload.role !== 'superuser')) {
+                sessionStorage.clear();
+                window.location.replace('/auth/login.html');
+            }
+            if (payload) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('nexcare_current_role', payload.role);
+            }
+        })();
+    </script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="dashboard.html" aria-label="NexCare Doctor Portal Home">
+            <nex-care-logo></nex-care-logo>
+            <span class="sidebar-brand-subtitle">Doctor Portal</span>
+        </a>
+
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect width="8" height="8" x="2" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="2" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="12" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="12" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="appointments.html" class="nav-item active">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M6.667 1.667v3.333M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.917 7.5h14.166" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="2.5" y="3.333" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.667"/>
+                </svg>
+                <span>Appointments</span>
+            </a>
+            <a href="leaves.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M3 8h14" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M7 11h2M11 11h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Leave Management</span>
+            </a>
+            <a href="#" onclick="sessionStorage.clear(); localStorage.removeItem('nexcare_currentUser'); window.location.href='../landing/landing.html'; return false;" class="nav-item nav-logout">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M13 15l5-5-5-5M18 10H8M12 5v-.5a2 2 0 00-2-2H4a2 2 0 00-2 2v11a2 2 0 002 2h6a2 2 0 002-2V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Logout</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 style="font-size: 22px; font-weight: 700; color: #111827; margin: 0;">Patient Appointments Schedule</h1>
+                <p style="font-size: 14px; color: #6B7280; margin: 4px 0 0 0;">View and manage consultations assigned to your medical speciality</p>
+            </div>
+
+            <!-- Doctor Selector / Switcher -->
+            <div style="display: flex; align-items: center; gap: 12px; background: #F3F4F6; padding: 8px 14px; border-radius: 10px; border: 1px solid #E5E7EB;">
+                <label for="doctorSelect" style="font-size: 13px; font-weight: 600; color: #374151; white-space: nowrap;">👨‍⚕️ Select Doctor:</label>
+                <select id="doctorSelect" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #D1D5DB; font-weight: 600; color: #111827; background: #FFFFFF; cursor: pointer; outline: none;">
+                    <option value="U005" selected>Dr. Sarah Smith (Cardiology)</option>
+                    <option value="U006">Dr. Vikram Patel (Orthopaedics)</option>
+                    <option value="U007">Dr. Anjali Desai (General Medicine)</option>
+                    <option value="U010">Dr. Priya Nair (Paediatrics)</option>
+                    <option value="U011">Dr. Rajesh Khanna (Neurology)</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- Doctor Banner & Specialty Card -->
+        <section style="background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: white; padding: 24px 32px; border-radius: 16px; margin: 24px 0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 14px rgba(30, 64, 175, 0.2);">
+            <div>
+                <span id="activeDeptBadge" style="background: rgba(255,255,255,0.25); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">CARDIOLOGY SPECIALTY</span>
+                <h2 id="activeDoctorName" style="font-size: 24px; font-weight: 700; margin: 8px 0 4px 0;">Dr. Sarah Smith</h2>
+                <p id="activeDoctorHospital" style="font-size: 14px; opacity: 0.9; margin: 0;">NexCare AIIMS Super Speciality Hospital — Outpatient Consultation Department</p>
+            </div>
+            <div style="text-align: right; background: rgba(255,255,255,0.15); padding: 12px 20px; border-radius: 12px; backdrop-filter: blur(4px);">
+                <div style="font-size: 12px; opacity: 0.85;">TODAY'S SPECIALTY SLOT</div>
+                <div style="font-size: 18px; font-weight: 700;">09:00 AM - 05:00 PM</div>
+            </div>
+        </section>
+
+        <!-- Stats Overview Cards -->
+        <section class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <div class="stat-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <p style="font-size: 13px; color: #6B7280; margin: 0 0 4px 0;">Total Patients</p>
+                    <h3 id="statTotal" style="font-size: 28px; font-weight: 700; color: #111827; margin: 0;">0</h3>
+                </div>
+                <div style="background: #EFF6FF; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">👥</div>
+            </div>
+
+            <div class="stat-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <p style="font-size: 13px; color: #6B7280; margin: 0 0 4px 0;">Confirmed Slots</p>
+                    <h3 id="statConfirmed" style="font-size: 28px; font-weight: 700; color: #2563EB; margin: 0;">0</h3>
+                </div>
+                <div style="background: #DBEAFE; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">✅</div>
+            </div>
+
+            <div class="stat-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <p style="font-size: 13px; color: #6B7280; margin: 0 0 4px 0;">Completed Consults</p>
+                    <h3 id="statCompleted" style="font-size: 28px; font-weight: 700; color: #059669; margin: 0;">0</h3>
+                </div>
+                <div style="background: #D1FAE5; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🩺</div>
+            </div>
+
+            <div class="stat-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <p style="font-size: 13px; color: #6B7280; margin: 0 0 4px 0;">Pending / Waiting</p>
+                    <h3 id="statPending" style="font-size: 28px; font-weight: 700; color: #D97706; margin: 0;">0</h3>
+                </div>
+                <div style="background: #FEF3C7; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">⏳</div>
+            </div>
+        </section>
+
+        <!-- Appointments Management Table Section -->
+        <section class="section-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 24px;">
+            <!-- Filter Bar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
+                <div style="display: flex; gap: 12px; flex: 1; min-width: 280px;">
+                    <input type="text" id="searchInput" placeholder="🔍 Search patient name, phone, or token..." style="flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid #D1D5DB; font-size: 14px; outline: none;">
+                </div>
+                
+                <div style="display: flex; gap: 12px;">
+                    <select id="statusFilter" style="padding: 10px 14px; border-radius: 8px; border: 1px solid #D1D5DB; font-size: 14px; font-weight: 500; outline: none; background: #FFF; cursor: pointer;">
+                        <option value="all">All Statuses</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Patient Appointments Table -->
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #F9FAFB; border-bottom: 2px solid #E5E7EB;">
+                            <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 700; color: #374151;">Token</th>
+                            <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 700; color: #374151;">Patient Details</th>
+                            <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 700; color: #374151;">Speciality & Doctor</th>
+                            <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 700; color: #374151;">Date & Time Slot</th>
+                            <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 700; color: #374151;">Reason / Symptoms</th>
+                            <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 700; color: #374151;">Status</th>
+                            <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 700; color: #374151;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="doctorAppointmentsTbody">
+                        <!-- Rendered dynamically by appointments.js -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Consultation Details Modal -->
+    <div id="consultModal" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;">
+        <div style="background: #FFF; border-radius: 16px; max-width: 520px; width: 90%; padding: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #E5E7EB; padding-bottom: 12px;">
+                <h3 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0;">Patient Consultation Summary</h3>
+                <button onclick="closeConsultModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6B7280;">&times;</button>
+            </div>
+            <div id="consultModalBody" style="font-size: 14px; color: #374151; line-height: 1.6;">
+                <!-- Populated dynamically -->
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px solid #E5E7EB;">
+                <button onclick="closeConsultModal()" style="padding: 8px 16px; border-radius: 8px; border: 1px solid #D1D5DB; background: #FFF; font-weight: 600; cursor: pointer;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../logo.js"></script>
+    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script src="appointments.js?v=1"></script>
+</body>
+</html>

@@ -3,10 +3,14 @@ back-end/node_modules/
 front-end/node_modules/
 .env
 
-# Runtime log files — the folder is kept, the logs themselves are not committed
-back-end/logs/*.log
+# Log files (runtime logs are written to back-end/logs — the folder is kept,
+# the .log files themselves are not committed)
+*.log
 back-end/logs/*.log.*
 
 # Uploaded documents — user content, not source
 back-end/uploads/*
 !back-end/uploads/.gitkeep
+
+# Second clone of this repo that used to live here — never commit it
+28_NexCare/

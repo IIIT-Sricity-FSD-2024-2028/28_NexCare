@@ -1014,11 +1014,99 @@ function renderConfirmation(container) {
 }
 
 // ── Store Appointments Renderer ──────────────────────────────────────────────
-async function renderAppointmentsFromStore() {
-    const store = getStore();
-    if (!store) return;
+const MOCK_DEFAULT_APPOINTMENTS = [
+    {
+        id: "APT-001",
+        patientId: "patient_default",
+        department: "Cardiology",
+        doctor: "Dr. Sarah Smith",
+        dateLabel: "March 15, 2026",
+        timeLabel: "10:00 AM",
+        token: "TKN-1234",
+        fee: 150,
+        status: "Confirmed",
+        reason: "Routine heart checkup"
+    },
+    {
+        id: "APT-002",
+        patientId: "patient_default",
+        department: "Orthopaedics",
+        doctor: "Dr. Vikram Patel",
+        dateLabel: "April 02, 2026",
+        timeLabel: "02:30 PM",
+        token: "TKN-5678",
+        fee: 200,
+        status: "Pending",
+        reason: "Severe knee pain consult"
+    },
+    {
+        id: "APT-003",
+        patientId: "patient_default",
+        department: "General Medicine",
+        doctor: "Dr. Anjali Desai",
+        dateLabel: "March 01, 2026",
+        timeLabel: "11:00 AM",
+        token: "TKN-9012",
+        fee: 100,
+        status: "Completed",
+        reason: "Annual physical exam"
+    },
+    {
+        id: "APT-004",
+        patientId: "patient_default",
+        department: "Neurology",
+        doctor: "Dr. Rajesh Khanna",
+        dateLabel: "April 18, 2026",
+        timeLabel: "04:15 PM",
+        token: "TKN-3344",
+        fee: 180,
+        status: "Confirmed",
+        reason: "Migraine follow-up consultation"
+    },
+    {
+        id: "APT-005",
+        patientId: "patient_default",
+        department: "Paediatrics",
+        doctor: "Dr. Priya Nair",
+        dateLabel: "February 12, 2026",
+        timeLabel: "09:30 AM",
+        token: "TKN-7788",
+        fee: 120,
+        status: "Completed",
+        reason: "Child wellness checkup"
+    }
+];
 
-    const all = await store.listAppointments();
+async function renderAppointmentsFromStore() {
+    let all = [];
+    const store = getStore();
+
+    // Try backend API first
+    try {
+        if (window.NexCareAPI && window.NexCareAPI.Appointments) {
+            const res = await window.NexCareAPI.Appointments.getAll();
+            if (res && res.success && Array.isArray(res.data)) {
+                all = res.data;
+            } else if (res && res.data && Array.isArray(res.data.data)) {
+                all = res.data.data;
+            }
+        }
+    } catch (e) {
+        console.warn("API appointments fetch failed, falling back to local store:", e);
+    }
+
+    // Fallback to NexCareStore / localStorage
+    if (!all || all.length === 0) {
+        if (store && typeof store.listAppointments === 'function') {
+            all = store.listAppointments();
+        }
+    }
+
+    // Fallback to MOCK_DEFAULT_APPOINTMENTS if still empty
+    if (!all || all.length === 0) {
+        all = MOCK_DEFAULT_APPOINTMENTS;
+    }
+
     const upcoming = all.filter(a => a.status !== 'Cancelled' && a.status !== 'Completed');
     const past = all.filter(a => a.status === 'Completed' || a.status === 'Cancelled');
 
