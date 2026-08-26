@@ -13,10 +13,11 @@ export declare class InventoryController {
     findByCategory(category: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findByLocation(location: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     search(query: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    getAuditTrail(itemId: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     update(id: string, updateInventoryDto: UpdateInventoryDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     patchUpdate(id: string, updateInventoryDto: UpdateInventoryDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     delete(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     restock(id: string, restockDto: RestockInventoryDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
-    useItem(id: string, quantity: number): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    useItem(id: string, body: any): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
 }

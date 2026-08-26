@@ -32,6 +32,10 @@ export interface UpdateInventoryRequest {
 export interface RestockRequest {
     quantity: number;
     notes?: string;
+    supplier?: string;
+    batchNumber?: string;
+    expiryDate?: string;
+    restockedBy?: string;
 }
 export interface InventoryStats {
     total: number;
@@ -42,4 +46,16 @@ export interface InventoryStats {
     byCategory: Record<string, number>;
     byLocation: Record<string, number>;
     totalValue: number;
+}
+export interface InventoryAudit {
+    id: string;
+    itemId: string;
+    action: 'restock' | 'use';
+    quantityBefore: number;
+    quantityAfter: number;
+    statusBefore: InventoryStatus;
+    statusAfter: InventoryStatus;
+    userId: string;
+    timestamp: string;
+    notes?: string;
 }

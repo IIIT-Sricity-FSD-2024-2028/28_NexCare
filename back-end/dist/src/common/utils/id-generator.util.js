@@ -38,6 +38,9 @@ class IdGenerator {
     static generateTokenId() {
         return this.generate('TKN-');
     }
+    static generateAuditId() {
+        return this.generate('AUD-');
+    }
 }
 exports.IdGenerator = IdGenerator;
 //# sourceMappingURL=id-generator.util.js.map

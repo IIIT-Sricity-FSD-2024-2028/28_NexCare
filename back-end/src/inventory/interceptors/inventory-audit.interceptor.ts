@@ -57,13 +57,19 @@ export class InventoryAuditInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap((resData) => {
+        // Only record audit log if the operation succeeded and an item was targeted
+        if (!resData || resData.success === false || !itemId || !itemBefore) {
+          return;
+        }
+
         // Capture after state from result or state lookup
-        const afterItem = resData?.data || (itemId ? this.inventoryService.getRawItem(itemId) : undefined);
-        const quantityAfter =
-          afterItem && typeof afterItem.quantity === 'number'
-            ? afterItem.quantity
-            : quantityBefore;
-        const statusAfter = afterItem?.status || statusBefore;
+        const afterItem = resData?.data || this.inventoryService.getRawItem(itemId);
+        if (!afterItem || typeof afterItem.quantity !== 'number') {
+          return;
+        }
+
+        const quantityAfter = afterItem.quantity;
+        const statusAfter = afterItem.status || statusBefore;
 
         const auditEntry: InventoryAudit = {
           id: auditId,
@@ -83,3 +89,4 @@ export class InventoryAuditInterceptor implements NestInterceptor {
     );
   }
 }
+

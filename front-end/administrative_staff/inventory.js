@@ -1,4 +1,13 @@
-import { validateInventoryUpdate } from "./validation.js";
+// ---------------- HTML ESCAPE HELPER ----------------
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
 
 // ---------------- API HELPER ----------------
 function apiGet(path) {
@@ -8,6 +17,7 @@ function apiGet(path) {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
     }).then(r => r.json());
 }
+
 
 function apiRequest(method, path, body) {
     const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
@@ -86,11 +96,16 @@ function render() {
         const statusText = getStatus(item.qty, item.minStock);
         const statusClass = getStatusClass(statusText);
         const safeId = String(item.id).replaceAll("'", "\\'");
+        const escapedName = escapeHtml(item.name);
+        const escapedCategory = escapeHtml(item.category);
+        const escapedId = escapeHtml(item.id);
+        const escapedStatusText = escapeHtml(statusText);
+
         return `
         <tr>
             <td>
-                <strong style="color:#1e293b;">${item.name}</strong>
-                <div style="font-size:12px;color:#6b7280;">${item.category} • ${item.id}</div>
+                <strong style="color:#1e293b;">${escapedName}</strong>
+                <div style="font-size:12px;color:#6b7280;">${escapedCategory} • ${escapedId}</div>
             </td>
             <td>
                 <span style="font-size:15px;font-weight:600;">${item.qty}</span>
@@ -98,7 +113,7 @@ function render() {
             </td>
             <td>
                 <span class="status ${statusClass}">
-                    ${statusText}
+                    ${escapedStatusText}
                 </span>
             </td>
             <td>
@@ -115,8 +130,6 @@ function render() {
     updateStats();
 }
 
-
-
 // ---------------- STATS ----------------
 function updateStats() {
     const totalEl = document.getElementById("totalItems");
@@ -130,14 +143,15 @@ function updateStats() {
 
 // ---------------- SEARCH ----------------
 function applySearch() {
-    const value = document.getElementById("searchInput")?.value.toLowerCase() || "";
+    const value = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
     filteredInventory = inventory.filter(i => 
-        i.name.toLowerCase().includes(value) || 
-        i.category.toLowerCase().includes(value) ||
-        i.id.toLowerCase().includes(value)
+        String(i.name || "").toLowerCase().includes(value) || 
+        String(i.category || "").toLowerCase().includes(value) ||
+        String(i.id || "").toLowerCase().includes(value)
     );
     render();
 }
+
 
 // ---------------- EDIT / CREATE MODAL ----------------
 window.editItem = (id) => {
@@ -442,21 +456,25 @@ window.openAuditHistoryModal = async (id) => {
             const diff = (entry.quantityAfter ?? 0) - (entry.quantityBefore ?? 0);
             const changeStr = diff >= 0 ? `+${diff}` : `${diff}`;
             const changeColor = diff >= 0 ? '#16a34a' : '#dc2626';
+            const escapedDateStr = escapeHtml(dateStr);
+            const escapedUserId = escapeHtml(entry.userId || 'ADMIN');
+            const escapedNotes = escapeHtml(entry.notes || '-');
 
             return `
                 <tr>
-                    <td style="font-size:12px;white-space:nowrap;color:#4b5563;">${dateStr}</td>
+                    <td style="font-size:12px;white-space:nowrap;color:#4b5563;">${escapedDateStr}</td>
                     <td>
                         <span class="status ${badgeClass}" style="font-size:11px;font-weight:600;">${actionLabel}</span>
                     </td>
-                    <td style="font-weight:500;">${entry.quantityBefore ?? '-'}</td>
+                    <td style="font-weight:500;">${Number(entry.quantityBefore ?? 0)}</td>
                     <td style="font-weight:700;color:${changeColor};">${changeStr}</td>
-                    <td style="font-weight:600;color:#1e293b;">${entry.quantityAfter ?? '-'}</td>
-                    <td style="font-size:12px;color:#6b7280;">${entry.userId || 'ADMIN'}</td>
-                    <td style="font-size:12px;color:#6b7280;">${entry.notes || '-'}</td>
+                    <td style="font-weight:600;color:#1e293b;">${Number(entry.quantityAfter ?? 0)}</td>
+                    <td style="font-size:12px;color:#6b7280;">${escapedUserId}</td>
+                    <td style="font-size:12px;color:#6b7280;">${escapedNotes}</td>
                 </tr>
             `;
         }).join("");
+
     } catch (err) {
         console.error("Failed to load audit trail:", err);
         if (tableBody) tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:#dc2626;">Failed to load audit history.</td></tr>`;

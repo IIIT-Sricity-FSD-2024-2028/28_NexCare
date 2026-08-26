@@ -5,15 +5,49 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InventoryService = void 0;
+const fs = require("fs");
+const path = require("path");
 const common_1 = require("@nestjs/common");
 const response_util_1 = require("../common/utils/response.util");
 const id_generator_util_1 = require("../common/utils/id-generator.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 let InventoryService = class InventoryService {
     constructor() {
-        this.inventory = [
+        this.inventoryFilePath = path.join(process.cwd(), 'data', 'inventory.json');
+        this.inventory = [];
+        this.auditFilePath = path.join(process.cwd(), 'data', 'inventory-audit.json');
+        this.inventory = this.loadInventory();
+    }
+    loadInventory() {
+        try {
+            if (!fs.existsSync(this.inventoryFilePath)) {
+                const initial = this.getInitialMockData();
+                this.saveInventory(initial);
+                return initial;
+            }
+            const raw = fs.readFileSync(this.inventoryFilePath, 'utf-8');
+            return JSON.parse(raw);
+        }
+        catch {
+            return this.getInitialMockData();
+        }
+    }
+    saveInventory(items) {
+        try {
+            fs.mkdirSync(path.dirname(this.inventoryFilePath), { recursive: true });
+            fs.writeFileSync(this.inventoryFilePath, JSON.stringify(items, null, 2), 'utf-8');
+        }
+        catch (err) {
+            console.error('Failed to persist inventory:', err);
+        }
+    }
+    getInitialMockData() {
+        return [
             {
                 id: 'INV-001',
                 name: 'Paracetamol',
@@ -193,6 +227,7 @@ let InventoryService = class InventoryService {
                 updatedAt: new Date().toISOString()
             };
             this.inventory.push(newItem);
+            this.saveInventory(this.inventory);
             return response_util_1.ResponseUtil.created('Inventory item created successfully', newItem);
         }
         catch (error) {
@@ -222,6 +257,7 @@ let InventoryService = class InventoryService {
                 }
             }
             this.inventory[itemIndex] = updatedItem;
+            this.saveInventory(this.inventory);
             return response_util_1.ResponseUtil.updated('Inventory item updated successfully', updatedItem);
         }
         catch (error) {
@@ -235,6 +271,7 @@ let InventoryService = class InventoryService {
                 return response_util_1.ResponseUtil.notFound('Inventory item', id);
             }
             this.inventory.splice(itemIndex, 1);
+            this.saveInventory(this.inventory);
             return response_util_1.ResponseUtil.deleted('Inventory item');
         }
         catch (error) {
@@ -260,13 +297,14 @@ let InventoryService = class InventoryService {
             else {
                 item.status = api_response_interface_1.InventoryStatus.IN_STOCK;
             }
+            this.saveInventory(this.inventory);
             return response_util_1.ResponseUtil.updated('Item restocked successfully', item);
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to restock item');
         }
     }
-    async useItem(id, quantity) {
+    async useItem(id, quantity, notes) {
         try {
             const itemIndex = this.inventory.findIndex(i => i.id === id);
             if (itemIndex === -1) {
@@ -287,6 +325,7 @@ let InventoryService = class InventoryService {
             else {
                 item.status = api_response_interface_1.InventoryStatus.IN_STOCK;
             }
+            this.saveInventory(this.inventory);
             return response_util_1.ResponseUtil.updated('Item used successfully', item);
         }
         catch (error) {
@@ -373,9 +412,51 @@ let InventoryService = class InventoryService {
             return response_util_1.ResponseUtil.serverError('Failed to search inventory');
         }
     }
+    loadAuditLogs() {
+        try {
+            if (!fs.existsSync(this.auditFilePath)) {
+                return [];
+            }
+            const raw = fs.readFileSync(this.auditFilePath, 'utf-8');
+            return JSON.parse(raw);
+        }
+        catch {
+            return [];
+        }
+    }
+    saveAuditLogs(logs) {
+        try {
+            fs.mkdirSync(path.dirname(this.auditFilePath), { recursive: true });
+            fs.writeFileSync(this.auditFilePath, JSON.stringify(logs, null, 2), 'utf-8');
+        }
+        catch (err) {
+            console.error('Failed to persist inventory audit logs:', err);
+        }
+    }
+    recordAuditEntry(entry) {
+        const logs = this.loadAuditLogs();
+        logs.push(entry);
+        this.saveAuditLogs(logs);
+    }
+    async getAuditTrail(itemId) {
+        try {
+            const logs = this.loadAuditLogs();
+            const itemLogs = logs
+                .filter(entry => entry.itemId === itemId)
+                .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+            return response_util_1.ResponseUtil.success('Inventory audit trail retrieved successfully', itemLogs);
+        }
+        catch (error) {
+            return response_util_1.ResponseUtil.serverError('Failed to retrieve inventory audit trail');
+        }
+    }
+    getRawItem(id) {
+        return this.inventory.find(i => i.id === id);
+    }
 };
 exports.InventoryService = InventoryService;
 exports.InventoryService = InventoryService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [])
 ], InventoryService);
 //# sourceMappingURL=inventory.service.js.map

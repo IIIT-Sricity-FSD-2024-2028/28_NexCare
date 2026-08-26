@@ -3391,6 +3391,35 @@
         ]
       }
     },
+    "/api/inventory/audit/{itemId}": {
+      "get": {
+        "operationId": "InventoryController_getAuditTrail",
+        "summary": "Get inventory audit trail for an item",
+        "parameters": [
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Audit trail retrieved"
+          }
+        },
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
     "/api/inventory/{id}": {
       "get": {
         "operationId": "InventoryController_findById",

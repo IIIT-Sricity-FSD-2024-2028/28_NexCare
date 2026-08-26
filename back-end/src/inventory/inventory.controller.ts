@@ -193,9 +193,10 @@ export class InventoryController {
   @ApiOperation({ summary: 'Consume/use an inventory item' })
   @ApiResponse({ status: 200, description: 'Item consumed successfully' })
   async useItem(@Param('id') id: string, @Body() body: any) {
-    const quantity = typeof body === 'number' ? body : (body?.quantity ? Number(body.quantity) : 1);
+    const quantity = typeof body === 'number' ? body : Number(body?.quantity);
     return this.inventoryService.useItem(id, quantity, body?.notes);
   }
 }
+
 
 
