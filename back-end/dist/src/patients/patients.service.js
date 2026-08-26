@@ -110,7 +110,7 @@ let PatientsService = class PatientsService {
             if (existingPhone) {
                 return response_util_1.ResponseUtil.error('Phone number already exists');
             }
-            const newPatientId = id_generator_util_1.IdGenerator.generatePatientId();
+            const newPatientId = patientData.id || id_generator_util_1.IdGenerator.generatePatientId();
             const currentYear = new Date().getFullYear();
             const randomNumber = Math.floor(Math.random() * 9000 + 1000);
             const newPatient = {
@@ -123,6 +123,9 @@ let PatientsService = class PatientsService {
                 status: 'Active',
                 bloodGroup: patientData.bloodGroup || 'Unknown',
                 age: patientData.age || 0,
+                ...(patientData.city ? { city: patientData.city } : {}),
+                ...(patientData.state ? { state: patientData.state } : {}),
+                ...(patientData.pincode ? { pincode: patientData.pincode } : {}),
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };

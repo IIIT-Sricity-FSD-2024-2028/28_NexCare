@@ -62,7 +62,7 @@ export class AmbulanceController {
    * Get all ambulance requests with optional filtering
    */
   @Get()
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT, UserRole.REGIONAL_MANAGER)
   @ApiOperation({ summary: 'Get all ambulance requests (patients: only their own)' })
   @ApiQuery({ name: 'patientId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: AmbulanceStatus })

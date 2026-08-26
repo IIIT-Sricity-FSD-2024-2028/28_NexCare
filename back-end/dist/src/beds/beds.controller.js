@@ -75,6 +75,7 @@ let BedsController = class BedsController {
 };
 exports.BedsController = BedsController;
 __decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.REGIONAL_MANAGER),
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all beds' }),
     (0, swagger_1.ApiQuery)({ name: 'ward', required: false }),

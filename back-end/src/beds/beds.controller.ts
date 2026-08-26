@@ -41,6 +41,8 @@ export class BedsController {
   /**
    * Get all beds with optional filtering
    */
+  // Regional Officers get read-only oversight; the client scopes to one hospital.
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER)
   @Get()
   @ApiOperation({ summary: 'Get all beds' })
   @ApiQuery({ name: 'ward', required: false })

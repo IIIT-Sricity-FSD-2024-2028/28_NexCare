@@ -111,18 +111,22 @@ Admin/superuser, one level above a single hospital's staff.
 Explicitly **not** allowed: `PATCH /hospitals/:id/assign-manager` — assigning a
 hospital manager is superuser-only.
 
-**Frontend today (`front-end/regional-officer/`):**
+**Frontend (`front-end/regional-officer/`):**
 
 - `dashboard.html` — four KPI tiles (Assigned Hospitals, Total Doctors, Available
-  Beds, Low Stock Items) plus a "Hospitals Under Me" table.
+  Beds, Low Stock Items) plus a "Hospitals Under Me" table with occupancy.
 - `hospital-details.html` — read-only drill-down, five tabs: Overview, Staff &
   Doctors, Beds & Wards, Inventory, Ambulances.
-- Login at `auth/regional-officer-login.html`. Sidebar has a single link.
+- `hospital-approvals.html` — approve/reject pending hospital registrations.
+- `support-requests.html` — triage requests and advance their status.
+- Login at `auth/regional-officer-login.html`.
 
-**Known gap:** the backend grants verify/reject on hospital registrations, but the
-regional officer UI has no button for it — `dashboard.js` only calls
-`Hospitals.getAll()`. Today that approval flow only exists in the superuser's
-`hospital-registrations.html`. This is unbuilt UI, not a bug.
+**Read access is scoped, writes are not granted.** `GET /users` filters server-side
+to the hospitals assigned to the officer (`users.controller.ts`), so they never see
+staff elsewhere. `beds`, `inventory` and `ambulance` grant read via method-level
+`@Roles` and are scoped client-side — the same posture `administrative_staff` already
+had. Method-level `@Roles` fully overrides the class-level decorator (the guard uses
+`getAllAndOverride`), which is how read access was added without granting writes.
 
 ---
 
@@ -158,14 +162,22 @@ Backend role source of truth: `back-end/src/common/interfaces/api-response.inter
 
   ```bash
   cd back-end
-  npm run build                                             # dist/
-  npx ts-node generate-swagger.ts | grep -o '{"openapi".*'  # docs/swagger.json
+  npm run build      # dist/
+  npm run start:prod # main.ts:164 rewrites docs/swagger.json on every boot
   ```
 
-  `generate-swagger.ts` only prints the document to stdout, mixed in with Nest's
-  startup logs — hence the grep. Pipe it through
-  `python3 -c "import json,sys; json.dump(json.load(sys.stdin), open('docs/swagger.json','w'), indent=2, ensure_ascii=False)"`;
-  `ensure_ascii=False` matters or unicode in summaries gets mangled into `\uXXXX`.
+  **Just start the server to regenerate the docs.** `main.ts` writes
+  `docs/swagger.json` during bootstrap, so it is always current after a run — and it
+  is the authoritative version.
+
+  There is also a standalone `generate-swagger.ts`, but prefer the server. It only
+  prints to stdout mixed in with Nest's startup logs (so it needs a
+  `| grep -o '{"openapi".*'`), and it emits the same 106 paths in a *different key
+  order*, which produces a large meaningless diff. Both are equivalent in content.
+
+  Because the server rewrites this file on boot, **running the backend dirties
+  `docs/swagger.json`** — expect it in `git status` and check the diff is real before
+  committing.
 
 ### Gotcha: login rewrites the password before authorising
 

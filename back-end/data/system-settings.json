@@ -1,0 +1,42 @@
+[
+  {
+    "id": "SET-001",
+    "key": "hospitalName",
+    "value": "NexCare Hospital",
+    "description": "Hospital name for display purposes",
+    "category": "General",
+    "updatedAt": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": "SET-002",
+    "key": "maxAppointmentsPerDay",
+    "value": "50",
+    "description": "Maximum number of appointments allowed per day",
+    "category": "Appointments",
+    "updatedAt": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": "SET-003",
+    "key": "emergencyContact",
+    "value": "911",
+    "description": "Emergency contact number",
+    "category": "Emergency",
+    "updatedAt": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": "SET-004",
+    "key": "appointmentReminderHours",
+    "value": "24",
+    "description": "Hours before appointment to send reminder",
+    "category": "Appointments",
+    "updatedAt": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": "SET-005",
+    "key": "lowStockThreshold",
+    "value": "20",
+    "description": "Percentage threshold for low stock alerts",
+    "category": "Inventory",
+    "updatedAt": "2026-01-01T00:00:00Z"
+  }
+]

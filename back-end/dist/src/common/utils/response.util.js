@@ -35,13 +35,18 @@ class ResponseUtil {
         return this.error(message);
     }
     static created(resource, data) {
-        return this.success(`${resource} created successfully`, data);
+        return this.success(this.phrase(resource, 'created'), data);
     }
     static updated(resource, data) {
-        return this.success(`${resource} updated successfully`, data);
+        return this.success(this.phrase(resource, 'updated'), data);
     }
     static deleted(resource) {
-        return this.success(`${resource} deleted successfully`);
+        return this.success(this.phrase(resource, 'deleted'));
+    }
+    static phrase(resource, verb) {
+        return /successfully\s*$/i.test(resource)
+            ? resource
+            : `${resource} ${verb} successfully`;
     }
 }
 exports.ResponseUtil = ResponseUtil;

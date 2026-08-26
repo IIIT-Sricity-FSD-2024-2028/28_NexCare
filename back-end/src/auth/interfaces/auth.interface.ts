@@ -19,6 +19,9 @@ export interface RegisterRequest {
   phone: string;
   bloodGroup?: string;
   age?: number;
+  city?: string;
+  state?: string;
+  pincode?: string;
 }
 
 /**

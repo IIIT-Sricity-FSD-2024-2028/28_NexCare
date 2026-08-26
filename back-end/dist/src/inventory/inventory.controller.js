@@ -75,6 +75,7 @@ let InventoryController = class InventoryController {
 };
 exports.InventoryController = InventoryController;
 __decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.REGIONAL_MANAGER),
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all inventory items' }),
     (0, swagger_1.ApiQuery)({ name: 'category', required: false }),

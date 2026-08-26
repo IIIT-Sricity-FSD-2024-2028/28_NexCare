@@ -6,6 +6,7 @@ export interface Equipment {
     hospitalId: string;
 }
 export declare class EquipmentService {
-    private equipment;
+    private readonly store;
+    private static seed;
     findAll(hospitalId?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
 }

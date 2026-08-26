@@ -1,0 +1,527 @@
+[
+  {
+    "id": "E1",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Ramesh Kumar",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "E2",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Sita Devi",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "E3",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "E4",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Arun Prasad",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "G1",
+    "ward": "General",
+    "status": "critical",
+    "patient": "Fatima Begum",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "G2",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Joseph Thomas",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "G3",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Lalitha Rao",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "G4",
+    "ward": "General",
+    "status": "maintenance",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "G5",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Vikram Singh",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "G6",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Nandini Shetty",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "G7",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Imran Khan",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "G8",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Geetha Menon",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "G9",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Prakash Jain",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "G10",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "I1",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Sunita Yadav",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "I2",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Ramesh Kumar",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "I3",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "I4",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "M1",
+    "ward": "Maternity",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "M2",
+    "ward": "Maternity",
+    "status": "occupied",
+    "patient": "Sita Devi",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "M3",
+    "ward": "Maternity",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "M4",
+    "ward": "Maternity",
+    "status": "occupied",
+    "patient": "Arun Prasad",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "P1",
+    "ward": "Paediatrics",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "P2",
+    "ward": "Paediatrics",
+    "status": "occupied",
+    "patient": "Fatima Begum",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "P3",
+    "ward": "Paediatrics",
+    "status": "occupied",
+    "patient": "Joseph Thomas",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "P4",
+    "ward": "Paediatrics",
+    "status": "occupied",
+    "patient": "Lalitha Rao",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "C1",
+    "ward": "Cardiology",
+    "status": "occupied",
+    "patient": "Vikram Singh",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "C2",
+    "ward": "Cardiology",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "C3",
+    "ward": "Cardiology",
+    "status": "occupied",
+    "patient": "Nandini Shetty",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "C4",
+    "ward": "Cardiology",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "002-E1",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-E2",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Imran Khan",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-E3",
+    "ward": "Emergency",
+    "status": "critical",
+    "patient": "Geetha Menon",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-G1",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Prakash Jain",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-G2",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Sunita Yadav",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-G3",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Ramesh Kumar",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-G4",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-G5",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Sita Devi",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-G6",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Arun Prasad",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-G7",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-G8",
+    "ward": "General",
+    "status": "maintenance",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-I1",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Fatima Begum",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-I2",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-I3",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-M1",
+    "ward": "Maternity",
+    "status": "occupied",
+    "patient": "Joseph Thomas",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-M2",
+    "ward": "Maternity",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-M3",
+    "ward": "Maternity",
+    "status": "critical",
+    "patient": "Lalitha Rao",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-M4",
+    "ward": "Maternity",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-P1",
+    "ward": "Paediatrics",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-P2",
+    "ward": "Paediatrics",
+    "status": "occupied",
+    "patient": "Vikram Singh",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-P3",
+    "ward": "Paediatrics",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "002-P4",
+    "ward": "Paediatrics",
+    "status": "occupied",
+    "patient": "Nandini Shetty",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "003-E1",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Imran Khan",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-E2",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-E3",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Geetha Menon",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-E4",
+    "ward": "Emergency",
+    "status": "maintenance",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-G1",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Prakash Jain",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-G2",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-G3",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-G4",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-G5",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-G6",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Sunita Yadav",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-G7",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-G8",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-I1",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-I2",
+    "ward": "ICU",
+    "status": "maintenance",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-I3",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-I4",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-O1",
+    "ward": "Orthopaedics",
+    "status": "maintenance",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-O2",
+    "ward": "Orthopaedics",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-O3",
+    "ward": "Orthopaedics",
+    "status": "occupied",
+    "patient": "Ramesh Kumar",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-O4",
+    "ward": "Orthopaedics",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-N1",
+    "ward": "Neurology",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-N2",
+    "ward": "Neurology",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "003-N3",
+    "ward": "Neurology",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  }
+]

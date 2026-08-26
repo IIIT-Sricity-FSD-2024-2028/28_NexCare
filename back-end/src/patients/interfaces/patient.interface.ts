@@ -12,6 +12,10 @@ export interface Patient {
   status: string;
   bloodGroup: string;
   age: number;
+  // Location the patient registered with — drives the nearby-hospital filter.
+  city?: string;
+  state?: string;
+  pincode?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -20,11 +24,20 @@ export interface Patient {
  * Create Patient Request Interface
  */
 export interface CreatePatientRequest {
+  /**
+   * Optional caller-supplied id. Registration passes the same id it stored on the
+   * user account so `user.patientId` and `patient.id` stay in step — without it
+   * each side generates its own and the portal cannot find the patient.
+   */
+  id?: string;
   fullName: string;
   phone: string;
   email: string;
   bloodGroup?: string;
   age?: number;
+  city?: string;
+  state?: string;
+  pincode?: string;
 }
 
 /**

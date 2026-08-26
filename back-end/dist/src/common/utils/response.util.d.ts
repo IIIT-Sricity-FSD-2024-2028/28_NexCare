@@ -10,4 +10,5 @@ export declare class ResponseUtil {
     static created<T>(resource: string, data: T): ApiResponse<T>;
     static updated<T>(resource: string, data: T): ApiResponse<T>;
     static deleted(resource: string): ApiResponse;
+    private static phrase;
 }

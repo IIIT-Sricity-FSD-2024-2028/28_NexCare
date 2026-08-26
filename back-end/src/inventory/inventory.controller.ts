@@ -41,6 +41,8 @@ export class InventoryController {
   /**
    * Get all inventory with optional filtering
    */
+  // Regional Officers get read-only oversight; the client scopes to one hospital.
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER)
   @Get()
   @ApiOperation({ summary: 'Get all inventory items' })
   @ApiQuery({ name: 'category', required: false })

@@ -4,9 +4,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     currentHospitalId = urlParams.get('id');
 
+    // Reached without ?id= (a bookmark, or a direct nav from the sidebar) — just go
+    // back to the dashboard, where the hospital list is, instead of trapping the user
+    // behind an alert.
     if (!currentHospitalId) {
-        alert("No hospital ID provided.");
-        window.location.href = 'dashboard.html';
+        window.location.replace(pageLink('dashboard'));
         return;
     }
 
@@ -57,19 +59,36 @@ async function loadHospitalDetails() {
         document.getElementById('overviewBeds').textContent = hospital.totalBeds || 0;
         document.getElementById('overviewIcu').textContent = hospital.icuBeds || 0;
         document.getElementById('overviewEmergency').textContent = hospital.emergency24x7 ? 'Yes' : 'No';
+        setIfPresent('overviewAvailableBeds', hospital.availableBeds);
+        setIfPresent('overviewAccreditation', hospital.accreditation);
+        setIfPresent('overviewEstablished', hospital.establishedYear);
+        setIfPresent('overviewDepartments', hospital.departmentsCount);
+        setIfPresent('overviewTheatres', hospital.operationTheatres);
+        setIfPresent('overviewAmbulances', hospital.ambulanceCount);
 
     } catch (err) {
         console.error(err);
     }
 }
 
-// Dummy loaders to represent fetching filtered data
+/** Fill an optional overview row, tolerating fields older hospital records lack. */
+function setIfPresent(elementId, value) {
+    const el = document.getElementById(elementId);
+    if (el) el.textContent = (value === undefined || value === null || value === '') ? 'N/A' : value;
+}
+
+// Tab loaders — each fetches once and filters to this hospital
 async function loadStaff() {
     window.staffLoaded = true;
     const res = await window.NexCareAPI.Users.getAll();
     const staff = (res.data || []).filter(u => u.hospitalId === currentHospitalId);
     
     const tbody = document.getElementById('staffTable');
+    if (!res || !res.success) {
+        tbody.innerHTML = `<tr class="empty-state"><td colspan="3" style="color:#DC2626;">Could not load staff for this hospital.</td></tr>`;
+        window.staffLoaded = false;
+        return;
+    }
     if (staff.length === 0) {
         tbody.innerHTML = `<tr class="empty-state"><td colspan="3">No staff found for this hospital.</td></tr>`;
     } else {
@@ -83,6 +102,11 @@ async function loadBeds() {
     const beds = (res.data || []).filter(b => b.hospitalId === currentHospitalId);
     
     const tbody = document.getElementById('bedsTable');
+    if (!res || !res.success) {
+        tbody.innerHTML = `<tr class="empty-state"><td colspan="3" style="color:#DC2626;">Could not load beds for this hospital.</td></tr>`;
+        window.bedsLoaded = false;
+        return;
+    }
     if (beds.length === 0) {
         tbody.innerHTML = `<tr class="empty-state"><td colspan="3">No beds configured.</td></tr>`;
     } else {
@@ -96,6 +120,11 @@ async function loadInventory() {
     const inv = (res.data || []).filter(i => i.hospitalId === currentHospitalId);
     
     const tbody = document.getElementById('inventoryTable');
+    if (!res || !res.success) {
+        tbody.innerHTML = `<tr class="empty-state"><td colspan="4" style="color:#DC2626;">Could not load inventory for this hospital.</td></tr>`;
+        window.inventoryLoaded = false;
+        return;
+    }
     if (inv.length === 0) {
         tbody.innerHTML = `<tr class="empty-state"><td colspan="4">No inventory data.</td></tr>`;
     } else {
@@ -109,6 +138,11 @@ async function loadAmbulances() {
     const ambs = (res.data || []).filter(a => a.hospitalId === currentHospitalId);
     
     const tbody = document.getElementById('ambulanceTable');
+    if (!res || !res.success) {
+        tbody.innerHTML = `<tr class="empty-state"><td colspan="3" style="color:#DC2626;">Could not load ambulances for this hospital.</td></tr>`;
+        window.ambulancesLoaded = false;
+        return;
+    }
     if (ambs.length === 0) {
         tbody.innerHTML = `<tr class="empty-state"><td colspan="3">No ambulances assigned.</td></tr>`;
     } else {

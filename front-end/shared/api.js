@@ -458,6 +458,37 @@ const HospitalsAPI = {
 
     async getById(id) {
         return await api.get(`/hospitals/${id}`);
+    },
+
+    async update(id, data) {
+        return await api.put(`/hospitals/${id}`, data);
+    },
+
+    // Superuser and regional_manager only (enforced server-side).
+    async verify(id) {
+        return await api.patch(`/hospitals/${id}/verify`, {});
+    },
+
+    async reject(id) {
+        return await api.patch(`/hospitals/${id}/reject`, {});
+    }
+};
+
+// Support Requests API
+// The backend scopes GET by the caller's role: a regional_manager sees requests
+// across the hospitals assigned to them, hospital staff see only their own.
+const SupportRequestsAPI = {
+    async getAll(hospitalId) {
+        const s = hospitalId ? `?hospitalId=${encodeURIComponent(hospitalId)}` : '';
+        return await api.get(`/support-requests${s}`);
+    },
+
+    async create(data) {
+        return await api.post('/support-requests', data);
+    },
+
+    async update(id, data) {
+        return await api.put(`/support-requests/${id}`, data);
     }
 };
 
@@ -524,6 +555,32 @@ const LeavesAPI = {
 };
 
 // Export all APIs as global window object for easy access
+/**
+ * Build an in-app link that survives however the frontend is being served.
+ *
+ * Static hosts like `npx serve` respond to `/page.html?x=1` with a
+ * `301 -> /page` and DROP the query string, so any page linked with an explicit
+ * `.html` silently loses its parameters. Match whatever form the current page is
+ * already using: keep `.html` when the URL has it, omit it when the host is
+ * serving clean URLs.
+ *
+ *   pageLink('hospital-details', { id: 'H001' })
+ *     served as /regional-officer/dashboard       -> 'hospital-details?id=H001'
+ *     served as /regional-officer/dashboard.html  -> 'hospital-details.html?id=H001'
+ *
+ * @param {string} page  Page name WITHOUT the .html extension (may include a path).
+ * @param {Object} params Optional query parameters.
+ */
+function pageLink(page, params = {}) {
+    const base = /\.html$/i.test(window.location.pathname) ? `${page}.html` : page;
+    const qs = new URLSearchParams(
+        Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
+    ).toString();
+    return qs ? `${base}?${qs}` : base;
+}
+
+window.pageLink = pageLink;
+
 window.NexCareAPI = {
     // Core methods
     get: api.get.bind(api),
@@ -549,6 +606,7 @@ window.NexCareAPI = {
     Inventory: InventoryAPI,
     Hospitals: HospitalsAPI,
     Leaves: LeavesAPI,
+    SupportRequests: SupportRequestsAPI,
     System: SystemAPI
 };
 

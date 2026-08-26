@@ -8,15 +8,22 @@ export interface Patient {
     status: string;
     bloodGroup: string;
     age: number;
+    city?: string;
+    state?: string;
+    pincode?: string;
     createdAt?: string;
     updatedAt?: string;
 }
 export interface CreatePatientRequest {
+    id?: string;
     fullName: string;
     phone: string;
     email: string;
     bloodGroup?: string;
     age?: number;
+    city?: string;
+    state?: string;
+    pincode?: string;
 }
 export interface UpdatePatientRequest {
     fullName?: string;

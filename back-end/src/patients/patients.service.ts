@@ -135,8 +135,9 @@ export class PatientsService {
         return ResponseUtil.error('Phone number already exists');
       }
 
-      // Generate new patient ID and display ID
-      const newPatientId = IdGenerator.generatePatientId();
+      // Honour a caller-supplied id (registration passes the id already stored on
+      // the user account) and only generate one when creating a standalone record.
+      const newPatientId = patientData.id || IdGenerator.generatePatientId();
       const currentYear = new Date().getFullYear();
       const randomNumber = Math.floor(Math.random() * 9000 + 1000);
 
@@ -151,6 +152,9 @@ export class PatientsService {
         status: 'Active',
         bloodGroup: patientData.bloodGroup || 'Unknown',
         age: patientData.age || 0,
+        ...(patientData.city ? { city: patientData.city } : {}),
+        ...(patientData.state ? { state: patientData.state } : {}),
+        ...(patientData.pincode ? { pincode: patientData.pincode } : {}),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };

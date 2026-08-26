@@ -191,15 +191,22 @@ let AuthService = class AuthService {
                 status: api_response_interface_1.UserStatus.ACTIVE,
                 password: this.hashPassword(registerRequest.password),
                 patientId: newPatientId,
+                ...(registerRequest.city ? { city: registerRequest.city } : {}),
+                ...(registerRequest.state ? { state: registerRequest.state } : {}),
+                ...(registerRequest.pincode ? { pincode: registerRequest.pincode } : {}),
             };
             users.push(newUser);
             this.saveUsers(users);
             await this.patientsService.create({
+                id: newPatientId,
                 fullName: registerRequest.fullName,
                 email: registerRequest.email,
                 phone: registerRequest.phone || '',
-                bloodGroup: 'Unknown',
-                age: 0
+                bloodGroup: registerRequest.bloodGroup || 'Unknown',
+                age: registerRequest.age || 0,
+                city: registerRequest.city,
+                state: registerRequest.state,
+                pincode: registerRequest.pincode,
             });
             const session = {
                 id: newUser.id,

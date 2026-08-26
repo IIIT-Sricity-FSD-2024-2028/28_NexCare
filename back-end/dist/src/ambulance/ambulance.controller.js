@@ -109,7 +109,7 @@ let AmbulanceController = class AmbulanceController {
 exports.AmbulanceController = AmbulanceController;
 __decorate([
     (0, common_1.Get)(),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.AMBULANCE, api_response_interface_1.UserRole.PATIENT),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.AMBULANCE, api_response_interface_1.UserRole.PATIENT, api_response_interface_1.UserRole.REGIONAL_MANAGER),
     (0, swagger_1.ApiOperation)({ summary: 'Get all ambulance requests (patients: only their own)' }),
     (0, swagger_1.ApiQuery)({ name: 'patientId', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: api_response_interface_1.AmbulanceStatus }),

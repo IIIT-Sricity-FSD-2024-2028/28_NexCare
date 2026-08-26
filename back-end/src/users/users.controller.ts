@@ -8,11 +8,13 @@ import {
   Delete, 
   Param, 
   Query,
+  Req,
   HttpCode,
-  HttpStatus 
+  HttpStatus
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { UsersService } from './users.service';
+import { HospitalsService } from '../hospitals/hospitals.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -28,18 +30,50 @@ import { UserRole } from '../common/interfaces/api-response.interface';
 @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly hospitalsService: HospitalsService,
+  ) {}
 
   /**
-   * Get all users with optional filtering
+   * Get all users with optional filtering.
+   *
+   * A Regional Officer gets read-only oversight, scoped to the hospitals assigned
+   * to them — they never see staff at hospitals they do not manage. Everyone else
+   * on the allow-list sees the unscoped list, as before.
    */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER)
   @Get()
-  @ApiOperation({ summary: 'Get all users' })
+  @ApiOperation({ summary: 'Get all users (Regional Officers see only their hospitals)' })
   @ApiQuery({ name: 'role', required: false, enum: UserRole })
   @ApiQuery({ name: 'status', required: false })
   @ApiResponse({ status: 200, description: 'List of users' })
-  async findAll(@Query('role') role?: string, @Query('status') status?: string) {
-    return this.usersService.findAll(role as any, status as any);
+  async findAll(
+    @Req() req: any,
+    @Query('role') role?: string,
+    @Query('status') status?: string,
+  ) {
+    const result = await this.usersService.findAll(role as any, status as any);
+
+    if (req.user?.role !== UserRole.REGIONAL_MANAGER || !result?.success) {
+      return result;
+    }
+
+    const managedIds = await this.managedHospitalIds(req.user.id);
+    return {
+      ...result,
+      data: (result.data || []).filter(
+        (u: any) => u.hospitalId && managedIds.includes(u.hospitalId),
+      ),
+    };
+  }
+
+  /** Hospital ids assigned to a given regional manager. */
+  private async managedHospitalIds(managerId: string): Promise<string[]> {
+    const res: any = await this.hospitalsService.findAll();
+    return (res?.data || [])
+      .filter((h: any) => h.assignedManagerId === managerId)
+      .map((h: any) => h.id);
   }
 
   /**

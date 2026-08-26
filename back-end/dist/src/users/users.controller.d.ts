@@ -1,10 +1,13 @@
 import { UsersService } from './users.service';
+import { HospitalsService } from '../hospitals/hospitals.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 export declare class UsersController {
     private readonly usersService;
-    constructor(usersService: UsersService);
-    findAll(role?: string, status?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    private readonly hospitalsService;
+    constructor(usersService: UsersService, hospitalsService: HospitalsService);
+    findAll(req: any, role?: string, status?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    private managedHospitalIds;
     create(createUserDto: CreateUserDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findDoctors(dept?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     getStats(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

@@ -282,18 +282,28 @@ export class AuthService {
         status: UserStatus.ACTIVE,
         password: this.hashPassword(registerRequest.password),
         patientId: newPatientId,
+        // The portal filters nearby hospitals off the signed-in user's location.
+        ...(registerRequest.city ? { city: registerRequest.city } : {}),
+        ...(registerRequest.state ? { state: registerRequest.state } : {}),
+        ...(registerRequest.pincode ? { pincode: registerRequest.pincode } : {}),
       };
 
       users.push(newUser);
       this.saveUsers(users); // ← persists to data/users.json
 
-      // Create patient record in PatientsService
+      // Create the matching patient record, reusing the SAME id stored on the user
+      // account above. Letting PatientsService mint its own id leaves
+      // user.patientId pointing at a record that does not exist.
       await this.patientsService.create({
+        id: newPatientId,
         fullName: registerRequest.fullName,
         email: registerRequest.email,
         phone: registerRequest.phone || '',
-        bloodGroup: 'Unknown',
-        age: 0
+        bloodGroup: registerRequest.bloodGroup || 'Unknown',
+        age: registerRequest.age || 0,
+        city: registerRequest.city,
+        state: registerRequest.state,
+        pincode: registerRequest.pincode,
       });
 
       const session: UserSession = {

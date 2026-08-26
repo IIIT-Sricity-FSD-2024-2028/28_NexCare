@@ -40,7 +40,7 @@ __decorate([
 exports.EquipmentController = EquipmentController = __decorate([
     (0, swagger_1.ApiTags)('Equipment'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.REGIONAL_MANAGER),
     (0, common_1.Controller)('equipment'),
     __metadata("design:paramtypes", [equipment_service_1.EquipmentService])
 ], EquipmentController);
