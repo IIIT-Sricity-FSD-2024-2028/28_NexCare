@@ -2,7 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { errorHandlerMiddleware, notFoundMiddleware } from './common/middleware/error-handler.middleware';
+import { fileLogger } from './common/logging/file-logger';
+import { json, urlencoded } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -19,12 +22,19 @@ async function bootstrap() {
     origin: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-user-role'],
-    exposedHeaders: ['x-query-timestamp'],
+    exposedHeaders: ['x-query-timestamp', 'x-request-id', 'x-ratelimit-remaining'],
     credentials: true,
   });
 
   // Global prefix for all routes
   app.setGlobalPrefix('api');
+
+  // Body size limits, matching the check in SecurityMiddleware. The parser
+  // runs before application middleware, so this is what actually stops an
+  // oversized body; AllExceptionsFilter turns the refusal into a 413.
+  const maxBodyBytes = Number(process.env.MAX_BODY_BYTES) || 1024 * 1024;
+  app.use(json({ limit: maxBodyBytes }));
+  app.use(urlencoded({ extended: true, limit: maxBodyBytes }));
 
   // ─── Global Validation Pipe ────────────────────────────────────────────────
   app.useGlobalPipes(
@@ -49,7 +59,12 @@ async function bootstrap() {
   );
 
   // ─── Global Exception Filter ──────────────────────────────────────────────
-  app.useGlobalFilters(new HttpExceptionFilter());
+  // Catches every exception thrown inside a route handler, returns the
+  // standard JSON envelope and writes the failure to logs/error-<date>.log
+  app.useGlobalFilters(new AllExceptionsFilter());
+
+  // Flush buffered logs when the process is asked to stop
+  app.enableShutdownHooks();
 
   // ─── Swagger Documentation ────────────────────────────────────────────────
   const config = new DocumentBuilder()
@@ -119,9 +134,20 @@ async function bootstrap() {
     customSiteTitle: 'NexCare API Documentation',
   });
 
+  // ─── Express-level error handling ─────────────────────────────────────────
+  // These have to be registered after the routes are mounted, which is what
+  // init() does — hence init() here and listen() below. They catch what the
+  // Nest exception filter cannot see: body-parser failures, errors thrown by
+  // middleware, and requests for routes that do not exist.
+  await app.init();
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.use(notFoundMiddleware);
+  expressApp.use(errorHandlerMiddleware);
+
   // ─── Binding ──────────────────────────────────────────────────────────────
   const port = process.env.PORT || 3001;
   await app.listen(port, '0.0.0.0');
+  fileLogger.info('app', 'Application started', { port: Number(port), pid: process.pid });
 
   // Show all accessible URLs
   const { networkInterfaces } = require('os');
@@ -142,17 +168,33 @@ async function bootstrap() {
   console.log(`🏥 NexCare Hospital Management System\n`);
 }
 
-// Handle uncaught exceptions
+// Handle uncaught exceptions — record them before the process dies
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
+  fileLogger.error('Uncaught exception', { name: error.name, detail: error.message, stack: error.stack });
+  fileLogger.stop(); // synchronous flush
   process.exit(1);
 });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection reason:', reason);
+  fileLogger.error('Unhandled promise rejection', {
+    detail: reason instanceof Error ? reason.message : String(reason),
+    stack: reason instanceof Error ? reason.stack : undefined,
+  });
+  fileLogger.stop();
   process.exit(1);
 });
+
+// Write out anything still buffered on a normal shutdown
+for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+  process.on(signal, () => {
+    fileLogger.info('app', 'Process signal received', { signal });
+    fileLogger.stop();
+    process.exit(0);
+  });
+}
 
 // Start the application
 bootstrap();

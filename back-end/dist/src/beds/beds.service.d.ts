@@ -1,9 +1,10 @@
-import { CreateBedRequest, UpdateBedRequest } from './interfaces/bed.interface';
+import { Bed, CreateBedRequest, UpdateBedRequest } from './interfaces/bed.interface';
 import { BedStatus } from '../common/interfaces/api-response.interface';
 export declare class BedsService {
     private beds;
     findAll(ward?: string, status?: BedStatus): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    getBedById(id: string): Bed | undefined;
     create(bedData: CreateBedRequest): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     update(id: string, updateData: UpdateBedRequest): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     delete(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

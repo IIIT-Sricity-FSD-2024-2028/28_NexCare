@@ -3777,6 +3777,468 @@
           }
         }
       }
+    },
+    "/api/leaves": {
+      "get": {
+        "operationId": "LeavesController_findAll",
+        "summary": "Get all leaves",
+        "parameters": [
+          {
+            "name": "doctorId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hospitalId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "pending",
+                "approved",
+                "rejected"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of leaves"
+          }
+        },
+        "tags": [
+          "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "LeavesController_create",
+        "summary": "Apply for leave",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Leave request submitted successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "409": {
+            "description": "Conflict - overlapping approved leave"
+          }
+        },
+        "tags": [
+          "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/leaves/calendar": {
+      "get": {
+        "operationId": "LeavesController_getCalendarView",
+        "summary": "Get calendar view of approved leaves",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Calendar view of approved leaves"
+          }
+        },
+        "tags": [
+          "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/leaves/{id}": {
+      "get": {
+        "operationId": "LeavesController_findById",
+        "summary": "Get leave by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leave details"
+          }
+        },
+        "tags": [
+          "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "LeavesController_update",
+        "summary": "Approve or reject leave request",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leave status updated successfully"
+          },
+          "403": {
+            "description": "Forbidden - insufficient permissions"
+          },
+          "404": {
+            "description": "Leave not found"
+          }
+        },
+        "tags": [
+          "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "LeavesController_delete",
+        "summary": "Delete a leave request",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leave deleted successfully"
+          },
+          "404": {
+            "description": "Leave not found"
+          }
+        },
+        "tags": [
+          "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/uploads": {
+      "post": {
+        "operationId": "UploadsController_upload",
+        "summary": "Upload a document and attach it to a record",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "entityType": {
+                    "type": "string",
+                    "example": "patient",
+                    "enum": [
+                      "patient",
+                      "hospital",
+                      "user",
+                      "bed",
+                      "general"
+                    ]
+                  },
+                  "entityId": {
+                    "type": "string",
+                    "example": "P001"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Discharge summary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "File uploaded successfully"
+          },
+          "400": {
+            "description": "Missing file, unsupported type, or not multipart"
+          },
+          "413": {
+            "description": "File exceeds the size limit"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "UploadsController_findAll",
+        "summary": "List uploaded documents",
+        "parameters": [
+          {
+            "name": "entityType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "patient",
+              "type": "string"
+            }
+          },
+          {
+            "name": "entityId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "P001",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of uploads"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/uploads/{id}/download": {
+      "get": {
+        "operationId": "UploadsController_download",
+        "summary": "Download an uploaded document",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File stream"
+          },
+          "404": {
+            "description": "File not found"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/uploads/{id}": {
+      "get": {
+        "operationId": "UploadsController_findById",
+        "summary": "Get upload metadata",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Upload metadata"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "UploadsController_remove",
+        "summary": "Delete an uploaded document",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File deleted successfully"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/logs": {
+      "get": {
+        "operationId": "LogsController_read",
+        "summary": "Read recent log entries",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 100
+            }
+          },
+          {
+            "name": "stream",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "access",
+                "error",
+                "app"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent log entries"
+          }
+        },
+        "tags": [
+          "Logs"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/logs/files": {
+      "get": {
+        "operationId": "LogsController_files",
+        "summary": "List log files with sizes",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Log files on disk"
+          }
+        },
+        "tags": [
+          "Logs"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
     }
   },
   "info": {
@@ -3829,7 +4291,7 @@
   ],
   "servers": [
     {
-      "url": "http://localhost:3001",
+      "url": "http://localhost:3099",
       "description": "Local Server"
     }
   ],

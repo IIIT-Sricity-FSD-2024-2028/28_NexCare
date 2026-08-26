@@ -21,9 +21,16 @@ const inventory_module_1 = require("./inventory/inventory.module");
 const hospitals_module_1 = require("./hospitals/hospitals.module");
 const system_module_1 = require("./system/system.module");
 const leaves_module_1 = require("./leaves/leaves.module");
+const uploads_module_1 = require("./uploads/uploads.module");
+const logging_module_1 = require("./common/logging/logging.module");
 const auth_guard_1 = require("./common/guards/auth.guard");
 const roles_guard_1 = require("./common/guards/roles.guard");
+const request_logger_middleware_1 = require("./common/middleware/request-logger.middleware");
+const security_middleware_1 = require("./common/middleware/security.middleware");
 let AppModule = class AppModule {
+    configure(consumer) {
+        consumer.apply(security_middleware_1.SecurityMiddleware, request_logger_middleware_1.RequestLoggerMiddleware).forRoutes('*');
+    }
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
@@ -41,6 +48,8 @@ exports.AppModule = AppModule = __decorate([
             hospitals_module_1.HospitalsModule,
             system_module_1.SystemModule,
             leaves_module_1.LeavesModule,
+            uploads_module_1.UploadsModule,
+            logging_module_1.LoggingModule,
         ],
         providers: [
             {

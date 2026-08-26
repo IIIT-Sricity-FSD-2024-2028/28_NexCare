@@ -82,6 +82,17 @@ export class BedsService {
   }
 
   /**
+   * Get the raw bed record without an API envelope.
+   * Used by BedStatusChangeMiddleware, which needs the current status before
+   * the request reaches the controller.
+   * @param id Bed ID
+   * @returns The bed, or undefined when no such bed exists
+   */
+  getBedById(id: string): Bed | undefined {
+    return this.beds.find(b => b.id === id);
+  }
+
+  /**
    * Create new bed
    * @param bedData Bed creation data
    * @returns Created bed data
@@ -128,12 +139,16 @@ export class BedsService {
       }
 
       // Validate bed allocation logic
-      if (updateData.patient && updateData.status !== BedStatus.OCCUPIED) {
-        return ResponseUtil.error('Cannot assign patient to non-occupied bed');
+      // A patient can be attached to a bed that is occupied or critical —
+      // critical is an occupied bed whose patient needs intensive care.
+      const patientStatuses: BedStatus[] = [BedStatus.OCCUPIED, BedStatus.CRITICAL];
+
+      if (updateData.patient && !patientStatuses.includes(updateData.status as BedStatus)) {
+        return ResponseUtil.error('Cannot assign patient to a bed that is not occupied or critical');
       }
 
-      if (updateData.status === BedStatus.OCCUPIED && !updateData.patient) {
-        return ResponseUtil.error('Occupied bed must have assigned patient');
+      if (patientStatuses.includes(updateData.status as BedStatus) && !updateData.patient) {
+        return ResponseUtil.error(`${updateData.status} bed must have an assigned patient`);
       }
 
       if (updateData.status === BedStatus.AVAILABLE && updateData.patient) {
@@ -149,7 +164,7 @@ export class BedsService {
 
       this.beds[bedIndex] = updatedBed;
 
-      return ResponseUtil.updated('Bed updated successfully', updatedBed);
+      return ResponseUtil.updated('Bed', updatedBed);
     } catch (error) {
       return ResponseUtil.serverError('Failed to update bed');
     }
@@ -218,7 +233,7 @@ export class BedsService {
 
       const updatedBed = this.beds[bedIndex];
 
-      return ResponseUtil.updated('Bed allocated successfully', updatedBed);
+      return ResponseUtil.success('Bed allocated successfully', updatedBed);
     } catch (error) {
       return ResponseUtil.serverError('Failed to allocate bed');
     }
@@ -239,8 +254,8 @@ export class BedsService {
 
       const bed = this.beds[bedIndex];
 
-      // Check if bed is occupied
-      if (bed.status !== BedStatus.OCCUPIED) {
+      // Check if bed holds a patient (occupied or critical)
+      if (bed.status !== BedStatus.OCCUPIED && bed.status !== BedStatus.CRITICAL) {
         return ResponseUtil.error('Cannot release bed that is not occupied');
       }
 
@@ -251,7 +266,7 @@ export class BedsService {
 
       const updatedBed = this.beds[bedIndex];
 
-      return ResponseUtil.updated('Bed released successfully', updatedBed);
+      return ResponseUtil.success('Bed released successfully', updatedBed);
     } catch (error) {
       return ResponseUtil.serverError('Failed to release bed');
     }
@@ -368,7 +383,7 @@ export class BedsService {
 
       const updatedBed = this.beds[bedIndex];
 
-      return ResponseUtil.updated('Bed status updated successfully', updatedBed);
+      return ResponseUtil.updated('Bed status', updatedBed);
     } catch (error) {
       return ResponseUtil.serverError('Failed to update bed status');
     }

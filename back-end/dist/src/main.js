@@ -4,7 +4,10 @@ const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
-const http_exception_filter_1 = require("./common/filters/http-exception.filter");
+const all_exceptions_filter_1 = require("./common/filters/all-exceptions.filter");
+const error_handler_middleware_1 = require("./common/middleware/error-handler.middleware");
+const file_logger_1 = require("./common/logging/file-logger");
+const express_1 = require("express");
 const fs = require("fs");
 const path = require("path");
 async function bootstrap() {
@@ -13,10 +16,13 @@ async function bootstrap() {
         origin: true,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization', 'x-user-role'],
-        exposedHeaders: ['x-query-timestamp'],
+        exposedHeaders: ['x-query-timestamp', 'x-request-id', 'x-ratelimit-remaining'],
         credentials: true,
     });
     app.setGlobalPrefix('api');
+    const maxBodyBytes = Number(process.env.MAX_BODY_BYTES) || 1024 * 1024;
+    app.use((0, express_1.json)({ limit: maxBodyBytes }));
+    app.use((0, express_1.urlencoded)({ extended: true, limit: maxBodyBytes }));
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         forbidNonWhitelisted: true,
@@ -35,7 +41,8 @@ async function bootstrap() {
             });
         },
     }));
-    app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter());
+    app.useGlobalFilters(new all_exceptions_filter_1.AllExceptionsFilter());
+    app.enableShutdownHooks();
     const config = new swagger_1.DocumentBuilder()
         .setTitle('NexCare Hospital Management API')
         .setDescription('Complete REST API for the NexCare Hospital Administrative Operations Platform. ' +
@@ -85,8 +92,13 @@ async function bootstrap() {
         customCss: '.topbar { display: none }',
         customSiteTitle: 'NexCare API Documentation',
     });
+    await app.init();
+    const expressApp = app.getHttpAdapter().getInstance();
+    expressApp.use(error_handler_middleware_1.notFoundMiddleware);
+    expressApp.use(error_handler_middleware_1.errorHandlerMiddleware);
     const port = process.env.PORT || 3001;
     await app.listen(port, '0.0.0.0');
+    file_logger_1.fileLogger.info('app', 'Application started', { port: Number(port), pid: process.pid });
     const { networkInterfaces } = require('os');
     const nets = networkInterfaces();
     const ips = ['localhost'];
@@ -105,11 +117,25 @@ async function bootstrap() {
 }
 process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
+    file_logger_1.fileLogger.error('Uncaught exception', { name: error.name, detail: error.message, stack: error.stack });
+    file_logger_1.fileLogger.stop();
     process.exit(1);
 });
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on('unhandledRejection', (reason) => {
+    console.error('Unhandled Rejection reason:', reason);
+    file_logger_1.fileLogger.error('Unhandled promise rejection', {
+        detail: reason instanceof Error ? reason.message : String(reason),
+        stack: reason instanceof Error ? reason.stack : undefined,
+    });
+    file_logger_1.fileLogger.stop();
     process.exit(1);
 });
+for (const signal of ['SIGINT', 'SIGTERM']) {
+    process.on(signal, () => {
+        file_logger_1.fileLogger.info('app', 'Process signal received', { signal });
+        file_logger_1.fileLogger.stop();
+        process.exit(0);
+    });
+}
 bootstrap();
 //# sourceMappingURL=main.js.map

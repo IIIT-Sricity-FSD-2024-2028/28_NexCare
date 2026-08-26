@@ -8,32 +8,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HttpExceptionFilter = void 0;
 const common_1 = require("@nestjs/common");
-let HttpExceptionFilter = class HttpExceptionFilter {
-    catch(exception, host) {
-        const ctx = host.switchToHttp();
-        const response = ctx.getResponse();
-        const request = ctx.getRequest();
-        const status = exception.getStatus();
-        const exceptionResponse = exception.getResponse();
-        const message = typeof exceptionResponse === 'object' && 'message' in exceptionResponse
-            ? exceptionResponse.message
-            : exception.message;
-        const errors = typeof exceptionResponse === 'object' && 'errors' in exceptionResponse
-            ? exceptionResponse.errors
-            : undefined;
-        response.status(status).json({
-            success: false,
-            statusCode: status,
-            message: message,
-            errors: errors,
-            error: common_1.HttpStatus[status],
-            timestamp: new Date().toISOString(),
-            path: request.url,
-        });
-    }
+const all_exceptions_filter_1 = require("./all-exceptions.filter");
+let HttpExceptionFilter = class HttpExceptionFilter extends all_exceptions_filter_1.AllExceptionsFilter {
 };
 exports.HttpExceptionFilter = HttpExceptionFilter;
 exports.HttpExceptionFilter = HttpExceptionFilter = __decorate([
-    (0, common_1.Catch)(common_1.HttpException)
+    (0, common_1.Catch)()
 ], HttpExceptionFilter);
 //# sourceMappingURL=http-exception.filter.js.map

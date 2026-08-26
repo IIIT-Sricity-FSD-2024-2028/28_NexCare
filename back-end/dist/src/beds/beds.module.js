@@ -10,11 +10,19 @@ exports.BedsModule = void 0;
 const common_1 = require("@nestjs/common");
 const beds_controller_1 = require("./beds.controller");
 const beds_service_1 = require("./beds.service");
+const bed_status_change_middleware_1 = require("./middleware/bed-status-change.middleware");
+const auth_module_1 = require("../auth/auth.module");
 let BedsModule = class BedsModule {
+    configure(consumer) {
+        consumer
+            .apply(bed_status_change_middleware_1.BedStatusChangeMiddleware)
+            .forRoutes({ path: 'beds/:id/status', method: common_1.RequestMethod.PATCH }, { path: 'beds/:id/allocate', method: common_1.RequestMethod.PATCH }, { path: 'beds/:id/release', method: common_1.RequestMethod.PATCH }, { path: 'beds/:id', method: common_1.RequestMethod.PUT }, { path: 'beds/:id', method: common_1.RequestMethod.PATCH });
+    }
 };
 exports.BedsModule = BedsModule;
 exports.BedsModule = BedsModule = __decorate([
     (0, common_1.Module)({
+        imports: [auth_module_1.AuthModule],
         controllers: [beds_controller_1.BedsController],
         providers: [beds_service_1.BedsService],
         exports: [beds_service_1.BedsService],

@@ -2,3 +2,11 @@ node_modules/
 back-end/node_modules/
 front-end/node_modules/
 .env
+
+# Runtime log files — the folder is kept, the logs themselves are not committed
+back-end/logs/*.log
+back-end/logs/*.log.*
+
+# Uploaded documents — user content, not source
+back-end/uploads/*
+!back-end/uploads/.gitkeep

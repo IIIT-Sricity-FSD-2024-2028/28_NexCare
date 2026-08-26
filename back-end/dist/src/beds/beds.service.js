@@ -63,6 +63,9 @@ let BedsService = class BedsService {
             return response_util_1.ResponseUtil.serverError('Failed to retrieve bed');
         }
     }
+    getBedById(id) {
+        return this.beds.find(b => b.id === id);
+    }
     async create(bedData) {
         try {
             const existingBed = this.beds.find(b => b.id === bedData.id);
@@ -90,11 +93,12 @@ let BedsService = class BedsService {
             if (bedIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Bed', id);
             }
-            if (updateData.patient && updateData.status !== api_response_interface_1.BedStatus.OCCUPIED) {
-                return response_util_1.ResponseUtil.error('Cannot assign patient to non-occupied bed');
+            const patientStatuses = [api_response_interface_1.BedStatus.OCCUPIED, api_response_interface_1.BedStatus.CRITICAL];
+            if (updateData.patient && !patientStatuses.includes(updateData.status)) {
+                return response_util_1.ResponseUtil.error('Cannot assign patient to a bed that is not occupied or critical');
             }
-            if (updateData.status === api_response_interface_1.BedStatus.OCCUPIED && !updateData.patient) {
-                return response_util_1.ResponseUtil.error('Occupied bed must have assigned patient');
+            if (patientStatuses.includes(updateData.status) && !updateData.patient) {
+                return response_util_1.ResponseUtil.error(`${updateData.status} bed must have an assigned patient`);
             }
             if (updateData.status === api_response_interface_1.BedStatus.AVAILABLE && updateData.patient) {
                 return response_util_1.ResponseUtil.error('Available bed cannot have assigned patient');
@@ -105,7 +109,7 @@ let BedsService = class BedsService {
                 updatedAt: new Date().toISOString()
             };
             this.beds[bedIndex] = updatedBed;
-            return response_util_1.ResponseUtil.updated('Bed updated successfully', updatedBed);
+            return response_util_1.ResponseUtil.updated('Bed', updatedBed);
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to update bed');
@@ -146,7 +150,7 @@ let BedsService = class BedsService {
             this.beds[bedIndex].patient = patient;
             this.beds[bedIndex].updatedAt = new Date().toISOString();
             const updatedBed = this.beds[bedIndex];
-            return response_util_1.ResponseUtil.updated('Bed allocated successfully', updatedBed);
+            return response_util_1.ResponseUtil.success('Bed allocated successfully', updatedBed);
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to allocate bed');
@@ -159,14 +163,14 @@ let BedsService = class BedsService {
                 return response_util_1.ResponseUtil.notFound('Bed', id);
             }
             const bed = this.beds[bedIndex];
-            if (bed.status !== api_response_interface_1.BedStatus.OCCUPIED) {
+            if (bed.status !== api_response_interface_1.BedStatus.OCCUPIED && bed.status !== api_response_interface_1.BedStatus.CRITICAL) {
                 return response_util_1.ResponseUtil.error('Cannot release bed that is not occupied');
             }
             this.beds[bedIndex].status = api_response_interface_1.BedStatus.AVAILABLE;
             this.beds[bedIndex].patient = '';
             this.beds[bedIndex].updatedAt = new Date().toISOString();
             const updatedBed = this.beds[bedIndex];
-            return response_util_1.ResponseUtil.updated('Bed released successfully', updatedBed);
+            return response_util_1.ResponseUtil.success('Bed released successfully', updatedBed);
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to release bed');
@@ -242,7 +246,7 @@ let BedsService = class BedsService {
             this.beds[bedIndex].status = status;
             this.beds[bedIndex].updatedAt = new Date().toISOString();
             const updatedBed = this.beds[bedIndex];
-            return response_util_1.ResponseUtil.updated('Bed status updated successfully', updatedBed);
+            return response_util_1.ResponseUtil.updated('Bed status', updatedBed);
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to update bed status');
