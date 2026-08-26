@@ -71,8 +71,8 @@ export class LeavesService {
     ];
   }
 
-  // In-memory mock leaves database
-  private leaves: Leave[] = this.getInitialMockData();
+  // Leaves database initialized from disk
+  private leaves: Leave[] = this.loadLeaves();
 
   /**
    * Get all leaves with optional filtering

@@ -18,10 +18,11 @@ async function bootstrap() {
   app.enableCors({
     origin: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-user-role'],
-    exposedHeaders: ['x-query-timestamp'],
+    allowedHeaders: '*',
+    exposedHeaders: ['x-query-timestamp', 'Authorization'],
     credentials: true,
   });
+
 
   // Global prefix for all routes
   app.setGlobalPrefix('api');

@@ -475,6 +475,49 @@ const SystemAPI = {
     }
 };
 
+// Leaves API
+const LeavesAPI = {
+    async getAll(query = {}) {
+        let qStr = '';
+        if (typeof query === 'string') {
+            qStr = query.startsWith('?') ? query : `?${query}`;
+        } else if (query && typeof query === 'object') {
+            const params = new URLSearchParams();
+            if (query.doctorId) params.append('doctorId', query.doctorId);
+            if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+            if (query.status) params.append('status', query.status);
+            const s = params.toString();
+            if (s) qStr = `?${s}`;
+        }
+        return await api.get(`/leaves${qStr}`);
+    },
+
+    async getById(id) {
+        return await api.get(`/leaves/${id}`);
+    },
+
+    async create(leaveData) {
+        return await api.post('/leaves', leaveData);
+    },
+
+    async update(id, updateData) {
+        return await api.patch(`/leaves/${id}`, updateData);
+    },
+
+    async delete(id) {
+        return await api.delete(`/leaves/${id}`);
+    },
+
+    async getCalendarView(query = {}) {
+        const params = new URLSearchParams();
+        if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+        if (query.startDate) params.append('startDate', query.startDate);
+        if (query.endDate) params.append('endDate', query.endDate);
+        const s = params.toString();
+        return await api.get(`/leaves/calendar${s ? `?${s}` : ''}`);
+    }
+};
+
 // Export all APIs as global window object for easy access
 window.NexCareAPI = {
     // Core methods
@@ -500,8 +543,10 @@ window.NexCareAPI = {
     Beds: BedsAPI,
     Inventory: InventoryAPI,
     Hospitals: HospitalsAPI,
+    Leaves: LeavesAPI,
     System: SystemAPI
 };
+
 
 // Legacy compatibility aliases for gradual migration
 window.NexCareAPI.login = AuthAPI.login;

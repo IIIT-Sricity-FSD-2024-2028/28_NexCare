@@ -22,21 +22,21 @@ let LeaveRequestGuard = class LeaveRequestGuard {
     async canActivate(context) {
         const request = context.switchToHttp().getRequest();
         const method = request.method;
-        const url = request.url;
-        if (method === 'POST' && url.includes('/leaves')) {
+        if (method === 'POST') {
             return this.validateLeaveApplication(request);
         }
-        if (method === 'PATCH' && url.includes('/leaves/')) {
+        if (method === 'PATCH') {
             return this.validateLeaveApproval(request);
         }
         return true;
     }
     async validateLeaveApplication(request) {
-        const { doctorId, startDate, endDate } = request.body;
-        if (!doctorId || !startDate || !endDate) {
+        const { doctorId, startDate, endDate } = request.body || {};
+        const effectiveDoctorId = doctorId || request.user?.sub || request.user?.id || request.user?.userId;
+        if (!effectiveDoctorId || !startDate || !endDate) {
             return true;
         }
-        const hasOverlap = await this.leavesService.hasOverlappingLeave(doctorId, startDate, endDate);
+        const hasOverlap = await this.leavesService.hasOverlappingLeave(effectiveDoctorId, startDate, endDate);
         if (hasOverlap) {
             throw new common_1.ConflictException('You already have an approved leave during this period. Please choose different dates.');
         }

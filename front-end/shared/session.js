@@ -157,7 +157,7 @@ function checkAuth() {
     // Protected page — require a valid session
     if (!session) {
         sessionStorage.clear();
-        window.location.replace('../auth/login.html');
+        window.location.replace('/auth/login.html');
         // Page stays hidden until navigation completes
     }
 }
@@ -170,6 +170,11 @@ function checkRoleAccess() {
 
     const path = window.location.pathname;
     const role  = session.role;
+
+    // Special exception: allow doctors to view appointments in patient/appointments
+    if (path.includes('/patient/appointments/') && (role === 'doctor' || role === 'patient')) {
+        return;
+    }
 
     const rolePathMap = {
         superuser:             '/superuser/',
@@ -189,7 +194,7 @@ function checkRoleAccess() {
     if (role !== requiredRole) {
         // Wrong role — kick back to login
         sessionStorage.clear();
-        window.location.replace('../auth/login.html');
+        window.location.replace('/auth/login.html');
     }
 }
 

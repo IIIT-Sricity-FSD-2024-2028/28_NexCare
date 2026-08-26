@@ -16,7 +16,7 @@ const api_response_interface_1 = require("../common/interfaces/api-response.inte
 let LeavesService = class LeavesService {
     constructor() {
         this.leavesFilePath = path.join(process.cwd(), 'data', 'leaves.json');
-        this.leaves = this.getInitialMockData();
+        this.leaves = this.loadLeaves();
     }
     loadLeaves() {
         try {

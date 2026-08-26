@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Force no-cache so Firefox always loads the latest version -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexCare - Doctor Portal</title>
+    <title>NexCare - Doctor Portal Dashboard</title>
     <link rel="stylesheet" href="../patient/styles.css">
-        <script>
-        // JWT-based early auth guard (runs before body renders, prevents flash)
+    <script>
+        // JWT-based early auth guard
         (function () {
             function decodeJWT(token) {
                 try {
@@ -30,7 +29,6 @@
                 sessionStorage.clear();
                 window.location.replace('../auth/login.html');
             }
-            // Sync legacy keys so other inline scripts don't break
             if (payload) {
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('nexcare_current_role', payload.role);
@@ -41,7 +39,7 @@
 <body>
     <!-- Sidebar -->
     <aside class="sidebar">
-        <a class="sidebar-brand" href="dashboard.html" aria-label="NexCare Patient Portal Home">
+        <a class="sidebar-brand" href="dashboard.html" aria-label="NexCare Doctor Portal Home">
             <nex-care-logo></nex-care-logo>
             <span class="sidebar-brand-subtitle">Doctor Portal</span>
         </a>
@@ -56,7 +54,7 @@
                 </svg>
                 <span>Dashboard</span>
             </a>
-            <a href="appointments/appointments.html" class="nav-item">
+            <a href="appointments.html" class="nav-item">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                     <path d="M6.667 1.667v3.333M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M2.917 7.5h14.166" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
@@ -64,42 +62,13 @@
                 </svg>
                 <span>Appointments</span>
             </a>
-            <a href="ambulance.html" class="nav-item">
-               <svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M17 8H15V6C15 4.89543 14.1046 4 13 4H5C3.89543 4 3 4.89543 3 6V16C3 17.1046 3.89543 18 5 18H6.18421C6.58354 19.165 7.69351 20 9 20C10.3065 20 11.4165 19.165 11.8158 18H16.1842C16.5835 19.165 17.6935 20 19 20C20.3065 20 21.4165 19.165 21.8158 18H23V14L20 10V8C20 6.89543 19.1046 6 18 6H17V8Z" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  
-  <path d="M15 8V12H20" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  
-  <path d="M7 11H11" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M9 9V13" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
-  
-  <circle cx="9" cy="18" r="2" stroke="#6B7280" stroke-width="1.5"/>
-  <circle cx="19" cy="18" r="2" stroke="#6B7280" stroke-width="1.5"/>
-</svg>
-
-                <span>Ambulance Request</span>
-            </a>
-            <a href="billing.html" class="nav-item">
+            <a href="leaves.html" class="nav-item">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M2 8h16" stroke="currentColor" stroke-width="1.5"/>
+                    <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M3 8h14" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M7 11h2M11 11h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
-                <span>Billing & Payments</span>
-            </a>
-            <a href="feedback.html" class="nav-item">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M14 2v4M2 8h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M6 12h2M12 12h2M6 15h2M12 15h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <span>Feedback and Complaint</span>
-            </a>
-            <a href="profile.html" class="nav-item">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M17 18c0-3.866-3.134-7-7-7s-7 3.134-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <span>Profile</span>
+                <span>Leave Management</span>
             </a>
             <a href="#" onclick="sessionStorage.clear(); localStorage.removeItem('nexcare_currentUser'); window.location.href='../landing/landing.html'; return false;" class="nav-item nav-logout">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -114,228 +83,125 @@
     <main class="main-content">
         <!-- Header -->
         <header class="header">
-            <div class="search-bar">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <circle cx="9" cy="9" r="6" stroke="#6A7282" stroke-width="2"/>
-                    <path d="M14 14l4 4" stroke="#6A7282" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <input type="text" placeholder="Search appointments, doctors, records...">
-            </div>
+            <h1 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0;">Doctor Dashboard</h1>
             <div class="header-actions">
-                <button class="notification-btn" onclick="window.showNotifications()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.36 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.63 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z" fill="#6A7282"/>
-                    </svg>
-                    <span class="notification-badge"></span>
-                </button>
-                <button class="profile-btn">
-                    <div class="profile-avatar">JP</div>
+                <div class="profile-btn" style="cursor: default;">
+                    <div class="profile-avatar" style="background: #1D4ED8; color: #FFF; font-weight: 700;">DR</div>
                     <div class="profile-info">
-                        <p class="profile-name">John Patient</p>
-                        <p class="profile-id">Patient ID: P12345</p>
+                        <p class="profile-name" style="font-weight: 600;">Doctor Portal</p>
+                        <p class="profile-id">Administrative Workspace</p>
                     </div>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M4 6l4 4 4-4" stroke="#99A1AF" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
+                </div>
             </div>
         </header>
 
         <!-- Hero Section -->
-        <section class="hero">
+        <section class="hero" style="background: linear-gradient(135deg, #1E40AF 0%, #1D4ED8 100%); color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px;">
             <div class="hero-content">
-                <h1>Welcome Back, Doctor!</h1>
-                <p>View your upcoming appointments and patient medical records here.</p>
-                <button class="btn-primary" onclick="location.href='appointments/appointments.html'">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M6.667 1.667V5M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
-                        <rect x="2.5" y="3.333" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.667"/>
-                        <path d="M2.5 8.333h15M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                <h1 style="font-size: 26px; font-weight: 700; margin-bottom: 8px;">Welcome to Doctor Operations</h1>
+                <p style="font-size: 15px; opacity: 0.9; margin-bottom: 20px;">Manage patient appointments and apply for leave requests seamlessly in one portal.</p>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <button class="btn-primary" onclick="location.href='appointments.html'" style="background: #FFF; color: #1D4ED8; font-weight: 600; padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer;">
+                        🗓️ View Appointments
+                    </button>
+                    <button class="btn-primary" onclick="location.href='leaves.html'" style="background: rgba(255,255,255,0.2); color: #FFF; font-weight: 600; padding: 10px 18px; border: 1px solid rgba(255,255,255,0.4); border-radius: 8px; cursor: pointer;">
+                        📝 Apply for Leave
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Cards (Appointments & Leave Applications) -->
+        <section class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 24px;">
+            <div class="stat-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 24px; display: flex; justify-content: space-between; align-items: center;">
+                <div class="stat-info">
+                    <p class="stat-label" style="font-size: 14px; color: #6B7280; margin-bottom: 4px;">Upcoming Appointments</p>
+                    <h3 class="stat-value" id="statAppointments" style="font-size: 32px; font-weight: 700; color: #1D4ED8; margin: 0;">0</h3>
+                </div>
+                <div class="stat-icon blue" style="background: #EFF6FF; width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                        <path d="M8.667 2.167V6.5M17.333 2.167V6.5" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="3.25" y="4.333" width="19.5" height="19.5" rx="2" stroke="#155DFC" stroke-width="2"/>
+                        <path d="M3.25 10.833h19.5" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    Book Appointment
-                </button>
-            </div>
-        </section>
-
-        <!-- Stats Cards -->
-        <section class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-info">
-                        <p class="stat-label">Upcoming Appointments</p>
-                        <h3 class="stat-value" id="statAppointments">0</h3>
-                    </div>
-                    <div class="stat-icon blue">
-                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                            <path d="M8.667 2.167V6.5M17.333 2.167V6.5" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <rect x="3.25" y="4.333" width="19.5" height="19.5" rx="2" stroke="#155DFC" stroke-width="2"/>
-                            <path d="M3.25 10.833h19.5" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-info">
-                        <p class="stat-label">Medical Records</p>
-                        <h3 class="stat-value" id="statRecords">0</h3>
-                    </div>
-                    <div class="stat-icon green">
-                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                            <rect x="6.5" y="2.167" width="13" height="21.667" rx="2" stroke="#009689" stroke-width="2"/>
-                            <path d="M10.833 9.75H8.667M17.333 14.083H8.667M17.333 18.417H8.667" stroke="#009689" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
+            <div class="stat-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 24px; display: flex; justify-content: space-between; align-items: center;">
+                <div class="stat-info">
+                    <p class="stat-label" style="font-size: 14px; color: #6B7280; margin-bottom: 4px;">Leave Applications</p>
+                    <h3 class="stat-value" id="statLeaves" style="font-size: 32px; font-weight: 700; color: #059669; margin: 0;">0</h3>
                 </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-info">
-                        <p class="stat-label">Ambulance Requests</p>
-                        <h3 class="stat-value" id="statAmbulance">0</h3>
-                    </div>
-                    <div class="stat-icon red">
-                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                            <path d="M10.833 10.833H6.5M8.667 8.667V13" stroke="#E7000B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M9.75 19.5h6.5M16.25 19.5a2.167 2.167 0 104.333 0 2.167 2.167 0 00-4.333 0zM5.417 19.5a2.167 2.167 0 104.333 0 2.167 2.167 0 00-4.333 0z" stroke="#E7000B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M2.167 6.5h8.666v13H2.167zM10.833 10.833h4.334l3.25 3.25v5.417h-7.584" stroke="#E7000B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-info">
-                        <p class="stat-label">Pending Bills</p>
-                        <h3 class="stat-value" id="statBills">0</h3>
-                    </div>
-                    <div class="stat-icon orange">
-                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                            <rect x="2.167" y="4.333" width="21.667" height="17.333" rx="2" stroke="#F54900" stroke-width="2"/>
-                            <path d="M2.167 10.833h21.667" stroke="#F54900" stroke-width="2"/>
-                        </svg>
-                    </div>
+                <div class="stat-icon green" style="background: #ECFDF5; width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                        <rect x="4" y="5" width="18" height="16" rx="2" stroke="#059669" stroke-width="2"/>
+                        <path d="M4 10h18" stroke="#059669" stroke-width="2"/>
+                        <path d="M9 14h4" stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
                 </div>
             </div>
         </section>
 
-        <!-- Main Sections -->
-        <section class="content-sections">
-            <!-- Upcoming Appointments -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h2>Upcoming Appointments</h2>
+        <!-- Main Sections: Appointments & Leave Applications -->
+        <section class="content-sections" style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- Section 1: Upcoming Appointments -->
+            <div class="section-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 24px;">
+                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 style="font-size: 18px; font-weight: 700; color: #111827; margin: 0;">🗓️ Scheduled Appointments</h2>
+                    <a href="appointments.html" class="btn-outline-sm" style="text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; border: 1px solid #D1D5DB; border-radius: 6px; color: #374151;">
+                        View All Appointments →
+                    </a>
                 </div>
-                <div class="appointments-table">
-                    <table id="appointmentsTable">
+                <div class="appointments-table" style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr>
-                                <th>Doctor</th>
-                                <th>Department</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                            <tr style="background: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
+                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Patient</th>
+                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Department</th>
+                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Date</th>
+                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Time</th>
+                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Status</th>
+                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- Dynamically loaded -->
+                        <tbody id="appointmentsTableBody">
+                            <!-- Loaded dynamically by dashboard.js -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Nearby Hospitals -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h2>Nearby Hospitals</h2>
+            <!-- Section 2: Leave Applications -->
+            <div class="section-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 24px;">
+                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 style="font-size: 18px; font-weight: 700; color: #111827; margin: 0;">📝 My Leave Applications</h2>
+                    <a href="leaves.html" class="btn-primary" style="text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; background: #059669; color: #FFF; border-radius: 6px;">
+                        + Apply for Leave
+                    </a>
                 </div>
-                <div class="appointments-table">
-                    <table id="hospitalsTable">
+                <div class="table-container" style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>City</th>
-                                <th>PIN Code</th>
-                                <th>Phone</th>
-                                <th>Actions</th>
+                            <tr style="background: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
+                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Leave ID</th>
+                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Date Range</th>
+                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Reason</th>
+                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Status</th>
+                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Applied On</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- Dynamically loaded -->
+                        <tbody id="leavesTableBody">
+                            <!-- Loaded dynamically by dashboard.js -->
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-
-            <!-- Billing & Payments -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h2>Billing & Payments</h2>
-                </div>
-                <div class="billing-table">
-                    <table id="billingTable">
-                        <thead>
-                            <tr>
-                                <th>Bill ID</th>
-                                <th>Service</th>
-                                <th>Date</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Dynamically loaded -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Medical Records -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h2>Medical Records</h2>
-                </div>
-                <div class="records-grid" id="recordsGrid">
-                    <!-- Dynamically loaded -->
                 </div>
             </div>
         </section>
     </main>
 
     <script src="../logo.js"></script>
-    <!-- System Modal for stylish popups -->
-    <div id="systemModal" class="modal">
-        <div class="modal-content" style="max-width: 450px; text-align: left; padding: 0; overflow: hidden; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="background: linear-gradient(135deg, #155DFC 0%, #1C398E 100%); padding: 18px 24px; border-bottom: none; display: flex; justify-content: space-between; align-items: center; border-radius: 16px 16px 0 0; margin-bottom: 0;">
-                <h3 id="modalTitle" style="margin: 0; font-size: 18px; font-weight: 600; color: white;">Information</h3>
-                <button class="modal-close" onclick="closeSystemModal()" style="color: white; opacity: 0.8; font-size: 28px; line-height: 1; margin-top: -4px;">&times;</button>
-            </div>
-            <div class="modal-body" id="modalBody" style="padding: 24px; font-size: 15px; color: #4A5565; line-height: 1.6; background: #FFFFFF;">
-                <!-- message here -->
-            </div>
-            <div class="modal-actions" id="modalFooter" style="padding: 16px 24px; border-top: 1px solid #E5E7EB; display: flex; justify-content: flex-end; gap: 12px; background: #F9FAFB; border-radius: 0 0 16px 16px;">
-                <!-- buttons here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
     <script src="../shared/api.js?v=8"></script>
     <script src="../shared/session.js?v=8"></script>
-    <script>
-        if (typeof checkAuth === "function") {
-            checkAuth();
-            checkRoleAccess();
-        }
-    </script>
-    <script src="../shared/db.js?v=10"></script>
-    <script src="script.js?v=1"></script>
-    <script src="dashboard.js?v=2"></script>
+    <script src="dashboard.js?v=3"></script>
 </body>
 </html>

@@ -2398,6 +2398,23 @@ body {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
+
+/* Status badges for Leave Management & Operations */
+.status-badge.status-approved {
+    background: #DEF7EC !important;
+    color: #03543F !important;
+}
+
+.status-badge.status-pending {
+    background: #FEF3C7 !important;
+    color: #92400E !important;
+}
+
+.status-badge.status-rejected {
+    background: #FDE8E8 !important;
+    color: #9B1C1C !important;
+}
+
     display: inline-flex;
     align-items: center;
     gap: 8px;
