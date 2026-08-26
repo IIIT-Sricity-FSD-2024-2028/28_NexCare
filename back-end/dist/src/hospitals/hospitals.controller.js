@@ -19,12 +19,13 @@ const api_response_interface_1 = require("../common/interfaces/api-response.inte
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const api_response_interface_2 = require("../common/interfaces/api-response.interface");
 const public_decorator_1 = require("../common/decorators/public.decorator");
+const hospital_query_interceptor_1 = require("./interceptors/hospital-query.interceptor");
 let HospitalsController = class HospitalsController {
     constructor(hospitalsService) {
         this.hospitalsService = hospitalsService;
     }
-    async findAll(status) {
-        return this.hospitalsService.findAll(status);
+    async findAll(status, speciality, city, pincode) {
+        return this.hospitalsService.findAll(status, speciality, city, pincode);
     }
     async findNearby(city, state, pincode) {
         return this.hospitalsService.findNearby(city, state, pincode);
@@ -51,14 +52,19 @@ let HospitalsController = class HospitalsController {
 exports.HospitalsController = HospitalsController;
 __decorate([
     (0, public_decorator_1.Public)(),
+    (0, common_1.UseInterceptors)(hospital_query_interceptor_1.HospitalQueryInterceptor),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('status')),
+    __param(1, (0, common_1.Query)('speciality')),
+    __param(2, (0, common_1.Query)('city')),
+    __param(3, (0, common_1.Query)('pincode')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], HospitalsController.prototype, "findAll", null);
 __decorate([
     (0, public_decorator_1.Public)(),
+    (0, common_1.UseInterceptors)(hospital_query_interceptor_1.HospitalQueryInterceptor),
     (0, common_1.Get)('nearby'),
     __param(0, (0, common_1.Query)('city')),
     __param(1, (0, common_1.Query)('state')),
@@ -68,6 +74,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], HospitalsController.prototype, "findNearby", null);
 __decorate([
+    (0, public_decorator_1.Public)(),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),

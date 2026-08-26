@@ -4,7 +4,7 @@ import { VerificationStatus } from '../common/interfaces/api-response.interface'
 export declare class HospitalsController {
     private readonly hospitalsService;
     constructor(hospitalsService: HospitalsService);
-    findAll(status?: VerificationStatus): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    findAll(status?: VerificationStatus, speciality?: string, city?: string, pincode?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findNearby(city: string, state: string, pincode: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     register(data: CreateHospitalDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;

@@ -28,12 +28,76 @@ export class HospitalsService {
     }
   }
 
-  async findAll(status?: VerificationStatus) {
+  async findAll(
+    status?: VerificationStatus,
+    speciality?: string,
+    city?: string,
+    pincode?: string
+  ) {
     try {
       let result = this.hospitals;
       if (status) {
         result = result.filter(h => h.verificationStatus === status);
       }
+      if (speciality && speciality.trim() !== '') {
+        const targetSpec = speciality.trim().toLowerCase();
+        result = result.filter((h: any) => {
+          const specsArray = Array.isArray(h.specialities)
+            ? h.specialities
+            : Array.isArray(h.specialties)
+            ? h.specialties
+            : null;
+
+          if (specsArray) {
+            const hasMatch = specsArray.some(
+              (s: any) => typeof s === 'string' && s.trim().toLowerCase() === targetSpec
+            );
+            if (hasMatch) return true;
+          }
+
+          if (typeof h.speciality === 'string' && h.speciality.trim().toLowerCase() === targetSpec) {
+            return true;
+          }
+          if (typeof h.specialty === 'string' && h.specialty.trim().toLowerCase() === targetSpec) {
+            return true;
+          }
+
+          if (Array.isArray(h.doctors)) {
+            const docMatch = h.doctors.some(
+              (d: any) =>
+                (typeof d.speciality === 'string' && d.speciality.trim().toLowerCase() === targetSpec) ||
+                (typeof d.specialty === 'string' && d.specialty.trim().toLowerCase() === targetSpec) ||
+                (typeof d.department === 'string' && d.department.trim().toLowerCase() === targetSpec)
+            );
+            if (docMatch) return true;
+          }
+          if (Array.isArray(h.departments)) {
+            const deptMatch = h.departments.some(
+              (d: any) =>
+                (typeof d === 'string' && d.trim().toLowerCase() === targetSpec) ||
+                (typeof d?.name === 'string' && d.name.trim().toLowerCase() === targetSpec)
+            );
+            if (deptMatch) return true;
+          }
+
+          return false;
+        });
+      }
+
+      if (city && city.trim() !== '') {
+        const targetCity = city.trim().toLowerCase();
+        result = result.filter(
+          h => h.city && h.city.trim().toLowerCase() === targetCity
+        );
+      }
+
+      if (pincode && pincode.trim() !== '') {
+        const targetPincode = pincode.trim();
+        result = result.filter(
+          h => h.pincode && h.pincode.trim() === targetPincode
+        );
+      }
+
       return ResponseUtil.success('Hospitals retrieved successfully', result);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve hospitals');
@@ -98,7 +162,7 @@ export class HospitalsService {
   async findNearby(city?: string, state?: string, pincode?: string) {
     try {
       const verified = this.hospitals.filter(
-        (h) => h.verificationStatus === VerificationStatus.VERIFIED,
+        (h) => !h.verificationStatus || h.verificationStatus === VerificationStatus.VERIFIED,
       );
 
       // Proximity score: same pincode (3) > same city (2) > same state (1).

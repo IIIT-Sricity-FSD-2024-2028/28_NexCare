@@ -1,22 +1,30 @@
-import { Controller, Get, Post, Put, Patch, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Body, Param, Query, UseInterceptors } from '@nestjs/common';
 import { HospitalsService } from './hospitals.service';
 import { CreateHospitalDto, UpdateHospitalDto } from './interfaces/hospital.interface';
 import { VerificationStatus } from '../common/interfaces/api-response.interface';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/interfaces/api-response.interface';
 import { Public } from '../common/decorators/public.decorator';
+import { HospitalQueryInterceptor } from './interceptors/hospital-query.interceptor';
 
 @Controller('hospitals')
 export class HospitalsController {
   constructor(private readonly hospitalsService: HospitalsService) {}
 
   @Public()
+  @UseInterceptors(HospitalQueryInterceptor)
   @Get()
-  async findAll(@Query('status') status?: VerificationStatus) {
-    return this.hospitalsService.findAll(status);
+  async findAll(
+    @Query('status') status?: VerificationStatus,
+    @Query('speciality') speciality?: string,
+    @Query('city') city?: string,
+    @Query('pincode') pincode?: string
+  ) {
+    return this.hospitalsService.findAll(status, speciality, city, pincode);
   }
 
   @Public()
+  @UseInterceptors(HospitalQueryInterceptor)
   @Get('nearby')
   async findNearby(
     @Query('city') city: string,
@@ -26,6 +34,7 @@ export class HospitalsController {
     return this.hospitalsService.findNearby(city, state, pincode);
   }
 
+  @Public()
   @Get(':id')
   async findById(@Param('id') id: string) {
     return this.hospitalsService.findById(id);

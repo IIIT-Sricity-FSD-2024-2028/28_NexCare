@@ -56,6 +56,13 @@
                 </svg>
                 <span>Dashboard</span>
             </a>
+            <a href="hospital-search.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M14 14l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Search Hospitals</span>
+            </a>
             <a href="appointments/appointments.html" class="nav-item">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                     <path d="M6.667 1.667v3.333M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
@@ -228,9 +235,14 @@
             <div class="section-card">
                 <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
                     <h2>Hospitals Near You</h2>
-                    <span id="patientLocationBadge" style="font-size: 13px; color: #1D4ED8; background: #EFF6FF; padding: 4px 10px; border-radius: 6px; font-weight: 500;">
-                        Location: Tirupati (517501)
-                    </span>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <a href="hospital-search.html" class="btn-outline-sm" style="text-decoration: none; font-size: 13px; font-weight: 600;">
+                            Search Hospitals
+                        </a>
+                        <span id="patientLocationBadge" style="font-size: 13px; color: #1D4ED8; background: #EFF6FF; padding: 4px 10px; border-radius: 6px; font-weight: 500;">
+                            Location: Tirupati (517501)
+                        </span>
+                    </div>
                 </div>
                 <div id="nearbyHospitalsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">
                     <div style="grid-column: 1/-1; text-align: center; padding: 24px; color: #6A7282;">Loading nearby verified hospitals...</div>
@@ -317,6 +329,7 @@
 
     <!-- Scripts -->
     <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/mock-hospitals.js"></script>
     <script src="../shared/session.js?v=8"></script>
     <script src="../shared/db.js?v=10"></script>
     <script src="script.js?v=1"></script>
