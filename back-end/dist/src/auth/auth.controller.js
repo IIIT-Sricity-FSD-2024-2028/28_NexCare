@@ -76,7 +76,7 @@ __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)('register-staff'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({ summary: 'Register a new staff account (doctor/administrative_staff/ambulance/nurse)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Register a new staff account (administrative_staff/ambulance)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Registration result (check success field)' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
     __param(0, (0, common_1.Body)()),

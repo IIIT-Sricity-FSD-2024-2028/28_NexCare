@@ -44,7 +44,7 @@ export class AuthController {
   @Public()
   @Post('register-staff')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Register a new staff account (doctor/administrative_staff/ambulance/nurse)' })
+  @ApiOperation({ summary: 'Register a new staff account (administrative_staff/ambulance)' })
   @ApiResponse({ status: 200, description: 'Registration result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
   async registerStaff(@Body() registerStaffDto: RegisterStaffDto) {

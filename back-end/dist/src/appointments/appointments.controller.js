@@ -90,7 +90,7 @@ let AppointmentsController = class AppointmentsController {
 exports.AppointmentsController = AppointmentsController;
 __decorate([
     (0, common_1.Get)(),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.DOCTOR, api_response_interface_1.UserRole.PATIENT),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, swagger_1.ApiOperation)({ summary: 'Get all appointments (patients: only their own)' }),
     (0, swagger_1.ApiQuery)({ name: 'patientId', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: api_response_interface_1.AppointmentStatus }),
@@ -106,7 +106,7 @@ __decorate([
 ], AppointmentsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.DOCTOR, api_response_interface_1.UserRole.PATIENT),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Book a new appointment' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment booking result (check success field)' }),
@@ -127,7 +127,7 @@ __decorate([
 ], AppointmentsController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('patient/:patientId'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.DOCTOR, api_response_interface_1.UserRole.PATIENT),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, swagger_1.ApiOperation)({ summary: 'Get appointments by patient ID (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of patient appointments' }),
     __param(0, (0, common_1.Req)()),
@@ -155,7 +155,7 @@ __decorate([
 ], AppointmentsController.prototype, "getTodayAppointments", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.DOCTOR, api_response_interface_1.UserRole.PATIENT),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, swagger_1.ApiOperation)({ summary: 'Get appointment by ID (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment details' }),
     __param(0, (0, common_1.Req)()),
@@ -213,7 +213,7 @@ __decorate([
 ], AppointmentsController.prototype, "complete", null);
 __decorate([
     (0, common_1.Patch)(':id/cancel'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.DOCTOR, api_response_interface_1.UserRole.PATIENT),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, swagger_1.ApiOperation)({ summary: 'Cancel an appointment (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Appointment cancelled successfully' }),
     __param(0, (0, common_1.Req)()),
@@ -225,7 +225,7 @@ __decorate([
 exports.AppointmentsController = AppointmentsController = __decorate([
     (0, swagger_1.ApiTags)('Appointments'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.DOCTOR),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
     (0, common_1.Controller)('appointments'),
     __metadata("design:paramtypes", [appointments_service_1.AppointmentsService])
 ], AppointmentsController);

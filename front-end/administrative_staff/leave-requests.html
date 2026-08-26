@@ -6,9 +6,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Hospital Management System - Manage Appointments</title>
-    <meta name="description" content="Hospital Management System - Manage Appointments">
-    
+    <title>Hospital Management System - Staff Leave Requests</title>
+    <meta name="description" content="Hospital Management System - Staff Leave Requests">
+
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="logo.css">
     <script src="../shared/api.js"></script>
@@ -16,7 +16,7 @@
     <script src="../shared/session.js?v=8"></script>
     <script defer src="logo.js"></script>
     <style>
-        .table-wrapper { overflow-y: auto; max-height: 500px; width: 100%; }
+        .table-wrapper { overflow-y: auto; max-height: 520px; width: 100%; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th, td { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
         th { background: #f9fafb; color: #6b7280; font-weight: 600; text-transform: uppercase; font-size: 11px; }
@@ -24,61 +24,40 @@
         .action-buttons { display: flex; gap: 8px; }
         .action-btn { width: 32px; height: 32px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .action-btn:hover { background: #f9fafb; }
-
-        .form-input, .form-select {
-            height: 38px;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 4px 12px;
-            font-size: 13px;
+        .form-input, .form-select, .form-textarea {
+            height: 38px; background: #f9fafb; border: 1px solid #e5e7eb;
+            border-radius: 8px; padding: 0 12px; font-size: 13px; width: 100%;
         }
-        .btn-dark {
-            height: 38px;
-            background: #0a0a0a;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 20px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            white-space: nowrap;
-        }
+        .form-textarea { height: auto; padding: 10px 12px; resize: vertical; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+        .stat-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px 20px; }
+        .stat-box .label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+        .stat-box .value { font-size: 28px; font-weight: 700; color: #111827; margin-top: 6px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; text-transform: capitalize; }
+        .badge.pending  { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+        .badge.approved { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
+        .badge.rejected { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+        .notice { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; border-radius: 10px;
+                  padding: 12px 16px; font-size: 13px; margin-bottom: 20px; }
+        .btn-dark { height: 38px; background: #0a0a0a; color: white; border: none; border-radius: 6px;
+                    padding: 8px 20px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
         .btn-dark:hover { background: #1a1a1a; }
-        .btn-light {
-            background: white; border: 1px solid #e5e7eb;
-            color: #374151; border-radius: 6px; padding: 8px 20px; cursor: pointer;
-            font-size: 13px; font-weight: 500;
-        }
+        .btn-light { background: white; border: 1px solid #e5e7eb; color: #374151; border-radius: 6px;
+                     padding: 8px 20px; cursor: pointer; font-size: 13px; font-weight: 500; }
         .btn-light:hover { background: #f9fafb; }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-        .status-completed { background: #d1fae5; color: #065f46; }
-        .status-inprogress { background: #dbeafe; color: #1e40af; }
-        .status-waiting { background: #fef3c7; color: #92400e; }
-        .status-scheduled { background: #ede9fe; color: #6b21a8; }
-        
         /* Modal CSS */
-        .modal {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
-            width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);
-            align-items: center; justify-content: center;
-        }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+                 background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
         .modal.active { display: flex; }
-        .modal-content {
-            background-color: white; padding: 24px; border-radius: 8px; width: 450px; max-width: 90%;
-        }
+        .modal-content { background-color: white; padding: 24px; border-radius: 8px; width: 470px; max-width: 90%;
+                         max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-header h2 { font-size: 18px; margin: 0; }
         .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; }
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
-        .form-group label { font-size: 13px; font-weight: 500; color: #374151; }
+        .detail-row { margin-bottom: 10px; font-size: 13px; }
+        .detail-row strong { display: inline-block; min-width: 130px; color: #374151; }
     </style>
 </head>
 <body>
@@ -113,6 +92,7 @@
     </script>
 
 <div class="layout">
+
     <!-- SIDEBAR -->
     <div class="sidebar">
         <nex-care-logo></nex-care-logo>
@@ -135,7 +115,7 @@
                     Patient Directory
                 </a>
             </li>
-            <li class="active">
+            <li>
                 <a href="manage_appointments.html">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     Manage Appointments
@@ -159,7 +139,7 @@
                     Staff Scheduling
                 </a>
             </li>
-            <li>
+            <li class="active">
                 <a href="leave-requests.html">
                     <!-- Leave Requests -->
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M9 16h6"/></svg>
@@ -199,113 +179,124 @@
         </div>
     </div>
     
-    <!-- MAIN -->
+        <!-- MAIN -->
     <div class="main">
         <!-- TOPBAR -->
         <div class="topbar">
-            <div class="user" id="displayUserName">Admin</div>
+            <div class="user" id="displayUserName">Administrative Staff</div>
         </div>
-        
+
         <div class="header-row" style="display:flex; justify-content: space-between; align-items:center;">
             <div>
-                <h1>Manage Appointments</h1>
-                <div class="sub">View, edit, and schedule patient appointments.</div>
+                <h1>Staff Leave Requests</h1>
+                <div class="sub">Record and track leave requests for hospital staff.</div>
             </div>
-            <button class="btn-dark" onclick="openAppointmentModal()">+ New Appointment</button>
+            <button class="btn-dark" onclick="openLeaveModal()">+ Record Leave Request</button>
         </div>
-        
+
+        <div class="notice">
+            Administrative staff record and track leave requests. Approving or rejecting a request
+            is reserved for the hospital manager or the system administrator.
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="label">Pending</div>
+                <div class="value" id="pendingCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">Approved</div>
+                <div class="value" id="approvedCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">Rejected</div>
+                <div class="value" id="rejectedCount">0</div>
+            </div>
+        </div>
+
         <div class="card" style="margin-bottom: 20px; display: flex; gap: 10px;">
-            <input type="text" id="searchTable" class="form-input" placeholder="Search by patient, ID, or doctor..." style="width: 300px;">
-            <select class="form-select" id="filterStatus">
-                <option value="All">All Status</option>
-                <option value="Completed">Completed</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Waiting">Waiting</option>
-                <option value="Scheduled">Scheduled</option>
+            <input type="text" id="searchTable" class="form-input" placeholder="Search by staff name or leave ID..." style="width: 300px;">
+            <select class="form-select" id="statusFilter" style="width: 180px;">
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
             </select>
         </div>
-        
+
         <div class="card">
             <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
-                            <th>Appt ID</th>
-                            <th>Patient Info</th>
-                            <th>Doctor</th>
-                            <th>Department</th>
-                            <th>Date & Time</th>
+                            <th>Leave ID</th>
+                            <th>Staff Member</th>
+                            <th>Date Range</th>
+                            <th>Reason</th>
                             <th>Status</th>
+                            <th>Applied On</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="appointmentsTableBody"></tbody>
+                    <tbody id="leavesTableBody"></tbody>
                 </table>
+                <div id="noLeavesMessage" style="display:none; padding: 40px; text-align: center; color: #6b7280;">
+                    <p>No leave requests found.</p>
+                </div>
             </div>
         </div>
 
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal" id="appointmentModal">
+<!-- Record Leave Modal -->
+<div class="modal" id="leaveModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 id="modalTitle">New Appointment</h2>
-            <button class="modal-close" onclick="closeAppointmentModal()">&times;</button>
+            <h2>Record Leave Request</h2>
+            <button class="modal-close" onclick="closeLeaveModal()">&times;</button>
         </div>
-        <form id="appointmentForm" onsubmit="saveAppointment(event)">
-            <input type="hidden" id="apptId">
+        <form id="leaveForm" onsubmit="submitLeaveRequest(event)">
             <div class="form-group">
-                <label>Patient Name &amp; ID</label>
-                <div style="display: flex; gap:10px;">
-                    <input type="text" id="patientName" class="form-input" style="flex:2;" placeholder="Patient Name" required>
-                    <input type="text" id="patientId" class="form-input" style="flex:1;" placeholder="ID" required>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Doctor</label>
-                <select id="doctorName" class="form-select" required>
-                    <option value="" disabled selected>Select Dept First</option>
+                <label for="staffMember">Staff Member *</label>
+                <select id="staffMember" class="form-select" required>
+                    <option value="" disabled selected>Loading staff...</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>Department</label>
-                <select id="deptName" class="form-select" required>
-                    <option value="" disabled selected>Select Dept</option>
-                    <option value="Cardiology">Cardiology</option>
-                    <option value="Orthopedics">Orthopedics</option>
-                    <option value="Pediatrics">Pediatrics</option>
-                    <option value="Neurology">Neurology</option>
-                    <option value="General Medicine">General Medicine</option>
-                    <option value="Dermatology">Dermatology</option>
-                    <option value="Emergency">Emergency</option>
-                </select>
+                <label for="startDate">Start Date *</label>
+                <input type="date" id="startDate" class="form-input" required>
             </div>
             <div class="form-group">
-                <label>Date &amp; Time</label>
-                <div style="display: flex; gap:10px;">
-                    <input type="date" id="apptDate" class="form-input" required>
-                    <input type="time" id="apptTime" class="form-input" required>
-                </div>
+                <label for="endDate">End Date *</label>
+                <input type="date" id="endDate" class="form-input" required>
             </div>
             <div class="form-group">
-                <label>Status</label>
-                <select id="apptStatus" class="form-select">
-                    <option value="Scheduled">Scheduled</option>
-                    <option value="Waiting">Waiting</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                </select>
+                <label for="reason">Reason *</label>
+                <textarea id="reason" class="form-textarea" rows="4" required placeholder="Reason for the leave request"></textarea>
             </div>
-            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                <button type="button" class="btn-light" onclick="closeAppointmentModal()">Cancel</button>
-                <button type="submit" class="btn-dark">Save Appointment</button>
+            <div class="modal-actions" style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
+                <button type="button" class="btn-light" onclick="closeLeaveModal()">Cancel</button>
+                <button type="submit" class="btn-dark">Submit Request</button>
             </div>
         </form>
     </div>
 </div>
 
-<script src="manage_appointments.js"></script>
+<!-- Leave Details Modal -->
+<div class="modal" id="viewLeaveModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Leave Details</h2>
+            <button class="modal-close" onclick="closeViewModal()">&times;</button>
+        </div>
+        <div id="leaveDetailsContent"></div>
+        <div class="modal-actions" style="display:flex; justify-content:flex-end; margin-top:18px;">
+            <button type="button" class="btn-light" onclick="closeViewModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script src="leave-requests.js"></script>
 </body>
 </html>

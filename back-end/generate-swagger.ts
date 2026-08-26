@@ -7,6 +7,9 @@ import * as path from 'path';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Must mirror main.ts, or every documented path loses its /api prefix.
+  app.setGlobalPrefix('api');
+
   const config = new DocumentBuilder()
     .setTitle('NexCare Hospital Management API')
     .setDescription(
@@ -29,7 +32,7 @@ async function bootstrap() {
         type: 'apiKey',
         in: 'header',
         name: 'x-user-role',
-        description: 'User role for RBAC (superuser, administrative_staff, patient, ambulance, doctor, nurse)',
+        description: 'User role for RBAC (superuser, administrative_staff, patient, ambulance, regional_manager, hospital_manager)',
       },
       'x-user-role',
     )

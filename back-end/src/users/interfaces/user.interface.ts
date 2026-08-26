@@ -12,8 +12,8 @@ export interface User {
   status: UserStatus;
   password: string;
   patientId?: string; // For patient users
-  dept?: string; // For doctor/nurse users
-  hospitalId?: string; // For staff/doctor/ambulance users scoped to a hospital
+  dept?: string; // Department within the hospital (e.g. Front Desk, Cardiology)
+  hospitalId?: string; // For any user scoped to a single hospital
   createdAt?: string;
   updatedAt?: string;
 }

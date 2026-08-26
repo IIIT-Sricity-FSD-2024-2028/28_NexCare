@@ -11,6 +11,13 @@ import { SystemService } from '../system/system.service';
 import { PatientsService } from '../patients/patients.service';
 
 /**
+ * Roles that exist purely as directory records on this non-clinical platform.
+ * They can be created and referenced (appointments, leave rosters, headcount) but
+ * are never granted a session — NexCare has no clinical portal.
+ */
+const NON_LOGIN_ROLES: UserRole[] = [UserRole.DOCTOR, UserRole.NURSE];
+
+/**
  * Authentication Service
  * Handles user authentication, registration, and session management.
  *
@@ -195,6 +202,15 @@ export class AuthService {
         );
       }
 
+      // NexCare is a non-clinical platform. Clinical roles exist only as directory
+      // records so appointments and rosters can reference them — they have no portal
+      // and are never issued a session.
+      if (NON_LOGIN_ROLES.includes(user.role)) {
+        return ResponseUtil.error(
+          `Access Denied: '${user.role}' is a directory record, not a NexCare login account.`,
+        );
+      }
+
       if (user.status === UserStatus.INACTIVE) {
         return ResponseUtil.error('Account is inactive. Please contact the administrator.');
       }
@@ -320,7 +336,7 @@ export class AuthService {
   }
 
   /**
-   * Register a new staff account (administrative_staff, doctor, ambulance, nurse).
+   * Register a new staff account (administrative_staff, ambulance).
    * Unlike patient registration, the role is supplied by the applicant and the
    * account is scoped to a hospital. No patient record is created.
    */

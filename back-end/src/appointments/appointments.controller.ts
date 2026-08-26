@@ -24,12 +24,12 @@ import { UserRole, AppointmentStatus } from '../common/interfaces/api-response.i
  * Appointments Controller
  * Manages appointment scheduling and status tracking in the NexCare system.
  *
- * RBAC: staff/superuser/doctor manage all appointments. Patients may book and
+ * RBAC: administrative staff and superuser manage all appointments. Patients may book and
  * view/cancel their OWN appointments only (enforced against req.user.patientId).
  */
 @ApiTags('Appointments')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR)
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
@@ -51,7 +51,7 @@ export class AppointmentsController {
    * Get all appointments with optional filtering
    */
   @Get()
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR, UserRole.PATIENT)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Get all appointments (patients: only their own)' })
   @ApiQuery({ name: 'patientId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: AppointmentStatus })
@@ -74,7 +74,7 @@ export class AppointmentsController {
    * Create new appointment
    */
   @Post()
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR, UserRole.PATIENT)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Book a new appointment' })
   @ApiResponse({ status: 200, description: 'Appointment booking result (check success field)' })
@@ -102,7 +102,7 @@ export class AppointmentsController {
    * Get appointments by patient
    */
   @Get('patient/:patientId')
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR, UserRole.PATIENT)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Get appointments by patient ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'List of patient appointments' })
   async findByPatient(@Req() req: any, @Param('patientId') patientId: string) {
@@ -136,7 +136,7 @@ export class AppointmentsController {
    * Get appointment by ID
    */
   @Get(':id')
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR, UserRole.PATIENT)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Get appointment by ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Appointment details' })
   async findById(@Req() req: any, @Param('id') id: string) {
@@ -198,7 +198,7 @@ export class AppointmentsController {
    * Cancel appointment
    */
   @Patch(':id/cancel')
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR, UserRole.PATIENT)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Cancel an appointment (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Appointment cancelled successfully' })
   async cancel(@Req() req: any, @Param('id') id: string) {

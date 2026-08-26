@@ -83,7 +83,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "create", null);
 __decorate([
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT, api_response_interface_1.UserRole.DOCTOR),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
     (0, common_1.Get)('doctors'),
     (0, swagger_1.ApiOperation)({ summary: 'Get active doctors, optionally filtered by department' }),
     (0, swagger_1.ApiQuery)({ name: 'dept', required: false }),

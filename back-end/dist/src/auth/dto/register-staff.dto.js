@@ -15,9 +15,7 @@ const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 const ALLOWED_STAFF_ROLES = [
     api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF,
-    api_response_interface_1.UserRole.DOCTOR,
     api_response_interface_1.UserRole.AMBULANCE,
-    api_response_interface_1.UserRole.NURSE,
 ];
 class RegisterStaffDto {
 }
@@ -54,7 +52,7 @@ __decorate([
         description: 'Staff role to register as',
     }),
     (0, class_validator_1.IsIn)(ALLOWED_STAFF_ROLES, {
-        message: 'Role must be one of: administrative_staff, doctor, ambulance, nurse',
+        message: 'Role must be one of: administrative_staff, ambulance',
     }),
     __metadata("design:type", String)
 ], RegisterStaffDto.prototype, "role", void 0);
@@ -65,7 +63,7 @@ __decorate([
     __metadata("design:type", String)
 ], RegisterStaffDto.prototype, "hospitalId", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 'Cardiology', description: 'Department (for doctors/nurses)' }),
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Front Desk', description: 'Department the staff member works in' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)

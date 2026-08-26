@@ -68,5 +68,45 @@
     "module": "Appointments",
     "severity": "INFO",
     "createdAt": "2026-08-25T20:08:28.755Z"
+  },
+  {
+    "id": "ACT-MT9WVMYR18E",
+    "timestamp": "2026-08-26T09:48:37.251Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T09:48:37.251Z"
+  },
+  {
+    "id": "ACT-MT9WY8QN2MY",
+    "timestamp": "2026-08-26T09:50:38.783Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User System Administrator logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T09:50:38.783Z"
+  },
+  {
+    "id": "ACT-MT9X1WXP3M1",
+    "timestamp": "2026-08-26T09:53:30.109Z",
+    "userId": "U001",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T09:53:30.109Z"
+  },
+  {
+    "id": "ACT-MTAEJ5X910V",
+    "timestamp": "2026-08-26T18:02:48.381Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T18:02:48.381Z"
   }
 ]

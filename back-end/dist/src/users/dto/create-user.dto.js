@@ -29,7 +29,7 @@ __decorate([
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "email", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: api_response_interface_1.UserRole, example: api_response_interface_1.UserRole.DOCTOR, description: 'User role' }),
+    (0, swagger_1.ApiProperty)({ enum: api_response_interface_1.UserRole, example: api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, description: 'User role' }),
     (0, class_validator_1.IsEnum)(api_response_interface_1.UserRole, { message: 'Invalid user role' }),
     (0, class_validator_1.IsNotEmpty)({ message: 'Role is required' }),
     __metadata("design:type", String)
@@ -48,13 +48,13 @@ __decorate([
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "patientId", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 'Cardiology', description: 'Department (for doctors/staff)' }),
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Cardiology', description: 'Department within the hospital' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "dept", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 'H001', description: 'Hospital the user belongs to (for staff/doctor/ambulance)' }),
+    (0, swagger_1.ApiPropertyOptional)({ example: 'H001', description: 'Hospital the user belongs to' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)

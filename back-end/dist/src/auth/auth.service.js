@@ -19,6 +19,7 @@ const id_generator_util_1 = require("../common/utils/id-generator.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 const system_service_1 = require("../system/system.service");
 const patients_service_1 = require("../patients/patients.service");
+const NON_LOGIN_ROLES = [api_response_interface_1.UserRole.DOCTOR, api_response_interface_1.UserRole.NURSE];
 let AuthService = class AuthService {
     constructor(systemService, patientsService) {
         this.systemService = systemService;
@@ -129,6 +130,9 @@ let AuthService = class AuthService {
             }
             if (user.role !== loginRequest.role) {
                 return response_util_1.ResponseUtil.error(`Access Denied: Account is registered as '${user.role}', not '${loginRequest.role}'`);
+            }
+            if (NON_LOGIN_ROLES.includes(user.role)) {
+                return response_util_1.ResponseUtil.error(`Access Denied: '${user.role}' is a directory record, not a NexCare login account.`);
             }
             if (user.status === api_response_interface_1.UserStatus.INACTIVE) {
                 return response_util_1.ResponseUtil.error('Account is inactive. Please contact the administrator.');

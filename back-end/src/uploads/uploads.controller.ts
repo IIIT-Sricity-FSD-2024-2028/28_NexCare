@@ -35,7 +35,6 @@ import { UserRole } from '../common/interfaces/api-response.interface';
 @Roles(
   UserRole.SUPERUSER,
   UserRole.ADMINISTRATIVE_STAFF,
-  UserRole.DOCTOR,
   UserRole.HOSPITAL_MANAGER,
   UserRole.REGIONAL_MANAGER,
 )

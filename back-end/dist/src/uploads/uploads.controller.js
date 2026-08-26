@@ -127,7 +127,7 @@ __decorate([
 exports.UploadsController = UploadsController = __decorate([
     (0, swagger_1.ApiTags)('Uploads'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.DOCTOR, api_response_interface_1.UserRole.HOSPITAL_MANAGER, api_response_interface_1.UserRole.REGIONAL_MANAGER),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.HOSPITAL_MANAGER, api_response_interface_1.UserRole.REGIONAL_MANAGER),
     (0, common_1.Controller)('uploads'),
     __metadata("design:paramtypes", [uploads_service_1.UploadsService])
 ], UploadsController);

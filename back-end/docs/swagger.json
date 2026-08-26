@@ -57,7 +57,7 @@
     "/api/auth/register-staff": {
       "post": {
         "operationId": "AuthController_registerStaff",
-        "summary": "Register a new staff account (doctor/administrative_staff/ambulance/nurse)",
+        "summary": "Register a new staff account (administrative_staff/ambulance)",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -956,10 +956,10 @@
                 "administrative_staff",
                 "superuser",
                 "ambulance",
-                "doctor",
-                "nurse",
                 "regional_manager",
-                "hospital_manager"
+                "hospital_manager",
+                "doctor",
+                "nurse"
               ],
               "type": "string"
             }
@@ -4515,7 +4515,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "x-user-role",
-        "description": "User role for RBAC (superuser, administrative_staff, patient, ambulance, doctor, nurse)"
+        "description": "User role for RBAC (superuser, administrative_staff, patient, ambulance, regional_manager, hospital_manager)"
       }
     },
     "schemas": {
@@ -4539,10 +4539,10 @@
               "administrative_staff",
               "superuser",
               "ambulance",
-              "doctor",
-              "nurse",
               "regional_manager",
-              "hospital_manager"
+              "hospital_manager",
+              "doctor",
+              "nurse"
             ],
             "example": "superuser",
             "description": "Role to login as"
@@ -4622,9 +4622,7 @@
             "type": "string",
             "enum": [
               "administrative_staff",
-              "doctor",
-              "ambulance",
-              "nurse"
+              "ambulance"
             ],
             "example": "administrative_staff",
             "description": "Staff role to register as"
@@ -4636,8 +4634,8 @@
           },
           "dept": {
             "type": "string",
-            "example": "Cardiology",
-            "description": "Department (for doctors/nurses)"
+            "example": "Front Desk",
+            "description": "Department the staff member works in"
           }
         },
         "required": [
@@ -4794,12 +4792,12 @@
               "administrative_staff",
               "superuser",
               "ambulance",
-              "doctor",
-              "nurse",
               "regional_manager",
-              "hospital_manager"
+              "hospital_manager",
+              "doctor",
+              "nurse"
             ],
-            "example": "doctor",
+            "example": "administrative_staff",
             "description": "User role"
           },
           "password": {
@@ -4815,12 +4813,12 @@
           "dept": {
             "type": "string",
             "example": "Cardiology",
-            "description": "Department (for doctors/staff)"
+            "description": "Department within the hospital"
           },
           "hospitalId": {
             "type": "string",
             "example": "H001",
-            "description": "Hospital the user belongs to (for staff/doctor/ambulance)"
+            "description": "Hospital the user belongs to"
           }
         },
         "required": [
@@ -4850,12 +4848,12 @@
               "administrative_staff",
               "superuser",
               "ambulance",
-              "doctor",
-              "nurse",
               "regional_manager",
-              "hospital_manager"
+              "hospital_manager",
+              "doctor",
+              "nurse"
             ],
-            "example": "doctor",
+            "example": "administrative_staff",
             "description": "User role"
           },
           "status": {
@@ -4881,12 +4879,12 @@
           "dept": {
             "type": "string",
             "example": "Cardiology",
-            "description": "Department (for doctors/staff)"
+            "description": "Department within the hospital"
           },
           "hospitalId": {
             "type": "string",
             "example": "H001",
-            "description": "Hospital the user belongs to (for staff/doctor/ambulance)"
+            "description": "Hospital the user belongs to"
           }
         }
       },

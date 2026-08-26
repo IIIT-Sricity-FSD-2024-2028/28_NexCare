@@ -27,10 +27,6 @@ function redirectByRole(role) {
             window.location.href = "/administrative_staff/dashboard.html";
             break;
 
-        case "doctor":
-            window.location.href = "/doctor/dashboard.html";
-            break;
-
         case "patient":
             window.location.href = "/patient/dashboard.html";
             break;
@@ -171,8 +167,8 @@ function checkRoleAccess() {
     const path = window.location.pathname;
     const role  = session.role;
 
-    // Special exception: allow doctors to view appointments in patient/appointments
-    if (path.includes('/patient/appointments/') && (role === 'doctor' || role === 'patient')) {
+    // Patients reach their own booking flow under /patient/appointments/
+    if (path.includes('/patient/appointments/') && role === 'patient') {
         return;
     }
 
@@ -182,8 +178,6 @@ function checkRoleAccess() {
         administrative_staff:  '/administrative_staff/',
         patient:               '/patient/',
         ambulance:             '/ambulance/',
-        doctor:                '/doctor/',
-        nurse:                 '/nurse/',
     };
 
     // Find which portal this path belongs to

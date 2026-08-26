@@ -51,10 +51,10 @@ describe('LeaveRequestGuard', () => {
         });
     });
     describe('PATCH /leaves/:id validation', () => {
-        it('should throw ForbiddenException (403) if user is a DOCTOR trying to approve/reject leave', async () => {
+        it('should throw ForbiddenException (403) if ADMINISTRATIVE_STAFF tries to approve/reject leave', async () => {
             const mockRequest = {
                 method: 'PATCH',
-                user: { role: api_response_interface_1.UserRole.DOCTOR, id: 'U007' },
+                user: { role: api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, id: 'U002' },
             };
             const mockContext = {
                 switchToHttp: () => ({

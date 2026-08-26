@@ -5,14 +5,16 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 /**
  * Register Staff DTO
  * Self-registration for non-patient staff accounts
- * (administrative_staff, doctor, ambulance). Unlike patient registration,
+ * (administrative_staff, ambulance). Unlike patient registration,
  * the role is chosen by the applicant and the account is scoped to a hospital.
+ *
+ * NexCare is a non-clinical platform: doctor and nurse are directory-only records
+ * with no portal, created by an administrator via /users. They are deliberately
+ * absent here so they can never be self-registered as login accounts.
  */
 const ALLOWED_STAFF_ROLES = [
   UserRole.ADMINISTRATIVE_STAFF,
-  UserRole.DOCTOR,
   UserRole.AMBULANCE,
-  UserRole.NURSE,
 ];
 
 export class RegisterStaffDto {
@@ -43,7 +45,7 @@ export class RegisterStaffDto {
     description: 'Staff role to register as',
   })
   @IsIn(ALLOWED_STAFF_ROLES, {
-    message: 'Role must be one of: administrative_staff, doctor, ambulance, nurse',
+    message: 'Role must be one of: administrative_staff, ambulance',
   })
   role: UserRole;
 
@@ -52,7 +54,7 @@ export class RegisterStaffDto {
   @IsNotEmpty({ message: 'Hospital is required' })
   hospitalId: string;
 
-  @ApiPropertyOptional({ example: 'Cardiology', description: 'Department (for doctors/nurses)' })
+  @ApiPropertyOptional({ example: 'Front Desk', description: 'Department the staff member works in' })
   @IsOptional()
   @IsString()
   dept?: string;
