@@ -10,13 +10,14 @@ exports.HospitalsModule = void 0;
 const common_1 = require("@nestjs/common");
 const hospitals_controller_1 = require("./hospitals.controller");
 const hospitals_service_1 = require("./hospitals.service");
+const hospital_query_interceptor_1 = require("./interceptors/hospital-query.interceptor");
 let HospitalsModule = class HospitalsModule {
 };
 exports.HospitalsModule = HospitalsModule;
 exports.HospitalsModule = HospitalsModule = __decorate([
     (0, common_1.Module)({
         controllers: [hospitals_controller_1.HospitalsController],
-        providers: [hospitals_service_1.HospitalsService],
+        providers: [hospitals_service_1.HospitalsService, hospital_query_interceptor_1.HospitalQueryInterceptor],
         exports: [hospitals_service_1.HospitalsService]
     })
 ], HospitalsModule);

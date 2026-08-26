@@ -1,0 +1,235 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import { Injectable } from '@nestjs/common';
+import { ResponseUtil } from '../common/utils/response.util';
+import { IdGenerator } from '../common/utils/id-generator.util';
+import { Leave, CreateLeaveDto, UpdateLeaveDto, LeaveCalendarView } from './interfaces/leave.interface';
+import { LeaveStatus } from '../common/interfaces/api-response.interface';
+
+/**
+ * Leaves Service
+ * Manages doctor leave requests and approvals in the NexCare system
+ * Handles CRUD operations for leaves with business logic
+ */
+@Injectable()
+export class LeavesService {
+  private readonly leavesFilePath = path.join(process.cwd(), 'data', 'leaves.json');
+
+  /** Load leaves from disk */
+  private loadLeaves(): Leave[] {
+    try {
+      if (!fs.existsSync(this.leavesFilePath)) {
+        const initial = this.getInitialMockData();
+        this.saveLeaves(initial);
+        return initial;
+      }
+      const raw = fs.readFileSync(this.leavesFilePath, 'utf-8');
+      return JSON.parse(raw);
+    } catch {
+      return this.getInitialMockData();
+    }
+  }
+
+  /** Persist leaves to disk */
+  private saveLeaves(leaves: Leave[]): void {
+    try {
+      fs.mkdirSync(path.dirname(this.leavesFilePath), { recursive: true });
+      fs.writeFileSync(this.leavesFilePath, JSON.stringify(leaves, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to persist leaves:', err);
+    }
+  }
+
+  private getInitialMockData(): Leave[] {
+    return [
+      {
+        id: 'L001',
+        doctorId: 'U007',
+        doctorName: 'Dr. Anjali Desai',
+        hospitalId: 'H001',
+        startDate: '2026-08-20',
+        endDate: '2026-08-25',
+        reason: 'Family vacation',
+        status: LeaveStatus.APPROVED,
+        createdAt: '2026-08-15T00:00:00Z',
+        updatedAt: '2026-08-16T00:00:00Z',
+        approvedBy: 'U002',
+        approvedAt: '2026-08-16T00:00:00Z'
+      },
+      {
+        id: 'L002',
+        doctorId: 'U005',
+        doctorName: 'Dr. Sarah Smith',
+        hospitalId: 'H001',
+        startDate: '2026-09-01',
+        endDate: '2026-09-03',
+        reason: 'Medical conference attendance',
+        status: LeaveStatus.PENDING,
+        createdAt: '2026-08-20T00:00:00Z',
+        updatedAt: '2026-08-20T00:00:00Z'
+      }
+    ];
+  }
+
+  // Leaves database initialized from disk
+  private leaves: Leave[] = this.loadLeaves();
+
+  /**
+   * Get all leaves with optional filtering
+   */
+  findAll(doctorId?: string, hospitalId?: string, status?: LeaveStatus): any {
+    let filtered = [...this.leaves];
+
+    if (doctorId) {
+      filtered = filtered.filter(leave => leave.doctorId === doctorId);
+    }
+
+    if (hospitalId) {
+      filtered = filtered.filter(leave => leave.hospitalId === hospitalId);
+    }
+
+    if (status) {
+      filtered = filtered.filter(leave => leave.status === status);
+    }
+
+    return ResponseUtil.success('Leaves retrieved successfully', filtered);
+  }
+
+  /**
+   * Get leave by ID
+   */
+  findById(id: string): any {
+    const leave = this.leaves.find(l => l.id === id);
+    if (!leave) {
+      return ResponseUtil.error('Leave not found', 404);
+    }
+    return ResponseUtil.success('Leave retrieved successfully', leave);
+  }
+
+  /**
+   * Create a new leave request
+   */
+  create(createLeaveDto: CreateLeaveDto): any {
+    const newLeave: Leave = {
+      id: IdGenerator.generate('L'),
+      ...createLeaveDto,
+      status: LeaveStatus.PENDING,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    this.leaves.push(newLeave);
+    this.saveLeaves(this.leaves);
+
+    return ResponseUtil.success('Leave request submitted successfully', newLeave);
+  }
+
+  /**
+   * Update leave status (approve/reject)
+   */
+  update(id: string, updateLeaveDto: UpdateLeaveDto): any {
+    const index = this.leaves.findIndex(l => l.id === id);
+    if (index === -1) {
+      return ResponseUtil.error('Leave not found', 404);
+    }
+
+    this.leaves[index] = {
+      ...this.leaves[index],
+      ...updateLeaveDto,
+      updatedAt: new Date().toISOString(),
+      approvedAt: updateLeaveDto.status === LeaveStatus.APPROVED ? new Date().toISOString() : undefined
+    };
+
+    this.saveLeaves(this.leaves);
+
+    return ResponseUtil.success('Leave status updated successfully', this.leaves[index]);
+  }
+
+  /**
+   * Delete a leave request
+   */
+  delete(id: string): any {
+    const index = this.leaves.findIndex(l => l.id === id);
+    if (index === -1) {
+      return ResponseUtil.error('Leave not found', 404);
+    }
+
+    this.leaves.splice(index, 1);
+    this.saveLeaves(this.leaves);
+
+    return ResponseUtil.success(null, 'Leave deleted successfully');
+  }
+
+  /**
+   * Check for overlapping approved leaves
+   */
+  async hasOverlappingLeave(doctorId: string, startDate: string, endDate: string): Promise<boolean> {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const overlapping = this.leaves.some(leave => {
+      if (leave.doctorId !== doctorId || leave.status !== LeaveStatus.APPROVED) {
+        return false;
+      }
+
+      const leaveStart = new Date(leave.startDate);
+      const leaveEnd = new Date(leave.endDate);
+
+      // Check for date overlap
+      return start <= leaveEnd && end >= leaveStart;
+    });
+
+    return overlapping;
+  }
+
+  /**
+   * Get calendar view of approved leaves
+   */
+  getCalendarView(hospitalId?: string, startDate?: string, endDate?: string): any {
+    let filtered = this.leaves.filter(leave => leave.status === LeaveStatus.APPROVED);
+
+    if (hospitalId) {
+      filtered = filtered.filter(leave => leave.hospitalId === hospitalId);
+    }
+
+    if (startDate) {
+      filtered = filtered.filter(leave => leave.startDate >= startDate);
+    }
+
+    if (endDate) {
+      filtered = filtered.filter(leave => leave.endDate <= endDate);
+    }
+
+    // Group by date
+    const calendarMap = new Map<string, LeaveCalendarView['doctorsOnLeave']>();
+
+    filtered.forEach(leave => {
+      const current = new Date(leave.startDate);
+      const end = new Date(leave.endDate);
+
+      while (current <= end) {
+        const dateStr = current.toISOString().split('T')[0];
+        
+        if (!calendarMap.has(dateStr)) {
+          calendarMap.set(dateStr, []);
+        }
+
+        calendarMap.get(dateStr)!.push({
+          doctorId: leave.doctorId,
+          doctorName: leave.doctorName,
+          reason: leave.reason
+        });
+
+        current.setDate(current.getDate() + 1);
+      }
+    });
+
+    // Convert map to array
+    const calendarView: LeaveCalendarView[] = Array.from(calendarMap.entries()).map(([date, doctors]) => ({
+      date,
+      doctorsOnLeave: doctors
+    }));
+
+    return ResponseUtil.success('Calendar view retrieved successfully', calendarView);
+  }
+}

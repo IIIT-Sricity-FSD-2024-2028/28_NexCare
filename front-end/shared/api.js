@@ -436,6 +436,37 @@ const InventoryAPI = {
     }
 };
 
+// Hospitals API
+const HospitalsAPI = {
+    async getAll(query = {}) {
+        let qStr = '';
+        if (typeof query === 'string') {
+            qStr = query.startsWith('?') ? query : `?${query}`;
+        } else if (query && typeof query === 'object') {
+            const params = new URLSearchParams();
+            if (query.status) params.append('status', query.status);
+            if (query.speciality) params.append('speciality', query.speciality);
+            if (query.city) params.append('city', query.city);
+            if (query.pincode) params.append('pincode', query.pincode);
+            const s = params.toString();
+            if (s) qStr = `?${s}`;
+        }
+        return await api.get(`/hospitals${qStr}`);
+    },
+
+    async getNearby(city, state, pincode) {
+        const params = new URLSearchParams();
+        if (city) params.append('city', city);
+        if (state) params.append('state', state);
+        if (pincode) params.append('pincode', pincode);
+        const s = params.toString();
+        return await api.get(`/hospitals/nearby${s ? `?${s}` : ''}`);
+    },
+
+    async getById(id) {
+        return await api.get(`/hospitals/${id}`);
+    }
+};
 
 // System API
 const SystemAPI = {
@@ -453,6 +484,49 @@ const SystemAPI = {
 
     async logActivity(activityData) {
         return await api.post('/system/activity', activityData);
+    }
+};
+
+// Leaves API
+const LeavesAPI = {
+    async getAll(query = {}) {
+        let qStr = '';
+        if (typeof query === 'string') {
+            qStr = query.startsWith('?') ? query : `?${query}`;
+        } else if (query && typeof query === 'object') {
+            const params = new URLSearchParams();
+            if (query.doctorId) params.append('doctorId', query.doctorId);
+            if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+            if (query.status) params.append('status', query.status);
+            const s = params.toString();
+            if (s) qStr = `?${s}`;
+        }
+        return await api.get(`/leaves${qStr}`);
+    },
+
+    async getById(id) {
+        return await api.get(`/leaves/${id}`);
+    },
+
+    async create(leaveData) {
+        return await api.post('/leaves', leaveData);
+    },
+
+    async update(id, updateData) {
+        return await api.patch(`/leaves/${id}`, updateData);
+    },
+
+    async delete(id) {
+        return await api.delete(`/leaves/${id}`);
+    },
+
+    async getCalendarView(query = {}) {
+        const params = new URLSearchParams();
+        if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+        if (query.startDate) params.append('startDate', query.startDate);
+        if (query.endDate) params.append('endDate', query.endDate);
+        const s = params.toString();
+        return await api.get(`/leaves/calendar${s ? `?${s}` : ''}`);
     }
 };
 
@@ -480,8 +554,11 @@ window.NexCareAPI = {
     Feedback: FeedbackAPI,
     Beds: BedsAPI,
     Inventory: InventoryAPI,
+    Hospitals: HospitalsAPI,
+    Leaves: LeavesAPI,
     System: SystemAPI
 };
+
 
 // Legacy compatibility aliases for gradual migration
 window.NexCareAPI.login = AuthAPI.login;
@@ -504,4 +581,6 @@ window.NexCareAPI.getFeedback = FeedbackAPI.getAll;
 window.NexCareAPI.createFeedback = FeedbackAPI.create;
 window.NexCareAPI.getBeds = BedsAPI.getAll;
 window.NexCareAPI.getInventory = InventoryAPI.getAll;
+window.NexCareAPI.getHospitals = HospitalsAPI.getAll;
 window.NexCareAPI.getSystemActivity = SystemAPI.getActivity;
+
