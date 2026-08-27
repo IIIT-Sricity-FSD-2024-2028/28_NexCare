@@ -290,7 +290,7 @@
     "email": "ananya.sharma@gmail.com",
     "role": "patient",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$392c07e9856d607dc7591a64ec452a36$5b307a7a7d057f12121568d04c94dcae61b006cb03630baf2aab445e411d545415daee9bc768228c1cae56856fde87ac11f7bb7458b688b8626e47c0706432a1",
     "patientId": "P010",
     "city": "Tirupati",
     "state": "Andhra Pradesh",

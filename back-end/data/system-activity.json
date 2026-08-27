@@ -378,5 +378,35 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-27T14:39:12.843Z"
+  },
+  {
+    "id": "ACT-MTBN5QO44MS",
+    "timestamp": "2026-08-27T14:52:04.804Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T14:52:04.804Z"
+  },
+  {
+    "id": "ACT-MTBOKRG91UQ",
+    "timestamp": "2026-08-27T15:31:45.273Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T15:31:45.273Z"
+  },
+  {
+    "id": "ACT-MTBORKXJ2N3",
+    "timestamp": "2026-08-27T15:37:03.415Z",
+    "userId": "U040",
+    "action": "Login",
+    "details": "User Ananya Sharma logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T15:37:03.415Z"
   }
 ]
