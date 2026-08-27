@@ -1,26 +1,68 @@
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         await loadHospitals();
+
+        // Add search functionality
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', async (e) => {
+                const term = e.target.value.toLowerCase().trim();
+                await loadHospitals(term);
+            });
+        }
     } catch (err) {
         console.error("Initialization error:", err);
     }
 });
 
-async function loadHospitals() {
+async function loadHospitals(searchTerm = '') {
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: #6A7282;">Loading hospitals...</td></tr>`;
 
     try {
-        // Fetch hospitals
-        const hRes = await window.NexCareAPI.Hospitals.getAll();
-        if (!hRes.success) throw new Error("Failed to load hospitals");
-        let hospitals = hRes.data || [];
+        // Fetch hospitals - try NexCareAPI first, fallback to direct API call
+        let hospitals = [];
+        if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
+            const hRes = await window.NexCareAPI.Hospitals.getAll();
+            if (!hRes.success) throw new Error("Failed to load hospitals");
+            hospitals = hRes.data || [];
+        } else {
+            // Fallback to direct API call
+            const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            const host = window.location.hostname || 'localhost';
+            const res = await fetch(`http://${host}:3001/api/hospitals`, {
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
+            const resp = await res.json();
+            hospitals = resp.data || [];
+        }
+
+        // Filter by search term if provided
+        if (searchTerm) {
+            hospitals = hospitals.filter(h =>
+                (h.name && h.name.toLowerCase().includes(searchTerm)) ||
+                (h.city && h.city.toLowerCase().includes(searchTerm)) ||
+                (h.registrationNumber && h.registrationNumber.toLowerCase().includes(searchTerm)) ||
+                (h.adminName && h.adminName.toLowerCase().includes(searchTerm))
+            );
+        }
 
         // Fetch Regional Officers for dropdown
-        const uRes = await window.NexCareAPI.Users.getAll();
         let regionalOfficers = [];
-        if (uRes.success) {
-            regionalOfficers = uRes.data.filter(u => u.role === 'regional_manager');
+        if (window.NexCareAPI && window.NexCareAPI.Users) {
+            const uRes = await window.NexCareAPI.Users.getAll();
+            if (uRes.success) {
+                regionalOfficers = uRes.data.filter(u => u.role === 'regional_manager');
+            }
+        } else {
+            // Fallback to direct API call
+            const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            const host = window.location.hostname || 'localhost';
+            const res = await fetch(`http://${host}:3001/api/users`, {
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
+            const resp = await res.json();
+            regionalOfficers = (resp.data || []).filter(u => u.role === 'regional_manager');
         }
 
         if (hospitals.length === 0) {
@@ -79,7 +121,19 @@ async function loadHospitals() {
 window.verifyHospital = async function(id) {
     if(!confirm("Are you sure you want to verify this hospital?")) return;
     try {
-        const res = await window.NexCareAPI.request(\`/hospitals/\${id}/verify\`, 'PATCH');
+        let res;
+        if (window.NexCareAPI && window.NexCareAPI.request) {
+            res = await window.NexCareAPI.request(`/hospitals/${id}/verify`, 'PATCH');
+        } else {
+            // Fallback to direct API call
+            const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            const host = window.location.hostname || 'localhost';
+            const response = await fetch(`http://${host}:3001/api/hospitals/${id}/verify`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
+            res = await response.json();
+        }
         if(res.success) {
             loadHospitals();
         } else {
@@ -93,7 +147,19 @@ window.verifyHospital = async function(id) {
 window.rejectHospital = async function(id) {
     if(!confirm("Are you sure you want to reject this hospital?")) return;
     try {
-        const res = await window.NexCareAPI.request(\`/hospitals/\${id}/reject\`, 'PATCH');
+        let res;
+        if (window.NexCareAPI && window.NexCareAPI.request) {
+            res = await window.NexCareAPI.request(`/hospitals/${id}/reject`, 'PATCH');
+        } else {
+            // Fallback to direct API call
+            const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            const host = window.location.hostname || 'localhost';
+            const response = await fetch(`http://${host}:3001/api/hospitals/${id}/reject`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
+            res = await response.json();
+        }
         if(res.success) {
             loadHospitals();
         } else {
@@ -107,7 +173,20 @@ window.rejectHospital = async function(id) {
 window.assignRegionalOfficer = async function(hospitalId, managerId) {
     if(!managerId) return;
     try {
-        const res = await window.NexCareAPI.request(\`/hospitals/\${hospitalId}/assign-manager\`, 'PATCH', { managerId });
+        let res;
+        if (window.NexCareAPI && window.NexCareAPI.request) {
+            res = await window.NexCareAPI.request(`/hospitals/${hospitalId}/assign-manager`, 'PATCH', { managerId });
+        } else {
+            // Fallback to direct API call
+            const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            const host = window.location.hostname || 'localhost';
+            const response = await fetch(`http://${host}:3001/api/hospitals/${hospitalId}/assign-manager`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ managerId })
+            });
+            res = await response.json();
+        }
         if(res.success) {
             alert("Regional Officer assigned successfully!");
             loadHospitals();

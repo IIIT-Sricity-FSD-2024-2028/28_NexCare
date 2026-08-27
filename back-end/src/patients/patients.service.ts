@@ -137,7 +137,8 @@ export class PatientsService {
 
       // Honour a caller-supplied id (registration passes the id already stored on
       // the user account) and only generate one when creating a standalone record.
-      const newPatientId = patientData.id || IdGenerator.generatePatientId();
+      const existingIds = patients.map(p => p.id);
+      const newPatientId = patientData.id || IdGenerator.generatePatientId(existingIds);
       const currentYear = new Date().getFullYear();
       const randomNumber = Math.floor(Math.random() * 9000 + 1000);
 

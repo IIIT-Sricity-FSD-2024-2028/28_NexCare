@@ -31,10 +31,25 @@ export class IdGenerator {
   }
 
   /**
-   * Generate patient ID
+   * Generate patient ID with sequential pattern (P001, P002, etc.)
+   * This maintains consistency with existing patient IDs
+   * @param existingIds - Array of existing patient IDs to avoid conflicts
    */
-  static generatePatientId(): string {
-    return this.generate('P');
+  static generatePatientId(existingIds: string[] = []): string {
+    // Extract numeric parts from existing IDs (P001 -> 1, P010 -> 10, etc.)
+    const numericIds = existingIds
+      .map(id => {
+        const match = id.match(/^P(\d+)$/);
+        return match ? parseInt(match[1], 10) : 0;
+      })
+      .filter(num => num > 0);
+
+    // Find the highest existing ID
+    const maxId = numericIds.length > 0 ? Math.max(...numericIds) : 0;
+    
+    // Generate the next sequential ID
+    const nextId = maxId + 1;
+    return `P${nextId.toString().padStart(3, '0')}`;
   }
 
   /**

@@ -418,5 +418,15 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-27T17:17:31.165Z"
+  },
+  {
+    "id": "ACT-MTBV0NME1MS",
+    "timestamp": "2026-08-27T18:32:04.502Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User System Administrator logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T18:32:04.502Z"
   }
 ]
