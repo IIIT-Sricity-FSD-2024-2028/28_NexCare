@@ -124,6 +124,8 @@ async function startBookingFlowForHospital(hId) {
     try { localStorage.setItem('selectedHospitalId', hospital.id); } catch(e) {}
 
     showBookingFlow();
+    currentStep = 1; // Skip to department selection since hospital is pre-selected
+    renderBookingStep();
 }
 
 function showAppointmentLanding() {
@@ -156,7 +158,9 @@ function showBookingFlow() {
     if (myAppts) myAppts.style.display = 'none';
     if (flow) flow.style.display = 'block';
     
-    currentStep = 1;
+    // Start at Step 0 (hospital selection) if no hospital is pre-selected
+    // Otherwise start at Step 1 (department selection)
+    currentStep = bookingData.hospital ? 1 : 0;
     renderBookingStep();
 }
 
@@ -165,7 +169,9 @@ async function renderBookingStep() {
     const container = document.getElementById('bookingFlow');
     if (!container) return;
 
-    if (currentStep === 1) {
+    if (currentStep === 0) {
+        await renderStep0(container);
+    } else if (currentStep === 1) {
         renderStep1(container);
     } else if (currentStep === 2) {
         renderStep2(container);
@@ -181,28 +187,314 @@ function renderStepIndicator() {
         <div class="step-indicator">
             <div class="step-progress">
                 <div class="step-item">
+                    <div class="step-circle ${currentStep >= 0 ? 'active' : ''} ${currentStep > 0 ? 'completed' : ''}">
+                        ${currentStep > 0 ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 6L8 13L5 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '1'}
+                    </div>
+                    <div class="step-line ${currentStep >= 1 ? 'active' : ''}"></div>
+                </div>
+                <div class="step-item">
                     <div class="step-circle ${currentStep >= 1 ? 'active' : ''} ${currentStep > 1 ? 'completed' : ''}">
-                        ${currentStep > 1 ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 6L8 13L5 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '1'}
+                        ${currentStep > 1 ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 6L8 13L5 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '2'}
                     </div>
                     <div class="step-line ${currentStep >= 2 ? 'active' : ''}"></div>
                 </div>
                 <div class="step-item">
                     <div class="step-circle ${currentStep >= 2 ? 'active' : ''} ${currentStep > 2 ? 'completed' : ''}">
-                        ${currentStep > 2 ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 6L8 13L5 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '2'}
+                        ${currentStep > 2 ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 6L8 13L5 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '3'}
                     </div>
                     <div class="step-line ${currentStep >= 3 ? 'active' : ''}"></div>
                 </div>
                 <div class="step-item">
-                    <div class="step-circle ${currentStep >= 3 ? 'active' : ''}">3</div>
+                    <div class="step-circle ${currentStep >= 3 ? 'active' : ''} ${currentStep > 3 ? 'completed' : ''}">
+                        ${currentStep > 3 ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 6L8 13L5 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '4'}
+                    </div>
                 </div>
             </div>
             <div class="step-labels">
-                <span class="step-label">Department / Speciality</span>
+                <span class="step-label">Hospital</span>
+                <span class="step-label">Department</span>
                 <span class="step-label">Date & Time</span>
                 <span class="step-label">Details</span>
             </div>
         </div>
     `;
+}
+
+// ── Step 0: Hospital Selection ────────────────────────────────────────────────
+async function renderStep0(container) {
+    container.replaceChildren();
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'booking-header';
+    const h1 = document.createElement('h1');
+    h1.textContent = 'Book an Appointment';
+    const p = document.createElement('p');
+    p.textContent = 'Select a hospital to proceed with booking.';
+    header.appendChild(h1);
+    header.appendChild(p);
+    container.appendChild(header);
+
+    // Indicator
+    const indWrap = document.createElement('div');
+    indWrap.innerHTML = renderStepIndicator();
+    container.appendChild(indWrap.firstElementChild);
+
+    // Booking Card
+    const card = document.createElement('div');
+    card.className = 'booking-card';
+
+    const title = document.createElement('h2');
+    title.textContent = 'Select Hospital';
+    card.appendChild(title);
+
+    // Filter Controls
+    const filterSection = document.createElement('div');
+    filterSection.style.marginBottom = '24px';
+    filterSection.style.padding = '20px';
+    filterSection.style.background = '#F9FAFB';
+    filterSection.style.borderRadius = '12px';
+    filterSection.style.border = '1px solid #E5E7EB';
+
+    const filterTitle = document.createElement('h3');
+    filterTitle.style.margin = '0 0 16px 0';
+    filterTitle.style.fontSize = '14px';
+    filterTitle.style.fontWeight = '600';
+    filterTitle.style.color = '#374151';
+    filterTitle.textContent = 'Filter Hospitals';
+    filterSection.appendChild(filterTitle);
+
+    const filterGrid = document.createElement('div');
+    filterGrid.style.display = 'grid';
+    filterGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(180px, 1fr))';
+    filterGrid.style.gap = '12px';
+
+    // Speciality Filter
+    const specialityDiv = document.createElement('div');
+    const specialityLabel = document.createElement('label');
+    specialityLabel.style.display = 'block';
+    specialityLabel.style.fontSize = '12px';
+    specialityLabel.style.fontWeight = '600';
+    specialityLabel.style.color = '#6B7280';
+    specialityLabel.style.marginBottom = '4px';
+    specialityLabel.textContent = 'Speciality';
+    specialityDiv.appendChild(specialityLabel);
+
+    const specialitySelect = document.createElement('select');
+    specialitySelect.style.width = '100%';
+    specialitySelect.style.padding = '8px 12px';
+    specialitySelect.style.border = '1px solid #D1D5DB';
+    specialitySelect.style.borderRadius = '6px';
+    specialitySelect.style.fontSize = '13px';
+    specialitySelect.innerHTML = `
+        <option value="">All Specialities</option>
+        <option value="General Medicine">General Medicine</option>
+        <option value="Cardiology">Cardiology</option>
+        <option value="Neurology">Neurology</option>
+        <option value="Orthopaedics">Orthopaedics</option>
+        <option value="Paediatrics">Paediatrics</option>
+        <option value="Dermatology">Dermatology</option>
+        <option value="Emergency Medicine">Emergency Medicine</option>
+    `;
+    specialityDiv.appendChild(specialitySelect);
+    filterGrid.appendChild(specialityDiv);
+
+    // City Filter
+    const cityDiv = document.createElement('div');
+    const cityLabel = document.createElement('label');
+    cityLabel.style.display = 'block';
+    cityLabel.style.fontSize = '12px';
+    cityLabel.style.fontWeight = '600';
+    cityLabel.style.color = '#6B7280';
+    cityLabel.style.marginBottom = '4px';
+    cityLabel.textContent = 'City';
+    cityDiv.appendChild(cityLabel);
+
+    const cityInput = document.createElement('input');
+    cityInput.type = 'text';
+    cityInput.placeholder = 'Enter city...';
+    cityInput.style.width = '100%';
+    cityInput.style.padding = '8px 12px';
+    cityInput.style.border = '1px solid #D1D5DB';
+    cityInput.style.borderRadius = '6px';
+    cityInput.style.fontSize = '13px';
+    cityDiv.appendChild(cityInput);
+    filterGrid.appendChild(cityDiv);
+
+    filterSection.appendChild(filterGrid);
+
+    const searchBtn = document.createElement('button');
+    searchBtn.className = 'btn-primary';
+    searchBtn.style.marginTop = '12px';
+    searchBtn.style.padding = '8px 16px';
+    searchBtn.style.fontSize = '13px';
+    searchBtn.textContent = 'Search Hospitals';
+    filterSection.appendChild(searchBtn);
+
+    card.appendChild(filterSection);
+
+    // Hospital Results Grid
+    const resultsGrid = document.createElement('div');
+    resultsGrid.id = 'hospitalResultsGrid';
+    resultsGrid.style.display = 'grid';
+    resultsGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+    resultsGrid.style.gap = '16px';
+    resultsGrid.style.marginTop = '20px';
+    card.appendChild(resultsGrid);
+
+    // Loading state
+    resultsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 24px; color: #6A7282;">Loading hospitals...</div>';
+
+    // Actions
+    const actions = document.createElement('div');
+    actions.className = 'booking-actions';
+    actions.style.marginTop = '24px';
+
+    const continueBtn = document.createElement('button');
+    continueBtn.className = 'btn-continue';
+    continueBtn.disabled = !bookingData.hospital;
+    continueBtn.textContent = 'Continue';
+    continueBtn.onclick = () => {
+        if (bookingData.hospital) {
+            currentStep = 1;
+            renderBookingStep();
+        }
+    };
+
+    actions.appendChild(continueBtn);
+    card.appendChild(actions);
+
+    container.appendChild(card);
+
+    // Load hospitals
+    await loadHospitalResults(resultsGrid, specialitySelect, cityInput, searchBtn, continueBtn);
+}
+
+async function loadHospitalResults(grid, specialitySelect, cityInput, searchBtn, continueBtn) {
+    let hospitals = [];
+
+    // Try API first
+    try {
+        if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
+            const res = await window.NexCareAPI.Hospitals.getAll();
+            if (res && res.success && Array.isArray(res.data)) {
+                hospitals = res.data;
+            }
+        }
+    } catch (e) {
+        console.warn('API hospitals fetch failed:', e);
+    }
+
+    // Fallback to mock hospitals
+    if (!hospitals || hospitals.length === 0) {
+        if (Array.isArray(window.MOCK_HOSPITALS)) {
+            hospitals = window.MOCK_HOSPITALS;
+        }
+    }
+
+    const renderHospitals = (filteredHospitals) => {
+        if (!filteredHospitals || filteredHospitals.length === 0) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 24px; color: #6A7282;">No hospitals found matching your criteria.</div>';
+            return;
+        }
+
+        grid.innerHTML = filteredHospitals.map(h => {
+            const isSelected = bookingData.hospital && bookingData.hospital.id === h.id;
+            const specialities = Array.isArray(h.specialities) ? h.specialities.slice(0, 3).join(', ') : 'General Medicine';
+            
+            return `
+                <div class="hospital-card ${isSelected ? 'selected' : ''}" data-id="${h.id}" style="
+                    background: ${isSelected ? '#EFF6FF' : '#FFFFFF'};
+                    border: 2px solid ${isSelected ? '#155DFC' : '#E5E7EB'};
+                    border-radius: 12px;
+                    padding: 20px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                ">
+                    <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
+                        <div style="
+                            width: 48px;
+                            height: 48px;
+                            background: linear-gradient(135deg, #155DFC 0%, #1C398E 100%);
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 20px;
+                        ">🏥</div>
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 700; color: #111827;">${h.name}</h3>
+                            <p style="margin: 0; font-size: 12px; color: #6B7280;">${h.city || ''} ${h.pincode ? '- ' + h.pincode : ''}</p>
+                        </div>
+                        ${isSelected ? '<div style="color: #155DFC; font-size: 20px;">✓</div>' : ''}
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <p style="margin: 0 0 8px 0; font-size: 12px; color: #6B7280;">Specialities:</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            ${Array.isArray(h.specialities) ? h.specialities.slice(0, 3).map(s => 
+                                `<span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${s}</span>`
+                            ).join('') : '<span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 4px; font-size: 11px;">General Medicine</span>'}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; font-size: 11px; color: #6B7280;">
+                        ${h.emergency24x7 ? '<span style="background: #FEF2F2; color: #991B1B; padding: 4px 8px; border-radius: 4px;">24/7 Emergency</span>' : ''}
+                        ${h.ambulanceService ? '<span style="background: #EFF6FF; color: #1D4ED8; padding: 4px 8px; border-radius: 4px;">Ambulance</span>' : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Add click handlers
+        grid.querySelectorAll('.hospital-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const hospitalId = card.dataset.id;
+                const selectedHospital = hospitals.find(h => h.id === hospitalId);
+                
+                if (selectedHospital) {
+                    bookingData.hospital = selectedHospital;
+                    bookingData.department = null;
+                    bookingData.date = null;
+                    bookingData.time = null;
+                    
+                    try { localStorage.setItem('selectedHospitalId', selectedHospital.id); } catch(e) {}
+                    
+                    continueBtn.disabled = false;
+                    renderHospitals(filteredHospitals); // Re-render to show selection
+                }
+            });
+        });
+    };
+
+    const filterHospitals = () => {
+        const speciality = specialitySelect.value.toLowerCase();
+        const city = cityInput.value.toLowerCase().trim();
+
+        let filtered = hospitals;
+        
+        if (speciality) {
+            filtered = filtered.filter(h => 
+                Array.isArray(h.specialities) && 
+                h.specialities.some(s => s.toLowerCase().includes(speciality))
+            );
+        }
+        
+        if (city) {
+            filtered = filtered.filter(h => 
+                (h.city && h.city.toLowerCase().includes(city)) ||
+                (h.address && h.address.toLowerCase().includes(city))
+            );
+        }
+
+        renderHospitals(filtered);
+    };
+
+    // Initial render
+    renderHospitals(hospitals);
+
+    // Event listeners
+    searchBtn.addEventListener('click', filterHospitals);
+    specialitySelect.addEventListener('change', filterHospitals);
+    cityInput.addEventListener('input', filterHospitals);
 }
 
 // ── Step 1: Speciality Selection ─────────────────────────────────────────────
@@ -237,6 +529,42 @@ function renderStep1(container) {
     const title = document.createElement('h2');
     title.textContent = 'Select Speciality / Department';
     card.appendChild(title);
+
+    // Hospital info with change option
+    const hospitalInfo = document.createElement('div');
+    hospitalInfo.style.background = '#F9FAFB';
+    hospitalInfo.style.border = '1px solid #E5E7EB';
+    hospitalInfo.style.borderRadius = '8px';
+    hospitalInfo.style.padding = '12px 16px';
+    hospitalInfo.style.marginBottom = '20px';
+    hospitalInfo.style.display = 'flex';
+    hospitalInfo.style.justifyContent = 'space-between';
+    hospitalInfo.style.alignItems = 'center';
+
+    const hospitalText = document.createElement('div');
+    hospitalText.innerHTML = `
+        <span style="font-size: 12px; color: #6B7280; font-weight: 600;">Hospital:</span>
+        <span style="font-size: 14px; color: #111827; font-weight: 600; margin-left: 8px;">${hospName}</span>
+    `;
+    hospitalInfo.appendChild(hospitalText);
+
+    const changeHospitalBtn = document.createElement('button');
+    changeHospitalBtn.type = 'button';
+    changeHospitalBtn.style.background = 'none';
+    changeHospitalBtn.style.border = 'none';
+    changeHospitalBtn.style.color = '#155DFC';
+    changeHospitalBtn.style.fontSize = '13px';
+    changeHospitalBtn.style.fontWeight = '600';
+    changeHospitalBtn.style.cursor = 'pointer';
+    changeHospitalBtn.style.padding = '4px 8px';
+    changeHospitalBtn.textContent = 'Change';
+    changeHospitalBtn.onclick = () => {
+        currentStep = 0;
+        renderBookingStep();
+    };
+    hospitalInfo.appendChild(changeHospitalBtn);
+
+    card.appendChild(hospitalInfo);
 
     const grid = document.createElement('div');
     grid.className = 'department-grid';
@@ -295,7 +623,8 @@ function renderStep1(container) {
     backBtn.className = 'btn-back-booking';
     backBtn.textContent = '← Back to Hospitals';
     backBtn.onclick = () => {
-        window.location.href = '../hospital-search.html';
+        currentStep = 0;
+        renderBookingStep();
     };
 
     actions.appendChild(backBtn);
@@ -336,6 +665,42 @@ function renderStep2(container) {
     const cardTitle = document.createElement('h2');
     cardTitle.textContent = 'Select Date & Time';
     card.appendChild(cardTitle);
+
+    // Hospital info with change option
+    const hospitalInfo = document.createElement('div');
+    hospitalInfo.style.background = '#F9FAFB';
+    hospitalInfo.style.border = '1px solid #E5E7EB';
+    hospitalInfo.style.borderRadius = '8px';
+    hospitalInfo.style.padding = '12px 16px';
+    hospitalInfo.style.marginBottom = '20px';
+    hospitalInfo.style.display = 'flex';
+    hospitalInfo.style.justifyContent = 'space-between';
+    hospitalInfo.style.alignItems = 'center';
+
+    const hospitalText = document.createElement('div');
+    hospitalText.innerHTML = `
+        <span style="font-size: 12px; color: #6B7280; font-weight: 600;">Hospital:</span>
+        <span style="font-size: 14px; color: #111827; font-weight: 600; margin-left: 8px;">${hospName}</span>
+    `;
+    hospitalInfo.appendChild(hospitalText);
+
+    const changeHospitalBtn = document.createElement('button');
+    changeHospitalBtn.type = 'button';
+    changeHospitalBtn.style.background = 'none';
+    changeHospitalBtn.style.border = 'none';
+    changeHospitalBtn.style.color = '#155DFC';
+    changeHospitalBtn.style.fontSize = '13px';
+    changeHospitalBtn.style.fontWeight = '600';
+    changeHospitalBtn.style.cursor = 'pointer';
+    changeHospitalBtn.style.padding = '4px 8px';
+    changeHospitalBtn.textContent = 'Change';
+    changeHospitalBtn.onclick = () => {
+        currentStep = 0;
+        renderBookingStep();
+    };
+    hospitalInfo.appendChild(changeHospitalBtn);
+
+    card.appendChild(hospitalInfo);
 
     const deptLabel = document.createElement('p');
     deptLabel.style.marginBottom = '24px';
@@ -730,6 +1095,42 @@ async function renderStep3(container) {
     const cardTitle = document.createElement('h2');
     cardTitle.textContent = 'Patient Information & Confirmation';
     card.appendChild(cardTitle);
+
+    // Hospital info with change option
+    const hospitalInfo = document.createElement('div');
+    hospitalInfo.style.background = '#F9FAFB';
+    hospitalInfo.style.border = '1px solid #E5E7EB';
+    hospitalInfo.style.borderRadius = '8px';
+    hospitalInfo.style.padding = '12px 16px';
+    hospitalInfo.style.marginBottom = '20px';
+    hospitalInfo.style.display = 'flex';
+    hospitalInfo.style.justifyContent = 'space-between';
+    hospitalInfo.style.alignItems = 'center';
+
+    const hospitalText = document.createElement('div');
+    hospitalText.innerHTML = `
+        <span style="font-size: 12px; color: #6B7280; font-weight: 600;">Hospital:</span>
+        <span style="font-size: 14px; color: #111827; font-weight: 600; margin-left: 8px;">${hospName}</span>
+    `;
+    hospitalInfo.appendChild(hospitalText);
+
+    const changeHospitalBtn = document.createElement('button');
+    changeHospitalBtn.type = 'button';
+    changeHospitalBtn.style.background = 'none';
+    changeHospitalBtn.style.border = 'none';
+    changeHospitalBtn.style.color = '#155DFC';
+    changeHospitalBtn.style.fontSize = '13px';
+    changeHospitalBtn.style.fontWeight = '600';
+    changeHospitalBtn.style.cursor = 'pointer';
+    changeHospitalBtn.style.padding = '4px 8px';
+    changeHospitalBtn.textContent = 'Change';
+    changeHospitalBtn.onclick = () => {
+        currentStep = 0;
+        renderBookingStep();
+    };
+    hospitalInfo.appendChild(changeHospitalBtn);
+
+    card.appendChild(hospitalInfo);
 
     // Form
     const form = document.createElement('form');
