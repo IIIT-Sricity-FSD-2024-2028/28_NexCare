@@ -29,11 +29,10 @@ const uploads_module_1 = require("./uploads/uploads.module");
 const logging_module_1 = require("./common/logging/logging.module");
 const auth_guard_1 = require("./common/guards/auth.guard");
 const roles_guard_1 = require("./common/guards/roles.guard");
-const request_logger_middleware_1 = require("./common/middleware/request-logger.middleware");
-const security_middleware_1 = require("./common/middleware/security.middleware");
+const lodger_middleware_1 = require("./lodger.middleware");
 let AppModule = class AppModule {
     configure(consumer) {
-        consumer.apply(security_middleware_1.SecurityMiddleware, request_logger_middleware_1.RequestLoggerMiddleware).forRoutes('*');
+        consumer.apply(lodger_middleware_1.SecurityMiddleware, lodger_middleware_1.RequestLoggerMiddleware).forRoutes('*');
     }
 };
 exports.AppModule = AppModule;

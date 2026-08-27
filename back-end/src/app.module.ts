@@ -20,8 +20,7 @@ import { UploadsModule } from './uploads/uploads.module';
 import { LoggingModule } from './common/logging/logging.module';
 import { AuthGuard } from './common/guards/auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
-import { RequestLoggerMiddleware } from './common/middleware/request-logger.middleware';
-import { SecurityMiddleware } from './common/middleware/security.middleware';
+import { RequestLoggerMiddleware, SecurityMiddleware } from './lodger.middleware';
 
 /**
  * Main Application Module

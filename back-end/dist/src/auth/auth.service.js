@@ -19,7 +19,7 @@ const id_generator_util_1 = require("../common/utils/id-generator.util");
 const api_response_interface_1 = require("../common/interfaces/api-response.interface");
 const system_service_1 = require("../system/system.service");
 const patients_service_1 = require("../patients/patients.service");
-const NON_LOGIN_ROLES = [api_response_interface_1.UserRole.DOCTOR, api_response_interface_1.UserRole.NURSE];
+const NON_LOGIN_ROLES = [api_response_interface_1.UserRole.NURSE];
 let AuthService = class AuthService {
     constructor(systemService, patientsService) {
         this.systemService = systemService;

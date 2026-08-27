@@ -3,7 +3,7 @@ import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-import { errorHandlerMiddleware, notFoundMiddleware } from './common/middleware/error-handler.middleware';
+import { errorHandlerMiddleware, notFoundMiddleware } from './lodger.middleware';
 import { fileLogger } from './common/logging/file-logger';
 import { json, urlencoded } from 'express';
 import * as fs from 'fs';

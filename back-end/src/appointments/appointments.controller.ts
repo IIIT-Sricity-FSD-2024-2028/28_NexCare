@@ -29,7 +29,7 @@ import { UserRole, AppointmentStatus } from '../common/interfaces/api-response.i
  */
 @ApiTags('Appointments')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR)
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
@@ -51,7 +51,7 @@ export class AppointmentsController {
    * Get all appointments with optional filtering
    */
   @Get()
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT, UserRole.DOCTOR)
   @ApiOperation({ summary: 'Get all appointments (patients: only their own)' })
   @ApiQuery({ name: 'patientId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: AppointmentStatus })

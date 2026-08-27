@@ -119,7 +119,7 @@ __decorate([
 exports.LeavesController = LeavesController = __decorate([
     (0, swagger_1.ApiTags)('Leaves'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.HOSPITAL_MANAGER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.HOSPITAL_MANAGER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.DOCTOR),
     (0, common_1.Controller)('leaves'),
     (0, common_1.UseGuards)(leave_request_guard_1.LeaveRequestGuard),
     __metadata("design:paramtypes", [leaves_service_1.LeavesService])

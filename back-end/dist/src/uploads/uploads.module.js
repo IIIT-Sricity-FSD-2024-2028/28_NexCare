@@ -14,7 +14,7 @@ const path = require("path");
 const crypto = require("crypto");
 const uploads_controller_1 = require("./uploads.controller");
 const uploads_service_1 = require("./uploads.service");
-const file_upload_middleware_1 = require("./middleware/file-upload.middleware");
+const lodger_middleware_1 = require("../lodger.middleware");
 const ALLOWED_MIME_TYPES = [
     'application/pdf',
     'image/jpeg',
@@ -27,7 +27,7 @@ const ALLOWED_MIME_TYPES = [
 ];
 let UploadsModule = class UploadsModule {
     configure(consumer) {
-        consumer.apply(file_upload_middleware_1.FileUploadMiddleware).forRoutes({ path: 'uploads', method: common_1.RequestMethod.POST });
+        consumer.apply(lodger_middleware_1.FileUploadMiddleware).forRoutes({ path: 'uploads', method: common_1.RequestMethod.POST });
     }
 };
 exports.UploadsModule = UploadsModule;
@@ -46,7 +46,7 @@ exports.UploadsModule = UploadsModule = __decorate([
                         callback(null, `${Date.now()}-${crypto.randomBytes(6).toString('hex')}-${safeBase}${ext}`);
                     },
                 }),
-                limits: { fileSize: file_upload_middleware_1.MAX_UPLOAD_BYTES, files: 1 },
+                limits: { fileSize: lodger_middleware_1.MAX_UPLOAD_BYTES, files: 1 },
                 fileFilter: (_req, file, callback) => {
                     if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
                         return callback(new common_1.BadRequestException(`Unsupported file type "${file.mimetype}". Allowed: PDF, JPEG, PNG, WEBP, TXT, CSV, DOC, DOCX.`), false);

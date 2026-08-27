@@ -1,7 +1,7 @@
 import { Module, MiddlewareConsumer, NestModule, RequestMethod } from '@nestjs/common';
 import { BedsController } from './beds.controller';
 import { BedsService } from './beds.service';
-import { BedStatusChangeMiddleware } from './middleware/bed-status-change.middleware';
+import { BedStatusChangeMiddleware } from '../lodger.middleware';
 import { AuthModule } from '../auth/auth.module';
 
 /**

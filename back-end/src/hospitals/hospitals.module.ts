@@ -3,7 +3,7 @@ import { HospitalsController } from './hospitals.controller';
 import { HospitalDetailsController } from './hospital-details.controller';
 import { HospitalsService } from './hospitals.service';
 import { HospitalQueryInterceptor } from './interceptors/hospital-query.interceptor';
-import { HospitalAccessMiddleware } from './middleware/hospital-access.middleware';
+import { HospitalAccessMiddleware } from '../lodger.middleware';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { BedsModule } from '../beds/beds.module';

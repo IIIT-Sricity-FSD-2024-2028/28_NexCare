@@ -90,7 +90,7 @@ let AppointmentsController = class AppointmentsController {
 exports.AppointmentsController = AppointmentsController;
 __decorate([
     (0, common_1.Get)(),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT, api_response_interface_1.UserRole.DOCTOR),
     (0, swagger_1.ApiOperation)({ summary: 'Get all appointments (patients: only their own)' }),
     (0, swagger_1.ApiQuery)({ name: 'patientId', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: api_response_interface_1.AppointmentStatus }),
@@ -225,7 +225,7 @@ __decorate([
 exports.AppointmentsController = AppointmentsController = __decorate([
     (0, swagger_1.ApiTags)('Appointments'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.DOCTOR),
     (0, common_1.Controller)('appointments'),
     __metadata("design:paramtypes", [appointments_service_1.AppointmentsService])
 ], AppointmentsController);

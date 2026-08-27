@@ -5,7 +5,7 @@ import * as path from 'path';
 import * as crypto from 'crypto';
 import { UploadsController } from './uploads.controller';
 import { UploadsService, UPLOAD_DIR } from './uploads.service';
-import { FileUploadMiddleware, MAX_UPLOAD_BYTES } from './middleware/file-upload.middleware';
+import { FileUploadMiddleware, MAX_UPLOAD_BYTES } from '../lodger.middleware';
 
 /** Document types the hospital actually needs to store */
 const ALLOWED_MIME_TYPES = [

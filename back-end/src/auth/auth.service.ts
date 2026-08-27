@@ -15,7 +15,7 @@ import { PatientsService } from '../patients/patients.service';
  * They can be created and referenced (appointments, leave rosters, headcount) but
  * are never granted a session — NexCare has no clinical portal.
  */
-const NON_LOGIN_ROLES: UserRole[] = [UserRole.DOCTOR, UserRole.NURSE];
+const NON_LOGIN_ROLES: UserRole[] = [UserRole.NURSE];
 
 /**
  * Authentication Service
