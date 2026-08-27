@@ -408,5 +408,15 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-27T15:37:03.415Z"
+  },
+  {
+    "id": "ACT-MTBSCRZ017B",
+    "timestamp": "2026-08-27T17:17:31.165Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T17:17:31.165Z"
   }
 ]

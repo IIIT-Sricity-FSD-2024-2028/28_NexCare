@@ -42,14 +42,35 @@
             <div class="container">
                 <div class="hero-grid">
                     <!-- Left Content -->
-                    <div class="hero-content">    
+                    <div class="hero-content">
                         <h1 class="hero-title">NexCare – Smart Hospital Operations Platform</h1>
-                        
+
                         <p class="hero-description">
-                            Seamlessly connect patients, hospital staff, ambulance teams, and management personnel 
-                            into one unified digital platform. Transform healthcare operations with intelligent automation, 
+                            Seamlessly connect patients, hospital staff, ambulance teams, and management personnel
+                            into one unified digital platform. Transform healthcare operations with intelligent automation,
                             real-time coordination, and streamlined workflows that improve patient care and operational efficiency.
                         </p>
+
+                        <div class="hero-badges">
+                            <div class="hero-badge">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                                <span>Find Hospitals by Speciality</span>
+                            </div>
+                            <div class="hero-badge">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                                <span>Book Appointments Online</span>
+                            </div>
+                            <div class="hero-badge">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                                <span>Emergency Ambulance Services</span>
+                            </div>
+                        </div>
 
                         <div class="hero-buttons">
                             <a href="../auth/login.html" class="btn-primary btn-large">
@@ -58,8 +79,14 @@
                                     <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
                                 </svg>
                             </a>
-                            
+
                             <a href="../auth/signup.html" class="btn-outline btn-large">Create Account</a>
+                            <a href="../patient/hospital-search.html" class="btn-secondary btn-large">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                                </svg>
+                                Find Hospitals
+                            </a>
                         </div>
                     </div>
 
@@ -149,11 +176,11 @@
                     <div class="stat-card-large">
                         <div class="stat-icon pulsing">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><circle cx="17" cy="11" r="3"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/>
+                                <path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M8 21v-2a2 2 0 0 1 4 0v2"/><path d="M12 21v-2a2 2 0 0 1 4 0v2"/><path d="M3 21l9-9 9 9"/>
                             </svg>
                         </div>
-                        <div class="stat-number" data-target="200" data-suffix="+">0</div>
-                        <div class="stat-text">Hospital Staff Connected</div>
+                        <div class="stat-number" data-target="50" data-suffix="+">0</div>
+                        <div class="stat-text">Hospitals Listed</div>
                     </div>
 
                     <div class="stat-card-large">
@@ -170,6 +197,91 @@
     <div class="stat-number" data-target="300" data-suffix="+">0</div>
     <div class="stat-text">Ambulance Requests</div>
 </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hospital Search Preview Section -->
+        <section class="hospital-search-preview">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Find Your Perfect Hospital</h2>
+                    <p>Search by speciality, location, and services to discover the right healthcare facility</p>
+                </div>
+
+                <div class="search-preview-container">
+                    <div class="search-preview-card">
+                        <div class="search-preview-header">
+                            <div class="search-preview-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                                </svg>
+                            </div>
+                            <h3>Smart Hospital Search</h3>
+                        </div>
+
+                        <div class="search-preview-filters">
+                            <div class="filter-preview">
+                                <span class="filter-label">Speciality</span>
+                                <span class="filter-value">Cardiology</span>
+                            </div>
+                            <div class="filter-preview">
+                                <span class="filter-label">Location</span>
+                                <span class="filter-value">Tirupati</span>
+                            </div>
+                            <div class="filter-preview">
+                                <span class="filter-label">Services</span>
+                                <span class="filter-value">Emergency</span>
+                            </div>
+                        </div>
+
+                        <div class="search-preview-results">
+                            <div class="result-item">
+                                <div class="result-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M8 21v-2a2 2 0 0 1 4 0v2"/><path d="M12 21v-2a2 2 0 0 1 4 0v2"/><path d="M3 21l9-9 9 9"/>
+                                    </svg>
+                                </div>
+                                <div class="result-content">
+                                    <h4>NexCare AIIMS Super Speciality Hospital</h4>
+                                    <p>Cardiology • Emergency • 24/7</p>
+                                </div>
+                                <div class="result-rating">
+                                    <span>4.8</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="result-item">
+                                <div class="result-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M8 21v-2a2 2 0 0 1 4 0v2"/><path d="M12 21v-2a2 2 0 0 1 4 0v2"/><path d="M3 21l9-9 9 9"/>
+                                    </svg>
+                                </div>
+                                <div class="result-content">
+                                    <h4>Apollo Health City</h4>
+                                    <p>Cardiology • Multi-Speciality</p>
+                                </div>
+                                <div class="result-rating">
+                                    <span>4.6</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="search-preview-cta">
+                            <a href="../patient/hospital-search.html" class="btn-primary btn-large">
+                                Start Searching
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -199,8 +311,18 @@
                                 <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
                             </svg>
                         </div>
-                        <h3>Appointment Booking System</h3>
-                        <p>Streamline scheduling with intelligent booking that reduces wait times and optimizes doctor availability.</p>
+                        <h3>Smart Appointment Booking</h3>
+                        <p>Find hospitals by speciality, book appointments with specialists, and manage your healthcare journey with intelligent scheduling.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M8 21v-2a2 2 0 0 1 4 0v2"/><path d="M12 21v-2a2 2 0 0 1 4 0v2"/><path d="M3 21l9-9 9 9"/>
+                            </svg>
+                        </div>
+                        <h3>Hospital Search & Discovery</h3>
+                        <p>Search and discover hospitals by speciality, location, and services. Find the right healthcare facility for your needs with detailed information.</p>
                     </div>
 
                     <div class="feature-card">
@@ -262,7 +384,7 @@
                             </svg>
                         </div>
                         <h3>Patient</h3>
-                        <p>Manage your health profile, book appointments with specialists, request emergency ambulance services, and track your medical history all in one place.</p>
+                        <p>Search hospitals by speciality, find the right healthcare facility, book appointments with specialists, request emergency ambulance services, and track your medical history all in one place.</p>
                     </div>
 
                     <div class="role-card role-green">
@@ -328,8 +450,8 @@
                                     <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
                                 </svg>
                             </div>
-                            <h3>Patient Books Appointment or Requests Ambulance</h3>
-                            <p>Patients can easily schedule appointments with doctors or request emergency ambulance services with just a few clicks.</p>
+                            <h3>Find Hospital & Book Appointment</h3>
+                            <p>Search hospitals by speciality, select the right facility, book appointments with specialists, or request emergency ambulance services.</p>
                         </div>
                     </div>
 
@@ -423,12 +545,24 @@
                     <div class="benefit-card">
                         <div class="benefit-icon pulsing">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3>Easy Hospital Discovery</h3>
+                            <p>Find the right hospital by speciality, location, and services with intuitive search and detailed facility information.</p>
+                        </div>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-icon pulsing">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
                             </svg>
                         </div>
                         <div>
                             <h3>Enhanced Patient Service Experience</h3>
-                            <p>Simplified booking, shorter wait times, and better communication improve patient satisfaction.</p>
+                            <p>Simplified hospital search, streamlined booking, shorter wait times, and better communication improve patient satisfaction.</p>
                         </div>
                     </div>
                 </div>
