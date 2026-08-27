@@ -358,5 +358,25 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-27T14:07:16.022Z"
+  },
+  {
+    "id": "ACT-MTBLY6WQ171",
+    "timestamp": "2026-08-27T14:18:12.987Z",
+    "userId": "U010",
+    "action": "Login",
+    "details": "User Dr. Priya Nair logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T14:18:12.987Z"
+  },
+  {
+    "id": "ACT-MTBMP70O36N",
+    "timestamp": "2026-08-27T14:39:12.842Z",
+    "userId": "U010",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T14:39:12.843Z"
   }
 ]

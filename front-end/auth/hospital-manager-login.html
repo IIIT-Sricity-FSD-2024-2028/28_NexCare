@@ -3,31 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Force Firefox to never serve this page from cache -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>NexCare - Login</title>
+    <title>NexCare - Hospital Manager Login</title>
     <link rel="stylesheet" href="auth.css">
 </head>
 <body>
     <div class="auth-wrapper">
         <header class="header">
-        <a href="../landing/landing.html" style="text-decoration:none;"><nex-care-logo></nex-care-logo></a>
-    </header>
+            <a href="../landing/landing.html" style="text-decoration:none;"><nex-care-logo></nex-care-logo></a>
+        </header>
         <div class="auth-card">
             <div class="auth-form-section">
-                <h2>LOGIN</h2>
+                <h2>HOSPITAL MANAGER LOGIN</h2>
+                <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Manage hospital operations, staff, and approvals</p>
                 
                 <form id="loginForm" onsubmit="handleAuth(event)">
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" class="form-control" required>
+                        <input type="email" class="form-control" placeholder="manager@hospital.com" required>
                     </div>
 
                     <div class="form-group">
                         <label>Password</label>
-                        <input type="password" class="form-control" required>
+                        <input type="password" class="form-control" placeholder="••••••••" required>
                     </div>
 
                     <div class="form-actions-row">
@@ -37,48 +37,25 @@
                         <a href="#">Forgot Password?</a>
                     </div>
 
-                    <label style="font-size: 14px; font-weight: 600; margin-bottom: 5px; display: block;">Role</label>
-                    <div class="role-grid">
-                        <label class="role-option">
-                            <input type="radio" name="role" value="patient" required> Patient
-                        </label>
-                        <label class="role-option">
-                            <input type="radio" name="role" value="administrative_staff" required> Administrative Staff
-                        </label>
-                        <label class="role-option">
-                            <input type="radio" name="role" value="hospital_manager" required> Hospital Manager
-                        </label>
-                        <label class="role-option">
-                            <input type="radio" name="role" value="doctor" required> Doctor
-                        </label>
-                        <label class="role-option">
-                            <input type="radio" name="role" value="ambulance" required> Ambulance Staff
-                        </label>
-                    </div>
-
                     <button type="submit" class="btn-primary">
-    Sign in
-    <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <polyline 
-        points="0,60 25,60 40,25 55,60 70,90 85,60 100,60"
-        fill="none"
-        stroke="white"
-        stroke-width="6"
-        stroke-linecap="round"
-        stroke-linejoin="round"/>
-</svg>
-</button>
+                        Sign in as Hospital Manager
+                        <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <polyline 
+                                points="0,60 25,60 40,25 55,60 70,90 85,60 100,60"
+                                fill="none"
+                                stroke="white"
+                                stroke-width="6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"/>
+                        </svg>
+                    </button>
                     
                     <div class="auth-links" style="display:flex; flex-direction:column; gap:8px; align-items:center; margin-top:16px;">
-                        <div>New Patient? <a href="patient-register.html" style="font-weight:600;">Register Patient</a></div>
-                        <div>Hospital Administrator? <a href="../hospital-registration/register.html" style="font-weight:600;">Register Your Hospital</a></div>
                         <div style="margin-top:12px; display:flex; gap:16px;">
-                            <a href="regional-officer-login.html" style="font-size:12px; color:#64748B;">Regional Officer Login</a>
+                            <a href="login.html" style="font-size:12px; color:#64748B;">Back to All Logins</a>
                             <a href="superuser-login.html" style="font-size:12px; color:#64748B;">Superuser Login</a>
                         </div>
                     </div>
-
-
                 </form>
             </div>
 
@@ -87,7 +64,6 @@
     </div>
 
     <script src="../shared/api.js?v=8"></script>
-    <script src="../shared/db.js?v=6"></script>
     <script src="../shared/session.js?v=8"></script>
     <script>
         async function handleAuth(event) {
@@ -96,14 +72,8 @@
 
             const emailInput    = document.querySelector('input[type="email"]').value.trim();
             const passwordInput = document.querySelector('input[type="password"]').value;
-            const selectedRole  = document.querySelector('input[name="role"]:checked');
+            const role = 'hospital_manager';
 
-            if (!selectedRole) {
-                showError('Please select a role before signing in.');
-                return;
-            }
-
-            const role = selectedRole.value;
             const btn  = document.querySelector('.btn-primary');
             btn.disabled = true;
             btn.textContent = 'Signing in…';
@@ -120,7 +90,6 @@
                 });
 
                 if (response.success) {
-                    // Store session — only on confirmed backend success
                     sessionStorage.setItem('isLoggedIn', 'true');
                     sessionStorage.setItem('nexcare_current_role', role);
                     sessionStorage.setItem('nexcare_user_email', emailInput);
@@ -142,7 +111,7 @@
                 }
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `Sign in <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polyline points="0,60 25,60 40,25 55,60 70,90 85,60 100,60" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                btn.innerHTML = `Sign in as Hospital Manager <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polyline points="0,60 25,60 40,25 55,60 70,90 85,60 100,60" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
             }
         }
 
@@ -152,19 +121,15 @@
                 el = document.createElement('p');
                 el.id = 'loginError';
                 el.style.cssText = 'color:#dc2626;font-size:13px;margin:8px 0 0;font-weight:500;';
-                document.getElementById('loginForm').insertBefore(el, document.querySelector('.role-grid').previousElementSibling);
+                document.getElementById('loginForm').insertBefore(el, document.querySelector('.form-actions-row'));
             }
             el.textContent = msg;
-            
-            // Show HTTP popup alert as requested by user
-            window.alert("Login Error: " + msg);
         }
 
         function clearError() {
             const el = document.getElementById('loginError');
             if (el) el.textContent = '';
         }
-
     </script>
     <script src="../logo.js"></script>
 </body>

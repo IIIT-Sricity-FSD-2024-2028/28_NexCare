@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>NexCare - Hospital Manager Dashboard</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <nex-care-logo></nex-care-logo>
+                <div class="portal-badge">Hospital Manager</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#overview" class="nav-item active" onclick="switchTab('overview', event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <span>Overview</span>
+                </a>
+                <a href="#leaves" class="nav-item" onclick="switchTab('leaves', event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    <span>Leave Approvals</span>
+                </a>
+                <a href="#staff" class="nav-item" onclick="switchTab('staff', event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <span>Staff Directory</span>
+                </a>
+                <a href="#support" class="nav-item" onclick="switchTab('support', event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    <span>Support Requests</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="managerAvatar">HM</div>
+                    <div class="user-details">
+                        <span class="user-name" id="managerName">Hospital Manager</span>
+                        <span class="user-role" id="managerHospital">🏥 Hospital</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logoutUser()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="pageTitle">Hospital Overview</h1>
+                    <p id="pageSubtitle">Manage hospital operations and staff</p>
+                </div>
+                <div class="header-actions">
+                    <span class="status-pill status-active" id="dutyStatus">● Online</span>
+                </div>
+            </header>
+
+            <!-- Stats Overview Row -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon icon-blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-value" id="statStaff">0</span>
+                        <span class="stat-label">Total Staff</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-amber">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-value" id="statPendingLeaves">0</span>
+                        <span class="stat-label">Pending Leaves</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-value" id="statSupport">0</span>
+                        <span class="stat-label">Support Requests</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 1: Overview Section -->
+            <section id="overviewTab" class="tab-content active-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Hospital Operations</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Value</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="overviewTableBody">
+                                <tr><td colspan="3" class="loading-cell">Loading overview...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 2: Leave Approvals Section -->
+            <section id="leavesTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Doctor Leave Requests</h2>
+                        <div class="search-filter-box">
+                            <select id="leaveStatusFilter" onchange="filterLeaves()" class="select-filter">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Doctor</th>
+                                    <th>Department</th>
+                                    <th>Dates</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leavesTableBody">
+                                <tr><td colspan="6" class="loading-cell">Loading leave requests...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 3: Staff Directory Section -->
+            <section id="staffTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Staff Directory</h2>
+                        <div class="search-filter-box">
+                            <input type="text" id="staffSearch" placeholder="Search staff..." oninput="filterStaff()" class="input-search">
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffTableBody">
+                                <tr><td colspan="5" class="loading-cell">Loading staff...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 4: Support Requests Section -->
+            <section id="supportTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Support Requests</h2>
+                        <div class="search-filter-box">
+                            <select id="supportStatusFilter" onchange="filterSupport()" class="select-filter">
+                                <option value="">All Statuses</option>
+                                <option value="Open">Open</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Resolved">Resolved</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Subject</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="supportTableBody">
+                                <tr><td colspan="5" class="loading-cell">Loading support requests...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/ui-components.js?v=8"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script src="../logo.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

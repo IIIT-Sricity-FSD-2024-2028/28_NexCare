@@ -54,8 +54,22 @@ function switchTab(tabName, event) {
 
 async function loadAppointments() {
     const tbody = document.getElementById('appointmentsTableBody');
+    
+    // Show loading state
+    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
+        ? window.NexCareUI.showLoading('Loading appointments...') 
+        : null;
+    
     try {
+        // Check if API is available
+        if (!window.NexCareAPI || !window.NexCareAPI.Appointments) {
+            throw new Error('API library not loaded. Please refresh the page.');
+        }
+        
         const response = await window.NexCareAPI.Appointments.getAll();
+        
+        if (hideLoading) hideLoading();
+        
         if (response && response.success && Array.isArray(response.data)) {
             allAppointments = response.data;
             renderAppointments(allAppointments);
@@ -64,8 +78,18 @@ async function loadAppointments() {
             tbody.innerHTML = '<tr><td colspan="8" class="loading-cell">No appointments found.</td></tr>';
         }
     } catch (err) {
+        if (hideLoading) hideLoading();
         console.error('Failed to load appointments:', err);
-        tbody.innerHTML = '<tr><td colspan="8" class="loading-cell" style="color:#ef4444;">Failed to load appointments. Make sure backend is running.</td></tr>';
+        
+        // Show error notification
+        if (window.NexCareUI && window.NexCareUI.showToast) {
+            window.NexCareUI.showToast({ 
+                message: 'Failed to load appointments. Please check your connection.', 
+                type: 'error' 
+            });
+        }
+        
+        tbody.innerHTML = '<tr><td colspan="8" class="loading-cell" style="color:#ef4444;">Failed to load appointments. Please check your connection and try again.</td></tr>';
     }
 }
 

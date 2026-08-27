@@ -25,6 +25,15 @@
     "hospitalId": "H001"
   },
   {
+    "id": "HM001",
+    "name": "Hospital Manager",
+    "email": "hospital.manager@nexcare.com",
+    "role": "hospital_manager",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001"
+  },
+  {
     "id": "U003",
     "name": "Alex Martinez",
     "email": "ambulance@nexcare.com",
@@ -82,7 +91,7 @@
     "role": "doctor",
     "dept": "Paediatrics",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$fb29245edf14016bf1fb5a4789aeb4d4$c2baf5b11928e6a615b9301d69b77c8c6911f1d9bceb93714754481552fbf8d60782c58a363f7066c673983097bd57c68e7a5ece9dd0820eea7da5f404569b8d",
     "hospitalId": "H001"
   },
   {

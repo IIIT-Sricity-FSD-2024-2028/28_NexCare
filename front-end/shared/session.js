@@ -42,6 +42,10 @@ function redirectByRole(role) {
             window.location.href = "/ambulance/";
             break;
 
+        case "hospital_manager":
+            window.location.href = "/hospital_manager/dashboard.html";
+            break;
+
         default:
             window.location.href = "/landing/landing.html";
     }
@@ -188,6 +192,7 @@ function checkRoleAccess() {
         patient:               '/patient/',
         doctor:                '/doctor/',
         ambulance:             '/ambulance/',
+        hospital_manager:      '/hospital_manager/',
     };
 
     // Find which portal this path belongs to
