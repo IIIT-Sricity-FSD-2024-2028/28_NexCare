@@ -337,7 +337,8 @@ function renderAppointmentsTable() {
                 <span style="background: #EFF6FF; color: #1D4ED8; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
                     ${escapeHtml(a.department || 'General')}
                 </span>
-                <div style="font-size: 12px; color: #4B5563; margin-top: 4px;">${escapeHtml(a.doctorName || 'Doctor')}</div>
+                <div style="font-size: 12px; color: #111827; font-weight: 600; margin-top: 4px;">👨‍⚕️ ${escapeHtml(a.doctorName || a.doctor || docInfo.name)}</div>
+                <div style="font-size: 11px; color: #4B5563; margin-top: 2px;">🏥 ${escapeHtml(a.hospitalName || a.hospital || docInfo.hospital)}</div>
             </td>
             <td style="padding: 14px;">
                 <div style="font-weight: 600; color: #111827;">📅 ${escapeHtml(a.dateLabel || 'TBD')}</div>

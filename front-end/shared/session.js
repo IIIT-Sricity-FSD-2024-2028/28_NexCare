@@ -69,9 +69,11 @@ async function logoutUser() {
         }
     }
     
-    // Clear all session data
+    // Clear all session data & local storage cache keys
     sessionStorage.clear();
     localStorage.removeItem("nexcare_auth_token");
+    localStorage.removeItem("nexcare_patients");
+    localStorage.removeItem("nexcare_db_v3");
     
     // Redirect to landing page
     window.location.href = "../landing/landing.html";

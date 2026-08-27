@@ -870,7 +870,7 @@ async function renderStep3(container) {
                 hospitalId: hosp ? hosp.id : '',
                 hospitalName: hospName,
                 department: bookingData.department,
-                doctor: hospName,
+                doctor: bookingData.doctor || `Dr. ${bookingData.department || 'General'} Specialist`,
                 dateLabel: bookingData.date,
                 timeLabel: bookingData.time,
                 patientName: nameInput.value.trim(),
@@ -1102,9 +1102,8 @@ async function renderAppointmentsFromStore() {
         }
     }
 
-    // Fallback to MOCK_DEFAULT_APPOINTMENTS if still empty
-    if (!all || all.length === 0) {
-        all = MOCK_DEFAULT_APPOINTMENTS;
+    if (!all) {
+        all = [];
     }
 
     const upcoming = all.filter(a => a.status !== 'Cancelled' && a.status !== 'Completed');
@@ -1154,7 +1153,8 @@ function badgeClass(status) {
 function itemHtml(a, isPastList) {
     const status = escapeHtml(a.status);
     const dept = escapeHtml(a.department);
-    const doctor = escapeHtml(a.doctor || a.hospitalName || 'NexCare Hospital');
+    const hospital = escapeHtml(a.hospitalName || a.hospital || 'NexCare General Hospital');
+    const doctor = escapeHtml(a.doctor && a.doctor.startsWith('Dr.') ? a.doctor : (a.doctorName || `Dr. ${a.department || 'General'} Specialist`));
     const date = escapeHtml(a.dateLabel);
     const time = escapeHtml(a.timeLabel);
     const id = escapeHtml(a.id);
@@ -1173,7 +1173,8 @@ function itemHtml(a, isPastList) {
                     <span class="badge ${badgeClass(a.status)}">${status}</span>
                 </div>
                 <div class="appointment-info-grid">
-                    <div class="info-item"><span>🏥 ${doctor}</span></div>
+                    <div class="info-item"><span>🏥 <strong>Hospital:</strong> ${hospital}</span></div>
+                    <div class="info-item"><span>👨‍⚕️ <strong>Doctor:</strong> ${doctor}</span></div>
                     <div class="info-item"><span>📅 ${date}</span></div>
                     <div class="info-item"><span>🕒 ${time}</span></div>
                 </div>

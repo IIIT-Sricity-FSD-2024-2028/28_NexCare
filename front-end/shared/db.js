@@ -43,7 +43,36 @@ const NexCareDB = (() => {
         "patients": [
             { "id": "P001", "fullName": "John Anderson", "phone": "5551234567", "email": "patient@gmail.com", "patientIdDisplay": "PAT-2026-001", "memberSince": "January 2024", "status": "Active", "bloodGroup": "O+", "age": 45 }
         ],
-        "appointments": [],
+        "appointments": [
+            {
+                "id": "APT-001",
+                "token": "TKN-1234",
+                "patientId": "P001",
+                "patientName": "John Anderson",
+                "hospitalName": "NexCare AIIMS Super Speciality Hospital",
+                "doctor": "Dr. Sarah Smith",
+                "department": "Cardiology",
+                "dateLabel": "March 15, 2026",
+                "timeLabel": "10:00 AM",
+                "fee": 150,
+                "status": "Confirmed",
+                "reason": "Routine heart checkup and ECG review"
+            },
+            {
+                "id": "APT-002",
+                "token": "TKN-5678",
+                "patientId": "P001",
+                "patientName": "John Anderson",
+                "hospitalName": "NexCare AIIMS Super Speciality Hospital",
+                "doctor": "Dr. Vikram Patel",
+                "department": "Orthopaedics",
+                "dateLabel": "April 02, 2026",
+                "timeLabel": "02:30 PM",
+                "fee": 200,
+                "status": "Pending",
+                "reason": "Knee pain consultation"
+            }
+        ],
         "systemActivity": [],
         "ambulanceRequests": [],
         "bills": [],
@@ -395,8 +424,9 @@ window.NexCareStore = {
                 // White-list fields for backend DTO validation
                 const payload = {
                     patientId,
+                    hospitalName: data.hospitalName || "NexCare AIIMS Super Speciality Hospital",
                     department: data.department,
-                    doctor: data.doctor || "TBD",
+                    doctor: data.doctor || "Dr. Sarah Smith",
                     dateLabel: data.dateLabel,
                     timeLabel: data.timeLabel,
                     reason: data.reason || "",
@@ -417,8 +447,9 @@ window.NexCareStore = {
             id: NexCareDB.generateId("APT"),
             patientId,
             patientName: patient?.fullName || 'Self',
+            hospitalName: data.hospitalName || "NexCare AIIMS Super Speciality Hospital",
             department: data.department,
-            doctor: data.doctor || "TBD",
+            doctor: data.doctor || "Dr. Sarah Smith",
             dateLabel: data.dateLabel,
             timeLabel: data.timeLabel,
             token: data.token || NexCareDB.generateId("TKN"),

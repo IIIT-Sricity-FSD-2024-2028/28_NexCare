@@ -55,8 +55,55 @@ const MOCK_DOCTOR_APPOINTMENTS = [
 ];
 
 document.addEventListener('DOMContentLoaded', async () => {
+    updateDoctorProfileInfo();
     await initDoctorDashboard();
 });
+
+function getLoggedInDoctor() {
+    try {
+        const storedToken = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+        let email = '';
+        if (storedToken) {
+            const parts = storedToken.split('.');
+            if (parts.length === 3) {
+                const payload = JSON.parse(decodeURIComponent(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+                email = payload.email || '';
+            }
+        }
+        const userBlob = sessionStorage.getItem('nexcare_user_data') || localStorage.getItem('nexcare_user_data');
+        let user = userBlob ? JSON.parse(userBlob) : {};
+        
+        return {
+            name: user.name || (email ? email.split('@')[0] : 'Dr. Sarah Smith'),
+            hospital: user.hospitalName || user.hospital || 'NexCare AIIMS Super Speciality Hospital',
+            specialty: user.department || user.specialty || 'Cardiology'
+        };
+    } catch {
+        return {
+            name: 'Dr. Sarah Smith',
+            hospital: 'NexCare AIIMS Super Speciality Hospital',
+            specialty: 'Cardiology'
+        };
+    }
+}
+
+function updateDoctorProfileInfo() {
+    const doc = getLoggedInDoctor();
+    const docNameEl = document.getElementById('docProfileName');
+    const docHospEl = document.getElementById('docHospitalName');
+    const heroTitleEl = document.getElementById('docHeroTitle');
+    const heroSubtitleEl = document.getElementById('docHeroSubtitle');
+    const avatarEl = document.getElementById('docProfileAvatar');
+
+    if (docNameEl) docNameEl.textContent = doc.name;
+    if (docHospEl) docHospEl.textContent = `🏥 ${doc.hospital}`;
+    if (heroTitleEl) heroTitleEl.textContent = `Welcome, ${doc.name}`;
+    if (heroSubtitleEl) heroSubtitleEl.innerHTML = `🏥 Working Hospital: <strong>${escapeHtml(doc.hospital)}</strong> | Specialty: ${escapeHtml(doc.specialty)}`;
+    if (avatarEl && doc.name) {
+        const initials = doc.name.replace('Dr. ', '').split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
+        avatarEl.textContent = initials || 'DR';
+    }
+}
 
 async function initDoctorDashboard() {
     await Promise.all([

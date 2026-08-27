@@ -86,10 +86,10 @@
             <h1 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0;">Doctor Dashboard</h1>
             <div class="header-actions">
                 <div class="profile-btn" style="cursor: default;">
-                    <div class="profile-avatar" style="background: #1D4ED8; color: #FFF; font-weight: 700;">DR</div>
+                    <div class="profile-avatar" id="docProfileAvatar" style="background: #1D4ED8; color: #FFF; font-weight: 700;">DR</div>
                     <div class="profile-info">
-                        <p class="profile-name" style="font-weight: 600;">Doctor Portal</p>
-                        <p class="profile-id">Administrative Workspace</p>
+                        <p class="profile-name" id="docProfileName" style="font-weight: 600;">Dr. Sarah Smith</p>
+                        <p class="profile-id" id="docHospitalName" style="font-size: 12px; color: #4B5563;">🏥 NexCare AIIMS Super Speciality Hospital</p>
                     </div>
                 </div>
             </div>
@@ -98,8 +98,8 @@
         <!-- Hero Section -->
         <section class="hero" style="background: linear-gradient(135deg, #1E40AF 0%, #1D4ED8 100%); color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px;">
             <div class="hero-content">
-                <h1 style="font-size: 26px; font-weight: 700; margin-bottom: 8px;">Welcome to Doctor Operations</h1>
-                <p style="font-size: 15px; opacity: 0.9; margin-bottom: 20px;">Manage patient appointments and apply for leave requests seamlessly in one portal.</p>
+                <h1 id="docHeroTitle" style="font-size: 26px; font-weight: 700; margin-bottom: 8px;">Welcome, Dr. Sarah Smith</h1>
+                <p id="docHeroSubtitle" style="font-size: 15px; opacity: 0.9; margin-bottom: 20px;">🏥 Working Hospital: <strong>NexCare AIIMS Super Speciality Hospital</strong> | Specialty: Cardiology</p>
                 <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                     <button class="btn-primary" onclick="location.href='appointments.html'" style="background: #FFF; color: #1D4ED8; font-weight: 600; padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer;">
                         🗓️ View Appointments
