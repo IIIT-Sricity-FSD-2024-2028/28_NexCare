@@ -97,13 +97,21 @@ async function decide(hospitalId, action) {
 
     if (!confirm(`${verb} the registration for ${name}?`)) return;
 
+    // Show loading state
+    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
+        ? window.NexCareUI.showLoading(`${verb}ing registration...`) 
+        : null;
+
     try {
         const res = action === 'verify'
             ? await window.NexCareAPI.Hospitals.verify(hospitalId)
             : await window.NexCareAPI.Hospitals.reject(hospitalId);
 
+        if (hideLoading) hideLoading();
+
         if (!res || !res.success) {
-            notify((res && res.message) || `Failed to ${action} registration`, 'error');
+            const errorMsg = (res && res.message) || `Failed to ${action} registration. Please try again.`;
+            notify(errorMsg, 'error');
             return;
         }
 
@@ -112,10 +120,11 @@ async function decide(hospitalId, action) {
         }
         updateStats();
         render();
-        notify(`${name} ${action === 'verify' ? 'approved' : 'rejected'}`, 'success');
+        notify(`${name} ${action === 'verify' ? 'approved' : 'rejected'} successfully`, 'success');
     } catch (err) {
+        if (hideLoading) hideLoading();
         console.error(err);
-        notify(`Failed to ${action} registration`, 'error');
+        notify(`Failed to ${action} registration. Please check your connection and try again.`, 'error');
     }
 }
 

@@ -166,6 +166,20 @@ class NexCareAPI {
     handleError(error, method, endpoint) {
         console.error(`API Error (${method} ${endpoint}):`, error);
         
+        // Show toast notification for better user feedback
+        if (window.NexCareUI && window.NexCareUI.showToast) {
+            let errorMessage = 'An unexpected error occurred';
+            let errorType = 'error';
+            
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                errorMessage = 'Network error: Unable to connect to server. Please check your connection.';
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            window.NexCareUI.showToast({ message: errorMessage, type: errorType });
+        }
+        
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
             return {
                 success: false,

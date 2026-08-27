@@ -20,6 +20,11 @@ function apiGet(path) {
 }
 
 async function loadDashboardData() {
+    // Show loading state for dashboard
+    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
+        ? window.NexCareUI.showLoading('Loading dashboard data...') 
+        : null;
+
     try {
         const [patientsResp, apptResp, bedsResp, feedbackResp] = await Promise.all([
             apiGet('/patients').catch(() => ({ data: [] })),
@@ -88,8 +93,20 @@ async function loadDashboardData() {
 
         filteredAppointments = [...appointments];
         render();
+        
+        if (hideLoading) hideLoading();
     } catch (err) {
+        if (hideLoading) hideLoading();
         console.error('Dashboard load failed:', err);
+        
+        // Show error notification
+        if (window.NexCareUI && window.NexCareUI.showToast) {
+            window.NexCareUI.showToast({ 
+                message: 'Failed to load dashboard data. Please refresh the page.', 
+                type: 'error' 
+            });
+        }
+        
         document.getElementById('totalPatientsCount').textContent = 'N/A';
         document.getElementById('todayApptCount').textContent = 'N/A';
     }

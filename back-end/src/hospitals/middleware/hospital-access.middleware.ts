@@ -41,6 +41,12 @@ export class HospitalAccessMiddleware implements NestMiddleware {
       return next();
     }
 
+    // Regional managers can verify/reject hospitals without being assigned
+    const isVerificationAction = req.path?.includes('/verify') || req.path?.includes('/reject');
+    if (user.role === UserRole.REGIONAL_MANAGER && isVerificationAction) {
+      return next();
+    }
+
     const hospitalResult = await this.hospitalsService.findById(hospitalId);
     const hospital = hospitalResult?.data;
     if (!hospital) {

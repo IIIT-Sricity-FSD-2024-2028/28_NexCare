@@ -35,6 +35,10 @@ let HospitalAccessMiddleware = HospitalAccessMiddleware_1 = class HospitalAccess
         if (user.role === api_response_interface_1.UserRole.SUPERUSER) {
             return next();
         }
+        const isVerificationAction = req.path?.includes('/verify') || req.path?.includes('/reject');
+        if (user.role === api_response_interface_1.UserRole.REGIONAL_MANAGER && isVerificationAction) {
+            return next();
+        }
         const hospitalResult = await this.hospitalsService.findById(hospitalId);
         const hospital = hospitalResult?.data;
         if (!hospital) {

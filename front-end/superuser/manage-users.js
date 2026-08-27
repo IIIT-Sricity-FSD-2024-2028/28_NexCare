@@ -168,6 +168,11 @@ async function handleSaveUser(e) {
 
     if(!isValid) return; // Stop processing if invalid
 
+    // Show loading state
+    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
+        ? window.NexCareUI.showLoading(idInput === '' ? 'Creating user...' : 'Updating user...') 
+        : null;
+
     // Save Data via API
     try {
         if(idInput === '') {
@@ -180,6 +185,13 @@ async function handleSaveUser(e) {
                 status,
                 password: "Password123"
             });
+            
+            if (window.NexCareUI && window.NexCareUI.showToast) {
+                window.NexCareUI.showToast({ 
+                    message: `Successfully created ${role} account for ${name}`, 
+                    type: 'success' 
+                });
+            }
             
             if (window.NexCareStore) {
                 window.NexCareStore.logActivity('Create', 'Users', `New ${role} account created: ${name} (${dept})`);
@@ -194,16 +206,34 @@ async function handleSaveUser(e) {
                 status 
             });
 
+            if (window.NexCareUI && window.NexCareUI.showToast) {
+                window.NexCareUI.showToast({ 
+                    message: `Successfully updated user details for ${name}`, 
+                    type: 'success' 
+                });
+            }
+
             if (window.NexCareStore) {
                 window.NexCareStore.logActivity('Update', 'Users', `Updated user details for ${name} (ID: ${idInput})`);
             }
         }
     } catch (err) {
+        if (hideLoading) hideLoading();
         console.error('Save user failed:', err);
-        alert('Failed to save user. Please try again.');
+        
+        if (window.NexCareUI && window.NexCareUI.showError) {
+            window.NexCareUI.showError({ 
+                title: 'Failed to Save User',
+                message: 'There was an error saving the user. Please check your connection and try again.',
+                onRetry: () => handleSaveUser(e)
+            });
+        } else {
+            alert('Failed to save user. Please try again.');
+        }
         return;
     }
 
+    if (hideLoading) hideLoading();
     renderTable();
     closeUserModal();
 }

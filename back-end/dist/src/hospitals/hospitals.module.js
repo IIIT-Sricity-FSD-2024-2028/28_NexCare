@@ -12,11 +12,7 @@ const hospitals_controller_1 = require("./hospitals.controller");
 const hospital_details_controller_1 = require("./hospital-details.controller");
 const hospitals_service_1 = require("./hospitals.service");
 const hospital_query_interceptor_1 = require("./interceptors/hospital-query.interceptor");
-<<<<<<< HEAD
-const hospital_access_middleware_1 = require("./middleware/hospital-access.middleware");
-=======
 const lodger_middleware_1 = require("../lodger.middleware");
->>>>>>> ac60c090e27db66e823d768755bf5cb5e83c89bf
 const auth_module_1 = require("../auth/auth.module");
 const users_module_1 = require("../users/users.module");
 const beds_module_1 = require("../beds/beds.module");
@@ -25,26 +21,16 @@ const ambulance_module_1 = require("../ambulance/ambulance.module");
 let HospitalsModule = class HospitalsModule {
     configure(consumer) {
         consumer
-<<<<<<< HEAD
-            .apply(hospital_access_middleware_1.HospitalAccessMiddleware)
-=======
             .apply(lodger_middleware_1.HospitalAccessMiddleware)
->>>>>>> ac60c090e27db66e823d768755bf5cb5e83c89bf
             .forRoutes({ path: 'hospitals/:id', method: common_1.RequestMethod.GET }, { path: 'hospitals/:id', method: common_1.RequestMethod.PUT }, { path: 'hospitals/:id/verify', method: common_1.RequestMethod.PATCH }, { path: 'hospitals/:id/reject', method: common_1.RequestMethod.PATCH }, { path: 'hospitals/:id/assign-manager', method: common_1.RequestMethod.PATCH }, { path: 'hospitals/:id/doctors', method: common_1.RequestMethod.GET }, { path: 'hospitals/:id/beds', method: common_1.RequestMethod.GET }, { path: 'hospitals/:id/inventory', method: common_1.RequestMethod.GET }, { path: 'hospitals/:id/ambulances', method: common_1.RequestMethod.GET });
     }
 };
 exports.HospitalsModule = HospitalsModule;
 exports.HospitalsModule = HospitalsModule = __decorate([
     (0, common_1.Module)({
-<<<<<<< HEAD
-        imports: [auth_module_1.AuthModule, users_module_1.UsersModule, beds_module_1.BedsModule, inventory_module_1.InventoryModule, ambulance_module_1.AmbulanceModule],
-        controllers: [hospitals_controller_1.HospitalsController, hospital_details_controller_1.HospitalDetailsController],
-        providers: [hospitals_service_1.HospitalsService, hospital_query_interceptor_1.HospitalQueryInterceptor, hospital_access_middleware_1.HospitalAccessMiddleware],
-=======
         imports: [auth_module_1.AuthModule, (0, common_1.forwardRef)(() => users_module_1.UsersModule), beds_module_1.BedsModule, inventory_module_1.InventoryModule, ambulance_module_1.AmbulanceModule],
         controllers: [hospitals_controller_1.HospitalsController, hospital_details_controller_1.HospitalDetailsController],
         providers: [hospitals_service_1.HospitalsService, hospital_query_interceptor_1.HospitalQueryInterceptor, lodger_middleware_1.HospitalAccessMiddleware],
->>>>>>> ac60c090e27db66e823d768755bf5cb5e83c89bf
         exports: [hospitals_service_1.HospitalsService]
     })
 ], HospitalsModule);

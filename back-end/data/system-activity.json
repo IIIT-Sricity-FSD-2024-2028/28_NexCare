@@ -348,5 +348,15 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-26T19:34:42.859Z"
+  },
+  {
+    "id": "ACT-MTBLK3ZQ1KO",
+    "timestamp": "2026-08-27T14:07:16.022Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T14:07:16.022Z"
   }
 ]

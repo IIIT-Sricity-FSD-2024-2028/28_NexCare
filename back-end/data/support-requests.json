@@ -8,9 +8,9 @@
     "subject": "ICU air-conditioning unit failure",
     "description": "Two AC units in ICU block B have been down since Monday. Vendor contacted, awaiting confirmation on replacement parts.",
     "priority": "urgent",
-    "status": "in_progress",
+    "status": "waiting_for_manager",
     "createdAt": "2026-08-22T09:15:00.000Z",
-    "updatedAt": "2026-08-24T11:00:00.000Z"
+    "updatedAt": "2026-08-27T14:11:33.649Z"
   },
   {
     "id": "SR002",
@@ -21,9 +21,9 @@
     "subject": "Night shift front desk understaffed",
     "description": "Only one administrative staff member is rostered for the 10pm-6am shift. Requesting approval for an additional position.",
     "priority": "high",
-    "status": "waiting_for_manager",
+    "status": "open",
     "createdAt": "2026-08-23T18:40:00.000Z",
-    "updatedAt": "2026-08-23T18:40:00.000Z"
+    "updatedAt": "2026-08-27T14:11:30.107Z"
   },
   {
     "id": "SR003",
@@ -47,9 +47,9 @@
     "subject": "Ambulance AP-03 due for servicing",
     "description": "Vehicle has crossed the 15,000 km service interval. Needs to be taken off roster for two days.",
     "priority": "medium",
-    "status": "waiting_for_hospital",
+    "status": "in_progress",
     "createdAt": "2026-08-20T13:05:00.000Z",
-    "updatedAt": "2026-08-21T09:30:00.000Z"
+    "updatedAt": "2026-08-27T14:11:22.520Z"
   },
   {
     "id": "SR005",
@@ -60,9 +60,9 @@
     "subject": "Insurance claim reconciliation backlog",
     "description": "Around 40 claims from July are pending reconciliation with the TPA. Resolved after additional billing support was assigned.",
     "priority": "low",
-    "status": "resolved",
+    "status": "waiting_for_hospital",
     "createdAt": "2026-08-10T10:00:00.000Z",
-    "updatedAt": "2026-08-18T16:45:00.000Z",
+    "updatedAt": "2026-08-27T14:11:26.314Z",
     "resolvedAt": "2026-08-18T16:45:00.000Z"
   }
 ]

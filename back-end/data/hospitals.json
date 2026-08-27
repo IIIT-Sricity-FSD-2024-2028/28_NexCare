@@ -387,9 +387,9 @@
     "adminName": "Narayana Swamy",
     "adminEmail": "swamy@svcare.org",
     "adminPhone": "+91 97010 33445",
-    "verificationStatus": "pending_verification",
+    "verificationStatus": "verified",
     "createdAt": "2026-08-20T14:20:00.000Z",
-    "updatedAt": "2026-08-26T18:16:15.716Z",
+    "updatedAt": "2026-08-27T14:10:25.865Z",
     "availability": {
       "General Medicine": {
         "days": [
