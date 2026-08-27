@@ -53,4 +53,22 @@ __decorate([
     (0, class_validator_1.Min)(0, { message: 'Age cannot be negative' }),
     __metadata("design:type", Number)
 ], RegisterDto.prototype, "age", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Tirupati', description: 'City the patient lives in' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "city", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Andhra Pradesh', description: 'State the patient lives in' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "state", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: '517501', description: 'Postal PIN code' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "pincode", void 0);
 //# sourceMappingURL=register.dto.js.map

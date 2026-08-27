@@ -25,7 +25,21 @@ let BillingController = class BillingController {
     constructor(billingService) {
         this.billingService = billingService;
     }
-    async findAll(patientId, status) {
+    isPatient(req) {
+        return req?.user?.role === api_response_interface_1.UserRole.PATIENT;
+    }
+    async assertOwnsBill(req, id) {
+        if (!this.isPatient(req))
+            return;
+        const res = await this.billingService.findById(id);
+        if (res?.success && res.data && res.data.patientId !== req.user.patientId) {
+            throw new common_1.ForbiddenException('You can only access your own bills.');
+        }
+    }
+    async findAll(req, patientId, status) {
+        if (this.isPatient(req)) {
+            patientId = req.user.patientId;
+        }
         return this.billingService.findAll(patientId, status);
     }
     async create(createBillDto) {
@@ -34,7 +48,10 @@ let BillingController = class BillingController {
     async getStats() {
         return this.billingService.getStats();
     }
-    async findByPatient(patientId) {
+    async findByPatient(req, patientId) {
+        if (this.isPatient(req) && patientId !== req.user.patientId) {
+            throw new common_1.ForbiddenException('You can only view your own bills.');
+        }
         return this.billingService.findByPatient(patientId);
     }
     async getOverdueBills() {
@@ -43,7 +60,8 @@ let BillingController = class BillingController {
     async getRevenueByDateRange(startDate, endDate) {
         return this.billingService.getRevenueByDateRange(startDate, endDate);
     }
-    async findById(id) {
+    async findById(req, id) {
+        await this.assertOwnsBill(req, id);
         return this.billingService.findById(id);
     }
     async update(id, updateBillDto) {
@@ -55,7 +73,8 @@ let BillingController = class BillingController {
     async delete(id) {
         return this.billingService.delete(id);
     }
-    async processPayment(id, processPaymentDto) {
+    async processPayment(req, id, processPaymentDto) {
+        await this.assertOwnsBill(req, id);
         return this.billingService.processPayment(id, {
             amount: processPaymentDto.amount,
             method: processPaymentDto.method
@@ -65,14 +84,16 @@ let BillingController = class BillingController {
 exports.BillingController = BillingController;
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all bills' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all bills (patients: only their own)' }),
     (0, swagger_1.ApiQuery)({ name: 'patientId', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: api_response_interface_1.BillStatus }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of bills' }),
-    __param(0, (0, common_1.Query)('patientId')),
-    __param(1, (0, common_1.Query)('status')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)('patientId')),
+    __param(2, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], BillingController.prototype, "findAll", null);
 __decorate([
@@ -96,11 +117,13 @@ __decorate([
 ], BillingController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('patient/:patientId'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get bills by patient ID' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Get bills by patient ID (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of patient bills' }),
-    __param(0, (0, common_1.Param)('patientId')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('patientId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], BillingController.prototype, "findByPatient", null);
 __decorate([
@@ -125,11 +148,13 @@ __decorate([
 ], BillingController.prototype, "getRevenueByDateRange", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get bill by ID' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Get bill by ID (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Bill details retrieved' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], BillingController.prototype, "findById", null);
 __decorate([
@@ -163,18 +188,20 @@ __decorate([
 ], BillingController.prototype, "delete", null);
 __decorate([
     (0, common_1.Patch)(':id/pay'),
-    (0, swagger_1.ApiOperation)({ summary: 'Process payment for a bill' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Process payment for a bill (patients: own only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Payment processed successfully' }),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, process_payment_dto_1.ProcessPaymentDto]),
+    __metadata("design:paramtypes", [Object, String, process_payment_dto_1.ProcessPaymentDto]),
     __metadata("design:returntype", Promise)
 ], BillingController.prototype, "processPayment", null);
 exports.BillingController = BillingController = __decorate([
     (0, swagger_1.ApiTags)('Billing'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
     (0, common_1.Controller)('billing'),
     __metadata("design:paramtypes", [billing_service_1.BillingService])
 ], BillingController);

@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    app.setGlobalPrefix('api');
     const config = new swagger_1.DocumentBuilder()
         .setTitle('NexCare Hospital Management API')
         .setDescription('Complete REST API for the NexCare Hospital Administrative Operations Platform. ' +
@@ -23,7 +24,7 @@ async function bootstrap() {
         type: 'apiKey',
         in: 'header',
         name: 'x-user-role',
-        description: 'User role for RBAC (superuser, administrative_staff, patient, ambulance, doctor, nurse)',
+        description: 'User role for RBAC (superuser, administrative_staff, patient, ambulance, regional_manager, hospital_manager)',
     }, 'x-user-role')
         .addServer(process.env.API_URL || `http://localhost:${process.env.PORT || 3001}`, 'Local Server')
         .addTag('Auth', 'Authentication & session management')

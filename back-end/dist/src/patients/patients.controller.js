@@ -24,6 +24,12 @@ let PatientsController = class PatientsController {
     constructor(patientsService) {
         this.patientsService = patientsService;
     }
+    assertOwnRecord(req, id) {
+        const user = req?.user;
+        if (user?.role === api_response_interface_1.UserRole.PATIENT && user?.patientId !== id) {
+            throw new common_1.ForbiddenException('You can only access your own patient record.');
+        }
+    }
     async findAll(status) {
         return this.patientsService.findAll(status);
     }
@@ -42,13 +48,16 @@ let PatientsController = class PatientsController {
     async findByAgeRange(minAge, maxAge) {
         return this.patientsService.findByAgeRange(minAge, maxAge);
     }
-    async findById(id) {
+    async findById(req, id) {
+        this.assertOwnRecord(req, id);
         return this.patientsService.findById(id);
     }
-    async update(id, updatePatientDto) {
+    async update(req, id, updatePatientDto) {
+        this.assertOwnRecord(req, id);
         return this.patientsService.update(id, updatePatientDto);
     }
-    async patchUpdate(id, updatePatientDto) {
+    async patchUpdate(req, id, updatePatientDto) {
+        this.assertOwnRecord(req, id);
         return this.patientsService.update(id, updatePatientDto);
     }
     async delete(id) {
@@ -120,31 +129,37 @@ __decorate([
 ], PatientsController.prototype, "findByAgeRange", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get patient by ID' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Get patient by ID (patients: own record only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Patient details (check success field for not-found)' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], PatientsController.prototype, "findById", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Update patient details' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Update patient details (patients: own record only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Patient updated successfully' }),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_patient_dto_1.UpdatePatientDto]),
+    __metadata("design:paramtypes", [Object, String, update_patient_dto_1.UpdatePatientDto]),
     __metadata("design:returntype", Promise)
 ], PatientsController.prototype, "update", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Partially update patient details' }),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Partially update patient details (patients: own record only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Patient updated successfully' }),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_patient_dto_1.UpdatePatientDto]),
+    __metadata("design:paramtypes", [Object, String, update_patient_dto_1.UpdatePatientDto]),
     __metadata("design:returntype", Promise)
 ], PatientsController.prototype, "patchUpdate", null);
 __decorate([
@@ -169,7 +184,7 @@ __decorate([
 exports.PatientsController = PatientsController = __decorate([
     (0, swagger_1.ApiTags)('Patients'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF, api_response_interface_1.UserRole.PATIENT),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER, api_response_interface_1.UserRole.ADMINISTRATIVE_STAFF),
     (0, common_1.Controller)('patients'),
     __metadata("design:paramtypes", [patients_service_1.PatientsService])
 ], PatientsController);

@@ -1,0 +1,358 @@
+import {
+  Injectable,
+  NestMiddleware,
+  Logger,
+} from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+let helmet: any;
+try {
+  helmet = require('helmet');
+} catch {
+  helmet = null;
+}
+import * as crypto from 'crypto';
+import { fileLogger } from './common/logging/file-logger';
+
+// Re-export feature-specific middlewares to preserve clean module boundaries
+export { HospitalAccessMiddleware } from './hospitals/middleware/hospital-access.middleware';
+export { BedStatusChangeMiddleware } from './beds/middleware/bed-status-change.middleware';
+
+// ============================================================================
+// 1. REQUEST LOGGER MIDDLEWARE
+// ============================================================================
+
+/** Bodies are logged for debugging — these keys are never written to disk */
+const REDACTED_KEYS = ['password', 'confirmPassword', 'currentPassword', 'newPassword', 'token', 'authorization'];
+
+/**
+ * Request Logger Middleware (application-level — applied to every route)
+ *
+ * Gives each request an id, then records one access-log entry per request once
+ * the response has been sent: method, path, status, duration, user, client ip.
+ * Anything that answered 4xx or 5xx is copied into the error log as well.
+ */
+@Injectable()
+export class RequestLoggerMiddleware implements NestMiddleware {
+  private readonly logger = new Logger('HTTP');
+
+  use(req: Request, res: Response, next: NextFunction): void {
+    const startedAt = Date.now();
+
+    // Correlation id — echoed back so a user can quote it when reporting a bug
+    const requestId = (req.headers['x-request-id'] as string) || crypto.randomUUID();
+    (req as any).requestId = requestId;
+    res.setHeader('x-request-id', requestId);
+
+    res.on('finish', () => {
+      const durationMs = Date.now() - startedAt;
+      const status = res.statusCode;
+
+      const entry = {
+        requestId,
+        method: req.method,
+        path: req.originalUrl.split('?')[0],
+        query: this.redact(req.query as Record<string, unknown>),
+        status,
+        durationMs,
+        ip: this.clientIp(req),
+        userAgent: req.headers['user-agent'],
+        user: this.describeUser(req),
+      };
+
+      fileLogger.info('access', `${req.method} ${entry.path} ${status} ${durationMs}ms`, entry);
+
+      if (status >= 400) {
+        fileLogger.write(
+          'error',
+          status >= 500 ? 'error' : 'warn',
+          `${req.method} ${entry.path} responded ${status}`,
+          { ...entry, body: this.redact(req.body) },
+        );
+      }
+
+      // Console line for the terminal; the file log is the durable record
+      const line = `${req.method} ${entry.path} ${status} ${durationMs}ms`;
+      status >= 500 ? this.logger.error(line) : status >= 400 ? this.logger.warn(line) : this.logger.log(line);
+    });
+
+    next();
+  }
+
+  private describeUser(req: Request): string {
+    const attached = (req as any).user;
+    if (attached?.id) return `${attached.id} (${attached.role})`;
+
+    const [type, token] = (req.headers.authorization ?? '').split(' ');
+    if (type !== 'Bearer' || !token) return 'anonymous';
+
+    try {
+      const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));
+      return payload?.sub ? `${payload.sub} (${payload.role})` : 'anonymous';
+    } catch {
+      return 'unknown';
+    }
+  }
+
+  private clientIp(req: Request): string {
+    const forwarded = req.headers['x-forwarded-for'];
+    if (typeof forwarded === 'string' && forwarded.length > 0) return forwarded.split(',')[0].trim();
+    return req.socket?.remoteAddress ?? 'unknown';
+  }
+
+  private redact(source: unknown): Record<string, unknown> | undefined {
+    if (!source || typeof source !== 'object') return undefined;
+
+    const out: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(source as Record<string, unknown>)) {
+      out[key] = REDACTED_KEYS.includes(key) ? '[REDACTED]' : value;
+    }
+    return out;
+  }
+}
+
+// Aliases for convenience
+export { RequestLoggerMiddleware as LoggerMiddleware };
+export { RequestLoggerMiddleware as LodgerMiddleware };
+
+// ============================================================================
+// 2. SECURITY MIDDLEWARE
+// ============================================================================
+
+const GENERAL_LIMIT = Number(process.env.RATE_LIMIT_GENERAL) || 300;
+const AUTH_LIMIT = Number(process.env.RATE_LIMIT_AUTH) || 20;
+const WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS) || 60_000;
+const AUTH_PATHS = ['/api/auth/login', '/api/auth/register'];
+
+/**
+ * Security Middleware (application-level — applied to every route)
+ * Header security, rate limiting, and request size checks.
+ */
+@Injectable()
+export class SecurityMiddleware implements NestMiddleware {
+  private readonly helmetHandler = typeof helmet === 'function' ? helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginEmbedderPolicy: false,
+  }) : null;
+
+  private readonly hits = new Map<string, number[]>();
+  private readonly maxBodyBytes = Number(process.env.MAX_BODY_BYTES) || 1024 * 1024;
+  private readonly disabled = process.env.RATE_LIMIT_DISABLED === 'true';
+
+  constructor() {
+    const sweep = setInterval(() => this.sweep(), WINDOW_MS);
+    sweep.unref?.();
+  }
+
+  use(req: Request, res: Response, next: NextFunction): void {
+    const runNext = () => {
+      const path = req.originalUrl.split('?')[0];
+
+      const isUpload = path.startsWith('/api/uploads');
+      const declared = Number(req.headers['content-length'] ?? 0);
+      if (!isUpload && declared > this.maxBodyBytes) {
+        fileLogger.warn('error', 'Request body too large', {
+          path,
+          declaredBytes: declared,
+          limitBytes: this.maxBodyBytes,
+          ip: this.clientIp(req),
+        });
+        res.status(413).json({
+          success: false,
+          statusCode: 413,
+          message: `Request body too large. Limit is ${Math.round(this.maxBodyBytes / 1024)} KB.`,
+          error: 'PAYLOAD_TOO_LARGE',
+          timestamp: new Date().toISOString(),
+          path,
+        });
+        return;
+      }
+
+      if (this.disabled || req.method === 'OPTIONS') {
+        return next();
+      }
+
+      const ip = this.clientIp(req);
+      const limit = AUTH_PATHS.includes(path) ? AUTH_LIMIT : GENERAL_LIMIT;
+      const key = `${ip}|${limit === AUTH_LIMIT ? 'auth' : 'general'}`;
+      const now = Date.now();
+
+      const recent = (this.hits.get(key) ?? []).filter((t) => now - t < WINDOW_MS);
+      recent.push(now);
+      this.hits.set(key, recent);
+
+      const remaining = Math.max(0, limit - recent.length);
+      res.setHeader('x-ratelimit-limit', String(limit));
+      res.setHeader('x-ratelimit-remaining', String(remaining));
+
+      if (recent.length > limit) {
+        const retryAfter = Math.ceil((WINDOW_MS - (now - recent[0])) / 1000);
+        fileLogger.warn('error', 'Rate limit exceeded', {
+          ip,
+          path,
+          method: req.method,
+          requestsInWindow: recent.length,
+          limit,
+        });
+        res.setHeader('retry-after', String(retryAfter));
+        res.status(429).json({
+          success: false,
+          statusCode: 429,
+          message: `Too many requests. Try again in ${retryAfter} second(s).`,
+          error: 'TOO_MANY_REQUESTS',
+          timestamp: new Date().toISOString(),
+          path,
+        });
+        return;
+      }
+
+      next();
+    };
+
+    if (this.helmetHandler) {
+      this.helmetHandler(req, res, runNext);
+    } else {
+      runNext();
+    }
+  }
+
+  private sweep(): void {
+    const cutoff = Date.now() - WINDOW_MS;
+    for (const [key, times] of this.hits) {
+      const fresh = times.filter((t) => t > cutoff);
+      fresh.length ? this.hits.set(key, fresh) : this.hits.delete(key);
+    }
+  }
+
+  private clientIp(req: Request): string {
+    const forwarded = req.headers['x-forwarded-for'];
+    if (typeof forwarded === 'string' && forwarded.length > 0) return forwarded.split(',')[0].trim();
+    return req.socket?.remoteAddress ?? 'unknown';
+  }
+}
+
+// ============================================================================
+// 3. ERROR HANDLER & NOT FOUND MIDDLEWARES
+// ============================================================================
+
+export function errorHandlerMiddleware(
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
+  const status = Number(err?.status || err?.statusCode) || 500;
+  const requestId = (req as any).requestId;
+
+  fileLogger.write('error', status >= 500 ? 'error' : 'warn', `Unhandled error on ${req.method} ${req.originalUrl}`, {
+    requestId,
+    statusCode: status,
+    method: req.method,
+    path: req.originalUrl,
+    name: err?.name,
+    detail: err?.message,
+    stack: err?.stack,
+  });
+
+  console.error(`[ErrorHandler] ${req.method} ${req.originalUrl} — ${err?.message ?? err}`);
+
+  if (res.headersSent) return;
+
+  res.status(status).json({
+    success: false,
+    statusCode: status,
+    message: resolveMessage(err, status),
+    error: status === 400 ? 'BAD_REQUEST' : status >= 500 ? 'INTERNAL_SERVER_ERROR' : 'ERROR',
+    requestId,
+    timestamp: new Date().toISOString(),
+    path: req.originalUrl,
+  });
+}
+
+export function notFoundMiddleware(req: Request, res: Response): void {
+  fileLogger.warn('error', `Route not found: ${req.method} ${req.originalUrl}`, {
+    requestId: (req as any).requestId,
+    method: req.method,
+    path: req.originalUrl,
+    statusCode: 404,
+  });
+
+  res.status(404).json({
+    success: false,
+    statusCode: 404,
+    message: `Cannot ${req.method} ${req.originalUrl}`,
+    error: 'NOT_FOUND',
+    requestId: (req as any).requestId,
+    timestamp: new Date().toISOString(),
+    path: req.originalUrl,
+  });
+}
+
+function resolveMessage(err: any, status: number): string {
+  if (err?.type === 'entity.parse.failed') return 'Malformed JSON in request body.';
+  if (err?.type === 'entity.too.large') return 'Request body too large.';
+  if (err?.code === 'LIMIT_FILE_SIZE') return 'Uploaded file is too large.';
+  if (err?.code === 'LIMIT_UNEXPECTED_FILE') return 'Unexpected file field in upload.';
+  if (status >= 500) return 'Internal server error. The incident has been logged.';
+  return err?.message || 'Request failed';
+}
+
+// ============================================================================
+// 4. FILE UPLOAD MIDDLEWARE
+// ============================================================================
+
+export const MAX_UPLOAD_BYTES = Number(process.env.MAX_UPLOAD_BYTES) || 5 * 1024 * 1024;
+
+@Injectable()
+export class FileUploadMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction): void {
+    const contentType = String(req.headers['content-type'] ?? '');
+    const declaredBytes = Number(req.headers['content-length'] ?? 0);
+
+    fileLogger.info('app', 'Upload attempt', {
+      requestId: (req as any).requestId,
+      contentType: contentType.split(';')[0],
+      declaredBytes,
+    });
+
+    if (!contentType.startsWith('multipart/form-data')) {
+      return this.reject(
+        req,
+        res,
+        400,
+        'BAD_REQUEST',
+        'Uploads must be sent as multipart/form-data with a "file" field.',
+      );
+    }
+
+    if (declaredBytes > MAX_UPLOAD_BYTES) {
+      return this.reject(
+        req,
+        res,
+        413,
+        'PAYLOAD_TOO_LARGE',
+        `File is too large. Maximum size is ${Math.round(MAX_UPLOAD_BYTES / (1024 * 1024))} MB.`,
+      );
+    }
+
+    next();
+  }
+
+  private reject(req: Request, res: Response, status: number, error: string, message: string): void {
+    fileLogger.warn('error', `Upload rejected: ${message}`, {
+      requestId: (req as any).requestId,
+      statusCode: status,
+      path: req.originalUrl,
+    });
+
+    res.status(status).json({
+      success: false,
+      statusCode: status,
+      message,
+      error,
+      requestId: (req as any).requestId,
+      timestamp: new Date().toISOString(),
+      path: req.originalUrl,
+    });
+  }
+}

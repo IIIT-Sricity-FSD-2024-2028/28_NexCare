@@ -1,9 +1,9 @@
-import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod, forwardRef } from '@nestjs/common';
 import { HospitalsController } from './hospitals.controller';
 import { HospitalDetailsController } from './hospital-details.controller';
 import { HospitalsService } from './hospitals.service';
 import { HospitalQueryInterceptor } from './interceptors/hospital-query.interceptor';
-import { HospitalAccessMiddleware } from './middleware/hospital-access.middleware';
+import { HospitalAccessMiddleware } from '../lodger.middleware';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { BedsModule } from '../beds/beds.module';
@@ -11,7 +11,9 @@ import { InventoryModule } from '../inventory/inventory.module';
 import { AmbulanceModule } from '../ambulance/ambulance.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, BedsModule, InventoryModule, AmbulanceModule],
+  // forwardRef on UsersModule: it imports HospitalsModule back, to scope /users
+  // to a regional officer's own hospitals.
+  imports: [AuthModule, forwardRef(() => UsersModule), BedsModule, InventoryModule, AmbulanceModule],
   controllers: [HospitalsController, HospitalDetailsController],
   providers: [HospitalsService, HospitalQueryInterceptor, HospitalAccessMiddleware],
   exports: [HospitalsService]

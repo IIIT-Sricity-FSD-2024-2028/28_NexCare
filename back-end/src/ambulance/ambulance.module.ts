@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AmbulanceController } from './ambulance.controller';
 import { AmbulanceService } from './ambulance.service';
 import { SystemModule } from '../system/system.module';
+import { PatientsModule } from '../patients/patients.module';
 
 /**
  * Ambulance Module
@@ -9,7 +10,7 @@ import { SystemModule } from '../system/system.module';
  * Provides CRUD operations and ambulance status management functionality
  */
 @Module({
-  imports: [SystemModule],
+  imports: [SystemModule, PatientsModule],
   controllers: [AmbulanceController],
   providers: [AmbulanceService],
   exports: [AmbulanceService],

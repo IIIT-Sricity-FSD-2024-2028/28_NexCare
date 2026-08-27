@@ -1,13 +1,15 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Put, 
-  Patch, 
-  Delete, 
-  Param, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Patch,
+  Delete,
+  Param,
   Query,
+  Req,
+  ForbiddenException,
   HttpCode,
   HttpStatus,
   BadRequestException
@@ -23,43 +25,72 @@ import { UserRole, AmbulanceStatus } from '../common/interfaces/api-response.int
 
 /**
  * Ambulance Controller
- * Manages emergency services and ambulance requests in the NexCare system
- * Provides endpoints for ambulance CRUD operations and status management
+ * Manages emergency services and ambulance requests in the NexCare system.
+ *
+ * RBAC: staff/superuser/ambulance manage and dispatch. Patients may raise a
+ * request and view/cancel their OWN requests only (enforced against
+ * req.user.patientId). Dispatch/complete/status transitions are staff-only.
  */
 @ApiTags('Ambulance')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT)
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE)
 @Controller('ambulance')
 export class AmbulanceController {
   constructor(private readonly ambulanceService: AmbulanceService) {}
+
+  private isPatient(req: any): boolean {
+    return req?.user?.role === UserRole.PATIENT;
+  }
+
+  /** Hospital to scope staff queries to (undefined for superuser/patient => no hospital filter). */
+  private scopeHospitalId(req: any): string | undefined {
+    const user = req?.user;
+    if (user?.role === UserRole.SUPERUSER || user?.role === UserRole.PATIENT) return undefined;
+    return user?.hospitalId;
+  }
+
+  /** For a patient caller, verify the request belongs to them (else 403). */
+  private async assertOwnsRequest(req: any, id: string) {
+    if (!this.isPatient(req)) return;
+    const res: any = await this.ambulanceService.findById(id);
+    if (res?.success && res.data && res.data.patientId !== req.user.patientId) {
+      throw new ForbiddenException('You can only access your own ambulance requests.');
+    }
+  }
 
   /**
    * Get all ambulance requests with optional filtering
    */
   @Get()
-  @ApiOperation({ summary: 'Get all ambulance requests' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT, UserRole.REGIONAL_MANAGER)
+  @ApiOperation({ summary: 'Get all ambulance requests (patients: only their own)' })
   @ApiQuery({ name: 'patientId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: AmbulanceStatus })
   @ApiResponse({ status: 200, description: 'List of ambulance requests' })
   async findAll(
+    @Req() req: any,
     @Query('patientId') patientId?: string,
     @Query('status') status?: string
   ) {
-    return this.ambulanceService.findAll(patientId, status as any);
+    if (this.isPatient(req)) {
+      patientId = req.user.patientId;
+    }
+    return this.ambulanceService.findAll(patientId, status as any, this.scopeHospitalId(req));
   }
 
   /**
    * Create new ambulance request
    */
   @Post()
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Create an ambulance request' })
   @ApiResponse({ status: 200, description: 'Request creation result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async create(@Body() createRequestDto: CreateAmbulanceRequestDto) {
+  async create(@Req() req: any, @Body() createRequestDto: CreateAmbulanceRequestDto) {
     // Validate DTO before processing
     const validation = DtoValidatorUtil.validateAmbulanceRequest(createRequestDto);
-    
+
     if (!validation.isValid) {
       throw new BadRequestException({
         message: 'Validation failed',
@@ -67,8 +98,16 @@ export class AmbulanceController {
         fieldErrors: validation.fieldErrors
       });
     }
-    
-    return this.ambulanceService.create(createRequestDto as any);
+
+    const dto: any = { ...createRequestDto };
+    // A patient can only raise a request for themselves.
+    if (this.isPatient(req)) {
+      dto.patientId = req.user.patientId;
+    }
+    // Stamp the staff member's hospital when available (patients default in-service).
+    const scopedHospital = this.scopeHospitalId(req);
+    if (scopedHospital) dto.hospitalId = scopedHospital;
+    return this.ambulanceService.create(dto);
   }
 
   /**
@@ -85,9 +124,13 @@ export class AmbulanceController {
    * Get requests by patient
    */
   @Get('patient/:patientId')
-  @ApiOperation({ summary: 'Get ambulance requests by patient ID' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Get ambulance requests by patient ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Patient requests retrieved' })
-  async findByPatient(@Param('patientId') patientId: string) {
+  async findByPatient(@Req() req: any, @Param('patientId') patientId: string) {
+    if (this.isPatient(req) && patientId !== req.user.patientId) {
+      throw new ForbiddenException('You can only view your own ambulance requests.');
+    }
     return this.ambulanceService.findByPatient(patientId);
   }
 
@@ -115,9 +158,11 @@ export class AmbulanceController {
    * Get ambulance request by ID
    */
   @Get(':id')
-  @ApiOperation({ summary: 'Get ambulance request by ID' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Get ambulance request by ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Request details retrieved' })
-  async findById(@Param('id') id: string) {
+  async findById(@Req() req: any, @Param('id') id: string) {
+    await this.assertOwnsRequest(req, id);
     return this.ambulanceService.findById(id);
   }
 
@@ -145,9 +190,11 @@ export class AmbulanceController {
    * Delete ambulance request
    */
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete an ambulance request' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Delete/cancel an ambulance request (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Request deleted successfully' })
-  async delete(@Param('id') id: string) {
+  async delete(@Req() req: any, @Param('id') id: string) {
+    await this.assertOwnsRequest(req, id);
     return this.ambulanceService.delete(id);
   }
 

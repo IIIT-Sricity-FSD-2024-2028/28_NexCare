@@ -11,12 +11,17 @@ export class SupportRequestsController {
   @Get()
   async findAll(@Req() req: any, @Query('hospitalId') hospitalId?: string) {
     const user = req.user;
-    if (user.role === UserRole.HOSPITAL_MANAGER || user.role === UserRole.REGIONAL_MANAGER) {
-      return this.supportRequestsService.findAll(hospitalId, user.id);
-    } else if (user.role === UserRole.SUPERUSER) {
+    if (user.role === UserRole.SUPERUSER) {
+      // Superuser can view any hospital's requests, optionally filtered.
       return this.supportRequestsService.findAll(hospitalId);
+    } else if (user.role === UserRole.REGIONAL_MANAGER) {
+      // Regional oversight legitimately spans multiple hospitals; may filter to one.
+      return this.supportRequestsService.findAll(hospitalId, user.id);
+    } else if (user.role === UserRole.HOSPITAL_MANAGER) {
+      // Locked to their own hospital — ignore any client-supplied hospitalId (C4).
+      return this.supportRequestsService.findAll(user.hospitalId, user.id);
     } else {
-      // Normal hospital staff can only see their own hospital's requests
+      // Normal hospital staff can only see their own hospital's requests.
       return this.supportRequestsService.findAll(user.hospitalId);
     }
   }

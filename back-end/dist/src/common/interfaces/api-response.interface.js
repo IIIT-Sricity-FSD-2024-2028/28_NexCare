@@ -7,10 +7,10 @@ var UserRole;
     UserRole["ADMINISTRATIVE_STAFF"] = "administrative_staff";
     UserRole["SUPERUSER"] = "superuser";
     UserRole["AMBULANCE"] = "ambulance";
-    UserRole["DOCTOR"] = "doctor";
-    UserRole["NURSE"] = "nurse";
     UserRole["REGIONAL_MANAGER"] = "regional_manager";
     UserRole["HOSPITAL_MANAGER"] = "hospital_manager";
+    UserRole["DOCTOR"] = "doctor";
+    UserRole["NURSE"] = "nurse";
 })(UserRole || (exports.UserRole = UserRole = {}));
 var VerificationStatus;
 (function (VerificationStatus) {

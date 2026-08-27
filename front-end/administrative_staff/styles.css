@@ -741,6 +741,7 @@ h1, h3 {
 .dot.green { background: #22c55e; }
 .dot.blue { background: #3b82f6; }
 .dot.red { background: #ef4444; }
+.dot.gray { background: #9ca3af; }
 
 .ward-card {
     cursor: pointer;

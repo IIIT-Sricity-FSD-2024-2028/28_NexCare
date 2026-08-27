@@ -2,206 +2,200 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexCare - Doctor Portal Dashboard</title>
-    <link rel="stylesheet" href="../patient/styles.css">
-    <script>
-        // JWT-based early auth guard
-        (function () {
-            function decodeJWT(token) {
-                try {
-                    var parts = token.split('.');
-                    if (parts.length !== 3) return null;
-                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
-                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                    }).join(''));
-                    return JSON.parse(json);
-                } catch(e) { return null; }
-            }
-            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-            var payload = token ? decodeJWT(token) : null;
-            var now = Math.floor(Date.now() / 1000);
-            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'doctor') {
-                sessionStorage.clear();
-                window.location.replace('../auth/login.html');
-            }
-            if (payload) {
-                sessionStorage.setItem('isLoggedIn', 'true');
-                sessionStorage.setItem('nexcare_current_role', payload.role);
-            }
-        })();
-    </script>
+    <title>NexCare - Doctor Portal</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <a class="sidebar-brand" href="dashboard.html" aria-label="NexCare Doctor Portal Home">
-            <nex-care-logo></nex-care-logo>
-            <span class="sidebar-brand-subtitle">Doctor Portal</span>
-        </a>
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <nex-care-logo></nex-care-logo>
+                <div class="portal-badge">Doctor Portal</div>
+            </div>
 
-        <nav class="nav-menu">
-            <a href="dashboard.html" class="nav-item active">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <rect width="8" height="8" x="2" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <rect width="8" height="8" x="2" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <rect width="8" height="8" x="12" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <rect width="8" height="8" x="12" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
-                <span>Dashboard</span>
-            </a>
-            <a href="appointments.html" class="nav-item">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M6.667 1.667v3.333M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2.917 7.5h14.166" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect x="2.5" y="3.333" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.667"/>
-                </svg>
-                <span>Appointments</span>
-            </a>
-            <a href="leaves.html" class="nav-item">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M3 8h14" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M7 11h2M11 11h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <span>Leave Management</span>
-            </a>
-            <a href="#" onclick="sessionStorage.clear(); localStorage.removeItem('nexcare_currentUser'); window.location.href='../landing/landing.html'; return false;" class="nav-item nav-logout">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M13 15l5-5-5-5M18 10H8M12 5v-.5a2 2 0 00-2-2H4a2 2 0 00-2 2v11a2 2 0 002 2h6a2 2 0 002-2V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>Logout</span>
-            </a>
-        </nav>
-    </aside>
+            <nav class="sidebar-nav">
+                <a href="#appointments" class="nav-item active" onclick="switchTab('appointments', event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>My Appointments</span>
+                </a>
+                <a href="#leaves" class="nav-item" onclick="switchTab('leaves', event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    <span>Apply for Leave</span>
+                </a>
+            </nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Header -->
-        <header class="header">
-            <h1 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0;">Doctor Dashboard</h1>
-            <div class="header-actions">
-                <div class="profile-btn" style="cursor: default;">
-                    <div class="profile-avatar" id="docProfileAvatar" style="background: #1D4ED8; color: #FFF; font-weight: 700;">DR</div>
-                    <div class="profile-info">
-                        <p class="profile-name" id="docProfileName" style="font-weight: 600;">Dr. Sarah Smith</p>
-                        <p class="profile-id" id="docHospitalName" style="font-size: 12px; color: #4B5563;">🏥 NexCare AIIMS Super Speciality Hospital</p>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="doctorAvatar">DR</div>
+                    <div class="user-details">
+                        <span class="user-name" id="doctorName">Dr. Sarah Smith</span>
+                        <span class="user-role" id="doctorDept">Cardiology</span>
+                        <span class="user-role" id="doctorHospital" style="font-size: 11px; opacity: 0.85; margin-top: 2px;">🏥 NexCare AIIMS Super Speciality Hospital</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logoutUser()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="pageTitle">Doctor Portal Overview</h1>
+                    <p id="pageSubtitle">Manage your appointments and duty leave requests</p>
+                </div>
+                <div class="header-actions">
+                    <span class="status-pill status-active" id="dutyStatus">● On Duty</span>
+                </div>
+            </header>
+
+            <!-- Stats Overview Row -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon icon-blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-value" id="statToday">0</span>
+                        <span class="stat-label">Today's Consultations</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-value" id="statTotal">0</span>
+                        <span class="stat-label">Total Appointments</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-amber">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-value" id="statLeaves">0</span>
+                        <span class="stat-label">Leave Requests</span>
                     </div>
                 </div>
             </div>
-        </header>
 
-        <!-- Hero Section -->
-        <section class="hero" style="background: linear-gradient(135deg, #1E40AF 0%, #1D4ED8 100%); color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px;">
-            <div class="hero-content">
-                <h1 id="docHeroTitle" style="font-size: 26px; font-weight: 700; margin-bottom: 8px;">Welcome, Dr. Sarah Smith</h1>
-                <p id="docHeroSubtitle" style="font-size: 15px; opacity: 0.9; margin-bottom: 20px;">🏥 Working Hospital: <strong>NexCare AIIMS Super Speciality Hospital</strong> | Specialty: Cardiology</p>
-                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <button class="btn-primary" onclick="location.href='appointments.html'" style="background: #FFF; color: #1D4ED8; font-weight: 600; padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer;">
-                        🗓️ View Appointments
-                    </button>
-                    <button class="btn-primary" onclick="location.href='leaves.html'" style="background: rgba(255,255,255,0.2); color: #FFF; font-weight: 600; padding: 10px 18px; border: 1px solid rgba(255,255,255,0.4); border-radius: 8px; cursor: pointer;">
-                        📝 Apply for Leave
-                    </button>
+            <!-- Tab 1: Appointments Section -->
+            <section id="appointmentsTab" class="tab-content active-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>My Patient Appointments</h2>
+                        <div class="search-filter-box">
+                            <input type="text" id="appointmentSearch" placeholder="Search patient or token..." oninput="filterAppointments()" class="input-search">
+                            <select id="statusFilter" onchange="filterAppointments()" class="select-filter">
+                                <option value="">All Statuses</option>
+                                <option value="CONFIRMED">Confirmed</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="COMPLETED">Completed</option>
+                                <option value="CANCELLED">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>EMR Token</th>
+                                    <th>Patient Name</th>
+                                    <th>Department</th>
+                                    <th>Hospital</th>
+                                    <th>Date & Time</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentsTableBody">
+                                <tr><td colspan="8" class="loading-cell">Loading appointments...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Stats Cards (Appointments & Leave Applications) -->
-        <section class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 24px;">
-            <div class="stat-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 24px; display: flex; justify-content: space-between; align-items: center;">
-                <div class="stat-info">
-                    <p class="stat-label" style="font-size: 14px; color: #6B7280; margin-bottom: 4px;">Upcoming Appointments</p>
-                    <h3 class="stat-value" id="statAppointments" style="font-size: 32px; font-weight: 700; color: #1D4ED8; margin: 0;">0</h3>
-                </div>
-                <div class="stat-icon blue" style="background: #EFF6FF; width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                        <path d="M8.667 2.167V6.5M17.333 2.167V6.5" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <rect x="3.25" y="4.333" width="19.5" height="19.5" rx="2" stroke="#155DFC" stroke-width="2"/>
-                        <path d="M3.25 10.833h19.5" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-            </div>
+            <!-- Tab 2: Leave Application Section -->
+            <section id="leavesTab" class="tab-content">
+                <div class="card-grid">
+                    <!-- Apply for Leave Form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Apply for Duty Leave</h2>
+                        </div>
+                        <form id="leaveForm" onsubmit="handleLeaveSubmit(event)" class="form-layout">
+                            <div class="form-group">
+                                <label for="leaveType">Leave Type</label>
+                                <select id="leaveType" required class="form-control">
+                                    <option value="Casual Leave">Casual Leave</option>
+                                    <option value="Sick Leave">Sick Leave</option>
+                                    <option value="Annual Leave">Annual Leave</option>
+                                    <option value="Emergency Leave">Emergency Leave</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="startDate">Start Date</label>
+                                    <input type="date" id="startDate" required class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate">End Date</label>
+                                    <input type="date" id="endDate" required class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reason">Reason for Leave</label>
+                                <textarea id="reason" rows="3" placeholder="Provide reason for duty leave request..." required class="form-control"></textarea>
+                            </div>
+                            <button type="submit" id="submitLeaveBtn" class="btn-primary">
+                                Submit Leave Request
+                            </button>
+                        </form>
+                    </div>
 
-            <div class="stat-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 24px; display: flex; justify-content: space-between; align-items: center;">
-                <div class="stat-info">
-                    <p class="stat-label" style="font-size: 14px; color: #6B7280; margin-bottom: 4px;">Leave Applications</p>
-                    <h3 class="stat-value" id="statLeaves" style="font-size: 32px; font-weight: 700; color: #059669; margin: 0;">0</h3>
+                    <!-- My Leave Requests Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>My Leave History & Status</h2>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Leave Type</th>
+                                        <th>Dates</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leavesTableBody">
+                                    <tr><td colspan="4" class="loading-cell">Loading leave history...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-icon green" style="background: #ECFDF5; width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                        <rect x="4" y="5" width="18" height="16" rx="2" stroke="#059669" stroke-width="2"/>
-                        <path d="M4 10h18" stroke="#059669" stroke-width="2"/>
-                        <path d="M9 14h4" stroke="#059669" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </div>
-            </div>
-        </section>
+            </section>
+        </main>
+    </div>
 
-        <!-- Main Sections: Appointments & Leave Applications -->
-        <section class="content-sections" style="display: flex; flex-direction: column; gap: 24px;">
-            <!-- Section 1: Upcoming Appointments -->
-            <div class="section-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 24px;">
-                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 style="font-size: 18px; font-weight: 700; color: #111827; margin: 0;">🗓️ Scheduled Appointments</h2>
-                    <a href="appointments.html" class="btn-outline-sm" style="text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; border: 1px solid #D1D5DB; border-radius: 6px; color: #374151;">
-                        View All Appointments →
-                    </a>
-                </div>
-                <div class="appointments-table" style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
-                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Patient</th>
-                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Department</th>
-                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Date</th>
-                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Time</th>
-                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Status</th>
-                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="appointmentsTableBody">
-                            <!-- Loaded dynamically by dashboard.js -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Section 2: Leave Applications -->
-            <div class="section-card" style="background: #FFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 24px;">
-                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 style="font-size: 18px; font-weight: 700; color: #111827; margin: 0;">📝 My Leave Applications</h2>
-                    <a href="leaves.html" class="btn-primary" style="text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; background: #059669; color: #FFF; border-radius: 6px;">
-                        + Apply for Leave
-                    </a>
-                </div>
-                <div class="table-container" style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
-                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Leave ID</th>
-                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Date Range</th>
-                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Reason</th>
-                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Status</th>
-                                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #4B5563;">Applied On</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leavesTableBody">
-                            <!-- Loaded dynamically by dashboard.js -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <script src="../logo.js"></script>
     <script src="../shared/api.js?v=8"></script>
     <script src="../shared/session.js?v=8"></script>
-    <script src="dashboard.js?v=3"></script>
+    <script src="../logo.js"></script>
+    <script src="dashboard.js"></script>
 </body>
 </html>

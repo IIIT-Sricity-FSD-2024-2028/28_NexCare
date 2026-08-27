@@ -8,6 +8,8 @@ document.documentElement.style.visibility = 'hidden';
 function loginUser(role) {
     redirectByRole(role);
 }
+window.loginUser = loginUser;
+window.redirectByRole = redirectByRole;
 
 // Helper function for role-based redirection
 function redirectByRole(role) {
@@ -27,12 +29,12 @@ function redirectByRole(role) {
             window.location.href = "/administrative_staff/dashboard.html";
             break;
 
-        case "doctor":
-            window.location.href = "/doctor/dashboard.html";
-            break;
-
         case "patient":
             window.location.href = "/patient/dashboard.html";
+            break;
+
+        case "doctor":
+            window.location.href = "/doctor/dashboard.html";
             break;
 
         case "ambulance":
@@ -78,6 +80,7 @@ async function logoutUser() {
     // Redirect to landing page
     window.location.href = "../landing/landing.html";
 }
+window.logoutUser = logoutUser;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // JWT Token Validation (client-side, no external libraries)
@@ -173,8 +176,8 @@ function checkRoleAccess() {
     const path = window.location.pathname;
     const role  = session.role;
 
-    // Special exception: allow doctors to view appointments in patient/appointments
-    if (path.includes('/patient/appointments/') && (role === 'doctor' || role === 'patient')) {
+    // Patients reach their own booking flow under /patient/appointments/
+    if (path.includes('/patient/appointments/') && role === 'patient') {
         return;
     }
 
@@ -183,9 +186,8 @@ function checkRoleAccess() {
         regional_manager:      '/regional-officer/',
         administrative_staff:  '/administrative_staff/',
         patient:               '/patient/',
-        ambulance:             '/ambulance/',
         doctor:                '/doctor/',
-        nurse:                 '/nurse/',
+        ambulance:             '/ambulance/',
     };
 
     // Find which portal this path belongs to

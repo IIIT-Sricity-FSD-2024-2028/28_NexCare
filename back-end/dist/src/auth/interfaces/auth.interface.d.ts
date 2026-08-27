@@ -11,6 +11,9 @@ export interface RegisterRequest {
     phone: string;
     bloodGroup?: string;
     age?: number;
+    city?: string;
+    state?: string;
+    pincode?: string;
 }
 export interface AuthResponse {
     user: {
@@ -20,6 +23,7 @@ export interface AuthResponse {
         role: UserRole;
         status: string;
         patientId?: string;
+        hospitalId?: string;
     };
     token?: string;
 }
@@ -31,4 +35,5 @@ export interface UserSession {
     status: string;
     loginTime: string;
     patientId?: string;
+    hospitalId?: string;
 }

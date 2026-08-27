@@ -54,6 +54,34 @@
         ]
       }
     },
+    "/api/auth/register-staff": {
+      "post": {
+        "operationId": "AuthController_registerStaff",
+        "summary": "Register a new staff account (administrative_staff/ambulance)",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterStaffDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registration result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/api/auth/logout/{userId}": {
       "post": {
         "operationId": "AuthController_logout",
@@ -251,6 +279,24 @@
         "responses": {
           "200": {
             "description": "List of system settings"
+          }
+        },
+        "tags": [
+          "System"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "SystemController_updateSettingsBulk",
+        "summary": "Bulk update system settings (key→value map)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Settings updated successfully"
           }
         },
         "tags": [
@@ -739,7 +785,7 @@
     "/api/patients/{id}": {
       "get": {
         "operationId": "PatientsController_findById",
-        "summary": "Get patient by ID",
+        "summary": "Get patient by ID (patients: own record only)",
         "parameters": [
           {
             "name": "id",
@@ -766,7 +812,7 @@
       },
       "put": {
         "operationId": "PatientsController_update",
-        "summary": "Update patient details",
+        "summary": "Update patient details (patients: own record only)",
         "parameters": [
           {
             "name": "id",
@@ -803,7 +849,7 @@
       },
       "patch": {
         "operationId": "PatientsController_patchUpdate",
-        "summary": "Partially update patient details",
+        "summary": "Partially update patient details (patients: own record only)",
         "parameters": [
           {
             "name": "id",
@@ -898,7 +944,7 @@
     "/api/users": {
       "get": {
         "operationId": "UsersController_findAll",
-        "summary": "Get all users",
+        "summary": "Get all users (Regional Officers see only their hospitals)",
         "parameters": [
           {
             "name": "role",
@@ -910,10 +956,10 @@
                 "administrative_staff",
                 "superuser",
                 "ambulance",
-                "doctor",
-                "nurse",
                 "regional_manager",
-                "hospital_manager"
+                "hospital_manager",
+                "doctor",
+                "nurse"
               ],
               "type": "string"
             }
@@ -961,6 +1007,35 @@
           },
           "400": {
             "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/doctors": {
+      "get": {
+        "operationId": "UsersController_findDoctors",
+        "summary": "Get active doctors, optionally filtered by department",
+        "parameters": [
+          {
+            "name": "dept",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Doctors retrieved successfully"
           }
         },
         "tags": [
@@ -1210,117 +1285,38 @@
         ]
       }
     },
-    "/api/appointments": {
+    "/api/hospitals": {
       "get": {
-        "operationId": "AppointmentsController_findAll",
-        "summary": "Get all appointments",
+        "operationId": "HospitalsController_findAll",
         "parameters": [
-          {
-            "name": "patientId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "status",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "enum": [
-                "Pending",
-                "Confirmed",
-                "Completed",
-                "Cancelled"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "name": "department",
-            "required": false,
+            "required": true,
             "in": "query",
             "schema": {
               "type": "string"
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of appointments"
-          }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "post": {
-        "operationId": "AppointmentsController_create",
-        "summary": "Book a new appointment",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAppointmentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Appointment booking result (check success field)"
           },
-          "400": {
-            "description": "Validation error"
-          }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
           {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/appointments/stats/overview": {
-      "get": {
-        "operationId": "AppointmentsController_getStats",
-        "summary": "Get appointment statistics",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Appointment statistics retrieved"
-          }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/appointments/patient/{patientId}": {
-      "get": {
-        "operationId": "AppointmentsController_findByPatient",
-        "summary": "Get appointments by patient ID",
-        "parameters": [
-          {
-            "name": "patientId",
+            "name": "speciality",
             "required": true,
-            "in": "path",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "city",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pincode",
+            "required": true,
+            "in": "query",
             "schema": {
               "type": "string"
             }
@@ -1328,28 +1324,35 @@
         ],
         "responses": {
           "200": {
-            "description": "List of patient appointments"
+            "description": ""
           }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
+        }
       }
     },
-    "/api/appointments/department/{department}": {
+    "/api/hospitals/nearby": {
       "get": {
-        "operationId": "AppointmentsController_findByDepartment",
-        "summary": "Get appointments by department",
+        "operationId": "HospitalsController_findNearby",
         "parameters": [
           {
-            "name": "department",
+            "name": "city",
             "required": true,
-            "in": "path",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pincode",
+            "required": true,
+            "in": "query",
             "schema": {
               "type": "string"
             }
@@ -1357,43 +1360,14 @@
         ],
         "responses": {
           "200": {
-            "description": "List of department appointments"
+            "description": ""
           }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
+        }
       }
     },
-    "/api/appointments/today": {
+    "/api/hospitals/{id}": {
       "get": {
-        "operationId": "AppointmentsController_getTodayAppointments",
-        "summary": "Get today's appointments",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "List of appointments for today"
-          }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/appointments/{id}": {
-      "get": {
-        "operationId": "AppointmentsController_findById",
-        "summary": "Get appointment by ID",
+        "operationId": "HospitalsController_findById",
         "parameters": [
           {
             "name": "id",
@@ -1406,95 +1380,12 @@
         ],
         "responses": {
           "200": {
-            "description": "Appointment details"
+            "description": ""
           }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
+        }
       },
       "put": {
-        "operationId": "AppointmentsController_update",
-        "summary": "Update appointment details",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAppointmentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Appointment updated successfully"
-          }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "patch": {
-        "operationId": "AppointmentsController_patchUpdate",
-        "summary": "Partially update appointment details",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAppointmentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Appointment updated successfully"
-          }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "AppointmentsController_delete",
-        "summary": "Delete an appointment",
+        "operationId": "HospitalsController_update",
         "parameters": [
           {
             "name": "id",
@@ -1507,391 +1398,25 @@
         ],
         "responses": {
           "200": {
-            "description": "Appointment deleted successfully"
+            "description": ""
           }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
+        }
       }
     },
-    "/api/appointments/{id}/confirm": {
-      "patch": {
-        "operationId": "AppointmentsController_confirm",
-        "summary": "Confirm an appointment",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Appointment confirmed successfully"
-          }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/appointments/{id}/complete": {
-      "patch": {
-        "operationId": "AppointmentsController_complete",
-        "summary": "Mark an appointment as completed",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Appointment completed successfully"
-          }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/appointments/{id}/cancel": {
-      "patch": {
-        "operationId": "AppointmentsController_cancel",
-        "summary": "Cancel an appointment",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Appointment cancelled successfully"
-          }
-        },
-        "tags": [
-          "Appointments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/billing": {
-      "get": {
-        "operationId": "BillingController_findAll",
-        "summary": "Get all bills",
-        "parameters": [
-          {
-            "name": "patientId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "enum": [
-                "Pending",
-                "Paid",
-                "Overdue",
-                "Cancelled"
-              ],
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of bills"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
+    "/api/hospitals/register": {
       "post": {
-        "operationId": "BillingController_create",
-        "summary": "Create a new bill",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateBillDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Bill creation result (check success field)"
-          },
-          "400": {
-            "description": "Validation error"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/billing/stats/overview": {
-      "get": {
-        "operationId": "BillingController_getStats",
-        "summary": "Get billing statistics",
+        "operationId": "HospitalsController_register",
         "parameters": [],
         "responses": {
-          "200": {
-            "description": "Billing statistics retrieved"
+          "201": {
+            "description": ""
           }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
+        }
       }
     },
-    "/api/billing/patient/{patientId}": {
-      "get": {
-        "operationId": "BillingController_findByPatient",
-        "summary": "Get bills by patient ID",
-        "parameters": [
-          {
-            "name": "patientId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of patient bills"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/billing/overdue": {
-      "get": {
-        "operationId": "BillingController_getOverdueBills",
-        "summary": "Get all overdue bills",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "List of overdue bills"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/billing/revenue": {
-      "get": {
-        "operationId": "BillingController_getRevenueByDateRange",
-        "summary": "Get revenue by date range",
-        "parameters": [
-          {
-            "name": "startDate",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "endDate",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Revenue statistics retrieved"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/billing/{id}": {
-      "get": {
-        "operationId": "BillingController_findById",
-        "summary": "Get bill by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Bill details retrieved"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "put": {
-        "operationId": "BillingController_update",
-        "summary": "Update bill details",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateBillDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Bill updated successfully"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
+    "/api/hospitals/{id}/verify": {
       "patch": {
-        "operationId": "BillingController_patchUpdate",
-        "summary": "Partially update bill details",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateBillDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Bill updated successfully"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "BillingController_delete",
-        "summary": "Delete a bill",
+        "operationId": "HospitalsController_verify",
         "parameters": [
           {
             "name": "id",
@@ -1904,236 +1429,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Bill deleted successfully"
+            "description": ""
           }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
+        }
       }
     },
-    "/api/billing/{id}/pay": {
+    "/api/hospitals/{id}/reject": {
       "patch": {
-        "operationId": "BillingController_processPayment",
-        "summary": "Process payment for a bill",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProcessPaymentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Payment processed successfully"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/ambulance": {
-      "get": {
-        "operationId": "AmbulanceController_findAll",
-        "summary": "Get all ambulance requests",
-        "parameters": [
-          {
-            "name": "patientId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "enum": [
-                "Pending",
-                "Dispatched",
-                "En Route",
-                "Picked Up",
-                "At Hospital",
-                "Completed"
-              ],
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of ambulance requests"
-          }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "post": {
-        "operationId": "AmbulanceController_create",
-        "summary": "Create an ambulance request",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAmbulanceRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request creation result (check success field)"
-          },
-          "400": {
-            "description": "Validation error"
-          }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/ambulance/stats/overview": {
-      "get": {
-        "operationId": "AmbulanceController_getStats",
-        "summary": "Get ambulance statistics",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Ambulance statistics retrieved"
-          }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/ambulance/patient/{patientId}": {
-      "get": {
-        "operationId": "AmbulanceController_findByPatient",
-        "summary": "Get ambulance requests by patient ID",
-        "parameters": [
-          {
-            "name": "patientId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Patient requests retrieved"
-          }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/ambulance/active": {
-      "get": {
-        "operationId": "AmbulanceController_getActiveRequests",
-        "summary": "Get all active ambulance requests",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Active requests retrieved"
-          }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/ambulance/assigned/{assignedTo}": {
-      "get": {
-        "operationId": "AmbulanceController_findByAssignedStaff",
-        "summary": "Get ambulance requests by assigned staff",
-        "parameters": [
-          {
-            "name": "assignedTo",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Staff assigned requests retrieved"
-          }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/ambulance/{id}": {
-      "get": {
-        "operationId": "AmbulanceController_findById",
-        "summary": "Get ambulance request by ID",
+        "operationId": "HospitalsController_reject",
         "parameters": [
           {
             "name": "id",
@@ -2146,95 +1449,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Request details retrieved"
+            "description": ""
           }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "put": {
-        "operationId": "AmbulanceController_update",
-        "summary": "Update an ambulance request",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAmbulanceRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request updated successfully"
-          }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
+        }
+      }
+    },
+    "/api/hospitals/{id}/assign-manager": {
       "patch": {
-        "operationId": "AmbulanceController_patchUpdate",
-        "summary": "Partially update an ambulance request",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAmbulanceRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request updated successfully"
-          }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "AmbulanceController_delete",
-        "summary": "Delete an ambulance request",
+        "operationId": "HospitalsController_assignManager",
         "parameters": [
           {
             "name": "id",
@@ -2247,348 +1469,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Request deleted successfully"
+            "description": ""
           }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
+        }
       }
     },
-    "/api/ambulance/{id}/dispatch": {
-      "patch": {
-        "operationId": "AmbulanceController_dispatch",
-        "summary": "Dispatch an ambulance",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DispatchAmbulanceDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Ambulance dispatched successfully"
-          }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/ambulance/{id}/complete": {
-      "patch": {
-        "operationId": "AmbulanceController_complete",
-        "summary": "Mark an ambulance request as completed",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Request completed successfully"
-          }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/ambulance/{id}/status": {
-      "patch": {
-        "operationId": "AmbulanceController_updateStatus",
-        "summary": "Update ambulance request status",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Status updated successfully"
-          }
-        },
-        "tags": [
-          "Ambulance"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/feedback": {
+    "/api/hospitals/{id}/doctors": {
       "get": {
-        "operationId": "FeedbackController_findAll",
-        "summary": "Get all feedback",
-        "parameters": [
-          {
-            "name": "patientId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "enum": [
-                "Open",
-                "In Progress",
-                "Resolved"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "name": "category",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of feedback"
-          }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "post": {
-        "operationId": "FeedbackController_create",
-        "summary": "Submit new feedback",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateFeedbackDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Feedback submission result (check success field)"
-          },
-          "400": {
-            "description": "Validation error"
-          }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/feedback/stats/overview": {
-      "get": {
-        "operationId": "FeedbackController_getStats",
-        "summary": "Get feedback statistics",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Feedback statistics retrieved"
-          }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/feedback/patient/{patientId}": {
-      "get": {
-        "operationId": "FeedbackController_findByPatient",
-        "summary": "Get feedback by patient ID",
-        "parameters": [
-          {
-            "name": "patientId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Patient feedback retrieved"
-          }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/feedback/category/{category}": {
-      "get": {
-        "operationId": "FeedbackController_findByCategory",
-        "summary": "Get feedback by category",
-        "parameters": [
-          {
-            "name": "category",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Feedback retrieved by category"
-          }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/feedback/rating/{rating}": {
-      "get": {
-        "operationId": "FeedbackController_findByRating",
-        "summary": "Get feedback by rating (1-5)",
-        "parameters": [
-          {
-            "name": "rating",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Feedback retrieved by rating"
-          }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/feedback/unresolved": {
-      "get": {
-        "operationId": "FeedbackController_getUnresolvedFeedback",
-        "summary": "Get all unresolved feedback",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Unresolved feedback retrieved"
-          }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/feedback/high-priority": {
-      "get": {
-        "operationId": "FeedbackController_getHighPriorityFeedback",
-        "summary": "Get high priority feedback (low ratings)",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "High priority feedback retrieved"
-          }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/feedback/{id}": {
-      "get": {
-        "operationId": "FeedbackController_findById",
-        "summary": "Get feedback by ID",
+        "operationId": "HospitalDetailsController_getDoctors",
         "parameters": [
           {
             "name": "id",
@@ -2601,124 +1489,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Feedback details retrieved"
+            "description": ""
           }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "put": {
-        "operationId": "FeedbackController_update",
-        "summary": "Update feedback details",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateFeedbackDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Feedback updated successfully"
-          }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "patch": {
-        "operationId": "FeedbackController_patchUpdate",
-        "summary": "Partially update feedback details",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateFeedbackDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Feedback updated successfully"
-          }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "FeedbackController_delete",
-        "summary": "Delete feedback",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Feedback deleted successfully"
-          }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
+        }
       }
     },
-    "/api/feedback/{id}/status": {
-      "patch": {
-        "operationId": "FeedbackController_updateStatus",
-        "summary": "Update feedback status",
+    "/api/hospitals/{id}/beds": {
+      "get": {
+        "operationId": "HospitalDetailsController_getBeds",
         "parameters": [
           {
             "name": "id",
@@ -2731,17 +1509,49 @@
         ],
         "responses": {
           "200": {
-            "description": "Feedback status updated successfully"
+            "description": ""
           }
-        },
-        "tags": [
-          "Feedback"
-        ],
-        "security": [
+        }
+      }
+    },
+    "/api/hospitals/{id}/inventory": {
+      "get": {
+        "operationId": "HospitalDetailsController_getInventory",
+        "parameters": [
           {
-            "JWT-auth": []
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/ambulances": {
+      "get": {
+        "operationId": "HospitalDetailsController_getAmbulances",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
       }
     },
     "/api/beds": {
@@ -3618,74 +2428,111 @@
         ]
       }
     },
-    "/api/hospitals": {
+    "/api/ambulance": {
       "get": {
-        "operationId": "HospitalsController_findAll",
+        "operationId": "AmbulanceController_findAll",
+        "summary": "Get all ambulance requests (patients: only their own)",
         "parameters": [
+          {
+            "name": "patientId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "status",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "speciality",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "city",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "pincode",
-            "required": true,
-            "in": "query",
-            "schema": {
+              "enum": [
+                "Pending",
+                "Dispatched",
+                "En Route",
+                "Picked Up",
+                "At Hospital",
+                "Completed"
+              ],
               "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "List of ambulance requests"
           }
-        }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "AmbulanceController_create",
+        "summary": "Create an ambulance request",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAmbulanceRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request creation result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
-    "/api/hospitals/nearby": {
+    "/api/ambulance/stats/overview": {
       "get": {
-        "operationId": "HospitalsController_findNearby",
+        "operationId": "AmbulanceController_getStats",
+        "summary": "Get ambulance statistics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ambulance statistics retrieved"
+          }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/ambulance/patient/{patientId}": {
+      "get": {
+        "operationId": "AmbulanceController_findByPatient",
+        "summary": "Get ambulance requests by patient ID (patients: own only)",
         "parameters": [
           {
-            "name": "city",
+            "name": "patientId",
             "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "state",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "pincode",
-            "required": true,
-            "in": "query",
+            "in": "path",
             "schema": {
               "type": "string"
             }
@@ -3693,19 +2540,1520 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Patient requests retrieved"
           }
-        }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
-    "/api/hospitals/{id}": {
+    "/api/ambulance/active": {
       "get": {
-        "operationId": "HospitalsController_findById",
+        "operationId": "AmbulanceController_getActiveRequests",
+        "summary": "Get all active ambulance requests",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Active requests retrieved"
+          }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/ambulance/assigned/{assignedTo}": {
+      "get": {
+        "operationId": "AmbulanceController_findByAssignedStaff",
+        "summary": "Get ambulance requests by assigned staff",
+        "parameters": [
+          {
+            "name": "assignedTo",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Staff assigned requests retrieved"
+          }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/ambulance/{id}": {
+      "get": {
+        "operationId": "AmbulanceController_findById",
+        "summary": "Get ambulance request by ID (patients: own only)",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request details retrieved"
+          }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "AmbulanceController_update",
+        "summary": "Update an ambulance request",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAmbulanceRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request updated successfully"
+          }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "AmbulanceController_patchUpdate",
+        "summary": "Partially update an ambulance request",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAmbulanceRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request updated successfully"
+          }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "AmbulanceController_delete",
+        "summary": "Delete/cancel an ambulance request (patients: own only)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request deleted successfully"
+          }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/ambulance/{id}/dispatch": {
+      "patch": {
+        "operationId": "AmbulanceController_dispatch",
+        "summary": "Dispatch an ambulance",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DispatchAmbulanceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ambulance dispatched successfully"
+          }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/ambulance/{id}/complete": {
+      "patch": {
+        "operationId": "AmbulanceController_complete",
+        "summary": "Mark an ambulance request as completed",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully"
+          }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/ambulance/{id}/status": {
+      "patch": {
+        "operationId": "AmbulanceController_updateStatus",
+        "summary": "Update ambulance request status",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status updated successfully"
+          }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/appointments": {
+      "get": {
+        "operationId": "AppointmentsController_findAll",
+        "summary": "Get all appointments (patients: only their own)",
+        "parameters": [
+          {
+            "name": "patientId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "Pending",
+                "Confirmed",
+                "Completed",
+                "Cancelled"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "department",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of appointments"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "AppointmentsController_create",
+        "summary": "Book a new appointment",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Appointment booking result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/appointments/stats/overview": {
+      "get": {
+        "operationId": "AppointmentsController_getStats",
+        "summary": "Get appointment statistics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Appointment statistics retrieved"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/appointments/patient/{patientId}": {
+      "get": {
+        "operationId": "AppointmentsController_findByPatient",
+        "summary": "Get appointments by patient ID (patients: own only)",
+        "parameters": [
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of patient appointments"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/appointments/department/{department}": {
+      "get": {
+        "operationId": "AppointmentsController_findByDepartment",
+        "summary": "Get appointments by department",
+        "parameters": [
+          {
+            "name": "department",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of department appointments"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/appointments/today": {
+      "get": {
+        "operationId": "AppointmentsController_getTodayAppointments",
+        "summary": "Get today's appointments",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of appointments for today"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/appointments/{id}": {
+      "get": {
+        "operationId": "AppointmentsController_findById",
+        "summary": "Get appointment by ID (patients: own only)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Appointment details"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "AppointmentsController_update",
+        "summary": "Update appointment details",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Appointment updated successfully"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "AppointmentsController_patchUpdate",
+        "summary": "Partially update appointment details",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Appointment updated successfully"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "AppointmentsController_delete",
+        "summary": "Delete an appointment",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Appointment deleted successfully"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/appointments/{id}/confirm": {
+      "patch": {
+        "operationId": "AppointmentsController_confirm",
+        "summary": "Confirm an appointment",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Appointment confirmed successfully"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/appointments/{id}/complete": {
+      "patch": {
+        "operationId": "AppointmentsController_complete",
+        "summary": "Mark an appointment as completed",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Appointment completed successfully"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/appointments/{id}/cancel": {
+      "patch": {
+        "operationId": "AppointmentsController_cancel",
+        "summary": "Cancel an appointment (patients: own only)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Appointment cancelled successfully"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing": {
+      "get": {
+        "operationId": "BillingController_findAll",
+        "summary": "Get all bills (patients: only their own)",
+        "parameters": [
+          {
+            "name": "patientId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "Pending",
+                "Paid",
+                "Overdue",
+                "Cancelled"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of bills"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "BillingController_create",
+        "summary": "Create a new bill",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBillDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bill creation result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/stats/overview": {
+      "get": {
+        "operationId": "BillingController_getStats",
+        "summary": "Get billing statistics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Billing statistics retrieved"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/patient/{patientId}": {
+      "get": {
+        "operationId": "BillingController_findByPatient",
+        "summary": "Get bills by patient ID (patients: own only)",
+        "parameters": [
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of patient bills"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/overdue": {
+      "get": {
+        "operationId": "BillingController_getOverdueBills",
+        "summary": "Get all overdue bills",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of overdue bills"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/revenue": {
+      "get": {
+        "operationId": "BillingController_getRevenueByDateRange",
+        "summary": "Get revenue by date range",
+        "parameters": [
+          {
+            "name": "startDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Revenue statistics retrieved"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/{id}": {
+      "get": {
+        "operationId": "BillingController_findById",
+        "summary": "Get bill by ID (patients: own only)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bill details retrieved"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "BillingController_update",
+        "summary": "Update bill details",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBillDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bill updated successfully"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "BillingController_patchUpdate",
+        "summary": "Partially update bill details",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBillDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bill updated successfully"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "BillingController_delete",
+        "summary": "Delete a bill",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bill deleted successfully"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/{id}/pay": {
+      "patch": {
+        "operationId": "BillingController_processPayment",
+        "summary": "Process payment for a bill (patients: own only)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProcessPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment processed successfully"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/feedback": {
+      "get": {
+        "operationId": "FeedbackController_findAll",
+        "summary": "Get all feedback (patients: only their own)",
+        "parameters": [
+          {
+            "name": "patientId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "Open",
+                "In Progress",
+                "Resolved"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of feedback"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "FeedbackController_create",
+        "summary": "Submit new feedback",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFeedbackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Feedback submission result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/feedback/stats/overview": {
+      "get": {
+        "operationId": "FeedbackController_getStats",
+        "summary": "Get feedback statistics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Feedback statistics retrieved"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/feedback/patient/{patientId}": {
+      "get": {
+        "operationId": "FeedbackController_findByPatient",
+        "summary": "Get feedback by patient ID (patients: own only)",
+        "parameters": [
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patient feedback retrieved"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/feedback/category/{category}": {
+      "get": {
+        "operationId": "FeedbackController_findByCategory",
+        "summary": "Get feedback by category",
+        "parameters": [
+          {
+            "name": "category",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feedback retrieved by category"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/feedback/rating/{rating}": {
+      "get": {
+        "operationId": "FeedbackController_findByRating",
+        "summary": "Get feedback by rating (1-5)",
+        "parameters": [
+          {
+            "name": "rating",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feedback retrieved by rating"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/feedback/unresolved": {
+      "get": {
+        "operationId": "FeedbackController_getUnresolvedFeedback",
+        "summary": "Get all unresolved feedback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Unresolved feedback retrieved"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/feedback/high-priority": {
+      "get": {
+        "operationId": "FeedbackController_getHighPriorityFeedback",
+        "summary": "Get high priority feedback (low ratings)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "High priority feedback retrieved"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/feedback/{id}": {
+      "get": {
+        "operationId": "FeedbackController_findById",
+        "summary": "Get feedback by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feedback details retrieved"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "FeedbackController_update",
+        "summary": "Update feedback details",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFeedbackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Feedback updated successfully"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "FeedbackController_patchUpdate",
+        "summary": "Partially update feedback details",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFeedbackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Feedback updated successfully"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "FeedbackController_delete",
+        "summary": "Delete feedback",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feedback deleted successfully"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/feedback/{id}/status": {
+      "patch": {
+        "operationId": "FeedbackController_updateStatus",
+        "summary": "Update feedback status",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feedback status updated successfully"
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/departments": {
+      "get": {
+        "operationId": "DepartmentsController_findAll",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Departments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/wards": {
+      "get": {
+        "operationId": "WardsController_findAll",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Wards"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/equipment": {
+      "get": {
+        "operationId": "EquipmentController_findAll",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Equipment"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/support-requests": {
+      "get": {
+        "operationId": "SupportRequestsController_findAll",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "query",
             "schema": {
               "type": "string"
             }
@@ -3717,28 +4065,8 @@
           }
         }
       },
-      "put": {
-        "operationId": "HospitalsController_update",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/hospitals/register": {
       "post": {
-        "operationId": "HospitalsController_register",
+        "operationId": "SupportRequestsController_create",
         "parameters": [],
         "responses": {
           "201": {
@@ -3747,49 +4075,9 @@
         }
       }
     },
-    "/api/hospitals/{id}/verify": {
-      "patch": {
-        "operationId": "HospitalsController_verify",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/hospitals/{id}/reject": {
-      "patch": {
-        "operationId": "HospitalsController_reject",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/hospitals/{id}/assign-manager": {
-      "patch": {
-        "operationId": "HospitalsController_assignManager",
+    "/api/support-requests/{id}": {
+      "put": {
+        "operationId": "SupportRequestsController_update",
         "parameters": [
           {
             "name": "id",
@@ -4097,6 +4385,257 @@
           }
         ]
       }
+    },
+    "/api/uploads": {
+      "post": {
+        "operationId": "UploadsController_upload",
+        "summary": "Upload a document and attach it to a record",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "entityType": {
+                    "type": "string",
+                    "example": "patient",
+                    "enum": [
+                      "patient",
+                      "hospital",
+                      "user",
+                      "bed",
+                      "general"
+                    ]
+                  },
+                  "entityId": {
+                    "type": "string",
+                    "example": "P001"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Discharge summary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "File uploaded successfully"
+          },
+          "400": {
+            "description": "Missing file, unsupported type, or not multipart"
+          },
+          "413": {
+            "description": "File exceeds the size limit"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "UploadsController_findAll",
+        "summary": "List uploaded documents",
+        "parameters": [
+          {
+            "name": "entityType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "patient",
+              "type": "string"
+            }
+          },
+          {
+            "name": "entityId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "P001",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of uploads"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/uploads/{id}/download": {
+      "get": {
+        "operationId": "UploadsController_download",
+        "summary": "Download an uploaded document",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File stream"
+          },
+          "404": {
+            "description": "File not found"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/uploads/{id}": {
+      "get": {
+        "operationId": "UploadsController_findById",
+        "summary": "Get upload metadata",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Upload metadata"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "UploadsController_remove",
+        "summary": "Delete an uploaded document",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File deleted successfully"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/logs": {
+      "get": {
+        "operationId": "LogsController_read",
+        "summary": "Read recent log entries",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 100
+            }
+          },
+          {
+            "name": "stream",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "access",
+                "error",
+                "app"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent log entries"
+          }
+        },
+        "tags": [
+          "Logs"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/logs/files": {
+      "get": {
+        "operationId": "LogsController_files",
+        "summary": "List log files with sizes",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Log files on disk"
+          }
+        },
+        "tags": [
+          "Logs"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
     }
   },
   "info": {
@@ -4165,7 +4704,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "x-user-role",
-        "description": "User role for RBAC (superuser, administrative_staff, patient, ambulance, doctor, nurse)"
+        "description": "User role for RBAC (superuser, administrative_staff, patient, ambulance, regional_manager, hospital_manager)"
       }
     },
     "schemas": {
@@ -4189,10 +4728,10 @@
               "administrative_staff",
               "superuser",
               "ambulance",
-              "doctor",
-              "nurse",
               "regional_manager",
-              "hospital_manager"
+              "hospital_manager",
+              "doctor",
+              "nurse"
             ],
             "example": "superuser",
             "description": "Role to login as"
@@ -4236,6 +4775,21 @@
             "type": "number",
             "example": 35,
             "description": "Age of the patient"
+          },
+          "city": {
+            "type": "string",
+            "example": "Tirupati",
+            "description": "City the patient lives in"
+          },
+          "state": {
+            "type": "string",
+            "example": "Andhra Pradesh",
+            "description": "State the patient lives in"
+          },
+          "pincode": {
+            "type": "string",
+            "example": "517501",
+            "description": "Postal PIN code"
           }
         },
         "required": [
@@ -4243,6 +4797,58 @@
           "email",
           "password",
           "phone"
+        ]
+      },
+      "RegisterStaffDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Jane Smith",
+            "description": "Full name of the staff member"
+          },
+          "email": {
+            "type": "string",
+            "example": "jane@nexcare.com",
+            "description": "Email address"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123",
+            "description": "Account password"
+          },
+          "phone": {
+            "type": "string",
+            "example": "5551234567",
+            "description": "Contact phone number"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "administrative_staff",
+              "ambulance"
+            ],
+            "example": "administrative_staff",
+            "description": "Staff role to register as"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the staff member belongs to"
+          },
+          "dept": {
+            "type": "string",
+            "example": "Front Desk",
+            "description": "Department the staff member works in"
+          }
+        },
+        "required": [
+          "fullName",
+          "email",
+          "password",
+          "phone",
+          "role",
+          "hospitalId"
         ]
       },
       "CreateSystemActivityDto": {
@@ -4390,12 +4996,12 @@
               "administrative_staff",
               "superuser",
               "ambulance",
-              "doctor",
-              "nurse",
               "regional_manager",
-              "hospital_manager"
+              "hospital_manager",
+              "doctor",
+              "nurse"
             ],
-            "example": "doctor",
+            "example": "administrative_staff",
             "description": "User role"
           },
           "password": {
@@ -4411,7 +5017,12 @@
           "dept": {
             "type": "string",
             "example": "Cardiology",
-            "description": "Department (for doctors/staff)"
+            "description": "Department within the hospital"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the user belongs to"
           }
         },
         "required": [
@@ -4441,12 +5052,12 @@
               "administrative_staff",
               "superuser",
               "ambulance",
-              "doctor",
-              "nurse",
               "regional_manager",
-              "hospital_manager"
+              "hospital_manager",
+              "doctor",
+              "nurse"
             ],
-            "example": "doctor",
+            "example": "administrative_staff",
             "description": "User role"
           },
           "status": {
@@ -4472,9 +5083,336 @@
           "dept": {
             "type": "string",
             "example": "Cardiology",
-            "description": "Department (for doctors/staff)"
+            "description": "Department within the hospital"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the user belongs to"
           }
         }
+      },
+      "CreateBedDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "ICU-1",
+            "description": "Unique identifier for the bed"
+          },
+          "ward": {
+            "type": "string",
+            "example": "ICU",
+            "description": "Ward the bed belongs to"
+          }
+        },
+        "required": [
+          "id",
+          "ward"
+        ]
+      },
+      "UpdateBedDto": {
+        "type": "object",
+        "properties": {
+          "ward": {
+            "type": "string",
+            "example": "ICU",
+            "description": "Ward the bed belongs to"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "occupied",
+              "critical",
+              "maintenance"
+            ],
+            "example": "occupied",
+            "description": "Status of the bed"
+          },
+          "patient": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "Patient name"
+          }
+        }
+      },
+      "AllocateBedDto": {
+        "type": "object",
+        "properties": {
+          "patientId": {
+            "type": "string",
+            "example": "P001",
+            "description": "ID of the patient"
+          },
+          "admissionType": {
+            "type": "string",
+            "example": "Emergency",
+            "description": "Type of admission"
+          },
+          "allocatedBy": {
+            "type": "string",
+            "example": "U002",
+            "description": "Staff who allocated the bed"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Patient needs monitoring",
+            "description": "Additional notes"
+          }
+        },
+        "required": [
+          "patientId"
+        ]
+      },
+      "CreateInventoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Paracetamol",
+            "description": "Name of the item"
+          },
+          "category": {
+            "type": "string",
+            "example": "Medication",
+            "description": "Category of the item"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 500,
+            "description": "Initial quantity"
+          },
+          "minStock": {
+            "type": "number",
+            "example": 100,
+            "description": "Minimum stock threshold"
+          },
+          "unit": {
+            "type": "string",
+            "example": "tablets",
+            "description": "Unit of measurement"
+          },
+          "location": {
+            "type": "string",
+            "example": "Pharmacy",
+            "description": "Location of the item"
+          }
+        },
+        "required": [
+          "name",
+          "category",
+          "quantity",
+          "minStock",
+          "unit",
+          "location"
+        ]
+      },
+      "UpdateInventoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Paracetamol",
+            "description": "Name of the item"
+          },
+          "category": {
+            "type": "string",
+            "example": "Medication",
+            "description": "Category of the item"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 500,
+            "description": "Current quantity"
+          },
+          "minStock": {
+            "type": "number",
+            "example": 100,
+            "description": "Minimum stock threshold"
+          },
+          "unit": {
+            "type": "string",
+            "example": "tablets",
+            "description": "Unit of measurement"
+          },
+          "location": {
+            "type": "string",
+            "example": "Pharmacy",
+            "description": "Location of the item"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "In Stock",
+              "Low Stock",
+              "Out of Stock"
+            ],
+            "example": "In Stock",
+            "description": "Status of the item"
+          }
+        }
+      },
+      "RestockInventoryDto": {
+        "type": "object",
+        "properties": {
+          "quantity": {
+            "type": "number",
+            "example": 200,
+            "description": "Quantity to add"
+          },
+          "supplier": {
+            "type": "string",
+            "example": "PharmaCorp",
+            "description": "Supplier name"
+          },
+          "batchNumber": {
+            "type": "string",
+            "example": "BATCH-2026-03",
+            "description": "Batch number"
+          },
+          "expiryDate": {
+            "type": "string",
+            "example": "2028-03-01T00:00:00Z",
+            "description": "Expiry date"
+          },
+          "restockedBy": {
+            "type": "string",
+            "example": "U002",
+            "description": "Staff ID who restocked"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Received in good condition",
+            "description": "Additional notes"
+          }
+        },
+        "required": [
+          "quantity",
+          "restockedBy"
+        ]
+      },
+      "CreateAmbulanceRequestDto": {
+        "type": "object",
+        "properties": {
+          "patientId": {
+            "type": "string",
+            "example": "P001",
+            "description": "ID of the patient requesting"
+          },
+          "patientName": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "Name of the patient requesting"
+          },
+          "pickupLocation": {
+            "type": "string",
+            "example": "123 Main Street",
+            "description": "Pickup location address"
+          },
+          "contact": {
+            "type": "string",
+            "example": "+1 (555) 123-4567",
+            "description": "Contact phone number"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Patient has chest pain",
+            "description": "Additional notes"
+          }
+        },
+        "required": [
+          "patientId",
+          "pickupLocation",
+          "contact"
+        ]
+      },
+      "UpdateAmbulanceRequestDto": {
+        "type": "object",
+        "properties": {
+          "pickupLocation": {
+            "type": "string",
+            "example": "123 Main Street",
+            "description": "Pickup location address"
+          },
+          "contact": {
+            "type": "string",
+            "example": "+1 (555) 123-4567",
+            "description": "Contact phone number"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Patient has chest pain",
+            "description": "Additional notes"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Pending",
+              "Dispatched",
+              "En Route",
+              "Picked Up",
+              "At Hospital",
+              "Completed"
+            ],
+            "example": "Pending",
+            "description": "Request status"
+          },
+          "assignedTo": {
+            "type": "string",
+            "example": "U003",
+            "description": "Staff assigned"
+          },
+          "stepIndex": {
+            "type": "number",
+            "example": 0,
+            "description": "Current step index in transport"
+          },
+          "completedDate": {
+            "type": "string",
+            "example": "May 5, 2026",
+            "description": "Date the transport was completed"
+          },
+          "completedTime": {
+            "type": "string",
+            "example": "10:30 AM",
+            "description": "Time the transport was completed"
+          }
+        }
+      },
+      "DispatchAmbulanceDto": {
+        "type": "object",
+        "properties": {
+          "assignedTo": {
+            "type": "string",
+            "example": "U003",
+            "description": "ID of staff assigned"
+          },
+          "vehicleNumber": {
+            "type": "string",
+            "example": "AMB-101",
+            "description": "Vehicle number"
+          },
+          "driverContact": {
+            "type": "string",
+            "example": "+1 (555) 999-8888",
+            "description": "Driver contact number"
+          },
+          "estimatedArrival": {
+            "type": "string",
+            "example": "10:30 AM",
+            "description": "Estimated arrival time"
+          },
+          "dispatchedBy": {
+            "type": "string",
+            "example": "U002",
+            "description": "Staff ID who dispatched"
+          }
+        },
+        "required": [
+          "assignedTo",
+          "dispatchedBy"
+        ]
       },
       "CreateAppointmentDto": {
         "type": "object",
@@ -4688,128 +5626,6 @@
           "amount"
         ]
       },
-      "CreateAmbulanceRequestDto": {
-        "type": "object",
-        "properties": {
-          "patientId": {
-            "type": "string",
-            "example": "P001",
-            "description": "ID of the patient requesting"
-          },
-          "patientName": {
-            "type": "string",
-            "example": "John Doe",
-            "description": "Name of the patient requesting"
-          },
-          "pickupLocation": {
-            "type": "string",
-            "example": "123 Main Street",
-            "description": "Pickup location address"
-          },
-          "contact": {
-            "type": "string",
-            "example": "+1 (555) 123-4567",
-            "description": "Contact phone number"
-          },
-          "notes": {
-            "type": "string",
-            "example": "Patient has chest pain",
-            "description": "Additional notes"
-          }
-        },
-        "required": [
-          "patientId",
-          "pickupLocation",
-          "contact"
-        ]
-      },
-      "UpdateAmbulanceRequestDto": {
-        "type": "object",
-        "properties": {
-          "pickupLocation": {
-            "type": "string",
-            "example": "123 Main Street",
-            "description": "Pickup location address"
-          },
-          "contact": {
-            "type": "string",
-            "example": "+1 (555) 123-4567",
-            "description": "Contact phone number"
-          },
-          "notes": {
-            "type": "string",
-            "example": "Patient has chest pain",
-            "description": "Additional notes"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "Pending",
-              "Dispatched",
-              "En Route",
-              "Picked Up",
-              "At Hospital",
-              "Completed"
-            ],
-            "example": "Pending",
-            "description": "Request status"
-          },
-          "assignedTo": {
-            "type": "string",
-            "example": "U003",
-            "description": "Staff assigned"
-          },
-          "stepIndex": {
-            "type": "number",
-            "example": 0,
-            "description": "Current step index in transport"
-          },
-          "completedDate": {
-            "type": "string",
-            "example": "May 5, 2026",
-            "description": "Date the transport was completed"
-          },
-          "completedTime": {
-            "type": "string",
-            "example": "10:30 AM",
-            "description": "Time the transport was completed"
-          }
-        }
-      },
-      "DispatchAmbulanceDto": {
-        "type": "object",
-        "properties": {
-          "assignedTo": {
-            "type": "string",
-            "example": "U003",
-            "description": "ID of staff assigned"
-          },
-          "vehicleNumber": {
-            "type": "string",
-            "example": "AMB-101",
-            "description": "Vehicle number"
-          },
-          "driverContact": {
-            "type": "string",
-            "example": "+1 (555) 999-8888",
-            "description": "Driver contact number"
-          },
-          "estimatedArrival": {
-            "type": "string",
-            "example": "10:30 AM",
-            "description": "Estimated arrival time"
-          },
-          "dispatchedBy": {
-            "type": "string",
-            "example": "U002",
-            "description": "Staff ID who dispatched"
-          }
-        },
-        "required": [
-          "assignedTo",
-          "dispatchedBy"
-        ]
-      },
       "CreateFeedbackDto": {
         "type": "object",
         "properties": {
@@ -4892,206 +5708,6 @@
             "description": "Status of feedback"
           }
         }
-      },
-      "CreateBedDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "example": "ICU-1",
-            "description": "Unique identifier for the bed"
-          },
-          "ward": {
-            "type": "string",
-            "example": "ICU",
-            "description": "Ward the bed belongs to"
-          }
-        },
-        "required": [
-          "id",
-          "ward"
-        ]
-      },
-      "UpdateBedDto": {
-        "type": "object",
-        "properties": {
-          "ward": {
-            "type": "string",
-            "example": "ICU",
-            "description": "Ward the bed belongs to"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "available",
-              "occupied",
-              "critical",
-              "maintenance"
-            ],
-            "example": "occupied",
-            "description": "Status of the bed"
-          },
-          "patient": {
-            "type": "string",
-            "example": "John Doe",
-            "description": "Patient name"
-          }
-        }
-      },
-      "AllocateBedDto": {
-        "type": "object",
-        "properties": {
-          "patientId": {
-            "type": "string",
-            "example": "P001",
-            "description": "ID of the patient"
-          },
-          "admissionType": {
-            "type": "string",
-            "example": "Emergency",
-            "description": "Type of admission"
-          },
-          "allocatedBy": {
-            "type": "string",
-            "example": "U002",
-            "description": "Staff who allocated the bed"
-          },
-          "notes": {
-            "type": "string",
-            "example": "Patient needs monitoring",
-            "description": "Additional notes"
-          }
-        },
-        "required": [
-          "patientId"
-        ]
-      },
-      "CreateInventoryDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "Paracetamol",
-            "description": "Name of the item"
-          },
-          "category": {
-            "type": "string",
-            "example": "Medication",
-            "description": "Category of the item"
-          },
-          "quantity": {
-            "type": "number",
-            "example": 500,
-            "description": "Initial quantity"
-          },
-          "minStock": {
-            "type": "number",
-            "example": 100,
-            "description": "Minimum stock threshold"
-          },
-          "unit": {
-            "type": "string",
-            "example": "tablets",
-            "description": "Unit of measurement"
-          },
-          "location": {
-            "type": "string",
-            "example": "Pharmacy",
-            "description": "Location of the item"
-          }
-        },
-        "required": [
-          "name",
-          "category",
-          "quantity",
-          "minStock",
-          "unit",
-          "location"
-        ]
-      },
-      "UpdateInventoryDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "Paracetamol",
-            "description": "Name of the item"
-          },
-          "category": {
-            "type": "string",
-            "example": "Medication",
-            "description": "Category of the item"
-          },
-          "quantity": {
-            "type": "number",
-            "example": 500,
-            "description": "Current quantity"
-          },
-          "minStock": {
-            "type": "number",
-            "example": 100,
-            "description": "Minimum stock threshold"
-          },
-          "unit": {
-            "type": "string",
-            "example": "tablets",
-            "description": "Unit of measurement"
-          },
-          "location": {
-            "type": "string",
-            "example": "Pharmacy",
-            "description": "Location of the item"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "In Stock",
-              "Low Stock",
-              "Out of Stock"
-            ],
-            "example": "In Stock",
-            "description": "Status of the item"
-          }
-        }
-      },
-      "RestockInventoryDto": {
-        "type": "object",
-        "properties": {
-          "quantity": {
-            "type": "number",
-            "example": 200,
-            "description": "Quantity to add"
-          },
-          "supplier": {
-            "type": "string",
-            "example": "PharmaCorp",
-            "description": "Supplier name"
-          },
-          "batchNumber": {
-            "type": "string",
-            "example": "BATCH-2026-03",
-            "description": "Batch number"
-          },
-          "expiryDate": {
-            "type": "string",
-            "example": "2028-03-01T00:00:00Z",
-            "description": "Expiry date"
-          },
-          "restockedBy": {
-            "type": "string",
-            "example": "U002",
-            "description": "Staff ID who restocked"
-          },
-          "notes": {
-            "type": "string",
-            "example": "Received in good condition",
-            "description": "Additional notes"
-          }
-        },
-        "required": [
-          "quantity",
-          "restockedBy"
-        ]
       }
     }
   }

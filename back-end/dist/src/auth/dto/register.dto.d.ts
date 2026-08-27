@@ -5,4 +5,7 @@ export declare class RegisterDto {
     phone: string;
     bloodGroup?: string;
     age?: number;
+    city?: string;
+    state?: string;
+    pincode?: string;
 }

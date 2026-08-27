@@ -16,5 +16,6 @@ export declare class SystemController {
     searchActivities(query: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findActivityById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findSettingById(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    updateSettingsBulk(settingsMap: Record<string, any>): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     updateSetting(id: string, updateSettingsDto: UpdateSystemSettingsDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
 }

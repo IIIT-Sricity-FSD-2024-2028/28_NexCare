@@ -60,6 +60,9 @@ let SystemController = class SystemController {
     async findSettingById(id) {
         return this.systemService.findSettingById(id);
     }
+    async updateSettingsBulk(settingsMap) {
+        return this.systemService.updateSettingsBulk(settingsMap);
+    }
     async updateSetting(id, updateSettingsDto) {
         return this.systemService.updateSetting(id, updateSettingsDto);
     }
@@ -184,6 +187,15 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], SystemController.prototype, "findSettingById", null);
+__decorate([
+    (0, common_1.Put)('settings'),
+    (0, swagger_1.ApiOperation)({ summary: 'Bulk update system settings (key→value map)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Settings updated successfully' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], SystemController.prototype, "updateSettingsBulk", null);
 __decorate([
     (0, common_1.Put)('settings/:id'),
     (0, swagger_1.ApiOperation)({ summary: 'Update system setting' }),

@@ -37,4 +37,22 @@ export class RegisterDto {
   @IsInt()
   @Min(0, { message: 'Age cannot be negative' })
   age?: number;
+
+  // The signup form collects these and the patient portal needs them to filter
+  // nearby hospitals. Without them declared here the global ValidationPipe
+  // (forbidNonWhitelisted) rejects the whole registration.
+  @ApiPropertyOptional({ example: 'Tirupati', description: 'City the patient lives in' })
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @ApiPropertyOptional({ example: 'Andhra Pradesh', description: 'State the patient lives in' })
+  @IsOptional()
+  @IsString()
+  state?: string;
+
+  @ApiPropertyOptional({ example: '517501', description: 'Postal PIN code' })
+  @IsOptional()
+  @IsString()
+  pincode?: string;
 }

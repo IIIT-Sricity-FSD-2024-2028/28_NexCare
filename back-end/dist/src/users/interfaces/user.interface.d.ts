@@ -8,6 +8,7 @@ export interface User {
     password: string;
     patientId?: string;
     dept?: string;
+    hospitalId?: string;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -18,6 +19,7 @@ export interface CreateUserRequest {
     password: string;
     patientId?: string;
     dept?: string;
+    hospitalId?: string;
 }
 export interface UpdateUserRequest {
     name?: string;
@@ -27,6 +29,7 @@ export interface UpdateUserRequest {
     password?: string;
     patientId?: string;
     dept?: string;
+    hospitalId?: string;
 }
 export interface UserStats {
     total: number;

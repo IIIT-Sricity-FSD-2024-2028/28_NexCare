@@ -165,31 +165,29 @@ export class HospitalsService {
         (h) => !h.verificationStatus || h.verificationStatus === VerificationStatus.VERIFIED,
       );
 
-      const targetCity = city ? city.trim().toLowerCase() : null;
-      const targetState = state ? state.trim().toLowerCase() : null;
-      const targetPincode = pincode ? pincode.trim() : null;
+      // Proximity score: same pincode (3) > same city (2) > same state (1).
+      const score = (h: Hospital) => {
+        let s = 0;
+        if (pincode && h.pincode === pincode) s += 3;
+        if (city && h.city?.toLowerCase() === city.toLowerCase()) s += 2;
+        if (state && h.state?.toLowerCase() === state.toLowerCase()) s += 1;
+        return s;
+      };
 
-      // Sort logic: 
-      // 1. Same pincode (+3)
-      // 2. Same city (+2)
-      // 3. Same state (+1)
-      verified.sort((a, b) => {
-        let scoreA = 0;
-        let scoreB = 0;
-        
-        if (targetPincode && String(a.pincode || '').trim() === targetPincode) scoreA += 3;
-        if (targetPincode && String(b.pincode || '').trim() === targetPincode) scoreB += 3;
-        
-        if (targetCity && String(a.city || '').trim().toLowerCase() === targetCity) scoreA += 2;
-        if (targetCity && String(b.city || '').trim().toLowerCase() === targetCity) scoreB += 2;
-        
-        if (targetState && String(a.state || '').trim().toLowerCase() === targetState) scoreA += 1;
-        if (targetState && String(b.state || '').trim().toLowerCase() === targetState) scoreB += 1;
-        
-        return scoreB - scoreA;
-      });
+      const hasLocation = !!(pincode || city || state);
 
-      return ResponseUtil.success('Nearby hospitals retrieved successfully', verified);
+      // When a location is supplied, actually narrow to hospitals that share
+      // at least the state/city/pincode. If nothing matches locally, fall back
+      // to the full verified list so the patient still sees options.
+      let result = verified;
+      if (hasLocation) {
+        const local = verified.filter(h => score(h) > 0);
+        result = local.length > 0 ? local : verified;
+      }
+
+      result.sort((a, b) => score(b) - score(a));
+
+      return ResponseUtil.success('Nearby hospitals retrieved successfully', result);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve nearby hospitals');
     }

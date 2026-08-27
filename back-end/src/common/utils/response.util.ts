@@ -90,7 +90,7 @@ export class ResponseUtil {
    * @returns Standardized created response
    */
   static created<T>(resource: string, data: T): ApiResponse<T> {
-    return this.success(`${resource} created successfully`, data);
+    return this.success(this.phrase(resource, 'created'), data);
   }
 
   /**
@@ -100,7 +100,7 @@ export class ResponseUtil {
    * @returns Standardized updated response
    */
   static updated<T>(resource: string, data: T): ApiResponse<T> {
-    return this.success(`${resource} updated successfully`, data);
+    return this.success(this.phrase(resource, 'updated'), data);
   }
 
   /**
@@ -109,6 +109,20 @@ export class ResponseUtil {
    * @returns Standardized deleted response
    */
   static deleted(resource: string): ApiResponse {
-    return this.success(`${resource} deleted successfully`);
+    return this.success(this.phrase(resource, 'deleted'));
+  }
+
+  /**
+   * Build a "<Resource> <verb> successfully" message.
+   *
+   * Most callers pass a complete sentence ("Appointment updated successfully")
+   * rather than a bare noun ("Appointment"), which used to produce doubled text
+   * like "Appointment updated successfully updated successfully". If the caller
+   * already supplied a finished message, use it as-is.
+   */
+  private static phrase(resource: string, verb: string): string {
+    return /successfully\s*$/i.test(resource)
+      ? resource
+      : `${resource} ${verb} successfully`;
   }
 }

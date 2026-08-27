@@ -344,7 +344,7 @@ function setupDashboardSearch() {
 window.bookHospitalAppt = function(hospitalId) {
     if (hospitalId) {
         try { localStorage.setItem('selectedHospitalId', hospitalId); } catch(e) {}
-        window.location.href = `appointments/appointments.html?hospitalId=${encodeURIComponent(hospitalId)}`;
+        window.location.href = pageLink('appointments/appointments', { hospitalId });
     } else {
         window.location.href = 'appointments/appointments.html';
     }

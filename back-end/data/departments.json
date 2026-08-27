@@ -1,0 +1,87 @@
+[
+  {
+    "id": "D-001-01",
+    "name": "Cardiology",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "D-001-02",
+    "name": "Neurology",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "D-001-03",
+    "name": "General Medicine",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "D-001-04",
+    "name": "Orthopaedics",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "D-001-05",
+    "name": "Paediatrics",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "D-002-01",
+    "name": "General Medicine",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "D-002-02",
+    "name": "Dermatology",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "D-002-03",
+    "name": "Paediatrics",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "D-002-04",
+    "name": "Gynaecology",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "D-002-05",
+    "name": "Cardiology",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "D-002-06",
+    "name": "Neurology",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "D-002-07",
+    "name": "Orthopaedics",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "D-003-01",
+    "name": "Cardiology",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "D-003-02",
+    "name": "Neurology",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "D-003-03",
+    "name": "Orthopaedics",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "D-003-04",
+    "name": "General Medicine",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "D-003-05",
+    "name": "Emergency Medicine",
+    "hospitalId": "H003"
+  }
+]
