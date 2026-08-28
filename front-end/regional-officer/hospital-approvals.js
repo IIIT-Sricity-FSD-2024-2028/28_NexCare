@@ -1,8 +1,7 @@
 // Regional Officer — hospital registration approvals.
 //
-// The backend already grants regional_manager PATCH /hospitals/:id/verify and
-// /reject; until now there was no UI for it, so approvals could only happen
-// through the superuser portal.
+// A regional manager sees only their assigned registrations and records a
+// due-diligence recommendation. The superuser remains the final approver.
 
 let allHospitals = [];
 
@@ -21,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadHospitals() {
     try {
-        const res = await window.NexCareAPI.Hospitals.getAll();
+        const res = await window.NexCareAPI.Hospitals.getReviewQueue();
         if (!res || !res.success) throw new Error('Failed to load hospitals');
         allHospitals = res.data || [];
     } catch (err) {
@@ -58,7 +57,7 @@ function render() {
 
     tbody.innerHTML = rows.map(h => {
         const st = normalise(h.verificationStatus);
-        const pending = st === 'pending_verification';
+        const pending = st === 'pending_verification' && h.regionalReviewStatus !== 'cleared' && h.regionalReviewStatus !== 'rejected';
         return `
         <tr>
             <td class="actor-cell">
@@ -81,10 +80,10 @@ function render() {
             <td>
                 ${pending ? `
                     <div style="display:flex; gap:6px;">
-                        <button class="btn-sm btn-approve" onclick="decide('${esc(h.id)}','verify')">Approve</button>
+                        <button class="btn-sm btn-approve" onclick="decide('${esc(h.id)}','cleared')">Clear for approval</button>
                         <button class="btn-sm btn-reject" onclick="decide('${esc(h.id)}','reject')">Reject</button>
                     </div>
-                ` : `<span class="muted">No action needed</span>`}
+                ` : `<span class="muted">${esc(h.regionalReviewStatus === 'cleared' ? 'Sent to superuser for final approval' : h.regionalReviewStatus === 'rejected' ? 'Review rejected; awaiting superuser decision' : 'No action needed')}</span>`}
             </td>
         </tr>`;
     }).join('');
@@ -93,7 +92,7 @@ function render() {
 async function decide(hospitalId, action) {
     const hospital = allHospitals.find(h => h.id === hospitalId);
     const name = hospital ? hospital.name : hospitalId;
-    const verb = action === 'verify' ? 'Approve' : 'Reject';
+    const verb = action === 'cleared' ? 'Clear for final approval' : 'Reject';
 
     if (!confirm(`${verb} the registration for ${name}?`)) return;
 
@@ -103,9 +102,7 @@ async function decide(hospitalId, action) {
         : null;
 
     try {
-        const res = action === 'verify'
-            ? await window.NexCareAPI.Hospitals.verify(hospitalId)
-            : await window.NexCareAPI.Hospitals.reject(hospitalId);
+        const res = await window.NexCareAPI.Hospitals.regionalReview(hospitalId, action);
 
         if (hideLoading) hideLoading();
 
@@ -116,11 +113,11 @@ async function decide(hospitalId, action) {
         }
 
         if (hospital) {
-            hospital.verificationStatus = action === 'verify' ? 'verified' : 'rejected';
+            hospital.regionalReviewStatus = action;
         }
         updateStats();
         render();
-        notify(`${name} ${action === 'verify' ? 'approved' : 'rejected'} successfully`, 'success');
+        notify(`${name} ${action === 'cleared' ? 'sent to the superuser for final approval' : 'review rejected'} successfully`, 'success');
     } catch (err) {
         if (hideLoading) hideLoading();
         console.error(err);

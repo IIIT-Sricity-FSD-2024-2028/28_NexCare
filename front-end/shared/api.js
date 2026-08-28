@@ -486,19 +486,39 @@ const HospitalsAPI = {
         return await api.get(`/hospitals/${id}`);
     },
 
+    async getReviewQueue() {
+        return await api.get('/hospitals/review-queue');
+    },
+
     async update(id, data) {
         return await api.put(`/hospitals/${id}`, data);
     },
 
-    // Superuser and regional_manager only (enforced server-side).
+    // Public registration. Validation and duplicate checks are enforced server-side.
+    async register(data) {
+        return await api.post('/hospitals/register', data);
+    },
+
+    // Final activation is reserved for the superuser after regional clearance.
     async verify(id) {
         return await api.patch(`/hospitals/${id}/verify`, {});
     },
 
-    async reject(id) {
-        return await api.patch(`/hospitals/${id}/reject`, {});
+    async reject(id, notes) {
+        return await api.patch(`/hospitals/${id}/reject`, notes ? { notes } : {});
+    },
+
+    async assignManager(id, managerId) {
+        return await api.patch(`/hospitals/${id}/assign-manager`, { managerId });
+    },
+
+    async regionalReview(id, decision, notes) {
+        return await api.patch(`/hospitals/${id}/regional-review`, { decision, notes });
     }
 };
+
+// Compatibility for older registration pages that used the generic request helper.
+window.NexCareAPIRequest = (endpoint, method, data) => api[method.toLowerCase()](endpoint, data);
 
 // Support Requests API
 // The backend scopes GET by the caller's role: a regional_manager sees requests

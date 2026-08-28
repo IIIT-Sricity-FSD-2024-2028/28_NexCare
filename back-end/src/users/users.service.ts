@@ -116,6 +116,7 @@ private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
         patientId: userData.patientId,
         dept: userData.dept,
         hospitalId: userData.hospitalId,
+        areas: userData.areas,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };

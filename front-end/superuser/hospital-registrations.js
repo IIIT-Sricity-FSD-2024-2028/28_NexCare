@@ -84,28 +84,39 @@ async function loadHospitals(searchTerm = '') {
             else if (h.verificationStatus === 'rejected') statusBadge = '<span class="badge" style="background:#FEE2E2;color:#DC2626;">Rejected</span>';
             else statusBadge = `<span class="badge" style="background:#F3F4F6;color:#374151;">${h.verificationStatus || 'Unknown'}</span>`;
 
-            // Build Regional Officer dropdown
-            let roSelect = `<select class="form-control" style="padding: 4px; font-size: 12px; width: 140px;" onchange="assignRegionalOfficer('${h.id}', this.value)" ${h.verificationStatus !== 'verified' ? 'disabled' : ''}>
-                <option value="">-- Assign RO --</option>
-                ${regionalOfficers.map(ro => `<option value="${ro.id}" ${h.assignedManagerId === ro.id ? 'selected' : ''}>${ro.name}</option>`).join('')}
+            // Assignment is intentionally limited to managers configured for the
+            // hospital's local city/area. The backend enforces the same rule.
+            const hospitalArea = String(h.city || '').trim().toLowerCase();
+            const eligibleManagers = regionalOfficers.filter(ro =>
+                Array.isArray(ro.areas) && ro.areas.some(area => String(area).trim().toLowerCase() === hospitalArea)
+            );
+            let roSelect = `<select class="form-control" style="padding: 4px; font-size: 12px; width: 220px;" onchange="assignRegionalOfficer('${h.id}', this.value)" ${h.verificationStatus !== 'pending_verification' ? 'disabled' : ''}>
+                <option value="">${eligibleManagers.length ? '-- Assign regional manager --' : '-- No manager configured for this area --'}</option>
+                ${eligibleManagers.map(ro => `<option value="${ro.id}" ${h.assignedManagerId === ro.id ? 'selected' : ''}>${escapeHtml(ro.name)} · ${escapeHtml(ro.areas.join(', '))} · ${escapeHtml(ro.email)}</option>`).join('')}
             </select>`;
 
             // Actions
             let actions = '';
             if (h.verificationStatus === 'pending_verification') {
-                actions = `
-                    <button class="btn-icon" onclick="verifyHospital('${h.id}')" title="Verify">✓</button>
-                    <button class="btn-icon danger" onclick="rejectHospital('${h.id}')" title="Reject">✕</button>
-                `;
+                if (h.regionalReviewStatus === 'cleared') {
+                    actions = `<button class="btn-icon" onclick="verifyHospital('${h.id}')" title="Final approve">Final approve</button>
+                        <button class="btn-icon danger" onclick="rejectHospital('${h.id}')" title="Reject">Reject</button>`;
+                } else if (h.regionalReviewStatus === 'rejected') {
+                    actions = `<button class="btn-icon danger" onclick="rejectHospital('${h.id}')" title="Reject">Reject</button>`;
+                } else if (h.assignedManagerId) {
+                    actions = '<span style="font-size:12px;color:#6A7282;">Regional review pending</span>';
+                } else {
+                    actions = '<span style="font-size:12px;color:#6A7282;">Assign a regional manager</span>';
+                }
             }
 
             return `
                 <tr style="border-bottom: 1px solid #F3F4F6;">
                     <td style="padding: 16px 24px; font-size: 14px; color: #111827; font-weight: 500;">
-                        ${h.name} <br> <span style="font-size:12px; color:#6A7282; font-weight:normal;">${h.city}</span>
+                        ${escapeHtml(h.name)} <br> <span style="font-size:12px; color:#6A7282; font-weight:normal;">${escapeHtml(h.city)}</span>
                     </td>
-                    <td style="padding: 16px 24px; font-size: 14px; color: #475569;">${h.registrationNumber || 'N/A'}</td>
-                    <td style="padding: 16px 24px; font-size: 14px; color: #475569;">${h.adminName}<br><span style="font-size:12px;">${h.adminEmail}</span></td>
+                    <td style="padding: 16px 24px; font-size: 14px; color: #475569;">${escapeHtml(h.registrationNumber || 'N/A')}</td>
+                    <td style="padding: 16px 24px; font-size: 14px; color: #475569;">${escapeHtml(h.adminName)}<br><span style="font-size:12px;">${escapeHtml(h.adminEmail)}</span></td>
                     <td style="padding: 16px 24px;">${statusBadge}</td>
                     <td style="padding: 16px 24px;">${roSelect}</td>
                     <td style="padding: 16px 24px; text-align: right;">${actions}</td>
@@ -118,12 +129,16 @@ async function loadHospitals(searchTerm = '') {
     }
 }
 
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+}
+
 window.verifyHospital = async function(id) {
     if(!confirm("Are you sure you want to verify this hospital?")) return;
     try {
         let res;
-        if (window.NexCareAPI && window.NexCareAPI.request) {
-            res = await window.NexCareAPI.request(`/hospitals/${id}/verify`, 'PATCH');
+        if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
+            res = await window.NexCareAPI.Hospitals.verify(id);
         } else {
             // Fallback to direct API call
             const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
@@ -148,8 +163,8 @@ window.rejectHospital = async function(id) {
     if(!confirm("Are you sure you want to reject this hospital?")) return;
     try {
         let res;
-        if (window.NexCareAPI && window.NexCareAPI.request) {
-            res = await window.NexCareAPI.request(`/hospitals/${id}/reject`, 'PATCH');
+        if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
+            res = await window.NexCareAPI.Hospitals.reject(id);
         } else {
             // Fallback to direct API call
             const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
@@ -174,8 +189,8 @@ window.assignRegionalOfficer = async function(hospitalId, managerId) {
     if(!managerId) return;
     try {
         let res;
-        if (window.NexCareAPI && window.NexCareAPI.request) {
-            res = await window.NexCareAPI.request(`/hospitals/${hospitalId}/assign-manager`, 'PATCH', { managerId });
+        if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
+            res = await window.NexCareAPI.Hospitals.assignManager(hospitalId, managerId);
         } else {
             // Fallback to direct API call
             const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');

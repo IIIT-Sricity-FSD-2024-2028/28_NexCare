@@ -160,6 +160,7 @@
                                 <option value="">Select Role...</option>
                                 <option value="administrative_staff">Administrative Staff</option>
                                 <option value="ambulance">Ambulance Staff</option>
+                                <option value="regional_manager">Regional Manager</option>
                                 <!-- Directory-only records: clinical staff cannot log in to NexCare. -->
                                 <option value="doctor">Doctor (directory record)</option>
                                 <option value="nurse">Nurse (directory record)</option>
@@ -176,6 +177,12 @@
                             </select>
                             <span class="error-message" id="errorDept">Dept is required.</span>
                         </div>
+                    </div>
+
+                    <div class="form-group" id="regionGroup" style="display:none;">
+                        <label>Assigned Hospital Areas / Cities</label>
+                        <input type="text" id="userRegion" class="form-control" placeholder="e.g. Tirupati, Renigunta">
+                        <span class="error-message" id="errorRegion">At least one local area is required for a regional manager.</span>
                     </div>
 
                     <div class="form-group">

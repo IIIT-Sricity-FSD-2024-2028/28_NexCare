@@ -14,6 +14,8 @@ export interface User {
   patientId?: string; // For patient users
   dept?: string; // Department within the hospital (e.g. Front Desk, Cardiology)
   hospitalId?: string; // For any user scoped to a single hospital
+  /** Local hospital areas/cities a regional manager may review. */
+  areas?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -29,6 +31,7 @@ export interface CreateUserRequest {
   patientId?: string;
   dept?: string;
   hospitalId?: string;
+  areas?: string[];
 }
 
 /**
@@ -43,6 +46,7 @@ export interface UpdateUserRequest {
   patientId?: string;
   dept?: string;
   hospitalId?: string;
+  areas?: string[];
 }
 
 /**

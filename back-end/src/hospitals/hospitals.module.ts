@@ -27,6 +27,7 @@ export class HospitalsModule implements NestModule {
         { path: 'hospitals/:id', method: RequestMethod.PUT },
         { path: 'hospitals/:id/verify', method: RequestMethod.PATCH },
         { path: 'hospitals/:id/reject', method: RequestMethod.PATCH },
+        { path: 'hospitals/:id/regional-review', method: RequestMethod.PATCH },
         { path: 'hospitals/:id/assign-manager', method: RequestMethod.PATCH },
         { path: 'hospitals/:id/doctors', method: RequestMethod.GET },
         { path: 'hospitals/:id/beds', method: RequestMethod.GET },

@@ -1,5 +1,5 @@
 import { UserRole, UserStatus } from '../../common/interfaces/api-response.interface';
-import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsArray, IsEmail, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
@@ -47,4 +47,10 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   hospitalId?: string;
+
+  @ApiPropertyOptional({ example: ['Tirupati', 'Renigunta'], description: 'Local areas assigned to a regional manager' })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  areas?: string[];
 }
