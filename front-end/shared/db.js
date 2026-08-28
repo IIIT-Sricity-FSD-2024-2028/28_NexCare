@@ -419,6 +419,26 @@ window.NexCareStore = {
         const patientId = NexCareDB.getActivePatientScope();
         const patient = await this.getActivePatient();
         
+        // Slot conflict guard: prevent booking already booked active slots
+        const existingAppts = NexCareDB.getTable('appointments') || [];
+        const normDoc = String(data.doctor || '').toLowerCase().replace(/^dr\.\s*/i, '').trim();
+        const normDate = String(data.dateLabel || '').trim();
+        const normTime = String(data.timeLabel || '').trim();
+        
+        const conflict = existingAppts.find(a => {
+            if (a.status === 'Cancelled') return false;
+            const aDoc = String(a.doctor || a.doctorName || '').toLowerCase().replace(/^dr\.\s*/i, '').trim();
+            const aDate = String(a.dateLabel || a.date || '').trim();
+            const aTime = String(a.timeLabel || a.time || '').trim();
+            return (aDoc === normDoc || aDoc.includes(normDoc) || normDoc.includes(aDoc)) &&
+                   (aDate === normDate || aDate.includes(normDate) || normDate.includes(aDate)) &&
+                   (aTime === normTime);
+        });
+
+        if (conflict) {
+            throw new Error(`The slot "${data.timeLabel}" on ${data.dateLabel} with ${data.doctor} is already booked.`);
+        }
+        
         if (isAPIAvailable()) {
             try {
                 // White-list fields for backend DTO validation

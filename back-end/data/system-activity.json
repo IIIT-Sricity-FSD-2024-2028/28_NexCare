@@ -428,5 +428,105 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-27T18:32:04.502Z"
+  },
+  {
+    "id": "ACT-MTCJ1H3X1SS",
+    "timestamp": "2026-08-28T05:44:33.501Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T05:44:33.501Z"
+  },
+  {
+    "id": "ACT-MTCJ1ZUK28K",
+    "timestamp": "2026-08-28T05:44:57.788Z",
+    "userId": "Admin",
+    "action": "Update",
+    "details": "Patient record P001 (Patient 001) updated",
+    "module": "Patients",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T05:44:57.788Z"
+  },
+  {
+    "id": "ACT-MTCJ7M1C3VK",
+    "timestamp": "2026-08-28T05:49:19.824Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T05:49:19.824Z"
+  },
+  {
+    "id": "ACT-MTCJMTPG5B1",
+    "timestamp": "2026-08-28T06:01:09.604Z",
+    "userId": "UMTCJMTLL4ZC",
+    "action": "Register",
+    "details": "New patient account registered: Test Patient (patient@nexcare.com)",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:01:09.604Z"
+  },
+  {
+    "id": "ACT-MTCJO5D06XM",
+    "timestamp": "2026-08-28T06:02:11.364Z",
+    "userId": "UMTCJMTLL4ZC",
+    "action": "Login",
+    "details": "User Test Patient logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:02:11.364Z"
+  },
+  {
+    "id": "ACT-MTCJZN771KP",
+    "timestamp": "2026-08-28T06:11:07.699Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:11:07.699Z"
+  },
+  {
+    "id": "ACT-MTCK1ZZG1ZX",
+    "timestamp": "2026-08-28T06:12:57.580Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:12:57.580Z"
+  },
+  {
+    "id": "ACT-MTCK5O8Y1P9",
+    "timestamp": "2026-08-28T06:15:48.995Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:15:48.995Z"
+  },
+  {
+    "id": "ACT-MTCKGEII1PT",
+    "timestamp": "2026-08-28T06:24:09.594Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:24:09.594Z"
+  },
+  {
+    "id": "ACT-MTCKMTDW24R",
+    "timestamp": "2026-08-28T06:29:08.804Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:29:08.804Z"
   }
 ]

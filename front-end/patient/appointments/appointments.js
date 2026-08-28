@@ -1,27 +1,9 @@
-// NexCare Appointments Page & Booking Flow System
-
-// Safe description map for specialities
-const SPECIALITY_DESCRIPTIONS = {
-    "Cardiology": "Heart and cardiovascular care",
-    "Neurology": "Brain and nervous-system care",
-    "General Medicine": "Primary healthcare and consultations",
-    "Emergency Medicine": "Urgent and emergency care",
-    "Gynaecology": "Women’s reproductive healthcare",
-    "Gynecology": "Women’s reproductive healthcare",
-    "Paediatrics": "Healthcare for infants and children",
-    "Pediatrics": "Healthcare for infants and children",
-    "Orthopaedics": "Bone, joint and muscle treatment",
-    "Orthopedics": "Bone, joint and muscle treatment",
-    "Physiotherapy": "Rehabilitation and movement therapy",
-    "Cardiothoracic Surgery": "Heart and chest surgery",
-    "Dermatology": "Skin, hair and nail treatment",
-    "Neurosurgery": "Surgical care for the brain and nervous system",
-    "Oncology": "Cancer diagnosis and treatment"
-};
+// NexCare Patient Portal Appointments Management & Booking System
 
 let bookingData = {
     hospital: null,
     department: null,
+    doctorId: null,
     doctor: null,
     date: null,
     time: null,
@@ -29,104 +11,106 @@ let bookingData = {
 };
 
 let currentStep = 1;
-let calendarCurrentDate = new Date();
 
 function getStore() {
     return window.NexCareStore;
 }
 
-// ── Hospital Resolver ────────────────────────────────────────────────────────
-async function resolveHospital(hId) {
-    if (!hId) return null;
+function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
 
-    // Try API first
+// ── Slot Conflict & Booked Slots Detection ───────────────────────────────────
+async function getBookedSlotsForDoctor(hospitalId, doctorName, dateStr) {
+    if (!doctorName || !dateStr) return new Set();
+    const booked = new Set();
+    const normDoc = doctorName.toLowerCase().replace(/^dr\.\s*/i, '').trim();
+    const normDate = String(dateStr).trim();
+
+    // 1. Check window.NexCareAPI if available
     try {
-        if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
-            const res = await window.NexCareAPI.Hospitals.getById(hId);
-            if (res && res.success && res.data) {
-                return res.data;
-            }
+        if (window.NexCareAPI && window.NexCareAPI.Appointments) {
+            const res = await window.NexCareAPI.Appointments.getAll();
+            const list = (res && res.success && Array.isArray(res.data)) ? res.data : 
+                         (res && res.data && Array.isArray(res.data.data)) ? res.data.data : [];
+            list.forEach(a => {
+                if (a.status !== 'Cancelled') {
+                    const aDoc = String(a.doctor || a.doctorName || '').toLowerCase().replace(/^dr\.\s*/i, '').trim();
+                    const aDate = String(a.dateLabel || a.date || '').trim();
+                    if ((aDoc === normDoc || aDoc.includes(normDoc) || normDoc.includes(aDoc)) && 
+                        (aDate === normDate || aDate.includes(normDate) || normDate.includes(aDate))) {
+                        if (a.timeLabel) booked.add(a.timeLabel);
+                        if (a.time) booked.add(a.time);
+                    }
+                }
+            });
         }
     } catch (e) {
-        console.warn("API lookup failed for hospitalId:", hId, e);
+        console.warn("API appointments query for booked slots failed:", e);
     }
 
-    // Try window.MOCK_HOSPITALS fallback
-    if (Array.isArray(window.MOCK_HOSPITALS)) {
-        const targetId = String(hId).trim().toLowerCase();
-        const found = window.MOCK_HOSPITALS.find(h => String(h.id || '').trim().toLowerCase() === targetId);
-        if (found) return found;
+    // 2. Check local store
+    try {
+        const store = getStore();
+        if (store && typeof store.listAppointments === 'function') {
+            const localList = store.listAppointments() || [];
+            localList.forEach(a => {
+                if (a.status !== 'Cancelled') {
+                    const aDoc = String(a.doctor || a.doctorName || '').toLowerCase().replace(/^dr\.\s*/i, '').trim();
+                    const aDate = String(a.dateLabel || a.date || '').trim();
+                    if ((aDoc === normDoc || aDoc.includes(normDoc) || normDoc.includes(aDoc)) && 
+                        (aDate === normDate || aDate.includes(normDate) || normDate.includes(aDate))) {
+                        if (a.timeLabel) booked.add(a.timeLabel);
+                        if (a.time) booked.add(a.time);
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.warn("Local store query for booked slots failed:", e);
     }
 
-    return null;
+    // 3. Check localStorage db table directly as fallback
+    try {
+        const rawDb = localStorage.getItem('nexcare_db_v3');
+        if (rawDb) {
+            const parsed = JSON.parse(rawDb);
+            const dbList = parsed.appointments || [];
+            dbList.forEach(a => {
+                if (a.status !== 'Cancelled') {
+                    const aDoc = String(a.doctor || a.doctorName || '').toLowerCase().replace(/^dr\.\s*/i, '').trim();
+                    const aDate = String(a.dateLabel || a.date || '').trim();
+                    if ((aDoc === normDoc || aDoc.includes(normDoc) || normDoc.includes(aDoc)) && 
+                        (aDate === normDate || aDate.includes(normDate) || normDate.includes(aDate))) {
+                        if (a.timeLabel) booked.add(a.timeLabel);
+                        if (a.time) booked.add(a.time);
+                    }
+                }
+            });
+        }
+    } catch (e) {}
+
+    return booked;
 }
 
-// Normalize speciality names to match project standard (e.g. Orthopaedics, Paediatrics)
-function normalizeSpecialityName(name) {
-    if (!name) return '';
-    const str = String(name).trim();
-    if (str.toLowerCase() === 'orthopedics') return 'Orthopaedics';
-    if (str.toLowerCase() === 'pediatrics') return 'Paediatrics';
-    if (str.toLowerCase() === 'gynecology') return 'Gynaecology';
-    return str;
-}
-
-// ── Main Page Initialization ──────────────────────────────────────────────────
+// ── Main Page Initialization & Router ─────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-    // Check URL search params for hospitalId first
     const urlParams = new URLSearchParams(window.location.search);
-    let urlHospitalId = urlParams.get('hospitalId');
-
-    // Fall back to localStorage only if URL param is absent
-    if (!urlHospitalId) {
-        try {
-            urlHospitalId = localStorage.getItem('selectedHospitalId');
-        } catch (e) {}
-    }
+    const viewParam = urlParams.get('view') || urlParams.get('mode');
+    const urlHospitalId = urlParams.get('hospitalId');
 
     if (urlHospitalId) {
-        await startBookingFlowForHospital(urlHospitalId);
+        bookingData.hospital = window.getHospitalById(urlHospitalId);
+    }
+
+    if (viewParam === 'book' || urlHospitalId) {
+        showBookingFlow();
+    } else if (viewParam === 'view' || viewParam === 'my' || viewParam === 'appointments') {
+        showMyAppointments();
     } else {
         showAppointmentLanding();
     }
 });
-
-async function startBookingFlowForHospital(hId) {
-    const hospital = await resolveHospital(hId);
-
-    const landing = document.getElementById('appointmentLanding');
-    const myAppts = document.getElementById('myAppointments');
-    const flowContainer = document.getElementById('bookingFlow');
-
-    if (!hospital) {
-        if (landing) landing.style.display = 'none';
-        if (myAppts) myAppts.style.display = 'none';
-        if (flowContainer) {
-            flowContainer.style.display = 'block';
-            flowContainer.innerHTML = `
-                <div style="background:#FFFFFF; border:1px solid #FCA5A5; border-radius:12px; padding:32px; text-align:center; max-width:600px; margin:40px auto; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
-                    <div style="font-size:40px; margin-bottom:16px;">🏥</div>
-                    <h2 style="color:#991B1B; font-size:20px; font-weight:700; margin-bottom:12px;">Hospital Not Found</h2>
-                    <p style="color:#4B5563; font-size:14px; margin-bottom:24px; line-height:1.6;">The selected hospital could not be found. Please return to hospital search and choose a hospital.</p>
-                    <button class="btn-primary" onclick="window.location.href='../hospital-search.html'">Back to Hospital Search</button>
-                </div>
-            `;
-        }
-        return;
-    }
-
-    // Set active hospital
-    bookingData.hospital = hospital;
-    bookingData.department = null;
-    bookingData.date = null;
-    bookingData.time = null;
-
-    try { localStorage.setItem('selectedHospitalId', hospital.id); } catch(e) {}
-
-    showBookingFlow();
-    currentStep = 1; // Skip to department selection since hospital is pre-selected
-    renderBookingStep();
-}
 
 function showAppointmentLanding() {
     const landing = document.getElementById('appointmentLanding');
@@ -157,14 +141,12 @@ function showBookingFlow() {
     if (landing) landing.style.display = 'none';
     if (myAppts) myAppts.style.display = 'none';
     if (flow) flow.style.display = 'block';
-    
-    // Start at Step 0 (hospital selection) if no hospital is pre-selected
-    // Otherwise start at Step 1 (department selection)
+
     currentStep = bookingData.hospital ? 1 : 0;
     renderBookingStep();
 }
 
-// ── Step Rendering Router ────────────────────────────────────────────────────
+// ── Multi-Step Wizard Router ──────────────────────────────────────────────────
 async function renderBookingStep() {
     const container = document.getElementById('bookingFlow');
     if (!container) return;
@@ -176,7 +158,7 @@ async function renderBookingStep() {
     } else if (currentStep === 2) {
         renderStep2(container);
     } else if (currentStep === 3) {
-        await renderStep3(container);
+        renderStep3(container);
     } else if (currentStep === 4) {
         renderConfirmation(container);
     }
@@ -188,32 +170,32 @@ function renderStepIndicator() {
             <div class="step-progress">
                 <div class="step-item">
                     <div class="step-circle ${currentStep >= 0 ? 'active' : ''} ${currentStep > 0 ? 'completed' : ''}">
-                        ${currentStep > 0 ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 6L8 13L5 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '1'}
+                        ${currentStep > 0 ? '✓' : '1'}
                     </div>
                     <div class="step-line ${currentStep >= 1 ? 'active' : ''}"></div>
                 </div>
                 <div class="step-item">
                     <div class="step-circle ${currentStep >= 1 ? 'active' : ''} ${currentStep > 1 ? 'completed' : ''}">
-                        ${currentStep > 1 ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 6L8 13L5 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '2'}
+                        ${currentStep > 1 ? '✓' : '2'}
                     </div>
                     <div class="step-line ${currentStep >= 2 ? 'active' : ''}"></div>
                 </div>
                 <div class="step-item">
                     <div class="step-circle ${currentStep >= 2 ? 'active' : ''} ${currentStep > 2 ? 'completed' : ''}">
-                        ${currentStep > 2 ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 6L8 13L5 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '3'}
+                        ${currentStep > 2 ? '✓' : '3'}
                     </div>
                     <div class="step-line ${currentStep >= 3 ? 'active' : ''}"></div>
                 </div>
                 <div class="step-item">
                     <div class="step-circle ${currentStep >= 3 ? 'active' : ''} ${currentStep > 3 ? 'completed' : ''}">
-                        ${currentStep > 3 ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 6L8 13L5 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '4'}
+                        ${currentStep > 3 ? '✓' : '4'}
                     </div>
                 </div>
             </div>
             <div class="step-labels">
                 <span class="step-label">Hospital</span>
                 <span class="step-label">Department</span>
-                <span class="step-label">Date & Time</span>
+                <span class="step-label">Date & Doctor</span>
                 <span class="step-label">Details</span>
             </div>
         </div>
@@ -224,23 +206,21 @@ function renderStepIndicator() {
 async function renderStep0(container) {
     container.replaceChildren();
 
-    // Header
     const header = document.createElement('div');
     header.className = 'booking-header';
-    const h1 = document.createElement('h1');
-    h1.textContent = 'Book an Appointment';
-    const p = document.createElement('p');
-    p.textContent = 'Select a hospital to proceed with booking.';
-    header.appendChild(h1);
-    header.appendChild(p);
+    header.innerHTML = `
+        <button class="btn-outline-sm" style="margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px;" onclick="showAppointmentLanding()">
+            ← Back to Appointments Landing
+        </button>
+        <h1>Book an Appointment</h1>
+        <p>Select a hospital to proceed with booking.</p>
+    `;
     container.appendChild(header);
 
-    // Indicator
     const indWrap = document.createElement('div');
     indWrap.innerHTML = renderStepIndicator();
     container.appendChild(indWrap.firstElementChild);
 
-    // Booking Card
     const card = document.createElement('div');
     card.className = 'booking-card';
 
@@ -248,289 +228,85 @@ async function renderStep0(container) {
     title.textContent = 'Select Hospital';
     card.appendChild(title);
 
-    // Filter Controls
-    const filterSection = document.createElement('div');
-    filterSection.style.marginBottom = '24px';
-    filterSection.style.padding = '20px';
-    filterSection.style.background = '#F9FAFB';
-    filterSection.style.borderRadius = '12px';
-    filterSection.style.border = '1px solid #E5E7EB';
-
-    const filterTitle = document.createElement('h3');
-    filterTitle.style.margin = '0 0 16px 0';
-    filterTitle.style.fontSize = '14px';
-    filterTitle.style.fontWeight = '600';
-    filterTitle.style.color = '#374151';
-    filterTitle.textContent = 'Filter Hospitals';
-    filterSection.appendChild(filterTitle);
-
-    const filterGrid = document.createElement('div');
-    filterGrid.style.display = 'grid';
-    filterGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(180px, 1fr))';
-    filterGrid.style.gap = '12px';
-
-    // Speciality Filter
-    const specialityDiv = document.createElement('div');
-    const specialityLabel = document.createElement('label');
-    specialityLabel.style.display = 'block';
-    specialityLabel.style.fontSize = '12px';
-    specialityLabel.style.fontWeight = '600';
-    specialityLabel.style.color = '#6B7280';
-    specialityLabel.style.marginBottom = '4px';
-    specialityLabel.textContent = 'Speciality';
-    specialityDiv.appendChild(specialityLabel);
-
-    const specialitySelect = document.createElement('select');
-    specialitySelect.style.width = '100%';
-    specialitySelect.style.padding = '8px 12px';
-    specialitySelect.style.border = '1px solid #D1D5DB';
-    specialitySelect.style.borderRadius = '6px';
-    specialitySelect.style.fontSize = '13px';
-    specialitySelect.innerHTML = `
-        <option value="">All Specialities</option>
-        <option value="General Medicine">General Medicine</option>
-        <option value="Cardiology">Cardiology</option>
-        <option value="Neurology">Neurology</option>
-        <option value="Orthopaedics">Orthopaedics</option>
-        <option value="Paediatrics">Paediatrics</option>
-        <option value="Dermatology">Dermatology</option>
-        <option value="Emergency Medicine">Emergency Medicine</option>
-    `;
-    specialityDiv.appendChild(specialitySelect);
-    filterGrid.appendChild(specialityDiv);
-
-    // City Filter
-    const cityDiv = document.createElement('div');
-    const cityLabel = document.createElement('label');
-    cityLabel.style.display = 'block';
-    cityLabel.style.fontSize = '12px';
-    cityLabel.style.fontWeight = '600';
-    cityLabel.style.color = '#6B7280';
-    cityLabel.style.marginBottom = '4px';
-    cityLabel.textContent = 'City';
-    cityDiv.appendChild(cityLabel);
-
-    const cityInput = document.createElement('input');
-    cityInput.type = 'text';
-    cityInput.placeholder = 'Enter city...';
-    cityInput.style.width = '100%';
-    cityInput.style.padding = '8px 12px';
-    cityInput.style.border = '1px solid #D1D5DB';
-    cityInput.style.borderRadius = '6px';
-    cityInput.style.fontSize = '13px';
-    cityDiv.appendChild(cityInput);
-    filterGrid.appendChild(cityDiv);
-
-    filterSection.appendChild(filterGrid);
-
-    const searchBtn = document.createElement('button');
-    searchBtn.className = 'btn-primary';
-    searchBtn.style.marginTop = '12px';
-    searchBtn.style.padding = '8px 16px';
-    searchBtn.style.fontSize = '13px';
-    searchBtn.textContent = 'Search Hospitals';
-    filterSection.appendChild(searchBtn);
-
-    card.appendChild(filterSection);
-
-    // Hospital Results Grid
     const resultsGrid = document.createElement('div');
-    resultsGrid.id = 'hospitalResultsGrid';
+    resultsGrid.className = 'hospital-results-grid';
     resultsGrid.style.display = 'grid';
     resultsGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
     resultsGrid.style.gap = '16px';
     resultsGrid.style.marginTop = '20px';
-    card.appendChild(resultsGrid);
 
-    // Loading state
-    resultsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 24px; color: #6A7282;">Loading hospitals...</div>';
+    const hospitals = Array.isArray(window.MOCK_HOSPITALS) ? window.MOCK_HOSPITALS : [];
 
-    // Actions
-    const actions = document.createElement('div');
-    actions.className = 'booking-actions';
-    actions.style.marginTop = '24px';
+    hospitals.forEach(h => {
+        const isSelected = bookingData.hospital && (bookingData.hospital.id === h.id || bookingData.hospital.name === h.name);
+        const hCard = document.createElement('div');
+        hCard.className = `hospital-card ${isSelected ? 'selected' : ''}`;
+        hCard.style.border = isSelected ? '2px solid #155DFC' : '1px solid #E5E7EB';
+        hCard.style.background = isSelected ? '#EFF6FF' : '#FFFFFF';
+        hCard.style.borderRadius = '12px';
+        hCard.style.padding = '20px';
+        hCard.style.cursor = 'pointer';
+        hCard.style.transition = 'all 0.2s';
 
-    const continueBtn = document.createElement('button');
-    continueBtn.className = 'btn-continue';
-    continueBtn.disabled = !bookingData.hospital;
-    continueBtn.textContent = 'Continue';
-    continueBtn.onclick = () => {
-        if (bookingData.hospital) {
+        hCard.innerHTML = `
+            <div style="font-size: 24px; margin-bottom: 8px;">🏥</div>
+            <h3 style="font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 4px;">${escapeHtml(h.name)}</h3>
+            <p style="font-size: 13px; color: #6B7280; margin-bottom: 12px;">📍 ${escapeHtml(h.city)} • ${escapeHtml(h.address || '')}</p>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px;">
+                ${(h.specialities || []).slice(0, 3).map(s => `<span class="badge" style="background:#F3F4F6; color:#374151; font-size:11px;">${escapeHtml(s)}</span>`).join('')}
+            </div>
+            <button class="btn-primary" style="width: 100%; justify-content: center; padding: 8px 12px; font-size: 13px;">
+                ${isSelected ? 'Selected' : 'Select Hospital'}
+            </button>
+        `;
+
+        hCard.onclick = () => {
+            if (bookingData.hospital !== h) {
+                bookingData.hospital = h;
+                bookingData.department = null;
+                bookingData.date = null;
+                bookingData.doctor = null;
+                bookingData.time = null;
+            }
             currentStep = 1;
             renderBookingStep();
-        }
-    };
+        };
 
-    actions.appendChild(continueBtn);
-    card.appendChild(actions);
+        resultsGrid.appendChild(hCard);
+    });
 
+    card.appendChild(resultsGrid);
     container.appendChild(card);
-
-    // Load hospitals
-    await loadHospitalResults(resultsGrid, specialitySelect, cityInput, searchBtn, continueBtn);
 }
 
-async function loadHospitalResults(grid, specialitySelect, cityInput, searchBtn, continueBtn) {
-    let hospitals = [];
-
-    // Try API first
-    try {
-        if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
-            const res = await window.NexCareAPI.Hospitals.getAll();
-            if (res && res.success && Array.isArray(res.data)) {
-                hospitals = res.data;
-            }
-        }
-    } catch (e) {
-        console.warn('API hospitals fetch failed:', e);
-    }
-
-    // Fallback to mock hospitals
-    if (!hospitals || hospitals.length === 0) {
-        if (Array.isArray(window.MOCK_HOSPITALS)) {
-            hospitals = window.MOCK_HOSPITALS;
-        }
-    }
-
-    const renderHospitals = (filteredHospitals) => {
-        if (!filteredHospitals || filteredHospitals.length === 0) {
-            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 24px; color: #6A7282;">No hospitals found matching your criteria.</div>';
-            return;
-        }
-
-        grid.innerHTML = filteredHospitals.map(h => {
-            const isSelected = bookingData.hospital && bookingData.hospital.id === h.id;
-            const specialities = Array.isArray(h.specialities) ? h.specialities.slice(0, 3).join(', ') : 'General Medicine';
-            
-            return `
-                <div class="hospital-card ${isSelected ? 'selected' : ''}" data-id="${h.id}" style="
-                    background: ${isSelected ? '#EFF6FF' : '#FFFFFF'};
-                    border: 2px solid ${isSelected ? '#155DFC' : '#E5E7EB'};
-                    border-radius: 12px;
-                    padding: 20px;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                ">
-                    <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
-                        <div style="
-                            width: 48px;
-                            height: 48px;
-                            background: linear-gradient(135deg, #155DFC 0%, #1C398E 100%);
-                            border-radius: 8px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-size: 20px;
-                        ">🏥</div>
-                        <div style="flex: 1;">
-                            <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 700; color: #111827;">${h.name}</h3>
-                            <p style="margin: 0; font-size: 12px; color: #6B7280;">${h.city || ''} ${h.pincode ? '- ' + h.pincode : ''}</p>
-                        </div>
-                        ${isSelected ? '<div style="color: #155DFC; font-size: 20px;">✓</div>' : ''}
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <p style="margin: 0 0 8px 0; font-size: 12px; color: #6B7280;">Specialities:</p>
-                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                            ${Array.isArray(h.specialities) ? h.specialities.slice(0, 3).map(s => 
-                                `<span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${s}</span>`
-                            ).join('') : '<span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 4px; font-size: 11px;">General Medicine</span>'}
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 8px; font-size: 11px; color: #6B7280;">
-                        ${h.emergency24x7 ? '<span style="background: #FEF2F2; color: #991B1B; padding: 4px 8px; border-radius: 4px;">24/7 Emergency</span>' : ''}
-                        ${h.ambulanceService ? '<span style="background: #EFF6FF; color: #1D4ED8; padding: 4px 8px; border-radius: 4px;">Ambulance</span>' : ''}
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        // Add click handlers
-        grid.querySelectorAll('.hospital-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const hospitalId = card.dataset.id;
-                const selectedHospital = hospitals.find(h => h.id === hospitalId);
-                
-                if (selectedHospital) {
-                    bookingData.hospital = selectedHospital;
-                    bookingData.department = null;
-                    bookingData.date = null;
-                    bookingData.time = null;
-                    
-                    try { localStorage.setItem('selectedHospitalId', selectedHospital.id); } catch(e) {}
-                    
-                    continueBtn.disabled = false;
-                    renderHospitals(filteredHospitals); // Re-render to show selection
-                }
-            });
-        });
-    };
-
-    const filterHospitals = () => {
-        const speciality = specialitySelect.value.toLowerCase();
-        const city = cityInput.value.toLowerCase().trim();
-
-        let filtered = hospitals;
-        
-        if (speciality) {
-            filtered = filtered.filter(h => 
-                Array.isArray(h.specialities) && 
-                h.specialities.some(s => s.toLowerCase().includes(speciality))
-            );
-        }
-        
-        if (city) {
-            filtered = filtered.filter(h => 
-                (h.city && h.city.toLowerCase().includes(city)) ||
-                (h.address && h.address.toLowerCase().includes(city))
-            );
-        }
-
-        renderHospitals(filtered);
-    };
-
-    // Initial render
-    renderHospitals(hospitals);
-
-    // Event listeners
-    searchBtn.addEventListener('click', filterHospitals);
-    specialitySelect.addEventListener('change', filterHospitals);
-    cityInput.addEventListener('input', filterHospitals);
-}
-
-// ── Step 1: Speciality Selection ─────────────────────────────────────────────
+// ── Step 1: Department Selection ─────────────────────────────────────────────
 function renderStep1(container) {
     const hosp = bookingData.hospital;
     const hospName = hosp ? hosp.name : 'Hospital';
-    const specs = (hosp && Array.isArray(hosp.specialities)) ? hosp.specialities.map(normalizeSpecialityName) : ['General Medicine'];
+    const depts = hosp ? window.getDepartmentsForHospital(hosp.id || hosp.name) : [];
 
     container.replaceChildren();
 
-    // Header
     const header = document.createElement('div');
     header.className = 'booking-header';
-    const h1 = document.createElement('h1');
-    h1.textContent = `Book an Appointment — ${hospName}`;
-    const p = document.createElement('p');
-    p.textContent = `Select an available speciality offered at ${hospName}.`;
-    header.appendChild(h1);
-    header.appendChild(p);
-
+    header.innerHTML = `
+        <h1>Book an Appointment — ${escapeHtml(hospName)}</h1>
+        <p>Select an available department offered at ${escapeHtml(hospName)}.</p>
+    `;
     container.appendChild(header);
 
-    // Indicator HTML
     const indWrap = document.createElement('div');
     indWrap.innerHTML = renderStepIndicator();
     container.appendChild(indWrap.firstElementChild);
 
-    // Booking Card
     const card = document.createElement('div');
     card.className = 'booking-card';
 
     const title = document.createElement('h2');
-    title.textContent = 'Select Speciality / Department';
+    title.textContent = 'Select Department';
     card.appendChild(title);
 
-    // Hospital info with change option
+    // Selected Hospital Summary Banner with Change option
     const hospitalInfo = document.createElement('div');
     hospitalInfo.style.background = '#F9FAFB';
     hospitalInfo.style.border = '1px solid #E5E7EB';
@@ -541,29 +317,15 @@ function renderStep1(container) {
     hospitalInfo.style.justifyContent = 'space-between';
     hospitalInfo.style.alignItems = 'center';
 
-    const hospitalText = document.createElement('div');
-    hospitalText.innerHTML = `
-        <span style="font-size: 12px; color: #6B7280; font-weight: 600;">Hospital:</span>
-        <span style="font-size: 14px; color: #111827; font-weight: 600; margin-left: 8px;">${hospName}</span>
+    hospitalInfo.innerHTML = `
+        <div>
+            <span style="font-size: 12px; color: #6B7280; font-weight: 600;">Selected Hospital:</span>
+            <span style="font-size: 14px; color: #111827; font-weight: 700; margin-left: 8px;">🏥 ${escapeHtml(hospName)}</span>
+        </div>
+        <button type="button" style="background: none; border: none; color: #155DFC; font-size: 13px; font-weight: 600; cursor: pointer;" onclick="currentStep = 0; renderBookingStep();">
+            Change Hospital
+        </button>
     `;
-    hospitalInfo.appendChild(hospitalText);
-
-    const changeHospitalBtn = document.createElement('button');
-    changeHospitalBtn.type = 'button';
-    changeHospitalBtn.style.background = 'none';
-    changeHospitalBtn.style.border = 'none';
-    changeHospitalBtn.style.color = '#155DFC';
-    changeHospitalBtn.style.fontSize = '13px';
-    changeHospitalBtn.style.fontWeight = '600';
-    changeHospitalBtn.style.cursor = 'pointer';
-    changeHospitalBtn.style.padding = '4px 8px';
-    changeHospitalBtn.textContent = 'Change';
-    changeHospitalBtn.onclick = () => {
-        currentStep = 0;
-        renderBookingStep();
-    };
-    hospitalInfo.appendChild(changeHospitalBtn);
-
     card.appendChild(hospitalInfo);
 
     const grid = document.createElement('div');
@@ -580,33 +342,29 @@ function renderStep1(container) {
         }
     };
 
-    specs.forEach(specName => {
-        const desc = SPECIALITY_DESCRIPTIONS[specName] || `${specName} medical services and consultation`;
+    depts.forEach(d => {
+        const specName = d.name;
         const isSelected = bookingData.department === specName;
 
         const btn = document.createElement('button');
+        btn.type = 'button';
         btn.className = `department-btn ${isSelected ? 'selected' : ''}`;
-        
-        const h3 = document.createElement('h3');
-        h3.textContent = specName;
-        const pDesc = document.createElement('p');
-        pDesc.textContent = desc;
 
-        btn.appendChild(h3);
-        btn.appendChild(pDesc);
+        btn.innerHTML = `
+            <h3>${escapeHtml(specName)}</h3>
+            <p>Specialist medical services and consultation</p>
+        `;
 
         btn.onclick = () => {
-            // Deselect previous buttons
             grid.querySelectorAll('.department-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
 
-            // Changing speciality clears previously selected date and time
             if (bookingData.department !== specName) {
                 bookingData.department = specName;
                 bookingData.date = null;
+                bookingData.doctor = null;
                 bookingData.time = null;
             }
-
             continueBtn.disabled = false;
         };
 
@@ -615,7 +373,6 @@ function renderStep1(container) {
 
     card.appendChild(grid);
 
-    // Actions
     const actions = document.createElement('div');
     actions.className = 'booking-actions';
 
@@ -634,7 +391,7 @@ function renderStep1(container) {
     container.appendChild(card);
 }
 
-// ── Step 2: Date & Time Selection ────────────────────────────────────────────
+// ── Step 2: Date, Doctor & Time Slot Selection ────────────────────────────────
 function renderStep2(container) {
     const hosp = bookingData.hospital;
     const hospName = hosp ? hosp.name : 'Hospital';
@@ -642,147 +399,126 @@ function renderStep2(container) {
 
     container.replaceChildren();
 
-    // Header
     const header = document.createElement('div');
     header.className = 'booking-header';
-    const h1 = document.createElement('h1');
-    h1.textContent = `Book an Appointment — ${hospName}`;
-    const p = document.createElement('p');
-    p.textContent = `Choose your preferred date and time slot for ${dept}.`;
-    header.appendChild(h1);
-    header.appendChild(p);
+    header.innerHTML = `
+        <h1>Select Date & Doctor</h1>
+        <p>Choose your preferred date, doctor, and time slot for <strong>${escapeHtml(dept)}</strong> at ${escapeHtml(hospName)}.</p>
+    `;
     container.appendChild(header);
 
-    // Indicator
     const indWrap = document.createElement('div');
     indWrap.innerHTML = renderStepIndicator();
     container.appendChild(indWrap.firstElementChild);
 
-    // Booking Card
     const card = document.createElement('div');
     card.className = 'booking-card';
 
-    const cardTitle = document.createElement('h2');
-    cardTitle.textContent = 'Select Date & Time';
-    card.appendChild(cardTitle);
+    // 1. Date Picker Field
+    const dateGroup = document.createElement('div');
+    dateGroup.style.marginBottom = '20px';
 
-    // Hospital info with change option
-    const hospitalInfo = document.createElement('div');
-    hospitalInfo.style.background = '#F9FAFB';
-    hospitalInfo.style.border = '1px solid #E5E7EB';
-    hospitalInfo.style.borderRadius = '8px';
-    hospitalInfo.style.padding = '12px 16px';
-    hospitalInfo.style.marginBottom = '20px';
-    hospitalInfo.style.display = 'flex';
-    hospitalInfo.style.justifyContent = 'space-between';
-    hospitalInfo.style.alignItems = 'center';
+    const dateLabel = document.createElement('label');
+    dateLabel.style.display = 'block';
+    dateLabel.style.fontSize = '14px';
+    dateLabel.style.fontWeight = '600';
+    dateLabel.style.color = '#374151';
+    dateLabel.style.marginBottom = '6px';
+    dateLabel.textContent = '📅 1. Select Appointment Date *';
+    dateGroup.appendChild(dateLabel);
 
-    const hospitalText = document.createElement('div');
-    hospitalText.innerHTML = `
-        <span style="font-size: 12px; color: #6B7280; font-weight: 600;">Hospital:</span>
-        <span style="font-size: 14px; color: #111827; font-weight: 600; margin-left: 8px;">${hospName}</span>
-    `;
-    hospitalInfo.appendChild(hospitalText);
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.id = 'step2DatePicker';
+    dateInput.className = 'form-input';
+    dateInput.style.width = '100%';
+    dateInput.style.padding = '10px 14px';
+    dateInput.style.border = '1px solid #D1D5DB';
+    dateInput.style.borderRadius = '8px';
+    dateInput.style.fontSize = '14px';
 
-    const changeHospitalBtn = document.createElement('button');
-    changeHospitalBtn.type = 'button';
-    changeHospitalBtn.style.background = 'none';
-    changeHospitalBtn.style.border = 'none';
-    changeHospitalBtn.style.color = '#155DFC';
-    changeHospitalBtn.style.fontSize = '13px';
-    changeHospitalBtn.style.fontWeight = '600';
-    changeHospitalBtn.style.cursor = 'pointer';
-    changeHospitalBtn.style.padding = '4px 8px';
-    changeHospitalBtn.textContent = 'Change';
-    changeHospitalBtn.onclick = () => {
-        currentStep = 0;
-        renderBookingStep();
-    };
-    hospitalInfo.appendChild(changeHospitalBtn);
+    const todayStr = new Date().toISOString().split('T')[0];
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 30);
+    dateInput.min = todayStr;
+    dateInput.max = maxDate.toISOString().split('T')[0];
 
-    card.appendChild(hospitalInfo);
+    if (bookingData.date) {
+        dateInput.value = bookingData.date;
+    }
 
-    const deptLabel = document.createElement('p');
-    deptLabel.style.marginBottom = '24px';
-    deptLabel.style.fontSize = '14px';
-    deptLabel.style.color = '#374151';
-    deptLabel.innerHTML = `Speciality: <strong style="color:#155DFC;">${dept}</strong>`;
-    card.appendChild(deptLabel);
+    dateGroup.appendChild(dateInput);
+    card.appendChild(dateGroup);
 
-    // Calendar & Slots Container
-    const calContainer = document.createElement('div');
-    calContainer.className = 'calendar-container';
-    calContainer.style.display = 'grid';
-    calContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))';
-    calContainer.style.gap = '24px';
+    // Availability Alert Box
+    const alertBox = document.createElement('div');
+    alertBox.style.display = 'none';
+    alertBox.style.padding = '14px 16px';
+    alertBox.style.background = '#FEF2F2';
+    alertBox.style.border = '1px solid #FCA5A5';
+    alertBox.style.borderRadius = '8px';
+    alertBox.style.color = '#991B1B';
+    alertBox.style.fontSize = '13px';
+    alertBox.style.marginBottom = '20px';
+    card.appendChild(alertBox);
 
-    // ── Left: Calendar ──
-    const calBox = document.createElement('div');
-    calBox.className = 'date-section';
+    // 2. Doctor Selection Field
+    const docGroup = document.createElement('div');
+    docGroup.style.marginBottom = '20px';
 
-    const calHeader = document.createElement('div');
-    calHeader.className = 'calendar-header';
-    calHeader.style.display = 'flex';
-    calHeader.style.justifyContent = 'space-between';
-    calHeader.style.alignItems = 'center';
-    calHeader.style.marginBottom = '16px';
+    const docLabel = document.createElement('label');
+    docLabel.style.display = 'block';
+    docLabel.style.fontSize = '14px';
+    docLabel.style.fontWeight = '600';
+    docLabel.style.color = '#374151';
+    docLabel.style.marginBottom = '6px';
+    docLabel.textContent = '👨‍⚕️ 2. Select Available Doctor *';
+    docGroup.appendChild(docLabel);
 
-    const calTitle = document.createElement('h3');
-    calTitle.style.margin = '0';
-    calTitle.style.fontSize = '16px';
-    calTitle.style.fontWeight = '600';
-    calTitle.textContent = '📅 Select Date';
+    const docSelect = document.createElement('select');
+    docSelect.id = 'step2DoctorSelect';
+    docSelect.style.width = '100%';
+    docSelect.style.padding = '10px 14px';
+    docSelect.style.border = '1px solid #D1D5DB';
+    docSelect.style.borderRadius = '8px';
+    docSelect.style.fontSize = '14px';
+    docSelect.disabled = true;
+    docSelect.innerHTML = `<option value="">Select Date First...</option>`;
+    docGroup.appendChild(docSelect);
+    card.appendChild(docGroup);
 
-    const monthYearSelects = document.createElement('div');
-    monthYearSelects.style.display = 'flex';
-    monthYearSelects.style.gap = '8px';
+    // 3. Doctor Information Card Container
+    const doctorCardContainer = document.createElement('div');
+    doctorCardContainer.style.marginBottom = '20px';
+    card.appendChild(doctorCardContainer);
 
-    const monthSel = document.createElement('select');
-    monthSel.style.padding = '4px 8px';
-    monthSel.style.borderRadius = '6px';
-    monthSel.style.border = '1px solid #D1D5DB';
+    // 4. Time Slots Section
+    const slotGroup = document.createElement('div');
+    slotGroup.style.marginBottom = '24px';
 
-    const yearSel = document.createElement('select');
-    yearSel.style.padding = '4px 8px';
-    yearSel.style.borderRadius = '6px';
-    yearSel.style.border = '1px solid #D1D5DB';
+    const slotLabel = document.createElement('label');
+    slotLabel.style.display = 'block';
+    slotLabel.style.fontSize = '14px';
+    slotLabel.style.fontWeight = '600';
+    slotLabel.style.color = '#374151';
+    slotLabel.style.marginBottom = '8px';
+    slotLabel.textContent = '🕒 3. Available Time Slots *';
+    slotGroup.appendChild(slotLabel);
 
-    monthYearSelects.appendChild(monthSel);
-    monthYearSelects.appendChild(yearSel);
-    calHeader.appendChild(calTitle);
-    calHeader.appendChild(monthYearSelects);
-    calBox.appendChild(calHeader);
-
-    const gridEl = document.createElement('div');
-    gridEl.className = 'calendar-grid';
-    calBox.appendChild(gridEl);
-    calContainer.appendChild(calBox);
-
-    // ── Right: Time Slots ──
-    const slotBox = document.createElement('div');
-    slotBox.className = 'time-slots-container';
-
-    const slotTitle = document.createElement('h3');
-    slotTitle.style.margin = '0 0 16px 0';
-    slotTitle.style.fontSize = '16px';
-    slotTitle.style.fontWeight = '600';
-    slotTitle.textContent = '🕒 Select Time Slot';
-    slotBox.appendChild(slotTitle);
-
-    const slotsWrapper = document.createElement('div');
-    slotBox.appendChild(slotsWrapper);
-    calContainer.appendChild(slotBox);
-
-    card.appendChild(calContainer);
+    const slotsGrid = document.createElement('div');
+    slotsGrid.style.display = 'grid';
+    slotsGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(110px, 1fr))';
+    slotsGrid.style.gap = '10px';
+    slotGroup.appendChild(slotsGrid);
+    card.appendChild(slotGroup);
 
     // Actions
     const actions = document.createElement('div');
     actions.className = 'booking-actions';
-    actions.style.marginTop = '32px';
 
     const backBtn = document.createElement('button');
     backBtn.className = 'btn-back-booking';
-    backBtn.textContent = '← Back to Specialities';
+    backBtn.textContent = '← Back to Department';
     backBtn.onclick = () => {
         currentStep = 1;
         renderBookingStep();
@@ -790,10 +526,10 @@ function renderStep2(container) {
 
     const continueBtn = document.createElement('button');
     continueBtn.className = 'btn-continue';
-    continueBtn.disabled = !(bookingData.date && bookingData.time);
+    continueBtn.disabled = true;
     continueBtn.textContent = 'Continue';
     continueBtn.onclick = () => {
-        if (bookingData.date && bookingData.time) {
+        if (bookingData.date && bookingData.doctor && bookingData.time) {
             currentStep = 3;
             renderBookingStep();
         }
@@ -805,449 +541,228 @@ function renderStep2(container) {
 
     container.appendChild(card);
 
-    // Render Calendar & Slots Logic
-    const monthsList = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // ── Dynamic Availability & Slot Loading Handler ──────────────────────────
+    function handleDateChange() {
+        const dateVal = dateInput.value;
+        docSelect.innerHTML = `<option value="">Select Doctor...</option>`;
+        docSelect.disabled = true;
+        doctorCardContainer.replaceChildren();
+        slotsGrid.replaceChildren();
+        alertBox.style.display = 'none';
+        continueBtn.disabled = true;
 
-    const maxDate = new Date(today);
-    maxDate.setDate(maxDate.getDate() + 30);
+        if (!dateVal) return;
 
-    function updateMonthYearSelects() {
-        monthSel.replaceChildren();
-        yearSel.replaceChildren();
+        bookingData.date = dateVal;
+        const availableDocs = window.getAvailableDoctorsForDate(hosp ? hosp.id : 'apollo', dept, dateVal);
 
-        monthsList.forEach((m, i) => {
-            const opt = document.createElement('option');
-            opt.value = i;
-            opt.textContent = m;
-            if (i === calendarCurrentDate.getMonth()) opt.selected = true;
-            monthSel.appendChild(opt);
-        });
+        if (availableDocs && availableDocs.length > 0) {
+            docSelect.disabled = false;
+            availableDocs.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.id || d.name;
+                opt.textContent = `${d.name} — ${d.qualification} (${d.experience} yrs exp)`;
+                if (bookingData.doctor === d.name || bookingData.doctorId === d.id) {
+                    opt.selected = true;
+                }
+                docSelect.appendChild(opt);
+            });
 
-        const curYear = new Date().getFullYear();
-        [curYear, curYear + 1].forEach(y => {
-            const opt = document.createElement('option');
-            opt.value = y;
-            opt.textContent = y;
-            if (y === calendarCurrentDate.getFullYear()) opt.selected = true;
-            yearSel.appendChild(opt);
-        });
+            if (!bookingData.doctor || !availableDocs.some(d => d.name === bookingData.doctor || d.id === bookingData.doctorId)) {
+                bookingData.doctorId = availableDocs[0].id;
+                bookingData.doctor = availableDocs[0].name;
+            }
+            handleDoctorChange();
+        } else {
+            alertBox.textContent = "No doctors are available for this department on the selected date. Please choose another date.";
+            alertBox.style.display = "block";
+        }
     }
 
-    monthSel.onchange = () => {
-        calendarCurrentDate.setMonth(parseInt(monthSel.value));
-        renderCalendarGrid();
-    };
+    async function handleDoctorChange() {
+        const dateVal = dateInput.value;
+        const docVal = docSelect.value;
+        doctorCardContainer.replaceChildren();
+        slotsGrid.replaceChildren();
+        continueBtn.disabled = true;
 
-    yearSel.onchange = () => {
-        calendarCurrentDate.setFullYear(parseInt(yearSel.value));
-        renderCalendarGrid();
-    };
+        if (!dateVal || !docVal) return;
 
-    function renderCalendarGrid() {
-        updateMonthYearSelects();
-        gridEl.replaceChildren();
+        const availableDocs = window.getAvailableDoctorsForDate(hosp ? hosp.id : 'apollo', dept, dateVal);
+        const selectedDoc = availableDocs.find(d => (d.id && d.id === docVal) || d.name === docVal) || availableDocs[0];
 
-        const year = calendarCurrentDate.getFullYear();
-        const month = calendarCurrentDate.getMonth();
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        if (selectedDoc) {
+            bookingData.doctorId = selectedDoc.id;
+            bookingData.doctor = selectedDoc.name;
 
-        const weekdaysHeader = document.createElement('div');
-        weekdaysHeader.style.display = 'grid';
-        weekdaysHeader.style.gridTemplateColumns = 'repeat(7, 1fr)';
-        weekdaysHeader.style.textAlign = 'center';
-        weekdaysHeader.style.fontWeight = '600';
-        weekdaysHeader.style.fontSize = '12px';
-        weekdaysHeader.style.color = '#6B7280';
-        weekdaysHeader.style.marginBottom = '8px';
+            // Render Doctor Info Card (Requirement 14)
+            const dObj = new Date(dateVal);
+            const weekday = dObj.toLocaleDateString("en-US", { weekday: "long" });
 
-        ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(wd => {
-            const el = document.createElement('div');
-            el.textContent = wd;
-            weekdaysHeader.appendChild(el);
-        });
-        gridEl.appendChild(weekdaysHeader);
+            doctorCardContainer.innerHTML = `
+                <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <h4 style="color: #1E3A8A; font-size: 16px; font-weight: 700; margin: 0 0 4px 0;">👨‍⚕️ ${escapeHtml(selectedDoc.name)}</h4>
+                            <p style="color: #1D4ED8; font-size: 13px; font-weight: 600; margin: 0;">${escapeHtml(dept)} • ${escapeHtml(selectedDoc.qualification)}</p>
+                        </div>
+                        <span class="badge" style="background: #DBEAFE; color: #1E40AF; padding: 4px 8px; font-size: 11px; font-weight: 600; border-radius: 20px;">Available</span>
+                    </div>
+                    <div style="display: flex; gap: 16px; font-size: 12px; color: #4B5563; margin-top: 8px;">
+                        <span>⭐ <strong>${selectedDoc.experience} Yrs Exp</strong></span>
+                        <span>🏥 <strong>${escapeHtml(hospName)}</strong></span>
+                        <span>📅 <strong>${weekday}</strong></span>
+                    </div>
+                </div>
+            `;
 
-        const daysGrid = document.createElement('div');
-        daysGrid.style.display = 'grid';
-        daysGrid.style.gridTemplateColumns = 'repeat(7, 1fr)';
-        daysGrid.style.gap = '4px';
+            // Query booked slots for this doctor on this date
+            const bookedSlots = await getBookedSlotsForDoctor(hosp ? hosp.id : 'apollo', selectedDoc.name, dateVal);
 
-        for (let i = 0; i < firstDay; i++) {
-            const empty = document.createElement('div');
-            daysGrid.appendChild(empty);
-        }
+            // Load Slots Grid
+            const slots = window.getSlotsForDoctor(hosp ? hosp.id : 'apollo', dept, docVal, dateVal);
+            if (slots && slots.length > 0) {
+                let availableCount = 0;
 
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dateObj = new Date(year, month, d);
-            dateObj.setHours(0, 0, 0, 0);
+                slots.forEach(s => {
+                    const isBooked = bookedSlots.has(s);
+                    const isSelected = bookingData.time === s && !isBooked;
 
-            const isPast = dateObj < today;
-            const isBeyond30 = dateObj > maxDate;
-            const isDisabled = isPast || isBeyond30;
+                    const slotBtn = document.createElement('button');
+                    slotBtn.type = 'button';
+                    slotBtn.style.padding = '8px 12px';
+                    slotBtn.style.borderRadius = '6px';
+                    slotBtn.style.fontWeight = '600';
+                    slotBtn.style.fontSize = '13px';
+                    slotBtn.style.transition = 'all 0.2s';
 
-            const dateStr = `${monthsList[month]} ${d < 10 ? '0' + d : d}, ${year}`;
-            const isSelected = bookingData.date === dateStr;
+                    if (isBooked) {
+                        // Slot is already booked -> disable and mark Booked
+                        slotBtn.disabled = true;
+                        slotBtn.style.border = '1px solid #E5E7EB';
+                        slotBtn.style.background = '#F3F4F6';
+                        slotBtn.style.color = '#9CA3AF';
+                        slotBtn.style.cursor = 'not-allowed';
+                        slotBtn.title = 'This slot has already been booked by another patient';
+                        slotBtn.innerHTML = `<span style="text-decoration: line-through;">${s}</span><span style="display:block; font-size:10px; color:#DC2626; font-weight:700;">Booked</span>`;
+                    } else {
+                        availableCount++;
+                        slotBtn.style.border = isSelected ? '2px solid #155DFC' : '1px solid #D1D5DB';
+                        slotBtn.style.background = isSelected ? '#155DFC' : '#FFFFFF';
+                        slotBtn.style.color = isSelected ? '#FFFFFF' : '#1F2937';
+                        slotBtn.style.cursor = 'pointer';
+                        slotBtn.textContent = s;
 
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.textContent = d;
-            btn.style.padding = '8px 0';
-            btn.style.borderRadius = '6px';
-            btn.style.border = '1px solid ' + (isSelected ? '#155DFC' : '#E5E7EB');
-            btn.style.background = isSelected ? '#155DFC' : (isDisabled ? '#F3F4F6' : '#FFFFFF');
-            btn.style.color = isSelected ? '#FFFFFF' : (isDisabled ? '#9CA3AF' : '#1F2937');
-            btn.style.cursor = isDisabled ? 'not-allowed' : 'pointer';
-            btn.style.fontWeight = isSelected ? '700' : '500';
-            btn.disabled = isDisabled;
+                        slotBtn.onclick = () => {
+                            slotsGrid.querySelectorAll('button:not(:disabled)').forEach(b => {
+                                b.style.border = '1px solid #D1D5DB';
+                                b.style.background = '#FFFFFF';
+                                b.style.color = '#1F2937';
+                            });
+                            slotBtn.style.border = '2px solid #155DFC';
+                            slotBtn.style.background = '#155DFC';
+                            slotBtn.style.color = '#FFFFFF';
 
-            if (!isDisabled) {
-                btn.onclick = () => {
-                    daysGrid.querySelectorAll('button').forEach(b => {
-                        b.style.background = '#FFFFFF';
-                        b.style.color = '#1F2937';
-                        b.style.borderColor = '#E5E7EB';
-                    });
-                    btn.style.background = '#155DFC';
-                    btn.style.color = '#FFFFFF';
-                    btn.style.borderColor = '#155DFC';
+                            bookingData.time = s;
+                            continueBtn.disabled = false;
+                        };
+                    }
 
-                    bookingData.date = dateStr;
-                    // Reset selected time when date changes
+                    slotsGrid.appendChild(slotBtn);
+                });
+
+                if (availableCount === 0) {
+                    alertBox.textContent = `All time slots for ${selectedDoc.name} on this date are fully booked. Please choose another date or doctor.`;
+                    alertBox.style.display = 'block';
+                }
+
+                if (bookingData.time && slots.includes(bookingData.time) && !bookedSlots.has(bookingData.time)) {
+                    continueBtn.disabled = false;
+                } else if (bookingData.time && bookedSlots.has(bookingData.time)) {
                     bookingData.time = null;
                     continueBtn.disabled = true;
-
-                    renderTimeSlotsForDate(dateObj);
-                };
+                }
             }
-
-            daysGrid.appendChild(btn);
-        }
-
-        gridEl.appendChild(daysGrid);
-
-        // If date is already selected, render its slots
-        if (bookingData.date) {
-            const parts = bookingData.date.split(', ');
-            const mDay = parts[0].split(' ');
-            const mIdx = monthsList.indexOf(mDay[0]);
-            const dNum = parseInt(mDay[1]);
-            const yNum = parseInt(parts[1]);
-            const dObj = new Date(yNum, mIdx, dNum);
-            renderTimeSlotsForDate(dObj);
-        } else {
-            slotsWrapper.replaceChildren();
-            const prompt = document.createElement('div');
-            prompt.style.padding = '24px';
-            prompt.style.textAlign = 'center';
-            prompt.style.color = '#6B7280';
-            prompt.style.fontSize = '14px';
-            prompt.style.background = '#F9FAFB';
-            prompt.style.borderRadius = '8px';
-            prompt.textContent = 'Please select a date from the calendar to view available time slots.';
-            slotsWrapper.appendChild(prompt);
         }
     }
 
-    function renderTimeSlotsForDate(dateObj) {
-        slotsWrapper.replaceChildren();
+    dateInput.onchange = handleDateChange;
+    docSelect.onchange = handleDoctorChange;
 
-        const weekday = dateObj.getDay(); // 0 = Sun, 1 = Mon ... 6 = Sat
-        const avail = (hosp && hosp.availability) ? hosp.availability[dept] : null;
-
-        let allowedDays = [1, 2, 3, 4, 5, 6];
-        let configuredSlots = ["09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM"];
-
-        if (avail) {
-            if (Array.isArray(avail.days)) allowedDays = avail.days;
-            if (Array.isArray(avail.slots)) configuredSlots = avail.slots;
-        }
-
-        // Check if hospital speciality operates on this weekday
-        if (!allowedDays.includes(weekday)) {
-            const alertBox = document.createElement('div');
-            alertBox.style.padding = '20px';
-            alertBox.style.background = '#FEF2F2';
-            alertBox.style.border = '1px solid #FCA5A5';
-            alertBox.style.borderRadius = '8px';
-            alertBox.style.color = '#991B1B';
-            alertBox.style.fontSize = '14px';
-            alertBox.style.lineHeight = '1.5';
-            alertBox.textContent = 'No appointments are available for this speciality on the selected date. Please choose another date.';
-            slotsWrapper.appendChild(alertBox);
-            return;
-        }
-
-        // Filter past time slots if dateObj is TODAY
-        const now = new Date();
-        const isToday = dateObj.toDateString() === now.toDateString();
-
-        const validSlots = configuredSlots.filter(slotStr => {
-            if (!isToday) return true;
-
-            // Parse time string e.g. "09:30 AM" or "02:00 PM"
-            const match = slotStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-            if (!match) return true;
-
-            let h = parseInt(match[1]);
-            const m = parseInt(match[2]);
-            const mer = match[3].toUpperCase();
-
-            if (mer === 'PM' && h < 12) h += 12;
-            if (mer === 'AM' && h === 12) h = 0;
-
-            const slotTime = new Date(now);
-            slotTime.setHours(h, m, 0, 0);
-
-            return slotTime > now;
-        });
-
-        if (validSlots.length === 0) {
-            const alertBox = document.createElement('div');
-            alertBox.style.padding = '20px';
-            alertBox.style.background = '#FFFBEB';
-            alertBox.style.border = '1px solid #FCD34D';
-            alertBox.style.borderRadius = '8px';
-            alertBox.style.color = '#92400E';
-            alertBox.style.fontSize = '14px';
-            alertBox.textContent = 'All time slots for today have passed. Please select a future date.';
-            slotsWrapper.appendChild(alertBox);
-            return;
-        }
-
-        const slotsGrid = document.createElement('div');
-        slotsGrid.style.display = 'grid';
-        slotsGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(100px, 1fr))';
-        slotsGrid.style.gap = '10px';
-
-        validSlots.forEach(slotStr => {
-            const isSelected = bookingData.time === slotStr;
-            const sBtn = document.createElement('button');
-            sBtn.type = 'button';
-            sBtn.textContent = slotStr;
-            sBtn.style.padding = '10px 8px';
-            sBtn.style.borderRadius = '8px';
-            sBtn.style.border = '1px solid ' + (isSelected ? '#155DFC' : '#D1D5DB');
-            sBtn.style.background = isSelected ? '#EFF6FF' : '#FFFFFF';
-            sBtn.style.color = isSelected ? '#1D4ED8' : '#374151';
-            sBtn.style.fontWeight = isSelected ? '700' : '500';
-            sBtn.style.fontSize = '13px';
-            sBtn.style.cursor = 'pointer';
-
-            sBtn.onclick = () => {
-                slotsGrid.querySelectorAll('button').forEach(b => {
-                    b.style.background = '#FFFFFF';
-                    b.style.color = '#374151';
-                    b.style.borderColor = '#D1D5DB';
-                    b.style.fontWeight = '500';
-                });
-                sBtn.style.background = '#EFF6FF';
-                sBtn.style.color = '#1D4ED8';
-                sBtn.style.borderColor = '#155DFC';
-                sBtn.style.fontWeight = '700';
-
-                bookingData.time = slotStr;
-                continueBtn.disabled = !(bookingData.date && bookingData.time);
-            };
-
-            slotsGrid.appendChild(sBtn);
-        });
-
-        slotsWrapper.appendChild(slotsGrid);
+    if (dateInput.value) {
+        handleDateChange();
     }
-
-    renderCalendarGrid();
 }
 
-// ── Step 3: Patient Information & Confirmation ───────────────────────────────
-async function renderStep3(container) {
+// ── Step 3: Details & Confirmation Summary ───────────────────────────────────
+function renderStep3(container) {
     const hosp = bookingData.hospital;
     const hospName = hosp ? hosp.name : 'Hospital';
-    const hospAddr = hosp ? (hosp.address || `${hosp.city || ''} - ${hosp.pincode || ''}`) : '';
-
-    const store = getStore();
-    const activePatient = store ? (await store.getActivePatient() || {}) : {};
 
     container.replaceChildren();
 
-    // Header
     const header = document.createElement('div');
     header.className = 'booking-header';
-    const h1 = document.createElement('h1');
-    h1.textContent = `Book an Appointment — ${hospName}`;
-    const p = document.createElement('p');
-    p.textContent = `Review your details and confirm your appointment.`;
-    header.appendChild(h1);
-    header.appendChild(p);
+    header.innerHTML = `
+        <h1>Patient Details & Summary</h1>
+        <p>Review your appointment details before confirming.</p>
+    `;
     container.appendChild(header);
 
-    // Indicator
     const indWrap = document.createElement('div');
     indWrap.innerHTML = renderStepIndicator();
     container.appendChild(indWrap.firstElementChild);
 
-    // Card
     const card = document.createElement('div');
     card.className = 'booking-card';
 
-    const cardTitle = document.createElement('h2');
-    cardTitle.textContent = 'Patient Information & Confirmation';
-    card.appendChild(cardTitle);
+    const title = document.createElement('h2');
+    title.textContent = 'Appointment Summary';
+    card.appendChild(title);
 
-    // Hospital info with change option
-    const hospitalInfo = document.createElement('div');
-    hospitalInfo.style.background = '#F9FAFB';
-    hospitalInfo.style.border = '1px solid #E5E7EB';
-    hospitalInfo.style.borderRadius = '8px';
-    hospitalInfo.style.padding = '12px 16px';
-    hospitalInfo.style.marginBottom = '20px';
-    hospitalInfo.style.display = 'flex';
-    hospitalInfo.style.justifyContent = 'space-between';
-    hospitalInfo.style.alignItems = 'center';
-
-    const hospitalText = document.createElement('div');
-    hospitalText.innerHTML = `
-        <span style="font-size: 12px; color: #6B7280; font-weight: 600;">Hospital:</span>
-        <span style="font-size: 14px; color: #111827; font-weight: 600; margin-left: 8px;">${hospName}</span>
-    `;
-    hospitalInfo.appendChild(hospitalText);
-
-    const changeHospitalBtn = document.createElement('button');
-    changeHospitalBtn.type = 'button';
-    changeHospitalBtn.style.background = 'none';
-    changeHospitalBtn.style.border = 'none';
-    changeHospitalBtn.style.color = '#155DFC';
-    changeHospitalBtn.style.fontSize = '13px';
-    changeHospitalBtn.style.fontWeight = '600';
-    changeHospitalBtn.style.cursor = 'pointer';
-    changeHospitalBtn.style.padding = '4px 8px';
-    changeHospitalBtn.textContent = 'Change';
-    changeHospitalBtn.onclick = () => {
-        currentStep = 0;
-        renderBookingStep();
-    };
-    hospitalInfo.appendChild(changeHospitalBtn);
-
-    card.appendChild(hospitalInfo);
-
-    // Form
-    const form = document.createElement('form');
-    form.className = 'patient-form';
-    form.onsubmit = (e) => e.preventDefault();
-
-    // Name field
-    const nameGroup = document.createElement('div');
-    nameGroup.className = 'form-field';
-    const nameLabel = document.createElement('label');
-    nameLabel.textContent = 'Full Name *';
-    const nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.required = true;
-    nameInput.placeholder = 'Enter full name';
-    nameInput.value = activePatient.fullName || '';
-    nameGroup.appendChild(nameLabel);
-    nameGroup.appendChild(nameInput);
-    form.appendChild(nameGroup);
-
-    // Phone field
-    const phoneGroup = document.createElement('div');
-    phoneGroup.className = 'form-field';
-    const phoneLabel = document.createElement('label');
-    phoneLabel.textContent = 'Phone Number *';
-    const phoneInput = document.createElement('input');
-    phoneInput.type = 'tel';
-    phoneInput.required = true;
-    phoneInput.placeholder = 'Enter phone number';
-    phoneInput.value = activePatient.phone || '';
-    phoneGroup.appendChild(phoneLabel);
-    phoneGroup.appendChild(phoneInput);
-    form.appendChild(phoneGroup);
-
-    // Email field
-    const emailGroup = document.createElement('div');
-    emailGroup.className = 'form-field';
-    const emailLabel = document.createElement('label');
-    emailLabel.textContent = 'Email Address *';
-    const emailInput = document.createElement('input');
-    emailInput.type = 'email';
-    emailInput.required = true;
-    emailInput.placeholder = 'Enter email address';
-    emailInput.value = activePatient.email || '';
-    emailGroup.appendChild(emailLabel);
-    emailGroup.appendChild(emailInput);
-    form.appendChild(emailGroup);
-
-    // Reason field
-    const reasonGroup = document.createElement('div');
-    reasonGroup.className = 'form-field';
-    const reasonLabel = document.createElement('label');
-    reasonLabel.textContent = 'Reason for Visit (Optional)';
-    const reasonInput = document.createElement('textarea');
-    reasonInput.rows = 3;
-    reasonInput.placeholder = 'Describe your symptoms or reason for visit...';
-    reasonGroup.appendChild(reasonLabel);
-    reasonGroup.appendChild(reasonInput);
-    form.appendChild(reasonGroup);
-
-    card.appendChild(form);
-
-    // Summary Box
     const summaryBox = document.createElement('div');
-    summaryBox.className = 'appointment-summary';
-    summaryBox.style.marginTop = '24px';
+    summaryBox.style.background = '#F9FAFB';
+    summaryBox.style.border = '1px solid #E5E7EB';
+    summaryBox.style.borderRadius = '12px';
     summaryBox.style.padding = '20px';
-    summaryBox.style.background = '#F8FAFC';
-    summaryBox.style.border = '1px solid #E2E8F0';
-    summaryBox.style.borderRadius = '8px';
-
-    const sumHeader = document.createElement('h3');
-    sumHeader.style.margin = '0 0 12px 0';
-    sumHeader.style.fontSize = '16px';
-    sumHeader.style.fontWeight = '600';
-    sumHeader.textContent = 'Appointment Summary';
-    summaryBox.appendChild(sumHeader);
+    summaryBox.style.marginBottom = '24px';
 
     const items = [
         { label: 'Hospital', val: hospName },
-        { label: 'Address', val: hospAddr },
-        { label: 'Speciality', val: bookingData.department },
-        { label: 'Date', val: bookingData.date || 'Not selected' },
-        { label: 'Time', val: bookingData.time || 'Not selected' }
+        { label: 'Department', val: bookingData.department },
+        { label: 'Doctor', val: bookingData.doctor },
+        { label: 'Appointment Date', val: bookingData.date },
+        { label: 'Time Slot', val: bookingData.time }
     ];
 
     items.forEach(it => {
         const row = document.createElement('div');
         row.style.display = 'flex';
         row.style.justifyContent = 'space-between';
-        row.style.marginBottom = '6px';
+        row.style.marginBottom = '10px';
         row.style.fontSize = '14px';
 
         const lbl = document.createElement('span');
-        lbl.style.color = '#64748B';
+        lbl.style.color = '#6B7280';
         lbl.textContent = it.label + ':';
 
         const val = document.createElement('span');
-        val.style.fontWeight = '600';
-        val.style.color = '#1E293B';
-        val.textContent = it.val;
+        val.style.fontWeight = '700';
+        val.style.color = '#111827';
+        val.textContent = it.val || 'Not selected';
 
         row.appendChild(lbl);
         row.appendChild(val);
         summaryBox.appendChild(row);
     });
-
     card.appendChild(summaryBox);
 
-    // Actions
     const actions = document.createElement('div');
     actions.className = 'booking-actions';
-    actions.style.marginTop = '24px';
 
     const backBtn = document.createElement('button');
     backBtn.className = 'btn-back-booking';
-    backBtn.textContent = '← Back to Date & Time';
+    backBtn.textContent = '← Back to Date & Doctor';
     backBtn.onclick = () => {
         currentStep = 2;
         renderBookingStep();
@@ -1256,47 +771,44 @@ async function renderStep3(container) {
     const confirmBtn = document.createElement('button');
     confirmBtn.className = 'btn-continue';
     confirmBtn.textContent = 'Confirm Appointment';
-
     confirmBtn.onclick = async () => {
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
-
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Processing...';
 
         try {
+            // Guard: Check if slot was booked in the interim
+            const freshBookedSlots = await getBookedSlotsForDoctor(hosp ? hosp.id : 'apollo', bookingData.doctor, bookingData.date);
+            if (freshBookedSlots.has(bookingData.time)) {
+                alert(`The slot "${bookingData.time}" on ${bookingData.date} with ${bookingData.doctor} was just booked by another patient. Please select a different time slot.`);
+                currentStep = 2;
+                renderBookingStep();
+                return;
+            }
+
             const apptPayload = {
-                hospitalId: hosp ? hosp.id : '',
+                hospitalId: hosp ? hosp.id : 'apollo',
                 hospitalName: hospName,
                 department: bookingData.department,
-                doctor: bookingData.doctor || `Dr. ${bookingData.department || 'General'} Specialist`,
+                doctorId: bookingData.doctorId || '',
+                doctor: bookingData.doctor,
                 dateLabel: bookingData.date,
                 timeLabel: bookingData.time,
-                patientName: nameInput.value.trim(),
-                phone: phoneInput.value.trim(),
-                email: emailInput.value.trim(),
-                reason: reasonInput.value.trim()
+                patientName: 'Patient',
+                status: 'Confirmed'
             };
 
+            const store = getStore();
             let result = null;
             if (store && store.createAppointment) {
                 result = await store.createAppointment(apptPayload);
             }
 
             bookingData.lastToken = (result && result.token) ? result.token : ('APT-' + Math.floor(100000 + Math.random() * 900000));
-            bookingData.patientInfo = {
-                name: nameInput.value.trim(),
-                phone: phoneInput.value.trim(),
-                email: emailInput.value.trim()
-            };
-
             currentStep = 4;
-            renderBookingStep();
+            renderConfirmation(container);
         } catch (err) {
-            console.error("Error creating appointment:", err);
-            alert("Failed to book appointment. Please try again.");
+            console.error('Error confirming appointment:', err);
+            alert('Failed to confirm appointment. Please try again.');
             confirmBtn.disabled = false;
             confirmBtn.textContent = 'Confirm Appointment';
         }
@@ -1309,7 +821,7 @@ async function renderStep3(container) {
     container.appendChild(card);
 }
 
-// ── Step 4: Confirmation Screen ─────────────────────────────────────────────
+// ── Step 4: Confirmation Screen ───────────────────────────────────────────────
 function renderConfirmation(container) {
     const hosp = bookingData.hospital;
     const hospName = hosp ? hosp.name : 'Hospital';
@@ -1323,41 +835,43 @@ function renderConfirmation(container) {
     box.style.padding = '40px 24px';
     box.style.textAlign = 'center';
     box.style.maxWidth = '550px';
-    box.style.margin = '30px auto';
-    box.style.boxShadow = '0 10px 25px rgba(0,0,0,0.05)';
+    box.style.margin = '40px auto';
+    box.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
 
     const icon = document.createElement('div');
     icon.style.fontSize = '48px';
     icon.style.marginBottom = '16px';
-    icon.textContent = '✅';
+    icon.textContent = '🎉';
 
     const h2 = document.createElement('h2');
-    h2.style.margin = '0 0 8px 0';
+    h2.style.color = '#00A63E';
     h2.style.fontSize = '22px';
     h2.style.fontWeight = '700';
-    h2.style.color = '#111827';
+    h2.style.marginBottom = '8px';
     h2.textContent = 'Appointment Confirmed!';
 
     const pMsg = document.createElement('p');
-    pMsg.style.margin = '0 0 24px 0';
-    pMsg.style.fontSize = '14px';
     pMsg.style.color = '#4B5563';
-    pMsg.textContent = `Your appointment at ${hospName} has been successfully scheduled.`;
+    pMsg.style.fontSize = '14px';
+    pMsg.style.marginBottom = '24px';
+    pMsg.textContent = 'Your appointment has been successfully scheduled. Present your appointment token at the reception.';
 
     const summaryBox = document.createElement('div');
     summaryBox.style.background = '#F9FAFB';
     summaryBox.style.border = '1px solid #E5E7EB';
     summaryBox.style.borderRadius = '12px';
-    summaryBox.style.padding = '16px 20px';
+    summaryBox.style.padding = '20px';
+    summaryBox.style.marginBottom = '24px';
     summaryBox.style.textAlign = 'left';
-    summaryBox.style.marginBottom = '28px';
 
     const items = [
-        { label: 'Appointment Token', val: bookingData.lastToken || 'APT-2026-001' },
+        { label: 'Appointment Token', val: bookingData.lastToken || 'APT-1024' },
         { label: 'Hospital', val: hospName },
-        { label: 'Speciality', val: bookingData.department },
+        { label: 'Department', val: bookingData.department },
+        { label: 'Doctor', val: bookingData.doctor },
         { label: 'Date', val: bookingData.date },
-        { label: 'Time', val: bookingData.time }
+        { label: 'Time Slot', val: bookingData.time },
+        { label: 'Status', val: 'Confirmed' }
     ];
 
     items.forEach(it => {
@@ -1415,74 +929,10 @@ function renderConfirmation(container) {
 }
 
 // ── Store Appointments Renderer ──────────────────────────────────────────────
-const MOCK_DEFAULT_APPOINTMENTS = [
-    {
-        id: "APT-001",
-        patientId: "patient_default",
-        department: "Cardiology",
-        doctor: "Dr. Sarah Smith",
-        dateLabel: "March 15, 2026",
-        timeLabel: "10:00 AM",
-        token: "TKN-1234",
-        fee: 150,
-        status: "Confirmed",
-        reason: "Routine heart checkup"
-    },
-    {
-        id: "APT-002",
-        patientId: "patient_default",
-        department: "Orthopaedics",
-        doctor: "Dr. Vikram Patel",
-        dateLabel: "April 02, 2026",
-        timeLabel: "02:30 PM",
-        token: "TKN-5678",
-        fee: 200,
-        status: "Pending",
-        reason: "Severe knee pain consult"
-    },
-    {
-        id: "APT-003",
-        patientId: "patient_default",
-        department: "General Medicine",
-        doctor: "Dr. Anjali Desai",
-        dateLabel: "March 01, 2026",
-        timeLabel: "11:00 AM",
-        token: "TKN-9012",
-        fee: 100,
-        status: "Completed",
-        reason: "Annual physical exam"
-    },
-    {
-        id: "APT-004",
-        patientId: "patient_default",
-        department: "Neurology",
-        doctor: "Dr. Rajesh Khanna",
-        dateLabel: "April 18, 2026",
-        timeLabel: "04:15 PM",
-        token: "TKN-3344",
-        fee: 180,
-        status: "Confirmed",
-        reason: "Migraine follow-up consultation"
-    },
-    {
-        id: "APT-005",
-        patientId: "patient_default",
-        department: "Paediatrics",
-        doctor: "Dr. Priya Nair",
-        dateLabel: "February 12, 2026",
-        timeLabel: "09:30 AM",
-        token: "TKN-7788",
-        fee: 120,
-        status: "Completed",
-        reason: "Child wellness checkup"
-    }
-];
-
 async function renderAppointmentsFromStore() {
     let all = [];
     const store = getStore();
 
-    // Try backend API first
     try {
         if (window.NexCareAPI && window.NexCareAPI.Appointments) {
             const res = await window.NexCareAPI.Appointments.getAll();
@@ -1496,16 +946,13 @@ async function renderAppointmentsFromStore() {
         console.warn("API appointments fetch failed, falling back to local store:", e);
     }
 
-    // Fallback to NexCareStore / localStorage
     if (!all || all.length === 0) {
         if (store && typeof store.listAppointments === 'function') {
             all = store.listAppointments();
         }
     }
 
-    if (!all) {
-        all = [];
-    }
+    if (!all) all = [];
 
     const upcoming = all.filter(a => a.status !== 'Cancelled' && a.status !== 'Completed');
     const past = all.filter(a => a.status === 'Completed' || a.status === 'Cancelled');
@@ -1513,7 +960,7 @@ async function renderAppointmentsFromStore() {
     const upcomingCountEl = document.getElementById('upcomingCount');
     const completedCountEl = document.getElementById('completedCount');
     const totalCountEl = document.getElementById('totalCount');
-    
+
     if (upcomingCountEl) upcomingCountEl.textContent = String(upcoming.length);
     if (completedCountEl) completedCountEl.textContent = String(all.filter(a => a.status === 'Completed').length);
     if (totalCountEl) totalCountEl.textContent = String(all.length);
@@ -1531,16 +978,12 @@ async function renderAppointmentsFromStore() {
 
         upcomingList.innerHTML = upcoming.length
             ? upcoming.map(a => itemHtml(a, false)).join('')
-            : `<div class="appointment-item"><div class="appointment-details"><h3>No upcoming appointments</h3></div></div>`;
+            : `<div class="appointment-item"><div class="appointment-details"><h3>No upcoming appointments found</h3></div></div>`;
 
         pastList.innerHTML = past.length
             ? past.map(a => itemHtml(a, true)).join('')
-            : `<div class="appointment-item"><div class="appointment-details"><h3>No past appointments</h3></div></div>`;
+            : `<div class="appointment-item"><div class="appointment-details"><h3>No past appointments found</h3></div></div>`;
     }
-}
-
-function escapeHtml(str) {
-    return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
 function badgeClass(status) {
@@ -1554,16 +997,22 @@ function badgeClass(status) {
 function itemHtml(a, isPastList) {
     const status = escapeHtml(a.status);
     const dept = escapeHtml(a.department);
-    const hospital = escapeHtml(a.hospitalName || a.hospital || 'NexCare General Hospital');
+    const hospital = escapeHtml(a.hospitalName || a.hospital || 'NexCare Hospital');
     const doctor = escapeHtml(a.doctor && a.doctor.startsWith('Dr.') ? a.doctor : (a.doctorName || `Dr. ${a.department || 'General'} Specialist`));
     const date = escapeHtml(a.dateLabel);
     const time = escapeHtml(a.timeLabel);
     const id = escapeHtml(a.id);
+    const hospId = escapeHtml(a.hospitalId || 'apollo');
     const completedClass = a.status === 'Completed' ? ' completed' : '';
 
-    const primaryAction = a.status === 'Cancelled'
-        ? `<button class="btn-icon-action" onclick="deleteAppt('${id}')" title="Delete">❌</button>`
-        : `<button class="btn-icon-action" onclick="cancelAppt('${id}')" title="Cancel">🚫</button>`;
+    const actionsHtml = a.status === 'Confirmed' || a.status === 'Pending'
+        ? `
+            <button class="btn-outline-sm" style="padding: 6px 12px; font-size: 13px;" onclick="rescheduleAppt('${id}', '${hospId}', '${dept}', '${doctor}')">🔄 Reschedule</button>
+            <button class="btn-outline-sm" style="padding: 6px 12px; font-size: 13px; color: #DC2626; border-color: #FCA5A5;" onclick="cancelAppt('${id}')" title="Cancel">🚫 Cancel</button>
+          `
+        : a.status === 'Cancelled'
+        ? `<button class="btn-outline-sm" style="padding: 6px 12px; font-size: 13px; color: #DC2626;" onclick="deleteAppt('${id}')" title="Delete">❌ Delete</button>`
+        : `<span class="badge badge-completed">Completed</span>`;
 
     return `
         <div class="appointment-item${completedClass}">
@@ -1580,15 +1029,26 @@ function itemHtml(a, isPastList) {
                     <div class="info-item"><span>🕒 ${time}</span></div>
                 </div>
                 <div class="appointment-meta">
-                    <span class="token">Token: ${escapeHtml(a.token || a.id)}</span>
+                    <span class="token">Token / ID: ${escapeHtml(a.token || a.id)}</span>
                 </div>
             </div>
-            <div class="appointment-actions">
-                ${primaryAction}
+            <div class="appointment-actions" style="display: flex; gap: 8px; align-items: center;">
+                ${actionsHtml}
             </div>
         </div>
     `;
 }
+
+window.rescheduleAppt = function(id, hospId, dept, doctorName) {
+    const hospObj = window.getHospitalById(hospId);
+    bookingData.hospital = hospObj || null;
+    bookingData.department = dept || null;
+    bookingData.doctor = doctorName || null;
+    bookingData.date = null;
+    bookingData.time = null;
+
+    showBookingFlow();
+};
 
 window.cancelAppt = async function(id) {
     if (!confirm('Are you sure you want to cancel this appointment?')) return;

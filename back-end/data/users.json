@@ -110,8 +110,8 @@
   },
   {
     "id": "U005",
-    "name": "Dr. Sarah Smith",
-    "email": "sarah@nexcare.com",
+    "name": "Dr. Sunita Sharma",
+    "email": "sunita@nexcare.com",
     "role": "doctor",
     "dept": "Cardiology",
     "status": "Active",
@@ -438,5 +438,16 @@
     "status": "Active",
     "password": "Password123",
     "hospitalId": "H003"
+  },
+  {
+    "id": "UMTCJMTLL4ZC",
+    "name": "Test Patient",
+    "email": "patient@nexcare.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "scrypt$93602ebc345ba4293bf283c399d27f3e$21295e9f2035c4f4a835fa346c2cb3c9135bde2cf1ffa64efc597582bbc381791908940bd0539ee97ce46a8c1aeea4f2020e74f5f3c893a5db3dff173b12ddfd",
+    "patientId": "P001",
+    "city": "Bangalore",
+    "pincode": "560001"
   }
 ]
