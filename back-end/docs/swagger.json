@@ -1365,6 +1365,17 @@
         }
       }
     },
+    "/api/hospitals/review-queue": {
+      "get": {
+        "operationId": "HospitalsController_reviewQueue",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/hospitals/{id}": {
       "get": {
         "operationId": "HospitalsController_findById",
@@ -1437,6 +1448,26 @@
     "/api/hospitals/{id}/reject": {
       "patch": {
         "operationId": "HospitalsController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/regional-review": {
+      "patch": {
+        "operationId": "HospitalsController_regionalReview",
         "parameters": [
           {
             "name": "id",
@@ -4943,6 +4974,17 @@
             "type": "string",
             "example": "H001",
             "description": "Hospital the user belongs to"
+          },
+          "areas": {
+            "example": [
+              "Tirupati",
+              "Renigunta"
+            ],
+            "description": "Local areas assigned to a regional manager",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -5009,6 +5051,17 @@
             "type": "string",
             "example": "H001",
             "description": "Hospital the user belongs to"
+          },
+          "areas": {
+            "example": [
+              "Tirupati",
+              "Renigunta"
+            ],
+            "description": "Local areas assigned to a regional manager",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -5326,12 +5379,11 @@
           "dispatchedBy": {
             "type": "string",
             "example": "U002",
-            "description": "Staff ID who dispatched"
+            "description": "Staff ID who dispatched (optional - will be auto-filled from JWT token if not provided)"
           }
         },
         "required": [
-          "assignedTo",
-          "dispatchedBy"
+          "assignedTo"
         ]
       },
       "CreateAppointmentDto": {

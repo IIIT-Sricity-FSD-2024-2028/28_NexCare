@@ -35,6 +35,7 @@ async function loadAppointments() {
         }));
     } catch (err) {
         console.error('Failed to load appointments:', err);
+        alert('Failed to load appointments. Please check your connection and try again.');
         return [];
     }
 }

@@ -29,6 +29,7 @@ async function loadLeaves() {
         allLeaves = (res && res.success && Array.isArray(res.data)) ? res.data : [];
     } catch (error) {
         console.warn('Failed to load leaves from backend:', error);
+        alert('Failed to load leave requests. Please check your connection and try again.');
         allLeaves = [];
     }
     updateStatistics();
@@ -51,6 +52,7 @@ async function loadStaffDirectory() {
             (!hospitalId || !u.hospitalId || u.hospitalId === hospitalId)
         );
     } catch (error) {
+        alert('Failed to load staff directory. Please check your connection and try again.');
         console.warn('Failed to load staff directory:', error);
         staffDirectory = [];
     }

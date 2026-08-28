@@ -22,7 +22,7 @@ let HospitalsModule = class HospitalsModule {
     configure(consumer) {
         consumer
             .apply(lodger_middleware_1.HospitalAccessMiddleware)
-            .forRoutes({ path: 'hospitals/:id', method: common_1.RequestMethod.GET }, { path: 'hospitals/:id', method: common_1.RequestMethod.PUT }, { path: 'hospitals/:id/verify', method: common_1.RequestMethod.PATCH }, { path: 'hospitals/:id/reject', method: common_1.RequestMethod.PATCH }, { path: 'hospitals/:id/assign-manager', method: common_1.RequestMethod.PATCH }, { path: 'hospitals/:id/doctors', method: common_1.RequestMethod.GET }, { path: 'hospitals/:id/beds', method: common_1.RequestMethod.GET }, { path: 'hospitals/:id/inventory', method: common_1.RequestMethod.GET }, { path: 'hospitals/:id/ambulances', method: common_1.RequestMethod.GET });
+            .forRoutes({ path: 'hospitals/:id', method: common_1.RequestMethod.GET }, { path: 'hospitals/:id', method: common_1.RequestMethod.PUT }, { path: 'hospitals/:id/verify', method: common_1.RequestMethod.PATCH }, { path: 'hospitals/:id/reject', method: common_1.RequestMethod.PATCH }, { path: 'hospitals/:id/regional-review', method: common_1.RequestMethod.PATCH }, { path: 'hospitals/:id/assign-manager', method: common_1.RequestMethod.PATCH }, { path: 'hospitals/:id/doctors', method: common_1.RequestMethod.GET }, { path: 'hospitals/:id/beds', method: common_1.RequestMethod.GET }, { path: 'hospitals/:id/inventory', method: common_1.RequestMethod.GET }, { path: 'hospitals/:id/ambulances', method: common_1.RequestMethod.GET });
     }
 };
 exports.HospitalsModule = HospitalsModule;

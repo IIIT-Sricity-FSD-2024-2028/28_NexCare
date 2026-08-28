@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         allPatients = resp.data || [];
     } catch (err) {
         console.error('Failed to load patients:', err);
+        alert('Failed to load patients. Please check your connection and try again.');
         allPatients = [];
     }
 

@@ -1,5 +1,3 @@
-import { validateBillForm } from "./validation.js";
-
 // ---------------- API HELPER ----------------
 function apiGet(path) {
     const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
@@ -59,6 +57,7 @@ async function loadBills() {
         render();
     } catch (err) {
         console.error("Error loading bills:", err);
+        alert('Failed to load bills. Please check your connection and try again.');
         const table = document.getElementById("bills");
         if (table) table.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:#dc2626;">Failed to load bills. Backend may be offline.</td></tr>`;
     }

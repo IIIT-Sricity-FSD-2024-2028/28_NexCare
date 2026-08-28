@@ -204,8 +204,9 @@ export class AmbulanceController {
   @Patch(':id/dispatch')
   @ApiOperation({ summary: 'Dispatch an ambulance' })
   @ApiResponse({ status: 200, description: 'Ambulance dispatched successfully' })
-  async dispatch(@Param('id') id: string, @Body() dispatchDto: DispatchAmbulanceDto) {
-    return this.ambulanceService.dispatch(id, dispatchDto.assignedTo);
+  async dispatch(@Param('id') id: string, @Body() dispatchDto: DispatchAmbulanceDto, @Req() req: any) {
+    const dispatchedBy = req?.user?.id || dispatchDto.dispatchedBy;
+    return this.ambulanceService.dispatch(id, dispatchDto.assignedTo, dispatchedBy);
   }
 
   /**

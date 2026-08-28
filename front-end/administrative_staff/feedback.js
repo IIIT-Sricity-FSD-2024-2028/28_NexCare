@@ -35,6 +35,7 @@ async function loadFeedbacks() {
         return feedbackCache;
     } catch (err) {
         console.error('Failed to load feedback:', err);
+        alert('Failed to load feedback. Please check your connection and try again.');
         return [];
     }
 }

@@ -5,10 +5,11 @@ import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { ArrayUtil } from '../common/utils/array.util';
 import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest, AppointmentStats } from './interfaces/appointment.interface';
-import { AppointmentStatus } from '../common/interfaces/api-response.interface';
+import { AppointmentStatus, LeaveStatus } from '../common/interfaces/api-response.interface';
 
 import { SystemService } from '../system/system.service';
 import { PatientsService } from '../patients/patients.service';
+import { LeavesService } from '../leaves/leaves.service';
 
 /**
  * Appointments Service
@@ -20,6 +21,7 @@ export class AppointmentsService {
   constructor(
     private readonly systemService: SystemService,
     private readonly patientsService: PatientsService,
+    private readonly leavesService: LeavesService,
   ) {}
 
   /** Resolve a patient's display name, falling back to a placeholder. */
@@ -176,10 +178,72 @@ export class AppointmentsService {
   async create(appointmentData: CreateAppointmentRequest) {
     try {
       const appointments = this.loadAppointments();
-      
+
+      // Validate appointment date is not in the past
+      const appointmentDate = new Date(appointmentData.dateLabel);
+      if (isNaN(appointmentDate.getTime())) {
+        return ResponseUtil.error('Invalid date format');
+      }
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (appointmentDate < today) {
+        return ResponseUtil.error('Cannot book appointments in the past');
+      }
+
+      // Check for duplicate appointment (same patient, same doctor, same date/time)
+      const duplicate = appointments.find(apt =>
+        apt.patientId === appointmentData.patientId &&
+        apt.doctor === appointmentData.doctor &&
+        apt.dateLabel === appointmentData.dateLabel &&
+        apt.timeLabel === appointmentData.timeLabel &&
+        apt.status !== AppointmentStatus.CANCELLED &&
+        apt.status !== AppointmentStatus.COMPLETED
+      );
+      if (duplicate) {
+        return ResponseUtil.error('Appointment already exists for this patient with this doctor at the same time');
+      }
+
+      // Check for time slot conflict (same doctor, same date/time)
+      const timeConflict = appointments.find(apt =>
+        apt.doctor === appointmentData.doctor &&
+        apt.dateLabel === appointmentData.dateLabel &&
+        apt.timeLabel === appointmentData.timeLabel &&
+        apt.status !== AppointmentStatus.CANCELLED &&
+        apt.status !== AppointmentStatus.COMPLETED
+      );
+      if (timeConflict) {
+        return ResponseUtil.error('Time slot already booked for this doctor');
+      }
+
+      // Check doctor availability (not on leave)
+      if (appointmentData.doctor && appointmentData.doctor !== 'TBD') {
+        try {
+          const leavesRes: any = await this.leavesService.findAll(undefined, undefined, LeaveStatus.APPROVED);
+          if (leavesRes?.success && Array.isArray(leavesRes.data)) {
+            const doctorOnLeave = leavesRes.data.some((leave: any) => {
+              const leaveStart = new Date(leave.startDate);
+              const leaveEnd = new Date(leave.endDate);
+              const aptDate = new Date(appointmentData.dateLabel);
+              // Check if appointment date falls within leave period
+              return (
+                leave.doctorName === appointmentData.doctor &&
+                aptDate >= leaveStart &&
+                aptDate <= leaveEnd
+              );
+            });
+            if (doctorOnLeave) {
+              return ResponseUtil.error(`Doctor ${appointmentData.doctor} is on leave during this period`);
+            }
+          }
+        } catch (err) {
+          console.error('Error checking doctor leave status:', err);
+          // Continue with booking if leave check fails (non-blocking)
+        }
+      }
+
       // Generate new appointment ID
       const newAppointmentId = IdGenerator.generateAppointmentId();
-      
+
       // Generate token
       const token = IdGenerator.generateTokenId();
 
@@ -432,10 +496,14 @@ export class AppointmentsService {
         byDepartment[apt.department] = (byDepartment[apt.department] || 0) + 1;
       });
 
-      // Revenue from completed appointments
-      const revenue = appointments
+      // Revenue from completed appointments minus cancelled (refunded)
+      const completedRevenue = appointments
         .filter(a => a.status === AppointmentStatus.COMPLETED)
         .reduce((sum, apt) => sum + apt.fee, 0);
+      const cancelledRefunds = appointments
+        .filter(a => a.status === AppointmentStatus.CANCELLED)
+        .reduce((sum, apt) => sum + apt.fee, 0);
+      const revenue = completedRevenue - cancelledRefunds;
 
       const stats: AppointmentStats = {
         total: totalAppointments,

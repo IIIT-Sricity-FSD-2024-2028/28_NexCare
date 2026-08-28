@@ -82,6 +82,7 @@ async function loadData() {
 
     } catch (err) {
         console.error('Failed to load bed allocation data:', err);
+        alert('Failed to load bed data. Please check your connection and try again.');
     }
 }
 

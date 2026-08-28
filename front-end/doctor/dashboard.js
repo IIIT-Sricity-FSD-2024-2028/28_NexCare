@@ -4,6 +4,17 @@
 let allAppointments = [];
 let doctorProfile = null;
 
+// HTML escape helper to prevent XSS
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     initDoctorInfo();
     await loadAppointments();
@@ -103,10 +114,10 @@ function renderAppointments(list) {
     tbody.innerHTML = list.map(apt => {
         const dateStr = apt.appointmentDate ? new Date(apt.appointmentDate).toLocaleString() : (apt.dateLabel || apt.date || 'N/A');
         const statusBadge = getStatusBadge(apt.status);
-        const priorityBadge = apt.priority === 'Emergency' || apt.urgency === 'High' ? 
-            '<span class="badge badge-rejected">High</span>' : 
+        const priorityBadge = apt.priority === 'Emergency' || apt.urgency === 'High' ?
+            '<span class="badge badge-rejected">High</span>' :
             '<span class="badge badge-confirmed">Normal</span>';
-        const hospName = escapeHtml(apt.hospitalName || apt.hospital || (doctorProfile && doctorProfile.hospitalName) || 'NexCare AIIMS Super Speciality Hospital');
+        const hospName = escapeHtml(apt.hospitalName || apt.hospital || (doctorProfile?.hospitalName) || 'NexCare AIIMS Super Speciality Hospital');
 
         return `
             <tr>
@@ -142,11 +153,12 @@ function filterAppointments() {
     const statusVal = document.getElementById('statusFilter').value;
 
     const filtered = allAppointments.filter(apt => {
-        const matchesQuery = !query || 
+        const matchesQuery = !query ||
             (apt.emrToken && apt.emrToken.toLowerCase().includes(query)) ||
             (apt.patientName && apt.patientName.toLowerCase().includes(query)) ||
             (apt.id && apt.id.toLowerCase().includes(query));
-        const matchesStatus = !statusVal || apt.status === statusVal;
+        // Case-insensitive status comparison
+        const matchesStatus = !statusVal || (apt.status && apt.status.toUpperCase() === statusVal);
         return matchesQuery && matchesStatus;
     });
 
@@ -181,6 +193,7 @@ async function loadLeaves() {
         }
     } catch (err) {
         console.error('Failed to load leaves:', err);
+        alert('Failed to load leave requests. Please check your connection and try again.');
         tbody.innerHTML = '<tr><td colspan="4" class="loading-cell">No leave history found.</td></tr>';
     }
 }
@@ -220,12 +233,20 @@ async function handleLeaveSubmit(event) {
     const endDate = document.getElementById('endDate').value;
     const reason = document.getElementById('reason').value.trim();
 
+    // Validate doctor profile exists
+    if (!doctorProfile || !doctorProfile.id) {
+        alert('Doctor profile not found. Please log in again.');
+        btn.disabled = false;
+        btn.textContent = 'Submit Leave Request';
+        return;
+    }
+
     try {
         const payload = {
-            doctorId: doctorProfile ? doctorProfile.id : 'D001',
-            doctorName: doctorProfile ? doctorProfile.name : 'Dr. Sarah Smith',
-            department: doctorProfile ? doctorProfile.dept : 'Cardiology',
-            hospitalId: doctorProfile ? (doctorProfile.hospitalId || 'H001') : 'H001',
+            doctorId: doctorProfile.id,
+            doctorName: doctorProfile.name,
+            department: doctorProfile.dept || doctorProfile.department,
+            hospitalId: doctorProfile.hospitalId,
             leaveType,
             startDate,
             endDate,
@@ -252,11 +273,22 @@ async function handleLeaveSubmit(event) {
 
 function updateStats() {
     document.getElementById('statTotal').textContent = allAppointments.length;
-    
+
     const todayStr = new Date().toISOString().split('T')[0];
     const todayCount = allAppointments.filter(a => {
         const dateStr = a.appointmentDate || a.date;
-        return dateStr && String(dateStr).includes(todayStr);
+        if (!dateStr) return false;
+        // Handle various date formats (ISO, dateLabel, etc.)
+        try {
+            const aptDate = new Date(dateStr);
+            if (isNaN(aptDate.getTime())) {
+                // Fallback to string comparison for non-standard formats
+                return String(dateStr).includes(todayStr);
+            }
+            return aptDate.toISOString().split('T')[0] === todayStr;
+        } catch {
+            return String(dateStr).includes(todayStr);
+        }
     }).length;
 
     document.getElementById('statToday').textContent = todayCount;

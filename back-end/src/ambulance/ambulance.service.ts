@@ -46,8 +46,14 @@ export class AmbulanceService {
     try {
       const res: any = await this.patientsService.findById(patientId);
       if (res?.success && res.data?.fullName) return res.data.fullName;
-    } catch {
-      /* fall through */
+      // Log warning if patient not found but we have a supplied name
+      if (supplied) {
+        console.warn(`Patient ${patientId} not found in database, using supplied name: ${supplied}`);
+      } else {
+        console.error(`Patient ${patientId} not found in database and no supplied name provided`);
+      }
+    } catch (error) {
+      console.error(`Error resolving patient name for ${patientId}:`, error);
     }
     return supplied || `Patient ${patientId}`;
   }
@@ -80,6 +86,10 @@ export class AmbulanceService {
       const newRequestId = IdGenerator.generateAmbulanceId();
       const patientName = await this.resolvePatientName(requestData.patientId, requestData.patientName);
 
+      if (!requestData.hospitalId) {
+        return ResponseUtil.error('Hospital ID is required for ambulance request');
+      }
+
       const newRequest: AmbulanceRequest = {
         id: newRequestId,
         patientId: requestData.patientId,
@@ -88,7 +98,7 @@ export class AmbulanceService {
         contact: requestData.contact,
         notes: requestData.notes || '',
         status: AmbulanceStatus.PENDING,
-        hospitalId: requestData.hospitalId || 'H001',
+        hospitalId: requestData.hospitalId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -165,7 +175,7 @@ export class AmbulanceService {
     }
   }
 
-  async dispatch(id: string, assignedTo?: string) {
+  async dispatch(id: string, assignedTo?: string, dispatchedBy?: string) {
     try {
       const requests = this.store.load();
       const requestIndex = requests.findIndex(r => r.id === id);
@@ -176,10 +186,23 @@ export class AmbulanceService {
         return ResponseUtil.error('Cannot dispatch request that is not pending');
       }
 
+      if (!assignedTo) {
+        return ResponseUtil.error('Assigned staff ID is required for dispatch');
+      }
+
       requests[requestIndex].status = AmbulanceStatus.DISPATCHED;
-      requests[requestIndex].assignedTo = assignedTo || 'U003';
+      requests[requestIndex].assignedTo = assignedTo;
       requests[requestIndex].updatedAt = new Date().toISOString();
       this.store.save(requests);
+
+      this.systemService.createActivity({
+        userId: dispatchedBy || 'System',
+        action: 'Dispatch',
+        details: `Ambulance request ${id} dispatched to staff ${assignedTo} for ${request.patientName}`,
+        module: 'Ambulance',
+        severity: 'INFO',
+      });
+
       return ResponseUtil.updated('Ambulance dispatched successfully', requests[requestIndex]);
     } catch (error) {
       return ResponseUtil.serverError('Failed to dispatch ambulance');
@@ -193,8 +216,10 @@ export class AmbulanceService {
       if (requestIndex === -1) return ResponseUtil.notFound('Ambulance request', id);
 
       const request = requests[requestIndex];
-      if (request.status !== AmbulanceStatus.AT_HOSPITAL) {
-        return ResponseUtil.error('Cannot complete request that has not reached hospital');
+      // Allow completion from any active status (dispatched, en_route, picked_up, at_hospital)
+      const activeStatuses = [AmbulanceStatus.DISPATCHED, AmbulanceStatus.EN_ROUTE, AmbulanceStatus.PICKED_UP, AmbulanceStatus.AT_HOSPITAL];
+      if (!activeStatuses.includes(request.status)) {
+        return ResponseUtil.error('Cannot complete request that is not in active transport');
       }
 
       requests[requestIndex].status = AmbulanceStatus.COMPLETED;

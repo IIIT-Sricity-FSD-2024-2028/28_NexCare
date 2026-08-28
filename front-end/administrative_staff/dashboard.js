@@ -69,7 +69,11 @@ async function loadDashboardData() {
         }
 
         // 4. Pending Feedback (Replacing Critical Alerts)
-        const criticalAlerts = feedbacks.filter(f => f.status === 'Open' || !f.status).length;
+        // Check for multiple possible status values (Open, Pending, or undefined)
+        const criticalAlerts = feedbacks.filter(f => {
+            const status = (f.status || '').toLowerCase();
+            return status === 'open' || status === 'pending' || !f.status;
+        }).length;
         const alertsEl = document.getElementById('criticalAlertsCount');
         if (alertsEl) alertsEl.textContent = criticalAlerts;
         const alertsTrend = document.getElementById('alertsTrend');
