@@ -83,6 +83,17 @@ export class AmbulanceService {
   async create(requestData: CreateAmbulanceRequest & { hospitalId?: string }) {
     try {
       const requests = this.store.load();
+
+      // Check for duplicate active request for same patient
+      const duplicateRequest = requests.find(r =>
+        r.patientId === requestData.patientId &&
+        r.status !== AmbulanceStatus.COMPLETED &&
+        r.status !== AmbulanceStatus.CANCELLED
+      );
+      if (duplicateRequest) {
+        return ResponseUtil.error('Patient already has an active ambulance request');
+      }
+
       const newRequestId = IdGenerator.generateAmbulanceId();
       const patientName = await this.resolvePatientName(requestData.patientId, requestData.patientName);
 
@@ -190,6 +201,12 @@ export class AmbulanceService {
         return ResponseUtil.error('Assigned staff ID is required for dispatch');
       }
 
+      // Validate staff exists and is active (basic check - would need UsersService injection for full validation)
+      // For now, we'll do a basic non-empty check
+      if (!assignedTo || assignedTo.trim() === '') {
+        return ResponseUtil.error('Invalid staff ID provided');
+      }
+
       requests[requestIndex].status = AmbulanceStatus.DISPATCHED;
       requests[requestIndex].assignedTo = assignedTo;
       requests[requestIndex].updatedAt = new Date().toISOString();
@@ -264,6 +281,26 @@ export class AmbulanceService {
         [AmbulanceStatus.COMPLETED]: count(AmbulanceStatus.COMPLETED),
       };
 
+      // Calculate actual average response time (from creation to dispatch)
+      const dispatchedRequests = requests.filter(r => r.status !== AmbulanceStatus.PENDING && r.createdAt);
+      let totalResponseTime = 0;
+      let responseTimeCount = 0;
+
+      dispatchedRequests.forEach(req => {
+        if (req.createdAt) {
+          const created = new Date(req.createdAt).getTime();
+          // Use updatedAt as proxy for dispatch time if no specific dispatch timestamp
+          const dispatched = req.updatedAt ? new Date(req.updatedAt).getTime() : Date.now();
+          const responseMinutes = (dispatched - created) / (1000 * 60);
+          if (responseMinutes > 0 && responseMinutes < 1440) { // Only count reasonable times (< 24 hours)
+            totalResponseTime += responseMinutes;
+            responseTimeCount++;
+          }
+        }
+      });
+
+      const averageResponseTime = responseTimeCount > 0 ? Math.round(totalResponseTime / responseTimeCount) : 0;
+
       const stats: AmbulanceStats = {
         total: requests.length,
         pending: byStatus[AmbulanceStatus.PENDING],
@@ -272,7 +309,7 @@ export class AmbulanceService {
         pickedUp: byStatus[AmbulanceStatus.PICKED_UP],
         atHospital: byStatus[AmbulanceStatus.AT_HOSPITAL],
         completed: byStatus[AmbulanceStatus.COMPLETED],
-        averageResponseTime: 15,
+        averageResponseTime,
         byStatus,
       };
       return ResponseUtil.success('Ambulance statistics retrieved successfully', stats);

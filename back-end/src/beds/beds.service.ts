@@ -68,6 +68,12 @@ export class BedsService {
         return ResponseUtil.error('Bed ID already exists');
       }
 
+      // Ward capacity limit validation (max 50 beds per ward)
+      const wardBedsCount = beds.filter(b => b.ward === bedData.ward && b.hospitalId === (bedData.hospitalId || 'H001')).length;
+      if (wardBedsCount >= 50) {
+        return ResponseUtil.error('Ward capacity limit reached (maximum 50 beds per ward)');
+      }
+
       const newBed: Bed = {
         id: bedData.id,
         ward: bedData.ward,

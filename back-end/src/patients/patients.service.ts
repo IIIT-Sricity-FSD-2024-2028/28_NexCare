@@ -122,7 +122,23 @@ export class PatientsService {
   async create(patientData: CreatePatientRequest) {
     try {
       const patients = this.loadPatients();
-      
+
+      // Validate age
+      if (patientData.age !== undefined && patientData.age !== null) {
+        if (patientData.age < 0) {
+          return ResponseUtil.error('Age cannot be negative');
+        }
+        if (patientData.age > 150) {
+          return ResponseUtil.error('Age cannot exceed 150 years');
+        }
+      }
+
+      // Validate blood group
+      const validBloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown'];
+      if (patientData.bloodGroup && !validBloodGroups.includes(patientData.bloodGroup)) {
+        return ResponseUtil.error('Invalid blood group. Valid values: A+, A-, B+, B-, AB+, AB-, O+, O-');
+      }
+
       // Check if email already exists
       const existingPatient = patients.find(p => p.email.toLowerCase() === patientData.email.toLowerCase());
       if (existingPatient) {
@@ -189,9 +205,25 @@ export class PatientsService {
     try {
       const patients = this.loadPatients();
       const patientIndex = patients.findIndex(p => p.id === id);
-      
+
       if (patientIndex === -1) {
         return ResponseUtil.notFound('Patient', id);
+      }
+
+      // Validate age if being updated
+      if (updateData.age !== undefined && updateData.age !== null) {
+        if (updateData.age < 0) {
+          return ResponseUtil.error('Age cannot be negative');
+        }
+        if (updateData.age > 150) {
+          return ResponseUtil.error('Age cannot exceed 150 years');
+        }
+      }
+
+      // Validate blood group if being updated
+      const validBloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown'];
+      if (updateData.bloodGroup && !validBloodGroups.includes(updateData.bloodGroup)) {
+        return ResponseUtil.error('Invalid blood group. Valid values: A+, A-, B+, B-, AB+, AB-, O+, O-');
       }
 
       // Check if email is being updated and already exists
@@ -208,7 +240,7 @@ export class PatientsService {
         ...updateData,
         updatedAt: new Date().toISOString()
       };
-      
+
       this.savePatients(patients);
 
       // Log activity
