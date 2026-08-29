@@ -30,4 +30,14 @@ export class CreateAmbulanceRequestDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  // AmbulanceService.create rejects a request without a hospitalId, but this field
+  // was never declared here — so omitting it failed in the service and sending it
+  // failed the ValidationPipe. There was no payload that worked and the patient
+  // ambulance request was impossible to submit. Declared optional; the service
+  // remains the thing that enforces it.
+  @ApiPropertyOptional({ example: 'H001', description: 'Hospital the ambulance is dispatched from' })
+  @IsOptional()
+  @IsString()
+  hospitalId?: string;
 }

@@ -4588,6 +4588,252 @@
           }
         ]
       }
+    },
+    "/api/revenue/platform/overview": {
+      "get": {
+        "operationId": "RevenueController_platformOverview",
+        "summary": "Platform revenue overview — MRR, ARR, commission, per-hospital breakdown",
+        "parameters": [
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Platform revenue overview"
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/platform/trend": {
+      "get": {
+        "operationId": "RevenueController_platformTrend",
+        "summary": "Month-by-month platform revenue",
+        "parameters": [
+          {
+            "name": "months",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/plans": {
+      "get": {
+        "operationId": "RevenueController_findPlans",
+        "summary": "List subscription plans",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/plans/{id}": {
+      "patch": {
+        "operationId": "RevenueController_updatePlan",
+        "summary": "Update a subscription plan’s pricing",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/subscriptions": {
+      "get": {
+        "operationId": "RevenueController_findSubscriptions",
+        "summary": "List hospital subscriptions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/subscriptions/{hospitalId}": {
+      "patch": {
+        "operationId": "RevenueController_updateSubscription",
+        "summary": "Move a hospital onto a different plan, or change its status",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/hospital/{hospitalId}": {
+      "get": {
+        "operationId": "RevenueController_hospitalRevenue",
+        "summary": "A single hospital’s collections, outstanding and department split",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/my-hospitals/compare": {
+      "get": {
+        "operationId": "RevenueController_compareMyHospitals",
+        "summary": "Compare revenue across the hospitals the caller oversees",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
     }
   },
   "info": {
@@ -5293,6 +5539,11 @@
             "type": "string",
             "example": "Patient has chest pain",
             "description": "Additional notes"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the ambulance is dispatched from"
           }
         },
         "required": [
@@ -5426,6 +5677,16 @@
             "type": "string",
             "example": "Routine checkup",
             "description": "Reason for visit"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the appointment is booked at"
+          },
+          "hospitalName": {
+            "type": "string",
+            "example": "Apollo Health City",
+            "description": "Hospital name, denormalised for display"
           }
         },
         "required": [

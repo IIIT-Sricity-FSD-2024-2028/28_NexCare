@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ambulanceForm.addEventListener('submit', handleAmbulanceRequest);
     }
 
+    populateHospitalChoices();
     renderAmbulanceRequests();
 
     const tbody = document.querySelector('.status-table tbody');
@@ -92,9 +93,19 @@ function handleAmbulanceRequest(e) {
                     }
                 } catch(e) {}
                 
+                // The backend requires a hospital — an ambulance is dispatched from
+                // one, and the patient is brought there.
+                const hospitalSelect = document.getElementById('ambulanceHospital');
+                const hospitalId = hospitalSelect ? hospitalSelect.value : '';
+                if (!hospitalId) {
+                    alert('Please choose the hospital you want the ambulance from.');
+                    return;
+                }
+
                 window.NexCareAPI.Ambulance.createRequest({
                     patientId: patientId,
                     patientName: patientName,
+                    hospitalId: hospitalId,
                     pickupLocation: location,
                     contact: contact,
                     notes: notes || ''
@@ -317,4 +328,63 @@ function addRequestToTable(requestId, location, contact) {
     `;
     
     tbody.insertBefore(row, tbody.firstChild);
+}
+
+/**
+ * Fill the hospital picker on the ambulance form.
+ *
+ * Prefers hospitals in the patient's own city (the same "nearby" filter the rest
+ * of the patient portal uses) and falls back to the full verified list, so the
+ * form is never left unusable.
+ */
+async function populateHospitalChoices() {
+    const select = document.getElementById('ambulanceHospital');
+    if (!select || !window.NexCareAPI) return;
+
+    const city = getPatientCity();
+
+    try {
+        let hospitals = [];
+
+        if (city) {
+            const nearby = await window.NexCareAPI.Hospitals.getNearby(city);
+            if (nearby.success) hospitals = nearby.data || [];
+        }
+        if (!hospitals.length) {
+            const all = await window.NexCareAPI.Hospitals.getAll();
+            if (all.success) hospitals = all.data || [];
+        }
+
+        hospitals = hospitals.filter(h => (h.verificationStatus || 'verified') === 'verified');
+
+        if (!hospitals.length) {
+            select.innerHTML = '<option value="" disabled selected>No hospitals available</option>';
+            return;
+        }
+
+        select.innerHTML = hospitals
+            .map((h, i) => `<option value="${h.id}"${i === 0 ? ' selected' : ''}>${h.name}${h.city ? ' — ' + h.city : ''}</option>`)
+            .join('');
+    } catch (err) {
+        console.warn('Could not load hospitals for the ambulance form:', err);
+        select.innerHTML = '<option value="" disabled selected>Could not load hospitals</option>';
+    }
+}
+
+/** The signed-in patient's city, from the stored user or the JWT. */
+function getPatientCity() {
+    try {
+        const blob = sessionStorage.getItem('nexcare_user_data');
+        if (blob) {
+            const u = JSON.parse(blob);
+            if (u.city) return u.city;
+        }
+    } catch (e) { /* fall through to the token */ }
+    try {
+        const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+        if (!token) return null;
+        return JSON.parse(atob(token.split('.')[1])).city || null;
+    } catch (e) {
+        return null;
+    }
 }
