@@ -10,6 +10,9 @@ export interface Appointment {
   patientName: string;
   department: string;
   doctor: string;
+  /** Hospital the appointment belongs to — drives per-hospital revenue reporting. */
+  hospitalId?: string;
+  hospitalName?: string;
   dateLabel: string;
   timeLabel: string;
   token: string;
@@ -27,6 +30,8 @@ export interface CreateAppointmentRequest {
   patientId: string;
   department: string;
   doctor?: string;
+  hospitalId?: string;
+  hospitalName?: string;
   dateLabel: string;
   timeLabel: string;
   fee?: number;
@@ -39,6 +44,8 @@ export interface CreateAppointmentRequest {
 export interface UpdateAppointmentRequest {
   department?: string;
   doctor?: string;
+  hospitalId?: string;
+  hospitalName?: string;
   dateLabel?: string;
   timeLabel?: string;
   fee?: number;

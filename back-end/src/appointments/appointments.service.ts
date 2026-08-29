@@ -258,6 +258,8 @@ export class AppointmentsService {
         patientName,
         department: appointmentData.department,
         doctor: appointmentData.doctor || 'TBD',
+        hospitalId: appointmentData.hospitalId,
+        hospitalName: appointmentData.hospitalName,
         dateLabel: appointmentData.dateLabel,
         timeLabel: appointmentData.timeLabel,
         token,

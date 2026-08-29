@@ -1,0 +1,250 @@
+// Superuser — NexCare's own revenue model.
+//
+// This page is about what the PLATFORM earns from hospitals: subscription base
+// fees, per-bed overage, and commission on what each hospital collects. A
+// hospital's own patient billing is its revenue, not ours, and is shown in that
+// hospital's manager portal instead.
+
+let plans = [];
+let overview = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const user = getCurrentUser();
+    if (user) {
+        document.getElementById('userNameDisplay').textContent = user.name || 'Super User';
+    }
+    await load();
+});
+
+async function load() {
+    try {
+        const [planRes, overviewRes, trendRes] = await Promise.all([
+            window.NexCareAPI.Revenue.getPlans(),
+            window.NexCareAPI.Revenue.getPlatformOverview(),
+            window.NexCareAPI.Revenue.getPlatformTrend(6),
+        ]);
+
+        if (!planRes.success || !overviewRes.success) {
+            throw new Error(overviewRes.message || planRes.message || 'Failed to load revenue');
+        }
+
+        plans = planRes.data || [];
+        overview = overviewRes.data;
+
+        renderKpis(overview);
+        renderPlans(plans);
+        renderPlanMix(overview);
+        renderHospitals(overview);
+        renderTrend(trendRes.success ? (trendRes.data || []) : []);
+    } catch (err) {
+        console.error('Revenue load failed:', err);
+        document.getElementById('hospitalTableBody').innerHTML =
+            `<tr><td colspan="8" style="text-align:center;padding:24px;color:#DC2626;">
+                Could not load revenue data. Check that the backend is running.</td></tr>`;
+    }
+}
+
+// ── Rendering ───────────────────────────────────────────────────────────────
+
+function renderKpis(o) {
+    setText('kpiMrr', money(o.mrr));
+    setText('kpiArr', money(o.arr));
+    setText('kpiCommission', money(o.commissionRevenue));
+    setText('kpiSubs', o.activeSubscriptions);
+    setText('kpiArpa', money(o.averageRevenuePerHospital));
+
+    setText('kpiMrrSub', `${o.activeSubscriptions} hospitals billing monthly`);
+    setText('kpiCommissionSub', `on ${money(o.gatewayVolume)} collected`);
+    setText('kpiSubsSub', o.pendingActivations
+        ? `${o.pendingActivations} awaiting activation`
+        : 'all activated');
+}
+
+function renderPlans(list) {
+    const grid = document.getElementById('planGrid');
+    if (!list.length) {
+        grid.innerHTML = '<p class="muted">No plans configured.</p>';
+        return;
+    }
+    grid.innerHTML = list.map(p => `
+        <div class="plan-card">
+            <h3>${esc(p.name)}</h3>
+            <div class="muted">${esc(p.tagline || '')}</div>
+            <div class="price">${money(p.monthlyFee)}<span style="font-size:13px;color:#6B7280;font-weight:500;">/month</span></div>
+            <div class="muted">
+                includes ${p.includedBeds} beds &middot; ${money(p.perExtraBedFee)}/extra bed &middot;
+                ${(p.commissionRate * 100).toFixed(1)}% commission
+            </div>
+            <ul>${(p.features || []).map(f => `<li>${esc(f)}</li>`).join('')}</ul>
+            <div class="meta">
+                Up to ${p.maxStaffAccounts} staff accounts &middot; ${esc(p.supportSla)} support
+            </div>
+            <div class="meta" style="display:flex;gap:8px;align-items:center;">
+                <label for="fee-${esc(p.id)}" style="font-size:12px;">Monthly fee ₹</label>
+                <input id="fee-${esc(p.id)}" type="number" min="0" step="500" value="${p.monthlyFee}"
+                       style="width:110px;height:30px;border:1px solid #E5E7EB;border-radius:6px;padding:0 8px;font-size:12px;">
+                <button class="btn-sm" onclick="savePlanFee('${esc(p.id)}')"
+                        style="padding:6px 12px;font-size:12px;font-weight:600;border-radius:6px;border:1px solid #2563EB;background:#2563EB;color:#fff;cursor:pointer;">
+                    Save
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderPlanMix(o) {
+    const body = document.getElementById('planMixBody');
+    const rows = (o.byPlan || []).filter(p => p.hospitals > 0);
+    if (!rows.length) {
+        body.innerHTML = '<p class="muted">No active subscriptions.</p>';
+        return;
+    }
+    const max = Math.max(...rows.map(r => r.recurringRevenue), 1);
+    body.innerHTML = rows.map(r => `
+        <div class="bar-row">
+            <div class="name">${esc(r.planName)}<div class="muted">${r.hospitals} hospital${r.hospitals === 1 ? '' : 's'}</div></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${(r.recurringRevenue / max * 100).toFixed(1)}%"></div></div>
+            <div class="amt">${money(r.recurringRevenue)}<div class="muted">${r.share}%</div></div>
+        </div>
+    `).join('');
+}
+
+function renderTrend(trend) {
+    const body = document.getElementById('trendBody');
+    if (!trend.length) {
+        body.innerHTML = '<p class="muted">No trend data.</p>';
+        return;
+    }
+    const max = Math.max(...trend.map(t => t.total), 1);
+    body.innerHTML = `
+        <div style="display:flex;align-items:flex-end;gap:14px;height:180px;padding-top:8px;">
+            ${trend.map(t => `
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
+                    <div style="font-size:11px;color:#111827;font-weight:600;margin-bottom:6px;">${money(t.total)}</div>
+                    <div title="recurring ${money(t.recurring)} + commission ${money(t.commission)}"
+                         style="width:100%;max-width:56px;height:${(t.total / max * 100).toFixed(1)}%;
+                                background:linear-gradient(180deg,#2563EB,#0EA5E9);border-radius:6px 6px 0 0;min-height:6px;"></div>
+                    <div style="font-size:11px;color:#6B7280;margin-top:8px;">${esc(t.month)}</div>
+                </div>
+            `).join('')}
+        </div>
+        <p class="muted" style="margin-top:12px;">
+            Commission is the variable part — it tracks what hospitals actually collected that month.
+        </p>`;
+}
+
+function renderHospitals(o) {
+    const tbody = document.getElementById('hospitalTableBody');
+    const rows = o.byHospital || [];
+    if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="muted" style="text-align:center;padding:24px;">No subscriptions yet.</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = rows.map(h => `
+        <tr>
+            <td>
+                ${esc(h.hospitalName)}
+                <div class="muted">${esc(h.hospitalId)} &middot; ${h.contractedBeds} beds</div>
+            </td>
+            <td>
+                <select class="plan-select" onchange="changePlan('${esc(h.hospitalId)}', this.value, this)">
+                    ${plans.map(p => `<option value="${esc(p.id)}" ${p.id === h.planId ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}
+                </select>
+            </td>
+            <td><span class="pill ${esc(h.status)}">${esc(String(h.status).replace(/_/g, ' '))}</span></td>
+            <td class="num">${money(h.baseFee)}</td>
+            <td class="num">${h.bedOverageFee ? money(h.bedOverageFee) : '<span class="muted">—</span>'}</td>
+            <td class="num muted">${money(h.collections)}</td>
+            <td class="num">${money(h.commission)}</td>
+            <td class="num" style="font-weight:700;">${money(h.platformRevenue)}</td>
+        </tr>
+    `).join('');
+}
+
+// ── Actions ─────────────────────────────────────────────────────────────────
+
+async function changePlan(hospitalId, planId, selectEl) {
+    const previous = (overview.byHospital.find(h => h.hospitalId === hospitalId) || {}).planId;
+    if (planId === previous) return;
+
+    try {
+        const res = await window.NexCareAPI.Revenue.updateSubscription(hospitalId, { planId });
+        if (!res.success) {
+            selectEl.value = previous;
+            notify(res.message || 'Failed to change plan', 'error');
+            return;
+        }
+        notify('Plan updated — recalculating revenue', 'success');
+        await load();
+    } catch (err) {
+        console.error(err);
+        selectEl.value = previous;
+        notify('Failed to change plan', 'error');
+    }
+}
+
+async function savePlanFee(planId) {
+    const input = document.getElementById(`fee-${planId}`);
+    const monthlyFee = Number(input.value);
+    if (!Number.isFinite(monthlyFee) || monthlyFee < 0) {
+        notify('Enter a valid monthly fee', 'error');
+        return;
+    }
+    try {
+        const res = await window.NexCareAPI.Revenue.updatePlan(planId, { monthlyFee });
+        if (!res.success) {
+            notify(res.message || 'Failed to update plan', 'error');
+            return;
+        }
+        notify('Plan pricing updated', 'success');
+        await load();
+    } catch (err) {
+        console.error(err);
+        notify('Failed to update plan', 'error');
+    }
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+function money(value) {
+    const n = Number(value) || 0;
+    return '₹' + n.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+}
+
+function getCurrentUser() {
+    try {
+        const raw = sessionStorage.getItem('nexcare_user_data');
+        if (raw) return JSON.parse(raw);
+    } catch (e) { /* fall through to the token */ }
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    if (!token) return null;
+    try {
+        return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+        return null;
+    }
+}
+
+function notify(message, type = 'info') {
+    const n = document.createElement('div');
+    Object.assign(n.style, {
+        position: 'fixed', bottom: '20px', right: '20px', padding: '12px 20px',
+        borderRadius: '8px', color: '#FFFFFF', fontWeight: '600', fontSize: '14px',
+        zIndex: '99999', boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        background: type === 'success' ? '#10B981' : (type === 'error' ? '#EF4444' : '#3B82F6'),
+    });
+    n.textContent = message;
+    document.body.appendChild(n);
+    setTimeout(() => n.remove(), 3000);
+}

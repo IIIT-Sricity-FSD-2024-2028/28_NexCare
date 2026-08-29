@@ -11,7 +11,8 @@
     "fee": 150,
     "status": "Confirmed",
     "reason": "Routine heart checkup",
-    "createdAt": "2026-03-01T00:00:00Z"
+    "createdAt": "2026-03-01T00:00:00Z",
+    "hospitalId": "H001"
   },
   {
     "id": "APT-002",
@@ -25,7 +26,8 @@
     "fee": 200,
     "status": "Pending",
     "reason": "Severe knee pain - Emergency Consult",
-    "createdAt": "2026-03-25T00:00:00Z"
+    "createdAt": "2026-03-25T00:00:00Z",
+    "hospitalId": "H001"
   },
   {
     "id": "APT-003",
@@ -39,7 +41,8 @@
     "fee": 100,
     "status": "Completed",
     "reason": "Annual physical",
-    "createdAt": "2026-02-15T00:00:00Z"
+    "createdAt": "2026-02-15T00:00:00Z",
+    "hospitalId": "H001"
   },
   {
     "id": "APT-47778",
@@ -54,7 +57,8 @@
     "status": "Cancelled",
     "reason": "",
     "createdAt": "2026-05-05T17:17:42.380Z",
-    "updatedAt": "2026-05-05T17:48:00.316Z"
+    "updatedAt": "2026-05-05T17:48:00.316Z",
+    "hospitalId": "H001"
   },
   {
     "id": "APT-15009",
@@ -69,7 +73,8 @@
     "status": "Cancelled",
     "reason": "",
     "createdAt": "2026-05-05T17:31:16.841Z",
-    "updatedAt": "2026-05-05T17:47:17.130Z"
+    "updatedAt": "2026-05-05T17:47:17.130Z",
+    "hospitalId": "H002"
   },
   {
     "id": "APT-69449",
@@ -84,7 +89,8 @@
     "status": "Confirmed",
     "reason": "",
     "createdAt": "2026-05-05T18:29:27.687Z",
-    "updatedAt": "2026-05-05T18:29:27.688Z"
+    "updatedAt": "2026-05-05T18:29:27.688Z",
+    "hospitalId": "H003"
   },
   {
     "id": "APT-52893",
@@ -99,7 +105,8 @@
     "status": "Confirmed",
     "reason": "",
     "createdAt": "2026-05-05T20:04:23.560Z",
-    "updatedAt": "2026-05-05T20:04:23.560Z"
+    "updatedAt": "2026-05-05T20:04:23.560Z",
+    "hospitalId": "H001"
   },
   {
     "id": "APT-72432",
@@ -114,7 +121,8 @@
     "status": "Confirmed",
     "reason": "",
     "createdAt": "2026-05-05T20:20:23.736Z",
-    "updatedAt": "2026-05-05T20:20:23.736Z"
+    "updatedAt": "2026-05-05T20:20:23.736Z",
+    "hospitalId": "H001"
   },
   {
     "id": "APT-23091",
@@ -129,7 +137,8 @@
     "status": "Confirmed",
     "reason": "",
     "createdAt": "2026-05-05T20:21:17.108Z",
-    "updatedAt": "2026-05-05T20:21:17.108Z"
+    "updatedAt": "2026-05-05T20:21:17.108Z",
+    "hospitalId": "H003"
   },
   {
     "id": "APT-MT93KXG231W",
@@ -144,7 +153,8 @@
     "status": "Pending",
     "reason": "",
     "createdAt": "2026-08-25T20:08:28.754Z",
-    "updatedAt": "2026-08-25T20:08:28.754Z"
+    "updatedAt": "2026-08-25T20:08:28.754Z",
+    "hospitalId": "H001"
   },
   {
     "id": "APT-87567",
@@ -159,7 +169,8 @@
     "status": "Confirmed",
     "reason": "",
     "createdAt": "2026-08-26T05:43:08.625Z",
-    "updatedAt": "2026-08-26T05:43:08.625Z"
+    "updatedAt": "2026-08-26T05:43:08.625Z",
+    "hospitalId": "H001"
   },
   {
     "id": "APT-14073",
@@ -174,7 +185,8 @@
     "status": "Confirmed",
     "reason": "",
     "createdAt": "2026-08-26T08:39:22.106Z",
-    "updatedAt": "2026-08-26T08:39:22.106Z"
+    "updatedAt": "2026-08-26T08:39:22.106Z",
+    "hospitalId": "H001"
   },
   {
     "id": "APT-88576",
@@ -189,6 +201,7 @@
     "status": "Confirmed",
     "reason": "",
     "createdAt": "2026-08-27T06:14:23.797Z",
-    "updatedAt": "2026-08-27T06:14:23.797Z"
+    "updatedAt": "2026-08-27T06:14:23.797Z",
+    "hospitalId": "H001"
   }
 ]

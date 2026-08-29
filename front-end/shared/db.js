@@ -444,6 +444,9 @@ window.NexCareStore = {
                 // White-list fields for backend DTO validation
                 const payload = {
                     patientId,
+                    // hospitalId is what per-hospital revenue reporting keys on;
+                    // the name is kept alongside it purely for display.
+                    hospitalId: data.hospitalId || undefined,
                     hospitalName: data.hospitalName || "NexCare AIIMS Super Speciality Hospital",
                     department: data.department,
                     doctor: data.doctor || "Dr. Sarah Smith",

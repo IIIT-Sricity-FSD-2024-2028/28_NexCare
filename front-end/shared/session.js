@@ -33,10 +33,6 @@ function redirectByRole(role) {
             window.location.href = "/patient/dashboard.html";
             break;
 
-        case "doctor":
-            window.location.href = "/doctor/dashboard.html";
-            break;
-
         case "ambulance":
             // ambulance uses index.html, trailing slash avoids 301 redirect
             window.location.href = "/ambulance/";
@@ -147,8 +143,7 @@ function isPublicPage() {
         '/auth/superuser-login',
         '/auth/signup',
         '/landing/landing',
-        '/landing/hospital-registration',
-        '/hospital-registration/register'
+        '/landing/hospital-registration'
     ];
     return publicPaths.some(p => path.includes(p));
 }
@@ -190,7 +185,6 @@ function checkRoleAccess() {
         regional_manager:      '/regional-officer/',
         administrative_staff:  '/administrative_staff/',
         patient:               '/patient/',
-        doctor:                '/doctor/',
         ambulance:             '/ambulance/',
         hospital_manager:      '/hospital_manager/',
     };

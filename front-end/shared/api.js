@@ -600,6 +600,56 @@ const LeavesAPI = {
     }
 };
 
+
+// Revenue API
+// Two streams, deliberately separate: /platform/* is NexCare's own commercials
+// (superuser only), /hospital/:id is a hospital's own collections.
+const RevenueAPI = {
+    async getPlans() {
+        return await api.get('/revenue/plans');
+    },
+
+    async updatePlan(planId, changes) {
+        return await api.patch(`/revenue/plans/${encodeURIComponent(planId)}`, changes);
+    },
+
+    async getSubscriptions() {
+        return await api.get('/revenue/subscriptions');
+    },
+
+    async updateSubscription(hospitalId, changes) {
+        return await api.patch(`/revenue/subscriptions/${encodeURIComponent(hospitalId)}`, changes);
+    },
+
+    async getPlatformOverview(query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/platform/overview${s ? `?${s}` : ''}`);
+    },
+
+    async getPlatformTrend(months) {
+        return await api.get(`/revenue/platform/trend${months ? `?months=${months}` : ''}`);
+    },
+
+    async getHospitalRevenue(hospitalId, query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/hospital/${encodeURIComponent(hospitalId)}${s ? `?${s}` : ''}`);
+    },
+
+    async compareMyHospitals(query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/my-hospitals/compare${s ? `?${s}` : ''}`);
+    }
+};
+
 // Export all APIs as global window object for easy access
 /**
  * Build an in-app link that survives however the frontend is being served.
@@ -653,6 +703,7 @@ window.NexCareAPI = {
     Hospitals: HospitalsAPI,
     Leaves: LeavesAPI,
     SupportRequests: SupportRequestsAPI,
+    Revenue: RevenueAPI,
     System: SystemAPI
 };
 

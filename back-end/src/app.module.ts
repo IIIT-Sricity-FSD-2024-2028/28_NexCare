@@ -17,6 +17,7 @@ import { EquipmentModule } from './equipment/equipment.module';
 import { SupportRequestsModule } from './support-requests/support-requests.module';
 import { LeavesModule } from './leaves/leaves.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { RevenueModule } from './revenue/revenue.module';
 import { LoggingModule } from './common/logging/logging.module';
 import { AuthGuard } from './common/guards/auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -59,6 +60,7 @@ import { RequestLoggerMiddleware, SecurityMiddleware } from './lodger.middleware
     LeavesModule,
     UploadsModule,
     LoggingModule,
+    RevenueModule,
   ],
   providers: [
     // AuthGuard runs first — validates the JWT and populates request.user

@@ -61,6 +61,99 @@ function switchTab(tabName, event) {
         document.getElementById('supportTab').classList.add('active-tab');
         document.getElementById('pageTitle').textContent = 'Support Requests';
         document.getElementById('pageSubtitle').textContent = 'Handle patient and staff support requests';
+    } else if (tabName === 'revenue') {
+        document.querySelector('a[href="#revenue"]').classList.add('active');
+        document.getElementById('revenueTab').classList.add('active-tab');
+        document.getElementById('pageTitle').textContent = 'Revenue';
+        document.getElementById('pageSubtitle').textContent = 'Collections, outstanding bills and platform charges';
+        loadRevenue();
+    }
+}
+
+// ── Revenue ─────────────────────────────────────────────────────────────────
+// This hospital's OWN collections. What NexCare charges across all hospitals is
+// the platform's commercials and is only visible to the Admin.
+
+let revenueLoaded = false;
+
+async function loadRevenue() {
+    if (revenueLoaded) return;
+
+    const statsEl = document.getElementById('revenueStats');
+    const deptEl = document.getElementById('revenueDeptBody');
+    const platformEl = document.getElementById('revenuePlatformBody');
+
+    const hospitalId = getManagerHospitalId();
+    if (!hospitalId) {
+        deptEl.innerHTML = '<p style="color:#DC2626;">No hospital is linked to this account.</p>';
+        return;
+    }
+
+    const money = v => '₹' + (Number(v) || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+
+    try {
+        const res = await window.NexCareAPI.Revenue.getHospitalRevenue(hospitalId);
+        if (!res.success) throw new Error(res.message || 'Failed to load revenue');
+        const d = res.data;
+        revenueLoaded = true;
+
+        statsEl.innerHTML = `
+            <div class="stat-card"><div class="stat-label">Collected</div><div class="stat-value">${money(d.collected)}</div></div>
+            <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value">${money(d.outstanding)}</div></div>
+            <div class="stat-card"><div class="stat-label">Collection Rate</div><div class="stat-value">${d.collectionRate}%</div></div>
+            <div class="stat-card"><div class="stat-label">Bills Issued</div><div class="stat-value">${d.billsIssued}</div></div>`;
+
+        if (!d.byDepartment.length) {
+            deptEl.innerHTML = '<p>No collected revenue to break down yet.</p>';
+        } else {
+            const max = Math.max(...d.byDepartment.map(x => x.amount), 1);
+            deptEl.innerHTML = d.byDepartment.map(x => `
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                    <div style="width:150px;font-size:13px;">${x.department}</div>
+                    <div style="flex:1;height:20px;background:#F3F4F6;border-radius:6px;overflow:hidden;">
+                        <div style="height:100%;width:${(x.amount / max * 100).toFixed(1)}%;background:linear-gradient(90deg,#2563EB,#0EA5E9);"></div>
+                    </div>
+                    <div style="width:140px;text-align:right;font-size:13px;font-weight:600;">${money(x.amount)}
+                        <span style="color:#6B7280;font-weight:400;">${x.share}%</span></div>
+                </div>`).join('') +
+                `<div style="margin-top:16px;padding-top:14px;border-top:1px dashed #E5E7EB;font-size:12px;color:#6B7280;">
+                    Monthly: ${d.byMonth.map(m => `${m.month} ${money(m.collected)}`).join(' · ')}
+                 </div>`;
+        }
+
+        const pc = d.platformCharges;
+        platformEl.innerHTML = pc ? `
+            <p style="font-size:13px;margin-bottom:12px;">Subscription plan: <strong>${pc.planName}</strong></p>
+            <table class="data-table" style="width:100%;">
+                <tbody>
+                    <tr><td>Monthly base fee</td><td style="text-align:right;">${money(pc.baseFee)}</td></tr>
+                    <tr><td>Bed overage</td><td style="text-align:right;">${pc.bedOverageFee ? money(pc.bedOverageFee) : '—'}</td></tr>
+                    <tr><td>Commission on collections</td><td style="text-align:right;">${money(pc.commission)}</td></tr>
+                    <tr><td style="font-weight:700;">Total this cycle</td><td style="text-align:right;font-weight:700;">${money(pc.total)}</td></tr>
+                </tbody>
+            </table>` : '<p>No active subscription for this hospital.</p>';
+    } catch (err) {
+        console.error('Revenue load failed:', err);
+        deptEl.innerHTML = '<p style="color:#DC2626;">Could not load revenue data.</p>';
+        platformEl.innerHTML = '';
+    }
+}
+
+/** The hospital this manager belongs to, from the stored user or the JWT. */
+function getManagerHospitalId() {
+    try {
+        const raw = sessionStorage.getItem('nexcare_user_data');
+        if (raw) {
+            const u = JSON.parse(raw);
+            if (u.hospitalId) return u.hospitalId;
+        }
+    } catch (e) { /* fall through to the token */ }
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    if (!token) return null;
+    try {
+        return JSON.parse(atob(token.split('.')[1])).hospitalId || null;
+    } catch (e) {
+        return null;
     }
 }
 

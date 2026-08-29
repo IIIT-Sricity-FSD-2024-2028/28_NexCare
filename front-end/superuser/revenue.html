@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Model | Super User | NexCare</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="../shared/nav.css">
+    <style>
+        .page-body { padding: 24px; }
+        
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header-title { font-size: 16px; font-weight: 600; color: #101828; }
+        .header-user { display: flex; align-items: center; gap: 10px; }
+        .header-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: #2563EB; color: #FFFFFF;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 12px;
+        }
+        .header-user-name { font-size: 13px; font-weight: 600; color: #101828; margin: 0; }
+        .header-user-role { font-size: 11px; color: #6A7282; margin: 0; }
+
+        .page-header {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        .page-header h1 { margin: 0; font-size: 18px; font-weight: 700; color: #101828; }
+        .page-header p { margin: 4px 0 0; font-size: 13px; color: #6A7282; }
+
+        .tab-container {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6A7282;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover { background: #F3F4F6; }
+        .tab-btn.active { background: #2563EB; color: #FFFFFF; }
+
+        .report-section { display: none; }
+        .report-section.active { display: block; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease;
+        }
+        .stat-card:hover {
+            border-color: #155DFC;
+            box-shadow: 0 4px 12px rgba(21, 93, 252, 0.1);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6A7282;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #101828;
+            line-height: 1;
+        }
+        .stat-trend {
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 8px;
+            display: block;
+        }
+        .trend-up { color: #00A63E; }
+        .trend-down { color: #E7000B; }
+        .trend-neutral { color: #6A7282; }
+
+        .chart-container {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .chart-header h3 { margin: 0; font-size: 16px; font-weight: 700; color: #101828; }
+
+        .date-filter {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .date-filter select {
+            padding: 6px 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            font-size: 13px;
+            background: #FFFFFF;
+        }
+
+        .simple-bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            height: 200px;
+            padding: 20px 0;
+        }
+
+        .bar-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bar {
+            width: 100%;
+            background: #2563EB;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s ease;
+            min-height: 4px;
+        }
+        .bar:hover { background: #1D4ED8; }
+
+        .bar-label {
+            font-size: 11px;
+            color: #6A7282;
+            text-align: center;
+        }
+
+        .bar-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: #101828;
+        }
+
+        .data-table-container {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .table-header h3 { margin: 0; font-size: 16px; font-weight: 700; color: #101828; }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .performance-item {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .perf-label { font-size: 14px; font-weight: 500; color: #374151; }
+        .perf-value { font-size: 18px; font-weight: 700; color: #101828; }
+        .perf-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-good { background: #DCFCE7; color: #15803D; }
+        .status-warning { background: #FEF3C7; color: #D97706; }
+        .status-critical { background: #FEE2E2; color: #DC2626; }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: #6A7282;
+        }
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #DC2626;
+        }
+    </style>
+
+    <style>
+        /* Revenue-specific additions */
+        .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:24px; }
+        .kpi { background:#fff; border:1px solid #E5E7EB; border-radius:12px; padding:18px 20px; }
+        .kpi .label { font-size:12px; color:#6B7280; text-transform:uppercase; letter-spacing:.04em; font-weight:600; }
+        .kpi .value { font-size:26px; font-weight:700; color:#111827; margin-top:6px; }
+        .kpi .sub   { font-size:12px; color:#6B7280; margin-top:4px; }
+        .kpi.accent { background:linear-gradient(135deg,#2563EB 0%,#0EA5E9 100%); border:none; }
+        .kpi.accent .label, .kpi.accent .sub { color:rgba(255,255,255,.85); }
+        .kpi.accent .value { color:#fff; }
+
+        .panel { background:#fff; border:1px solid #E5E7EB; border-radius:12px; margin-bottom:24px; overflow:hidden; }
+        .panel-head { padding:16px 20px; border-bottom:1px solid #E5E7EB; display:flex; justify-content:space-between; align-items:center; }
+        .panel-head h2 { font-size:16px; font-weight:700; margin:0; color:#111827; }
+        .panel-head .hint { font-size:12px; color:#6B7280; }
+        .panel-body { padding:20px; }
+
+        table.rev { width:100%; border-collapse:collapse; }
+        table.rev th { text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.04em;
+                       color:#6B7280; font-weight:600; padding:10px 16px; background:#F9FAFB; border-bottom:1px solid #E5E7EB; }
+        table.rev td { padding:12px 16px; font-size:13px; border-bottom:1px solid #F3F4F6; color:#111827; }
+        table.rev tr:hover td { background:#F9FAFB; }
+        .num { text-align:right; font-variant-numeric:tabular-nums; }
+        .muted { color:#6B7280; font-size:12px; }
+
+        .plan-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+        .plan-card { border:1px solid #E5E7EB; border-radius:12px; padding:20px; background:#fff; }
+        .plan-card h3 { margin:0 0 2px 0; font-size:18px; color:#111827; }
+        .plan-card .price { font-size:24px; font-weight:700; color:#2563EB; margin:10px 0 2px; }
+        .plan-card ul { margin:12px 0 0; padding-left:18px; color:#374151; font-size:12px; line-height:1.7; }
+        .plan-card .meta { font-size:12px; color:#6B7280; margin-top:10px; padding-top:10px; border-top:1px dashed #E5E7EB; }
+
+        .bar-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+        .bar-row .name { width:150px; font-size:12px; color:#374151; }
+        .bar-track { flex:1; height:22px; background:#F3F4F6; border-radius:6px; overflow:hidden; }
+        .bar-fill { height:100%; background:linear-gradient(90deg,#2563EB,#0EA5E9); }
+        .bar-row .amt { width:110px; text-align:right; font-size:12px; font-variant-numeric:tabular-nums; color:#111827; font-weight:600; }
+
+        .pill { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:600; }
+        .pill.active { background:#DCFCE7; color:#15803D; }
+        .pill.pending_activation { background:#FEF3C7; color:#92400E; }
+        .pill.suspended, .pill.cancelled { background:#FEE2E2; color:#991B1B; }
+        select.plan-select { height:30px; border:1px solid #E5E7EB; border-radius:6px; font-size:12px; padding:0 8px; background:#fff; }
+        .note { background:#EFF6FF; border:1px solid #BFDBFE; color:#1E40AF; border-radius:10px;
+                padding:12px 16px; font-size:13px; margin-bottom:20px; line-height:1.55; }
+    </style>
+
+</head>
+<body>
+
+    <main class="main-content">
+        <header class="header">
+            <span class="header-title">Revenue Model</span>
+            <div class="header-user">
+                <div class="header-avatar">SU</div>
+                <div>
+                    <p class="header-user-name" id="userNameDisplay">Super User</p>
+                    <p class="header-user-role">System Administrator</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-body">
+
+            <div class="note">
+                <strong>NexCare earns from hospitals, not from patients.</strong>
+                Each hospital subscribes to a plan — a monthly base fee, a per-bed charge above
+                the plan's allowance, and a commission on what the hospital collects through
+                NexCare billing. Patient billing itself is the <em>hospital's</em> revenue and is
+                shown to that hospital's manager, not here.
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi accent">
+                    <p class="label">Monthly Recurring Revenue</p>
+                    <p class="value" id="kpiMrr">—</p>
+                    <p class="sub" id="kpiMrrSub">base fees + bed overage</p>
+                </div>
+                <div class="kpi">
+                    <p class="label">Annual Run Rate</p>
+                    <p class="value" id="kpiArr">—</p>
+                    <p class="sub">MRR &times; 12</p>
+                </div>
+                <div class="kpi">
+                    <p class="label">Commission Revenue</p>
+                    <p class="value" id="kpiCommission">—</p>
+                    <p class="sub" id="kpiCommissionSub">on hospital collections</p>
+                </div>
+                <div class="kpi">
+                    <p class="label">Active Subscriptions</p>
+                    <p class="value" id="kpiSubs">—</p>
+                    <p class="sub" id="kpiSubsSub">&nbsp;</p>
+                </div>
+                <div class="kpi">
+                    <p class="label">Avg Revenue / Hospital</p>
+                    <p class="value" id="kpiArpa">—</p>
+                    <p class="sub">per month</p>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head">
+                    <h2>Revenue trend</h2>
+                    <span class="hint">Recurring is flat by design; commission moves with hospital collections</span>
+                </div>
+                <div class="panel-body" id="trendBody">
+                    <p class="muted">Loading trend…</p>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head">
+                    <h2>Subscription plans</h2>
+                    <span class="hint">Editing a price changes what every hospital on that plan is billed</span>
+                </div>
+                <div class="panel-body">
+                    <div class="plan-grid" id="planGrid">
+                        <p class="muted">Loading plans…</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head">
+                    <h2>Revenue by plan</h2>
+                    <span class="hint">Share of monthly recurring revenue</span>
+                </div>
+                <div class="panel-body" id="planMixBody">
+                    <p class="muted">Loading…</p>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head">
+                    <h2>Revenue by hospital</h2>
+                    <span class="hint">Change a hospital's plan from here</span>
+                </div>
+                <table class="rev">
+                    <thead>
+                        <tr>
+                            <th>Hospital</th>
+                            <th>Plan</th>
+                            <th>Status</th>
+                            <th class="num">Base fee</th>
+                            <th class="num">Bed overage</th>
+                            <th class="num">Their collections</th>
+                            <th class="num">Our commission</th>
+                            <th class="num">Platform revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hospitalTableBody">
+                        <tr><td colspan="8" class="muted" style="text-align:center;padding:24px;">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script src="../shared/nav.js"></script>
+    <script src="../shared/db.js?v=5"></script>
+    <script src="../logo.js"></script>
+        <script>
+        // JWT-based early auth guard (runs before body renders, prevents flash)
+        (function () {
+            function decodeJWT(token) {
+                try {
+                    var parts = token.split('.');
+                    if (parts.length !== 3) return null;
+                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(json);
+                } catch(e) { return null; }
+            }
+            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            var payload = token ? decodeJWT(token) : null;
+            var now = Math.floor(Date.now() / 1000);
+            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'superuser') {
+                sessionStorage.clear();
+                window.location.replace('../auth/login.html');
+            }
+            // Sync legacy keys so other inline scripts don't break
+            if (payload) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('nexcare_current_role', payload.role);
+            }
+        })();
+    </script>
+    <script src="revenue.js?v=1"></script>
+</body>
+</html>

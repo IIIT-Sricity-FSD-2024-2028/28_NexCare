@@ -279,6 +279,7 @@ export class AmbulanceService {
         [AmbulanceStatus.PICKED_UP]: count(AmbulanceStatus.PICKED_UP),
         [AmbulanceStatus.AT_HOSPITAL]: count(AmbulanceStatus.AT_HOSPITAL),
         [AmbulanceStatus.COMPLETED]: count(AmbulanceStatus.COMPLETED),
+        [AmbulanceStatus.CANCELLED]: count(AmbulanceStatus.CANCELLED),
       };
 
       // Calculate actual average response time (from creation to dispatch)
@@ -347,12 +348,15 @@ export class AmbulanceService {
 
   private isValidStatusTransition(currentStatus: AmbulanceStatus, newStatus: AmbulanceStatus): boolean {
     const validTransitions: Record<AmbulanceStatus, AmbulanceStatus[]> = {
-      [AmbulanceStatus.PENDING]: [AmbulanceStatus.DISPATCHED],
-      [AmbulanceStatus.DISPATCHED]: [AmbulanceStatus.EN_ROUTE],
-      [AmbulanceStatus.EN_ROUTE]: [AmbulanceStatus.PICKED_UP],
+      // A trip can be called off at any point before pickup; once the patient is
+      // aboard it runs to completion. Completed and cancelled are both terminal.
+      [AmbulanceStatus.PENDING]: [AmbulanceStatus.DISPATCHED, AmbulanceStatus.CANCELLED],
+      [AmbulanceStatus.DISPATCHED]: [AmbulanceStatus.EN_ROUTE, AmbulanceStatus.CANCELLED],
+      [AmbulanceStatus.EN_ROUTE]: [AmbulanceStatus.PICKED_UP, AmbulanceStatus.CANCELLED],
       [AmbulanceStatus.PICKED_UP]: [AmbulanceStatus.AT_HOSPITAL],
       [AmbulanceStatus.AT_HOSPITAL]: [AmbulanceStatus.COMPLETED],
       [AmbulanceStatus.COMPLETED]: [],
+      [AmbulanceStatus.CANCELLED]: [],
     };
     return validTransitions[currentStatus]?.includes(newStatus) || false;
   }

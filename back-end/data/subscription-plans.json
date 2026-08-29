@@ -1,0 +1,62 @@
+[
+  {
+    "id": "PLAN-STARTER",
+    "name": "Starter",
+    "tagline": "Single-site clinics and small hospitals",
+    "monthlyFee": 15000,
+    "includedBeds": 50,
+    "perExtraBedFee": 120,
+    "commissionRate": 0.01,
+    "maxStaffAccounts": 15,
+    "supportSla": "48-hour email",
+    "features": [
+      "Appointments & queue",
+      "Bed allocation",
+      "Inventory",
+      "Patient billing",
+      "Email support"
+    ],
+    "status": "active",
+    "currency": "₹"
+  },
+  {
+    "id": "PLAN-PRO",
+    "name": "Professional",
+    "tagline": "Multi-speciality hospitals",
+    "monthlyFee": 40000,
+    "includedBeds": 150,
+    "perExtraBedFee": 100,
+    "commissionRate": 0.015,
+    "maxStaffAccounts": 60,
+    "supportSla": "12-hour priority",
+    "features": [
+      "Everything in Starter",
+      "Ambulance coordination",
+      "Staff rosters & leave",
+      "Regional reporting",
+      "Priority support"
+    ],
+    "status": "active",
+    "currency": "₹"
+  },
+  {
+    "id": "PLAN-ENTERPRISE",
+    "name": "Enterprise",
+    "tagline": "Super-speciality and hospital groups",
+    "monthlyFee": 75000,
+    "includedBeds": 300,
+    "perExtraBedFee": 80,
+    "commissionRate": 0.02,
+    "maxStaffAccounts": 250,
+    "supportSla": "4-hour dedicated",
+    "features": [
+      "Everything in Professional",
+      "Multi-hospital dashboards",
+      "Audit trails & compliance exports",
+      "Dedicated account manager",
+      "Custom integrations"
+    ],
+    "status": "active",
+    "currency": "₹"
+  }
+]

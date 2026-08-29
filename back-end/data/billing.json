@@ -27,7 +27,8 @@
         "createdAt": "2026-03-10T10:00:00Z"
       }
     ],
-    "createdAt": "2026-03-01T00:00:00Z"
+    "createdAt": "2026-03-01T00:00:00Z",
+    "hospitalId": "H001"
   },
   {
     "id": "BILL-002",
@@ -55,7 +56,8 @@
       }
     ],
     "payments": [],
-    "createdAt": "2026-04-02T00:00:00Z"
+    "createdAt": "2026-04-02T00:00:00Z",
+    "hospitalId": "H001"
   },
   {
     "id": "BILL-75807",
@@ -86,7 +88,8 @@
       }
     ],
     "createdAt": "2026-05-05T17:17:42.408Z",
-    "updatedAt": "2026-05-05T17:27:45.997Z"
+    "updatedAt": "2026-05-05T17:27:45.997Z",
+    "hospitalId": "H001"
   },
   {
     "id": "BILL-82462",
@@ -117,7 +120,8 @@
       }
     ],
     "createdAt": "2026-05-05T17:31:16.867Z",
-    "updatedAt": "2026-05-05T17:31:44.119Z"
+    "updatedAt": "2026-05-05T17:31:44.119Z",
+    "hospitalId": "H001"
   },
   {
     "id": "BILL-97716",
@@ -148,7 +152,8 @@
       }
     ],
     "createdAt": "2026-05-05T18:29:27.731Z",
-    "updatedAt": "2026-05-05T18:30:32.604Z"
+    "updatedAt": "2026-05-05T18:30:32.604Z",
+    "hospitalId": "H003"
   },
   {
     "id": "BILL-88167",
@@ -172,7 +177,8 @@
     ],
     "payments": [],
     "createdAt": "2026-05-05T19:54:37.549Z",
-    "updatedAt": "2026-05-05T19:54:37.549Z"
+    "updatedAt": "2026-05-05T19:54:37.549Z",
+    "hospitalId": "H001"
   },
   {
     "id": "BILL-18532",
@@ -196,7 +202,8 @@
     ],
     "payments": [],
     "createdAt": "2026-05-05T20:04:23.618Z",
-    "updatedAt": "2026-05-05T20:04:23.618Z"
+    "updatedAt": "2026-05-05T20:04:23.618Z",
+    "hospitalId": "H001"
   },
   {
     "id": "BILL-34734",
@@ -220,7 +227,8 @@
     ],
     "payments": [],
     "createdAt": "2026-05-05T20:20:23.781Z",
-    "updatedAt": "2026-05-05T20:20:23.781Z"
+    "updatedAt": "2026-05-05T20:20:23.781Z",
+    "hospitalId": "H001"
   },
   {
     "id": "BILL-14256",
@@ -244,6 +252,1576 @@
     ],
     "payments": [],
     "createdAt": "2026-05-05T20:21:17.151Z",
-    "updatedAt": "2026-05-05T20:21:17.151Z"
+    "updatedAt": "2026-05-05T20:21:17.151Z",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "BILL-100",
+    "patientId": "P007",
+    "hospitalId": "H001",
+    "visitDate": "14 May, 2026",
+    "dueDate": "28 May, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 12000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1080.0,
+    "sgstAmount": 1080.0,
+    "total": 14160.0,
+    "items": [
+      {
+        "description": "Day Care Procedure",
+        "department": "Surgery",
+        "amount": 12000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-100",
+        "amount": 14160.0,
+        "method": "CASH",
+        "createdAt": "2026-05-16T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-05-14T00:00:00Z"
+  },
+  {
+    "id": "BILL-101",
+    "patientId": "P008",
+    "hospitalId": "H002",
+    "visitDate": "19 April, 2026",
+    "dueDate": "3 May, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 90.0,
+    "sgstAmount": 90.0,
+    "total": 1180.0,
+    "items": [
+      {
+        "description": "Follow-up Consultation",
+        "department": "General Medicine",
+        "amount": 400
+      },
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-101",
+        "amount": 1180.0,
+        "method": "CARD",
+        "createdAt": "2026-04-20T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-04-19T00:00:00Z"
+  },
+  {
+    "id": "BILL-102",
+    "patientId": "P012",
+    "hospitalId": "H003",
+    "visitDate": "22 March, 2026",
+    "dueDate": "5 April, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1900,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 171.0,
+    "sgstAmount": 171.0,
+    "total": 2242.0,
+    "items": [
+      {
+        "description": "Follow-up Consultation",
+        "department": "General Medicine",
+        "amount": 400
+      },
+      {
+        "description": "Physiotherapy Session",
+        "department": "Physiotherapy",
+        "amount": 900
+      },
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-102",
+        "amount": 2242.0,
+        "method": "NETBANKING",
+        "createdAt": "2026-03-27T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-03-22T00:00:00Z"
+  },
+  {
+    "id": "BILL-103",
+    "patientId": "P011",
+    "hospitalId": "H001",
+    "visitDate": "15 March, 2026",
+    "dueDate": "29 March, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 600,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 54.0,
+    "sgstAmount": 54.0,
+    "total": 708.0,
+    "items": [
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-103",
+        "amount": 708.0,
+        "method": "UPI",
+        "createdAt": "2026-03-24T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-03-15T00:00:00Z"
+  },
+  {
+    "id": "BILL-104",
+    "patientId": "P005",
+    "hospitalId": "H003",
+    "visitDate": "25 April, 2026",
+    "dueDate": "9 May, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 16500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1485.0,
+    "sgstAmount": 1485.0,
+    "total": 19470.0,
+    "items": [
+      {
+        "description": "Day Care Procedure",
+        "department": "Surgery",
+        "amount": 12000
+      },
+      {
+        "description": "Diagnostic Package",
+        "department": "Radiology",
+        "amount": 4500
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-04-25T00:00:00Z"
+  },
+  {
+    "id": "BILL-105",
+    "patientId": "P003",
+    "hospitalId": "H003",
+    "visitDate": "17 August, 2026",
+    "dueDate": "31 August, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 13200,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1188.0,
+    "sgstAmount": 1188.0,
+    "total": 15576.0,
+    "items": [
+      {
+        "description": "Day Care Procedure",
+        "department": "Surgery",
+        "amount": 12000
+      },
+      {
+        "description": "Specialist Consultation",
+        "department": "Cardiology",
+        "amount": 1200
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-17T00:00:00Z"
+  },
+  {
+    "id": "BILL-106",
+    "patientId": "P009",
+    "hospitalId": "H001",
+    "visitDate": "2 July, 2026",
+    "dueDate": "16 July, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 6400,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 576.0,
+    "sgstAmount": 576.0,
+    "total": 7552.0,
+    "items": [
+      {
+        "description": "Follow-up Consultation",
+        "department": "General Medicine",
+        "amount": 400
+      },
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      },
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-07-02T00:00:00Z"
+  },
+  {
+    "id": "BILL-107",
+    "patientId": "P002",
+    "hospitalId": "H002",
+    "visitDate": "22 May, 2026",
+    "dueDate": "5 June, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 23500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 2115.0,
+    "sgstAmount": 2115.0,
+    "total": 27730.0,
+    "items": [
+      {
+        "description": "Health Check-up Package",
+        "department": "Preventive",
+        "amount": 3500
+      },
+      {
+        "description": "ICU Bed Charge (1 day)",
+        "department": "Critical Care",
+        "amount": 8000
+      },
+      {
+        "description": "Day Care Procedure",
+        "department": "Surgery",
+        "amount": 12000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-107",
+        "amount": 27730.0,
+        "method": "NETBANKING",
+        "createdAt": "2026-05-22T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-05-22T00:00:00Z"
+  },
+  {
+    "id": "BILL-108",
+    "patientId": "P015",
+    "hospitalId": "H002",
+    "visitDate": "24 July, 2026",
+    "dueDate": "7 August, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 19000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1710.0,
+    "sgstAmount": 1710.0,
+    "total": 22420.0,
+    "items": [
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency",
+        "amount": 2500
+      },
+      {
+        "description": "Day Care Procedure",
+        "department": "Surgery",
+        "amount": 12000
+      },
+      {
+        "description": "Diagnostic Package",
+        "department": "Radiology",
+        "amount": 4500
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-108",
+        "amount": 22420.0,
+        "method": "CASH",
+        "createdAt": "2026-08-01T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-07-24T00:00:00Z"
+  },
+  {
+    "id": "BILL-109",
+    "patientId": "P002",
+    "hospitalId": "H001",
+    "visitDate": "18 May, 2026",
+    "dueDate": "1 June, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 11500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1035.0,
+    "sgstAmount": 1035.0,
+    "total": 13570.0,
+    "items": [
+      {
+        "description": "Health Check-up Package",
+        "department": "Preventive",
+        "amount": 3500
+      },
+      {
+        "description": "ICU Bed Charge (1 day)",
+        "department": "Critical Care",
+        "amount": 8000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-109",
+        "amount": 13570.0,
+        "method": "CARD",
+        "createdAt": "2026-05-25T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-05-18T00:00:00Z"
+  },
+  {
+    "id": "BILL-110",
+    "patientId": "P010",
+    "hospitalId": "H002",
+    "visitDate": "30 April, 2026",
+    "dueDate": "14 May, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 6500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 585.0,
+    "sgstAmount": 585.0,
+    "total": 7670.0,
+    "items": [
+      {
+        "description": "Health Check-up Package",
+        "department": "Preventive",
+        "amount": 3500
+      },
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-04-30T00:00:00Z"
+  },
+  {
+    "id": "BILL-111",
+    "patientId": "P001",
+    "hospitalId": "H003",
+    "visitDate": "26 March, 2026",
+    "dueDate": "9 April, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 3400,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 306.0,
+    "sgstAmount": 306.0,
+    "total": 4012.0,
+    "items": [
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      },
+      {
+        "description": "Follow-up Consultation",
+        "department": "General Medicine",
+        "amount": 400
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-03-26T00:00:00Z"
+  },
+  {
+    "id": "BILL-112",
+    "patientId": "P011",
+    "hospitalId": "H002",
+    "visitDate": "9 August, 2026",
+    "dueDate": "23 August, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 3600,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 324.0,
+    "sgstAmount": 324.0,
+    "total": 4248.0,
+    "items": [
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      },
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-09T00:00:00Z"
+  },
+  {
+    "id": "BILL-113",
+    "patientId": "P008",
+    "hospitalId": "H002",
+    "visitDate": "4 March, 2026",
+    "dueDate": "18 March, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 600,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 54.0,
+    "sgstAmount": 54.0,
+    "total": 708.0,
+    "items": [
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-113",
+        "amount": 708.0,
+        "method": "CARD",
+        "createdAt": "2026-03-09T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-03-04T00:00:00Z"
+  },
+  {
+    "id": "BILL-114",
+    "patientId": "P005",
+    "hospitalId": "H003",
+    "visitDate": "5 March, 2026",
+    "dueDate": "19 March, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 8400,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 756.0,
+    "sgstAmount": 756.0,
+    "total": 9912.0,
+    "items": [
+      {
+        "description": "Follow-up Consultation",
+        "department": "General Medicine",
+        "amount": 400
+      },
+      {
+        "description": "ICU Bed Charge (1 day)",
+        "department": "Critical Care",
+        "amount": 8000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-114",
+        "amount": 9912.0,
+        "method": "NETBANKING",
+        "createdAt": "2026-03-13T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-03-05T00:00:00Z"
+  },
+  {
+    "id": "BILL-115",
+    "patientId": "P009",
+    "hospitalId": "H001",
+    "visitDate": "20 April, 2026",
+    "dueDate": "4 May, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 10500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 945.0,
+    "sgstAmount": 945.0,
+    "total": 12390.0,
+    "items": [
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency",
+        "amount": 2500
+      },
+      {
+        "description": "ICU Bed Charge (1 day)",
+        "department": "Critical Care",
+        "amount": 8000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-115",
+        "amount": 12390.0,
+        "method": "UPI",
+        "createdAt": "2026-04-28T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-04-20T00:00:00Z"
+  },
+  {
+    "id": "BILL-116",
+    "patientId": "P001",
+    "hospitalId": "H001",
+    "visitDate": "21 July, 2026",
+    "dueDate": "4 August, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 2100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 189.0,
+    "sgstAmount": 189.0,
+    "total": 2478.0,
+    "items": [
+      {
+        "description": "Specialist Consultation",
+        "department": "Cardiology",
+        "amount": 1200
+      },
+      {
+        "description": "Physiotherapy Session",
+        "department": "Physiotherapy",
+        "amount": 900
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-116",
+        "amount": 2478.0,
+        "method": "NETBANKING",
+        "createdAt": "2026-07-26T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-07-21T00:00:00Z"
+  },
+  {
+    "id": "BILL-117",
+    "patientId": "P007",
+    "hospitalId": "H003",
+    "visitDate": "16 August, 2026",
+    "dueDate": "30 August, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 15000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1350.0,
+    "sgstAmount": 1350.0,
+    "total": 17700.0,
+    "items": [
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      },
+      {
+        "description": "Day Care Procedure",
+        "department": "Surgery",
+        "amount": 12000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-117",
+        "amount": 17700.0,
+        "method": "CARD",
+        "createdAt": "2026-08-26T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-08-16T00:00:00Z"
+  },
+  {
+    "id": "BILL-118",
+    "patientId": "P014",
+    "hospitalId": "H001",
+    "visitDate": "1 May, 2026",
+    "dueDate": "15 May, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 4300,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 387.0,
+    "sgstAmount": 387.0,
+    "total": 5074.0,
+    "items": [
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency",
+        "amount": 2500
+      },
+      {
+        "description": "Physiotherapy Session",
+        "department": "Physiotherapy",
+        "amount": 900
+      },
+      {
+        "description": "Physiotherapy Session",
+        "department": "Physiotherapy",
+        "amount": 900
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-118",
+        "amount": 5074.0,
+        "method": "CARD",
+        "createdAt": "2026-05-05T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-05-01T00:00:00Z"
+  },
+  {
+    "id": "BILL-119",
+    "patientId": "P009",
+    "hospitalId": "H002",
+    "visitDate": "28 March, 2026",
+    "dueDate": "11 April, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 3000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 270.0,
+    "sgstAmount": 270.0,
+    "total": 3540.0,
+    "items": [
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-119",
+        "amount": 3540.0,
+        "method": "NETBANKING",
+        "createdAt": "2026-03-31T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-03-28T00:00:00Z"
+  },
+  {
+    "id": "BILL-120",
+    "patientId": "P009",
+    "hospitalId": "H003",
+    "visitDate": "12 April, 2026",
+    "dueDate": "26 April, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 4500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 405.0,
+    "sgstAmount": 405.0,
+    "total": 5310.0,
+    "items": [
+      {
+        "description": "Diagnostic Package",
+        "department": "Radiology",
+        "amount": 4500
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-120",
+        "amount": 5310.0,
+        "method": "CARD",
+        "createdAt": "2026-04-15T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-04-12T00:00:00Z"
+  },
+  {
+    "id": "BILL-121",
+    "patientId": "P007",
+    "hospitalId": "H001",
+    "visitDate": "22 July, 2026",
+    "dueDate": "5 August, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 2900,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 261.0,
+    "sgstAmount": 261.0,
+    "total": 3422.0,
+    "items": [
+      {
+        "description": "Follow-up Consultation",
+        "department": "General Medicine",
+        "amount": 400
+      },
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency",
+        "amount": 2500
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-121",
+        "amount": 3422.0,
+        "method": "CARD",
+        "createdAt": "2026-07-24T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-07-22T00:00:00Z"
+  },
+  {
+    "id": "BILL-122",
+    "patientId": "P008",
+    "hospitalId": "H002",
+    "visitDate": "11 June, 2026",
+    "dueDate": "25 June, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 600,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 54.0,
+    "sgstAmount": 54.0,
+    "total": 708.0,
+    "items": [
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-122",
+        "amount": 708.0,
+        "method": "NETBANKING",
+        "createdAt": "2026-06-12T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-06-11T00:00:00Z"
+  },
+  {
+    "id": "BILL-123",
+    "patientId": "P009",
+    "hospitalId": "H003",
+    "visitDate": "16 June, 2026",
+    "dueDate": "30 June, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 14900,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1341.0,
+    "sgstAmount": 1341.0,
+    "total": 17582.0,
+    "items": [
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency",
+        "amount": 2500
+      },
+      {
+        "description": "Follow-up Consultation",
+        "department": "General Medicine",
+        "amount": 400
+      },
+      {
+        "description": "Day Care Procedure",
+        "department": "Surgery",
+        "amount": 12000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-123",
+        "amount": 17582.0,
+        "method": "UPI",
+        "createdAt": "2026-06-24T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-06-16T00:00:00Z"
+  },
+  {
+    "id": "BILL-124",
+    "patientId": "P014",
+    "hospitalId": "H002",
+    "visitDate": "15 July, 2026",
+    "dueDate": "29 July, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 9200,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 828.0,
+    "sgstAmount": 828.0,
+    "total": 10856.0,
+    "items": [
+      {
+        "description": "Specialist Consultation",
+        "department": "Cardiology",
+        "amount": 1200
+      },
+      {
+        "description": "ICU Bed Charge (1 day)",
+        "department": "Critical Care",
+        "amount": 8000
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-07-15T00:00:00Z"
+  },
+  {
+    "id": "BILL-125",
+    "patientId": "P005",
+    "hospitalId": "H002",
+    "visitDate": "6 July, 2026",
+    "dueDate": "20 July, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 90.0,
+    "sgstAmount": 90.0,
+    "total": 1180.0,
+    "items": [
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      },
+      {
+        "description": "Follow-up Consultation",
+        "department": "General Medicine",
+        "amount": 400
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-125",
+        "amount": 1180.0,
+        "method": "CASH",
+        "createdAt": "2026-07-12T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-07-06T00:00:00Z"
+  },
+  {
+    "id": "BILL-126",
+    "patientId": "P001",
+    "hospitalId": "H003",
+    "visitDate": "29 May, 2026",
+    "dueDate": "12 June, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 7000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 630.0,
+    "sgstAmount": 630.0,
+    "total": 8260.0,
+    "items": [
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency",
+        "amount": 2500
+      },
+      {
+        "description": "Diagnostic Package",
+        "department": "Radiology",
+        "amount": 4500
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-126",
+        "amount": 8260.0,
+        "method": "NETBANKING",
+        "createdAt": "2026-06-08T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-05-29T00:00:00Z"
+  },
+  {
+    "id": "BILL-127",
+    "patientId": "P007",
+    "hospitalId": "H001",
+    "visitDate": "1 July, 2026",
+    "dueDate": "15 July, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 8500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 765.0,
+    "sgstAmount": 765.0,
+    "total": 10030.0,
+    "items": [
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency",
+        "amount": 2500
+      },
+      {
+        "description": "Health Check-up Package",
+        "department": "Preventive",
+        "amount": 3500
+      },
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency",
+        "amount": 2500
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-127",
+        "amount": 10030.0,
+        "method": "UPI",
+        "createdAt": "2026-07-05T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-07-01T00:00:00Z"
+  },
+  {
+    "id": "BILL-128",
+    "patientId": "P002",
+    "hospitalId": "H003",
+    "visitDate": "7 April, 2026",
+    "dueDate": "21 April, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 13200,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1188.0,
+    "sgstAmount": 1188.0,
+    "total": 15576.0,
+    "items": [
+      {
+        "description": "Specialist Consultation",
+        "department": "Cardiology",
+        "amount": 1200
+      },
+      {
+        "description": "Day Care Procedure",
+        "department": "Surgery",
+        "amount": 12000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-128",
+        "amount": 15576.0,
+        "method": "CASH",
+        "createdAt": "2026-04-16T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-04-07T00:00:00Z"
+  },
+  {
+    "id": "BILL-129",
+    "patientId": "P014",
+    "hospitalId": "H003",
+    "visitDate": "22 June, 2026",
+    "dueDate": "6 July, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 600,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 54.0,
+    "sgstAmount": 54.0,
+    "total": 708.0,
+    "items": [
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-129",
+        "amount": 708.0,
+        "method": "CARD",
+        "createdAt": "2026-06-25T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-06-22T00:00:00Z"
+  },
+  {
+    "id": "BILL-130",
+    "patientId": "P005",
+    "hospitalId": "H001",
+    "visitDate": "23 July, 2026",
+    "dueDate": "6 August, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 1900,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 171.0,
+    "sgstAmount": 171.0,
+    "total": 2242.0,
+    "items": [
+      {
+        "description": "Follow-up Consultation",
+        "department": "General Medicine",
+        "amount": 400
+      },
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      },
+      {
+        "description": "Physiotherapy Session",
+        "department": "Physiotherapy",
+        "amount": 900
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-07-23T00:00:00Z"
+  },
+  {
+    "id": "BILL-131",
+    "patientId": "P013",
+    "hospitalId": "H002",
+    "visitDate": "21 April, 2026",
+    "dueDate": "5 May, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 15000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1350.0,
+    "sgstAmount": 1350.0,
+    "total": 17700.0,
+    "items": [
+      {
+        "description": "Day Care Procedure",
+        "department": "Surgery",
+        "amount": 12000
+      },
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-131",
+        "amount": 17700.0,
+        "method": "CARD",
+        "createdAt": "2026-04-23T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-04-21T00:00:00Z"
+  },
+  {
+    "id": "BILL-132",
+    "patientId": "P012",
+    "hospitalId": "H002",
+    "visitDate": "9 July, 2026",
+    "dueDate": "23 July, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 8200,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 738.0,
+    "sgstAmount": 738.0,
+    "total": 9676.0,
+    "items": [
+      {
+        "description": "Diagnostic Package",
+        "department": "Radiology",
+        "amount": 4500
+      },
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency",
+        "amount": 2500
+      },
+      {
+        "description": "Specialist Consultation",
+        "department": "Cardiology",
+        "amount": 1200
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-132",
+        "amount": 9676.0,
+        "method": "UPI",
+        "createdAt": "2026-07-09T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-07-09T00:00:00Z"
+  },
+  {
+    "id": "BILL-133",
+    "patientId": "P003",
+    "hospitalId": "H001",
+    "visitDate": "31 March, 2026",
+    "dueDate": "14 April, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 6600,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 594.0,
+    "sgstAmount": 594.0,
+    "total": 7788.0,
+    "items": [
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      },
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      },
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-133",
+        "amount": 7788.0,
+        "method": "CASH",
+        "createdAt": "2026-04-07T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-03-31T00:00:00Z"
+  },
+  {
+    "id": "BILL-134",
+    "patientId": "P002",
+    "hospitalId": "H002",
+    "visitDate": "15 May, 2026",
+    "dueDate": "29 May, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 13200,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1188.0,
+    "sgstAmount": 1188.0,
+    "total": 15576.0,
+    "items": [
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      },
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      },
+      {
+        "description": "Day Care Procedure",
+        "department": "Surgery",
+        "amount": 12000
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-05-15T00:00:00Z"
+  },
+  {
+    "id": "BILL-135",
+    "patientId": "P003",
+    "hospitalId": "H003",
+    "visitDate": "23 May, 2026",
+    "dueDate": "6 June, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 3000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 270.0,
+    "sgstAmount": 270.0,
+    "total": 3540.0,
+    "items": [
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-135",
+        "amount": 3540.0,
+        "method": "UPI",
+        "createdAt": "2026-05-26T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-05-23T00:00:00Z"
+  },
+  {
+    "id": "BILL-136",
+    "patientId": "P007",
+    "hospitalId": "H002",
+    "visitDate": "18 June, 2026",
+    "dueDate": "2 July, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 23500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 2115.0,
+    "sgstAmount": 2115.0,
+    "total": 27730.0,
+    "items": [
+      {
+        "description": "ICU Bed Charge (1 day)",
+        "department": "Critical Care",
+        "amount": 8000
+      },
+      {
+        "description": "Health Check-up Package",
+        "department": "Preventive",
+        "amount": 3500
+      },
+      {
+        "description": "Day Care Procedure",
+        "department": "Surgery",
+        "amount": 12000
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-06-18T00:00:00Z"
+  },
+  {
+    "id": "BILL-137",
+    "patientId": "P015",
+    "hospitalId": "H002",
+    "visitDate": "17 August, 2026",
+    "dueDate": "31 August, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 11500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1035.0,
+    "sgstAmount": 1035.0,
+    "total": 13570.0,
+    "items": [
+      {
+        "description": "Health Check-up Package",
+        "department": "Preventive",
+        "amount": 3500
+      },
+      {
+        "description": "ICU Bed Charge (1 day)",
+        "department": "Critical Care",
+        "amount": 8000
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-17T00:00:00Z"
+  },
+  {
+    "id": "BILL-138",
+    "patientId": "P013",
+    "hospitalId": "H003",
+    "visitDate": "19 May, 2026",
+    "dueDate": "2 June, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 7500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 675.0,
+    "sgstAmount": 675.0,
+    "total": 8850.0,
+    "items": [
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      },
+      {
+        "description": "Diagnostic Package",
+        "department": "Radiology",
+        "amount": 4500
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-138",
+        "amount": 8850.0,
+        "method": "CASH",
+        "createdAt": "2026-05-19T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-05-19T00:00:00Z"
+  },
+  {
+    "id": "BILL-139",
+    "patientId": "P009",
+    "hospitalId": "H001",
+    "visitDate": "4 July, 2026",
+    "dueDate": "18 July, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 12500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1125.0,
+    "sgstAmount": 1125.0,
+    "total": 14750.0,
+    "items": [
+      {
+        "description": "Diagnostic Package",
+        "department": "Radiology",
+        "amount": 4500
+      },
+      {
+        "description": "ICU Bed Charge (1 day)",
+        "department": "Critical Care",
+        "amount": 8000
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-07-04T00:00:00Z"
+  },
+  {
+    "id": "BILL-140",
+    "patientId": "P006",
+    "hospitalId": "H001",
+    "visitDate": "11 April, 2026",
+    "dueDate": "25 April, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 162.0,
+    "sgstAmount": 162.0,
+    "total": 2124.0,
+    "items": [
+      {
+        "description": "Physiotherapy Session",
+        "department": "Physiotherapy",
+        "amount": 900
+      },
+      {
+        "description": "Physiotherapy Session",
+        "department": "Physiotherapy",
+        "amount": 900
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-140",
+        "amount": 2124.0,
+        "method": "NETBANKING",
+        "createdAt": "2026-04-18T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-04-11T00:00:00Z"
+  },
+  {
+    "id": "BILL-141",
+    "patientId": "P001",
+    "hospitalId": "H003",
+    "visitDate": "11 April, 2026",
+    "dueDate": "25 April, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 13400,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1206.0,
+    "sgstAmount": 1206.0,
+    "total": 15812.0,
+    "items": [
+      {
+        "description": "Physiotherapy Session",
+        "department": "Physiotherapy",
+        "amount": 900
+      },
+      {
+        "description": "Diagnostic Package",
+        "department": "Radiology",
+        "amount": 4500
+      },
+      {
+        "description": "ICU Bed Charge (1 day)",
+        "department": "Critical Care",
+        "amount": 8000
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-04-11T00:00:00Z"
+  },
+  {
+    "id": "BILL-142",
+    "patientId": "P006",
+    "hospitalId": "H001",
+    "visitDate": "19 August, 2026",
+    "dueDate": "2 September, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 3400,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 306.0,
+    "sgstAmount": 306.0,
+    "total": 4012.0,
+    "items": [
+      {
+        "description": "Follow-up Consultation",
+        "department": "General Medicine",
+        "amount": 400
+      },
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-142",
+        "amount": 4012.0,
+        "method": "NETBANKING",
+        "createdAt": "2026-08-19T00:00:00Z"
+      }
+    ],
+    "createdAt": "2026-08-19T00:00:00Z"
+  },
+  {
+    "id": "BILL-143",
+    "patientId": "P004",
+    "hospitalId": "H002",
+    "visitDate": "16 July, 2026",
+    "dueDate": "30 July, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 15900,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 1431.0,
+    "sgstAmount": 1431.0,
+    "total": 18762.0,
+    "items": [
+      {
+        "description": "Physiotherapy Session",
+        "department": "Physiotherapy",
+        "amount": 900
+      },
+      {
+        "description": "Day Care Procedure",
+        "department": "Surgery",
+        "amount": 12000
+      },
+      {
+        "description": "Ward Bed Charge (2 days)",
+        "department": "Inpatient",
+        "amount": 3000
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-07-16T00:00:00Z"
+  },
+  {
+    "id": "BILL-144",
+    "patientId": "P007",
+    "hospitalId": "H002",
+    "visitDate": "17 August, 2026",
+    "dueDate": "31 August, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 400,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 36.0,
+    "sgstAmount": 36.0,
+    "total": 472.0,
+    "items": [
+      {
+        "description": "Follow-up Consultation",
+        "department": "General Medicine",
+        "amount": 400
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-17T00:00:00Z"
+  },
+  {
+    "id": "BILL-145",
+    "patientId": "P007",
+    "hospitalId": "H001",
+    "visitDate": "11 August, 2026",
+    "dueDate": "25 August, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 3100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 279.0,
+    "sgstAmount": 279.0,
+    "total": 3658.0,
+    "items": [
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency",
+        "amount": 2500
+      },
+      {
+        "description": "General Consultation",
+        "department": "General Medicine",
+        "amount": 600
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-11T00:00:00Z"
   }
 ]
