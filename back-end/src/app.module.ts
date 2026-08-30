@@ -34,7 +34,7 @@ import { RequestLoggerMiddleware, SecurityMiddleware } from './lodger.middleware
  * request, before the guards:
  *   SecurityMiddleware      — security headers, rate limiting, payload limits
  *   RequestLoggerMiddleware — request id + access/error logging to file
- *   CsrfMiddleware          — CSRF protection for state-changing operations
+ 
  *
  * Router-level middleware lives with the feature it belongs to:
  *   BedStatusChangeMiddleware — beds module, status-changing routes
