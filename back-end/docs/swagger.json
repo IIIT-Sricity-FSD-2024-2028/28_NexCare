@@ -3633,6 +3633,80 @@
         ]
       }
     },
+    "/api/appointments/doctor/{doctorId}": {
+      "get": {
+        "operationId": "AppointmentsController_findByDoctor",
+        "summary": "Get a doctor's appointments (doctors: own only, pass 'me')",
+        "parameters": [
+          {
+            "name": "doctorId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of the doctor’s appointments"
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/appointments/doctor/{doctorId}/stats": {
+      "get": {
+        "operationId": "AppointmentsController_doctorStats",
+        "summary": "Headline counts for a doctor's dashboard",
+        "parameters": [
+          {
+            "name": "doctorId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
     "/api/appointments/department/{department}": {
       "get": {
         "operationId": "AppointmentsController_findByDepartment",
@@ -4102,6 +4176,90 @@
         },
         "tags": [
           "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/schedules": {
+      "get": {
+        "operationId": "SchedulesController_findAll",
+        "summary": "List hospital-wide schedules",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Schedules"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "SchedulesController_create",
+        "summary": "Submit a hospital-wide schedule for manager approval",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Schedules"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/schedules/{id}": {
+      "patch": {
+        "operationId": "SchedulesController_update",
+        "summary": "Approve or reject a hospital-wide schedule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Schedules"
         ],
         "security": [
           {
@@ -5279,6 +5437,701 @@
           }
         ]
       }
+    },
+    "/api/revenue/platform/overview": {
+      "get": {
+        "operationId": "RevenueController_platformOverview",
+        "summary": "Platform revenue overview — MRR, ARR, commission, per-hospital breakdown",
+        "parameters": [
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Platform revenue overview"
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/platform/trend": {
+      "get": {
+        "operationId": "RevenueController_platformTrend",
+        "summary": "Month-by-month platform revenue",
+        "parameters": [
+          {
+            "name": "months",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/plans": {
+      "get": {
+        "operationId": "RevenueController_findPlans",
+        "summary": "List subscription plans",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/plans/{id}": {
+      "patch": {
+        "operationId": "RevenueController_updatePlan",
+        "summary": "Update a subscription plan’s pricing",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/subscriptions": {
+      "get": {
+        "operationId": "RevenueController_findSubscriptions",
+        "summary": "List hospital subscriptions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/subscriptions/{hospitalId}": {
+      "patch": {
+        "operationId": "RevenueController_updateSubscription",
+        "summary": "Move a hospital onto a different plan, or change its status",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/hospital/{hospitalId}": {
+      "get": {
+        "operationId": "RevenueController_hospitalRevenue",
+        "summary": "A single hospital’s collections, outstanding and department split",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/my-hospitals/compare": {
+      "get": {
+        "operationId": "RevenueController_compareMyHospitals",
+        "summary": "Compare revenue across the hospitals the caller oversees",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/platform/streams": {
+      "get": {
+        "operationId": "RevenueController_platformStreams",
+        "summary": "Every revenue stream — hospital licence, doctor listings, patient memberships and per-transaction fees",
+        "parameters": [
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/fees": {
+      "get": {
+        "operationId": "RevenueController_findFees",
+        "summary": "The cross-cutting fee rates (booking, ambulance, gateway, seats, notifications)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "RevenueController_updateFees",
+        "summary": "Reprice the cross-cutting fees",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/doctor-plans/{id}": {
+      "patch": {
+        "operationId": "RevenueController_updateDoctorPlan",
+        "summary": "Reprice a doctor listing tier",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/patient-plans/{id}": {
+      "patch": {
+        "operationId": "RevenueController_updatePatientPlan",
+        "summary": "Reprice a patient membership tier",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/doctor-subscriptions": {
+      "get": {
+        "operationId": "RevenueController_findDoctorSubscriptions",
+        "summary": "Which listing tier every doctor is on",
+        "parameters": [
+          {
+            "name": "doctorId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/patient-subscriptions": {
+      "get": {
+        "operationId": "RevenueController_findPatientSubscriptions",
+        "summary": "Every active patient membership",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/doctor-plans": {
+      "get": {
+        "operationId": "RevenueController_findDoctorPlans",
+        "summary": "The doctor listing tiers on offer",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/patient-plans": {
+      "get": {
+        "operationId": "RevenueController_findPatientPlans",
+        "summary": "The patient membership tiers on offer",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/doctor/me": {
+      "get": {
+        "operationId": "RevenueController_myDoctorEarnings",
+        "summary": "The signed-in doctor’s own earnings and platform charges",
+        "parameters": [
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/doctor/me/subscription": {
+      "get": {
+        "operationId": "RevenueController_myDoctorSubscription",
+        "summary": "The signed-in doctor’s listing tier",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "RevenueController_updateMyDoctorSubscription",
+        "summary": "Change your own listing tier or consultation fee",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/doctor-subscriptions/{doctorId}": {
+      "patch": {
+        "operationId": "RevenueController_updateDoctorSubscription",
+        "summary": "Move a doctor onto a different listing tier, or suspend them",
+        "parameters": [
+          {
+            "name": "doctorId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/doctor/{doctorId}": {
+      "get": {
+        "operationId": "RevenueController_doctorEarnings",
+        "summary": "One doctor’s earnings and what the platform took",
+        "parameters": [
+          {
+            "name": "doctorId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/patient/me/membership": {
+      "get": {
+        "operationId": "RevenueController_myMembership",
+        "summary": "Your membership, and what it has saved you",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "RevenueController_setMyMembership",
+        "summary": "Join, switch or cancel a Care+ membership",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/hierarchy": {
+      "get": {
+        "operationId": "HierarchyController_myHierarchy",
+        "summary": "The organisational subtree rooted at the caller’s own node",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Hierarchy"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/hierarchy/scope": {
+      "get": {
+        "operationId": "HierarchyController_myScope",
+        "summary": "What the caller is allowed to see, and how much of it there is",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Hierarchy"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
     }
   },
   "info": {
@@ -5469,7 +6322,8 @@
             "type": "string",
             "enum": [
               "administrative_staff",
-              "ambulance"
+              "ambulance",
+              "doctor"
             ],
             "example": "administrative_staff",
             "description": "Staff role to register as"
@@ -5483,6 +6337,21 @@
             "type": "string",
             "example": "Front Desk",
             "description": "Department the staff member works in"
+          },
+          "specialization": {
+            "type": "string",
+            "example": "Cardiology",
+            "description": "Clinical specialisation (doctors)"
+          },
+          "registrationNo": {
+            "type": "string",
+            "example": "APMC-45219",
+            "description": "Medical council registration number (doctors)"
+          },
+          "consultationFee": {
+            "type": "number",
+            "example": 600,
+            "description": "Consultation fee charged per appointment (doctors)"
           }
         },
         "required": [
@@ -6237,7 +7106,7 @@
           "hospitalId": {
             "type": "string",
             "example": "H001",
-            "description": "Hospital ID"
+            "description": "Hospital the ambulance is dispatched from"
           }
         },
         "required": [
@@ -6378,6 +7247,11 @@
             "example": "Dr. Sarah Smith",
             "description": "Specific doctor"
           },
+          "doctorId": {
+            "type": "string",
+            "example": "U005",
+            "description": "User id of the doctor the slot belongs to"
+          },
           "dateLabel": {
             "type": "string",
             "example": "March 15, 2026",
@@ -6397,6 +7271,16 @@
             "type": "string",
             "example": "Routine checkup",
             "description": "Reason for visit"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the appointment is booked at"
+          },
+          "hospitalName": {
+            "type": "string",
+            "example": "Apollo Health City",
+            "description": "Hospital name, denormalised for display"
           }
         },
         "required": [
