@@ -352,8 +352,8 @@ private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals
     try {
       const regionalManagers = this.users.filter(user => 
         user.role === UserRole.REGIONAL_MANAGER && 
-        user.city && 
-        user.city.toLowerCase() === city.toLowerCase()
+        user.areas && 
+        user.areas.includes(city)
       );
 
       const rmsWithoutPassword = DataSanitizer.removePasswords(regionalManagers);
@@ -402,8 +402,7 @@ private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals
         regionalManagerId: rm.id,
         regionalManagerName: rm.name,
         regionalManagerEmail: rm.email,
-        city: rm.city || 'Not assigned',
-        state: rm.state,
+        areas: rm.areas || [],
         totalHospitals,
         pendingVerifications,
         verifiedHospitals,
@@ -438,8 +437,8 @@ private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals
       for (const rm of regionalManagers) {
         const workload = await this.getRMWorkload(rm.id);
         
-        // Check if RM's city matches hospital city
-        const cityMatch = rm.city && rm.city.toLowerCase() === hospitalCity.toLowerCase();
+        // Check if RM's areas include hospital city
+        const cityMatch = rm.areas && rm.areas.includes(hospitalCity);
         
         let recommendation = 'available';
         let reason = 'No current workload';
@@ -462,8 +461,7 @@ private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals
           regionalManagerId: rm.id,
           regionalManagerName: rm.name,
           regionalManagerEmail: rm.email,
-          city: rm.city || 'Not assigned',
-          state: rm.state,
+          areas: rm.areas || [],
           currentWorkload: workload.totalHospitals,
           workloadLevel: workload.workloadLevel,
           recommendation,
@@ -474,8 +472,8 @@ private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals
       // Sort by workload (low to high), prioritize city match
       suggestions.sort((a, b) => {
         // First sort by city match (RMs assigned to this city get priority)
-        const aCityMatch = a.city.toLowerCase() === hospitalCity.toLowerCase();
-        const bCityMatch = b.city.toLowerCase() === hospitalCity.toLowerCase();
+        const aCityMatch = a.areas && a.areas.includes(hospitalCity);
+        const bCityMatch = b.areas && b.areas.includes(hospitalCity);
         if (aCityMatch && !bCityMatch) return -1;
         if (!aCityMatch && bCityMatch) return 1;
         

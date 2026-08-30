@@ -14,9 +14,7 @@
     "role": "regional_manager",
     "status": "Active",
     "password": "scrypt$3d25e2f21abcb0ae7309960189c7c57a$95967ea076fe59af28e5247040baaf0578f537b09e200396fdd8297fd319c1655b7d423a72c02e62187537bb3d8beb568f86b4e7afedc8e57223951fbab3ccc7",
-    "city": "Tirupati",
-    "state": "Andhra Pradesh",
-    "pincode": "517501"
+    "areas": ["Tirupati"]
   },
   {
     "id": "U002",
