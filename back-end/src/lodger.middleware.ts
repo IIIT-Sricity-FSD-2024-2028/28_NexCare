@@ -12,7 +12,7 @@ try {
 }
 import * as crypto from 'crypto';
 import { fileLogger } from './common/logging/file-logger';
-import multer from 'multer';
+const multer = require('multer');
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -36,118 +36,7 @@ try {
   // Beds module may not exist in all deployments
 }
 
-// ============================================================================
-// 5. CSRF PROTECTION MIDDLEWARE
-// ============================================================================
 
-/**
- * CSRF Protection Middleware
- * Generates and validates CSRF tokens for state-changing operations
- * Required for evaluation: Security middleware
- */
-@Injectable()
-export class CsrfMiddleware implements NestMiddleware {
-  private readonly csrfTokens = new Map<string, { token: string; expires: number }>();
-  private readonly tokenExpiration = Number(process.env.CSRF_TOKEN_EXPIRATION) || 3600000; // 1 hour default
-
-  use(req: Request, res: Response, next: NextFunction): void {
-    // Skip CSRF for GET, HEAD, OPTIONS requests (safe methods)
-    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-      // Generate and send CSRF token for safe methods
-      const csrfToken = this.generateToken(req);
-      res.setHeader('x-csrf-token', csrfToken);
-      next();
-      return;
-    }
-
-    // Validate CSRF for state-changing methods (POST, PUT, PATCH, DELETE)
-    const csrfToken = req.headers['x-csrf-token'] as string || (req.body as any)._csrf;
-    
-    if (!csrfToken) {
-      fileLogger.warn('error', 'CSRF token missing', {
-        method: req.method,
-        path: req.originalUrl,
-        ip: this.clientIp(req),
-      });
-      res.status(403).json({
-        success: false,
-        statusCode: 403,
-        message: 'CSRF token missing',
-        error: 'FORBIDDEN',
-        timestamp: new Date().toISOString(),
-        path: req.originalUrl,
-      });
-      return;
-    }
-
-    if (!this.validateToken(req, csrfToken)) {
-      fileLogger.warn('error', 'CSRF token invalid', {
-        method: req.method,
-        path: req.originalUrl,
-        ip: this.clientIp(req),
-      });
-      res.status(403).json({
-        success: false,
-        statusCode: 403,
-        message: 'CSRF token invalid or expired',
-        error: 'FORBIDDEN',
-        timestamp: new Date().toISOString(),
-        path: req.originalUrl,
-      });
-      return;
-    }
-
-    next();
-  }
-
-  private generateToken(req: Request): string {
-    const sessionId = this.getSessionId(req);
-    const token = crypto.randomBytes(32).toString('hex');
-    const expires = Date.now() + this.tokenExpiration;
-    
-    this.csrfTokens.set(sessionId, { token, expires });
-    
-    // Clean up expired tokens periodically
-    this.cleanupExpiredTokens();
-    
-    return token;
-  }
-
-  private validateToken(req: Request, providedToken: string): boolean {
-    const sessionId = this.getSessionId(req);
-    const stored = this.csrfTokens.get(sessionId);
-    
-    if (!stored) return false;
-    if (Date.now() > stored.expires) {
-      this.csrfTokens.delete(sessionId);
-      return false;
-    }
-    
-    return stored.token === providedToken;
-  }
-
-  private getSessionId(req: Request): string {
-    // Use IP + User-Agent as a simple session identifier
-    const ip = this.clientIp(req);
-    const userAgent = req.headers['user-agent'] || 'unknown';
-    return crypto.createHash('sha256').update(`${ip}:${userAgent}`).digest('hex');
-  }
-
-  private clientIp(req: Request): string {
-    const forwarded = req.headers['x-forwarded-for'];
-    if (typeof forwarded === 'string' && forwarded.length > 0) return forwarded.split(',')[0].trim();
-    return req.socket?.remoteAddress ?? 'unknown';
-  }
-
-  private cleanupExpiredTokens(): void {
-    const now = Date.now();
-    for (const [sessionId, data] of this.csrfTokens.entries()) {
-      if (now > data.expires) {
-        this.csrfTokens.delete(sessionId);
-      }
-    }
-  }
-}
 
 // ============================================================================
 // 1. REQUEST LOGGER MIDDLEWARE
@@ -451,7 +340,11 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: (error: Error | null, acceptFile?: boolean) => void,
+) => {
   const allowedMimes = [
     'image/jpeg',
     'image/png',

@@ -528,5 +528,35 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-28T06:29:08.804Z"
+  },
+  {
+    "id": "ACT-MTFRFYUK1L4",
+    "timestamp": "2026-08-30T12:03:05.132Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:03:05.132Z"
+  },
+  {
+    "id": "ACT-MTFS8R9O2OX",
+    "timestamp": "2026-08-30T12:25:28.332Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:25:28.332Z"
+  },
+  {
+    "id": "ACT-MTFWLWX21IP",
+    "timestamp": "2026-08-30T14:27:40.647Z",
+    "userId": "M001",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T14:27:40.647Z"
   }
 ]

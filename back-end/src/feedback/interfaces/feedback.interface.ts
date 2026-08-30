@@ -14,6 +14,7 @@ export interface Feedback {
   summary: string;
   rating: number;
   status: FeedbackStatus;
+  hospitalId?: string;
   createdAt: string;
   updatedAt?: string;
 }
@@ -29,6 +30,7 @@ export interface CreateFeedbackRequest {
   subject: string;
   summary: string;
   rating: number;
+  hospitalId?: string;
 }
 
 /**

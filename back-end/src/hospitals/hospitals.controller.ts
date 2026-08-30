@@ -139,16 +139,9 @@ export class HospitalsController {
    */
   @Roles(UserRole.REGIONAL_MANAGER)
   @Get('regional/my-hospitals')
-  async getMyHospitals() {
+  async getMyHospitals(@Req() req: any) {
     try {
-      const hospitalsResult = await this.hospitalsService.findAll();
-      const allHospitals = hospitalsResult.data || [];
-      
-      // For now, return all hospitals with assigned managers - RM ID will come from JWT token in production
-      const myHospitals = allHospitals.filter((hospital: any) => 
-        hospital.assignedManagerId
-      );
-
+      const myHospitals = this.hospitalsService.getHospitalsForManager(req.user.id);
       return ResponseUtil.success('Assigned hospitals retrieved successfully', myHospitals);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve assigned hospitals');
@@ -160,21 +153,34 @@ export class HospitalsController {
    */
   @Roles(UserRole.REGIONAL_MANAGER)
   @Get('regional/pending-verifications')
-  async getPendingVerifications() {
+  async getPendingVerifications(@Req() req: any) {
     try {
-      const hospitalsResult = await this.hospitalsService.findAll();
-      const allHospitals = hospitalsResult.data || [];
-      
-      // For now, return all pending hospitals - RM ID will come from JWT token in production
-      const pendingHospitals = allHospitals.filter((hospital: any) => 
-        hospital.assignedManagerId && 
-        hospital.verificationStatus === 'pending_verification'
+      const pendingHospitals = this.hospitalsService.getHospitalsForManager(req.user.id).filter(
+        hospital => hospital.verificationStatus === 'pending_verification',
       );
-
       return ResponseUtil.success('Pending verifications retrieved successfully', pendingHospitals);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve pending verifications');
     }
+  }
+
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Get('regional/overview')
+  async getRegionalOverview(@Req() req: any) {
+    return this.hospitalsService.getRegionalOverview(req.user.id);
+  }
+
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Get('regional/performance-alerts')
+  async getPerformanceAlerts(@Req() req: any) {
+    return this.hospitalsService.getPerformanceAlerts(req.user.id);
+  }
+
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Get('regional/comparison')
+  async getHospitalComparison(@Req() req: any, @Query('ids') ids?: string) {
+    const hospitalIds = ids ? ids.split(',').map(id => id.trim()).filter(Boolean) : undefined;
+    return this.hospitalsService.getHospitalComparison(req.user.id, hospitalIds);
   }
 
   /**
@@ -282,36 +288,7 @@ export class HospitalsController {
    */
   @Roles(UserRole.REGIONAL_MANAGER)
   @Get('regional/dashboard')
-  async getRegionalDashboard() {
-    try {
-      // For now, return a simplified dashboard - RM ID will come from JWT token in production
-      const hospitalsResult = await this.hospitalsService.findAll();
-      const allHospitals = hospitalsResult.data || [];
-      
-      const myHospitals = allHospitals.filter((hospital: any) => 
-        hospital.assignedManagerId
-      );
-
-      const pendingHospitals = myHospitals.filter((hospital: any) => 
-        hospital.verificationStatus === 'pending_verification'
-      );
-
-      const verifiedHospitals = myHospitals.filter((hospital: any) => 
-        hospital.verificationStatus === 'verified'
-      );
-
-      const dashboard = {
-        totalHospitals: myHospitals.length,
-        pendingVerifications: pendingHospitals.length,
-        verifiedHospitals: verifiedHospitals.length,
-        rejectedHospitals: myHospitals.filter((h: any) => h.verificationStatus === 'rejected').length,
-        activeHospitals: verifiedHospitals.length,
-        hospitals: myHospitals
-      };
-
-      return ResponseUtil.success('Dashboard overview retrieved successfully', dashboard);
-    } catch (error) {
-      return ResponseUtil.serverError('Failed to retrieve dashboard overview');
-    }
+  async getRegionalDashboard(@Req() req: any) {
+    return this.hospitalsService.getRegionalOverview(req.user.id);
   }
 }

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCare - Patient Complaints</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="../shared/nav.css">
+    <link rel="stylesheet" href="regional-common.css">
+</head>
+<body>
+    <main class="main-content">
+        <header class="header">
+            <span class="header-title">Patient Complaints</span>
+            <div class="header-user">
+                <div class="header-avatar" id="userInitials" aria-hidden="true">RO</div>
+                <div class="header-user-info">
+                    <p class="header-user-name" id="userNameDisplay">Regional Officer</p>
+                    <p class="header-user-role">Regional Manager</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-body">
+            <section class="hero" aria-labelledby="hero-heading">
+                <h1 id="hero-heading">Complaints &amp; Patient Feedback</h1>
+                <p>Track patient complaints and feedback across hospitals in your region. Review ratings, categories, and resolution status.</p>
+            </section>
+
+            <div class="stats-grid" role="region" aria-label="Complaint statistics">
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Total Feedback</p>
+                        <p class="stat-value" id="totalCount">—</p>
+                    </div>
+                    <div class="stat-icon blue" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Open</p>
+                        <p class="stat-value" id="openCount">—</p>
+                    </div>
+                    <div class="stat-icon red" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">In Progress</p>
+                        <p class="stat-value" id="progressCount">—</p>
+                    </div>
+                    <div class="stat-icon orange" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Avg. Rating</p>
+                        <p class="stat-value" id="avgRating">—</p>
+                    </div>
+                    <div class="stat-icon purple" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <section class="panel">
+                <div class="filter-bar">
+                    <label for="statusFilter">Status</label>
+                    <select id="statusFilter" aria-label="Filter by status">
+                        <option value="all">All statuses</option>
+                        <option value="Open">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Resolved">Resolved</option>
+                    </select>
+                    <label for="categoryFilter">Category</label>
+                    <select id="categoryFilter" aria-label="Filter by category">
+                        <option value="all">All categories</option>
+                    </select>
+                    <label for="hospitalFilter">Hospital</label>
+                    <select id="hospitalFilter" aria-label="Filter by hospital">
+                        <option value="all">All hospitals</option>
+                    </select>
+                    <label for="searchInput" class="sr-only">Search complaints</label>
+                    <input type="search" id="searchInput" placeholder="Search complaints…" aria-label="Search complaints">
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="complaints-title">
+                <h2 class="section-title" id="complaints-title">Feedback &amp; Issues</h2>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <caption class="sr-only">Patient complaints and feedback for your assigned hospitals</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Hospital</th>
+                                <th scope="col">Patient</th>
+                                <th scope="col">Subject</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">Rating</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="complaintsTableBody">
+                            <tr><td colspan="8" class="empty-state">Loading complaints…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Status update modal -->
+    <div id="statusModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden
+         style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000;">
+        <div style="background:#fff;border-radius:14px;padding:28px;max-width:420px;width:90%;">
+            <h3 id="modalTitle" style="margin:0 0 8px;font-size:18px;">Update Complaint Status</h3>
+            <p id="modalSubject" style="margin:0 0 16px;font-size:14px;color:#6A7282;"></p>
+            <label for="modalStatus" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;">New status</label>
+            <select id="modalStatus" style="width:100%;padding:10px;border:1px solid #E5E7EB;border-radius:8px;margin-bottom:16px;">
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+            </select>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" id="modalCancel" class="btn-link" style="background:#F3F4F6;border-color:#E5E7EB;color:#374151;">Cancel</button>
+                <button type="button" id="modalSave" class="btn-primary" style="padding:8px 16px;">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../shared/api.js?v=9"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script>if (typeof checkAuth === 'function') { checkAuth(); checkRoleAccess(); }</script>
+    <script src="../logo.js"></script>
+    <script src="../shared/nav.js"></script>
+    <script src="regional-common.js?v=1"></script>
+    <script src="complaints.js?v=1"></script>
+</body>
+</html>

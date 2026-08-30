@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { FeedbackController } from './feedback.controller';
 import { FeedbackService } from './feedback.service';
 import { SystemModule } from '../system/system.module';
+import { HospitalsModule } from '../hospitals/hospitals.module';
 
 /**
  * Feedback Module
@@ -9,7 +10,7 @@ import { SystemModule } from '../system/system.module';
  * Provides CRUD operations and feedback resolution functionality
  */
 @Module({
-  imports: [SystemModule],
+  imports: [SystemModule, HospitalsModule],
   controllers: [FeedbackController],
   providers: [FeedbackService],
   exports: [FeedbackService],
