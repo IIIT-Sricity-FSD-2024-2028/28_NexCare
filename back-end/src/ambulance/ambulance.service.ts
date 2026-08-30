@@ -348,13 +348,14 @@ export class AmbulanceService {
 
   private isValidStatusTransition(currentStatus: AmbulanceStatus, newStatus: AmbulanceStatus): boolean {
     const validTransitions: Record<AmbulanceStatus, AmbulanceStatus[]> = {
-      // A trip can be called off at any point before pickup; once the patient is
-      // aboard it runs to completion. Completed and cancelled are both terminal.
+      // A trip may be called off at any stage up to arrival — including after
+      // pickup, because a diversion or a death in transit has to be recordable.
+      // Completed and cancelled are both terminal.
       [AmbulanceStatus.PENDING]: [AmbulanceStatus.DISPATCHED, AmbulanceStatus.CANCELLED],
       [AmbulanceStatus.DISPATCHED]: [AmbulanceStatus.EN_ROUTE, AmbulanceStatus.CANCELLED],
       [AmbulanceStatus.EN_ROUTE]: [AmbulanceStatus.PICKED_UP, AmbulanceStatus.CANCELLED],
-      [AmbulanceStatus.PICKED_UP]: [AmbulanceStatus.AT_HOSPITAL],
-      [AmbulanceStatus.AT_HOSPITAL]: [AmbulanceStatus.COMPLETED],
+      [AmbulanceStatus.PICKED_UP]: [AmbulanceStatus.AT_HOSPITAL, AmbulanceStatus.CANCELLED],
+      [AmbulanceStatus.AT_HOSPITAL]: [AmbulanceStatus.COMPLETED, AmbulanceStatus.CANCELLED],
       [AmbulanceStatus.COMPLETED]: [],
       [AmbulanceStatus.CANCELLED]: [],
     };
