@@ -8,16 +8,25 @@ export interface Leave {
   id: string;
   doctorId: string;
   doctorName: string;
+  department?: string;
+  specialization?: string;
   hospitalId: string;
+  leaveType?: string;
   startDate: string;
   endDate: string;
+  daysCount?: number;
   reason: string;
+  requestedAt?: string;
   status: LeaveStatus;
   createdAt: string;
   updatedAt: string;
   approvedBy?: string;
+  approvedByName?: string;
   approvedAt?: string;
   rejectionReason?: string;
+  rejectedBy?: string;
+  rejectedByName?: string;
+  rejectedAt?: string;
 }
 
 /**
@@ -27,10 +36,15 @@ export interface Leave {
 export interface CreateLeaveDto {
   doctorId: string;
   doctorName: string;
+  department?: string;
+  specialization?: string;
   hospitalId: string;
+  leaveType?: string;
   startDate: string;
   endDate: string;
+  daysCount?: number;
   reason: string;
+  requestedAt?: string;
 }
 
 /**
@@ -40,7 +54,10 @@ export interface CreateLeaveDto {
 export interface UpdateLeaveDto {
   status: LeaveStatus;
   approvedBy?: string;
+  approvedByName?: string;
   rejectionReason?: string;
+  rejectedBy?: string;
+  rejectedByName?: string;
 }
 
 /**

@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let displayRoleName = 'User';
     if (role === 'superuser') displayRoleName = 'Superuser';
     else if (role === 'regional_manager') displayRoleName = 'Regional Officer';
+    else if (role === 'hospital_manager') displayRoleName = 'Hospital Manager';
     else if (role === 'administrative_staff') displayRoleName = 'Administrative Staff';
     else if (role === 'patient') displayRoleName = 'Patient';
     else if (role === 'ambulance') displayRoleName = 'Ambulance Staff';
@@ -66,6 +67,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 Reports & Analytics
             </a>
         `;
+    } else if (role === 'hospital_manager') {
+        navLinks = `
+            <a href="../hospital_manager/dashboard.html" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Hospital Dashboard
+            </a>
+            <a href="../hospital_manager/dashboard.html#leaves" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M9 16h6"/></svg>
+                Doctor Leaves
+            </a>
+            <a href="../hospital_manager/dashboard.html#staff" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Staff Directory
+            </a>
+            <a href="../hospital_manager/dashboard.html#inventory-approvals" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-4-9 4 9 4 9-4z"/><path d="M3 8v8l9 4 9-4V8"/><path d="M12 12v8"/></svg>
+                Inventory Approvals
+            </a>
+            <a href="../hospital_manager/dashboard.html#subscription" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                Subscription & Renewal
+            </a>
+            <a href="../hospital_manager/dashboard.html#supervision" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+                Admin Supervision
+            </a>
+        `;
     } else if (role === 'regional_manager') {
         navLinks = `
             <a href="../regional-officer/dashboard.html" class="nav-item">
@@ -108,8 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 Manage Appointments
             </a>
             <a href="../administrative_staff/inventory.html" class="nav-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8V21H3V8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-                Inventory
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-4-9 4 9 4 9-4z"/><path d="M3 8v8l9 4 9-4V8"/><path d="M12 12v8"/></svg>
+                Inventory & Requisitions
             </a>
         `;
     } else if (role === 'doctor') {

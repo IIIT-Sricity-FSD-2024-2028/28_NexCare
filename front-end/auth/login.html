@@ -130,6 +130,10 @@
                         sessionStorage.setItem('nexcare_auth_token', response.data.token);
                         localStorage.setItem('nexcare_auth_token', response.data.token);
                     }
+                    if (response.data?.user?.mustChangePassword) {
+                        window.location.href = 'change-password.html';
+                        return;
+                    }
                     loginUser(role);
                 } else {
                     showError(response.message || 'Authentication failed. Check your credentials.');

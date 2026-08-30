@@ -944,7 +944,7 @@
     "/api/users": {
       "get": {
         "operationId": "UsersController_findAll",
-        "summary": "Get all users (Regional Officers see only their hospitals)",
+        "summary": "Get all users (Scoped by caller role and hospital)",
         "parameters": [
           {
             "name": "role",
@@ -971,6 +971,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "hospitalId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -989,7 +997,7 @@
       },
       "post": {
         "operationId": "UsersController_create",
-        "summary": "Create a new user",
+        "summary": "Create a new user / staff member",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1003,10 +1011,42 @@
         },
         "responses": {
           "200": {
-            "description": "User creation result (check success field)"
+            "description": "User creation result"
           },
           "400": {
             "description": "Validation error"
+          },
+          "403": {
+            "description": "Forbidden - role or hospital scope violation"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/preview-email": {
+      "get": {
+        "operationId": "UsersController_previewEmail",
+        "summary": "Preview auto-generated unique staff email",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
           }
         },
         "tags": [
@@ -1026,6 +1066,14 @@
         "parameters": [
           {
             "name": "dept",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hospitalId",
             "required": false,
             "in": "query",
             "schema": {
@@ -1142,7 +1190,7 @@
         ],
         "responses": {
           "200": {
-            "description": "User retrieved (check success field for not-found)"
+            "description": "User retrieved"
           }
         },
         "tags": [
@@ -1179,7 +1227,7 @@
         },
         "responses": {
           "200": {
-            "description": "User update result (check success field)"
+            "description": "User update result"
           }
         },
         "tags": [
@@ -1216,7 +1264,7 @@
         },
         "responses": {
           "200": {
-            "description": "User update result (check success field)"
+            "description": "User update result"
           }
         },
         "tags": [
@@ -1243,7 +1291,7 @@
         ],
         "responses": {
           "200": {
-            "description": "User deletion result (check success field)"
+            "description": "User deletion result"
           }
         },
         "tags": [
@@ -1272,7 +1320,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Status update result (check success field)"
+            "description": "Status update result"
           }
         },
         "tags": [
@@ -1527,6 +1575,66 @@
         "parameters": [],
         "responses": {
           "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/subscription": {
+      "get": {
+        "operationId": "HospitalsController_getSubscription",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/renew-subscription": {
+      "post": {
+        "operationId": "HospitalsController_renewSubscription",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/payment-history": {
+      "get": {
+        "operationId": "HospitalsController_getPaymentHistory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
             "description": ""
           }
         }
@@ -2289,10 +2397,281 @@
         },
         "responses": {
           "200": {
-            "description": "Item creation result (check success field)"
+            "description": "Item creation result"
+          }
+        },
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/inventory/requirements": {
+      "get": {
+        "operationId": "InventoryController_getRequirements",
+        "summary": "Get all inventory requirement requests",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           },
-          "400": {
-            "description": "Validation error"
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "priority",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "department",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of inventory requirements"
+          }
+        },
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "InventoryController_createRequirement",
+        "summary": "Submit an inventory requirement request",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Inventory requirement created"
+          }
+        },
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/inventory/requirements/{id}": {
+      "get": {
+        "operationId": "InventoryController_getRequirementById",
+        "summary": "Get single inventory requirement by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inventory requirement retrieved"
+          }
+        },
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/inventory/requirements/{id}/approve": {
+      "patch": {
+        "operationId": "InventoryController_approveRequirement",
+        "summary": "Approve an inventory requirement",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Requirement approved"
+          }
+        },
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/inventory/requirements/{id}/reject": {
+      "patch": {
+        "operationId": "InventoryController_rejectRequirement",
+        "summary": "Reject an inventory requirement with reason",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Requirement rejected"
+          }
+        },
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/inventory/requirements/{id}/start-purchase": {
+      "patch": {
+        "operationId": "InventoryController_startPurchase",
+        "summary": "Initiate purchasing for an approved requirement",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase initiated"
+          }
+        },
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/inventory/requirements/{id}/mark-purchased": {
+      "patch": {
+        "operationId": "InventoryController_markPurchased",
+        "summary": "Mark inventory requirement as purchased",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Requirement marked as purchased"
+          }
+        },
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/inventory/requirements/{id}/mark-restocked": {
+      "patch": {
+        "operationId": "InventoryController_markRestocked",
+        "summary": "Mark inventory requirement as restocked and increase stock",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Requirement restocked"
+          }
+        },
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/inventory/requirements/{id}/fulfill": {
+      "patch": {
+        "operationId": "InventoryController_fulfillRequirement",
+        "summary": "Mark requirement fulfilled and restock stock",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Requirement fulfilled"
           }
         },
         "tags": [
@@ -3755,6 +4134,90 @@
         },
         "tags": [
           "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/schedules": {
+      "get": {
+        "operationId": "SchedulesController_findAll",
+        "summary": "List hospital-wide schedules",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Schedules"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "SchedulesController_create",
+        "summary": "Submit a hospital-wide schedule for manager approval",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Schedules"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/schedules/{id}": {
+      "patch": {
+        "operationId": "SchedulesController_update",
+        "summary": "Approve or reject a hospital-wide schedule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Schedules"
         ],
         "security": [
           {
@@ -6029,7 +6492,7 @@
           "email": {
             "type": "string",
             "example": "jane@nexcare.com",
-            "description": "Email address"
+            "description": "Email address (auto-generated if omitted)"
           },
           "role": {
             "type": "string",
@@ -6051,20 +6514,133 @@
             "example": "password123",
             "description": "User password"
           },
-          "patientId": {
+          "status": {
             "type": "string",
-            "example": "P1002",
-            "description": "Associated patient ID if applicable"
+            "example": "Active",
+            "description": "User status"
+          },
+          "mustChangePassword": {
+            "type": "boolean",
+            "example": true,
+            "description": "Must change password flag"
+          },
+          "regionId": {
+            "type": "string",
+            "example": "R001",
+            "description": "Region ID"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Main Street",
+            "description": "Address"
+          },
+          "consultationFee": {
+            "type": "object",
+            "example": 500,
+            "description": "Consultation Fee"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+91 98480 12345",
+            "description": "Phone number"
+          },
+          "dob": {
+            "type": "string",
+            "example": "1985-05-15",
+            "description": "Date of birth"
+          },
+          "gender": {
+            "type": "string",
+            "example": "Female",
+            "description": "Gender"
+          },
+          "employeeId": {
+            "type": "string",
+            "example": "EMP-1042",
+            "description": "Employee ID"
           },
           "dept": {
             "type": "string",
             "example": "Cardiology",
             "description": "Department within the hospital"
           },
+          "designation": {
+            "type": "string",
+            "example": "Senior Resident",
+            "description": "Designation"
+          },
+          "joiningDate": {
+            "type": "string",
+            "example": "2026-01-10",
+            "description": "Joining date"
+          },
+          "employmentType": {
+            "type": "string",
+            "example": "Full-time",
+            "description": "Employment type"
+          },
           "hospitalId": {
             "type": "string",
             "example": "H001",
             "description": "Hospital the user belongs to"
+          },
+          "hospitalName": {
+            "type": "string",
+            "example": "NexCare AIIMS Super Speciality Hospital",
+            "description": "Hospital name"
+          },
+          "specialization": {
+            "type": "string",
+            "example": "Interventional Cardiology",
+            "description": "Doctor specialization"
+          },
+          "medicalRegNumber": {
+            "type": "string",
+            "example": "MCI-88492",
+            "description": "Medical registration number"
+          },
+          "qualification": {
+            "type": "string",
+            "example": "MBBS, MD, DM",
+            "description": "Doctor qualification"
+          },
+          "experienceYears": {
+            "type": "object",
+            "example": 8,
+            "description": "Years of experience"
+          },
+          "consultationTiming": {
+            "type": "string",
+            "example": "09:00 AM - 01:00 PM",
+            "description": "Consultation timing"
+          },
+          "driverLicense": {
+            "type": "string",
+            "example": "DL-04-2018-99281",
+            "description": "Driver license number"
+          },
+          "assignedVehicle": {
+            "type": "string",
+            "example": "AP-03-AX-1002",
+            "description": "Assigned ambulance vehicle"
+          },
+          "shift": {
+            "type": "string",
+            "example": "Day Shift (08:00 - 16:00)",
+            "description": "Duty shift"
+          },
+          "responsibilities": {
+            "type": "object",
+            "example": [
+              "Bed Allocation",
+              "Inventory Requisitions"
+            ],
+            "description": "Assigned responsibilities"
+          },
+          "patientId": {
+            "type": "string",
+            "example": "P1002",
+            "description": "Associated patient ID if applicable"
           },
           "areas": {
             "example": [
@@ -6080,9 +6656,7 @@
         },
         "required": [
           "name",
-          "email",
-          "role",
-          "password"
+          "role"
         ]
       },
       "UpdateUserDto": {
@@ -6128,20 +6702,128 @@
             "example": "password123",
             "description": "User password"
           },
-          "patientId": {
+          "mustChangePassword": {
+            "type": "boolean",
+            "example": false,
+            "description": "Must change password flag"
+          },
+          "regionId": {
             "type": "string",
-            "example": "P1002",
-            "description": "Associated patient ID if applicable"
+            "example": "R001",
+            "description": "Region ID"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Main Street",
+            "description": "Address"
+          },
+          "consultationFee": {
+            "type": "object",
+            "example": 500,
+            "description": "Consultation fee"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+91 98480 12345",
+            "description": "Phone number"
+          },
+          "dob": {
+            "type": "string",
+            "example": "1985-05-15",
+            "description": "Date of birth"
+          },
+          "gender": {
+            "type": "string",
+            "example": "Female",
+            "description": "Gender"
+          },
+          "employeeId": {
+            "type": "string",
+            "example": "EMP-1042",
+            "description": "Employee ID"
           },
           "dept": {
             "type": "string",
             "example": "Cardiology",
             "description": "Department within the hospital"
           },
+          "designation": {
+            "type": "string",
+            "example": "Senior Resident",
+            "description": "Designation"
+          },
+          "joiningDate": {
+            "type": "string",
+            "example": "2026-01-10",
+            "description": "Joining date"
+          },
+          "employmentType": {
+            "type": "string",
+            "example": "Full-time",
+            "description": "Employment type"
+          },
           "hospitalId": {
             "type": "string",
             "example": "H001",
             "description": "Hospital the user belongs to"
+          },
+          "hospitalName": {
+            "type": "string",
+            "example": "NexCare AIIMS Super Speciality Hospital",
+            "description": "Hospital name"
+          },
+          "specialization": {
+            "type": "string",
+            "example": "Interventional Cardiology",
+            "description": "Doctor specialization"
+          },
+          "medicalRegNumber": {
+            "type": "string",
+            "example": "MCI-88492",
+            "description": "Medical registration number"
+          },
+          "qualification": {
+            "type": "string",
+            "example": "MBBS, MD, DM",
+            "description": "Doctor qualification"
+          },
+          "experienceYears": {
+            "type": "object",
+            "example": 8,
+            "description": "Years of experience"
+          },
+          "consultationTiming": {
+            "type": "string",
+            "example": "09:00 AM - 01:00 PM",
+            "description": "Consultation timing"
+          },
+          "driverLicense": {
+            "type": "string",
+            "example": "DL-04-2018-99281",
+            "description": "Driver license number"
+          },
+          "assignedVehicle": {
+            "type": "string",
+            "example": "AP-03-AX-1002",
+            "description": "Assigned ambulance vehicle"
+          },
+          "shift": {
+            "type": "string",
+            "example": "Day Shift (08:00 - 16:00)",
+            "description": "Duty shift"
+          },
+          "responsibilities": {
+            "type": "object",
+            "example": [
+              "Bed Allocation",
+              "Inventory Requisitions"
+            ],
+            "description": "Assigned responsibilities"
+          },
+          "patientId": {
+            "type": "string",
+            "example": "P1002",
+            "description": "Associated patient ID if applicable"
           },
           "areas": {
             "example": [
@@ -6384,6 +7066,36 @@
             "example": "Patient has chest pain",
             "description": "Additional notes"
           },
+          "status": {
+            "type": "string",
+            "example": "Available",
+            "description": "Request status"
+          },
+          "vehicleNumber": {
+            "type": "string",
+            "example": "AP-03-AX-1001",
+            "description": "Vehicle Number"
+          },
+          "type": {
+            "type": "string",
+            "example": "Advanced Life Support (ALS)",
+            "description": "Ambulance Type"
+          },
+          "driverName": {
+            "type": "string",
+            "example": "Ravi Teja",
+            "description": "Driver Name"
+          },
+          "driverPhone": {
+            "type": "string",
+            "example": "+91 98480 55001",
+            "description": "Driver Phone"
+          },
+          "eta": {
+            "type": "string",
+            "example": "8 mins",
+            "description": "ETA"
+          },
           "hospitalId": {
             "type": "string",
             "example": "H001",
@@ -6415,18 +7127,44 @@
             "description": "Additional notes"
           },
           "status": {
+            "type": "object",
+            "example": "Available",
+            "description": "Request / Fleet status"
+          },
+          "vehicleNumber": {
             "type": "string",
-            "enum": [
-              "Pending",
-              "Dispatched",
-              "En Route",
-              "Picked Up",
-              "At Hospital",
-              "Completed",
-              "Cancelled"
-            ],
-            "example": "Pending",
-            "description": "Request status"
+            "example": "AP-03-AX-1001",
+            "description": "Vehicle registration number"
+          },
+          "type": {
+            "type": "string",
+            "example": "Advanced Life Support (ALS)",
+            "description": "Ambulance service type"
+          },
+          "driverName": {
+            "type": "string",
+            "example": "Ravi Teja",
+            "description": "Assigned driver name"
+          },
+          "driverPhone": {
+            "type": "string",
+            "example": "+91 98480 55001",
+            "description": "Driver contact phone"
+          },
+          "eta": {
+            "type": "string",
+            "example": "8 mins",
+            "description": "ETA or standby location"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital ID"
+          },
+          "patientName": {
+            "type": "string",
+            "example": "Maria Garcia",
+            "description": "Patient Name"
           },
           "assignedTo": {
             "type": "string",

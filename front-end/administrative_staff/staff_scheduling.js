@@ -1,5 +1,24 @@
-// ---------------- API HELPER ----------------
+const DEPTS = ['Cardiology', 'Orthopedics', 'Neurology', 'General Medicine', 'ER', 'Pathology'];
+const SHIFTS = [
+    { label: 'Morning (08:00 - 16:00)', startTime: '08:00', endTime: '16:00' },
+    { label: 'Afternoon (14:00 - 22:00)', startTime: '14:00', endTime: '22:00' },
+    { label: 'Night (20:00 - 08:00)', startTime: '20:00', endTime: '08:00' }
+];
+
+function currentUser() {
+    try {
+        return JSON.parse(sessionStorage.getItem('nexcare_user_data') || localStorage.getItem('nexcare_user_data') || '{}');
+    } catch {
+        return {};
+    }
+}
+
+function hospitalId() {
+    return currentUser().hospitalId || 'H001';
+}
+
 function apiGet(path) {
+    if (window.NexCareAPI) return window.NexCareAPI.get(path);
     const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
     const host = window.location.hostname || 'localhost';
     return fetch(`http://${host}:3001/api${path}`, {
@@ -7,183 +26,112 @@ function apiGet(path) {
     }).then(r => r.json());
 }
 
-function apiRequest(method, path, body) {
+function apiPost(path, body) {
+    if (window.NexCareAPI) return window.NexCareAPI.post(path, body);
     const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
     const host = window.location.hostname || 'localhost';
     return fetch(`http://${host}:3001/api${path}`, {
-        method,
+        method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: body ? JSON.stringify(body) : undefined
+        body: JSON.stringify(body)
     }).then(r => r.json());
 }
 
-// ---------------- STATE ----------------
-let staffCache = [];
-
-async function loadStaff() {
-    try {
-        const resp = await apiGet('/users');
-        const users = resp.data || [];
-        staffCache = users
-            .filter(u => u.role !== 'patient' && u.role !== 'superuser')
-            .map(u => ({
-                id: u.id,
-                name: u.name || 'Unknown',
-                role: u.role || 'Staff',
-                dept: u.dept || 'General',
-                shift: u.shift || 'Morning (08:00 - 16:00)',
-                status: u.status || 'Scheduled'
-            }));
-        return staffCache;
-    } catch (err) {
-        console.error('Failed to load staff:', err);
-        return [];
-    }
+function slotsSummary(slots) {
+    if (!slots || !slots.length) return '—';
+    return slots.map(s => `${s.department}: ${s.shift}`).join('; ');
 }
 
-function renderStaff(data) {
-    const tbody = document.getElementById('staffTableBody');
-    if (!tbody) return;
+function statusBadge(status) {
+    const cls = status === 'approved' ? 'status-approved' : status === 'rejected' ? 'status-rejected' : 'status-pending';
+    return `<span class="status-badge ${cls}">${(status || 'pending').toUpperCase()}</span>`;
+}
 
-    if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:#6b7280;">No staff members found.</td></tr>`;
+function renderTable(tbodyId, rows, emptyText) {
+    const tbody = document.getElementById(tbodyId);
+    if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:20px;color:#6b7280;">${emptyText}</td></tr>`;
         return;
     }
-
-    tbody.innerHTML = data.map(s => {
-        let badgeColor = s.status === 'On Duty' ? 'status-onduty' : s.status === 'On Leave' ? 'status-onleave' : 'status-scheduled';
-        return `
+    tbody.innerHTML = rows.map(s => `
         <tr>
-            <td><strong>${s.name}</strong></td>
-            <td>${s.role}</td>
-            <td>${s.dept}</td>
-            <td>${s.shift}</td>
-            <td><span class="status-badge ${badgeColor}">${s.status}</span></td>
-            <td>
-                <div class="action-buttons">
-                    <button class="action-btn" onclick="editShift('${s.id}')" title="Edit">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </button>
-                    <button class="action-btn" onclick="deleteShift('${s.id}')" title="Delete">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    </button>
-                </div>
-            </td>
+            <td>${s.validFrom} – ${s.validTo}</td>
+            <td>${slotsSummary(s.slots)}</td>
+            <td>${statusBadge(s.status)}</td>
         </tr>
-    `}).join('');
+    `).join('');
 }
 
-async function deleteShift(id) {
-    if (confirm('Are you sure you want to delete this staff member?')) {
-        try {
-            await apiRequest('DELETE', `/users/${id}`);
-        } catch (err) {
-            console.error('Delete staff failed:', err);
-            alert('Failed to delete staff member.');
-            return;
-        }
-        applyFilters();
-    }
+async function loadSchedules() {
+    const hid = hospitalId();
+    const resp = await apiGet(`/schedules?hospitalId=${encodeURIComponent(hid)}`);
+    const all = (resp && resp.data) || [];
+    renderTable('publishedTableBody', all.filter(s => s.status === 'approved'), 'No published schedule yet. Submit a roster and wait for hospital manager approval.');
+    renderTable('pendingTableBody', all.filter(s => s.status === 'pending'), 'No schedules waiting for approval.');
 }
 
-function openShiftModal() {
-    document.getElementById('shiftForm').reset();
-    document.getElementById('staffId').value = '';
-    document.getElementById('modalTitle').textContent = 'Add Staff Shift';
-    document.getElementById('shiftModal').classList.add('active');
+function addSlotRow(department, shiftLabel) {
+    const wrap = document.getElementById('slotRows');
+    const row = document.createElement('div');
+    row.className = 'slot-row';
+    const deptOpts = DEPTS.map(d => `<option value="${d}" ${d === department ? 'selected' : ''}>${d}</option>`).join('');
+    const shiftOpts = SHIFTS.map(s => `<option value="${s.label}" ${s.label === shiftLabel ? 'selected' : ''}>${s.label}</option>`).join('');
+    row.innerHTML = `
+        <select class="form-select slot-dept">${deptOpts}</select>
+        <select class="form-select slot-shift">${shiftOpts}</select>
+        <button type="button" class="btn-light" onclick="this.parentElement.remove()">Remove</button>
+    `;
+    wrap.appendChild(row);
 }
 
-function closeShiftModal() {
-    document.getElementById('shiftModal').classList.remove('active');
+function openScheduleModal() {
+    document.getElementById('scheduleForm').reset();
+    document.getElementById('slotRows').innerHTML = '';
+    addSlotRow();
+    document.getElementById('scheduleModal').classList.add('active');
 }
 
-function editShift(id) {
-    const s = staffCache.find(st => st.id === id);
-    if (!s) return;
-
-    document.getElementById('modalTitle').textContent = 'Edit Staff Shift';
-    document.getElementById('staffId').value = s.id;
-    document.getElementById('staffName').value = s.name;
-    document.getElementById('staffRole').value = s.role;
-    document.getElementById('staffDept').value = s.dept;
-    document.getElementById('staffShift').value = s.shift;
-    document.getElementById('staffStatus').value = s.status;
-
-    document.getElementById('shiftModal').classList.add('active');
+function closeScheduleModal() {
+    document.getElementById('scheduleModal').classList.remove('active');
 }
 
-async function saveShift(e) {
+async function submitSchedule(e) {
     e.preventDefault();
-
-    const id = document.getElementById('staffId').value;
-    const name = document.getElementById('staffName').value.trim();
-    const role = document.getElementById('staffRole').value.trim();
-    const dept = document.getElementById('staffDept').value;
-    const shift = document.getElementById('staffShift').value;
-    const status = document.getElementById('staffStatus').value;
-
-    if (!name || !role || !dept || !shift) {
-        alert("Please fill all required fields correctly.");
-        return;
-    }
-
-    // Generate a more robust email using timestamp to avoid duplicates
-    const timestamp = Date.now().toString(36);
-    const emailBase = name.replace(/\s+/g, "").toLowerCase().replace(/[^a-z0-9]/g, '');
-    const email = `${emailBase}.${timestamp}@nexcare.com`;
-
-    const payload = { name, role, dept, shift, status, email };
-
-    try {
-        if (id) {
-            await apiRequest('PUT', `/users/${id}`, payload);
-        } else {
-            // Prompt for password instead of hardcoding
-            const password = prompt("Enter password for new staff member:");
-            if (!password) {
-                alert("Password is required for new staff accounts.");
-                return;
-            }
-            if (password.length < 6) {
-                alert("Password must be at least 6 characters long.");
-                return;
-            }
-            payload.password = password;
-            await apiRequest('POST', '/users', payload);
-        }
-    } catch (err) {
-        alert('Failed to save staff member. Please try again.');
-        console.error(err);
-        return;
-    }
-
-    closeShiftModal();
-    applyFilters();
-}
-
-async function applyFilters() {
-    const term = document.getElementById('searchTable').value.toLowerCase();
-    const stat = document.getElementById('filterStatus').value;
-
-    const all = await loadStaff();
-    const filtered = all.filter(s => {
-        const matchesTerm = s.name.toLowerCase().includes(term) || s.dept.toLowerCase().includes(term);
-        const matchesStat = (stat === 'All' || s.status === stat);
-        return matchesTerm && matchesStat;
+    const validFrom = document.getElementById('validFrom').value;
+    const validTo = document.getElementById('validTo').value;
+    const notes = document.getElementById('scheduleNotes').value.trim();
+    const slots = [...document.querySelectorAll('#slotRows .slot-row')].map(row => {
+        const shift = row.querySelector('.slot-shift').value;
+        const meta = SHIFTS.find(s => s.label === shift) || SHIFTS[0];
+        return {
+            department: row.querySelector('.slot-dept').value,
+            shift,
+            startTime: meta.startTime,
+            endTime: meta.endTime
+        };
     });
-
-    renderStaff(filtered);
+    if (!slots.length) {
+        alert('Add at least one department shift.');
+        return;
+    }
+    const resp = await apiPost('/schedules', {
+        hospitalId: hospitalId(),
+        validFrom,
+        validTo,
+        slots,
+        notes
+    });
+    if (!resp || !resp.success) {
+        alert((resp && resp.message) || 'Failed to submit schedule.');
+        return;
+    }
+    closeScheduleModal();
+    await loadSchedules();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    applyFilters();
-
-    document.getElementById('searchTable').addEventListener('input', applyFilters);
-    document.getElementById('filterStatus').addEventListener('change', applyFilters);
-
+    loadSchedules();
     window.addEventListener('click', function (event) {
-        if (event.target == document.getElementById('shiftModal')) {
-            closeShiftModal();
-        }
+        if (event.target === document.getElementById('scheduleModal')) closeScheduleModal();
     });
 });

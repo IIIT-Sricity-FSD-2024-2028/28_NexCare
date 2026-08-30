@@ -11,14 +11,39 @@ export interface User {
   role: UserRole;
   status: UserStatus;
   password: string;
-  patientId?: string; // For patient users
-  dept?: string; // Department within the hospital (e.g. Front Desk, Cardiology)
-  hospitalId?: string; // For any user scoped to a single hospital
-  /** Local hospital areas/cities a regional manager may review. */
+  phone?: string;
+  dob?: string;
+  gender?: string;
+  employeeId?: string;
+  dept?: string;
+  designation?: string;
+  joiningDate?: string;
+  employmentType?: string;
+  hospitalId?: string;
+  hospitalName?: string;
+  // Doctor clinical directory fields
+  specialization?: string;
+  medicalRegNumber?: string;
+  qualification?: string;
+  experienceYears?: number | string;
+  consultationTiming?: string;
+  // Ambulance staff fields
+  driverLicense?: string;
+  assignedVehicle?: string;
+  shift?: string;
+  // Administrative staff fields
+  responsibilities?: string[] | string;
+  // Patient fields
+  patientId?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  // Regional manager fields
   areas?: string[];
-  city?: string; // For patients
-  state?: string; // For patients
-  pincode?: string; // For patients
+  mustChangePassword?: boolean;
+  regionId?: string;
+  address?: string;
+  consultationFee?: number | string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -30,14 +55,36 @@ export interface CreateUserRequest {
   name: string;
   email: string;
   role: UserRole;
-  password: string;
-  patientId?: string;
+  password?: string;
+  phone?: string;
+  dob?: string;
+  gender?: string;
+  employeeId?: string;
   dept?: string;
+  designation?: string;
+  joiningDate?: string;
+  employmentType?: string;
   hospitalId?: string;
+  hospitalName?: string;
+  specialization?: string;
+  medicalRegNumber?: string;
+  qualification?: string;
+  experienceYears?: number | string;
+  consultationTiming?: string;
+  driverLicense?: string;
+  assignedVehicle?: string;
+  shift?: string;
+  responsibilities?: string[] | string;
+  patientId?: string;
   areas?: string[];
   city?: string; // For patients
   state?: string; // For patients
   pincode?: string; // For patients
+  mustChangePassword?: boolean;
+  regionId?: string;
+  address?: string;
+  consultationFee?: number | string;
+  status?: UserStatus;
 }
 
 /**
@@ -49,13 +96,34 @@ export interface UpdateUserRequest {
   role?: UserRole;
   status?: UserStatus;
   password?: string;
-  patientId?: string;
+  phone?: string;
+  dob?: string;
+  gender?: string;
+  employeeId?: string;
   dept?: string;
+  designation?: string;
+  joiningDate?: string;
+  employmentType?: string;
   hospitalId?: string;
+  hospitalName?: string;
+  specialization?: string;
+  medicalRegNumber?: string;
+  qualification?: string;
+  experienceYears?: number | string;
+  consultationTiming?: string;
+  driverLicense?: string;
+  assignedVehicle?: string;
+  shift?: string;
+  responsibilities?: string[] | string;
+  patientId?: string;
   areas?: string[];
   city?: string; // For patients
   state?: string; // For patients
   pincode?: string; // For patients
+  mustChangePassword?: boolean;
+  regionId?: string;
+  address?: string;
+  consultationFee?: number | string;
 }
 
 /**

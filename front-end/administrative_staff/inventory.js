@@ -40,14 +40,17 @@ let filteredInventory = [];
 
 // ---------------- HELPERS ----------------
 function getStatus(qty, minStock = 20) {
-    if (qty === 0) return "Out of Stock";
-    if (qty < minStock) return "Low Stock";
-    return "In Stock";
+    if (qty === 0) return "OUT_OF_STOCK";
+    if (qty < minStock * 0.25) return "CRITICAL";
+    if (qty < minStock) return "LOW_STOCK";
+    return "NORMAL";
 }
 
 function getStatusClass(statusText) {
-    if (statusText === "Out of Stock") return "overdue";
-    if (statusText === "Low Stock") return "pending";
+    const s = String(statusText || '').toUpperCase();
+    if (s.includes('OUT_OF_STOCK') || s.includes('OUT')) return "overdue";
+    if (s.includes('CRITICAL')) return "overdue";
+    if (s.includes('LOW_STOCK') || s.includes('LOW')) return "pending";
     return "paid";
 }
 
@@ -487,8 +490,263 @@ window.closeAuditModal = () => {
     if (modal) modal.style.display = "none";
 };
 
+// ---------------- REQUISITION & PURCHASING MANAGEMENT ----------------
+let currentPurchaseTargetReq = null;
+let allRequisitionsCache = [];
+
+async function loadRequisitions() {
+    const tableBody = document.getElementById("requisitionsTable");
+    if (!tableBody) return;
+
+    try {
+        const resp = await apiGet('/inventory/requirements');
+        const reqs = resp.data || [];
+        allRequisitionsCache = reqs;
+
+        if (!reqs.length) {
+            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:#6b7280;">No requisition requests raised yet.</td></tr>`;
+            return;
+        }
+
+        tableBody.innerHTML = reqs.map(r => {
+            const isApproved = (r.status || '').toUpperCase() === 'APPROVED';
+            const isPending = (r.status || '').toUpperCase() === 'PENDING' || (r.status || '').toUpperCase() === 'PENDING_APPROVAL';
+            const isPurchasing = (r.status || '').toUpperCase() === 'PURCHASE_IN_PROGRESS';
+            const isPurchased = (r.status || '').toUpperCase() === 'PURCHASED';
+            const isRestocked = (r.status || '').toUpperCase() === 'RESTOCKED' || (r.status || '').toUpperCase() === 'FULFILLED';
+            const isRejected = (r.status || '').toUpperCase() === 'REJECTED';
+
+            let statusBadge = 'pending';
+            let displayStatus = 'PENDING APPROVAL';
+            if (isApproved) { statusBadge = 'paid'; displayStatus = 'APPROVED'; }
+            else if (isPurchasing) { statusBadge = 'pending'; displayStatus = 'PURCHASE IN PROGRESS'; }
+            else if (isPurchased) { statusBadge = 'paid'; displayStatus = 'PURCHASED'; }
+            else if (isRestocked) { statusBadge = 'paid'; displayStatus = 'RESTOCKED'; }
+            else if (isRejected) { statusBadge = 'overdue'; displayStatus = 'REJECTED'; }
+
+            let auditDetails = '';
+            if (isApproved) {
+                auditDetails = `<div style="font-size:11px; color:#059669; margin-top:2px;">Approved by ${escapeHtml(r.approvedByName || 'Manager')}</div>`;
+                if (r.managerRemarks) {
+                    auditDetails += `<div style="font-size:10.5px; color:#475569;">"${escapeHtml(r.managerRemarks)}"</div>`;
+                }
+            } else if (isPurchasing) {
+                auditDetails = `<div style="font-size:11px; color:#0284c7; margin-top:2px;">Vendor: <strong>${escapeHtml(r.supplier || 'Vendor')}</strong></div>
+                                <div style="font-size:10.5px; color:#64748B;">Inv: ${escapeHtml(r.invoiceNumber || 'PO-PENDING')} | Cost: ₹${Number(r.finalCost || r.estimatedCost || 0).toLocaleString('en-IN')}</div>`;
+            } else if (isPurchased) {
+                auditDetails = `<div style="font-size:11px; color:#7c3aed; margin-top:2px;">Purchased by Admin Staff</div>
+                                <div style="font-size:10.5px; color:#64748B;">Awaiting delivery receipt & restock</div>`;
+            } else if (isRestocked) {
+                auditDetails = `<div style="font-size:11px; color:#16a34a; margin-top:2px;">✓ Restocked (+${Number(r.quantityPurchased || r.requestedQuantity)} ${escapeHtml(r.unit || 'units')})</div>
+                                <div style="font-size:10.5px; color:#64748B;">Stock level updated in central inventory</div>`;
+            } else if (isRejected) {
+                auditDetails = `<div style="font-size:11px; color:#DC2626; margin-top:2px;"><strong>Reason:</strong> ${escapeHtml(r.rejectionReason || 'Rejected by Hospital Manager')}</div>`;
+            }
+
+            let actionHtml = `<span style="font-size:12px; color:#94A3B8;">Awaiting Manager Review</span>`;
+            const safeReqId = String(r.id).replaceAll("'", "\\'");
+
+            if (isApproved) {
+                actionHtml = `<button class="btn" style="padding:5px 10px; font-size:12px; background:#2563EB;" onclick="openStartPurchaseModal('${safeReqId}')">Start Purchase</button>`;
+            } else if (isPurchasing) {
+                actionHtml = `<button class="btn" style="padding:5px 10px; font-size:12px; background:#7c3aed;" onclick="markPurchased('${safeReqId}')">Mark Purchased</button>`;
+            } else if (isPurchased) {
+                actionHtml = `<button class="btn" style="padding:5px 10px; font-size:12px; background:#10b981;" onclick="markRestocked('${safeReqId}')">Mark Restocked</button>`;
+            } else if (isRestocked) {
+                actionHtml = `<span style="font-size:12px; color:#16a34a; font-weight:700;">Completed</span>`;
+            } else if (isRejected) {
+                actionHtml = `<span style="font-size:12px; color:#dc2626;">Closed</span>`;
+            }
+
+            return `
+                <tr>
+                    <td><strong>${escapeHtml(r.id)}</strong></td>
+                    <td>
+                        <strong>${escapeHtml(r.itemName)}</strong>
+                        <div style="font-size:11px; color:#64748B;">${escapeHtml(r.category || 'General')}</div>
+                    </td>
+                    <td><strong>${Number(r.requestedQuantity || 0)}</strong> ${escapeHtml(r.unit || 'units')}</td>
+                    <td>${escapeHtml(r.department || 'General')}</td>
+                    <td><span class="status ${r.priority === 'URGENT' ? 'overdue' : (r.priority === 'HIGH' ? 'pending' : 'paid')}">${escapeHtml(r.priority || 'MEDIUM')}</span></td>
+                    <td>
+                        <span class="status ${statusBadge}">${displayStatus}</span>
+                        ${auditDetails}
+                    </td>
+                    <td>
+                        ${actionHtml}
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+    } catch (err) {
+        console.error("Failed to load requisitions:", err);
+        if (tableBody) tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:#dc2626;">Failed to load requisitions.</td></tr>`;
+    }
+}
+
+window.openReqModal = () => {
+    const modal = document.getElementById("reqModal");
+    if (modal) {
+        document.getElementById("reqItemName").value = "";
+        document.getElementById("reqCategory").value = "";
+        document.getElementById("reqQuantity").value = "";
+        document.getElementById("reqUnit").value = "units";
+        document.getElementById("reqEstimatedCost").value = "";
+        document.getElementById("reqReason").value = "";
+        modal.style.display = "flex";
+    }
+};
+
+window.closeReqModal = () => {
+    const modal = document.getElementById("reqModal");
+    if (modal) modal.style.display = "none";
+};
+
+window.submitRequisition = async () => {
+    const itemName = document.getElementById("reqItemName")?.value.trim();
+    const category = document.getElementById("reqCategory")?.value.trim();
+    const department = document.getElementById("reqDept")?.value;
+    const requestedQuantity = Number(document.getElementById("reqQuantity")?.value);
+    const unit = document.getElementById("reqUnit")?.value.trim() || 'units';
+    const priority = document.getElementById("reqPriority")?.value || 'MEDIUM';
+    const estimatedCost = Number(document.getElementById("reqEstimatedCost")?.value) || 0;
+    const reason = document.getElementById("reqReason")?.value.trim();
+
+    if (!itemName || !category || !requestedQuantity || requestedQuantity <= 0 || !reason) {
+        alert("Please fill in all required fields (Item Name, Category, Requested Quantity, and Reason).");
+        return;
+    }
+
+    try {
+        const payload = {
+            itemName,
+            category,
+            department,
+            requestedQuantity,
+            unit,
+            priority,
+            estimatedCost,
+            reason
+        };
+
+        const resp = await apiRequest('POST', '/inventory/requirements', payload);
+        if (resp.success) {
+            alert("Inventory requirement submitted to Hospital Manager for approval!");
+            window.closeReqModal();
+            loadRequisitions();
+        } else {
+            alert(resp.message || "Failed to submit requirement.");
+        }
+    } catch (err) {
+        console.error("Error creating requirement:", err);
+        alert("Error submitting requirement. Please try again.");
+    }
+};
+
+// ---------------- PURCHASING WORKFLOW ACTIONS ----------------
+window.openStartPurchaseModal = (reqId) => {
+    const req = allRequisitionsCache.find(r => String(r.id) === String(reqId));
+    if (!req) return;
+
+    currentPurchaseTargetReq = req;
+    document.getElementById('purchaseModalTitle').textContent = `Initiate Purchase: ${req.itemName}`;
+    document.getElementById('purchaseModalSubtitle').textContent = `Requisition #${req.id} • Approved Qty: ${req.requestedQuantity} ${req.unit}`;
+
+    document.getElementById('purchaseSupplier').value = req.supplier || 'MedTech Surgicals Pvt. Ltd.';
+    document.getElementById('purchaseInvoice').value = req.invoiceNumber || `PO-${req.department.slice(0,3).toUpperCase()}-${Date.now().toString().slice(-4)}`;
+    document.getElementById('purchaseDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('purchaseQuantity').value = req.requestedQuantity || 100;
+    document.getElementById('purchaseCost').value = req.estimatedCost || 9500;
+    document.getElementById('purchaseNotes').value = req.purchaseNotes || '';
+
+    const modal = document.getElementById('startPurchaseModal');
+    if (modal) modal.style.display = 'flex';
+};
+
+window.closeStartPurchaseModal = () => {
+    const modal = document.getElementById('startPurchaseModal');
+    if (modal) modal.style.display = 'none';
+    currentPurchaseTargetReq = null;
+};
+
+window.submitStartPurchase = async () => {
+    if (!currentPurchaseTargetReq) return;
+
+    const supplier = document.getElementById('purchaseSupplier')?.value.trim();
+    const invoiceNumber = document.getElementById('purchaseInvoice')?.value.trim();
+    const purchaseDate = document.getElementById('purchaseDate')?.value;
+    const quantityPurchased = Number(document.getElementById('purchaseQuantity')?.value);
+    const finalCost = Number(document.getElementById('purchaseCost')?.value);
+    const purchaseNotes = document.getElementById('purchaseNotes')?.value.trim();
+
+    if (!supplier || !invoiceNumber || !quantityPurchased || quantityPurchased <= 0) {
+        alert('Please provide supplier name, invoice/PO number, and valid purchase quantity.');
+        return;
+    }
+
+    try {
+        const resp = await apiRequest('PATCH', `/inventory/requirements/${currentPurchaseTargetReq.id}/start-purchase`, {
+            supplier,
+            invoiceNumber,
+            purchaseDate,
+            quantityPurchased,
+            finalCost,
+            purchaseNotes
+        });
+
+        if (resp.success) {
+            alert(`Purchase details recorded for ${currentPurchaseTargetReq.itemName}! Status updated to Purchase in Progress.`);
+            window.closeStartPurchaseModal();
+            await loadRequisitions();
+        } else {
+            alert(resp.message || 'Failed to record purchase details.');
+        }
+    } catch (err) {
+        console.error('Error starting purchase:', err);
+        alert('Error recording purchase details.');
+    }
+};
+
+window.markPurchased = async (reqId) => {
+    if (!confirm('Confirm marking this item as purchased from the vendor?')) return;
+
+    try {
+        const resp = await apiRequest('PATCH', `/inventory/requirements/${reqId}/mark-purchased`, {});
+        if (resp.success) {
+            alert('Item marked as Purchased. Next step: Mark Restocked once delivered to hospital.');
+            await loadRequisitions();
+        } else {
+            alert(resp.message || 'Failed to update requirement status.');
+        }
+    } catch (err) {
+        console.error('Error marking purchased:', err);
+        alert('Error updating status.');
+    }
+};
+
+window.markRestocked = async (reqId) => {
+    if (!confirm('Confirm goods received and restocked into central hospital inventory? This will automatically increase the stock quantity.')) return;
+
+    try {
+        const resp = await apiRequest('PATCH', `/inventory/requirements/${reqId}/mark-restocked`, {});
+        if (resp.success) {
+            alert('Requirement marked as RESTOCKED! Central inventory item quantity has been automatically updated.');
+            await loadRequisitions();
+            await loadInventory(); // Auto refresh stock table and stats!
+        } else {
+            alert(resp.message || 'Failed to restock item.');
+        }
+    } catch (err) {
+        console.error('Error marking restocked:', err);
+        alert('Error updating status and restocking.');
+    }
+};
+
 // ---------------- EVENTS ----------------
 document.getElementById("searchInput")?.addEventListener("input", applySearch);
 
 // ---------------- INIT ----------------
 loadInventory();
+loadRequisitions();
+

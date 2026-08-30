@@ -1,4 +1,15 @@
-import { VerificationStatus } from '../../common/interfaces/api-response.interface';
+import { VerificationStatus, SubscriptionStatus } from '../../common/interfaces/api-response.interface';
+
+export interface HospitalPaymentRecord {
+  id: string;
+  date: string;
+  amount: number;
+  paymentType: string;
+  transactionId: string;
+  previousExpiry: string;
+  newExpiry: string;
+  status: string;
+}
 
 export interface Hospital {
   id: string;
@@ -35,6 +46,15 @@ export interface Hospital {
   regionalReviewStatus?: 'pending' | 'cleared' | 'rejected';
   regionalReviewedAt?: string;
   regionalReviewNotes?: string;
+  // Subscription fields
+  subscriptionStartDate?: string;
+  subscriptionExpiryDate?: string;
+  lastPaymentDate?: string;
+  amountPaid?: number;
+  paymentStatus?: SubscriptionStatus | string;
+  renewalStatus?: string;
+  transactionId?: string;
+  paymentHistory?: HospitalPaymentRecord[];
   createdAt: string;
   updatedAt: string;
 }
@@ -59,6 +79,8 @@ export interface CreateHospitalDto {
   adminName: string;
   adminEmail: string;
   adminPhone: string;
+  subscriptionStartDate?: string;
+  subscriptionExpiryDate?: string;
 }
 
 export interface UpdateHospitalDto {
@@ -94,4 +116,22 @@ export interface UpdateHospitalDto {
   regionalReviewStatus?: 'pending' | 'cleared' | 'rejected';
   regionalReviewedAt?: string;
   regionalReviewNotes?: string;
+  subscriptionStartDate?: string;
+  subscriptionExpiryDate?: string;
+  lastPaymentDate?: string;
+  amountPaid?: number;
+  paymentStatus?: SubscriptionStatus | string;
+  renewalStatus?: string;
+  transactionId?: string;
+  paymentHistory?: HospitalPaymentRecord[];
+}
+
+export interface RenewSubscriptionDto {
+  paymentMethod: 'UPI' | 'Card' | 'Net Banking' | string;
+  amount?: number;
+  paymentDetails?: {
+    upiId?: string;
+    cardLast4?: string;
+    bankName?: string;
+  };
 }

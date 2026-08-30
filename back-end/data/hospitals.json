@@ -28,8 +28,59 @@
     "adminPhone": "+91 98480 12345",
     "verificationStatus": "verified",
     "assignedManagerId": "M001",
+    "regionId": "R001",
+    "regionName": "Andhra Pradesh South",
+    "subscriptionStartDate": "2026-09-01",
+    "subscriptionExpiryDate": "2029-08-31",
+    "lastPaymentDate": "2026-08-30T10:44:07.637Z",
+    "amountPaid": 150000,
+    "paymentStatus": "ACTIVE",
+    "renewalStatus": "UP_TO_DATE",
+    "transactionId": "TXN-NEX-647637-1131",
+    "paymentHistory": [
+      {
+        "id": "PAYMTFOMFDH8B8",
+        "date": "2026-08-30T10:44:07.637Z",
+        "amount": 50000,
+        "paymentType": "UPI (admin.aiims@icici)",
+        "transactionId": "TXN-NEX-647637-1131",
+        "previousExpiry": "2028-08-31",
+        "newExpiry": "2029-08-31",
+        "status": "PAID"
+      },
+      {
+        "id": "PAYMTFO8WLG39F",
+        "date": "2026-08-30T10:33:36.772Z",
+        "amount": 50000,
+        "paymentType": "UPI (admin.aiims@icici)",
+        "transactionId": "TXN-NEX-016772-7746",
+        "previousExpiry": "2027-08-31",
+        "newExpiry": "2028-08-31",
+        "status": "PAID"
+      },
+      {
+        "id": "PAY-1001",
+        "date": "2026-08-25T10:00:00.000Z",
+        "amount": 50000,
+        "paymentType": "Card (Corporate Visa)",
+        "transactionId": "TXN-NEX-20260825-9921",
+        "previousExpiry": "2026-08-31",
+        "newExpiry": "2027-08-31",
+        "status": "PAID"
+      },
+      {
+        "id": "PAY-1000",
+        "date": "2025-08-20T14:30:00.000Z",
+        "amount": 45000,
+        "paymentType": "Net Banking (SBI)",
+        "transactionId": "TXN-NEX-20250820-4102",
+        "previousExpiry": "2025-08-31",
+        "newExpiry": "2026-08-31",
+        "status": "PAID"
+      }
+    ],
     "createdAt": "2023-01-01T00:00:00.000Z",
-    "updatedAt": "2026-08-26T00:00:00.000Z",
+    "updatedAt": "2026-08-30T10:44:07.637Z",
     "availability": {
       "Cardiology": {
         "days": [
@@ -145,6 +196,27 @@
     "adminPhone": "+91 94400 54321",
     "verificationStatus": "verified",
     "assignedManagerId": "M001",
+    "regionId": "R001",
+    "regionName": "Andhra Pradesh South",
+    "subscriptionStartDate": "2025-09-25",
+    "subscriptionExpiryDate": "2026-09-25",
+    "lastPaymentDate": "2025-09-20T11:00:00.000Z",
+    "amountPaid": 50000,
+    "paymentStatus": "DUE_SOON",
+    "renewalStatus": "PENDING_RENEWAL",
+    "transactionId": "TXN-NEX-20250920-7714",
+    "paymentHistory": [
+      {
+        "id": "PAY-2001",
+        "date": "2025-09-20T11:00:00.000Z",
+        "amount": 50000,
+        "paymentType": "UPI (apollo@icici)",
+        "transactionId": "TXN-NEX-20250920-7714",
+        "previousExpiry": "2025-09-25",
+        "newExpiry": "2026-09-25",
+        "status": "PAID"
+      }
+    ],
     "createdAt": "2024-03-15T10:00:00.000Z",
     "updatedAt": "2026-08-26T00:00:00.000Z",
     "availability": {
@@ -277,6 +349,27 @@
     "adminPhone": "+91 98400 98765",
     "verificationStatus": "verified",
     "assignedManagerId": "M003",
+    "regionId": "R002",
+    "regionName": "Telangana Central",
+    "subscriptionStartDate": "2025-08-15",
+    "subscriptionExpiryDate": "2026-08-15",
+    "lastPaymentDate": "2025-08-10T12:00:00.000Z",
+    "amountPaid": 50000,
+    "paymentStatus": "EXPIRED",
+    "renewalStatus": "OVERDUE",
+    "transactionId": "TXN-NEX-20250810-3301",
+    "paymentHistory": [
+      {
+        "id": "PAY-3001",
+        "date": "2025-08-10T12:00:00.000Z",
+        "amount": 50000,
+        "paymentType": "Net Banking (HDFC)",
+        "transactionId": "TXN-NEX-20250810-3301",
+        "previousExpiry": "2025-08-15",
+        "newExpiry": "2026-08-15",
+        "status": "PAID"
+      }
+    ],
     "createdAt": "2024-05-10T08:30:00.000Z",
     "updatedAt": "2026-08-26T00:00:00.000Z",
     "availability": {

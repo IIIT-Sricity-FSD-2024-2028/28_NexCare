@@ -9,12 +9,12 @@ const STREAMS: LogStream[] = ['access', 'error', 'app'];
 
 /**
  * Logs Controller
- * Read-only view over the log files for administrators, so the stored logs can
- * be inspected from the admin portal without shell access to the server.
+ * Read-only view over the log files for superusers. Administrative staff
+ * do not have access to platform log streams.
  */
 @ApiTags('Logs')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
+@Roles(UserRole.SUPERUSER)
 @Controller('logs')
 export class LogsController {
   /**

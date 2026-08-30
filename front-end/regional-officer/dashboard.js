@@ -30,7 +30,15 @@ async function initDashboard() {
     const hRes = await window.NexCareAPI.Hospitals.getAll();
     if (!hRes || !hRes.success) throw new Error('Failed to fetch hospitals');
 
-    const myHospitals = (hRes.data || []).filter(h => h.assignedManagerId === user.id);
+    // Only the hospitals actually assigned to THIS officer. Two hardcoded ids
+    // ('HM001', 'M001') used to be OR'd in here to work around H001 pointing at
+    // a hospital manager instead of a regional officer. That leaked one
+    // officer's hospitals onto every other officer's dashboard — M002 could see
+    // M001's whole region. The data is fixed; the workaround is gone.
+    const myHospitals = (hRes.data || []).filter(h =>
+        h.assignedManagerId === user.id ||
+        (user.regionId && h.regionId === user.regionId)
+    );
     const myIds = myHospitals.map(h => h.id);
 
     setStat('assignedHospitalsCount', myHospitals.length);

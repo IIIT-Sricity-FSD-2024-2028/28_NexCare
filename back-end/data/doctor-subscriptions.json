@@ -238,5 +238,65 @@
     "startedAt": "2026-01-01T00:00:00.000Z",
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": ""
+  },
+  {
+    "id": "DSUB-UMTFO8WK32OV",
+    "doctorId": "UMTFO8WK32OV",
+    "doctorName": "Dr. Radhika Sen",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-30T12:28:45.305Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-UMTFPALGS2SG",
+    "doctorId": "UMTFPALGS2SG",
+    "doctorName": "Dr. Ananya Sharma",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-30T12:28:45.306Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-UMTFQ203L2PL",
+    "doctorId": "UMTFQ203L2PL",
+    "doctorName": "Dr. Ramesh Gupta",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-30T12:28:45.306Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-UMTFQ6I253VA",
+    "doctorId": "UMTFQ6I253VA",
+    "doctorName": "Ananya Doctor",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-30T12:28:45.306Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-UMTFQ760I4HD",
+    "doctorId": "UMTFQ760I4HD",
+    "doctorName": "ananya",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-30T12:28:45.307Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
   }
 ]

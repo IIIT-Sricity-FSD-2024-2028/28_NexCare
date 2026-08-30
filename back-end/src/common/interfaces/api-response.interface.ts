@@ -134,3 +134,39 @@ export enum LeaveStatus {
   APPROVED = 'approved',
   REJECTED = 'rejected'
 }
+
+/**
+ * Inventory Requirement Status Enumeration
+ */
+export enum InventoryRequirementStatus {
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  PENDING = 'PENDING_APPROVAL',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  PURCHASE_IN_PROGRESS = 'PURCHASE_IN_PROGRESS',
+  PURCHASED = 'PURCHASED',
+  RESTOCKED = 'RESTOCKED',
+  ORDERED = 'PURCHASE_IN_PROGRESS',
+  FULFILLED = 'RESTOCKED'
+}
+
+/**
+ * Inventory Priority Enumeration
+ */
+export enum InventoryPriority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  URGENT = 'URGENT'
+}
+
+/**
+ * Hospital Subscription Status
+ */
+export enum SubscriptionStatus {
+  ACTIVE = 'ACTIVE',
+  DUE_SOON = 'DUE_SOON',
+  EXPIRED = 'EXPIRED',
+  OVERDUE = 'OVERDUE'
+}
+

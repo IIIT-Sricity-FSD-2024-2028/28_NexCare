@@ -349,6 +349,14 @@ const UsersAPI = {
     async getDoctors(dept) {
         const q = dept ? `?dept=${encodeURIComponent(dept)}` : '';
         return await api.get(`/users/doctors${q}`);
+    },
+
+    async previewEmail(name) {
+        return await api.get(`/users/preview-email?name=${encodeURIComponent(name || '')}`);
+    },
+
+    async updateStatus(id, status) {
+        return await api.patch(`/users/${id}/status`, { status });
     }
 };
 
@@ -484,6 +492,52 @@ const AmbulanceAPI = {
 
     async cancelRequest(id) {
         return await api.delete(`/ambulance/${id}`);
+    },
+
+    async getAll(query = {}) {
+        let qStr = '';
+        if (typeof query === 'string') {
+            qStr = query.startsWith('?') ? query : `?${query}`;
+        } else if (query && typeof query === 'object') {
+            const params = new URLSearchParams();
+            if (query.status) params.append('status', query.status);
+            if (query.patientId) params.append('patientId', query.patientId);
+            const s = params.toString();
+            if (s) qStr = `?${s}`;
+        }
+        return await api.get(`/ambulance${qStr}`);
+    },
+
+    async getById(id) {
+        return await api.get(`/ambulance/${id}`);
+    },
+
+    async create(requestData) {
+        return await api.post('/ambulance', requestData);
+    },
+
+    async update(id, updateData) {
+        return await api.put(`/ambulance/${id}`, updateData);
+    },
+
+    async dispatch(id, assignedTo, vehicleNumber) {
+        return await api.patch(`/ambulance/${id}/dispatch`, { assignedTo, vehicleNumber });
+    },
+
+    async complete(id) {
+        return await api.patch(`/ambulance/${id}/complete`, {});
+    },
+
+    async delete(id) {
+        return await api.delete(`/ambulance/${id}`);
+    },
+
+    async getStats() {
+        return await api.get('/ambulance/stats/overview');
+    },
+
+    async getActive() {
+        return await api.get('/ambulance/active');
     }
 };
 
@@ -578,6 +632,55 @@ const InventoryAPI = {
 
     async getAudit(id) {
         return await api.get(`/inventory/audit/${id}`);
+    },
+
+    // Inventory Requirement Requests (Staff -> Hospital Manager Approval)
+    async getRequirements(query = {}) {
+        let qStr = '';
+        if (typeof query === 'string') {
+            qStr = query.startsWith('?') ? query : `?${query}`;
+        } else if (query && typeof query === 'object') {
+            const params = new URLSearchParams();
+            if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+            if (query.status) params.append('status', query.status);
+            if (query.priority) params.append('priority', query.priority);
+            if (query.department) params.append('department', query.department);
+            const s = params.toString();
+            if (s) qStr = `?${s}`;
+        }
+        return await api.get(`/inventory/requirements${qStr}`);
+    },
+
+    async getRequirementById(id) {
+        return await api.get(`/inventory/requirements/${id}`);
+    },
+
+    async createRequirement(data) {
+        return await api.post('/inventory/requirements', data);
+    },
+
+    async approveRequirement(id, managerRemarks = '') {
+        return await api.patch(`/inventory/requirements/${id}/approve`, { managerRemarks });
+    },
+
+    async rejectRequirement(id, rejectionReason) {
+        return await api.patch(`/inventory/requirements/${id}/reject`, { rejectionReason });
+    },
+
+    async startPurchase(id, purchaseData = {}) {
+        return await api.patch(`/inventory/requirements/${id}/start-purchase`, purchaseData);
+    },
+
+    async markPurchased(id) {
+        return await api.patch(`/inventory/requirements/${id}/mark-purchased`, {});
+    },
+
+    async markRestocked(id) {
+        return await api.patch(`/inventory/requirements/${id}/mark-restocked`, {});
+    },
+
+    async fulfillRequirement(id) {
+        return await api.patch(`/inventory/requirements/${id}/fulfill`, {});
     }
 };
 
@@ -640,6 +743,19 @@ const HospitalsAPI = {
 
     async regionalReview(id, decision, notes) {
         return await api.patch(`/hospitals/${id}/regional-review`, { decision, notes });
+    },
+
+    // Subscription & Renewal
+    async getSubscription(id) {
+        return await api.get(`/hospitals/${id}/subscription`);
+    },
+
+    async renewSubscription(id, paymentData = {}) {
+        return await api.post(`/hospitals/${id}/renew-subscription`, paymentData);
+    },
+
+    async getPaymentHistory(id) {
+        return await api.get(`/hospitals/${id}/payment-history`);
     }
 };
 
@@ -723,6 +839,14 @@ const LeavesAPI = {
         if (query.endDate) params.append('endDate', query.endDate);
         const s = params.toString();
         return await api.get(`/leaves/calendar${s ? `?${s}` : ''}`);
+    },
+
+    async approve(id) {
+        return await api.patch(`/leaves/${id}`, { status: 'approved' });
+    },
+
+    async reject(id, rejectionReason) {
+        return await api.patch(`/leaves/${id}`, { status: 'rejected', rejectionReason });
     }
 };
 
@@ -907,6 +1031,23 @@ const PaymentsAPI = {
     }
 };
 
+// Schedules API — staff rostering, added by the team on main.
+const SchedulesAPI = {
+    async getAll(query = {}) {
+        const params = new URLSearchParams();
+        if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+        if (query.status) params.append('status', query.status);
+        const s = params.toString();
+        return await api.get(`/schedules${s ? `?${s}` : ''}`);
+    },
+    async create(data) {
+        return await api.post('/schedules', data);
+    },
+    async update(id, data) {
+        return await api.patch(`/schedules/${id}`, data);
+    }
+};
+
 // Hierarchy API
 // There is no way to ask for someone else's subtree — you get yours, derived
 // from the token. `getScope()` answers "what may I see", `getTree()` answers
@@ -975,6 +1116,7 @@ window.NexCareAPI = {
     Leaves: LeavesAPI,
     SupportRequests: SupportRequestsAPI,
     Revenue: RevenueAPI,
+    Schedules: SchedulesAPI,
     Payments: PaymentsAPI,
     Hierarchy: HierarchyAPI,
     System: SystemAPI

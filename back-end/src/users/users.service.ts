@@ -99,33 +99,106 @@ private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals
   }
 
   /**
+   * Automatically generate unique staff email based on name
+   */
+  generateStaffEmail(name: string): string {
+    if (!name) return `staff${Date.now().toString().slice(-4)}@nexcare.in`;
+    let clean = name.replace(/^(dr\.|dr|mr\.|mr|mrs\.|mrs|ms\.|ms)\s+/i, '').trim();
+    clean = clean.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '.');
+    if (!clean) clean = 'staff';
+    const base = clean;
+    let candidate = `${base}@nexcare.in`;
+    let counter = 2;
+    const currentUsers = this.users;
+    while (currentUsers.some(u => u.email.toLowerCase() === candidate.toLowerCase())) {
+      candidate = `${base}${counter}@nexcare.in`;
+      counter++;
+    }
+    return candidate;
+  }
+
+  /**
+   * Automatically generate formatted employee ID
+   */
+  generateEmployeeId(role: UserRole | string, hospitalId?: string): string {
+    const hId = hospitalId || 'H001';
+    let prefix = 'EMP';
+    if (role === UserRole.DOCTOR || role === 'doctor') prefix = 'DOC';
+    else if (role === UserRole.ADMINISTRATIVE_STAFF || role === 'administrative_staff') prefix = 'ADM';
+    else if (role === UserRole.AMBULANCE || role === 'ambulance') prefix = 'AMB';
+
+    const count = this.users.filter(u => u.hospitalId === hId && u.role === role).length + 1;
+    const seq = String(count).padStart(3, '0');
+    return `${prefix}-${hId}-${seq}`;
+  }
+
+  /**
    * Create new user
    * @param userData User creation data
    * @returns Created user data
    */
   async create(userData: CreateUserRequest) {
     try {
-      // Check if email already exists (exact, case-insensitive)
-      const email = userData.email.toLowerCase();
-      const existingUser = this.users.find(u => u.email.toLowerCase() === email);
-      if (existingUser) {
-        return ResponseUtil.error('Email already exists');
+      // Auto-generate email if missing
+      let email = (userData.email || '').trim().toLowerCase();
+      if (!email) {
+        email = this.generateStaffEmail(userData.name);
+      } else {
+        const existingUser = this.users.find(u => u.email.toLowerCase() === email);
+        if (existingUser) {
+          return ResponseUtil.error('Email already exists');
+        }
       }
+
+      // Auto-generate employeeId if missing
+      const employeeId = userData.employeeId || this.generateEmployeeId(userData.role, userData.hospitalId);
 
       // Generate new user ID using utility
       const newUserId = IdGenerator.generateUserId();
+
+      // Default temporary password
+      const tempPassword = userData.password || 'NexCare@123';
+      const mustChangePassword = userData.mustChangePassword !== undefined ? userData.mustChangePassword : true;
+
+      // Determine region ID if not provided
+      let regionId = userData.regionId;
+      if (!regionId) {
+        if (userData.hospitalId === 'H003') regionId = 'R002';
+        else regionId = 'R001';
+      }
 
       // Create new user
       const newUser: User = {
         id: newUserId,
         name: userData.name,
-        email: userData.email,
+        email: email,
         role: userData.role,
-        status: UserStatus.ACTIVE,
-        password: userData.password,
-        patientId: userData.patientId,
+        status: (userData.status as UserStatus) || UserStatus.ACTIVE,
+        password: tempPassword,
+        mustChangePassword,
+        phone: userData.phone,
+        dob: userData.dob,
+        gender: userData.gender,
+        address: userData.address,
+        employeeId: employeeId,
         dept: userData.dept,
+        designation: userData.designation,
+        joiningDate: userData.joiningDate || new Date().toISOString().split('T')[0],
+        employmentType: userData.employmentType || 'Full-time',
         hospitalId: userData.hospitalId,
+        hospitalName: userData.hospitalName,
+        regionId: regionId,
+        specialization: userData.specialization,
+        medicalRegNumber: userData.medicalRegNumber,
+        qualification: userData.qualification,
+        experienceYears: userData.experienceYears,
+        consultationTiming: userData.consultationTiming,
+        consultationFee: userData.consultationFee,
+        driverLicense: userData.driverLicense,
+        assignedVehicle: userData.assignedVehicle,
+        shift: userData.shift,
+        responsibilities: userData.responsibilities,
+        patientId: userData.patientId,
         areas: userData.areas,
         city: userData.city,
         state: userData.state,
@@ -142,7 +215,11 @@ private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals
       // Remove password from response using utility
       const userWithoutPassword = DataSanitizer.removePassword(newUser);
 
-      return ResponseUtil.created('User created successfully', userWithoutPassword);
+      return ResponseUtil.created('User created successfully', {
+        ...userWithoutPassword,
+        tempPassword: tempPassword,
+        mustChangePassword: newUser.mustChangePassword
+      });
     } catch (error) {
       return ResponseUtil.serverError('Failed to create user');
     }

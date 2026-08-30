@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Put, Patch, Body, Param, Query, UseInterceptors, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Body, Param, Query, UseInterceptors, Req, ForbiddenException } from '@nestjs/common';
 import { HospitalsService } from './hospitals.service';
 import { UsersService } from '../users/users.service';
-import { CreateHospitalDto, UpdateHospitalDto } from './interfaces/hospital.interface';
+import { CreateHospitalDto, UpdateHospitalDto, RenewSubscriptionDto } from './interfaces/hospital.interface';
 import { VerificationStatus } from '../common/interfaces/api-response.interface';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/interfaces/api-response.interface';
@@ -64,8 +64,47 @@ export class HospitalsController {
 
   @Roles(UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER)
   @Put(':id')
-  async update(@Param('id') id: string, @Body() data: UpdateHospitalDto) {
+  async update(@Param('id') id: string, @Req() req: any, @Body() data: UpdateHospitalDto) {
+    if (req.user?.role === UserRole.HOSPITAL_MANAGER && req.user.hospitalId && req.user.hospitalId !== id) {
+      throw new ForbiddenException('Cross-hospital access denied. You can only update your assigned hospital.');
+    }
     return this.hospitalsService.update(id, data);
+  }
+
+  /**
+   * Get subscription & renewal status for a hospital
+   */
+  @Roles(UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER)
+  @Get(':id/subscription')
+  async getSubscription(@Param('id') id: string, @Req() req: any) {
+    if (req.user?.role === UserRole.HOSPITAL_MANAGER && req.user.hospitalId && req.user.hospitalId !== id) {
+      throw new ForbiddenException('Cross-hospital access denied. You can only view subscription details for your assigned hospital.');
+    }
+    return this.hospitalsService.getSubscriptionDetails(id);
+  }
+
+  /**
+   * Renew hospital registration (mock payment flow with automatic 12-month extension)
+   */
+  @Roles(UserRole.SUPERUSER, UserRole.HOSPITAL_MANAGER)
+  @Post(':id/renew-subscription')
+  async renewSubscription(@Param('id') id: string, @Req() req: any, @Body() renewalDto: RenewSubscriptionDto) {
+    if (req.user?.role === UserRole.HOSPITAL_MANAGER && req.user.hospitalId && req.user.hospitalId !== id) {
+      throw new ForbiddenException('Cross-hospital access denied. You can only renew subscription for your assigned hospital.');
+    }
+    return this.hospitalsService.renewSubscription(id, renewalDto);
+  }
+
+  /**
+   * Get payment history for a hospital
+   */
+  @Roles(UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER)
+  @Get(':id/payment-history')
+  async getPaymentHistory(@Param('id') id: string, @Req() req: any) {
+    if (req.user?.role === UserRole.HOSPITAL_MANAGER && req.user.hospitalId && req.user.hospitalId !== id) {
+      throw new ForbiddenException('Cross-hospital access denied. You can only view payment history for your assigned hospital.');
+    }
+    return this.hospitalsService.getPaymentHistory(id);
   }
 
   @Roles(UserRole.SUPERUSER)

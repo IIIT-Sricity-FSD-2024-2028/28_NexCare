@@ -12,11 +12,6 @@ try {
 }
 import * as crypto from 'crypto';
 import { fileLogger } from './common/logging/file-logger';
-// `import multer from 'multer'` compiles (allowSyntheticDefaultImports is on)
-// but is undefined at RUNTIME: the tsconfig sets module=commonjs WITHOUT
-// esModuleInterop, so no interop helper is emitted and multer — a CommonJS
-// module — has no `default`. This crashed the server on boot at
-// `multer.diskStorage`. Namespace import, matching path/fs just below.
 import * as multer from 'multer';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -108,7 +103,7 @@ export class CsrfMiddleware implements NestMiddleware {
     }
 
     // Validate CSRF for state-changing methods (POST, PUT, PATCH, DELETE)
-    const csrfToken = req.headers['x-csrf-token'] as string || (req.body as any)._csrf;
+    const csrfToken = (req.headers['x-csrf-token'] as string) || (req.body as any)?._csrf;
     
     if (!csrfToken) {
       fileLogger.warn('error', 'CSRF token missing', {
@@ -516,17 +511,17 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+const storage = multer ? multer.diskStorage({
+  destination: (req: any, file: any, cb: any) => {
     cb(null, uploadsDir);
   },
-  filename: (req, file, cb) => {
+  filename: (req: any, file: any, cb: any) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   },
-});
+}) : null;
 
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (req: any, file: any, cb: any) => {
   const allowedMimes = [
     'image/jpeg',
     'image/png',
@@ -544,13 +539,13 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
   }
 };
 
-export const uploadMiddleware = multer({
+export const uploadMiddleware = multer ? multer({
   storage: storage,
   limits: {
     fileSize: MAX_UPLOAD_BYTES,
   },
   fileFilter: fileFilter,
-});
+}) : ((req: any, res: any, next: any) => next());
 
 // Keep custom middleware for validation on top of Multer
 @Injectable()
