@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Patch, Param, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, Req, HttpCode, HttpStatus, Res } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -7,6 +7,7 @@ import { RegisterStaffDto } from './dto/register-staff.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/interfaces/api-response.interface';
+import { Response } from 'express';
 
 /**
  * Authentication Controller
@@ -25,8 +26,15 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 200, description: 'Login result (check success field)' })
-  async login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  async login(@Body() loginDto: LoginDto, @Res() res: Response) {
+    const result = await this.authService.login(loginDto);
+    
+    // Add Cache-Control headers to prevent stale cached pages
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    
+    return res.json(result);
   }
 
   /** @route POST /api/auth/register — Public (patient self-registration) */
@@ -36,8 +44,15 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a new patient account' })
   @ApiResponse({ status: 200, description: 'Registration result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto);
+  async register(@Body() registerDto: RegisterDto, @Res() res: Response) {
+    const result = await this.authService.register(registerDto);
+    
+    // Add Cache-Control headers to prevent stale cached pages
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    
+    return res.json(result);
   }
 
   /** @route POST /api/auth/register-staff — Public (staff self-registration) */
@@ -47,8 +62,15 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a new staff account (administrative_staff/ambulance)' })
   @ApiResponse({ status: 200, description: 'Registration result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async registerStaff(@Body() registerStaffDto: RegisterStaffDto) {
-    return this.authService.registerStaff(registerStaffDto);
+  async registerStaff(@Body() registerStaffDto: RegisterStaffDto, @Res() res: Response) {
+    const result = await this.authService.registerStaff(registerStaffDto);
+    
+    // Add Cache-Control headers to prevent stale cached pages
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    
+    return res.json(result);
   }
 
   /** @route POST /api/auth/logout/:userId — Any authenticated user */

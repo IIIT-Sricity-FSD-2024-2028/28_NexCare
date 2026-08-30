@@ -22,10 +22,45 @@ export class UpdateAmbulanceRequestDto {
   @IsString()
   notes?: string;
 
-  @ApiPropertyOptional({ enum: AmbulanceStatus, example: AmbulanceStatus.PENDING, description: 'Request status' })
+  @ApiPropertyOptional({ example: 'Available', description: 'Request / Fleet status' })
   @IsOptional()
-  @IsEnum(AmbulanceStatus)
-  status?: AmbulanceStatus;
+  @IsString()
+  status?: any;
+
+  @ApiPropertyOptional({ example: 'AP-03-AX-1001', description: 'Vehicle registration number' })
+  @IsOptional()
+  @IsString()
+  vehicleNumber?: string;
+
+  @ApiPropertyOptional({ example: 'Advanced Life Support (ALS)', description: 'Ambulance service type' })
+  @IsOptional()
+  @IsString()
+  type?: string;
+
+  @ApiPropertyOptional({ example: 'Ravi Teja', description: 'Assigned driver name' })
+  @IsOptional()
+  @IsString()
+  driverName?: string;
+
+  @ApiPropertyOptional({ example: '+91 98480 55001', description: 'Driver contact phone' })
+  @IsOptional()
+  @IsString()
+  driverPhone?: string;
+
+  @ApiPropertyOptional({ example: '8 mins', description: 'ETA or standby location' })
+  @IsOptional()
+  @IsString()
+  eta?: string;
+
+  @ApiPropertyOptional({ example: 'H001', description: 'Hospital ID' })
+  @IsOptional()
+  @IsString()
+  hospitalId?: string;
+
+  @ApiPropertyOptional({ example: 'Maria Garcia', description: 'Patient Name' })
+  @IsOptional()
+  @IsString()
+  patientName?: string;
 
   @ApiPropertyOptional({ example: 'U003', description: 'Staff assigned' })
   @IsOptional()

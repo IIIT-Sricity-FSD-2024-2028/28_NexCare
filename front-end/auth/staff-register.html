@@ -26,17 +26,17 @@
                 <form id="signupForm">
                     <div class="form-group">
                         <label>Full Name</label>
-                        <input type="text" class="form-control" pattern="[A-Za-z ]+" title="Only letters and spaces allowed" required>
+                        <input type="text" class="form-control" id="fullName" pattern="[A-Za-z ]+" title="Only letters and spaces allowed" required>
                     </div>
 
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" class="form-control" required>
+                        <input type="email" class="form-control" id="email" required>
                     </div>
 
                     <div class="form-group">
                         <label>Phone</label>
-                        <input type="tel" class="form-control" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required>
+                        <input type="tel" class="form-control" id="phone" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required>
                     </div>
 
                     <label style="font-size: 14px; font-weight: 600; margin-bottom: 5px; display: block;">Role</label>
@@ -47,6 +47,26 @@
                         <label class="role-option">
                             <input type="radio" name="role" value="ambulance" required> Ambulance
                         </label>
+                        <label class="role-option">
+                            <input type="radio" name="role" value="doctor" required> Doctor
+                        </label>
+                    </div>
+
+                    <!-- Shown only for a doctor. The specialisation is the department a
+                         patient picks in the booking wizard, so it is required there. -->
+                    <div id="doctorFields" style="display:none;">
+                        <div class="form-group">
+                            <label>Specialisation</label>
+                            <input type="text" class="form-control" id="specialization" placeholder="e.g. Cardiology">
+                        </div>
+                        <div class="form-group">
+                            <label>Medical council registration no.</label>
+                            <input type="text" class="form-control" id="registrationNo" placeholder="e.g. APMC-45219">
+                        </div>
+                        <div class="form-group">
+                            <label>Consultation fee (₹)</label>
+                            <input type="number" class="form-control" id="consultationFee" min="0" step="50" placeholder="e.g. 600">
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -61,12 +81,12 @@
 
                     <div class="form-group">
                         <label>Password</label>
-                        <input type="password" class="form-control" required>
+                        <input type="password" class="form-control" id="password" required>
                     </div>
 
                     <div class="form-group">
                         <label>Confirm Password</label>
-                        <input type="password" class="form-control" required>
+                        <input type="password" class="form-control" id="confirmPassword" required>
                     </div>
 
                          <button type="submit" class="btn-primary">
@@ -97,25 +117,38 @@
     <script src="../shared/session.js?v=8"></script>
 
     <script>
+        // Reveal the doctor-only fields when the doctor role is picked.
+        document.querySelectorAll('input[name="role"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                const isDoctor = document.querySelector('input[name="role"]:checked').value === 'doctor';
+                document.getElementById('doctorFields').style.display = isDoctor ? 'block' : 'none';
+                document.getElementById('specialization').required = isDoctor;
+            });
+        });
+
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const inputs         = document.querySelectorAll('.form-control');
-            const fullName       = inputs[0].value.trim();
-            const emailVal       = inputs[1].value.trim();
-            const phoneVal       = inputs[2].value.trim();
+            const val            = id => document.getElementById(id).value.trim();
+            const fullName       = val('fullName');
+            const emailVal       = val('email');
+            const phoneVal       = val('phone');
             const roleElement    = document.querySelector('input[name="role"]:checked');
-            const hospitalIdVal  = document.getElementById('hospitalId').value.trim();
-            const deptVal        = document.getElementById('department').value.trim();
-            
+            const hospitalIdVal  = val('hospitalId');
+            const deptVal        = val('department');
+
             if (!roleElement) {
                 showSignupError('Please select a role.');
                 return;
             }
             const roleVal = roleElement.value;
+            const isDoctor = roleVal === 'doctor';
+            const specializationVal = val('specialization');
+            const registrationNoVal = val('registrationNo');
+            const consultationFeeVal = val('consultationFee');
             
-            const passVal        = inputs[3].value;
-            const confirmPassVal = inputs[4].value;
+            const passVal        = document.getElementById('password').value;
+            const confirmPassVal = document.getElementById('confirmPassword').value;
 
             // ── Validation ──────────────────────────────────────────────────
             const nameRegex = /^[A-Za-z\s]+$/;
@@ -146,6 +179,13 @@
                 return;
             }
 
+            // A doctor with no specialisation cannot be placed in the booking
+            // wizard's department list, so the account would be unbookable.
+            if (isDoctor && !specializationVal) {
+                showSignupError('Please enter your specialisation — patients book by department.');
+                return;
+            }
+
             // ── Backend registration ─────────────────────────────────────────
             const btn = document.querySelector('.btn-primary');
             btn.disabled = true;
@@ -156,15 +196,25 @@
                     throw new Error('API module not loaded. Please refresh the page (Ctrl+Shift+R).');
                 }
 
-                const response = await window.NexCareAPI.Auth.register({
+                // /auth/register creates PATIENT accounts and rejects a role or a
+                // hospitalId. Staff, ambulance crew and doctors go to
+                // /auth/register-staff, which is what this form is actually for.
+                const payload = {
                     fullName: fullName,
                     email: emailVal,
                     phone: phoneVal,
                     password: passVal,
                     role: roleVal,
                     hospitalId: hospitalIdVal,
-                    dept: deptVal
-                });
+                };
+                if (deptVal) payload.dept = deptVal;
+                if (isDoctor) {
+                    payload.specialization = specializationVal;
+                    if (registrationNoVal) payload.registrationNo = registrationNoVal;
+                    if (consultationFeeVal !== '') payload.consultationFee = Number(consultationFeeVal);
+                }
+
+                const response = await window.NexCareAPI.Auth.registerStaff(payload);
 
                 console.log('[Signup] Registration response:', response);
 
@@ -173,7 +223,7 @@
                     btn.textContent = 'Redirecting…';
                     
                     setTimeout(function() {
-                        window.location.href = 'staff-login.html';
+                        window.location.href = isDoctor ? 'doctor-login.html' : 'staff-login.html';
                     }, 1500);
                 } else {
                     showSignupError(response.message || 'Registration failed. Please try again.');

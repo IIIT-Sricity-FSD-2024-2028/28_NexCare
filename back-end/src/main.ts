@@ -64,7 +64,7 @@ async function bootstrap() {
     origin: corsOrigin,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: '*',
-    exposedHeaders: ['x-query-timestamp', 'Authorization', 'x-request-id', 'x-ratelimit-remaining'],
+    exposedHeaders: ['x-query-timestamp', 'Authorization', 'x-request-id', 'x-ratelimit-remaining', 'x-csrf-token'],
     credentials: true,
   });
 

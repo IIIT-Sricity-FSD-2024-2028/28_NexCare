@@ -20,8 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTable();
 });
 
-// Keyed by the canonical UserRole values from the backend enum. 'doctor' and
-// 'nurse' are directory-only records — they have no portal and cannot log in.
+// Keyed by the canonical UserRole values from the backend enum. Doctors are
+// login actors with their own portal; 'nurse' is still a directory-only record
+// with no portal, created here and referenced by rosters and leave calendars.
 const ROLE_DEPARTMENTS = {
     'administrative_staff': ['Management', 'Front Desk', 'Billing'],
     'ambulance': ['Transport', 'Maintenance'],

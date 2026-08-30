@@ -444,9 +444,16 @@ window.NexCareStore = {
                 // White-list fields for backend DTO validation
                 const payload = {
                     patientId,
+                    // hospitalId is what per-hospital revenue reporting keys on;
+                    // the name is kept alongside it purely for display.
+                    hospitalId: data.hospitalId || undefined,
                     hospitalName: data.hospitalName || "NexCare AIIMS Super Speciality Hospital",
                     department: data.department,
                     doctor: data.doctor || "Dr. Sarah Smith",
+                    // The doctor's user id. Without it the appointment reaches no
+                    // doctor's portal and earns no consultation commission — the
+                    // backend can only fall back to matching on the name.
+                    doctorId: data.doctorId || undefined,
                     dateLabel: data.dateLabel,
                     timeLabel: data.timeLabel,
                     reason: data.reason || "",
@@ -470,6 +477,7 @@ window.NexCareStore = {
             hospitalName: data.hospitalName || "NexCare AIIMS Super Speciality Hospital",
             department: data.department,
             doctor: data.doctor || "Dr. Sarah Smith",
+            doctorId: data.doctorId || null,
             dateLabel: data.dateLabel,
             timeLabel: data.timeLabel,
             token: data.token || NexCareDB.generateId("TKN"),

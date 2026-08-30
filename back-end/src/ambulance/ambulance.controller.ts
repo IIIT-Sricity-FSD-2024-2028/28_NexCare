@@ -33,7 +33,7 @@ import { UserRole, AmbulanceStatus } from '../common/interfaces/api-response.int
  */
 @ApiTags('Ambulance')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE)
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.HOSPITAL_MANAGER, UserRole.REGIONAL_MANAGER)
 @Controller('ambulance')
 export class AmbulanceController {
   constructor(private readonly ambulanceService: AmbulanceService) {}
@@ -62,7 +62,7 @@ export class AmbulanceController {
    * Get all ambulance requests with optional filtering
    */
   @Get()
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT, UserRole.REGIONAL_MANAGER)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER)
   @ApiOperation({ summary: 'Get all ambulance requests (patients: only their own)' })
   @ApiQuery({ name: 'patientId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: AmbulanceStatus })
@@ -82,7 +82,7 @@ export class AmbulanceController {
    * Create new ambulance request
    */
   @Post()
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT, UserRole.HOSPITAL_MANAGER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Create an ambulance request' })
   @ApiResponse({ status: 200, description: 'Request creation result (check success field)' })
@@ -116,8 +116,8 @@ export class AmbulanceController {
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get ambulance statistics' })
   @ApiResponse({ status: 200, description: 'Ambulance statistics retrieved' })
-  async getStats() {
-    return this.ambulanceService.getStats();
+  async getStats(@Req() req: any) {
+    return this.ambulanceService.getStats(this.scopeHospitalId(req));
   }
 
   /**
@@ -140,8 +140,8 @@ export class AmbulanceController {
   @Get('active')
   @ApiOperation({ summary: 'Get all active ambulance requests' })
   @ApiResponse({ status: 200, description: 'Active requests retrieved' })
-  async getActiveRequests() {
-    return this.ambulanceService.getActiveRequests();
+  async getActiveRequests(@Req() req: any) {
+    return this.ambulanceService.getActiveRequests(this.scopeHospitalId(req));
   }
 
   /**
@@ -150,8 +150,8 @@ export class AmbulanceController {
   @Get('assigned/:assignedTo')
   @ApiOperation({ summary: 'Get ambulance requests by assigned staff' })
   @ApiResponse({ status: 200, description: 'Staff assigned requests retrieved' })
-  async findByAssignedStaff(@Param('assignedTo') assignedTo: string) {
-    return this.ambulanceService.findByAssignedStaff(assignedTo);
+  async findByAssignedStaff(@Param('assignedTo') assignedTo: string, @Req() req: any) {
+    return this.ambulanceService.findByAssignedStaff(assignedTo, this.scopeHospitalId(req));
   }
 
   /**

@@ -68,5 +68,15 @@
     "statusAfter": "In Stock",
     "userId": "U002",
     "timestamp": "2026-08-24T17:17:25.507Z"
+  },
+  {
+    "id": "AUD-1788087775587",
+    "itemId": "INV-002",
+    "action": "restock",
+    "quantityBefore": 12,
+    "quantityAfter": 112,
+    "userId": "U002",
+    "timestamp": "2026-08-30T11:02:55.588Z",
+    "notes": "Restocked via requirement REQ-INV-001 (+100 packs)"
   }
 ]

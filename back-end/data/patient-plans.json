@@ -1,0 +1,53 @@
+[
+  {
+    "id": "CARE-PAYG",
+    "name": "Pay as you go",
+    "tagline": "No membership — pay the booking fee each time",
+    "monthlyFee": 0,
+    "waivesBookingFee": false,
+    "ambulanceDiscount": 0,
+    "coversMembers": 1,
+    "priorityQueue": false,
+    "features": [
+      "Book at any listed hospital",
+      "Convenience fee charged per booking"
+    ],
+    "status": "active",
+    "currency": "₹"
+  },
+  {
+    "id": "CARE-PLUS",
+    "name": "NexCare Care+",
+    "tagline": "For anyone booking more than twice a month",
+    "monthlyFee": 199,
+    "waivesBookingFee": true,
+    "ambulanceDiscount": 0.2,
+    "coversMembers": 1,
+    "priorityQueue": true,
+    "features": [
+      "No booking fee, ever",
+      "20% off ambulance dispatch",
+      "Priority slot in the appointment queue",
+      "Bill history and payment reminders"
+    ],
+    "status": "active",
+    "currency": "₹"
+  },
+  {
+    "id": "CARE-FAMILY",
+    "name": "Care+ Family",
+    "tagline": "One membership, up to four people",
+    "monthlyFee": 399,
+    "waivesBookingFee": true,
+    "ambulanceDiscount": 0.25,
+    "coversMembers": 4,
+    "priorityQueue": true,
+    "features": [
+      "Everything in Care+ for up to 4 family members",
+      "25% off ambulance dispatch",
+      "Shared bill history"
+    ],
+    "status": "active",
+    "currency": "₹"
+  }
+]
