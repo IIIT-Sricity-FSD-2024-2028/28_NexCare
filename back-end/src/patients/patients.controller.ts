@@ -1,15 +1,17 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Put, 
-  Patch, 
-  Delete, 
-  Param, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Patch,
+  Delete,
+  Param,
   Query,
+  Req,
+  ForbiddenException,
   HttpCode,
-  HttpStatus 
+  HttpStatus
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { PatientsService } from './patients.service';
@@ -20,15 +22,26 @@ import { UserRole } from '../common/interfaces/api-response.interface';
 
 /**
  * Patients Controller
- * Manages patient records and profiles in the NexCare system
- * Provides endpoints for patient CRUD operations and management
+ * Manages patient records and profiles in the NexCare system.
+ *
+ * RBAC: staff/superuser have full access. Patients are granted access to a
+ * small subset of routes (view/update their OWN record only) via method-level
+ * @Roles, and ownership is enforced against req.user.patientId.
  */
 @ApiTags('Patients')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
 @Controller('patients')
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
+
+  /** Throw 403 if a patient is trying to touch a record that isn't their own. */
+  private assertOwnRecord(req: any, id: string) {
+    const user = req?.user;
+    if (user?.role === UserRole.PATIENT && user?.patientId !== id) {
+      throw new ForbiddenException('You can only access your own patient record.');
+    }
+  }
 
   /**
    * Get all patients with optional filtering
@@ -99,9 +112,11 @@ export class PatientsController {
    * Get patient by ID
    */
   @Get(':id')
-  @ApiOperation({ summary: 'Get patient by ID' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Get patient by ID (patients: own record only)' })
   @ApiResponse({ status: 200, description: 'Patient details (check success field for not-found)' })
-  async findById(@Param('id') id: string) {
+  async findById(@Req() req: any, @Param('id') id: string) {
+    this.assertOwnRecord(req, id);
     return this.patientsService.findById(id);
   }
 
@@ -109,9 +124,11 @@ export class PatientsController {
    * Update patient
    */
   @Put(':id')
-  @ApiOperation({ summary: 'Update patient details' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Update patient details (patients: own record only)' })
   @ApiResponse({ status: 200, description: 'Patient updated successfully' })
-  async update(@Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {
+  async update(@Req() req: any, @Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {
+    this.assertOwnRecord(req, id);
     return this.patientsService.update(id, updatePatientDto as any);
   }
 
@@ -119,9 +136,11 @@ export class PatientsController {
    * Partial update patient
    */
   @Patch(':id')
-  @ApiOperation({ summary: 'Partially update patient details' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Partially update patient details (patients: own record only)' })
   @ApiResponse({ status: 200, description: 'Patient updated successfully' })
-  async patchUpdate(@Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {
+  async patchUpdate(@Req() req: any, @Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {
+    this.assertOwnRecord(req, id);
     return this.patientsService.update(id, updatePatientDto as any);
   }
 

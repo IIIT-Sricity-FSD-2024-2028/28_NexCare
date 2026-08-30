@@ -4,9 +4,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     currentHospitalId = urlParams.get('id');
 
+    // Reached without ?id= — go back to the dashboard rather than trapping the user
+    // behind an alert. pageLink() matters here: static hosts like `serve`
+    // 301-redirect /page.html to /page and drop the query string.
     if (!currentHospitalId) {
-        alert("No hospital ID provided.");
-        window.location.href = 'dashboard.html';
+        window.location.replace(pageLink('dashboard'));
         return;
     }
 
@@ -46,6 +48,12 @@ function switchTab(tabId, clickedTab) {
     if (tabId === 'ambulances') loadAmbulances();
 }
 
+/** Fill an optional overview row, tolerating fields older hospital records lack. */
+function setIfPresent(elementId, value) {
+    const el = document.getElementById(elementId);
+    if (el) el.textContent = (value === undefined || value === null || value === '') ? 'N/A' : value;
+}
+
 function setStatCard(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
@@ -74,6 +82,12 @@ async function loadHospitalDetails() {
         document.getElementById('overviewBeds').textContent = hospital.totalBeds || 0;
         document.getElementById('overviewIcu').textContent = hospital.icuBeds || 0;
         document.getElementById('overviewEmergency').textContent = hospital.emergency24x7 ? 'Yes' : 'No';
+        setIfPresent('overviewAvailableBeds', hospital.availableBeds);
+        setIfPresent('overviewAccreditation', hospital.accreditation);
+        setIfPresent('overviewEstablished', hospital.establishedYear);
+        setIfPresent('overviewDepartments', hospital.departmentsCount);
+        setIfPresent('overviewTheatres', hospital.operationTheatres);
+        setIfPresent('overviewAmbulances', hospital.ambulanceCount);
 
         const specs = Array.isArray(hospital.specialities) ? hospital.specialities.join(', ') : (hospital.speciality || 'N/A');
         setStatCard('overviewStatsSummary', `${hospital.totalBeds || 0} Total Beds · ${hospital.icuBeds || 0} ICU · ${specs}`);

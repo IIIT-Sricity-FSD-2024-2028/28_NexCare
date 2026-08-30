@@ -127,13 +127,28 @@ async function saveShift(e) {
         return;
     }
 
-    const payload = { name, role, dept, shift, status, email: name.replace(/\s+/g, "").toLowerCase() + "@nexcare.com" };
+    // Generate a more robust email using timestamp to avoid duplicates
+    const timestamp = Date.now().toString(36);
+    const emailBase = name.replace(/\s+/g, "").toLowerCase().replace(/[^a-z0-9]/g, '');
+    const email = `${emailBase}.${timestamp}@nexcare.com`;
+
+    const payload = { name, role, dept, shift, status, email };
 
     try {
         if (id) {
             await apiRequest('PUT', `/users/${id}`, payload);
         } else {
-            payload.password = "Password123";
+            // Prompt for password instead of hardcoding
+            const password = prompt("Enter password for new staff member:");
+            if (!password) {
+                alert("Password is required for new staff accounts.");
+                return;
+            }
+            if (password.length < 6) {
+                alert("Password must be at least 6 characters long.");
+                return;
+            }
+            payload.password = password;
             await apiRequest('POST', '/users', payload);
         }
     } catch (err) {

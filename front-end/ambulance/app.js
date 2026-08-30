@@ -32,7 +32,15 @@ const SessionManager = {
                     const payload = JSON.parse(json);
 
                     const now = Math.floor(Date.now() / 1000);
+                    // Validate token is for ambulance role and not expired
                     if (payload.role === 'ambulance' && (!payload.exp || now <= payload.exp)) {
+                        // Additional validation: ensure user ID exists
+                        if (!payload.sub) {
+                            console.error('Invalid token: missing user ID');
+                            sessionStorage.clear();
+                            window.location.replace('../auth/login.html');
+                            return false;
+                        }
                         this.currentUser = {
                             id:        payload.sub,
                             name:      payload.name  || payload.email.split('@')[0],
@@ -42,10 +50,24 @@ const SessionManager = {
                         };
                         this.updateUIForLoggedInUser();
                         return true;
+                    } else if (payload.role !== 'ambulance') {
+                        console.error('Invalid token: wrong role for ambulance portal');
+                        sessionStorage.clear();
+                        window.location.replace('../auth/login.html');
+                        return false;
+                    } else if (payload.exp && now > payload.exp) {
+                        console.error('Invalid token: expired');
+                        sessionStorage.clear();
+                        localStorage.removeItem('nexcare_auth_token');
+                        window.location.replace('../auth/login.html');
+                        return false;
                     }
                 }
             } catch (e) {
-                console.warn('Could not decode auth token:', e);
+                console.error('Could not decode auth token:', e);
+                sessionStorage.clear();
+                window.location.replace('../auth/login.html');
+                return false;
             }
         }
 
@@ -53,9 +75,13 @@ const SessionManager = {
         const userData = sessionStorage.getItem('ambulanceUser');
         if (userData) {
             try {
-                this.currentUser = JSON.parse(userData);
-                this.updateUIForLoggedInUser();
-                return true;
+                const user = JSON.parse(userData);
+                // Validate user has required fields
+                if (user && user.id && user.role === 'ambulance') {
+                    this.currentUser = user;
+                    this.updateUIForLoggedInUser();
+                    return true;
+                }
             } catch (error) {
                 console.error('Error parsing user data:', error);
             }
@@ -1050,24 +1076,34 @@ const CSVExport = {
 
 const TRANSPORT_STEPS = [
     {
+        label: 'Pending',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+        status: 'Pending'
+    },
+    {
         label: 'Dispatch Accepted',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        status: 'Dispatched'
     },
     {
         label: 'Ambulance En Route',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>',
+        status: 'En Route'
     },
     {
         label: 'Patient Picked Up',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>',
+        status: 'Picked Up'
     },
     {
         label: 'Reached Hospital',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+        status: 'At Hospital'
     },
     {
         label: 'Transport Completed',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
+        status: 'Completed'
     },
 ];
 
@@ -1107,7 +1143,7 @@ async function loadAppState() {
         },
         requests: []
     };
-    
+
     if (window.NexCareAPI && window.NexCareAPI.Ambulance) {
         try {
             // Use the API to fetch all ambulance requests from backend
@@ -1124,12 +1160,13 @@ async function loadAppState() {
                     priority: req.priority || 'Medium',
                     status: (function(s) {
                         if (!s) return 'pending';
-                        const ls = s.toLowerCase();
-                        if (ls === 'pending') return 'pending';
-                        if (ls === 'dispatched') return 'assigned';
-                        if (ls === 'en route' || ls === 'picked up' || ls === 'at hospital') return 'in_transit';
-                        if (ls === 'completed') return 'completed';
-                        if (ls === 'canceled' || ls === 'cancelled') return 'completed';
+                        // Backend uses capitalized status values from enum
+                        const normalized = s.toLowerCase().replace(/\s/g, '_');
+                        if (normalized === 'pending') return 'pending';
+                        if (normalized === 'dispatched') return 'assigned';
+                        if (normalized === 'en_route' || normalized === 'picked_up' || normalized === 'at_hospital') return 'in_transit';
+                        if (normalized === 'completed') return 'completed';
+                        if (normalized === 'canceled' || normalized === 'cancelled') return 'completed';
                         return 'pending';
                     })(req.status),
                     stepIndex: req.stepIndex != null ? req.stepIndex : 0,
@@ -1138,7 +1175,13 @@ async function loadAppState() {
                 }));
             }
         } catch (err) {
-            console.warn('Failed to load ambulance requests from API:', err);
+            console.error('Failed to load ambulance requests from API:', err);
+            // Show user-facing error notification
+            if (typeof SessionManager !== 'undefined' && SessionManager.showNotification) {
+                SessionManager.showNotification('Failed to load ambulance requests. Please check your connection.', 'error');
+            } else {
+                alert('Failed to load ambulance requests. Please check your connection.');
+            }
         }
     }
     return state;

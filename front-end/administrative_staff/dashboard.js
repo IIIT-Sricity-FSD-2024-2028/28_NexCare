@@ -20,6 +20,11 @@ function apiGet(path) {
 }
 
 async function loadDashboardData() {
+    // Show loading state for dashboard
+    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
+        ? window.NexCareUI.showLoading('Loading dashboard data...') 
+        : null;
+
     try {
         const [patientsResp, apptResp, bedsResp, feedbackResp] = await Promise.all([
             apiGet('/patients').catch(() => ({ data: [] })),
@@ -64,7 +69,11 @@ async function loadDashboardData() {
         }
 
         // 4. Pending Feedback (Replacing Critical Alerts)
-        const criticalAlerts = feedbacks.filter(f => f.status === 'Open' || !f.status).length;
+        // Check for multiple possible status values (Open, Pending, or undefined)
+        const criticalAlerts = feedbacks.filter(f => {
+            const status = (f.status || '').toLowerCase();
+            return status === 'open' || status === 'pending' || !f.status;
+        }).length;
         const alertsEl = document.getElementById('criticalAlertsCount');
         if (alertsEl) alertsEl.textContent = criticalAlerts;
         const alertsTrend = document.getElementById('alertsTrend');
@@ -88,8 +97,20 @@ async function loadDashboardData() {
 
         filteredAppointments = [...appointments];
         render();
+        
+        if (hideLoading) hideLoading();
     } catch (err) {
+        if (hideLoading) hideLoading();
         console.error('Dashboard load failed:', err);
+        
+        // Show error notification
+        if (window.NexCareUI && window.NexCareUI.showToast) {
+            window.NexCareUI.showToast({ 
+                message: 'Failed to load dashboard data. Please refresh the page.', 
+                type: 'error' 
+            });
+        }
+        
         document.getElementById('totalPatientsCount').textContent = 'N/A';
         document.getElementById('todayApptCount').textContent = 'N/A';
     }

@@ -26,8 +26,8 @@ export class DispatchAmbulanceDto {
   @IsString()
   estimatedArrival?: string;
 
-  @ApiProperty({ example: 'U002', description: 'Staff ID who dispatched' })
+  @ApiProperty({ example: 'U002', description: 'Staff ID who dispatched (optional - will be auto-filled from JWT token if not provided)' })
   @IsString()
-  @IsNotEmpty({ message: 'Dispatched by is required' })
-  dispatchedBy: string;
+  @IsOptional()
+  dispatchedBy?: string;
 }

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="../shared/nav.css">
     <style>
         /* Page padding */
-        .page-body { padding: 32px; }
+        .page-body { padding: 24px; }
 
         /* Sticky top header bar — matches patient portal */
         .header {
@@ -26,16 +26,16 @@
             top: 0;
             z-index: 10;
         }
-        .header-title { font-size: 18px; font-weight: 700; color: #101828; }
+        .header-title { font-size: 16px; font-weight: 600; color: #101828; }
         .header-user { display: flex; align-items: center; gap: 10px; }
         .header-avatar {
-            width: 38px; height: 38px; border-radius: 50%;
+            width: 32px; height: 32px; border-radius: 50%;
             background: #2563EB; color: #FFFFFF;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 14px;
+            font-weight: 600; font-size: 12px;
         }
-        .header-user-name { font-size: 14px; font-weight: 700; color: #101828; margin: 0; }
-        .header-user-role { font-size: 12px; color: #6A7282; margin: 0; }
+        .header-user-name { font-size: 13px; font-weight: 600; color: #101828; margin: 0; }
+        .header-user-role { font-size: 11px; color: #6A7282; margin: 0; }
 
         /* Page header card */
         .page-header {
@@ -158,9 +158,12 @@
                             <label>Role</label>
                             <select id="userRole" class="form-control" onchange="updateDeptDropdown(this.value)">
                                 <option value="">Select Role...</option>
-                                <option value="admin">Operations Admin</option>
-                                <option value="doctor">Doctor</option>
-                                <option value="driver">Ambulance Driver</option>
+                                <option value="administrative_staff">Administrative Staff</option>
+                                <option value="ambulance">Ambulance Staff</option>
+                                <option value="regional_manager">Regional Manager</option>
+                                <!-- Directory-only records: clinical staff cannot log in to NexCare. -->
+                                <option value="doctor">Doctor (directory record)</option>
+                                <option value="nurse">Nurse (directory record)</option>
                             </select>
                             <span class="error-message" id="errorRole">Role is required.</span>
                         </div>
@@ -174,6 +177,12 @@
                             </select>
                             <span class="error-message" id="errorDept">Dept is required.</span>
                         </div>
+                    </div>
+
+                    <div class="form-group" id="regionGroup" style="display:none;">
+                        <label>Assigned Hospital Areas / Cities</label>
+                        <input type="text" id="userRegion" class="form-control" placeholder="e.g. Tirupati, Renigunta">
+                        <span class="error-message" id="errorRegion">At least one local area is required for a regional manager.</span>
                     </div>
 
                     <div class="form-group">

@@ -26,19 +26,18 @@ export class LeaveRequestGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const method = request.method;
-    const url = request.url;
 
     // POST /leaves - Apply for leave
-    if (method === 'POST' && url.includes('/leaves')) {
+    if (method === 'POST') {
       return this.validateLeaveApplication(request);
     }
 
     // PATCH /leaves/:id - Approve/reject leave
-    if (method === 'PATCH' && url.includes('/leaves/')) {
+    if (method === 'PATCH') {
       return this.validateLeaveApproval(request);
     }
 
-    // Allow other methods (GET, etc.)
+    // Allow other methods (GET, DELETE, etc.)
     return true;
   }
 
@@ -46,15 +45,16 @@ export class LeaveRequestGuard implements CanActivate {
    * Validate that the doctor doesn't have overlapping approved leaves
    */
   private async validateLeaveApplication(request: any): Promise<boolean> {
-    const { doctorId, startDate, endDate } = request.body;
+    const { doctorId, startDate, endDate } = request.body || {};
+    const effectiveDoctorId = doctorId || request.user?.sub || request.user?.id || request.user?.userId;
 
-    if (!doctorId || !startDate || !endDate) {
+    if (!effectiveDoctorId || !startDate || !endDate) {
       return true; // Let validation layer handle missing fields
     }
 
     // Check for overlapping approved leaves
     const hasOverlap = await this.leavesService.hasOverlappingLeave(
-      doctorId,
+      effectiveDoctorId,
       startDate,
       endDate,
     );

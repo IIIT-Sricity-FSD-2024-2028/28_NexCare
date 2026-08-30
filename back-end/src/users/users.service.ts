@@ -95,9 +95,10 @@ private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
    */
   async create(userData: CreateUserRequest) {
     try {
-      // Check if email already exists
-      const existingUser = ArrayUtil.searchByText(this.users, userData.email, ['email']);
-      if (existingUser.length > 0) {
+      // Check if email already exists (exact, case-insensitive)
+      const email = userData.email.toLowerCase();
+      const existingUser = this.users.find(u => u.email.toLowerCase() === email);
+      if (existingUser) {
         return ResponseUtil.error('Email already exists');
       }
 
@@ -114,6 +115,8 @@ private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
         password: userData.password,
         patientId: userData.patientId,
         dept: userData.dept,
+        hospitalId: userData.hospitalId,
+        areas: userData.areas,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -146,10 +149,10 @@ private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
         return ResponseUtil.notFound('User', id);
       }
 
-      // Check if email is being updated and already exists
+      // Check if email is being updated and already exists (exact, case-insensitive)
       if (updateData.email) {
-        const allUsersWithEmail = ArrayUtil.searchByText(this.users, updateData.email, ['email']);
-        const existingUser = allUsersWithEmail.find(u => u.id !== id);
+        const email = updateData.email.toLowerCase();
+        const existingUser = this.users.find(u => u.email.toLowerCase() === email && u.id !== id);
         if (existingUser) {
           return ResponseUtil.error('Email already exists');
         }
@@ -227,6 +230,28 @@ private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
       return ResponseUtil.success('User statistics retrieved successfully', stats);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve user statistics');
+    }
+  }
+
+  /**
+   * Get active doctors, optionally filtered by department.
+   * Safe subset exposed to patients for appointment booking — passwords are
+   * stripped and only doctor accounts are ever returned.
+   * @param dept Optional department filter
+   * @returns Active doctors without passwords
+   */
+  async findDoctors(dept?: string) {
+    try {
+      let doctors = this.users.filter(
+        u => u.role === UserRole.DOCTOR && u.status === UserStatus.ACTIVE,
+      );
+      if (dept) {
+        doctors = doctors.filter(u => u.dept === dept);
+      }
+      const sanitized = DataSanitizer.removePasswords(doctors);
+      return ResponseUtil.success('Doctors retrieved successfully', sanitized);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve doctors');
     }
   }
 

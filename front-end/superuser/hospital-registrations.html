@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../shared/global.css">
     <link rel="stylesheet" href="../shared/nav.css">
     <style>
-        .page-body { padding: 32px; }
+        .page-body { padding: 24px; }
         .header {
             background: #FFFFFF;
             border-bottom: 1px solid #E5E7EB;
@@ -23,16 +23,16 @@
             top: 0;
             z-index: 10;
         }
-        .header-title { font-size: 18px; font-weight: 700; color: #101828; }
+        .header-title { font-size: 16px; font-weight: 600; color: #101828; }
         .header-user { display: flex; align-items: center; gap: 10px; }
         .header-avatar {
-            width: 38px; height: 38px; border-radius: 50%;
+            width: 32px; height: 32px; border-radius: 50%;
             background: #2563EB; color: #FFFFFF;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 14px;
+            font-weight: 600; font-size: 12px;
         }
-        .header-user-name { font-size: 14px; font-weight: 700; color: #101828; margin: 0; }
-        .header-user-role { font-size: 12px; color: #6A7282; margin: 0; }
+        .header-user-name { font-size: 13px; font-weight: 600; color: #101828; margin: 0; }
+        .header-user-role { font-size: 11px; color: #6A7282; margin: 0; }
         .page-header {
             background: #FFFFFF;
             border: 1px solid #E5E7EB;
@@ -100,18 +100,18 @@
             </div>
 
             <div class="table-card">
-                <table class="data-table" id="patientsTable">
+                <table class="data-table" id="hospitalsTable">
                     <thead>
                         <tr>
-                            <th>Patient ID</th>
-                            <th>Full Name</th>
-                            <th>Email Address</th>
-                            <th>Contact Phone</th>
-                            <th>Status</th>
+                            <th>Hospital Name</th>
+                            <th>Registration Number</th>
+                            <th>Admin Contact</th>
+                            <th>Verification Status</th>
+                            <th>Regional Officer</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="patientsTableBody">
+                    <tbody id="tableBody">
                         <!-- Populated by JS -->
                     </tbody>
                 </table>
@@ -158,6 +158,6 @@
             }
         })();
     </script>
-    <script src="patient-directory.js?v=1"></script>
+    <script src="hospital-registrations.js?v=1"></script>
 </body>
 </html>

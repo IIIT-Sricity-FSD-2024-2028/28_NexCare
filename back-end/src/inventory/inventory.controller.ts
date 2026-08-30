@@ -9,15 +9,18 @@ import {
   Param, 
   Query,
   HttpCode,
-  HttpStatus 
+  HttpStatus,
+  UseInterceptors
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { InventoryService } from './inventory.service';
 import { CreateInventoryDto } from './dto/create-inventory.dto';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { RestockInventoryDto } from './dto/restock-inventory.dto';
+import { InventoryAuditInterceptor } from './interceptors/inventory-audit.interceptor';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole, InventoryStatus } from '../common/interfaces/api-response.interface';
+
 
 /**
  * Inventory Controller
@@ -34,6 +37,8 @@ export class InventoryController {
   /**
    * Get all inventory with optional filtering
    */
+  // Regional Officers get read-only oversight; the client scopes to one hospital.
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER)
   @Get()
   @ApiOperation({ summary: 'Get all inventory items' })
   @ApiQuery({ name: 'category', required: false })
@@ -121,6 +126,16 @@ export class InventoryController {
   }
 
   /**
+   * Get inventory audit trail for an item
+   */
+  @Get('audit/:itemId')
+  @ApiOperation({ summary: 'Get inventory audit trail for an item' })
+  @ApiResponse({ status: 200, description: 'Audit trail retrieved' })
+  async getAuditTrail(@Param('itemId') itemId: string) {
+    return this.inventoryService.getAuditTrail(itemId);
+  }
+
+  /**
    * Get inventory item by ID
    */
   @Get(':id')
@@ -164,19 +179,26 @@ export class InventoryController {
    * Restock inventory item
    */
   @Patch(':id/restock')
+  @UseInterceptors(InventoryAuditInterceptor)
   @ApiOperation({ summary: 'Restock an inventory item' })
   @ApiResponse({ status: 200, description: 'Item restocked successfully' })
   async restock(@Param('id') id: string, @Body() restockDto: RestockInventoryDto) {
-    return this.inventoryService.restock(id, { quantity: restockDto.quantity, notes: restockDto.notes });
+    return this.inventoryService.restock(id, restockDto);
   }
+
 
   /**
    * Use inventory item
    */
   @Patch(':id/use')
+  @UseInterceptors(InventoryAuditInterceptor)
   @ApiOperation({ summary: 'Consume/use an inventory item' })
   @ApiResponse({ status: 200, description: 'Item consumed successfully' })
-  async useItem(@Param('id') id: string, @Body('quantity') quantity: number) {
-    return this.inventoryService.useItem(id, quantity);
+  async useItem(@Param('id') id: string, @Body() body: any) {
+    const quantity = typeof body === 'number' ? body : Number(body?.quantity);
+    return this.inventoryService.useItem(id, quantity, body?.notes);
   }
 }
+
+
+

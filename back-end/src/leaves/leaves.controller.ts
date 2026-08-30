@@ -25,8 +25,9 @@ import { LeaveRequestGuard } from './guards/leave-request.guard';
  */
 @ApiTags('Leaves')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.HOSPITAL_MANAGER, UserRole.DOCTOR, UserRole.ADMINISTRATIVE_STAFF)
+@Roles(UserRole.SUPERUSER, UserRole.HOSPITAL_MANAGER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR)
 @Controller('leaves')
+@UseGuards(LeaveRequestGuard)
 export class LeavesController {
   constructor(private readonly leavesService: LeavesService) {}
 

@@ -36,5 +36,18 @@
     "status": "pending",
     "createdAt": "2026-08-24T00:00:00Z",
     "updatedAt": "2026-08-24T00:00:00Z"
+  },
+  {
+    "id": "LMTBM5VG720W",
+    "doctorId": "U010",
+    "doctorName": "Dr. Priya Nair",
+    "hospitalId": "H001",
+    "leaveType": "Sick Leave",
+    "startDate": "2026-08-29",
+    "endDate": "2026-08-30",
+    "reason": "fever",
+    "status": "pending",
+    "createdAt": "2026-08-27T14:24:11.384Z",
+    "updatedAt": "2026-08-27T14:24:11.384Z"
   }
 ]

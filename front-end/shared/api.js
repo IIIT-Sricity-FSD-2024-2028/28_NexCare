@@ -166,6 +166,20 @@ class NexCareAPI {
     handleError(error, method, endpoint) {
         console.error(`API Error (${method} ${endpoint}):`, error);
         
+        // Show toast notification for better user feedback
+        if (window.NexCareUI && window.NexCareUI.showToast) {
+            let errorMessage = 'An unexpected error occurred';
+            let errorType = 'error';
+            
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                errorMessage = 'Network error: Unable to connect to server. Please check your connection.';
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            window.NexCareUI.showToast({ message: errorMessage, type: errorType });
+        }
+        
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
             return {
                 success: false,
@@ -389,7 +403,12 @@ const BedsAPI = {
     },
 
     async allocate(id, allocationData) {
-        return await api.put(`/beds/${id}`, allocationData);
+        // Use the dedicated allocate endpoint (PATCH /beds/:id/allocate).
+        // Accept either a bare patientId string or a full payload object.
+        const body = typeof allocationData === 'string'
+            ? { patientId: allocationData }
+            : allocationData;
+        return await api.patch(`/beds/${id}/allocate`, body);
     },
 
     async release(id) {
@@ -421,6 +440,18 @@ const InventoryAPI = {
 
     async updateStock(id, quantity) {
         return await api.patch(`/inventory/${id}/stock`, { quantity });
+    },
+
+    async restock(id, restockData) {
+        return await api.patch(`/inventory/${id}/restock`, restockData);
+    },
+
+    async use(id, quantity) {
+        return await api.patch(`/inventory/${id}/use`, { quantity });
+    },
+
+    async getAudit(id) {
+        return await api.get(`/inventory/audit/${id}`);
     }
 };
 
@@ -453,6 +484,57 @@ const HospitalsAPI = {
 
     async getById(id) {
         return await api.get(`/hospitals/${id}`);
+    },
+
+    async getReviewQueue() {
+        return await api.get('/hospitals/review-queue');
+    },
+
+    async update(id, data) {
+        return await api.put(`/hospitals/${id}`, data);
+    },
+
+    // Public registration. Validation and duplicate checks are enforced server-side.
+    async register(data) {
+        return await api.post('/hospitals/register', data);
+    },
+
+    // Final activation is reserved for the superuser after regional clearance.
+    async verify(id) {
+        return await api.patch(`/hospitals/${id}/verify`, {});
+    },
+
+    async reject(id, notes) {
+        return await api.patch(`/hospitals/${id}/reject`, notes ? { notes } : {});
+    },
+
+    async assignManager(id, managerId) {
+        return await api.patch(`/hospitals/${id}/assign-manager`, { managerId });
+    },
+
+    async regionalReview(id, decision, notes) {
+        return await api.patch(`/hospitals/${id}/regional-review`, { decision, notes });
+    }
+};
+
+// Compatibility for older registration pages that used the generic request helper.
+window.NexCareAPIRequest = (endpoint, method, data) => api[method.toLowerCase()](endpoint, data);
+
+// Support Requests API
+// The backend scopes GET by the caller's role: a regional_manager sees requests
+// across the hospitals assigned to them, hospital staff see only their own.
+const SupportRequestsAPI = {
+    async getAll(hospitalId) {
+        const s = hospitalId ? `?hospitalId=${encodeURIComponent(hospitalId)}` : '';
+        return await api.get(`/support-requests${s}`);
+    },
+
+    async create(data) {
+        return await api.post('/support-requests', data);
+    },
+
+    async update(id, data) {
+        return await api.put(`/support-requests/${id}`, data);
     }
 };
 
@@ -475,7 +557,76 @@ const SystemAPI = {
     }
 };
 
+// Leaves API
+const LeavesAPI = {
+    async getAll(query = {}) {
+        let qStr = '';
+        if (typeof query === 'string') {
+            qStr = query.startsWith('?') ? query : `?${query}`;
+        } else if (query && typeof query === 'object') {
+            const params = new URLSearchParams();
+            if (query.doctorId) params.append('doctorId', query.doctorId);
+            if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+            if (query.status) params.append('status', query.status);
+            const s = params.toString();
+            if (s) qStr = `?${s}`;
+        }
+        return await api.get(`/leaves${qStr}`);
+    },
+
+    async getById(id) {
+        return await api.get(`/leaves/${id}`);
+    },
+
+    async create(leaveData) {
+        return await api.post('/leaves', leaveData);
+    },
+
+    async update(id, updateData) {
+        return await api.patch(`/leaves/${id}`, updateData);
+    },
+
+    async delete(id) {
+        return await api.delete(`/leaves/${id}`);
+    },
+
+    async getCalendarView(query = {}) {
+        const params = new URLSearchParams();
+        if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+        if (query.startDate) params.append('startDate', query.startDate);
+        if (query.endDate) params.append('endDate', query.endDate);
+        const s = params.toString();
+        return await api.get(`/leaves/calendar${s ? `?${s}` : ''}`);
+    }
+};
+
 // Export all APIs as global window object for easy access
+/**
+ * Build an in-app link that survives however the frontend is being served.
+ *
+ * Static hosts like `npx serve` respond to `/page.html?x=1` with a
+ * `301 -> /page` and DROP the query string, so any page linked with an explicit
+ * `.html` silently loses its parameters. Match whatever form the current page is
+ * already using: keep `.html` when the URL has it, omit it when the host is
+ * serving clean URLs.
+ *
+ *   pageLink('hospital-details', { id: 'H001' })
+ *     served as /regional-officer/dashboard       -> 'hospital-details?id=H001'
+ *     served as /regional-officer/dashboard.html  -> 'hospital-details.html?id=H001'
+ *
+ * @param {string} page  Page name WITHOUT the .html extension (may include a path).
+ * @param {Object} params Optional query parameters.
+ */
+function pageLink(page, params = {}) {
+    const base = /\.html$/i.test(window.location.pathname) ? `${page}.html` : page;
+    const qs = new URLSearchParams(
+        Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
+    ).toString();
+    return qs ? `${base}?${qs}` : base;
+}
+
+window.pageLink = pageLink;
+
 window.NexCareAPI = {
     // Core methods
     get: api.get.bind(api),
@@ -500,8 +651,11 @@ window.NexCareAPI = {
     Beds: BedsAPI,
     Inventory: InventoryAPI,
     Hospitals: HospitalsAPI,
+    Leaves: LeavesAPI,
+    SupportRequests: SupportRequestsAPI,
     System: SystemAPI
 };
+
 
 // Legacy compatibility aliases for gradual migration
 window.NexCareAPI.login = AuthAPI.login;

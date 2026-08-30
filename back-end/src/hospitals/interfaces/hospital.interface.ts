@@ -23,6 +23,9 @@ export interface Hospital {
   adminPhone: string;
   verificationStatus: VerificationStatus;
   assignedManagerId?: string;
+  regionalReviewStatus?: 'pending' | 'cleared' | 'rejected';
+  regionalReviewedAt?: string;
+  regionalReviewNotes?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -70,4 +73,7 @@ export interface UpdateHospitalDto {
   adminPhone?: string;
   verificationStatus?: VerificationStatus;
   assignedManagerId?: string;
+  regionalReviewStatus?: 'pending' | 'cleared' | 'rejected';
+  regionalReviewedAt?: string;
+  regionalReviewNotes?: string;
 }

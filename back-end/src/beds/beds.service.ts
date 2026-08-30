@@ -1,80 +1,49 @@
 import { Injectable } from '@nestjs/common';
 import { ResponseUtil } from '../common/utils/response.util';
-import { IdGenerator } from '../common/utils/id-generator.util';
 import { ArrayUtil } from '../common/utils/array.util';
+import { FileStore } from '../common/utils/file-store.util';
 import { Bed, CreateBedRequest, UpdateBedRequest, BedStats } from './interfaces/bed.interface';
 import { BedStatus } from '../common/interfaces/api-response.interface';
 
 /**
  * Beds Service
- * Manages hospital bed allocation and ward management in the NexCare system
- * Handles CRUD operations for beds with occupancy tracking
+ * Manages hospital bed allocation and ward management in the NexCare system.
+ * Data is persisted to data/beds.json so allocations survive restarts.
  */
 @Injectable()
 export class BedsService {
-  // In-memory mock beds database (aligned with frontend db.js)
-  private beds: Bed[] = [
-    { id: 'E1', ward: 'Emergency', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'E2', ward: 'Emergency', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'E3', ward: 'Emergency', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'G1', ward: 'General', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'G2', ward: 'General', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'G3', ward: 'General', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'G4', ward: 'General', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'G5', ward: 'General', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'G6', ward: 'General', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'G7', ward: 'General', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'G8', ward: 'General', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'G9', ward: 'General', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'G10', ward: 'General', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'P1', ward: 'Pediatrics', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'P2', ward: 'Pediatrics', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'P3', ward: 'Pediatrics', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'M1', ward: 'Maternity', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'M2', ward: 'Maternity', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'M3', ward: 'Maternity', status: BedStatus.AVAILABLE, patient: '' },
-    { id: 'M4', ward: 'Maternity', status: BedStatus.AVAILABLE, patient: '' }
-  ];
+  private readonly store = new FileStore<Bed>('beds.json', () => BedsService.seed());
 
-  /**
-   * Get all beds with optional filtering
-   * @param ward Optional ward filter
-   * @param status Optional status filter
-   * @returns List of beds
-   */
-  async findAll(ward?: string, status?: BedStatus) {
+  private static seed(): Bed[] {
+    const mk = (id: string, ward: string): Bed => ({
+      id, ward, status: BedStatus.AVAILABLE, patient: '', hospitalId: 'H001',
+    });
+    return [
+      mk('E1', 'Emergency'), mk('E2', 'Emergency'), mk('E3', 'Emergency'),
+      mk('G1', 'General'), mk('G2', 'General'), mk('G3', 'General'), mk('G4', 'General'),
+      mk('G5', 'General'), mk('G6', 'General'), mk('G7', 'General'), mk('G8', 'General'),
+      mk('G9', 'General'), mk('G10', 'General'),
+      mk('P1', 'Pediatrics'), mk('P2', 'Pediatrics'), mk('P3', 'Pediatrics'),
+      mk('M1', 'Maternity'), mk('M2', 'Maternity'), mk('M3', 'Maternity'), mk('M4', 'Maternity'),
+    ];
+  }
+
+  async findAll(ward?: string, status?: BedStatus, hospitalId?: string) {
     try {
-      let filteredBeds = [...this.beds];
-
-      // Apply ward filter
-      if (ward) {
-        filteredBeds = filteredBeds.filter(bed => bed.ward === ward);
-      }
-
-      // Apply status filter
-      if (status) {
-        filteredBeds = filteredBeds.filter(bed => bed.status === status);
-      }
-
+      let filteredBeds = [...this.store.load()];
+      if (hospitalId) filteredBeds = filteredBeds.filter(bed => bed.hospitalId === hospitalId);
+      if (ward) filteredBeds = filteredBeds.filter(bed => bed.ward === ward);
+      if (status) filteredBeds = filteredBeds.filter(bed => bed.status === status);
       return ResponseUtil.success('Beds retrieved successfully', filteredBeds);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve beds');
     }
   }
 
-  /**
-   * Get bed by ID
-   * @param id Bed ID
-   * @returns Bed data
-   */
   async findById(id: string) {
     try {
-      const bed = ArrayUtil.findById(this.beds, id);
-      
-      if (!bed) {
-        return ResponseUtil.notFound('Bed', id);
-      }
-
+      const bed = ArrayUtil.findById(this.store.load(), id);
+      if (!bed) return ResponseUtil.notFound('Bed', id);
       return ResponseUtil.success('Bed retrieved successfully', bed);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve bed');
@@ -82,200 +51,159 @@ export class BedsService {
   }
 
   /**
-   * Create new bed
-   * @param bedData Bed creation data
-   * @returns Created bed data
+   * Get the raw bed record without an API envelope.
+   * Used by BedStatusChangeMiddleware, which needs the current status before
+   * the request reaches the controller.
+   * @param id Bed ID
+   * @returns The bed, or undefined when no such bed exists
    */
-  async create(bedData: CreateBedRequest) {
+  getBedById(id: string): Bed | undefined {
+    return this.store.load().find(b => b.id === id);
+  }
+
+  async create(bedData: CreateBedRequest & { hospitalId?: string }) {
     try {
-      // Check if bed ID already exists
-      const existingBed = this.beds.find(b => b.id === bedData.id);
-      if (existingBed) {
+      const beds = this.store.load();
+      if (beds.find(b => b.id === bedData.id)) {
         return ResponseUtil.error('Bed ID already exists');
       }
 
-      // Create new bed
+      // Ward capacity limit validation (max 50 beds per ward)
+      const wardBedsCount = beds.filter(b => b.ward === bedData.ward && b.hospitalId === (bedData.hospitalId || 'H001')).length;
+      if (wardBedsCount >= 50) {
+        return ResponseUtil.error('Ward capacity limit reached (maximum 50 beds per ward)');
+      }
+
       const newBed: Bed = {
         id: bedData.id,
         ward: bedData.ward,
         status: BedStatus.AVAILABLE,
         patient: '',
+        hospitalId: bedData.hospitalId || 'H001',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
-      // Add to beds array
-      this.beds.push(newBed);
-
+      beds.push(newBed);
+      this.store.save(beds);
       return ResponseUtil.created('Bed created successfully', newBed);
     } catch (error) {
       return ResponseUtil.serverError('Failed to create bed');
     }
   }
 
-  /**
-   * Update bed
-   * @param id Bed ID
-   * @param updateData Bed update data
-   * @returns Updated bed data
-   */
   async update(id: string, updateData: UpdateBedRequest) {
     try {
-      const bedIndex = this.beds.findIndex(b => b.id === id);
-      
-      if (bedIndex === -1) {
-        return ResponseUtil.notFound('Bed', id);
-      }
+      const beds = this.store.load();
+      const bedIndex = beds.findIndex(b => b.id === id);
+      if (bedIndex === -1) return ResponseUtil.notFound('Bed', id);
 
       // Validate bed allocation logic
-      if (updateData.patient && updateData.status !== BedStatus.OCCUPIED) {
-        return ResponseUtil.error('Cannot assign patient to non-occupied bed');
-      }
+      // A patient can be attached to a bed that is occupied or critical —
+      // critical is an occupied bed whose patient needs intensive care.
+      const patientStatuses: BedStatus[] = [BedStatus.OCCUPIED, BedStatus.CRITICAL];
 
-      if (updateData.status === BedStatus.OCCUPIED && !updateData.patient) {
-        return ResponseUtil.error('Occupied bed must have assigned patient');
+      if (updateData.patient && !patientStatuses.includes(updateData.status as BedStatus)) {
+        return ResponseUtil.error('Cannot assign patient to a bed that is not occupied or critical');
       }
-
+      if (patientStatuses.includes(updateData.status as BedStatus) && !updateData.patient) {
+        return ResponseUtil.error(`${updateData.status} bed must have an assigned patient`);
+      }
       if (updateData.status === BedStatus.AVAILABLE && updateData.patient) {
         return ResponseUtil.error('Available bed cannot have assigned patient');
       }
 
-      // Update bed
-      const updatedBed = {
-        ...this.beds[bedIndex],
-        ...updateData,
-        updatedAt: new Date().toISOString()
-      };
-
-      this.beds[bedIndex] = updatedBed;
-
-      return ResponseUtil.updated('Bed updated successfully', updatedBed);
+      const updatedBed = { ...beds[bedIndex], ...updateData, updatedAt: new Date().toISOString() };
+      beds[bedIndex] = updatedBed;
+      this.store.save(beds);
+      return ResponseUtil.updated('Bed', updatedBed);
     } catch (error) {
       return ResponseUtil.serverError('Failed to update bed');
     }
   }
 
-  /**
-   * Delete bed
-   * @param id Bed ID
-   * @returns Deletion confirmation
-   */
   async delete(id: string) {
     try {
-      const bedIndex = this.beds.findIndex(b => b.id === id);
-      
-      if (bedIndex === -1) {
-        return ResponseUtil.notFound('Bed', id);
-      }
+      const beds = this.store.load();
+      const bedIndex = beds.findIndex(b => b.id === id);
+      if (bedIndex === -1) return ResponseUtil.notFound('Bed', id);
 
-      const bed = this.beds[bedIndex];
-
-      // Prevent deletion of occupied beds
+      const bed = beds[bedIndex];
       if (bed.status === BedStatus.OCCUPIED || bed.status === BedStatus.CRITICAL) {
         return ResponseUtil.error('Cannot delete occupied or critical beds');
       }
 
-      // Remove bed
-      this.beds.splice(bedIndex, 1);
-
+      beds.splice(bedIndex, 1);
+      this.store.save(beds);
       return ResponseUtil.deleted('Bed');
     } catch (error) {
       return ResponseUtil.serverError('Failed to delete bed');
     }
   }
 
-  /**
-   * Allocate bed to patient
-   * @param id Bed ID
-   * @param patient Patient name
-   * @returns Updated bed data
-   */
   async allocate(id: string, patient: string) {
     try {
-      const bedIndex = this.beds.findIndex(b => b.id === id);
-      
-      if (bedIndex === -1) {
-        return ResponseUtil.notFound('Bed', id);
-      }
+      const beds = this.store.load();
+      const bedIndex = beds.findIndex(b => b.id === id);
+      if (bedIndex === -1) return ResponseUtil.notFound('Bed', id);
 
-      const bed = this.beds[bedIndex];
-
-      // Check if bed is available
+      const bed = beds[bedIndex];
       if (bed.status !== BedStatus.AVAILABLE) {
         return ResponseUtil.error('Cannot allocate bed that is not available');
       }
 
-      // Check if patient is already allocated
-      const existingAllocation = this.beds.find(b => b.patient === patient);
+      const existingAllocation = beds.find(b => b.patient && b.patient === patient);
       if (existingAllocation) {
         return ResponseUtil.error(`Patient ${patient} is already allocated to bed ${existingAllocation.id}`);
       }
 
-      // Allocate bed
-      this.beds[bedIndex].status = BedStatus.OCCUPIED;
-      this.beds[bedIndex].patient = patient;
-      this.beds[bedIndex].updatedAt = new Date().toISOString();
-
-      const updatedBed = this.beds[bedIndex];
-
-      return ResponseUtil.updated('Bed allocated successfully', updatedBed);
+      beds[bedIndex].status = BedStatus.OCCUPIED;
+      beds[bedIndex].patient = patient;
+      beds[bedIndex].updatedAt = new Date().toISOString();
+      this.store.save(beds);
+      return ResponseUtil.success('Bed allocated successfully', beds[bedIndex]);
     } catch (error) {
       return ResponseUtil.serverError('Failed to allocate bed');
     }
   }
 
-  /**
-   * Release bed from patient
-   * @param id Bed ID
-   * @returns Updated bed data
-   */
   async release(id: string) {
     try {
-      const bedIndex = this.beds.findIndex(b => b.id === id);
-      
-      if (bedIndex === -1) {
-        return ResponseUtil.notFound('Bed', id);
-      }
+      const beds = this.store.load();
+      const bedIndex = beds.findIndex(b => b.id === id);
+      if (bedIndex === -1) return ResponseUtil.notFound('Bed', id);
 
-      const bed = this.beds[bedIndex];
-
-      // Check if bed is occupied
-      if (bed.status !== BedStatus.OCCUPIED) {
+      const bed = beds[bedIndex];
+      // A bed holding a patient may be occupied or critical — a critical bed
+      // has to be releasable too, or its patient can never be discharged.
+      if (bed.status !== BedStatus.OCCUPIED && bed.status !== BedStatus.CRITICAL) {
         return ResponseUtil.error('Cannot release bed that is not occupied');
       }
 
-      // Release bed
-      this.beds[bedIndex].status = BedStatus.AVAILABLE;
-      this.beds[bedIndex].patient = '';
-      this.beds[bedIndex].updatedAt = new Date().toISOString();
-
-      const updatedBed = this.beds[bedIndex];
-
-      return ResponseUtil.updated('Bed released successfully', updatedBed);
+      beds[bedIndex].status = BedStatus.AVAILABLE;
+      beds[bedIndex].patient = '';
+      beds[bedIndex].updatedAt = new Date().toISOString();
+      this.store.save(beds);
+      return ResponseUtil.success('Bed released successfully', beds[bedIndex]);
     } catch (error) {
       return ResponseUtil.serverError('Failed to release bed');
     }
   }
 
-  /**
-   * Get bed statistics
-   * @returns Bed statistics
-   */
-  async getStats() {
+  async getStats(hospitalId?: string) {
     try {
-      const totalBeds = this.beds.length;
-      const availableBeds = this.beds.filter(b => b.status === BedStatus.AVAILABLE).length;
-      const occupiedBeds = this.beds.filter(b => b.status === BedStatus.OCCUPIED).length;
-      const criticalBeds = this.beds.filter(b => b.status === BedStatus.CRITICAL).length;
-      const maintenanceBeds = this.beds.filter(b => b.status === BedStatus.MAINTENANCE).length;
+      let beds = this.store.load();
+      if (hospitalId) beds = beds.filter(b => b.hospitalId === hospitalId);
 
-      // By ward
+      const totalBeds = beds.length;
+      const availableBeds = beds.filter(b => b.status === BedStatus.AVAILABLE).length;
+      const occupiedBeds = beds.filter(b => b.status === BedStatus.OCCUPIED).length;
+      const criticalBeds = beds.filter(b => b.status === BedStatus.CRITICAL).length;
+      const maintenanceBeds = beds.filter(b => b.status === BedStatus.MAINTENANCE).length;
+
       const byWard: Record<string, number> = {};
-      this.beds.forEach(bed => {
-        byWard[bed.ward] = (byWard[bed.ward] || 0) + 1;
-      });
+      beds.forEach(bed => { byWard[bed.ward] = (byWard[bed.ward] || 0) + 1; });
 
-      // Occupancy rate
       const occupancyRate = totalBeds > 0 ? Math.round(((occupiedBeds + criticalBeds) / totalBeds) * 100) : 0;
 
       const stats: BedStats = {
@@ -285,111 +213,76 @@ export class BedsService {
         critical: criticalBeds,
         maintenance: maintenanceBeds,
         byWard,
-        occupancyRate
+        occupancyRate,
       };
-
       return ResponseUtil.success('Bed statistics retrieved successfully', stats);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve bed statistics');
     }
   }
 
-  /**
-   * Get beds by ward
-   * @param ward Ward name
-   * @returns Ward beds
-   */
   async findByWard(ward: string) {
     try {
-      const beds = this.beds.filter(b => b.ward === ward);
-      
+      const beds = this.store.load().filter(b => b.ward === ward);
       return ResponseUtil.success(`Beds in ${ward} ward retrieved successfully`, beds);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve ward beds');
     }
   }
 
-  /**
-   * Get available beds
-   * @returns Available beds
-   */
   async getAvailableBeds() {
     try {
-      const availableBeds = this.beds.filter(b => b.status === BedStatus.AVAILABLE);
-      
+      const availableBeds = this.store.load().filter(b => b.status === BedStatus.AVAILABLE);
       return ResponseUtil.success('Available beds retrieved successfully', availableBeds);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve available beds');
     }
   }
 
-  /**
-   * Get beds by patient
-   * @param patient Patient name
-   * @returns Patient bed allocation
-   */
   async findByPatient(patient: string) {
     try {
-      const beds = this.beds.filter(b => b.patient === patient);
-      
+      const beds = this.store.load().filter(b => b.patient === patient);
       return ResponseUtil.success(`Beds allocated to ${patient} retrieved successfully`, beds);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve patient bed allocation');
     }
   }
 
-  /**
-   * Update bed status
-   * @param id Bed ID
-   * @param status New status
-   * @returns Updated bed data
-   */
   async updateStatus(id: string, status: BedStatus) {
     try {
-      const bedIndex = this.beds.findIndex(b => b.id === id);
-      
-      if (bedIndex === -1) {
-        return ResponseUtil.notFound('Bed', id);
-      }
+      const beds = this.store.load();
+      const bedIndex = beds.findIndex(b => b.id === id);
+      if (bedIndex === -1) return ResponseUtil.notFound('Bed', id);
 
-      // Validate status transition
-      const currentBed = this.beds[bedIndex];
+      const currentBed = beds[bedIndex];
       if (status === BedStatus.AVAILABLE && currentBed.patient) {
         return ResponseUtil.error('Cannot set bed to available while patient is assigned');
       }
-
       if (status === BedStatus.CRITICAL && !currentBed.patient) {
         return ResponseUtil.error('Critical status requires patient assignment');
       }
 
-      // Update status
-      this.beds[bedIndex].status = status;
-      this.beds[bedIndex].updatedAt = new Date().toISOString();
-
-      const updatedBed = this.beds[bedIndex];
-
-      return ResponseUtil.updated('Bed status updated successfully', updatedBed);
+      beds[bedIndex].status = status;
+      beds[bedIndex].updatedAt = new Date().toISOString();
+      this.store.save(beds);
+      return ResponseUtil.updated('Bed status', beds[bedIndex]);
     } catch (error) {
       return ResponseUtil.serverError('Failed to update bed status');
     }
   }
 
-  /**
-   * Get occupancy by ward
-   * @returns Occupancy data by ward
-   */
   async getOccupancyByWard() {
     try {
-      const wards = [...new Set(this.beds.map(b => b.ward))];
+      const beds = this.store.load();
+      const wards = [...new Set(beds.map(b => b.ward))];
       const occupancyData: Record<string, { total: number; occupied: number; available: number; occupancyRate: number }> = {};
 
       wards.forEach(ward => {
-        const wardBeds = this.beds.filter(b => b.ward === ward);
+        const wardBeds = beds.filter(b => b.ward === ward);
         const total = wardBeds.length;
         const occupied = wardBeds.filter(b => b.status === BedStatus.OCCUPIED || b.status === BedStatus.CRITICAL).length;
         const available = wardBeds.filter(b => b.status === BedStatus.AVAILABLE).length;
         const occupancyRate = total > 0 ? Math.round((occupied / total) * 100) : 0;
-
         occupancyData[ward] = { total, occupied, available, occupancyRate };
       });
 

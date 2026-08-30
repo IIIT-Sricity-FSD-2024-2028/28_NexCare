@@ -12,24 +12,24 @@
     <link rel="stylesheet" href="../shared/nav.css">
     <style>
         /* Page padding inside main-content */
-        .page-body { padding: 32px; }
+        .page-body { padding: 24px; }
 
         /* Hero banner — matches patient portal hero gradient */
         .hero {
             background: linear-gradient(135deg, #2563EB 0%, #0EA5E9 100%);
-            padding: 32px;
+            padding: 24px;
             border-radius: 14px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             color: #FFFFFF;
             animation: fadeInUp 0.5s ease-out;
         }
-        .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
-        .hero p  { font-size: 16px; opacity: 0.85; margin: 0; }
+        .hero h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+        .hero p  { font-size: 14px; opacity: 0.85; margin: 0; }
 
         /* Stats grid — matches patient portal stats-grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
         }
@@ -57,7 +57,7 @@
             font-weight: 500;
         }
         .stat-value {
-            font-size: 30px;
+            font-size: 24px;
             font-weight: 700;
             color: #101828;
             line-height: 1;
@@ -98,8 +98,8 @@
             z-index: 10;
         }
         .header-title {
-            font-size: 18px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 600;
             color: #101828;
         }
         .header-user {
@@ -108,33 +108,33 @@
             gap: 10px;
         }
         .header-avatar {
-            width: 38px;
-            height: 38px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: #2563EB;
             color: #FFFFFF;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
+            font-weight: 600;
+            font-size: 12px;
         }
         .header-user-info p { margin: 0; }
-        .header-user-name { font-size: 14px; font-weight: 700; color: #101828; }
-        .header-user-role { font-size: 12px; color: #6A7282; }
+        .header-user-name { font-size: 13px; font-weight: 600; color: #101828; }
+        .header-user-role { font-size: 11px; color: #6A7282; }
 
         /* Quick Actions Section */
         .section-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             color: #101828;
-            margin-bottom: 20px;
-            margin-top: 40px;
+            margin-bottom: 16px;
+            margin-top: 32px;
         }
 
         .quick-actions-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
         }
 
@@ -142,10 +142,10 @@
             background: #FFFFFF;
             border: 1px solid #E5E7EB;
             border-radius: 12px;
-            padding: 24px;
+            padding: 20px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
             text-decoration: none;
@@ -192,15 +192,15 @@
             background: #FFFFFF;
             border: 1px solid #E5E7EB;
             border-radius: 14px;
-            padding: 32px;
-            margin-top: 24px;
+            padding: 24px;
+            margin-top: 20px;
         }
 
         .activity-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .activity-table {
@@ -369,6 +369,16 @@
                         <p>Patient & Staff reports</p>
                     </div>
                 </a>
+
+                <a href="reports.html" class="action-card">
+                    <div class="action-icon bg-orange">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                    </div>
+                    <div class="action-info">
+                        <h3>Reports & Analytics</h3>
+                        <p>Portal performance metrics</p>
+                    </div>
+                </a>
             </div>
 
             <!-- Recent System Activity -->
@@ -388,42 +398,7 @@
                         </tr>
                     </thead>
                     <tbody id="activityTableBody">
-                        <!-- Mock activity for Review-3 -->
-                        <tr>
-                            <td>31 Mar 2026</td>
-                            <td class="actor-cell">Super User</td>
-                            <td><span class="badge-action badge-create">Create</span></td>
-                            <td>Users</td>
-                            <td class="details-cell">New doctor account created for Cardiology department (Dr. Sarah Smith).</td>
-                        </tr>
-                        <tr>
-                            <td>31 Mar 2026</td>
-                            <td class="actor-cell">Jane Doe (Desk)</td>
-                            <td><span class="badge-action badge-update">Update</span></td>
-                            <td>Bed Allocation</td>
-                            <td class="details-cell">Patient Maria Garcia moved to General Ward (G2). Status: Stable.</td>
-                        </tr>
-                        <tr>
-                            <td>30 Mar 2026</td>
-                            <td class="actor-cell">Super User</td>
-                            <td><span class="badge-action badge-delete">Delete</span></td>
-                            <td>Users</td>
-                            <td class="details-cell">Removed inactive trainee profile TR-092 from System Directory.</td>
-                        </tr>
-                        <tr>
-                            <td>29 Mar 2026</td>
-                            <td class="actor-cell">System Admin</td>
-                            <td><span class="badge-action badge-update">Update</span></td>
-                            <td>Settings</td>
-                            <td class="details-cell">Updated hospital emergency contact protocols and pharmacy inventory thresholds.</td>
-                        </tr>
-                        <tr>
-                            <td>28 Mar 2026</td>
-                            <td class="actor-cell">Nurse Emily</td>
-                            <td><span class="badge-action badge-create">Create</span></td>
-                            <td>Patient</td>
-                            <td class="details-cell">New registration complete for Kid A (ID: PAT-2026-012). Assigned to Pediatrics.</td>
-                        </tr>
+                        <!-- Populated dynamically via dashboard.js -->
                     </tbody>
                 </table>
             </div>

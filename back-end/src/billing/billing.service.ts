@@ -20,6 +20,11 @@ export class BillingService {
 
   private readonly billsFilePath = path.join(process.cwd(), 'data', 'billing.json');
 
+  /** Round a money amount to 2 decimal places. */
+  private round2(n: number): number {
+    return Math.round((n + Number.EPSILON) * 100) / 100;
+  }
+
   /** Load bills from disk */
   private loadBills(): Bill[] {
     try {
@@ -150,12 +155,12 @@ export class BillingService {
       const newBillId = IdGenerator.generateBillId();
 
       // Calculate totals
-      const subtotal = billData.items.reduce((sum, item) => sum + item.amount, 0);
+      const subtotal = this.round2(billData.items.reduce((sum, item) => sum + item.amount, 0));
       const cgstRate = 0.09;
       const sgstRate = 0.09;
-      const cgstAmount = subtotal * cgstRate;
-      const sgstAmount = subtotal * sgstRate;
-      const total = subtotal + cgstAmount + sgstAmount;
+      const cgstAmount = this.round2(subtotal * cgstRate);
+      const sgstAmount = this.round2(subtotal * sgstRate);
+      const total = this.round2(subtotal + cgstAmount + sgstAmount);
 
       // Create new bill
       const newBill: Bill = {
@@ -223,10 +228,10 @@ export class BillingService {
 
       // Recalculate totals if items are updated
       if (updateData.items) {
-        const subtotal = updateData.items.reduce((sum, item) => sum + item.amount, 0);
-        const cgstAmount = subtotal * updatedBill.cgstRate;
-        const sgstAmount = subtotal * updatedBill.sgstRate;
-        const total = subtotal + cgstAmount + sgstAmount;
+        const subtotal = this.round2(updateData.items.reduce((sum, item) => sum + item.amount, 0));
+        const cgstAmount = this.round2(subtotal * updatedBill.cgstRate);
+        const sgstAmount = this.round2(subtotal * updatedBill.sgstRate);
+        const total = this.round2(subtotal + cgstAmount + sgstAmount);
 
         updatedBill = {
           ...updatedBill,
@@ -446,9 +451,9 @@ export class BillingService {
   private calculateGST(amount: number) {
     const cgstRate = 0.09;
     const sgstRate = 0.09;
-    const cgstAmount = amount * cgstRate;
-    const sgstAmount = amount * sgstRate;
-    const total = amount + cgstAmount + sgstAmount;
+    const cgstAmount = this.round2(amount * cgstRate);
+    const sgstAmount = this.round2(amount * sgstRate);
+    const total = this.round2(amount + cgstAmount + sgstAmount);
 
     return {
       subtotal: amount,

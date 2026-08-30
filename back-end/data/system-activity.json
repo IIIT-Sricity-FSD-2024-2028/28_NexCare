@@ -1,0 +1,532 @@
+[
+  {
+    "id": "ACT-001",
+    "timestamp": "2026-04-02T10:15:00Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User logged in successfully",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-04-02T10:15:00Z"
+  },
+  {
+    "id": "ACT-002",
+    "timestamp": "2026-04-02T10:20:00Z",
+    "userId": "U002",
+    "action": "View",
+    "details": "Viewed patient directory",
+    "module": "Patients",
+    "severity": "INFO",
+    "createdAt": "2026-04-02T10:20:00Z"
+  },
+  {
+    "id": "ACT-003",
+    "timestamp": "2026-04-02T10:25:00Z",
+    "userId": "U003",
+    "action": "Dispatch",
+    "details": "Ambulance dispatched to 742 Evergreen Terrace",
+    "module": "Ambulance",
+    "severity": "HIGH",
+    "createdAt": "2026-04-02T10:25:00Z"
+  },
+  {
+    "id": "ACT-004",
+    "timestamp": "2026-04-02T11:00:00Z",
+    "userId": "U005",
+    "action": "Create",
+    "details": "Created appointment for John Anderson",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-04-02T11:00:00Z"
+  },
+  {
+    "id": "ACT-005",
+    "timestamp": "2026-04-02T14:30:00Z",
+    "userId": "U002",
+    "action": "Create",
+    "details": "Generated bill for Maria Garcia",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-04-02T14:30:00Z"
+  },
+  {
+    "id": "ACT-MT93K2RD2H3",
+    "timestamp": "2026-08-25T20:07:48.985Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-25T20:07:48.985Z"
+  },
+  {
+    "id": "ACT-MT93KXG35CC",
+    "timestamp": "2026-08-25T20:08:28.755Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "New appointment scheduled for John Anderson with Dr. Sarah Smith",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-25T20:08:28.755Z"
+  },
+  {
+    "id": "ACT-MT9WVMYR18E",
+    "timestamp": "2026-08-26T09:48:37.251Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T09:48:37.251Z"
+  },
+  {
+    "id": "ACT-MT9WY8QN2MY",
+    "timestamp": "2026-08-26T09:50:38.783Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User System Administrator logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T09:50:38.783Z"
+  },
+  {
+    "id": "ACT-MT9X1WXP3M1",
+    "timestamp": "2026-08-26T09:53:30.109Z",
+    "userId": "U001",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T09:53:30.109Z"
+  },
+  {
+    "id": "ACT-MTAEJ5X910V",
+    "timestamp": "2026-08-26T18:02:48.381Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T18:02:48.381Z"
+  },
+  {
+    "id": "ACT-MTAEQL6K2LI",
+    "timestamp": "2026-08-26T18:08:34.748Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T18:08:34.748Z"
+  },
+  {
+    "id": "ACT-MTAEVFGU1PY",
+    "timestamp": "2026-08-26T18:12:20.622Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T18:12:20.622Z"
+  },
+  {
+    "id": "ACT-MTAF06ZZ2VS",
+    "timestamp": "2026-08-26T18:16:02.927Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T18:16:02.927Z"
+  },
+  {
+    "id": "ACT-MTAF2K3G1V0",
+    "timestamp": "2026-08-26T18:17:53.212Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T18:17:53.212Z"
+  },
+  {
+    "id": "ACT-MTAFQJB2212",
+    "timestamp": "2026-08-26T18:36:31.934Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T18:36:31.934Z"
+  },
+  {
+    "id": "ACT-MTAGOJYW4SJ",
+    "timestamp": "2026-08-26T19:02:59.096Z",
+    "userId": "PMTAGOJYV3AO",
+    "action": "Create",
+    "details": "New patient record created for Linkage Probe",
+    "module": "Patients",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:02:59.096Z"
+  },
+  {
+    "id": "ACT-MTAGOJYZ5BX",
+    "timestamp": "2026-08-26T19:02:59.099Z",
+    "userId": "UMTAGOJWS1GE",
+    "action": "Register",
+    "details": "New patient account registered: Linkage Probe (linkage.probe@gmail.com)",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:02:59.099Z"
+  },
+  {
+    "id": "ACT-MTAGQLIC3TK",
+    "timestamp": "2026-08-26T19:04:34.404Z",
+    "userId": "PMTAGQLGN2QH",
+    "action": "Create",
+    "details": "New patient record created for Priya Raghavan",
+    "module": "Patients",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:04:34.404Z"
+  },
+  {
+    "id": "ACT-MTAGQLID4NY",
+    "timestamp": "2026-08-26T19:04:34.405Z",
+    "userId": "UMTAGQLGN1E8",
+    "action": "Register",
+    "details": "New patient account registered: Priya Raghavan (priya.raghavan@gmail.com)",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:04:34.405Z"
+  },
+  {
+    "id": "ACT-MTAGR1S15Q0",
+    "timestamp": "2026-08-26T19:04:55.489Z",
+    "userId": "UMTAGQLGN1E8",
+    "action": "Login",
+    "details": "User Priya Raghavan logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:04:55.489Z"
+  },
+  {
+    "id": "ACT-MTAGRA6G6BR",
+    "timestamp": "2026-08-26T19:05:06.376Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:05:06.376Z"
+  },
+  {
+    "id": "ACT-MTAGSDIC77X",
+    "timestamp": "2026-08-26T19:05:57.348Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:05:57.348Z"
+  },
+  {
+    "id": "ACT-MTAGTNSJAE4",
+    "timestamp": "2026-08-26T19:06:57.331Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "New appointment scheduled for John Anderson with Dr. Sarah Smith",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:06:57.331Z"
+  },
+  {
+    "id": "ACT-MTAGTNT9CGW",
+    "timestamp": "2026-08-26T19:06:57.357Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "Ambulance request AMB-MTAGTNT8B8U created for John Anderson",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:06:57.357Z"
+  },
+  {
+    "id": "ACT-MTAGTNTXEB4",
+    "timestamp": "2026-08-26T19:06:57.381Z",
+    "userId": "P001",
+    "action": "Submit",
+    "details": "Feedback feedback FB-MTAGTNTWDEI submitted: Portal check",
+    "module": "Feedback",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:06:57.381Z"
+  },
+  {
+    "id": "ACT-MTAGUSYBFKM",
+    "timestamp": "2026-08-26T19:07:50.675Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:07:50.675Z"
+  },
+  {
+    "id": "ACT-MTAGV15CGGW",
+    "timestamp": "2026-08-26T19:08:01.296Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:08:01.296Z"
+  },
+  {
+    "id": "ACT-MTAGW2WN1D4",
+    "timestamp": "2026-08-26T19:08:50.231Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:08:50.231Z"
+  },
+  {
+    "id": "ACT-MTAHHCQ7126",
+    "timestamp": "2026-08-26T19:25:22.735Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:25:22.735Z"
+  },
+  {
+    "id": "ACT-MTAHSMVC10Z",
+    "timestamp": "2026-08-26T19:34:09.096Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:34:09.096Z"
+  },
+  {
+    "id": "ACT-MTAHSY1S21N",
+    "timestamp": "2026-08-26T19:34:23.584Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:34:23.584Z"
+  },
+  {
+    "id": "ACT-MTAHSY3M47A",
+    "timestamp": "2026-08-26T19:34:23.650Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:34:23.650Z"
+  },
+  {
+    "id": "ACT-MTAHT5JR5Y9",
+    "timestamp": "2026-08-26T19:34:33.303Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:34:33.303Z"
+  },
+  {
+    "id": "ACT-MTAHTCX770A",
+    "timestamp": "2026-08-26T19:34:42.859Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-26T19:34:42.859Z"
+  },
+  {
+    "id": "ACT-MTBLK3ZQ1KO",
+    "timestamp": "2026-08-27T14:07:16.022Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T14:07:16.022Z"
+  },
+  {
+    "id": "ACT-MTBLY6WQ171",
+    "timestamp": "2026-08-27T14:18:12.987Z",
+    "userId": "U010",
+    "action": "Login",
+    "details": "User Dr. Priya Nair logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T14:18:12.987Z"
+  },
+  {
+    "id": "ACT-MTBMP70O36N",
+    "timestamp": "2026-08-27T14:39:12.842Z",
+    "userId": "U010",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T14:39:12.843Z"
+  },
+  {
+    "id": "ACT-MTBN5QO44MS",
+    "timestamp": "2026-08-27T14:52:04.804Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T14:52:04.804Z"
+  },
+  {
+    "id": "ACT-MTBOKRG91UQ",
+    "timestamp": "2026-08-27T15:31:45.273Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T15:31:45.273Z"
+  },
+  {
+    "id": "ACT-MTBORKXJ2N3",
+    "timestamp": "2026-08-27T15:37:03.415Z",
+    "userId": "U040",
+    "action": "Login",
+    "details": "User Ananya Sharma logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T15:37:03.415Z"
+  },
+  {
+    "id": "ACT-MTBSCRZ017B",
+    "timestamp": "2026-08-27T17:17:31.165Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T17:17:31.165Z"
+  },
+  {
+    "id": "ACT-MTBV0NME1MS",
+    "timestamp": "2026-08-27T18:32:04.502Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User System Administrator logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-27T18:32:04.502Z"
+  },
+  {
+    "id": "ACT-MTCJ1H3X1SS",
+    "timestamp": "2026-08-28T05:44:33.501Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T05:44:33.501Z"
+  },
+  {
+    "id": "ACT-MTCJ1ZUK28K",
+    "timestamp": "2026-08-28T05:44:57.788Z",
+    "userId": "Admin",
+    "action": "Update",
+    "details": "Patient record P001 (Patient 001) updated",
+    "module": "Patients",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T05:44:57.788Z"
+  },
+  {
+    "id": "ACT-MTCJ7M1C3VK",
+    "timestamp": "2026-08-28T05:49:19.824Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T05:49:19.824Z"
+  },
+  {
+    "id": "ACT-MTCJMTPG5B1",
+    "timestamp": "2026-08-28T06:01:09.604Z",
+    "userId": "UMTCJMTLL4ZC",
+    "action": "Register",
+    "details": "New patient account registered: Test Patient (patient@nexcare.com)",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:01:09.604Z"
+  },
+  {
+    "id": "ACT-MTCJO5D06XM",
+    "timestamp": "2026-08-28T06:02:11.364Z",
+    "userId": "UMTCJMTLL4ZC",
+    "action": "Login",
+    "details": "User Test Patient logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:02:11.364Z"
+  },
+  {
+    "id": "ACT-MTCJZN771KP",
+    "timestamp": "2026-08-28T06:11:07.699Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:11:07.699Z"
+  },
+  {
+    "id": "ACT-MTCK1ZZG1ZX",
+    "timestamp": "2026-08-28T06:12:57.580Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:12:57.580Z"
+  },
+  {
+    "id": "ACT-MTCK5O8Y1P9",
+    "timestamp": "2026-08-28T06:15:48.995Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:15:48.995Z"
+  },
+  {
+    "id": "ACT-MTCKGEII1PT",
+    "timestamp": "2026-08-28T06:24:09.594Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:24:09.594Z"
+  },
+  {
+    "id": "ACT-MTCKMTDW24R",
+    "timestamp": "2026-08-28T06:29:08.804Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-28T06:29:08.804Z"
+  }
+]

@@ -72,189 +72,6 @@ export class PatientsService {
     ];
   }
 
-  // In-memory mock patients database (aligned with frontend db.js)
-  private patients: Patient[] = [
-    {
-      id: 'P001',
-      fullName: 'John Anderson',
-      phone: '5551234567',
-      email: 'patient@gmail.com',
-      patientIdDisplay: 'PAT-2026-001',
-      memberSince: 'January 2024',
-      status: 'Active',
-      bloodGroup: 'O+',
-      age: 45,
-      createdAt: '2024-01-01T00:00:00Z'
-    },
-    {
-      id: 'P002',
-      fullName: 'Maria Garcia',
-      phone: '5559876543',
-      email: 'maria@example.com',
-      patientIdDisplay: 'PAT-2026-002',
-      memberSince: 'March 2025',
-      status: 'Critical',
-      bloodGroup: 'AB-',
-      age: 62,
-      createdAt: '2025-03-01T00:00:00Z'
-    },
-    {
-      id: 'P003',
-      fullName: 'Ravi Kumar',
-      phone: '9876543210',
-      email: 'ravi.kumar@example.com',
-      patientIdDisplay: 'PAT-2026-003',
-      memberSince: 'February 2026',
-      status: 'Active',
-      bloodGroup: 'B+',
-      age: 28,
-      createdAt: '2026-02-01T00:00:00Z'
-    },
-    {
-      id: 'P004',
-      fullName: 'Anita Sharma',
-      phone: '8765432109',
-      email: 'anita.sharma@example.com',
-      patientIdDisplay: 'PAT-2026-004',
-      memberSince: 'February 2026',
-      status: 'Critical',
-      bloodGroup: 'A-',
-      age: 35,
-      createdAt: '2026-02-01T00:00:00Z'
-    },
-    {
-      id: 'P005',
-      fullName: 'Priya Singh',
-      phone: '7654321098',
-      email: 'priya.singh@example.com',
-      patientIdDisplay: 'PAT-2026-005',
-      memberSince: 'February 2026',
-      status: 'Active',
-      bloodGroup: 'O-',
-      age: 31,
-      createdAt: '2026-02-01T00:00:00Z'
-    },
-    {
-      id: 'P006',
-      fullName: 'Amit Verma',
-      phone: '6543210987',
-      email: 'amit.verma@example.com',
-      patientIdDisplay: 'PAT-2026-006',
-      memberSince: 'February 2026',
-      status: 'Active',
-      bloodGroup: 'B-',
-      age: 42,
-      createdAt: '2026-02-01T00:00:00Z'
-    },
-    {
-      id: 'P007',
-      fullName: 'Kiran Rao',
-      phone: '5432109876',
-      email: 'kiran.rao@example.com',
-      patientIdDisplay: 'PAT-2026-007',
-      memberSince: 'February 2026',
-      status: 'Active',
-      bloodGroup: 'AB+',
-      age: 29,
-      createdAt: '2026-02-01T00:00:00Z'
-    },
-    {
-      id: 'P008',
-      fullName: 'Rahul Jain',
-      phone: '4321098765',
-      email: 'rahul.jain@example.com',
-      patientIdDisplay: 'PAT-2026-008',
-      memberSince: 'February 2026',
-      status: 'Active',
-      bloodGroup: 'A+',
-      age: 38,
-      createdAt: '2026-02-01T00:00:00Z'
-    },
-    {
-      id: 'P009',
-      fullName: 'Deepak Kumar',
-      phone: '3210987654',
-      email: 'deepak.kumar@example.com',
-      patientIdDisplay: 'PAT-2026-009',
-      memberSince: 'February 2026',
-      status: 'Active',
-      bloodGroup: 'O+',
-      age: 47,
-      createdAt: '2026-02-01T00:00:00Z'
-    },
-    {
-      id: 'P010',
-      fullName: 'Arjun Reddy',
-      phone: '2109876543',
-      email: 'arjun.reddy@example.com',
-      patientIdDisplay: 'PAT-2026-010',
-      memberSince: 'February 2026',
-      status: 'Active',
-      bloodGroup: 'B+',
-      age: 33,
-      createdAt: '2026-02-01T00:00:00Z'
-    },
-    {
-      id: 'P011',
-      fullName: 'Neha Gupta',
-      phone: '1098765432',
-      email: 'neha.gupta@example.com',
-      patientIdDisplay: 'PAT-2026-011',
-      memberSince: 'February 2026',
-      status: 'Active',
-      bloodGroup: 'A-',
-      age: 26,
-      createdAt: '2026-02-01T00:00:00Z'
-    },
-    {
-      id: 'P012',
-      fullName: 'Kid A',
-      phone: '9999000001',
-      email: 'kid.a@example.com',
-      patientIdDisplay: 'PAT-2026-012',
-      memberSince: 'February 2026',
-      status: 'Active',
-      bloodGroup: 'O+',
-      age: 8,
-      createdAt: '2026-02-01T00:00:00Z'
-    },
-    {
-      id: 'P013',
-      fullName: 'Mother A',
-      phone: '9999000002',
-      email: 'mother.a@example.com',
-      patientIdDisplay: 'PAT-2026-013',
-      memberSince: 'February 2026',
-      status: 'Active',
-      bloodGroup: 'B-',
-      age: 30,
-      createdAt: '2026-02-01T00:00:00Z'
-    },
-    {
-      id: 'P014',
-      fullName: 'Mother B',
-      phone: '9999000003',
-      email: 'mother.b@example.com',
-      patientIdDisplay: 'PAT-2026-014',
-      memberSince: 'February 2026',
-      status: 'Active',
-      bloodGroup: 'AB-',
-      age: 34,
-      createdAt: '2026-02-01T00:00:00Z'
-    },
-    {
-      id: 'P015',
-      fullName: 'John Doe',
-      phone: '9999000004',
-      email: 'johndoe@example.com',
-      patientIdDisplay: 'PAT-2026-015',
-      memberSince: 'January 2026',
-      status: 'Active',
-      bloodGroup: 'O+',
-      age: 32,
-      createdAt: '2026-01-01T00:00:00Z'
-    }
-  ];
 
   /**
    * Get all patients with optional filtering
@@ -305,7 +122,23 @@ export class PatientsService {
   async create(patientData: CreatePatientRequest) {
     try {
       const patients = this.loadPatients();
-      
+
+      // Validate age
+      if (patientData.age !== undefined && patientData.age !== null) {
+        if (patientData.age < 0) {
+          return ResponseUtil.error('Age cannot be negative');
+        }
+        if (patientData.age > 150) {
+          return ResponseUtil.error('Age cannot exceed 150 years');
+        }
+      }
+
+      // Validate blood group
+      const validBloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown'];
+      if (patientData.bloodGroup && !validBloodGroups.includes(patientData.bloodGroup)) {
+        return ResponseUtil.error('Invalid blood group. Valid values: A+, A-, B+, B-, AB+, AB-, O+, O-');
+      }
+
       // Check if email already exists
       const existingPatient = patients.find(p => p.email.toLowerCase() === patientData.email.toLowerCase());
       if (existingPatient) {
@@ -318,8 +151,10 @@ export class PatientsService {
         return ResponseUtil.error('Phone number already exists');
       }
 
-      // Generate new patient ID and display ID
-      const newPatientId = IdGenerator.generatePatientId();
+      // Honour a caller-supplied id (registration passes the id already stored on
+      // the user account) and only generate one when creating a standalone record.
+      const existingIds = patients.map(p => p.id);
+      const newPatientId = patientData.id || IdGenerator.generatePatientId(existingIds);
       const currentYear = new Date().getFullYear();
       const randomNumber = Math.floor(Math.random() * 9000 + 1000);
 
@@ -334,6 +169,9 @@ export class PatientsService {
         status: 'Active',
         bloodGroup: patientData.bloodGroup || 'Unknown',
         age: patientData.age || 0,
+        ...(patientData.city ? { city: patientData.city } : {}),
+        ...(patientData.state ? { state: patientData.state } : {}),
+        ...(patientData.pincode ? { pincode: patientData.pincode } : {}),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -367,9 +205,25 @@ export class PatientsService {
     try {
       const patients = this.loadPatients();
       const patientIndex = patients.findIndex(p => p.id === id);
-      
+
       if (patientIndex === -1) {
         return ResponseUtil.notFound('Patient', id);
+      }
+
+      // Validate age if being updated
+      if (updateData.age !== undefined && updateData.age !== null) {
+        if (updateData.age < 0) {
+          return ResponseUtil.error('Age cannot be negative');
+        }
+        if (updateData.age > 150) {
+          return ResponseUtil.error('Age cannot exceed 150 years');
+        }
+      }
+
+      // Validate blood group if being updated
+      const validBloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown'];
+      if (updateData.bloodGroup && !validBloodGroups.includes(updateData.bloodGroup)) {
+        return ResponseUtil.error('Invalid blood group. Valid values: A+, A-, B+, B-, AB+, AB-, O+, O-');
       }
 
       // Check if email is being updated and already exists
@@ -386,7 +240,7 @@ export class PatientsService {
         ...updateData,
         updatedAt: new Date().toISOString()
       };
-      
+
       this.savePatients(patients);
 
       // Log activity
@@ -445,17 +299,18 @@ export class PatientsService {
    */
   async getStats() {
     try {
-      const totalPatients = this.patients.length;
-      const activePatients = this.patients.filter(p => p.status === 'Active').length;
-      const criticalPatients = this.patients.filter(p => p.status === 'Critical').length;
-      
+      const patients = this.loadPatients();
+      const totalPatients = patients.length;
+      const activePatients = patients.filter(p => p.status === 'Active').length;
+      const criticalPatients = patients.filter(p => p.status === 'Critical').length;
+
       // Calculate average age
-      const totalAge = this.patients.reduce((sum, patient) => sum + patient.age, 0);
+      const totalAge = patients.reduce((sum, patient) => sum + patient.age, 0);
       const averageAge = totalPatients > 0 ? Math.round(totalAge / totalPatients) : 0;
 
       // Blood group distribution
       const bloodGroupDistribution: Record<string, number> = {};
-      this.patients.forEach(patient => {
+      patients.forEach(patient => {
         bloodGroupDistribution[patient.bloodGroup] = (bloodGroupDistribution[patient.bloodGroup] || 0) + 1;
       });
 
@@ -502,8 +357,8 @@ export class PatientsService {
    */
   async findByBloodGroup(bloodGroup: string) {
     try {
-      const patients = this.patients.filter(p => p.bloodGroup === bloodGroup);
-      
+      const patients = this.loadPatients().filter(p => p.bloodGroup === bloodGroup);
+
       return ResponseUtil.success(`Patients with blood group '${bloodGroup}' retrieved successfully`, patients);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve patients by blood group');
@@ -518,7 +373,8 @@ export class PatientsService {
    */
   async updateStatus(id: string, status: string) {
     try {
-      const updatedPatient = ArrayUtil.updateById(this.patients, id, {
+      const patients = this.loadPatients();
+      const updatedPatient = ArrayUtil.updateById(patients, id, {
         status,
         updatedAt: new Date().toISOString()
       });
@@ -526,6 +382,8 @@ export class PatientsService {
       if (!updatedPatient) {
         return ResponseUtil.notFound('Patient', id);
       }
+
+      this.savePatients(patients);
 
       return ResponseUtil.updated('Patient status updated successfully', updatedPatient);
     } catch (error) {
@@ -541,7 +399,7 @@ export class PatientsService {
    */
   async findByAgeRange(minAge: number, maxAge: number) {
     try {
-      const patients = this.patients.filter(p => p.age >= minAge && p.age <= maxAge);
+      const patients = this.loadPatients().filter(p => p.age >= minAge && p.age <= maxAge);
       
       return ResponseUtil.success(`Patients aged ${minAge}-${maxAge} retrieved successfully`, patients);
     } catch (error) {

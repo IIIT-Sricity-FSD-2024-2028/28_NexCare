@@ -1,15 +1,16 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Put, 
-  Patch, 
-  Delete, 
-  Param, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Patch,
+  Delete,
+  Param,
   Query,
+  Req,
   HttpCode,
-  HttpStatus 
+  HttpStatus
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { BedsService } from './beds.service';
@@ -21,8 +22,8 @@ import { UserRole, BedStatus } from '../common/interfaces/api-response.interface
 
 /**
  * Beds Controller
- * Manages hospital bed allocation and ward management in the NexCare system
- * Provides endpoints for bed CRUD operations and allocation management
+ * Manages hospital bed allocation and ward management in the NexCare system.
+ * Staff are scoped to their own hospital; superuser sees all hospitals.
  */
 @ApiTags('Beds')
 @ApiBearerAuth('JWT-auth')
@@ -31,16 +32,24 @@ import { UserRole, BedStatus } from '../common/interfaces/api-response.interface
 export class BedsController {
   constructor(private readonly bedsService: BedsService) {}
 
+  /** Hospital to scope queries to: undefined (all) for superuser, else the user's hospital. */
+  private scopeHospitalId(req: any): string | undefined {
+    const user = req?.user;
+    return user?.role === UserRole.SUPERUSER ? undefined : user?.hospitalId;
+  }
+
   /**
    * Get all beds with optional filtering
    */
+  // Regional Officers get read-only oversight; the client scopes to one hospital.
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER)
   @Get()
   @ApiOperation({ summary: 'Get all beds' })
   @ApiQuery({ name: 'ward', required: false })
   @ApiQuery({ name: 'status', required: false, enum: BedStatus })
   @ApiResponse({ status: 200, description: 'List of beds' })
-  async findAll(@Query('ward') ward?: string, @Query('status') status?: string) {
-    return this.bedsService.findAll(ward, status as any);
+  async findAll(@Req() req: any, @Query('ward') ward?: string, @Query('status') status?: string) {
+    return this.bedsService.findAll(ward, status as any, this.scopeHospitalId(req));
   }
 
   /**
@@ -51,8 +60,9 @@ export class BedsController {
   @ApiOperation({ summary: 'Create a new bed record' })
   @ApiResponse({ status: 200, description: 'Bed creation result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async create(@Body() createBedDto: CreateBedDto) {
-    return this.bedsService.create(createBedDto as any);
+  async create(@Req() req: any, @Body() createBedDto: CreateBedDto) {
+    const hospitalId = this.scopeHospitalId(req) || (createBedDto as any).hospitalId;
+    return this.bedsService.create({ ...(createBedDto as any), hospitalId });
   }
 
   /**
@@ -61,8 +71,8 @@ export class BedsController {
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get bed statistics' })
   @ApiResponse({ status: 200, description: 'Bed statistics retrieved' })
-  async getStats() {
-    return this.bedsService.getStats();
+  async getStats(@Req() req: any) {
+    return this.bedsService.getStats(this.scopeHospitalId(req));
   }
 
   /**

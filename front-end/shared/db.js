@@ -43,7 +43,36 @@ const NexCareDB = (() => {
         "patients": [
             { "id": "P001", "fullName": "John Anderson", "phone": "5551234567", "email": "patient@gmail.com", "patientIdDisplay": "PAT-2026-001", "memberSince": "January 2024", "status": "Active", "bloodGroup": "O+", "age": 45 }
         ],
-        "appointments": [],
+        "appointments": [
+            {
+                "id": "APT-001",
+                "token": "TKN-1234",
+                "patientId": "P001",
+                "patientName": "John Anderson",
+                "hospitalName": "NexCare AIIMS Super Speciality Hospital",
+                "doctor": "Dr. Sarah Smith",
+                "department": "Cardiology",
+                "dateLabel": "March 15, 2026",
+                "timeLabel": "10:00 AM",
+                "fee": 150,
+                "status": "Confirmed",
+                "reason": "Routine heart checkup and ECG review"
+            },
+            {
+                "id": "APT-002",
+                "token": "TKN-5678",
+                "patientId": "P001",
+                "patientName": "John Anderson",
+                "hospitalName": "NexCare AIIMS Super Speciality Hospital",
+                "doctor": "Dr. Vikram Patel",
+                "department": "Orthopaedics",
+                "dateLabel": "April 02, 2026",
+                "timeLabel": "02:30 PM",
+                "fee": 200,
+                "status": "Pending",
+                "reason": "Knee pain consultation"
+            }
+        ],
         "systemActivity": [],
         "ambulanceRequests": [],
         "bills": [],
@@ -390,13 +419,34 @@ window.NexCareStore = {
         const patientId = NexCareDB.getActivePatientScope();
         const patient = await this.getActivePatient();
         
+        // Slot conflict guard: prevent booking already booked active slots
+        const existingAppts = NexCareDB.getTable('appointments') || [];
+        const normDoc = String(data.doctor || '').toLowerCase().replace(/^dr\.\s*/i, '').trim();
+        const normDate = String(data.dateLabel || '').trim();
+        const normTime = String(data.timeLabel || '').trim();
+        
+        const conflict = existingAppts.find(a => {
+            if (a.status === 'Cancelled') return false;
+            const aDoc = String(a.doctor || a.doctorName || '').toLowerCase().replace(/^dr\.\s*/i, '').trim();
+            const aDate = String(a.dateLabel || a.date || '').trim();
+            const aTime = String(a.timeLabel || a.time || '').trim();
+            return (aDoc === normDoc || aDoc.includes(normDoc) || normDoc.includes(aDoc)) &&
+                   (aDate === normDate || aDate.includes(normDate) || normDate.includes(aDate)) &&
+                   (aTime === normTime);
+        });
+
+        if (conflict) {
+            throw new Error(`The slot "${data.timeLabel}" on ${data.dateLabel} with ${data.doctor} is already booked.`);
+        }
+        
         if (isAPIAvailable()) {
             try {
                 // White-list fields for backend DTO validation
                 const payload = {
                     patientId,
+                    hospitalName: data.hospitalName || "NexCare AIIMS Super Speciality Hospital",
                     department: data.department,
-                    doctor: data.doctor || "TBD",
+                    doctor: data.doctor || "Dr. Sarah Smith",
                     dateLabel: data.dateLabel,
                     timeLabel: data.timeLabel,
                     reason: data.reason || "",
@@ -417,8 +467,9 @@ window.NexCareStore = {
             id: NexCareDB.generateId("APT"),
             patientId,
             patientName: patient?.fullName || 'Self',
+            hospitalName: data.hospitalName || "NexCare AIIMS Super Speciality Hospital",
             department: data.department,
-            doctor: data.doctor || "TBD",
+            doctor: data.doctor || "Dr. Sarah Smith",
             dateLabel: data.dateLabel,
             timeLabel: data.timeLabel,
             token: data.token || NexCareDB.generateId("TKN"),

@@ -2,340 +2,201 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NexCare - Doctor Portal</title>
-    <link rel="stylesheet" href="../patient/styles.css">
-        <script>
-        // JWT-based early auth guard (runs before body renders, prevents flash)
-        (function () {
-            function decodeJWT(token) {
-                try {
-                    var parts = token.split('.');
-                    if (parts.length !== 3) return null;
-                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
-                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                    }).join(''));
-                    return JSON.parse(json);
-                } catch(e) { return null; }
-            }
-            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-            var payload = token ? decodeJWT(token) : null;
-            var now = Math.floor(Date.now() / 1000);
-            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'doctor') {
-                sessionStorage.clear();
-                window.location.replace('../auth/login.html');
-            }
-            // Sync legacy keys so other inline scripts don't break
-            if (payload) {
-                sessionStorage.setItem('isLoggedIn', 'true');
-                sessionStorage.setItem('nexcare_current_role', payload.role);
-            }
-        })();
-    </script>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <a class="sidebar-brand" href="dashboard.html" aria-label="NexCare Patient Portal Home">
-            <nex-care-logo></nex-care-logo>
-            <span class="sidebar-brand-subtitle">Doctor Portal</span>
-        </a>
-
-        <nav class="nav-menu">
-            <a href="dashboard.html" class="nav-item active">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <rect width="8" height="8" x="2" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <rect width="8" height="8" x="2" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <rect width="8" height="8" x="12" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <rect width="8" height="8" x="12" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
-                <span>Dashboard</span>
-            </a>
-            <a href="appointments/appointments.html" class="nav-item">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M6.667 1.667v3.333M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2.917 7.5h14.166" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect x="2.5" y="3.333" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.667"/>
-                </svg>
-                <span>Appointments</span>
-            </a>
-            <a href="ambulance.html" class="nav-item">
-               <svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M17 8H15V6C15 4.89543 14.1046 4 13 4H5C3.89543 4 3 4.89543 3 6V16C3 17.1046 3.89543 18 5 18H6.18421C6.58354 19.165 7.69351 20 9 20C10.3065 20 11.4165 19.165 11.8158 18H16.1842C16.5835 19.165 17.6935 20 19 20C20.3065 20 21.4165 19.165 21.8158 18H23V14L20 10V8C20 6.89543 19.1046 6 18 6H17V8Z" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  
-  <path d="M15 8V12H20" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  
-  <path d="M7 11H11" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M9 9V13" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
-  
-  <circle cx="9" cy="18" r="2" stroke="#6B7280" stroke-width="1.5"/>
-  <circle cx="19" cy="18" r="2" stroke="#6B7280" stroke-width="1.5"/>
-</svg>
-
-                <span>Ambulance Request</span>
-            </a>
-            <a href="billing.html" class="nav-item">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M2 8h16" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
-                <span>Billing & Payments</span>
-            </a>
-            <a href="feedback.html" class="nav-item">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M14 2v4M2 8h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M6 12h2M12 12h2M6 15h2M12 15h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <span>Feedback and Complaint</span>
-            </a>
-            <a href="profile.html" class="nav-item">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M17 18c0-3.866-3.134-7-7-7s-7 3.134-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <span>Profile</span>
-            </a>
-            <a href="#" onclick="sessionStorage.clear(); localStorage.removeItem('nexcare_currentUser'); window.location.href='../landing/landing.html'; return false;" class="nav-item nav-logout">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M13 15l5-5-5-5M18 10H8M12 5v-.5a2 2 0 00-2-2H4a2 2 0 00-2 2v11a2 2 0 002 2h6a2 2 0 002-2V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>Logout</span>
-            </a>
-        </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Header -->
-        <header class="header">
-            <div class="search-bar">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <circle cx="9" cy="9" r="6" stroke="#6A7282" stroke-width="2"/>
-                    <path d="M14 14l4 4" stroke="#6A7282" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <input type="text" placeholder="Search appointments, doctors, records...">
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <nex-care-logo></nex-care-logo>
+                <div class="portal-badge">Doctor Portal</div>
             </div>
-            <div class="header-actions">
-                <button class="notification-btn" onclick="window.showNotifications()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.36 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.63 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z" fill="#6A7282"/>
-                    </svg>
-                    <span class="notification-badge"></span>
-                </button>
-                <button class="profile-btn">
-                    <div class="profile-avatar">JP</div>
-                    <div class="profile-info">
-                        <p class="profile-name">John Patient</p>
-                        <p class="profile-id">Patient ID: P12345</p>
+
+            <nav class="sidebar-nav">
+                <a href="#appointments" class="nav-item active" onclick="switchTab('appointments', event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>My Appointments</span>
+                </a>
+                <a href="#leaves" class="nav-item" onclick="switchTab('leaves', event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    <span>Apply for Leave</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="doctorAvatar">DR</div>
+                    <div class="user-details">
+                        <span class="user-name" id="doctorName">Dr. Sarah Smith</span>
+                        <span class="user-role" id="doctorDept">Cardiology</span>
+                        <span class="user-role" id="doctorHospital" style="font-size: 11px; opacity: 0.85; margin-top: 2px;">🏥 NexCare AIIMS Super Speciality Hospital</span>
                     </div>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M4 6l4 4 4-4" stroke="#99A1AF" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                </div>
+                <button class="logout-btn" onclick="logoutUser()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span>Logout</span>
                 </button>
             </div>
-        </header>
+        </aside>
 
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="hero-content">
-                <h1>Welcome Back, Doctor!</h1>
-                <p>View your upcoming appointments and patient medical records here.</p>
-                <button class="btn-primary" onclick="location.href='appointments/appointments.html'">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M6.667 1.667V5M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
-                        <rect x="2.5" y="3.333" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.667"/>
-                        <path d="M2.5 8.333h15M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Book Appointment
-                </button>
-            </div>
-        </section>
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="pageTitle">Doctor Portal Overview</h1>
+                    <p id="pageSubtitle">Manage your appointments and duty leave requests</p>
+                </div>
+                <div class="header-actions">
+                    <span class="status-pill status-active" id="dutyStatus">● On Duty</span>
+                </div>
+            </header>
 
-        <!-- Stats Cards -->
-        <section class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-info">
-                        <p class="stat-label">Upcoming Appointments</p>
-                        <h3 class="stat-value" id="statAppointments">0</h3>
+            <!-- Stats Overview Row -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon icon-blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
                     </div>
-                    <div class="stat-icon blue">
-                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                            <path d="M8.667 2.167V6.5M17.333 2.167V6.5" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <rect x="3.25" y="4.333" width="19.5" height="19.5" rx="2" stroke="#155DFC" stroke-width="2"/>
-                            <path d="M3.25 10.833h19.5" stroke="#155DFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                    <div class="stat-data">
+                        <span class="stat-value" id="statToday">0</span>
+                        <span class="stat-label">Today's Consultations</span>
                     </div>
                 </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-info">
-                        <p class="stat-label">Medical Records</p>
-                        <h3 class="stat-value" id="statRecords">0</h3>
+                <div class="stat-card">
+                    <div class="stat-icon icon-green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     </div>
-                    <div class="stat-icon green">
-                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                            <rect x="6.5" y="2.167" width="13" height="21.667" rx="2" stroke="#009689" stroke-width="2"/>
-                            <path d="M10.833 9.75H8.667M17.333 14.083H8.667M17.333 18.417H8.667" stroke="#009689" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                    <div class="stat-data">
+                        <span class="stat-value" id="statTotal">0</span>
+                        <span class="stat-label">Total Appointments</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-amber">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-value" id="statLeaves">0</span>
+                        <span class="stat-label">Leave Requests</span>
                     </div>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-info">
-                        <p class="stat-label">Ambulance Requests</p>
-                        <h3 class="stat-value" id="statAmbulance">0</h3>
+            <!-- Tab 1: Appointments Section -->
+            <section id="appointmentsTab" class="tab-content active-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>My Patient Appointments</h2>
+                        <div class="search-filter-box">
+                            <input type="text" id="appointmentSearch" placeholder="Search patient or token..." oninput="filterAppointments()" class="input-search">
+                            <select id="statusFilter" onchange="filterAppointments()" class="select-filter">
+                                <option value="">All Statuses</option>
+                                <option value="CONFIRMED">Confirmed</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="COMPLETED">Completed</option>
+                                <option value="CANCELLED">Cancelled</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="stat-icon red">
-                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                            <path d="M10.833 10.833H6.5M8.667 8.667V13" stroke="#E7000B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M9.75 19.5h6.5M16.25 19.5a2.167 2.167 0 104.333 0 2.167 2.167 0 00-4.333 0zM5.417 19.5a2.167 2.167 0 104.333 0 2.167 2.167 0 00-4.333 0z" stroke="#E7000B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M2.167 6.5h8.666v13H2.167zM10.833 10.833h4.334l3.25 3.25v5.417h-7.584" stroke="#E7000B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>EMR Token</th>
+                                    <th>Patient Name</th>
+                                    <th>Department</th>
+                                    <th>Hospital</th>
+                                    <th>Date & Time</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentsTableBody">
+                                <tr><td colspan="8" class="loading-cell">Loading appointments...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-info">
-                        <p class="stat-label">Pending Bills</p>
-                        <h3 class="stat-value" id="statBills">0</h3>
+            <!-- Tab 2: Leave Application Section -->
+            <section id="leavesTab" class="tab-content">
+                <div class="card-grid">
+                    <!-- Apply for Leave Form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Apply for Duty Leave</h2>
+                        </div>
+                        <form id="leaveForm" onsubmit="handleLeaveSubmit(event)" class="form-layout">
+                            <div class="form-group">
+                                <label for="leaveType">Leave Type</label>
+                                <select id="leaveType" required class="form-control">
+                                    <option value="Casual Leave">Casual Leave</option>
+                                    <option value="Sick Leave">Sick Leave</option>
+                                    <option value="Annual Leave">Annual Leave</option>
+                                    <option value="Emergency Leave">Emergency Leave</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="startDate">Start Date</label>
+                                    <input type="date" id="startDate" required class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate">End Date</label>
+                                    <input type="date" id="endDate" required class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reason">Reason for Leave</label>
+                                <textarea id="reason" rows="3" placeholder="Provide reason for duty leave request..." required class="form-control"></textarea>
+                            </div>
+                            <button type="submit" id="submitLeaveBtn" class="btn-primary">
+                                Submit Leave Request
+                            </button>
+                        </form>
                     </div>
-                    <div class="stat-icon orange">
-                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                            <rect x="2.167" y="4.333" width="21.667" height="17.333" rx="2" stroke="#F54900" stroke-width="2"/>
-                            <path d="M2.167 10.833h21.667" stroke="#F54900" stroke-width="2"/>
-                        </svg>
+
+                    <!-- My Leave Requests Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>My Leave History & Status</h2>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Leave Type</th>
+                                        <th>Dates</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leavesTableBody">
+                                    <tr><td colspan="4" class="loading-cell">Loading leave history...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- Main Sections -->
-        <section class="content-sections">
-            <!-- Upcoming Appointments -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h2>Upcoming Appointments</h2>
-                </div>
-                <div class="appointments-table">
-                    <table id="appointmentsTable">
-                        <thead>
-                            <tr>
-                                <th>Doctor</th>
-                                <th>Department</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Dynamically loaded -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Nearby Hospitals -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h2>Nearby Hospitals</h2>
-                </div>
-                <div class="appointments-table">
-                    <table id="hospitalsTable">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>City</th>
-                                <th>PIN Code</th>
-                                <th>Phone</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Dynamically loaded -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-
-            <!-- Billing & Payments -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h2>Billing & Payments</h2>
-                </div>
-                <div class="billing-table">
-                    <table id="billingTable">
-                        <thead>
-                            <tr>
-                                <th>Bill ID</th>
-                                <th>Service</th>
-                                <th>Date</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Dynamically loaded -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Medical Records -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h2>Medical Records</h2>
-                </div>
-                <div class="records-grid" id="recordsGrid">
-                    <!-- Dynamically loaded -->
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <script src="../logo.js"></script>
-    <!-- System Modal for stylish popups -->
-    <div id="systemModal" class="modal">
-        <div class="modal-content" style="max-width: 450px; text-align: left; padding: 0; overflow: hidden; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="background: linear-gradient(135deg, #155DFC 0%, #1C398E 100%); padding: 18px 24px; border-bottom: none; display: flex; justify-content: space-between; align-items: center; border-radius: 16px 16px 0 0; margin-bottom: 0;">
-                <h3 id="modalTitle" style="margin: 0; font-size: 18px; font-weight: 600; color: white;">Information</h3>
-                <button class="modal-close" onclick="closeSystemModal()" style="color: white; opacity: 0.8; font-size: 28px; line-height: 1; margin-top: -4px;">&times;</button>
-            </div>
-            <div class="modal-body" id="modalBody" style="padding: 24px; font-size: 15px; color: #4A5565; line-height: 1.6; background: #FFFFFF;">
-                <!-- message here -->
-            </div>
-            <div class="modal-actions" id="modalFooter" style="padding: 16px 24px; border-top: 1px solid #E5E7EB; display: flex; justify-content: flex-end; gap: 12px; background: #F9FAFB; border-radius: 0 0 16px 16px;">
-                <!-- buttons here -->
-            </div>
-        </div>
+            </section>
+        </main>
     </div>
 
-    <!-- Scripts -->
     <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/ui-components.js?v=8"></script>
     <script src="../shared/session.js?v=8"></script>
-    <script>
-        if (typeof checkAuth === "function") {
-            checkAuth();
-            checkRoleAccess();
-        }
-    </script>
-    <script src="../shared/db.js?v=10"></script>
-    <script src="script.js?v=1"></script>
-    <script src="dashboard.js?v=2"></script>
+    <script src="../logo.js"></script>
+    <script src="dashboard.js"></script>
 </body>
 </html>

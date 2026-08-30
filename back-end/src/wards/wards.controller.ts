@@ -6,7 +6,8 @@ import { UserRole } from '../common/interfaces/api-response.interface';
 
 @ApiTags('Wards')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
+// Regional Officers get read-only oversight across the hospitals they manage.
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER)
 @Controller('wards')
 export class WardsController {
   constructor(private readonly wardsService: WardsService) {}

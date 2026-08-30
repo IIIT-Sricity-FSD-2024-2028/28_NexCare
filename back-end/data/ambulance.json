@@ -1,0 +1,67 @@
+[
+  {
+    "id": "AMB-001",
+    "patientId": "P002",
+    "patientName": "Maria Garcia",
+    "pickupLocation": "742 Evergreen Terrace, Springfield",
+    "contact": "+1 (555) 987-6543",
+    "notes": "Patient is experiencing severe chest pains and shortness of breath.",
+    "status": "Dispatched",
+    "assignedTo": "U003",
+    "createdAt": "2026-04-02T10:15:00Z",
+    "updatedAt": "2026-04-02T10:20:00Z",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "AMB-002",
+    "patientId": "P001",
+    "patientName": "John Anderson",
+    "pickupLocation": "123 Main Street, Downtown",
+    "contact": "+1 (555) 123-4567",
+    "notes": "Mild concussion from a fall.",
+    "status": "Completed",
+    "assignedTo": "U003",
+    "createdAt": "2026-03-25T14:20:00Z",
+    "updatedAt": "2026-03-25T16:45:00Z",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "AMB-003",
+    "patientId": "P011",
+    "patientName": "Rahul Verma",
+    "pickupLocation": "Bairagipatteda Main Road, Tirupati",
+    "contact": "9876500111",
+    "notes": "Road traffic accident, suspected fracture.",
+    "status": "En Route",
+    "assignedTo": "U021",
+    "hospitalId": "H002",
+    "createdAt": "2026-08-25T14:05:00Z",
+    "updatedAt": "2026-08-25T14:18:00Z"
+  },
+  {
+    "id": "AMB-004",
+    "patientId": "P013",
+    "patientName": "Sandeep Reddy",
+    "pickupLocation": "Anna Salai, Guindy, Chennai",
+    "contact": "9876500113",
+    "notes": "Chest discomfort, requested transfer to cardiac unit.",
+    "status": "Dispatched",
+    "assignedTo": "U032",
+    "hospitalId": "H003",
+    "createdAt": "2026-08-26T19:40:00Z",
+    "updatedAt": "2026-08-26T19:47:00Z"
+  },
+  {
+    "id": "AMB-005",
+    "patientId": "P014",
+    "patientName": "Fatima Sheikh",
+    "pickupLocation": "T Nagar, Chennai",
+    "contact": "9876500114",
+    "notes": "Scheduled inter-hospital transfer for physiotherapy.",
+    "status": "Pending",
+    "assignedTo": "",
+    "hospitalId": "H003",
+    "createdAt": "2026-08-27T06:15:00Z",
+    "updatedAt": "2026-08-27T06:15:00Z"
+  }
+]

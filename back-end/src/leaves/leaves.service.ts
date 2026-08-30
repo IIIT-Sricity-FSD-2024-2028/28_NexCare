@@ -71,8 +71,8 @@ export class LeavesService {
     ];
   }
 
-  // In-memory mock leaves database
-  private leaves: Leave[] = this.getInitialMockData();
+  // Leaves database initialized from disk
+  private leaves: Leave[] = this.loadLeaves();
 
   /**
    * Get all leaves with optional filtering
@@ -109,7 +109,36 @@ export class LeavesService {
   /**
    * Create a new leave request
    */
-  create(createLeaveDto: CreateLeaveDto): any {
+  async create(createLeaveDto: CreateLeaveDto): Promise<any> {
+    // Validate date order
+    const start = new Date(createLeaveDto.startDate);
+    const end = new Date(createLeaveDto.endDate);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return ResponseUtil.error('Invalid date format');
+    }
+
+    if (end < start) {
+      return ResponseUtil.error('End date cannot be before start date');
+    }
+
+    // Validate future dates only
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (start < today) {
+      return ResponseUtil.error('Cannot submit leave requests for past dates');
+    }
+
+    // Check for overlapping approved leaves
+    const hasOverlap = await this.hasOverlappingLeave(
+      createLeaveDto.doctorId,
+      createLeaveDto.startDate,
+      createLeaveDto.endDate
+    );
+    if (hasOverlap) {
+      return ResponseUtil.error('Doctor already has approved leave during this period');
+    }
+
     const newLeave: Leave = {
       id: IdGenerator.generate('L'),
       ...createLeaveDto,
@@ -193,11 +222,13 @@ export class LeavesService {
     }
 
     if (startDate) {
-      filtered = filtered.filter(leave => leave.startDate >= startDate);
+      const filterStart = new Date(startDate);
+      filtered = filtered.filter(leave => new Date(leave.startDate) >= filterStart);
     }
 
     if (endDate) {
-      filtered = filtered.filter(leave => leave.endDate <= endDate);
+      const filterEnd = new Date(endDate);
+      filtered = filtered.filter(leave => new Date(leave.endDate) <= filterEnd);
     }
 
     // Group by date
@@ -209,7 +240,7 @@ export class LeavesService {
 
       while (current <= end) {
         const dateStr = current.toISOString().split('T')[0];
-        
+
         if (!calendarMap.has(dateStr)) {
           calendarMap.set(dateStr, []);
         }
@@ -224,11 +255,13 @@ export class LeavesService {
       }
     });
 
-    // Convert map to array
-    const calendarView: LeaveCalendarView[] = Array.from(calendarMap.entries()).map(([date, doctors]) => ({
-      date,
-      doctorsOnLeave: doctors
-    }));
+    // Convert map to array and sort by date
+    const calendarView: LeaveCalendarView[] = Array.from(calendarMap.entries())
+      .map(([date, doctors]) => ({
+        date,
+        doctorsOnLeave: doctors
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return ResponseUtil.success('Calendar view retrieved successfully', calendarView);
   }

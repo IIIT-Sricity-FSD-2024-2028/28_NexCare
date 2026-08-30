@@ -1,0 +1,142 @@
+[
+  {
+    "id": "EQ-001-01",
+    "name": "MRI Scanner",
+    "type": "Imaging",
+    "status": "Active",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "EQ-001-02",
+    "name": "CT Scanner",
+    "type": "Imaging",
+    "status": "Active",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "EQ-001-03",
+    "name": "X-Ray Machine",
+    "type": "Imaging",
+    "status": "Maintenance",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "EQ-001-04",
+    "name": "Ventilator",
+    "type": "Life Support",
+    "status": "Active",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "EQ-001-05",
+    "name": "Dialysis Machine",
+    "type": "Renal",
+    "status": "Active",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "EQ-001-06",
+    "name": "ECG Machine",
+    "type": "Diagnostics",
+    "status": "Active",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "EQ-001-07",
+    "name": "Defibrillator",
+    "type": "Emergency",
+    "status": "Active",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "EQ-001-08",
+    "name": "Ultrasound Scanner",
+    "type": "Imaging",
+    "status": "Active",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "EQ-002-01",
+    "name": "CT Scanner",
+    "type": "Imaging",
+    "status": "Active",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "EQ-002-02",
+    "name": "X-Ray Machine",
+    "type": "Imaging",
+    "status": "Active",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "EQ-002-03",
+    "name": "Ventilator",
+    "type": "Life Support",
+    "status": "Active",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "EQ-002-04",
+    "name": "ECG Machine",
+    "type": "Diagnostics",
+    "status": "Active",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "EQ-002-05",
+    "name": "Ultrasound Scanner",
+    "type": "Imaging",
+    "status": "Active",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "EQ-002-06",
+    "name": "Infant Incubator",
+    "type": "Neonatal",
+    "status": "Active",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "EQ-003-01",
+    "name": "MRI Scanner",
+    "type": "Imaging",
+    "status": "Active",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "EQ-003-02",
+    "name": "C-Arm Machine",
+    "type": "Imaging",
+    "status": "Active",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "EQ-003-03",
+    "name": "Ventilator",
+    "type": "Life Support",
+    "status": "Maintenance",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "EQ-003-04",
+    "name": "Defibrillator",
+    "type": "Emergency",
+    "status": "Active",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "EQ-003-05",
+    "name": "Arthroscopy Unit",
+    "type": "Surgical",
+    "status": "Active",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "EQ-003-06",
+    "name": "ECG Machine",
+    "type": "Diagnostics",
+    "status": "Active",
+    "hospitalId": "H003"
+  }
+]

@@ -9,7 +9,6 @@
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -17,8 +16,12 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    // Self-relative so no `baseUrl` is needed — baseUrl is deprecated in
+    // TypeScript 5.9 and stops working in 7.0. Supported since TS 5.4.
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
-  }
+  },
+  "include": ["src/**/*", "generate-swagger.ts"],
+  "exclude": ["node_modules", "dist", "coverage", "uploads", "logs", "data"]
 }

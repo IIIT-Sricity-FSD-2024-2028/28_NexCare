@@ -14,6 +14,7 @@ export interface Inventory {
   location: string;
   status: InventoryStatus;
   lastRestocked?: string;
+  hospitalId?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -49,7 +50,12 @@ export interface UpdateInventoryRequest {
 export interface RestockRequest {
   quantity: number;
   notes?: string;
+  supplier?: string;
+  batchNumber?: string;
+  expiryDate?: string;
+  restockedBy?: string;
 }
+
 
 /**
  * Inventory Statistics Interface
@@ -64,3 +70,21 @@ export interface InventoryStats {
   byLocation: Record<string, number>;
   totalValue: number;
 }
+
+/**
+ * Inventory Audit Log Interface
+ */
+export interface InventoryAudit {
+  id: string;
+  itemId: string;
+  action: 'restock' | 'use';
+  quantityBefore: number;
+  quantityAfter: number;
+  statusBefore?: InventoryStatus;
+  statusAfter?: InventoryStatus;
+  userId: string;
+  timestamp: string;
+  notes?: string;
+}
+
+

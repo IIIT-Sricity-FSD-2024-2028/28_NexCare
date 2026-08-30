@@ -109,13 +109,18 @@ async function loadRecentActivity() {
                 ? new Date(date).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
                 : '—';
 
+            // Add badge styling based on action type
+            let badgeClass = 'badge-update';
+            if (action.toLowerCase() === 'create') badgeClass = 'badge-create';
+            if (action.toLowerCase() === 'delete') badgeClass = 'badge-delete';
+
             tbody.innerHTML += `
                 <tr>
                     <td>${displayDate}</td>
-                    <td>${escapeHtml(String(actor))}</td>
-                    <td>${escapeHtml(String(action))}</td>
+                    <td class="actor-cell">${escapeHtml(String(actor))}</td>
+                    <td><span class="badge-action ${badgeClass}">${escapeHtml(String(action))}</span></td>
                     <td>${escapeHtml(String(module))}</td>
-                    <td>${escapeHtml(String(details))}</td>
+                    <td class="details-cell">${escapeHtml(String(details))}</td>
                 </tr>`;
         });
 
