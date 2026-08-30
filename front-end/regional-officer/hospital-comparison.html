@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCare - Hospital Comparison</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="../shared/nav.css">
+    <link rel="stylesheet" href="regional-common.css">
+</head>
+<body>
+    <main class="main-content">
+        <header class="header">
+            <span class="header-title">Hospital Comparison</span>
+            <div class="header-user">
+                <div class="header-avatar" id="userInitials" aria-hidden="true">RO</div>
+                <div class="header-user-info">
+                    <p class="header-user-name" id="userNameDisplay">Regional Officer</p>
+                    <p class="header-user-role">Regional Manager</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-body">
+            <section class="hero" aria-labelledby="hero-heading">
+                <h1 id="hero-heading">Compare Hospitals in Your Area</h1>
+                <p>Side-by-side comparison of bed capacity, staffing, patient satisfaction, inventory, and operational metrics across your assigned hospitals.</p>
+            </section>
+
+            <section class="panel" aria-labelledby="compare-filters">
+                <h2 class="sr-only" id="compare-filters">Select hospitals to compare</h2>
+                <div class="filter-bar">
+                    <label for="hospitalSelect">Hospitals to compare</label>
+                    <select id="hospitalSelect" multiple size="4" aria-label="Select hospitals to compare" style="min-width:280px;min-height:100px;">
+                    </select>
+                    <button type="button" id="compareBtn" class="btn-primary" style="padding:10px 20px;">Compare Selected</button>
+                    <button type="button" id="compareAllBtn" class="btn-link" style="border:none;background:transparent;">Compare all</button>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="cards-title">
+                <h2 class="section-title" id="cards-title">Hospital Metrics</h2>
+                <div id="comparisonCards" class="comparison-grid" aria-live="polite">
+                    <p class="empty-state">Loading comparison data…</p>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="chart-title">
+                <h2 class="section-title" id="chart-title">Bed Occupancy Comparison</h2>
+                <div id="occupancyChart" class="bar-chart" aria-live="polite"></div>
+            </section>
+
+            <section class="panel" aria-labelledby="table-title">
+                <h2 class="section-title" id="table-title">Detailed Comparison Table</h2>
+                <div class="table-wrap">
+                    <table class="data-table" id="comparisonTable">
+                        <caption class="sr-only">Detailed metrics comparison across selected hospitals</caption>
+                        <thead id="comparisonTableHead"></thead>
+                        <tbody id="comparisonTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="../shared/api.js?v=9"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script>if (typeof checkAuth === 'function') { checkAuth(); checkRoleAccess(); }</script>
+    <script src="../logo.js"></script>
+    <script src="../shared/nav.js"></script>
+    <script src="regional-common.js?v=1"></script>
+    <script src="hospital-comparison.js?v=1"></script>
+</body>
+</html>

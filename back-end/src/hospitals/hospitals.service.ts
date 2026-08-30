@@ -329,6 +329,36 @@ export class HospitalsService {
   }
 
   /**
+   * Get hospital performance metrics
+   * Used by regional managers to track hospital performance
+   */
+  async getHospitalPerformance(hospitalId: string) {
+    try {
+      const hospital = this.hospitals.find(h => h.id === hospitalId);
+      if (!hospital) {
+        return ResponseUtil.notFound('Hospital', hospitalId);
+      }
+
+      // Calculate basic performance metrics
+      const performanceMetrics = {
+        hospitalId: hospital.id,
+        hospitalName: hospital.name,
+        bedOccupancyRate: hospital.performanceMetrics?.bedOccupancyRate || 0,
+        appointmentCompletionRate: hospital.performanceMetrics?.appointmentCompletionRate || 0,
+        patientSatisfactionScore: hospital.performanceMetrics?.patientSatisfactionScore || 0,
+        totalBeds: hospital.totalBeds,
+        icuBeds: hospital.icuBeds,
+        verificationStatus: hospital.verificationStatus,
+        lastUpdated: hospital.performanceMetrics?.lastUpdated || hospital.updatedAt
+      };
+
+      return ResponseUtil.success('Hospital performance retrieved successfully', performanceMetrics);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve hospital performance');
+    }
+  }
+
+  /**
    * Renew hospital registration subscription for 12 months with mock payment
    */
   async renewSubscription(hospitalId: string, renewalDto: any) {
@@ -420,36 +450,6 @@ export class HospitalsService {
   }
 
   /**
-   * Get hospital performance metrics
-   * Used by regional managers to track hospital performance
-   */
-  async getHospitalPerformance(hospitalId: string) {
-    try {
-      const hospital = this.hospitals.find(h => h.id === hospitalId);
-      if (!hospital) {
-        return ResponseUtil.notFound('Hospital', hospitalId);
-      }
-
-      // Calculate basic performance metrics
-      const performanceMetrics = {
-        hospitalId: hospital.id,
-        hospitalName: hospital.name,
-        bedOccupancyRate: hospital.performanceMetrics?.bedOccupancyRate || 0,
-        appointmentCompletionRate: hospital.performanceMetrics?.appointmentCompletionRate || 0,
-        patientSatisfactionScore: hospital.performanceMetrics?.patientSatisfactionScore || 0,
-        totalBeds: hospital.totalBeds,
-        icuBeds: hospital.icuBeds,
-        verificationStatus: hospital.verificationStatus,
-        lastUpdated: hospital.performanceMetrics?.lastUpdated || hospital.updatedAt
-      };
-
-      return ResponseUtil.success('Hospital performance retrieved successfully', performanceMetrics);
-    } catch (error) {
-      return ResponseUtil.serverError('Failed to retrieve hospital performance');
-    }
-  }
-
-  /**
    * Update hospital performance metrics
    * Used to update performance data
    */
@@ -473,6 +473,320 @@ export class HospitalsService {
       return ResponseUtil.updated('Hospital performance metrics updated successfully', all[idx].performanceMetrics);
     } catch (error) {
       return ResponseUtil.serverError('Failed to update hospital performance metrics');
+    }
+  }
+
+  // ========================================================================
+  // Regional Manager Analytics
+  // ========================================================================
+
+  private readonly dataDir = path.join(process.cwd(), 'data');
+
+  private loadDataFile<T>(filename: string): T[] {
+    try {
+      const raw = fs.readFileSync(path.join(this.dataDir, filename), 'utf-8');
+      return JSON.parse(raw) as T[];
+    } catch {
+      return [];
+    }
+  }
+
+  getHospitalsForManager(managerId: string): Hospital[] {
+    return this.hospitals.filter(h => h.assignedManagerId === managerId);
+  }
+
+  private isLowStock(item: any): boolean {
+    const status = String(item.status || '').toLowerCase();
+    if (status.includes('low') || status.includes('out')) return true;
+    return item.reorderLevel != null && item.quantity != null && item.quantity <= item.reorderLevel;
+  }
+
+  private computeHospitalSnapshot(hospital: Hospital, context: {
+    beds: any[];
+    inventory: any[];
+    users: any[];
+    feedback: any[];
+    appointments: any[];
+  }) {
+    const hid = hospital.id;
+    const totalBeds = hospital.totalBeds || 0;
+    const availableBeds = hospital.availableBeds ?? context.beds.filter(
+      b => b.hospitalId === hid && String(b.status || '').toLowerCase() === 'available',
+    ).length;
+    const occupiedBeds = totalBeds > 0 ? totalBeds - availableBeds : 0;
+    const bedOccupancyRate = totalBeds > 0
+      ? Math.round((occupiedBeds / totalBeds) * 100)
+      : 0;
+
+    const hospitalDoctors = context.users.filter(
+      u => u.role === 'doctor' && u.hospitalId === hid,
+    );
+    const doctorNames = new Set(hospitalDoctors.map(d => d.name));
+    const hospitalAppointments = context.appointments.filter(
+      a => doctorNames.has(a.doctor) || a.hospitalId === hid,
+    );
+    const completedAppts = hospitalAppointments.filter(
+      a => String(a.status || '').toLowerCase() === 'completed',
+    ).length;
+    const appointmentCompletionRate = hospitalAppointments.length > 0
+      ? Math.round((completedAppts / hospitalAppointments.length) * 100)
+      : (hospital.performanceMetrics?.appointmentCompletionRate ?? 0);
+
+    const hospitalFeedback = context.feedback.filter(f => f.hospitalId === hid);
+    const patientFeedback = hospitalFeedback.filter(f => f.type === 'Patient');
+    const ratings = patientFeedback.map(f => f.rating).filter(r => typeof r === 'number');
+    const patientSatisfactionScore = ratings.length > 0
+      ? Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10
+      : (hospital.performanceMetrics?.patientSatisfactionScore ?? 0);
+
+    const lowStockItems = context.inventory.filter(
+      i => i.hospitalId === hid && this.isLowStock(i),
+    ).length;
+
+    const openComplaints = hospitalFeedback.filter(
+      f => !['resolved', 'closed'].includes(String(f.status || '').toLowerCase()),
+    ).length;
+
+    return {
+      hospitalId: hid,
+      hospitalName: hospital.name,
+      city: hospital.city,
+      type: hospital.type,
+      verificationStatus: hospital.verificationStatus,
+      totalBeds,
+      availableBeds,
+      occupiedBeds,
+      icuBeds: hospital.icuBeds,
+      bedOccupancyRate,
+      doctorCount: hospitalDoctors.length,
+      appointmentCompletionRate,
+      patientSatisfactionScore,
+      lowStockItems,
+      openComplaints,
+      specialities: hospital.specialities || [],
+      emergency24x7: hospital.emergency24x7,
+      ambulanceService: hospital.ambulanceService,
+      lastUpdated: hospital.updatedAt,
+    };
+  }
+
+  async getRegionalOverview(managerId: string) {
+    try {
+      const myHospitals = this.getHospitalsForManager(managerId);
+      const context = {
+        beds: this.loadDataFile<any>('beds.json'),
+        inventory: this.loadDataFile<any>('inventory.json'),
+        users: this.loadDataFile<any>('users.json'),
+        feedback: this.loadDataFile<any>('feedback.json'),
+        appointments: this.loadDataFile<any>('appointments.json'),
+      };
+
+      const hospitalSummaries = myHospitals.map(h => this.computeHospitalSnapshot(h, context));
+      const totalBeds = hospitalSummaries.reduce((s, h) => s + h.totalBeds, 0);
+      const availableBeds = hospitalSummaries.reduce((s, h) => s + h.availableBeds, 0);
+      const totalDoctors = hospitalSummaries.reduce((s, h) => s + h.doctorCount, 0);
+      const lowStockItems = hospitalSummaries.reduce((s, h) => s + h.lowStockItems, 0);
+      const openComplaints = hospitalSummaries.reduce((s, h) => s + h.openComplaints, 0);
+      const avgOccupancy = hospitalSummaries.length > 0
+        ? Math.round(hospitalSummaries.reduce((s, h) => s + h.bedOccupancyRate, 0) / hospitalSummaries.length)
+        : 0;
+      const avgSatisfaction = hospitalSummaries.length > 0
+        ? Math.round(
+          (hospitalSummaries.reduce((s, h) => s + h.patientSatisfactionScore, 0) / hospitalSummaries.length) * 10,
+        ) / 10
+        : 0;
+
+      const pendingVerifications = myHospitals.filter(
+        h => h.verificationStatus === VerificationStatus.PENDING_VERIFICATION,
+      ).length;
+
+      return ResponseUtil.success('Regional overview retrieved successfully', {
+        summary: {
+          assignedHospitals: myHospitals.length,
+          verifiedHospitals: myHospitals.filter(h => h.verificationStatus === VerificationStatus.VERIFIED).length,
+          pendingVerifications,
+          totalBeds,
+          availableBeds,
+          averageOccupancy: avgOccupancy,
+          totalDoctors,
+          lowStockItems,
+          openComplaints,
+          averageSatisfaction: avgSatisfaction,
+        },
+        hospitals: hospitalSummaries,
+      });
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve regional overview');
+    }
+  }
+
+  async getPerformanceAlerts(managerId: string) {
+    try {
+      const myHospitals = this.getHospitalsForManager(managerId);
+      const context = {
+        beds: this.loadDataFile<any>('beds.json'),
+        inventory: this.loadDataFile<any>('inventory.json'),
+        users: this.loadDataFile<any>('users.json'),
+        feedback: this.loadDataFile<any>('feedback.json'),
+        appointments: this.loadDataFile<any>('appointments.json'),
+      };
+
+      const alerts: Array<{
+        id: string;
+        hospitalId: string;
+        hospitalName: string;
+        severity: 'critical' | 'warning' | 'info';
+        category: string;
+        title: string;
+        message: string;
+        metric?: number;
+        threshold?: number;
+      }> = [];
+
+      for (const hospital of myHospitals) {
+        const snap = this.computeHospitalSnapshot(hospital, context);
+
+        if (snap.bedOccupancyRate >= 90) {
+          alerts.push({
+            id: `alert-occ-crit-${snap.hospitalId}`,
+            hospitalId: snap.hospitalId,
+            hospitalName: snap.hospitalName,
+            severity: 'critical',
+            category: 'Capacity',
+            title: 'Critical bed occupancy',
+            message: `${snap.hospitalName} is at ${snap.bedOccupancyRate}% bed occupancy.`,
+            metric: snap.bedOccupancyRate,
+            threshold: 90,
+          });
+        } else if (snap.bedOccupancyRate >= 80) {
+          alerts.push({
+            id: `alert-occ-warn-${snap.hospitalId}`,
+            hospitalId: snap.hospitalId,
+            hospitalName: snap.hospitalName,
+            severity: 'warning',
+            category: 'Capacity',
+            title: 'High bed occupancy',
+            message: `${snap.hospitalName} is at ${snap.bedOccupancyRate}% bed occupancy.`,
+            metric: snap.bedOccupancyRate,
+            threshold: 80,
+          });
+        }
+
+        if (snap.lowStockItems > 0) {
+          alerts.push({
+            id: `alert-stock-${snap.hospitalId}`,
+            hospitalId: snap.hospitalId,
+            hospitalName: snap.hospitalName,
+            severity: snap.lowStockItems >= 5 ? 'critical' : 'warning',
+            category: 'Inventory',
+            title: 'Low stock items',
+            message: `${snap.lowStockItems} inventory item(s) need restocking at ${snap.hospitalName}.`,
+            metric: snap.lowStockItems,
+          });
+        }
+
+        if (snap.patientSatisfactionScore > 0 && snap.patientSatisfactionScore < 3) {
+          alerts.push({
+            id: `alert-sat-${snap.hospitalId}`,
+            hospitalId: snap.hospitalId,
+            hospitalName: snap.hospitalName,
+            severity: 'warning',
+            category: 'Patient Experience',
+            title: 'Low patient satisfaction',
+            message: `Average patient rating is ${snap.patientSatisfactionScore}/5 at ${snap.hospitalName}.`,
+            metric: snap.patientSatisfactionScore,
+            threshold: 3,
+          });
+        }
+
+        if (snap.openComplaints > 0) {
+          alerts.push({
+            id: `alert-complaints-${snap.hospitalId}`,
+            hospitalId: snap.hospitalId,
+            hospitalName: snap.hospitalName,
+            severity: snap.openComplaints >= 3 ? 'critical' : 'warning',
+            category: 'Complaints',
+            title: 'Unresolved patient complaints',
+            message: `${snap.openComplaints} open complaint(s) at ${snap.hospitalName}.`,
+            metric: snap.openComplaints,
+          });
+        }
+
+        if (snap.appointmentCompletionRate > 0 && snap.appointmentCompletionRate < 70) {
+          alerts.push({
+            id: `alert-appt-${snap.hospitalId}`,
+            hospitalId: snap.hospitalId,
+            hospitalName: snap.hospitalName,
+            severity: 'warning',
+            category: 'Operations',
+            title: 'Low appointment completion rate',
+            message: `Only ${snap.appointmentCompletionRate}% of appointments are completed at ${snap.hospitalName}.`,
+            metric: snap.appointmentCompletionRate,
+            threshold: 70,
+          });
+        }
+      }
+
+      const severityOrder = { critical: 0, warning: 1, info: 2 };
+      alerts.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+
+      return ResponseUtil.success('Performance alerts retrieved successfully', {
+        total: alerts.length,
+        critical: alerts.filter(a => a.severity === 'critical').length,
+        warning: alerts.filter(a => a.severity === 'warning').length,
+        alerts,
+      });
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve performance alerts');
+    }
+  }
+
+  async getHospitalComparison(managerId: string, hospitalIds?: string[]) {
+    try {
+      let myHospitals = this.getHospitalsForManager(managerId);
+      if (hospitalIds && hospitalIds.length > 0) {
+        const allowed = new Set(myHospitals.map(h => h.id));
+        myHospitals = myHospitals.filter(h => hospitalIds.includes(h.id) && allowed.has(h.id));
+      }
+
+      const context = {
+        beds: this.loadDataFile<any>('beds.json'),
+        inventory: this.loadDataFile<any>('inventory.json'),
+        users: this.loadDataFile<any>('users.json'),
+        feedback: this.loadDataFile<any>('feedback.json'),
+        appointments: this.loadDataFile<any>('appointments.json'),
+      };
+
+      const hospitals = myHospitals.map(h => this.computeHospitalSnapshot(h, context));
+      const metrics = [
+        'bedOccupancyRate',
+        'appointmentCompletionRate',
+        'patientSatisfactionScore',
+        'doctorCount',
+        'lowStockItems',
+        'openComplaints',
+        'availableBeds',
+        'totalBeds',
+      ] as const;
+
+      const rankings: Record<string, { best: string | null; worst: string | null }> = {};
+      for (const metric of metrics) {
+        const sorted = [...hospitals].sort((a, b) => (b as any)[metric] - (a as any)[metric]);
+        const higherIsBetter = !['lowStockItems', 'openComplaints', 'bedOccupancyRate'].includes(metric);
+        const bestList = higherIsBetter ? sorted : [...sorted].reverse();
+        rankings[metric] = {
+          best: bestList[0]?.hospitalName || null,
+          worst: bestList[bestList.length - 1]?.hospitalName || null,
+        };
+      }
+
+      return ResponseUtil.success('Hospital comparison retrieved successfully', {
+        hospitals,
+        rankings,
+        comparedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve hospital comparison');
     }
   }
 }

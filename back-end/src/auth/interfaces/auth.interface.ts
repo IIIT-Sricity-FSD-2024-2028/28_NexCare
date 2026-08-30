@@ -38,6 +38,7 @@ export interface AuthResponse {
     hospitalId?: string;
   };
   token?: string; // Placeholder for future JWT implementation
+  csrfToken?: string; // CSRF token for post-authentication requests
 }
 
 /**

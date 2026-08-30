@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCare - Manager Dashboard</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="../shared/nav.css">
+    <style>
+        .dashboard-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <nav id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="../landing/landing.html" style="text-decoration: none; color: #2c3e50; font-size: 24px; font-weight: bold;">NexCare Manager</a>
+                <div class="nav-links">
+                    <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                    <a href="hospitals.html" class="nav-link">My Hospitals</a>
+                    <a href="#" class="nav-link" id="logout-btn">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <h2>Manager Overview</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="total-hospitals">0</div>
+                <div class="stat-label">Assigned Hospitals</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="pending-hospitals">0</div>
+                <div class="stat-label">Pending Verification</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="open-requests">0</div>
+                <div class="stat-label">Open Support Requests</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../shared/api.js"></script>
+    <script>
+        document.getElementById('logout-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            window.NexCareAPI.clearAuthToken();
+            window.location.href = '../auth/login.html';
+        });
+
+        async function loadDashboard() {
+            try {
+                // For now just load hospitals
+                const hRes = await window.NexCareAPI.Hospitals.getAll();
+                if (hRes.success) {
+                    const allHospitals = hRes.data;
+                    document.getElementById('total-hospitals').textContent = allHospitals.length;
+                    document.getElementById('pending-hospitals').textContent = allHospitals.filter(h => h.verificationStatus === 'pending_verification').length;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        window.onload = loadDashboard;
+    </script>
+</body>
+</html>

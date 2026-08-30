@@ -1457,14 +1457,21 @@ function setupGlobalDelegation() {
                 return;
             }
             
-            record.status = 'assigned';
-            if (window.NexCareAPI) {
-                await window.NexCareAPI.Ambulance.updateRequest(id, { status: 'Dispatched' });
+            try {
+                record.status = 'assigned';
+                if (window.NexCareAPI) {
+                    await window.NexCareAPI.Ambulance.updateRequest(id, { status: 'Dispatched' });
+                }
+                persistAppState();
+                ToastNotifications.success(`Accepted request ${record.id} - ${record.patient}`);
+                // Navigate to Assigned Dispatch page (this will refresh data)
+                await SessionManager.navigateToPage('assigned-dispatch');
+            } catch (error) {
+                console.error('Error accepting request:', error);
+                ToastNotifications.error('Failed to accept request. Please try again.');
+                record.status = 'pending';
+                persistAppState();
             }
-            persistAppState();
-            ToastNotifications.success(`Accepted request ${record.id} - ${record.patient}`);
-            // Navigate to Assigned Dispatch page (this will refresh data)
-            await SessionManager.navigateToPage('assigned-dispatch');
         });
     }
 
@@ -1480,17 +1487,25 @@ function setupGlobalDelegation() {
                 const record = ErrorHandler.validateRecord(id, 'request');
                 if (!record || record.status !== 'assigned') return;
                 
-                record.status = 'in_transit';
-                record.stepIndex = 0;
-                if (window.NexCareAPI) {
-                    await window.NexCareAPI.Ambulance.updateRequest(id, { status: 'En Route', stepIndex: 0 });
+                try {
+                    record.status = 'in_transit';
+                    record.stepIndex = 0;
+                    if (window.NexCareAPI) {
+                        await window.NexCareAPI.Ambulance.updateRequest(id, { status: 'En Route', stepIndex: 0 });
+                    }
+                    persistAppState();
+                    ToastNotifications.success(`Transport started for ${record.patient}`);
+                    // Navigate to Active Transport page (this will refresh data and render)
+                    await SessionManager.navigateToPage('active-transport');
+                    // Start ETA timer after page is rendered
+                    ETATimer.startTimer(record.id, record.stepIndex);
+                } catch (error) {
+                    console.error('Error starting transport:', error);
+                    ToastNotifications.error('Failed to start transport. Please try again.');
+                    record.status = 'assigned';
+                    delete record.stepIndex;
+                    persistAppState();
                 }
-                persistAppState();
-                ToastNotifications.success(`Transport started for ${record.patient}`);
-                // Navigate to Active Transport page (this will refresh data and render)
-                await SessionManager.navigateToPage('active-transport');
-                // Start ETA timer after page is rendered
-                ETATimer.startTimer(record.id, record.stepIndex);
             }
 
             if (cancelBtn) {
@@ -1498,14 +1513,21 @@ function setupGlobalDelegation() {
                 const record = ErrorHandler.validateRecord(id, 'request');
                 if (!record || record.status !== 'assigned') return;
                 
-                if (confirm(`Cancel assignment for ${record.patient}?`)) {
-                    record.status = 'pending';
-                    if (window.NexCareAPI) {
-                        await window.NexCareAPI.Ambulance.updateRequest(id, { status: 'Pending' });
+                try {
+                    if (confirm(`Cancel assignment for ${record.patient}?`)) {
+                        record.status = 'pending';
+                        if (window.NexCareAPI) {
+                            await window.NexCareAPI.Ambulance.updateRequest(id, { status: 'Pending' });
+                        }
+                        persistAppState();
+                        await refreshAllViews();
+                        ToastNotifications.info(`Assignment canceled for ${record.patient}`);
                     }
+                } catch (error) {
+                    console.error('Error canceling assignment:', error);
+                    ToastNotifications.error('Failed to cancel assignment. Please try again.');
+                    record.status = 'assigned';
                     persistAppState();
-                    await refreshAllViews();
-                    ToastNotifications.info(`Assignment canceled for ${record.patient}`);
                 }
             }
         });
@@ -1514,7 +1536,7 @@ function setupGlobalDelegation() {
     // 3. Completed Transports
     const completedTbody = document.getElementById('completed-transports-tbody');
     if (completedTbody) {
-        completedTbody.addEventListener('click', function(e) {
+        completedTbody.addEventListener('click', async function(e) {
             const btn = e.target.closest('.delete-completed-btn');
             if (!btn) return;
             
@@ -1522,14 +1544,19 @@ function setupGlobalDelegation() {
             const record = appState.requests.find(r => r.id === id);
             if (!record) return;
 
-            if (confirm(`Remove ${id} from history? This action cannot be undone.`)) {
-                if (window.NexCareAPI) {
-                    window.NexCareAPI.Ambulance.cancelRequest(id);
+            try {
+                if (confirm(`Remove ${id} from history? This action cannot be undone.`)) {
+                    if (window.NexCareAPI) {
+                        await window.NexCareAPI.Ambulance.cancelRequest(id);
+                    }
+                    appState.requests = appState.requests.filter(r => r.id !== id);
+                    persistAppState();
+                    refreshAllViews();
+                    ToastNotifications.info(`Transport ${id} removed from history`);
                 }
-                appState.requests = appState.requests.filter(r => r.id !== id);
-                persistAppState();
-                refreshAllViews();
-                ToastNotifications.info(`Transport ${id} removed from history`);
+            } catch (error) {
+                console.error('Error deleting transport:', error);
+                ToastNotifications.error('Failed to delete transport. Please try again.');
             }
         });
     }
@@ -1546,7 +1573,10 @@ function bindRequestCrudForm() {
     document.getElementById('req-contact').setAttribute('name', 'contact');
     document.getElementById('req-priority').setAttribute('name', 'priority');
 
-    form.addEventListener('submit', function (e) {
+    // `async` because the backend sync below awaits. It was a plain function,
+    // which made the whole file a syntax error — the ambulance portal's scripts
+    // never ran at all, so nothing on the page worked.
+    form.addEventListener('submit', async function (e) {
         e.preventDefault();
         
         // Get existing contacts for duplicate checking
@@ -1603,28 +1633,62 @@ function bindRequestCrudForm() {
         const contact = document.getElementById('req-contact').value.trim();
         const priority = document.getElementById('req-priority').value;
 
-        if (editId) {
-            const r = appState.requests.find((x) => x.id === editId);
-            if (r && r.status === 'pending') {
-                r.patient = patient;
-                r.location = location;
-                r.contact = contact;
-                r.priority = priority;
+        try {
+            if (editId) {
+                // Update existing request
+                const r = appState.requests.find((x) => x.id === editId);
+                if (r && r.status === 'pending') {
+                    r.patient = patient;
+                    r.location = location;
+                    r.contact = contact;
+                    r.priority = priority;
+                    
+                    // Sync with backend
+                    if (window.NexCareAPI) {
+                        await window.NexCareAPI.Ambulance.updateRequest(editId, {
+                            patientName: patient,
+                            pickupLocation: location,
+                            contact: contact,
+                            priority: priority
+                        });
+                    }
+                }
+            } else {
+                // Create new request
+                const newId = newRequestId();
+                const newRequest = {
+                    id: newId,
+                    patient,
+                    location,
+                    contact,
+                    time: formatRequestTime(),
+                    priority,
+                    status: 'pending',
+                };
+                
+                // Sync with backend
+                if (window.NexCareAPI) {
+                    await window.NexCareAPI.Ambulance.createRequest({
+                        id: newId,
+                        patientName: patient,
+                        pickupLocation: location,
+                        contact: contact,
+                        priority: priority,
+                        status: 'Pending'
+                    });
+                }
+                
+                appState.requests.push(newRequest);
             }
-        } else {
-            appState.requests.push({
-                id: newRequestId(),
-                patient,
-                location,
-                contact,
-                time: formatRequestTime(),
-                priority,
-                status: 'pending',
-            });
+            
+            persistAppState();
+            resetRequestForm();
+            await refreshAllViews();
+            ToastNotifications.success(editId ? 'Request updated successfully' : 'Request created successfully');
+        } catch (error) {
+            console.error('Error saving request:', error);
+            ToastNotifications.error('Failed to save request. Please try again.');
         }
-        persistAppState();
-        resetRequestForm();
-        refreshAllViews();
     });
 
     // Add real-time validation on input
@@ -1932,34 +1996,47 @@ function bindActiveTransportControls() {
     if (completeBtn) {
         completeBtn.addEventListener('click', async function () {
             const r = getActiveTransportRequest();
-            if (!r) return;
-            r.status = 'completed';
-            r.completedDate = formatCompletedDate();
-            r.completedTime = formatRequestTime();
-            if (window.NexCareAPI) {
-                await window.NexCareAPI.Ambulance.updateRequest(r.id, { 
-                    status: 'Completed',
-                    completedDate: r.completedDate,
-                    completedTime: r.completedTime
-                });
+            if (!r) {
+                ToastNotifications.error('No active transport to complete');
+                return;
             }
             
-            // Log the transport completion to recent system activity (FR-12)
-            if (window.NexCareStore && window.NexCareStore.logActivity) {
-                window.NexCareStore.logActivity('Complete', 'Ambulance', `Transport for ${r.patient} (ID: ${r.id}) completed successfully.`);
-            }
+            try {
+                r.status = 'completed';
+                r.completedDate = formatCompletedDate();
+                r.completedTime = formatRequestTime();
+                
+                if (window.NexCareAPI) {
+                    await window.NexCareAPI.Ambulance.updateRequest(r.id, { 
+                        status: 'Completed',
+                        completedDate: r.completedDate,
+                        completedTime: r.completedTime
+                    });
+                }
+                
+                // Log the transport completion to recent system activity (FR-12)
+                if (window.NexCareStore && window.NexCareStore.logActivity) {
+                    window.NexCareStore.logActivity('Complete', 'Ambulance', `Transport for ${r.patient} (ID: ${r.id}) completed successfully.`);
+                }
 
-            delete r.stepIndex;
-            persistAppState();
-            
-            // Stop the timer
-            if (typeof ETATimer !== 'undefined' && ETATimer.stopTimer) {
-                ETATimer.stopTimer(r.id);
+                delete r.stepIndex;
+                persistAppState();
+                
+                // Stop the timer
+                if (typeof ETATimer !== 'undefined' && ETATimer.stopTimer) {
+                    ETATimer.stopTimer(r.id);
+                }
+                
+                ToastNotifications.success(`Transport for ${r.patient} completed successfully!`);
+                // Navigate to completed transports page (this will refresh data)
+                await SessionManager.navigateToPage('completed-transports');
+            } catch (error) {
+                console.error('Error completing transport:', error);
+                ToastNotifications.error('Failed to complete transport. Please try again.');
+                // Revert status on error
+                r.status = 'in_transit';
+                persistAppState();
             }
-            
-            ToastNotifications.success(`Transport for ${r.patient} completed successfully!`);
-            // Navigate to completed transports page (this will refresh data)
-            await SessionManager.navigateToPage('completed-transports');
         });
     }
 }

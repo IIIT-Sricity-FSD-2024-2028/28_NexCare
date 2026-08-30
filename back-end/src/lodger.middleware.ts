@@ -36,6 +36,16 @@ try {
   // Beds module may not exist in all deployments
 }
 
+
+try {
+  const ambulanceMiddleware = require('./ambulance/middleware/ambulance-access.middleware');
+  if (ambulanceMiddleware.AmbulanceAccessMiddleware) {
+    exports.AmbulanceAccessMiddleware = ambulanceMiddleware.AmbulanceAccessMiddleware;
+  }
+} catch (e) {
+  // Ambulance module may not exist in all deployments
+}
+
 // ============================================================================
 // 5. CSRF PROTECTION MIDDLEWARE
 // ============================================================================
@@ -76,7 +86,7 @@ try {
 @Injectable()
 export class CsrfMiddleware implements NestMiddleware {
   private readonly csrfTokens = new Map<string, { token: string; expires: number }>();
-  private readonly tokenExpiration = Number(process.env.CSRF_TOKEN_EXPIRATION) || 3600000; // 1 hour default
+  private readonly tokenExpiration = Number(process.env.CSRF_TOKEN_EXPIRATION) || 86400000; // 24 hours default
 
   /** Routes that cannot be challenged because no session exists yet. */
   private static readonly PRE_SESSION_ROUTES = [
@@ -98,6 +108,13 @@ export class CsrfMiddleware implements NestMiddleware {
     // never attaches that header on its own. See the class comment.
     if (this.hasBearerCredential(req) || this.isPreSessionRoute(req)) {
       res.setHeader('x-csrf-token', this.currentToken(req));
+      next();
+      return;
+    }
+
+    // Skip CSRF for auth endpoints (no session exists yet)
+    if (req.path.includes('/auth/login') || req.path.includes('/auth/register') || 
+        req.path.includes('/api/auth/login') || req.path.includes('/api/auth/register')) {
       next();
       return;
     }
@@ -193,11 +210,30 @@ export class CsrfMiddleware implements NestMiddleware {
       return false;
     }
     
-    return stored.token === providedToken;
+    // Use constant-time comparison to prevent timing attacks
+    try {
+      const storedBuffer = Buffer.from(stored.token, 'hex');
+      const providedBuffer = Buffer.from(providedToken, 'hex');
+      
+      if (storedBuffer.length !== providedBuffer.length) {
+        return false;
+      }
+      
+      return crypto.timingSafeEqual(storedBuffer, providedBuffer);
+    } catch {
+      // If comparison fails (invalid hex), fall back to string comparison
+      return stored.token === providedToken;
+    }
   }
 
   private getSessionId(req: Request): string {
-    // Use IP + User-Agent as a simple session identifier
+    // Use authenticated user ID from JWT if available (more secure than IP+UA)
+    const user = (req as any).user;
+    if (user && user.id) {
+      return `user:${user.id}`;
+    }
+    
+    // Fallback to IP + User-Agent for unauthenticated requests
     const ip = this.clientIp(req);
     const userAgent = req.headers['user-agent'] || 'unknown';
     return crypto.createHash('sha256').update(`${ip}:${userAgent}`).digest('hex');
@@ -521,7 +557,11 @@ const storage = multer ? multer.diskStorage({
   },
 }) : null;
 
-const fileFilter = (req: any, file: any, cb: any) => {
+const fileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: (error: Error | null, acceptFile?: boolean) => void,
+) => {
   const allowedMimes = [
     'image/jpeg',
     'image/png',

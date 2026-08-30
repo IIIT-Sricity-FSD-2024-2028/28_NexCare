@@ -266,6 +266,25 @@ export class UsersController {
     return this.usersService.updateStatus(id, status as any);
   }
 
+  /** Helper to validate that a Hospital Manager only modifies their own hospital's staff */
+  private async validateHospitalManagerAccess(caller: any, targetUserId: string, updateDto?: any) {
+    if (!caller) return;
+    if (caller.role === UserRole.HOSPITAL_MANAGER) {
+      const targetRes: any = await this.usersService.findById(targetUserId);
+      if (targetRes?.success && targetRes.data) {
+        if (targetRes.data.hospitalId && targetRes.data.hospitalId !== caller.hospitalId) {
+          throw new ForbiddenException('Cross-hospital access denied. You can only manage staff belonging to your hospital.');
+        }
+      }
+      if (updateDto?.role) {
+        const forbidden = [UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER];
+        if (forbidden.includes(updateDto.role)) {
+          throw new ForbiddenException('Hospital managers cannot assign administrative oversight roles.');
+        }
+      }
+    }
+  }
+
   /**
    * Get regional managers by city
    * Used by super admin for RM assignment
@@ -312,24 +331,5 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'All RM workloads retrieved successfully' })
   async getAllRMWorkloads() {
     return this.usersService.getAllRMWorkloads();
-  }
-
-  /** Helper to validate that a Hospital Manager only modifies their own hospital's staff */
-  private async validateHospitalManagerAccess(caller: any, targetUserId: string, updateDto?: any) {
-    if (!caller) return;
-    if (caller.role === UserRole.HOSPITAL_MANAGER) {
-      const targetRes: any = await this.usersService.findById(targetUserId);
-      if (targetRes?.success && targetRes.data) {
-        if (targetRes.data.hospitalId && targetRes.data.hospitalId !== caller.hospitalId) {
-          throw new ForbiddenException('Cross-hospital access denied. You can only manage staff belonging to your hospital.');
-        }
-      }
-      if (updateDto?.role) {
-        const forbidden = [UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER];
-        if (forbidden.includes(updateDto.role)) {
-          throw new ForbiddenException('Hospital managers cannot assign administrative oversight roles.');
-        }
-      }
-    }
   }
 }

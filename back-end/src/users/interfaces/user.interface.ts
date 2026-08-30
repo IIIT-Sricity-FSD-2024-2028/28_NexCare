@@ -77,14 +77,14 @@ export interface CreateUserRequest {
   responsibilities?: string[] | string;
   patientId?: string;
   areas?: string[];
-  city?: string; // For patients
-  state?: string; // For patients
-  pincode?: string; // For patients
   mustChangePassword?: boolean;
   regionId?: string;
   address?: string;
   consultationFee?: number | string;
   status?: UserStatus;
+  city?: string;
+  state?: string;
+  pincode?: string;
 }
 
 /**
@@ -117,13 +117,13 @@ export interface UpdateUserRequest {
   responsibilities?: string[] | string;
   patientId?: string;
   areas?: string[];
-  city?: string; // For patients
-  state?: string; // For patients
-  pincode?: string; // For patients
   mustChangePassword?: boolean;
   regionId?: string;
   address?: string;
   consultationFee?: number | string;
+  city?: string;
+  state?: string;
+  pincode?: string;
 }
 
 /**

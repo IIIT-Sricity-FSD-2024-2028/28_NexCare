@@ -1742,6 +1742,48 @@
         }
       }
     },
+    "/api/hospitals/regional/overview": {
+      "get": {
+        "operationId": "HospitalsController_getRegionalOverview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/performance-alerts": {
+      "get": {
+        "operationId": "HospitalsController_getPerformanceAlerts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/comparison": {
+      "get": {
+        "operationId": "HospitalsController_getHospitalComparison",
+        "parameters": [
+          {
+            "name": "ids",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/hospitals/{id}/verify-detailed": {
       "patch": {
         "operationId": "HospitalsController_verifyHospitalDetailed",
@@ -4656,6 +4698,56 @@
         ]
       }
     },
+    "/api/feedback/regional": {
+      "get": {
+        "operationId": "FeedbackController_findRegional",
+        "summary": "Get feedback for hospitals assigned to the regional manager",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "Open",
+                "In Progress",
+                "Resolved"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hospitalId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
     "/api/feedback/stats/overview": {
       "get": {
         "operationId": "FeedbackController_getStats",
@@ -7481,6 +7573,11 @@
             "type": "string",
             "example": "Dr. Smith was incredibly thorough.",
             "description": "Detailed summary"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the feedback relates to"
           },
           "rating": {
             "type": "number",

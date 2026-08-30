@@ -19,6 +19,7 @@ import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole, FeedbackStatus } from '../common/interfaces/api-response.interface';
+import { HospitalsService } from '../hospitals/hospitals.service';
 
 /**
  * Feedback Controller
@@ -33,7 +34,10 @@ import { UserRole, FeedbackStatus } from '../common/interfaces/api-response.inte
 @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
 @Controller('feedback')
 export class FeedbackController {
-  constructor(private readonly feedbackService: FeedbackService) {}
+  constructor(
+    private readonly feedbackService: FeedbackService,
+    private readonly hospitalsService: HospitalsService,
+  ) {}
 
   private isPatient(req: any): boolean {
     return req?.user?.role === UserRole.PATIENT;
@@ -76,6 +80,32 @@ export class FeedbackController {
       dto.patientId = req.user.patientId;
     }
     return this.feedbackService.create(dto);
+  }
+
+  /**
+   * Regional manager view of patient complaints across assigned hospitals.
+   */
+  @Get('regional')
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @ApiOperation({ summary: 'Get feedback for hospitals assigned to the regional manager' })
+  @ApiQuery({ name: 'status', required: false, enum: FeedbackStatus })
+  @ApiQuery({ name: 'category', required: false })
+  @ApiQuery({ name: 'hospitalId', required: false })
+  async findRegional(
+    @Req() req: any,
+    @Query('status') status?: string,
+    @Query('category') category?: string,
+    @Query('hospitalId') hospitalId?: string,
+  ) {
+    const hospitalIds = this.hospitalsService
+      .getHospitalsForManager(req.user.id)
+      .map(h => h.id);
+    return this.feedbackService.findForRegionalManager(
+      hospitalIds,
+      status as FeedbackStatus,
+      category,
+      hospitalId,
+    );
   }
 
   /**
@@ -186,6 +216,7 @@ export class FeedbackController {
    * Update feedback status
    */
   @Patch(':id/status')
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER)
   @ApiOperation({ summary: 'Update feedback status' })
   @ApiResponse({ status: 200, description: 'Feedback status updated successfully' })
   async updateStatus(@Param('id') id: string, @Body('status') status: string) {

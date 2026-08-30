@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - Step 2 - NexCare</title>
+    <link rel="stylesheet" href="styles.css">
+        <script>
+        // JWT-based early auth guard (runs before body renders, prevents flash)
+        (function () {
+            function decodeJWT(token) {
+                try {
+                    var parts = token.split('.');
+                    if (parts.length !== 3) return null;
+                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(json);
+                } catch(e) { return null; }
+            }
+            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            var payload = token ? decodeJWT(token) : null;
+            var now = Math.floor(Date.now() / 1000);
+            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'patient') {
+                sessionStorage.clear();
+                window.location.replace('/auth/login.html');
+            }
+            // Sync legacy keys so other inline scripts don't break
+            if (payload) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('nexcare_current_role', payload.role);
+            }
+        })();
+    </script>
+</head>
+<body class="booking-page">
+    <div class="booking-container">
+        <!-- Header -->
+        <div class="booking-header">
+            <h1>Book an Appointment</h1>
+            <p>Schedule your visit with our expert medical professionals. Choose your preferred department, date, and time.</p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step completed">
+                <div class="step-circle">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M13 4L6 11L3 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="step-label">Department</div>
+            </div>
+            <div class="step-line active"></div>
+            <div class="step active">
+                <div class="step-circle">2</div>
+                <div class="step-label">Date & Time</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <div class="step-label">Details</div>
+            </div>
+        </div>
+
+        <!-- Date & Time Selection -->
+        <div class="booking-card">
+            <h2 class="card-title">Select Date & Time</h2>
+            <p class="department-label">Department: <span id="selectedDept" class="department-value">Cardiology</span></p>
+            
+            <div class="datetime-grid">
+                <div class="date-section">
+                    <div class="section-header">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M3 8H17M7 2V6M13 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <h3>Select Date</h3>
+                    </div>
+                    
+                    <div class="calendar">
+                        <div class="calendar-header">
+                            <button class="calendar-nav" id="prevMonth">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M12 15L7 10L12 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <div class="calendar-title">
+                                <select id="monthSelect"></select>
+                                <select id="yearSelect"></select>
+                            </div>
+                            <button class="calendar-nav" id="nextMonth">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M8 5L13 10L8 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid"></div>
+                    </div>
+                </div>
+
+                <div class="time-section">
+                    <div class="section-header">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M10 6V10L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <h3>Select Time Slot</h3>
+                    </div>
+                    
+                    <div class="time-grid" id="timeGrid">
+                        <button class="time-slot" data-time="09:00 AM">09:00 AM</button>
+                        <button class="time-slot" data-time="09:30 AM">09:30 AM</button>
+                        <button class="time-slot" data-time="10:00 AM">10:00 AM</button>
+                        <button class="time-slot" data-time="10:30 AM">10:30 AM</button>
+                        <button class="time-slot" data-time="11:00 AM">11:00 AM</button>
+                        <button class="time-slot" data-time="11:30 AM">11:30 AM</button>
+                        <button class="time-slot" data-time="02:00 PM">02:00 PM</button>
+                        <button class="time-slot" data-time="02:30 PM">02:30 PM</button>
+                        <button class="time-slot" data-time="03:00 PM">03:00 PM</button>
+                        <button class="time-slot" data-time="03:30 PM">03:30 PM</button>
+                        <button class="time-slot" data-time="04:00 PM">04:00 PM</button>
+                        <button class="time-slot" data-time="04:30 PM">04:30 PM</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="booking-actions">
+                <button class="btn-back" onclick="window.location.href='book-appointment-step1.html'">Back</button>
+                <button class="btn-continue" id="continueBtn" disabled>Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Load department
+        const savedDepartment = sessionStorage.getItem('selectedDepartment');
+        if (savedDepartment) {
+            document.getElementById('selectedDept').textContent = savedDepartment;
+        }
+
+        // Calendar functionality
+        let currentDate = new Date();
+        let selectedDate = '';
+        let selectedTime = '';
+        const continueBtn = document.getElementById('continueBtn');
+
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                        'July', 'August', 'September', 'October', 'November', 'December'];
+
+        function renderCalendar() {
+            const monthSelect = document.getElementById('monthSelect');
+            const yearSelect = document.getElementById('yearSelect');
+            const calendarGrid = document.getElementById('calendarGrid');
+
+            // Populate month select
+            monthSelect.innerHTML = months.map((m, i) => 
+                `<option value="${i}" ${i === currentDate.getMonth() ? 'selected' : ''}>${m}</option>`
+            ).join('');
+
+            // Populate year select
+            const currentYear = new Date().getFullYear();
+            yearSelect.innerHTML = Array.from({length: 3}, (_, i) => currentYear + i).map(y => 
+                `<option value="${y}" ${y === currentDate.getFullYear() ? 'selected' : ''}>${y}</option>`
+            ).join('');
+
+            // Create calendar grid
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+
+            let html = '<div class="calendar-weekdays">';
+            ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(day => {
+                html += `<div class="weekday">${day}</div>`;
+            });
+            html += '</div><div class="calendar-days">';
+
+            // Empty cells for days before month starts
+            for (let i = 0; i < firstDay; i++) {
+                html += '<div class="calendar-day empty"></div>';
+            }
+
+            // Days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateString = `${months[month]} ${day}, ${year}`;
+                const isPast = date < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const isSelected = selectedDate === dateString;
+                const isToday = date.toDateString() === today.toDateString();
+
+                html += `<button class="calendar-day ${isPast ? 'disabled' : ''} ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''}" 
+                         data-date="${dateString}" ${isPast ? 'disabled' : ''}>${day}</button>`;
+            }
+
+            html += '</div>';
+            calendarGrid.innerHTML = html;
+
+            // Add event listeners
+            document.querySelectorAll('.calendar-day:not(.empty):not(.disabled)').forEach(day => {
+                day.addEventListener('click', function() {
+                    document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedDate = this.dataset.date;
+                    sessionStorage.setItem('selectedDate', selectedDate);
+                    checkSelection();
+                });
+            });
+        }
+
+        // Month/Year navigation
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        document.getElementById('monthSelect').addEventListener('change', function() {
+            currentDate.setMonth(parseInt(this.value));
+            renderCalendar();
+        });
+
+        document.getElementById('yearSelect').addEventListener('change', function() {
+            currentDate.setFullYear(parseInt(this.value));
+            renderCalendar();
+        });
+
+        // Time slot selection
+        const timeSlots = document.querySelectorAll('.time-slot');
+        timeSlots.forEach(slot => {
+            slot.addEventListener('click', function() {
+                timeSlots.forEach(s => s.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedTime = this.dataset.time;
+                sessionStorage.setItem('selectedTime', selectedTime);
+                checkSelection();
+            });
+        });
+
+        function checkSelection() {
+            continueBtn.disabled = !(selectedDate && selectedTime);
+        }
+
+        continueBtn.addEventListener('click', function() {
+            if (selectedDate && selectedTime) {
+                window.location.href = 'book-appointment-step3.html';
+            }
+        });
+
+        // Load saved selections
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedDate = sessionStorage.getItem('selectedDate');
+            const savedTime = sessionStorage.getItem('selectedTime');
+
+            if (savedTime) {
+                timeSlots.forEach(slot => {
+                    if (slot.dataset.time === savedTime) {
+                        slot.classList.add('selected');
+                        selectedTime = savedTime;
+                    }
+                });
+            }
+
+            if (savedDate) {
+                selectedDate = savedDate;
+            }
+
+            renderCalendar();
+            checkSelection();
+        });
+    </script>
+</body>
+</html>
