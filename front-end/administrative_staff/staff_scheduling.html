@@ -11,6 +11,7 @@
     
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="logo.css">
+    <script src="../shared/api.js"></script>
     <script src="../shared/db.js"></script>
     <script src="../shared/session.js?v=8"></script>
     <script defer src="logo.js"></script>
@@ -60,7 +61,12 @@
         }
         .status-onduty { background: #dcfce7; color: #166534; }
         .status-scheduled { background: #dbeafe; color: #1e40af; }
-        .status-onleave { background: #fee2e2; color: #991b1b; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .slot-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .slot-row select { flex: 1; }
+        .modal-content { width: 560px; }
         
         /* Modal CSS */
         .modal {
@@ -171,18 +177,6 @@
                 </a>
             </li>
             <li>
-                <a href="system-logs.html">
-                    <!-- System Logs -->
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="8" y1="13" x2="16" y2="13"/>
-                        <line x1="8" y1="17" x2="16" y2="17"/>
-                    </svg>
-                    System Logs
-                </a>
-            </li>
-            <li>
                 <a href="feedback.html">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
                     Feedback
@@ -206,91 +200,74 @@
         
         <div class="header-row" style="display:flex; justify-content: space-between; align-items:center;">
             <div>
-                <h1>Staff Scheduling</h1>
-                <div class="sub">Manage physician and staff shifts across departments.</div>
+                <h1>Hospital Scheduling</h1>
+                <div class="sub">Propose one hospital-wide roster. It is shown only after the hospital manager approves it.</div>
             </div>
-            <button class="btn-dark" onclick="openShiftModal()">+ Add Shift</button>
+            <button class="btn-dark" onclick="openScheduleModal()">+ Submit Schedule</button>
         </div>
-        
-        <div class="card" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items:center;">
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="searchTable" class="form-input" placeholder="Search by name or department..." style="width: 250px;">
-                <select class="form-select" id="filterStatus">
-                    <option value="All">All Statuses</option>
-                    <option value="On Duty">On Duty</option>
-                    <option value="Scheduled">Scheduled</option>
-                    <option value="On Leave">On Leave</option>
-                </select>
-            </div>
-        </div>
-        
-        <div class="card">
+
+        <div class="card" style="margin-bottom: 20px;">
+            <h2 style="font-size:16px;margin:0 0 12px;">Published schedule</h2>
+            <p style="font-size:13px;color:#6b7280;margin:0 0 12px;">Visible after hospital manager approval. Department shifts, not individual doctors.</p>
             <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
-                            <th>Staff Name</th>
-                            <th>Role</th>
-                            <th>Department</th>
-                            <th>Shift (Time)</th>
+                            <th>Valid</th>
+                            <th>Departments &amp; shifts</th>
                             <th>Status</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="staffTableBody"></tbody>
+                    <tbody id="publishedTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="font-size:16px;margin:0 0 12px;">Awaiting approval</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Valid</th>
+                            <th>Departments &amp; shifts</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingTableBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal" id="shiftModal">
+<div class="modal" id="scheduleModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 id="modalTitle">Add Shift</h2>
-            <button class="modal-close" onclick="closeShiftModal()">&times;</button>
+            <h2>Submit hospital schedule</h2>
+            <button class="modal-close" type="button" onclick="closeScheduleModal()">&times;</button>
         </div>
-        <form id="shiftForm" onsubmit="saveShift(event)">
-            <input type="hidden" id="staffId">
+        <form id="scheduleForm" onsubmit="submitSchedule(event)">
             <div class="form-group">
-                <label>Staff Name</label>
-                <input type="text" id="staffName" class="form-input" placeholder="E.g. Dr. Robert Smith" required>
+                <label>Valid from</label>
+                <input type="date" id="validFrom" class="form-input" required>
             </div>
             <div class="form-group">
-                <label>Job Role</label>
-                <input type="text" id="staffRole" class="form-input" placeholder="E.g. Sr. Cardiologist" required>
+                <label>Valid to</label>
+                <input type="date" id="validTo" class="form-input" required>
             </div>
             <div class="form-group">
-                <label>Department</label>
-                <select id="staffDept" class="form-select" required>
-                    <option value="" disabled selected>Select Dept</option>
-                    <option value="Cardiology">Cardiology</option>
-                    <option value="Orthopedics">Orthopedics</option>
-                    <option value="Neurology">Neurology</option>
-                    <option value="ER">ER</option>
-                    <option value="Pathology">Pathology</option>
-                </select>
+                <label>Department shifts</label>
+                <div id="slotRows"></div>
+                <button type="button" class="btn-light" onclick="addSlotRow()">+ Add department shift</button>
             </div>
             <div class="form-group">
-                <label>Shift Time</label>
-                <select id="staffShift" class="form-select" required>
-                    <option value="Morning (08:00 - 16:00)">Morning (08:00 - 16:00)</option>
-                    <option value="Afternoon (14:00 - 22:00)">Afternoon (14:00 - 22:00)</option>
-                    <option value="Night (20:00 - 08:00)">Night (20:00 - 08:00)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Status</label>
-                <select id="staffStatus" class="form-select">
-                    <option value="Scheduled">Scheduled</option>
-                    <option value="On Duty">On Duty</option>
-                    <option value="On Leave">On Leave</option>
-                </select>
+                <label>Notes (optional)</label>
+                <input type="text" id="scheduleNotes" class="form-input" placeholder="e.g. Festival week coverage">
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                <button type="button" class="btn-light" onclick="closeShiftModal()">Cancel</button>
-                <button type="submit" class="btn-dark">Save Shift</button>
+                <button type="button" class="btn-light" onclick="closeScheduleModal()">Cancel</button>
+                <button type="submit" class="btn-dark">Send for approval</button>
             </div>
         </form>
     </div>
