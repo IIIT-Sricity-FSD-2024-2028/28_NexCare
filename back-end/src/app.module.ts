@@ -20,7 +20,7 @@ import { UploadsModule } from './uploads/uploads.module';
 import { LoggingModule } from './common/logging/logging.module';
 import { AuthGuard } from './common/guards/auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
-import { RequestLoggerMiddleware, SecurityMiddleware } from './lodger.middleware';
+import { RequestLoggerMiddleware, SecurityMiddleware, CsrfMiddleware } from './lodger.middleware';
 
 /**
  * Main Application Module
@@ -34,6 +34,7 @@ import { RequestLoggerMiddleware, SecurityMiddleware } from './lodger.middleware
  * request, before the guards:
  *   SecurityMiddleware      — security headers, rate limiting, payload limits
  *   RequestLoggerMiddleware — request id + access/error logging to file
+ *   CsrfMiddleware          — CSRF protection for state-changing operations
  *
  * Router-level middleware lives with the feature it belongs to:
  *   BedStatusChangeMiddleware — beds module, status-changing routes
@@ -76,7 +77,7 @@ import { RequestLoggerMiddleware, SecurityMiddleware } from './lodger.middleware
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // Order matters: reject abusive or oversized traffic before logging it,
-    // then log everything that survives.
-    consumer.apply(SecurityMiddleware, RequestLoggerMiddleware).forRoutes('*');
+    // then log everything that survives, then apply CSRF protection.
+    consumer.apply(SecurityMiddleware, RequestLoggerMiddleware, CsrfMiddleware).forRoutes('*');
   }
 }

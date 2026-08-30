@@ -88,7 +88,8 @@ export enum AmbulanceStatus {
   EN_ROUTE = 'En Route',
   PICKED_UP = 'Picked Up',
   AT_HOSPITAL = 'At Hospital',
-  COMPLETED = 'Completed'
+  COMPLETED = 'Completed',
+  CANCELLED = 'Cancelled'
 }
 
 /**
