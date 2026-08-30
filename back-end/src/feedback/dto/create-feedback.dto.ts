@@ -36,6 +36,11 @@ export class CreateFeedbackDto {
   @IsNotEmpty({ message: 'Summary is required' })
   summary: string;
 
+  @ApiPropertyOptional({ example: 'H001', description: 'Hospital the feedback relates to' })
+  @IsOptional()
+  @IsString()
+  hospitalId?: string;
+
   @ApiProperty({ example: 5, description: 'Rating (1-5)' })
   @IsInt()
   @Min(1)

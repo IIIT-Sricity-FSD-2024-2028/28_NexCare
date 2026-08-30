@@ -517,6 +517,15 @@ const FeedbackAPI = {
 
     async delete(id) {
         return await api.delete(`/feedback/${id}`);
+    },
+
+    async getRegional(params = {}) {
+        const qs = new URLSearchParams();
+        if (params.status) qs.append('status', params.status);
+        if (params.category) qs.append('category', params.category);
+        if (params.hospitalId) qs.append('hospitalId', params.hospitalId);
+        const s = qs.toString();
+        return await api.get(`/feedback/regional${s ? `?${s}` : ''}`);
     }
 };
 
@@ -773,6 +782,24 @@ const HospitalsAPI = {
 
     async regionalReview(id, decision, notes) {
         return await api.patch(`/hospitals/${id}/regional-review`, { decision, notes });
+    },
+
+    async getRegionalOverview() {
+        return await api.get('/hospitals/regional/overview');
+    },
+
+    async getPerformanceAlerts() {
+        return await api.get('/hospitals/regional/performance-alerts');
+    },
+
+    async getComparison(hospitalIds) {
+        const ids = Array.isArray(hospitalIds) ? hospitalIds.join(',') : hospitalIds;
+        const q = ids ? `?ids=${encodeURIComponent(ids)}` : '';
+        return await api.get(`/hospitals/regional/comparison${q}`);
+    },
+
+    async getMyHospitals() {
+        return await api.get('/hospitals/regional/my-hospitals');
     }
 };
 

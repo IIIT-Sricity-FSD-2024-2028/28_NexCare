@@ -34,6 +34,17 @@ export interface Hospital {
   adminPhone: string;
   verificationStatus: VerificationStatus;
   assignedManagerId?: string;
+  availableBeds?: number;
+  occupiedBeds?: number;
+  verificationComments?: string; // Comments from regional manager
+  rejectionReason?: string; // Reason for rejection
+  suggestedChanges?: string[]; // Suggested changes for hospital
+  performanceMetrics?: {
+    bedOccupancyRate?: number;
+    appointmentCompletionRate?: number;
+    patientSatisfactionScore?: number;
+    lastUpdated?: string;
+  };
   regionalReviewStatus?: 'pending' | 'cleared' | 'rejected';
   regionalReviewedAt?: string;
   regionalReviewNotes?: string;
@@ -95,6 +106,15 @@ export interface UpdateHospitalDto {
   adminPhone?: string;
   verificationStatus?: VerificationStatus;
   assignedManagerId?: string;
+  verificationComments?: string;
+  rejectionReason?: string;
+  suggestedChanges?: string[];
+  performanceMetrics?: {
+    bedOccupancyRate?: number;
+    appointmentCompletionRate?: number;
+    patientSatisfactionScore?: number;
+    lastUpdated?: string;
+  };
   regionalReviewStatus?: 'pending' | 'cleared' | 'rejected';
   regionalReviewedAt?: string;
   regionalReviewNotes?: string;

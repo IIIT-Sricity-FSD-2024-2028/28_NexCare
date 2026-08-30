@@ -1,160 +1,93 @@
-// Regional Officer dashboard.
-//
-// Shows the hospitals assigned to the signed-in regional officer plus live
-// aggregates across them. The backend scopes /users to the officer's own
-// hospitals, so counts here reflect only what they actually oversee.
+// Regional Officer — overview dashboard using /hospitals/regional/overview API.
 
 document.addEventListener('DOMContentLoaded', async () => {
+    initRegionalHeader();
     try {
-        await initDashboard();
+        await loadDashboard();
     } catch (err) {
         console.error('Dashboard initialization error:', err);
-        showTableError('Could not load your hospitals. Check that the backend is running.');
-        setStat('assignedHospitalsCount', '!');
-        setStat('totalDoctorsCount', '!');
-        setStat('availableBedsCount', '!');
-        setStat('lowStockCount', '!');
+        showTableError('Could not load regional overview. Check that the backend is running.');
     }
 });
 
-async function initDashboard() {
-    const user = getCurrentUser();
-    if (!user) {
-        showTableError('Your session could not be read. Please sign in again.');
-        return;
-    }
-
-    document.getElementById('userInitials').textContent = (user.name || 'RO').substring(0, 2).toUpperCase();
-    document.getElementById('userNameDisplay').textContent = user.name || 'Regional Officer';
-
-    const hRes = await window.NexCareAPI.Hospitals.getAll();
-    if (!hRes || !hRes.success) throw new Error('Failed to fetch hospitals');
-
-    const myHospitals = (hRes.data || []).filter(h => 
-        h.assignedManagerId === user.id || 
-        (user.regionId && h.regionId === user.regionId) ||
-        h.assignedManagerId === 'HM001' ||
-        h.assignedManagerId === 'M001'
-    );
-    const myIds = myHospitals.map(h => h.id);
-
-    setStat('assignedHospitalsCount', myHospitals.length);
-    renderHospitalsTable(myHospitals);
-
-    // Beds come straight off the hospital records, so they always render even if
-    // the staff/inventory endpoints are unavailable.
-    setStat('availableBedsCount', sum(myHospitals, h => h.availableBeds ?? 0));
-
-    await Promise.all([
-        loadDoctorCount(myIds),
-        loadLowStockCount(myIds),
+async function loadDashboard() {
+    const [overviewRes, alertsRes] = await Promise.all([
+        window.NexCareAPI.Hospitals.getRegionalOverview(),
+        window.NexCareAPI.Hospitals.getPerformanceAlerts(),
     ]);
+
+    if (!overviewRes || !overviewRes.success) throw new Error('Failed to fetch regional overview');
+
+    const { summary, hospitals } = overviewRes.data || {};
+    const alerts = alertsRes?.success ? alertsRes.data : { total: 0, alerts: [] };
+
+    setText('assignedHospitalsCount', summary?.assignedHospitals ?? 0);
+    setText('verifiedSub', `${summary?.verifiedHospitals ?? 0} verified · ${summary?.pendingVerifications ?? 0} pending`);
+    setText('totalDoctorsCount', summary?.totalDoctors ?? 0);
+    setText('availableBedsCount', summary?.availableBeds ?? 0);
+    setText('occupancySub', `${summary?.averageOccupancy ?? 0}% avg occupancy`);
+    setText('alertCount', alerts.total ?? 0);
+    setText('alertSub', `${alerts.critical ?? 0} critical · ${alerts.warning ?? 0} warning`);
+    setText('complaintsCount', summary?.openComplaints ?? 0);
+    setText('satisfactionSub', `${summary?.averageSatisfaction ?? 0}/5 avg satisfaction`);
+    setText('lowStockCount', summary?.lowStockItems ?? 0);
+
+    renderHospitalsTable(hospitals || []);
+    renderAlertsPreview(alerts.alerts || []);
 }
 
 function renderHospitalsTable(hospitals) {
     const tbody = document.getElementById('hospitalsTableBody');
-
     if (!hospitals.length) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#6A7282;">No hospitals assigned to you yet.</td></tr>`;
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No hospitals assigned to you yet.</td></tr>';
         return;
     }
 
-    tbody.innerHTML = hospitals.map(h => {
-        const verified = (h.verificationStatus || '').toLowerCase() === 'verified';
-        const occupancy = h.totalBeds
-            ? Math.round(((h.totalBeds - (h.availableBeds ?? 0)) / h.totalBeds) * 100)
-            : null;
-        return `
-            <tr>
-                <td class="actor-cell">
-                    ${escapeHtml(h.name || 'N/A')}
-                    <div style="font-size:12px; color:#6A7282; margin-top:2px;">
-                        ${h.totalBeds || 0} beds${occupancy !== null ? ` &middot; ${occupancy}% occupied` : ''}
-                    </div>
-                </td>
-                <td>${escapeHtml(h.city || 'N/A')}</td>
-                <td>${escapeHtml(h.type || 'N/A')}</td>
-                <td><span class="badge-action ${verified ? 'badge-update' : 'badge-create'}">${escapeHtml(h.verificationStatus || 'Unknown')}</span></td>
-                <td>
-                    <a href="${escapeHtml(pageLink('hospital-details', { id: h.id }))}" class="btn-primary"
-                       style="padding:6px 12px; font-size:12px; text-decoration:none; display:inline-block;">View Details</a>
-                </td>
-            </tr>`;
-    }).join('');
+    tbody.innerHTML = hospitals.map(h => `
+        <tr>
+            <td>
+                <strong>${escapeHtml(h.hospitalName)}</strong>
+                <div style="font-size:12px;color:#6A7282;margin-top:2px;">${escapeHtml(h.type || '')} · ${h.totalBeds} beds</div>
+            </td>
+            <td>${escapeHtml(h.city || '—')}</td>
+            <td>
+                <span class="value ${h.bedOccupancyRate >= 90 ? 'bad' : h.bedOccupancyRate >= 80 ? 'warn' : 'good'}" style="font-weight:700;">
+                    ${h.bedOccupancyRate}%
+                </span>
+            </td>
+            <td>${h.doctorCount}</td>
+            <td>${h.patientSatisfactionScore > 0 ? renderStars(h.patientSatisfactionScore) : '—'}</td>
+            <td>${statusBadge(h.verificationStatus)}</td>
+            <td>
+                <a href="${escapeHtml(pageLink('hospital-details', { id: h.hospitalId }))}" class="btn-link">Details</a>
+            </td>
+        </tr>
+    `).join('');
 }
 
-// Doctors have their own portal now, but from a region's point of view they are still the
-// clinical headcount a regional officer reports on.
-async function loadDoctorCount(myIds) {
-    try {
-        const res = await window.NexCareAPI.Users.getAll();
-        if (!res || !res.success) throw new Error('users unavailable');
-        const doctors = (res.data || []).filter(
-            u => u.role === 'doctor' && myIds.includes(u.hospitalId)
-        );
-        setStat('totalDoctorsCount', doctors.length);
-    } catch (err) {
-        console.warn('Doctor count unavailable:', err);
-        setStat('totalDoctorsCount', 'n/a');
+function renderAlertsPreview(alerts) {
+    const container = document.getElementById('alertsPreview');
+    const top = alerts.slice(0, 4);
+
+    if (!top.length) {
+        container.innerHTML = '<p class="empty-state">No performance alerts — all hospitals are within normal thresholds.</p>';
+        return;
     }
-}
 
-async function loadLowStockCount(myIds) {
-    try {
-        const res = await window.NexCareAPI.Inventory.getAll();
-        if (!res || !res.success) throw new Error('inventory unavailable');
-        const low = (res.data || []).filter(i => {
-            if (!myIds.includes(i.hospitalId)) return false;
-            const status = String(i.status || '').toLowerCase();
-            if (status.includes('low') || status.includes('out')) return true;
-            return i.reorderLevel != null && i.quantity != null && i.quantity <= i.reorderLevel;
-        });
-        setStat('lowStockCount', low.length);
-    } catch (err) {
-        console.warn('Low stock count unavailable:', err);
-        setStat('lowStockCount', 'n/a');
-    }
-}
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
-// Prefer the stored user object, but fall back to the JWT so a refreshed tab or a
-// cleared sessionStorage key doesn't leave the whole dashboard blank.
-function getCurrentUser() {
-    try {
-        const raw = sessionStorage.getItem('nexcare_user_data');
-        if (raw) return JSON.parse(raw);
-    } catch (e) {
-        console.warn('Could not parse stored user data:', e);
-    }
-    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-    if (!token) return null;
-    try {
-        const p = JSON.parse(atob(token.split('.')[1]));
-        return { id: p.sub, name: p.name, email: p.email, role: p.role };
-    } catch (e) {
-        return null;
-    }
-}
-
-function sum(items, pick) {
-    return items.reduce((total, item) => total + (pick(item) || 0), 0);
-}
-
-function setStat(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
+    container.innerHTML = top.map(a => `
+        <article class="alert-item ${escapeHtml(a.severity)}" aria-label="${escapeHtml(a.title)}">
+            <div class="alert-body">
+                <h4>${escapeHtml(a.title)} ${severityBadge(a.severity)}</h4>
+                <p>${escapeHtml(a.message)}</p>
+                <p class="alert-meta">${escapeHtml(a.hospitalName)} · ${escapeHtml(a.category)}</p>
+            </div>
+        </article>
+    `).join('');
 }
 
 function showTableError(message) {
     const tbody = document.getElementById('hospitalsTableBody');
-    if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#DC2626;">${escapeHtml(message)}</td></tr>`;
-    }
-}
-
-function escapeHtml(value) {
-    return String(value ?? '').replace(/[&<>"']/g, c => (
-        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-    ));
+    if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#DC2626;">${escapeHtml(message)}</td></tr>`;
+    const alerts = document.getElementById('alertsPreview');
+    if (alerts) alerts.innerHTML = `<p class="empty-state" style="color:#DC2626;">${escapeHtml(message)}</p>`;
 }

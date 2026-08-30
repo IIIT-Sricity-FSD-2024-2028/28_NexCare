@@ -7,6 +7,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/interfaces/api-response.interface';
 import { Public } from '../common/decorators/public.decorator';
 import { HospitalQueryInterceptor } from './interceptors/hospital-query.interceptor';
+import { ResponseUtil } from '../common/utils/response.util';
 
 @Controller('hospitals')
 export class HospitalsController {
@@ -166,5 +167,167 @@ export class HospitalsController {
       regionalReviewedAt: undefined,
       regionalReviewNotes: undefined,
     });
+  }
+
+  // ========================================================================
+  // Regional Manager Specific Endpoints
+  // ========================================================================
+
+  /**
+   * Get hospitals assigned to the regional manager
+   */
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Get('regional/my-hospitals')
+  async getMyHospitals(@Req() req: any) {
+    try {
+      const myHospitals = this.hospitalsService.getHospitalsForManager(req.user.id);
+      return ResponseUtil.success('Assigned hospitals retrieved successfully', myHospitals);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve assigned hospitals');
+    }
+  }
+
+  /**
+   * Get pending verifications for regional manager
+   */
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Get('regional/pending-verifications')
+  async getPendingVerifications(@Req() req: any) {
+    try {
+      const pendingHospitals = this.hospitalsService.getHospitalsForManager(req.user.id).filter(
+        hospital => hospital.verificationStatus === 'pending_verification',
+      );
+      return ResponseUtil.success('Pending verifications retrieved successfully', pendingHospitals);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve pending verifications');
+    }
+  }
+
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Get('regional/overview')
+  async getRegionalOverview(@Req() req: any) {
+    return this.hospitalsService.getRegionalOverview(req.user.id);
+  }
+
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Get('regional/performance-alerts')
+  async getPerformanceAlerts(@Req() req: any) {
+    return this.hospitalsService.getPerformanceAlerts(req.user.id);
+  }
+
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Get('regional/comparison')
+  async getHospitalComparison(@Req() req: any, @Query('ids') ids?: string) {
+    const hospitalIds = ids ? ids.split(',').map(id => id.trim()).filter(Boolean) : undefined;
+    return this.hospitalsService.getHospitalComparison(req.user.id, hospitalIds);
+  }
+
+  /**
+   * Verify hospital with comments (enhanced from basic verify)
+   */
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Patch(':id/verify-detailed')
+  async verifyHospitalDetailed(
+    @Param('id') hospitalId: string,
+    @Body() body: { comments?: string; suggestedChanges?: string[] }
+  ) {
+    try {
+      const updateData: any = {
+        verificationStatus: 'verified',
+      };
+
+      if (body.comments) {
+        updateData.verificationComments = body.comments;
+      }
+
+      if (body.suggestedChanges && body.suggestedChanges.length > 0) {
+        updateData.suggestedChanges = body.suggestedChanges;
+      }
+
+      return await this.hospitalsService.update(hospitalId, updateData);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to verify hospital');
+    }
+  }
+
+  /**
+   * Reject hospital with comments (enhanced from basic reject)
+   */
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Patch(':id/reject-detailed')
+  async rejectHospitalDetailed(
+    @Param('id') hospitalId: string,
+    @Body() body: { comments?: string; rejectionReason?: string }
+  ) {
+    try {
+      const updateData: any = {
+        verificationStatus: 'rejected',
+      };
+
+      if (body.comments) {
+        updateData.verificationComments = body.comments;
+      }
+
+      if (body.rejectionReason) {
+        updateData.rejectionReason = body.rejectionReason;
+      }
+
+      return await this.hospitalsService.update(hospitalId, updateData);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to reject hospital');
+    }
+  }
+
+  /**
+   * Get hospital verification history
+   */
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Get(':id/verification-history')
+  async getVerificationHistory(@Param('id') hospitalId: string) {
+    try {
+      const hospitalResult = await this.hospitalsService.findById(hospitalId);
+      const hospital = hospitalResult.data;
+
+      if (!hospital) {
+        return ResponseUtil.notFound('Hospital', hospitalId);
+      }
+
+      // Create a simple verification history based on current status
+      const history = [
+        {
+          status: 'registered',
+          date: hospital.createdAt,
+          description: 'Hospital registered'
+        },
+        {
+          status: hospital.verificationStatus,
+          date: hospital.updatedAt,
+          description: `Current status: ${hospital.verificationStatus}`,
+          comments: hospital.verificationComments || null
+        }
+      ];
+
+      return ResponseUtil.success('Verification history retrieved successfully', history);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve verification history');
+    }
+  }
+
+  /**
+   * Get hospital performance metrics
+   */
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Get(':id/performance')
+  async getHospitalPerformance(@Param('id') hospitalId: string) {
+    return await this.hospitalsService.getHospitalPerformance(hospitalId);
+  }
+
+  /**
+   * Get regional manager dashboard overview
+   */
+  @Roles(UserRole.REGIONAL_MANAGER)
+  @Get('regional/dashboard')
+  async getRegionalDashboard(@Req() req: any) {
+    return this.hospitalsService.getRegionalOverview(req.user.id);
   }
 }

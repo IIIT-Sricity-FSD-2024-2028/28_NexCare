@@ -9,6 +9,7 @@
     "summary": "Dr. Smith was incredibly thorough and attentive.",
     "rating": 5,
     "status": "Resolved",
+    "hospitalId": "H001",
     "createdAt": "2026-03-15T10:00:00Z"
   },
   {
@@ -21,6 +22,7 @@
     "summary": "Waiting room was cold and wait was an hour.",
     "rating": 2,
     "status": "Open",
+    "hospitalId": "H002",
     "createdAt": "2026-04-02T14:30:00Z"
   },
   {
@@ -33,6 +35,7 @@
     "summary": "EHR system frequently times out on large files.",
     "rating": 3,
     "status": "In Progress",
+    "hospitalId": "H001",
     "createdAt": "2026-04-01T09:15:00Z"
   },
   {
@@ -45,6 +48,7 @@
     "summary": "billing portal was bad",
     "rating": 2,
     "status": "Open",
+    "hospitalId": "H002",
     "createdAt": "2026-05-05T17:46:18.745Z",
     "updatedAt": "2026-05-05T17:46:18.745Z"
   },
@@ -58,7 +62,34 @@
     "summary": "The appointment was delayed by 2 hours",
     "rating": 2,
     "status": "Open",
+    "hospitalId": "H003",
     "createdAt": "2026-05-05T20:12:08.583Z",
     "updatedAt": "2026-05-05T20:12:08.583Z"
+  },
+  {
+    "id": "FB-004",
+    "patientId": "P003",
+    "sender": "Vivian Mathew",
+    "type": "Patient",
+    "category": "service",
+    "subject": "Excellent nursing care",
+    "summary": "The nursing staff on Ward 3 were very attentive and professional.",
+    "rating": 5,
+    "status": "Resolved",
+    "hospitalId": "H003",
+    "createdAt": "2026-06-10T11:20:00Z"
+  },
+  {
+    "id": "FB-005",
+    "patientId": "P004",
+    "sender": "Priya Sharma",
+    "type": "Patient",
+    "category": "facilities",
+    "subject": "Parking issues",
+    "summary": "Not enough parking spaces during peak hours. Had to park 500m away.",
+    "rating": 2,
+    "status": "Open",
+    "hospitalId": "H002",
+    "createdAt": "2026-07-18T09:45:00Z"
   }
 ]

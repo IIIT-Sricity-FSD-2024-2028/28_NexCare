@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCare - Performance Alerts</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="../shared/nav.css">
+    <link rel="stylesheet" href="regional-common.css">
+</head>
+<body>
+    <main class="main-content">
+        <header class="header">
+            <span class="header-title">Performance Alerts</span>
+            <div class="header-user">
+                <div class="header-avatar" id="userInitials" aria-hidden="true">RO</div>
+                <div class="header-user-info">
+                    <p class="header-user-name" id="userNameDisplay">Regional Officer</p>
+                    <p class="header-user-role">Regional Manager</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-body">
+            <section class="hero" aria-labelledby="hero-heading">
+                <h1 id="hero-heading">Underperforming Hospitals</h1>
+                <p>Automated notifications for capacity, inventory, patient satisfaction, and complaints across your assigned hospitals.</p>
+            </section>
+
+            <div class="stats-grid" role="region" aria-label="Alert summary">
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Total Alerts</p>
+                        <p class="stat-value" id="totalAlerts">—</p>
+                    </div>
+                    <div class="stat-icon orange" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Critical</p>
+                        <p class="stat-value" id="criticalAlerts">—</p>
+                    </div>
+                    <div class="stat-icon red" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Warnings</p>
+                        <p class="stat-value" id="warningAlerts">—</p>
+                    </div>
+                    <div class="stat-icon orange" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><path d="M12 9v2m0 4h.01"/></svg>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Hospitals Affected</p>
+                        <p class="stat-value" id="hospitalsAffected">—</p>
+                    </div>
+                    <div class="stat-icon blue" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <section class="panel" aria-labelledby="filters-title">
+                <h2 class="sr-only" id="filters-title">Filter alerts</h2>
+                <div class="filter-bar">
+                    <label for="severityFilter">Severity</label>
+                    <select id="severityFilter" aria-label="Filter by severity">
+                        <option value="all">All severities</option>
+                        <option value="critical">Critical only</option>
+                        <option value="warning">Warnings only</option>
+                    </select>
+                    <label for="categoryFilter">Category</label>
+                    <select id="categoryFilter" aria-label="Filter by category">
+                        <option value="all">All categories</option>
+                    </select>
+                    <label for="hospitalFilter">Hospital</label>
+                    <select id="hospitalFilter" aria-label="Filter by hospital">
+                        <option value="all">All hospitals</option>
+                    </select>
+                    <label for="searchInput" class="sr-only">Search alerts</label>
+                    <input type="search" id="searchInput" placeholder="Search alerts…" aria-label="Search alerts">
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="alerts-list-title">
+                <h2 class="section-title" id="alerts-list-title">Active Alerts</h2>
+                <div id="alertsList" class="alert-list" aria-live="polite">
+                    <p class="empty-state">Loading alerts…</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="../shared/api.js?v=9"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script>if (typeof checkAuth === 'function') { checkAuth(); checkRoleAccess(); }</script>
+    <script src="../logo.js"></script>
+    <script src="../shared/nav.js"></script>
+    <script src="regional-common.js?v=1"></script>
+    <script src="performance-alerts.js?v=1"></script>
+</body>
+</html>

@@ -145,6 +145,7 @@ export class FeedbackService {
         summary: feedbackData.summary,
         rating: feedbackData.rating,
         status: FeedbackStatus.OPEN,
+        hospitalId: feedbackData.hospitalId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -371,6 +372,55 @@ export class FeedbackService {
       return ResponseUtil.success('High priority feedback retrieved successfully', highPriorityFeedback);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve high priority feedback');
+    }
+  }
+
+  /**
+   * Feedback scoped to hospitals overseen by a regional manager.
+   */
+  async findForRegionalManager(
+    hospitalIds: string[],
+    status?: FeedbackStatus,
+    category?: string,
+    hospitalId?: string,
+  ) {
+    try {
+      const allowed = new Set(hospitalIds);
+      let items = this.loadFeedback().filter(f => f.hospitalId && allowed.has(f.hospitalId));
+
+      if (hospitalId && allowed.has(hospitalId)) {
+        items = items.filter(f => f.hospitalId === hospitalId);
+      }
+      if (status) {
+        items = items.filter(f => f.status === status);
+      }
+      if (category) {
+        items = items.filter(f => f.category === category);
+      }
+
+      items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+      const open = items.filter(f => f.status === FeedbackStatus.OPEN).length;
+      const inProgress = items.filter(f => f.status === FeedbackStatus.IN_PROGRESS).length;
+      const resolved = items.filter(f => f.status === FeedbackStatus.RESOLVED).length;
+      const patientItems = items.filter(f => f.type === 'Patient');
+      const avgRating = patientItems.length > 0
+        ? Math.round((patientItems.reduce((s, f) => s + f.rating, 0) / patientItems.length) * 10) / 10
+        : 0;
+
+      return ResponseUtil.success('Regional feedback retrieved successfully', {
+        items,
+        stats: {
+          total: items.length,
+          open,
+          inProgress,
+          resolved,
+          averageRating: avgRating,
+          lowRating: items.filter(f => f.rating <= 2 && f.status !== FeedbackStatus.RESOLVED).length,
+        },
+      });
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve regional feedback');
     }
   }
 }

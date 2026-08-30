@@ -119,6 +119,7 @@
                 el = document.createElement('p');
                 el.id = 'loginError';
                 el.style.cssText = 'color:#dc2626;font-size:13px;margin:8px 0 0;font-weight:500;';
+                const btn = document.querySelector('.btn-primary');
                 document.getElementById('loginForm').insertBefore(el, btn);
             }
             el.textContent = msg;

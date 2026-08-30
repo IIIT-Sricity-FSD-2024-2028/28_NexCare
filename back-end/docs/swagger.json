@@ -1333,6 +1333,113 @@
         ]
       }
     },
+    "/api/users/regional-managers/city/{city}": {
+      "get": {
+        "operationId": "UsersController_getRegionalManagersByCity",
+        "summary": "Get regional managers by city",
+        "parameters": [
+          {
+            "name": "city",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Regional managers retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/regional-managers/{id}/workload": {
+      "get": {
+        "operationId": "UsersController_getRMWorkload",
+        "summary": "Get regional manager workload",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RM workload retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/regional-managers/suggest/{city}": {
+      "get": {
+        "operationId": "UsersController_suggestRMForHospital",
+        "summary": "Suggest regional manager for hospital by city",
+        "parameters": [
+          {
+            "name": "city",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RM suggestions retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/regional-managers/workloads": {
+      "get": {
+        "operationId": "UsersController_getAllRMWorkloads",
+        "summary": "Get all regional managers with workload",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "All RM workloads retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
     "/api/hospitals": {
       "get": {
         "operationId": "HospitalsController_findAll",
@@ -1606,6 +1713,161 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/my-hospitals": {
+      "get": {
+        "operationId": "HospitalsController_getMyHospitals",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/pending-verifications": {
+      "get": {
+        "operationId": "HospitalsController_getPendingVerifications",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/overview": {
+      "get": {
+        "operationId": "HospitalsController_getRegionalOverview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/performance-alerts": {
+      "get": {
+        "operationId": "HospitalsController_getPerformanceAlerts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/comparison": {
+      "get": {
+        "operationId": "HospitalsController_getHospitalComparison",
+        "parameters": [
+          {
+            "name": "ids",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/verify-detailed": {
+      "patch": {
+        "operationId": "HospitalsController_verifyHospitalDetailed",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/reject-detailed": {
+      "patch": {
+        "operationId": "HospitalsController_rejectHospitalDetailed",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/verification-history": {
+      "get": {
+        "operationId": "HospitalsController_getVerificationHistory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/performance": {
+      "get": {
+        "operationId": "HospitalsController_getHospitalPerformance",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/dashboard": {
+      "get": {
+        "operationId": "HospitalsController_getRegionalDashboard",
+        "parameters": [],
         "responses": {
           "200": {
             "description": ""
@@ -4278,6 +4540,56 @@
         ]
       }
     },
+    "/api/feedback/regional": {
+      "get": {
+        "operationId": "FeedbackController_findRegional",
+        "summary": "Get feedback for hospitals assigned to the regional manager",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "Open",
+                "In Progress",
+                "Resolved"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hospitalId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
     "/api/feedback/stats/overview": {
       "get": {
         "operationId": "FeedbackController_getStats",
@@ -6292,6 +6604,11 @@
             "type": "string",
             "example": "Dr. Smith was incredibly thorough.",
             "description": "Detailed summary"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the feedback relates to"
           },
           "rating": {
             "type": "number",

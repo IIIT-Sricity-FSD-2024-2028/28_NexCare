@@ -36,6 +36,7 @@ try {
   // Beds module may not exist in all deployments
 }
 
+
 try {
   const ambulanceMiddleware = require('./ambulance/middleware/ambulance-access.middleware');
   if (ambulanceMiddleware.AmbulanceAccessMiddleware) {
@@ -556,7 +557,11 @@ const storage = multer ? multer.diskStorage({
   },
 }) : null;
 
-const fileFilter = (req: any, file: any, cb: any) => {
+const fileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: (error: Error | null, acceptFile?: boolean) => void,
+) => {
   const allowedMimes = [
     'image/jpeg',
     'image/png',

@@ -82,6 +82,9 @@ export interface CreateUserRequest {
   address?: string;
   consultationFee?: number | string;
   status?: UserStatus;
+  city?: string;
+  state?: string;
+  pincode?: string;
 }
 
 /**
@@ -118,6 +121,9 @@ export interface UpdateUserRequest {
   regionId?: string;
   address?: string;
   consultationFee?: number | string;
+  city?: string;
+  state?: string;
+  pincode?: string;
 }
 
 /**
@@ -129,4 +135,35 @@ export interface UserStats {
   inactive: number;
   onLeave: number;
   byRole: Record<UserRole, number>;
+}
+
+/**
+ * Regional Manager Workload Interface
+ */
+export interface RMWorkload {
+  regionalManagerId: string;
+  regionalManagerName: string;
+  regionalManagerEmail: string;
+  areas?: string[]; // RM's assigned areas/cities
+  totalHospitals: number;
+  pendingVerifications: number;
+  verifiedHospitals: number;
+  rejectedHospitals: number;
+  activeHospitals: number;
+  workloadLevel: 'low' | 'medium' | 'high';
+  lastActivity?: string;
+}
+
+/**
+ * RM Suggestion Interface
+ */
+export interface RMSuggestion {
+  regionalManagerId: string;
+  regionalManagerName: string;
+  regionalManagerEmail: string;
+  areas?: string[]; // RM's assigned areas/cities
+  currentWorkload: number;
+  workloadLevel: 'low' | 'medium' | 'high';
+  recommendation: string;
+  reason: string;
 }
