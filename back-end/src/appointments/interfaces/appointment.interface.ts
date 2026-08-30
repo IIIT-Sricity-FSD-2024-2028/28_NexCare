@@ -21,6 +21,8 @@ export interface Appointment {
   fee: number;
   status: AppointmentStatus;
   reason: string;
+  referredByDoctorId?: string;
+  parentAppointmentId?: string;
   createdAt: string;
   updatedAt?: string;
 }
@@ -39,6 +41,9 @@ export interface CreateAppointmentRequest {
   timeLabel: string;
   fee?: number;
   reason?: string;
+  referredByDoctorId?: string;
+  parentAppointmentId?: string;
+  status?: AppointmentStatus;
 }
 
 /**
@@ -55,6 +60,8 @@ export interface UpdateAppointmentRequest {
   fee?: number;
   status?: AppointmentStatus;
   reason?: string;
+  referredByDoctorId?: string;
+  parentAppointmentId?: string;
 }
 
 /**

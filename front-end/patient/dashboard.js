@@ -226,23 +226,21 @@ async function loadBills() {
             bills.forEach(bill => {
                 let badgeClass = bill.status === "Paid" ? "badge-paid" : "badge-pending";
                 let payConfirm = `Proceed to pay ${bill.currency}${bill.subtotal} for ${bill.id}?`.replace(/'/g, "");
-                let dlMsg = `Your receipt for ${bill.id} is being downloaded securely.`.replace(/'/g, "");
-                let viewMsg = `Invoice ID: ${bill.id}\\nAmount: ${bill.currency}${bill.subtotal}\\nStatus: ${bill.status}`.replace(/'/g, "");
                 
                 let actionBtn = bill.status === "Pending" ? 
                     `<button class="btn-primary-sm" onclick="showSystemModal('Confirm Payment', '${payConfirm}', () => window.payBill('${bill.id}', ${bill.subtotal}))">Pay Now</button>` :
-                    `<button class="btn-icon" title="Download" onclick="showSystemModal('Download PDF', '${dlMsg}')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M14 10v3.333A1.333 1.333 0 0112.667 14.667H3.333A1.333 1.333 0 012 13.333V10" stroke="#4A5565" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.667 6.667L8 10l3.333-3.333M8 10V1.333" stroke="#4A5565" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
+                    `<button class="btn-icon" title="Download PDF" onclick="window.NexCareInvoice ? window.NexCareInvoice.download('${bill.id}') : null"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M14 10v3.333A1.333 1.333 0 0112.667 14.667H3.333A1.333 1.333 0 012 13.333V10" stroke="#4A5565" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.667 6.667L8 10l3.333-3.333M8 10V1.333" stroke="#4A5565" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
                 
                 table.innerHTML += `
                     <tr>
-                        <td>${bill.id}</td>
+                        <td><strong>${bill.id}</strong></td>
                         <td>${bill.items && bill.items[0] ? bill.items[0].description : "General Services"}</td>
                         <td>${bill.visitDate || bill.dueDate}</td>
-                        <td><strong>${bill.currency}${bill.subtotal}</strong></td>
+                        <td><strong>${bill.currency}${bill.total || bill.subtotal}</strong></td>
                         <td><span class="badge ${badgeClass}">${bill.status}</span></td>
                         <td style="display: flex; gap: 8px; align-items: center; justify-content: flex-end;">
                             ${actionBtn}
-                             <button class="btn-icon" title="View" onclick="showSystemModal('Invoice Details', '${viewMsg}')">
+                             <button class="btn-icon" title="View Breakdown" onclick="window.NexCareInvoice ? window.NexCareInvoice.view('${bill.id}') : null">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="#4A5565" stroke-width="1.5"/><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" stroke="#4A5565" stroke-width="1.5"/></svg>
                              </button>
                         </td>

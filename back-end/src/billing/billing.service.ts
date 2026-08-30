@@ -4,8 +4,9 @@ import * as path from 'path';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { ArrayUtil } from '../common/utils/array.util';
-import { Bill, CreateBillRequest, UpdateBillRequest, PaymentRequest, BillStats, BillItem, Payment } from './interfaces/bill.interface';
+import { Bill, CreateBillRequest, UpdateBillRequest, PaymentRequest, BillStats, BillItem, Payment, PendingBillCharge } from './interfaces/bill.interface';
 import { BillStatus } from '../common/interfaces/api-response.interface';
+import { DEFAULT_CGST_RATE, DEFAULT_SGST_RATE } from '../common/constants/app.constants';
 
 import { SystemService } from '../system/system.service';
 
@@ -198,6 +199,130 @@ export class BillingService {
       return ResponseUtil.created('Bill created successfully', newBill);
     } catch (error) {
       return ResponseUtil.serverError('Failed to create bill');
+    }
+  }
+
+  /**
+   * Find an existing pending/unpaid bill for the patient, or create a fresh one if none exists.
+   * Paid bills are never modified.
+   */
+  getOrCreatePendingBill(patientId: string, visitDate?: string): Bill {
+    const bills = this.loadBills();
+    let pendingBill = bills.find(
+      b => b.patientId === patientId && b.status !== BillStatus.PAID
+    );
+
+    if (!pendingBill) {
+      const now = new Date();
+      const vDate = visitDate || now.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+      const due = new Date(now);
+      due.setDate(due.getDate() + 14);
+      const dDate = due.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+
+      pendingBill = {
+        id: IdGenerator.generateBillId(),
+        patientId,
+        visitDate: vDate,
+        dueDate: dDate,
+        status: BillStatus.PENDING,
+        currency: '₹',
+        subtotal: 0,
+        cgstRate: DEFAULT_CGST_RATE,
+        sgstRate: DEFAULT_SGST_RATE,
+        cgstAmount: 0,
+        sgstAmount: 0,
+        total: 0,
+        items: [],
+        payments: [],
+        createdAt: now.toISOString(),
+        updatedAt: now.toISOString(),
+      };
+
+      bills.push(pendingBill);
+      this.saveBills(bills);
+
+      this.systemService.createActivity({
+        userId: patientId,
+        action: 'Create',
+        details: `Initialized active pending bill ${pendingBill.id} for patient ${patientId}`,
+        module: 'Billing',
+        severity: 'INFO',
+      });
+    }
+
+    return pendingBill;
+  }
+
+  /**
+   * Append a billable line item (consultation, ambulance, referral) to the patient's active pending bill.
+   * Strictly prevents duplicate billing using type + referenceId.
+   * Recalculates subtotal, CGST, SGST, and total.
+   */
+  addChargeToPendingBill(patientId: string, charge: PendingBillCharge): Bill | null {
+    try {
+      if (!patientId || !charge) return null;
+
+      // Ensure pending bill exists
+      const targetBill = this.getOrCreatePendingBill(patientId, charge.date);
+      const bills = this.loadBills();
+      const billIndex = bills.findIndex(b => b.id === targetBill.id);
+
+      if (billIndex === -1) return null;
+
+      const bill = bills[billIndex];
+
+      // Check for duplicate billing across ALL patient bills (both active and historical/paid)
+      const patientBills = bills.filter(b => b.patientId === patientId);
+      const isDuplicate = patientBills.some(b =>
+        (b.items || []).some(
+          item =>
+            (item.referenceId && charge.referenceId && item.referenceId === charge.referenceId) ||
+            (item.type === charge.type && item.referenceId === charge.referenceId)
+        )
+      );
+
+      if (isDuplicate) {
+        console.log(`[BillingService] Duplicate charge ignored for patient ${patientId}, ref ${charge.referenceId}`);
+        return bill;
+      }
+
+      const now = new Date();
+      const lineItem: BillItem = {
+        description: charge.description,
+        department: charge.department || 'General',
+        amount: Number(charge.amount) || 0,
+        type: charge.type,
+        referenceId: charge.referenceId,
+        date: charge.date || now.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }),
+      };
+
+      if (!bill.items) bill.items = [];
+      bill.items.push(lineItem);
+
+      // Recalculate totals
+      const cgstRate = bill.cgstRate ?? DEFAULT_CGST_RATE;
+      const sgstRate = bill.sgstRate ?? DEFAULT_SGST_RATE;
+      bill.subtotal = this.round2(bill.items.reduce((sum, it) => sum + (Number(it.amount) || 0), 0));
+      bill.cgstAmount = this.round2(bill.subtotal * cgstRate);
+      bill.sgstAmount = this.round2(bill.subtotal * sgstRate);
+      bill.total = this.round2(bill.subtotal + bill.cgstAmount + bill.sgstAmount);
+      bill.updatedAt = now.toISOString();
+
+      bills[billIndex] = bill;
+      this.saveBills(bills);
+
+      this.systemService.createActivity({
+        userId: patientId,
+        action: 'Update',
+        details: `Appended ${charge.type} charge (${charge.description}: ₹${charge.amount}) to pending bill ${bill.id}. New total: ₹${bill.total}`,
+        module: 'Billing',
+        severity: 'INFO',
+      });
+
+      return bill;
+    } catch (err) {
+      console.error('[BillingService] Failed to add charge to pending bill:', err);
+      return null;
     }
   }
 

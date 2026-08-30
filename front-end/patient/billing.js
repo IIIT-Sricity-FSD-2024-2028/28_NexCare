@@ -117,20 +117,72 @@ async function renderBillFromStore() {
 
     // Itemized table row HTML generator
     const generateItemsHtml = (items) => {
-        if(!items || items.length === 0) return '<tr><td colspan="4" style="text-align:center; padding:20px;">No items listed</td></tr>';
-        return items.map(it => `
+        if(!items || items.length === 0) return '<tr><td colspan="4" style="text-align:center; padding:20px; color:#6B7280;">No items on this bill yet</td></tr>';
+        return items.map(it => {
+            const itemType = it.type ? (it.type.charAt(0).toUpperCase() + it.type.slice(1).toLowerCase()) : (it.department || 'Consultation');
+            const isAmb = String(it.type || it.description || '').toLowerCase().includes('ambulance');
+            const typeStyle = isAmb 
+                ? 'background:#FEF3C7; color:#B45309;' 
+                : 'background:#EFF6FF; color:#1D4ED8;';
+            const ref = it.referenceId || '—';
+            return `
             <tr>
-                <td>${it.description}</td>
-                <td><span class="dept-badge dept-${String(it.department || '').toLowerCase()}">${it.department || '-'}</span></td>
-                <td>${it.date || bill.visitDate}</td>
-                <td style="font-weight: 600;">${formatMoneyINR(it.amount)}</td>
+                <td style="font-weight:500; color:#1E293B;">${escapeHtml(it.description)}</td>
+                <td><span style="font-size:11px; padding:3px 8px; border-radius:6px; font-weight:600; ${typeStyle}">${escapeHtml(itemType)}</span></td>
+                <td><span style="font-family:monospace; font-size:12px; color:#64748B;">${escapeHtml(ref)}</span></td>
+                <td style="font-weight:600; color:#0F172A;">${formatMoneyINR(it.amount)}</td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
     };
 
     // Itemized bill table
     const itemTableBody = document.getElementById('billItemsBody');
     if (itemTableBody) itemTableBody.innerHTML = generateItemsHtml(bill.items);
+
+    // Ambulance Status Callout
+    const ambCallout = document.getElementById('billingAmbulanceCallout');
+    if (ambCallout && window.NexCareInvoice) {
+        const ambStatus = window.NexCareInvoice.checkAmbulance(bill);
+        const icon = document.getElementById('ambIcon');
+        const title = document.getElementById('ambTitle');
+        const sub = document.getElementById('ambSubtitle');
+        const fee = document.getElementById('ambFeeDisplay');
+        
+        if (ambStatus.availed) {
+            ambCallout.style.background = '#FFFBEB';
+            ambCallout.style.border = '1px solid #FDE68A';
+            if (icon) icon.textContent = '🚑';
+            if (title) {
+                title.textContent = 'Ambulance Service: Availed (Transport Charge Included)';
+                title.style.color = '#92400E';
+            }
+            if (sub) {
+                sub.textContent = `Emergency transport availed (${ambStatus.description}, Ref: ${ambStatus.referenceId})`;
+                sub.style.color = '#B45309';
+            }
+            if (fee) {
+                fee.textContent = formatMoneyINR(ambStatus.fee);
+                fee.style.color = '#92400E';
+            }
+        } else {
+            ambCallout.style.background = '#F8FAFC';
+            ambCallout.style.border = '1px solid #E2E8F0';
+            if (icon) icon.textContent = '🏥';
+            if (title) {
+                title.textContent = 'Ambulance Service: Not Availed';
+                title.style.color = '#475569';
+            }
+            if (sub) {
+                sub.textContent = 'No ambulance transport requested for this visit';
+                sub.style.color = '#64748B';
+            }
+            if (fee) {
+                fee.textContent = '₹0.00 (No fee)';
+                fee.style.color = '#64748B';
+            }
+        }
+    }
 
     // Summary values
     const summary = document.querySelector('.bill-summary');
@@ -191,6 +243,13 @@ async function renderBillFromStore() {
     if (mCharged) mCharged.textContent = formatMoneyINR(totals.total);
 }
 
+function downloadActiveBillPDF() {
+    const selectedId = getSelectedBillId();
+    if (window.NexCareInvoice) {
+        window.NexCareInvoice.download(selectedId);
+    }
+}
+
 function renderPendingBillsList(pendingBills) {
     const body = document.getElementById('pendingBillsBody');
     const count = document.getElementById('pendingBillsCount');
@@ -226,7 +285,10 @@ function renderPendingBillsList(pendingBills) {
         const id = tr.dataset.id;
         setSelectedBillId(id);
         renderBillFromStore(); // refresh details
-        if (btn.dataset.action === 'pay') {
+
+        if (btn.dataset.action === 'view') {
+            if (window.NexCareInvoice) window.NexCareInvoice.view(id);
+        } else if (btn.dataset.action === 'pay') {
             showPaymentForm();
         }
     };
@@ -251,8 +313,9 @@ function renderPaidBillsHistory(paidBills) {
                 <td>${escapeHtml(b.visitDate || b.dueDate || '')}</td>
                 <td><strong>${escapeHtml(formatMoneyINR(totals.total))}</strong></td>
                 <td><span class="badge badge-paid">Paid</span></td>
-                <td style="text-align:right;">
+                <td style="text-align:right; display:flex; justify-content:flex-end; gap:8px;">
                     <button class="btn-view-invoice" type="button" data-action="receipt">View</button>
+                    <button class="btn-outline-sm" type="button" data-action="download" style="padding:4px 10px; font-size:12px; border-radius:6px; font-weight:600; cursor:pointer; background:#F8FAFC; border:1px solid #CBD5E1; color:#0F172A;">PDF</button>
                 </td>
             </tr>
         `;
@@ -266,7 +329,12 @@ function renderPaidBillsHistory(paidBills) {
         const id = tr.dataset.id;
         setSelectedBillId(id);
         renderBillFromStore();
-        alert(`Receipt ready for ${id}.`);
+
+        if (btn.dataset.action === 'receipt' || btn.dataset.action === 'view') {
+            if (window.NexCareInvoice) window.NexCareInvoice.view(id);
+        } else if (btn.dataset.action === 'download') {
+            if (window.NexCareInvoice) window.NexCareInvoice.download(id);
+        }
     };
 }
 

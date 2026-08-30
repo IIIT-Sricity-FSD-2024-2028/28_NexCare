@@ -65,4 +65,19 @@ export class CreateAppointmentDto {
   @IsOptional()
   @IsString()
   hospitalName?: string;
+
+  @ApiPropertyOptional({ example: 'U005', description: 'ID of the referring doctor' })
+  @IsOptional()
+  @IsString()
+  referredByDoctorId?: string;
+
+  @ApiPropertyOptional({ example: 'APT-001', description: 'ID of the parent appointment' })
+  @IsOptional()
+  @IsString()
+  parentAppointmentId?: string;
+
+  @ApiPropertyOptional({ example: 'Pending', description: 'Appointment status' })
+  @IsOptional()
+  @IsString()
+  status?: string;
 }

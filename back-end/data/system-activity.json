@@ -1348,5 +1348,765 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-30T14:27:40.647Z"
+  },
+  {
+    "id": "ACT-MTFQG4OY45U_B",
+    "timestamp": "2026-08-30T11:35:13.091Z",
+    "userId": "P010",
+    "action": "Create",
+    "details": "Ambulance request AMB-MTFQG4OV31T created for Rahul Verma",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:35:13.091Z"
+  },
+  {
+    "id": "ACT-MTFZJ8DK15O",
+    "timestamp": "2026-08-30T15:49:34.376Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T15:49:34.376Z"
+  },
+  {
+    "id": "ACT-MTFZJGYI2AK",
+    "timestamp": "2026-08-30T15:49:45.498Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T15:49:45.498Z"
+  },
+  {
+    "id": "ACT-MTFZJRUL3BM",
+    "timestamp": "2026-08-30T15:49:59.613Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T15:49:59.613Z"
+  },
+  {
+    "id": "ACT-MTFZJRVM6WF",
+    "timestamp": "2026-08-30T15:49:59.650Z",
+    "userId": "P-TEST-1788104999623",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P-TEST-1788104999623 with Dr. Ananya Sharma",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T15:49:59.650Z"
+  },
+  {
+    "id": "ACT-MTFZJRW08JC",
+    "timestamp": "2026-08-30T15:49:59.664Z",
+    "userId": "P-TEST-1788104999623",
+    "action": "Create",
+    "details": "Initialized active pending bill BILL-MTFZJRVX7K0 for patient P-TEST-1788104999623",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T15:49:59.664Z"
+  },
+  {
+    "id": "ACT-MTFZJRW593F",
+    "timestamp": "2026-08-30T15:49:59.669Z",
+    "userId": "P-TEST-1788104999623",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Ananya Sharma (Cardiology): ₹800) to pending bill BILL-MTFZJRVX7K0. New total: ₹944",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T15:49:59.669Z"
+  },
+  {
+    "id": "ACT-MTFZJRW8A7N",
+    "timestamp": "2026-08-30T15:49:59.672Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTFZJRVE4JW marked as completed for Patient P-TEST-1788104999623",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T15:49:59.672Z"
+  },
+  {
+    "id": "ACT-MTG09CG511L",
+    "timestamp": "2026-08-30T16:09:52.709Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:09:52.709Z"
+  },
+  {
+    "id": "ACT-MTG09CHC4LL",
+    "timestamp": "2026-08-30T16:09:52.752Z",
+    "userId": "P-TEST-1788106192719",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P-TEST-1788106192719 with Dr. Ananya Sharma",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:09:52.752Z"
+  },
+  {
+    "id": "ACT-MTG09CHR65K",
+    "timestamp": "2026-08-30T16:09:52.767Z",
+    "userId": "P-TEST-1788106192719",
+    "action": "Create",
+    "details": "Initialized active pending bill BILL-MTG09CHM5CW for patient P-TEST-1788106192719",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:09:52.767Z"
+  },
+  {
+    "id": "ACT-MTG09CHZ77P",
+    "timestamp": "2026-08-30T16:09:52.775Z",
+    "userId": "P-TEST-1788106192719",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Ananya Sharma (Cardiology): ₹800) to pending bill BILL-MTG09CHM5CW. New total: ₹944",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:09:52.775Z"
+  },
+  {
+    "id": "ACT-MTG09CI28ZI",
+    "timestamp": "2026-08-30T16:09:52.778Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTG09CH62O3 marked as completed for Patient P-TEST-1788106192719",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:09:52.778Z"
+  },
+  {
+    "id": "ACT-MTG0A7QY9IH",
+    "timestamp": "2026-08-30T16:10:33.274Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:33.274Z"
+  },
+  {
+    "id": "ACT-MTG0A7RJC6B",
+    "timestamp": "2026-08-30T16:10:33.295Z",
+    "userId": "P-TEST-1788106233280",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P-TEST-1788106233280 with Dr. Ananya Sharma",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:33.295Z"
+  },
+  {
+    "id": "ACT-MTG0A7RVEER",
+    "timestamp": "2026-08-30T16:10:33.307Z",
+    "userId": "P-TEST-1788106233280",
+    "action": "Create",
+    "details": "Initialized active pending bill BILL-MTG0A7RSDI1 for patient P-TEST-1788106233280",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:33.307Z"
+  },
+  {
+    "id": "ACT-MTG0A7S0FHH",
+    "timestamp": "2026-08-30T16:10:33.312Z",
+    "userId": "P-TEST-1788106233280",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Ananya Sharma (Cardiology): ₹800) to pending bill BILL-MTG0A7RSDI1. New total: ₹944",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:33.312Z"
+  },
+  {
+    "id": "ACT-MTG0A7S4GQ7",
+    "timestamp": "2026-08-30T16:10:33.316Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTG0A7RFA6D marked as completed for Patient P-TEST-1788106233280",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:10:33.316Z"
+  },
+  {
+    "id": "ACT-MTG0AEZ6IFI",
+    "timestamp": "2026-08-30T16:10:42.642Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:42.642Z"
+  },
+  {
+    "id": "ACT-MTG0AEZQLQN",
+    "timestamp": "2026-08-30T16:10:42.662Z",
+    "userId": "P-TEST-1788106242649",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P-TEST-1788106242649 with Dr. Ananya Sharma",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:42.662Z"
+  },
+  {
+    "id": "ACT-MTG0AF03NTE",
+    "timestamp": "2026-08-30T16:10:42.675Z",
+    "userId": "P-TEST-1788106242649",
+    "action": "Create",
+    "details": "Initialized active pending bill BILL-MTG0AF00M1Z for patient P-TEST-1788106242649",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:42.675Z"
+  },
+  {
+    "id": "ACT-MTG0AF09OTY",
+    "timestamp": "2026-08-30T16:10:42.681Z",
+    "userId": "P-TEST-1788106242649",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Ananya Sharma (Cardiology): ₹800) to pending bill BILL-MTG0AF00M1Z. New total: ₹944",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:42.681Z"
+  },
+  {
+    "id": "ACT-MTG0AF0CPM5",
+    "timestamp": "2026-08-30T16:10:42.684Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTG0AEZNJN2 marked as completed for Patient P-TEST-1788106242649",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:10:42.684Z"
+  },
+  {
+    "id": "ACT-MTG0AKQARBD",
+    "timestamp": "2026-08-30T16:10:50.098Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:50.098Z"
+  },
+  {
+    "id": "ACT-MTG0AKQTUXI",
+    "timestamp": "2026-08-30T16:10:50.117Z",
+    "userId": "P-TEST-1788106250103",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P-TEST-1788106250103 with Dr. Ananya Sharma",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:50.117Z"
+  },
+  {
+    "id": "ACT-MTG0AKR5W11",
+    "timestamp": "2026-08-30T16:10:50.129Z",
+    "userId": "P-TEST-1788106250103",
+    "action": "Create",
+    "details": "Initialized active pending bill BILL-MTG0AKR2VMY for patient P-TEST-1788106250103",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:50.129Z"
+  },
+  {
+    "id": "ACT-MTG0AKRAX5D",
+    "timestamp": "2026-08-30T16:10:50.134Z",
+    "userId": "P-TEST-1788106250103",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Ananya Sharma (Cardiology): ₹800) to pending bill BILL-MTG0AKR2VMY. New total: ₹944",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:50.134Z"
+  },
+  {
+    "id": "ACT-MTG0AKRDYOG",
+    "timestamp": "2026-08-30T16:10:50.137Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTG0AKQOS3R marked as completed for Patient P-TEST-1788106250103",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:10:50.137Z"
+  },
+  {
+    "id": "ACT-MTG0AKRU10K9",
+    "timestamp": "2026-08-30T16:10:50.154Z",
+    "userId": "P-TEST-1788106250103",
+    "action": "Create",
+    "details": "Ambulance request AMB-MTG0AKRRZUZ created for Test Patient",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:50.154Z"
+  },
+  {
+    "id": "ACT-MTG0AKS51109",
+    "timestamp": "2026-08-30T16:10:50.165Z",
+    "userId": "U003",
+    "action": "Update",
+    "details": "Ambulance request AMB-MTG0AKRRZUZ updated to DISPATCHED",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:10:50.165Z"
+  },
+  {
+    "id": "ACT-MTG0B01L124U",
+    "timestamp": "2026-08-30T16:11:09.945Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:09.945Z"
+  },
+  {
+    "id": "ACT-MTG0B02515US",
+    "timestamp": "2026-08-30T16:11:09.965Z",
+    "userId": "P-TEST-1788106269952",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P-TEST-1788106269952 with Dr. Ananya Sharma",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:09.965Z"
+  },
+  {
+    "id": "ACT-MTG0B02G17PR",
+    "timestamp": "2026-08-30T16:11:09.976Z",
+    "userId": "P-TEST-1788106269952",
+    "action": "Create",
+    "details": "Initialized active pending bill BILL-MTG0B02D166Z for patient P-TEST-1788106269952",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:09.976Z"
+  },
+  {
+    "id": "ACT-MTG0B02M18C7",
+    "timestamp": "2026-08-30T16:11:09.982Z",
+    "userId": "P-TEST-1788106269952",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Ananya Sharma (Cardiology): ₹800) to pending bill BILL-MTG0B02D166Z. New total: ₹944",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:09.982Z"
+  },
+  {
+    "id": "ACT-MTG0B02Q19KJ",
+    "timestamp": "2026-08-30T16:11:09.986Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTG0B02113JT marked as completed for Patient P-TEST-1788106269952",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:11:09.986Z"
+  },
+  {
+    "id": "ACT-MTG0B0341B3L",
+    "timestamp": "2026-08-30T16:11:10.000Z",
+    "userId": "P-TEST-1788106269952",
+    "action": "Create",
+    "details": "Ambulance request AMB-MTG0B0311A5I created for Test Patient",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:10.000Z"
+  },
+  {
+    "id": "ACT-MTG0B03B1CGL",
+    "timestamp": "2026-08-30T16:11:10.007Z",
+    "userId": "U001",
+    "action": "Dispatch",
+    "details": "Ambulance request AMB-MTG0B0311A5I dispatched to staff U003 for Test Patient",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:10.007Z"
+  },
+  {
+    "id": "ACT-MTG0B03O1DF8",
+    "timestamp": "2026-08-30T16:11:10.020Z",
+    "userId": "P-TEST-1788106269952",
+    "action": "Update",
+    "details": "Appended AMBULANCE charge (Ambulance Transport: ₹500) to pending bill BILL-MTG0B02D166Z. New total: ₹1534",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:10.020Z"
+  },
+  {
+    "id": "ACT-MTG0B03Q1EGY",
+    "timestamp": "2026-08-30T16:11:10.022Z",
+    "userId": "U003",
+    "action": "Complete",
+    "details": "Ambulance transport AMB-MTG0B0311A5I completed for Test Patient",
+    "module": "Ambulance",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:11:10.022Z"
+  },
+  {
+    "id": "ACT-MTG0B0481HUG",
+    "timestamp": "2026-08-30T16:11:10.040Z",
+    "userId": "P-TEST-1788106269952",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P-TEST-1788106269952 with Dr. Mehta",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:10.040Z"
+  },
+  {
+    "id": "ACT-MTG0B04P1ILG",
+    "timestamp": "2026-08-30T16:11:10.057Z",
+    "userId": "P-TEST-1788106269952",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Mehta (Neurology): ₹1000) to pending bill BILL-MTG0B02D166Z. New total: ₹2714",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:10.057Z"
+  },
+  {
+    "id": "ACT-MTG0B04S1JK0",
+    "timestamp": "2026-08-30T16:11:10.060Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTG0B0441FLY marked as completed for Patient P-TEST-1788106269952",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:11:10.060Z"
+  },
+  {
+    "id": "ACT-MTG0B0561LOK",
+    "timestamp": "2026-08-30T16:11:10.074Z",
+    "userId": "P-TEST-1788106269952",
+    "action": "Payment",
+    "details": "Payment of ₹2714 processed for bill BILL-MTG0B02D166Z",
+    "module": "Billing",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:11:10.074Z"
+  },
+  {
+    "id": "ACT-MTG0B05I1ORY",
+    "timestamp": "2026-08-30T16:11:10.086Z",
+    "userId": "P-TEST-1788106269952",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P-TEST-1788106269952 with Dr. Rao",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:10.086Z"
+  },
+  {
+    "id": "ACT-MTG0B05T1QPJ",
+    "timestamp": "2026-08-30T16:11:10.097Z",
+    "userId": "P-TEST-1788106269952",
+    "action": "Create",
+    "details": "Initialized active pending bill BILL-MTG0B05Q1P0Y for patient P-TEST-1788106269952",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:10.097Z"
+  },
+  {
+    "id": "ACT-MTG0B05Z1R25",
+    "timestamp": "2026-08-30T16:11:10.103Z",
+    "userId": "P-TEST-1788106269952",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Rao (Dermatology): ₹600) to pending bill BILL-MTG0B05Q1P0Y. New total: ₹708",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:10.103Z"
+  },
+  {
+    "id": "ACT-MTG0B0631S4J",
+    "timestamp": "2026-08-30T16:11:10.107Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTG0B05E1MCJ marked as completed for Patient P-TEST-1788106269952",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:11:10.107Z"
+  },
+  {
+    "id": "ACT-MTG0B06K1T0C",
+    "timestamp": "2026-08-30T16:11:10.124Z",
+    "userId": "P-TEST-1788106269952",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Ananya Sharma (Cardiology): ₹800) to pending bill BILL-MTG0B05Q1P0Y. New total: ₹1652",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:11:10.124Z"
+  },
+  {
+    "id": "ACT-MTG0B06O1UB6",
+    "timestamp": "2026-08-30T16:11:10.128Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTG0B02113JT marked as completed for Patient P-TEST-1788106269952",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:11:10.128Z"
+  },
+  {
+    "id": "ACT-MTG1B9SZ1K6",
+    "timestamp": "2026-08-30T16:39:22.211Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:39:22.211Z"
+  },
+  {
+    "id": "ACT-MTG1B9TW4NA",
+    "timestamp": "2026-08-30T16:39:22.244Z",
+    "userId": "P-TEST-1788107962220",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P-TEST-1788107962220 with Dr. Ananya Sharma",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:39:22.245Z"
+  },
+  {
+    "id": "ACT-MTG1B9UC6RT",
+    "timestamp": "2026-08-30T16:39:22.260Z",
+    "userId": "P-TEST-1788107962220",
+    "action": "Create",
+    "details": "Initialized active pending bill BILL-MTG1B9U8506 for patient P-TEST-1788107962220",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:39:22.260Z"
+  },
+  {
+    "id": "ACT-MTG1B9UK7YA",
+    "timestamp": "2026-08-30T16:39:22.268Z",
+    "userId": "P-TEST-1788107962220",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Ananya Sharma (Cardiology): ₹800) to pending bill BILL-MTG1B9U8506. New total: ₹944",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:39:22.268Z"
+  },
+  {
+    "id": "ACT-MTG1B9UM8O3",
+    "timestamp": "2026-08-30T16:39:22.270Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTG1B9TS2XB marked as completed for Patient P-TEST-1788107962220",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:39:22.270Z"
+  },
+  {
+    "id": "ACT-MTG1B9V3AWY",
+    "timestamp": "2026-08-30T16:39:22.287Z",
+    "userId": "P-TEST-1788107962220",
+    "action": "Create",
+    "details": "Ambulance request AMB-MTG1B9V09L6 created for Test Patient",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:39:22.287Z"
+  },
+  {
+    "id": "ACT-MTG1B9VDBZS",
+    "timestamp": "2026-08-30T16:39:22.297Z",
+    "userId": "U001",
+    "action": "Dispatch",
+    "details": "Ambulance request AMB-MTG1B9V09L6 dispatched to staff U003 for Test Patient",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:39:22.297Z"
+  },
+  {
+    "id": "ACT-MTG1B9VQCD4",
+    "timestamp": "2026-08-30T16:39:22.310Z",
+    "userId": "P-TEST-1788107962220",
+    "action": "Update",
+    "details": "Appended AMBULANCE charge (Ambulance Transport: ₹500) to pending bill BILL-MTG1B9U8506. New total: ₹1534",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:39:22.310Z"
+  },
+  {
+    "id": "ACT-MTG1B9VTDMT",
+    "timestamp": "2026-08-30T16:39:22.313Z",
+    "userId": "U003",
+    "action": "Complete",
+    "details": "Ambulance transport AMB-MTG1B9V09L6 completed for Test Patient",
+    "module": "Ambulance",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:39:22.313Z"
+  },
+  {
+    "id": "ACT-MTG1B9WBGG5",
+    "timestamp": "2026-08-30T16:39:22.331Z",
+    "userId": "P-TEST-1788107962220",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P-TEST-1788107962220 with Dr. Mehta",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:39:22.331Z"
+  },
+  {
+    "id": "ACT-MTG1B9WTHEB",
+    "timestamp": "2026-08-30T16:39:22.350Z",
+    "userId": "P-TEST-1788107962220",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Mehta (Neurology): ₹1000) to pending bill BILL-MTG1B9U8506. New total: ₹2714",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:39:22.350Z"
+  },
+  {
+    "id": "ACT-MTG1B9WYIKV",
+    "timestamp": "2026-08-30T16:39:22.354Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTG1B9W7ELA marked as completed for Patient P-TEST-1788107962220",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:39:22.354Z"
+  },
+  {
+    "id": "ACT-MTG1B9XEKBJ",
+    "timestamp": "2026-08-30T16:39:22.370Z",
+    "userId": "P-TEST-1788107962220",
+    "action": "Payment",
+    "details": "Payment of ₹2714 processed for bill BILL-MTG1B9U8506",
+    "module": "Billing",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:39:22.370Z"
+  },
+  {
+    "id": "ACT-MTG1B9XQNOD",
+    "timestamp": "2026-08-30T16:39:22.382Z",
+    "userId": "P-TEST-1788107962220",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P-TEST-1788107962220 with Dr. Rao",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:39:22.382Z"
+  },
+  {
+    "id": "ACT-MTG1B9Y2PZV",
+    "timestamp": "2026-08-30T16:39:22.394Z",
+    "userId": "P-TEST-1788107962220",
+    "action": "Create",
+    "details": "Initialized active pending bill BILL-MTG1B9XYOFT for patient P-TEST-1788107962220",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:39:22.394Z"
+  },
+  {
+    "id": "ACT-MTG1B9Y8QQW",
+    "timestamp": "2026-08-30T16:39:22.400Z",
+    "userId": "P-TEST-1788107962220",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Rao (Dermatology): ₹600) to pending bill BILL-MTG1B9XYOFT. New total: ₹708",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:39:22.400Z"
+  },
+  {
+    "id": "ACT-MTG1B9YBR7B",
+    "timestamp": "2026-08-30T16:39:22.403Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTG1B9XLLKY marked as completed for Patient P-TEST-1788107962220",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:39:22.403Z"
+  },
+  {
+    "id": "ACT-MTG1B9YQSJQ",
+    "timestamp": "2026-08-30T16:39:22.418Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTG1B9TS2XB marked as completed for Patient P-TEST-1788107962220",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T16:39:22.418Z"
+  },
+  {
+    "id": "ACT-MTG1N3JV1WJ",
+    "timestamp": "2026-08-30T16:48:33.980Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:48:33.980Z"
+  },
+  {
+    "id": "ACT-MTG1NL9Q26D",
+    "timestamp": "2026-08-30T16:48:56.942Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:48:56.942Z"
+  },
+  {
+    "id": "ACT-MTG1OGDY3LU",
+    "timestamp": "2026-08-30T16:49:37.270Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Alex Martinez logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:49:37.270Z"
+  },
+  {
+    "id": "ACT-MTG1P8PP4XC",
+    "timestamp": "2026-08-30T16:50:13.982Z",
+    "userId": "U003",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T16:50:13.982Z"
+  },
+  {
+    "id": "ACT-MTG3IWRC1Q7",
+    "timestamp": "2026-08-30T17:41:17.784Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T17:41:17.784Z"
+  },
+  {
+    "id": "ACT-MTG3KSIN2E7",
+    "timestamp": "2026-08-30T17:42:45.599Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T17:42:45.599Z"
+  },
+  {
+    "id": "ACT-MTG3U4MC3TJ",
+    "timestamp": "2026-08-30T17:50:01.188Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T17:50:01.188Z"
+  },
+  {
+    "id": "ACT-MTG3V6OI4RT",
+    "timestamp": "2026-08-30T17:50:50.514Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T17:50:50.514Z"
+  },
+  {
+    "id": "ACT-MTG476RJ5JG",
+    "timestamp": "2026-08-30T18:00:10.496Z",
+    "userId": "UMTCJMTLL4ZC",
+    "action": "Login",
+    "details": "User Test Patient logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T18:00:10.496Z"
   }
 ]

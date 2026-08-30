@@ -154,7 +154,7 @@ export class UsersController {
   /**
    * Get active doctors (available to patients for appointment booking)
    */
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT, UserRole.HOSPITAL_MANAGER, UserRole.REGIONAL_MANAGER)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT, UserRole.HOSPITAL_MANAGER, UserRole.REGIONAL_MANAGER, UserRole.DOCTOR)
   @Get('doctors')
   @ApiOperation({ summary: 'Get active doctors, optionally filtered by department' })
   @ApiQuery({ name: 'dept', required: false })

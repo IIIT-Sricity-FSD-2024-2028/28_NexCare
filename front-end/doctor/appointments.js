@@ -71,18 +71,21 @@ function render() {
 }
 
 function actionsFor(a) {
+    const btns = [];
     if (a.status === 'Pending') {
-        return `<button class="btn primary" onclick="act('${esc(a.id)}','confirm')">Confirm</button>`;
+        btns.push(`<button class="btn primary" onclick="act('${esc(a.id)}','confirm')">Confirm</button>`);
     }
     if (a.status === 'Confirmed') {
-        return `<button class="btn" onclick="act('${esc(a.id)}','complete')">Complete</button>`;
+        btns.push(`<button class="btn" onclick="act('${esc(a.id)}','complete')">Complete</button>`);
     }
-    return '<span class="muted">—</span>';
+    if (a.status === 'Confirmed' || a.status === 'Completed') {
+        btns.push(`<button class="btn" style="margin-left:4px;" onclick="openReferModal('${esc(a.id)}')">Refer Patient</button>`);
+    }
+    return btns.length ? btns.join('') : '<span class="muted">—</span>';
 }
 
 /**
- * Confirm and complete are the only two actions a doctor has here. Cancelling
- * is the patient's or the front desk's call, so it is deliberately absent.
+ * Confirm and complete are the primary consultation actions a doctor has here.
  */
 async function act(id, verb) {
     try {
@@ -98,3 +101,143 @@ async function act(id, verb) {
         notify('Could not update the appointment', 'error');
     }
 }
+
+// ── Referral Flow ────────────────────────────────────────────────────────────
+let referralDoctorsList = [];
+
+async function openReferModal(appointmentId) {
+    const apt = allAppointments.find(a => String(a.id) === String(appointmentId));
+    if (!apt) return;
+
+    document.getElementById('referPatientId').value = apt.patientId || '';
+    document.getElementById('referPatientName').value = apt.patientName || '';
+    document.getElementById('referParentAppointmentId').value = apt.id || '';
+    document.getElementById('referHospitalId').value = apt.hospitalId || '';
+    document.getElementById('referHospitalName').value = apt.hospitalName || '';
+
+    const info = document.getElementById('referPatientInfo');
+    if (info) {
+        info.innerHTML = `Referring <strong>${esc(apt.patientName)}</strong> (${esc(apt.patientId)}) for follow-up consultation.`;
+    }
+
+    const today = new Date();
+    today.setDate(today.getDate() + 1);
+    const dateInput = document.getElementById('referDate');
+    if (dateInput) {
+        dateInput.value = today.toISOString().split('T')[0];
+        dateInput.min = new Date().toISOString().split('T')[0];
+    }
+
+    // Load doctors scoped to same hospital
+    try {
+        const res = await window.NexCareAPI.Users.getDoctors('', apt.hospitalId);
+        referralDoctorsList = (res.success && Array.isArray(res.data)) ? res.data : [];
+    } catch (e) {
+        referralDoctorsList = [];
+    }
+
+    // Populate departments
+    const deptSelect = document.getElementById('referDepartment');
+    const docSelect = document.getElementById('referDoctor');
+    
+    // Extract unique departments from doctors
+    const depts = Array.from(new Set(referralDoctorsList.map(d => d.dept).filter(Boolean)));
+    if (!depts.length) {
+        depts.push('Cardiology', 'Neurology', 'Orthopaedics', 'General Medicine', 'Dermatology', 'Pediatrics');
+    }
+
+    deptSelect.innerHTML = '<option value="">Select Department...</option>' +
+        depts.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join('');
+
+    docSelect.innerHTML = '<option value="">Select Doctor...</option>';
+
+    const modal = document.getElementById('referModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeReferModal() {
+    const modal = document.getElementById('referModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function onReferDepartmentChange() {
+    const dept = document.getElementById('referDepartment').value;
+    const docSelect = document.getElementById('referDoctor');
+    
+    const matchingDocs = referralDoctorsList.filter(d => !dept || d.dept === dept);
+    
+    if (matchingDocs.length > 0) {
+        docSelect.innerHTML = '<option value="">Select Doctor...</option>' +
+            matchingDocs.map(d => `<option value="${esc(d.id)}" data-name="${esc(d.name)}" data-dept="${esc(d.dept)}" data-fee="${d.consultationFee || 1000}">${esc(d.name)} (${esc(d.dept)}) — ₹${d.consultationFee || 1000}</option>`).join('');
+    } else {
+        docSelect.innerHTML = '<option value="">No doctors available in this department</option>';
+    }
+}
+
+function onReferDoctorChange() {
+    // Dynamic change if required
+}
+
+async function submitReferral(event) {
+    event.preventDefault();
+    const btn = document.getElementById('referSubmitBtn');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+    }
+
+    try {
+        const patientId = document.getElementById('referPatientId').value;
+        const patientName = document.getElementById('referPatientName').value;
+        const parentAppointmentId = document.getElementById('referParentAppointmentId').value;
+        const hospitalId = document.getElementById('referHospitalId').value;
+        const hospitalName = document.getElementById('referHospitalName').value;
+        const department = document.getElementById('referDepartment').value;
+        const docSelect = document.getElementById('referDoctor');
+        const doctorId = docSelect.value;
+        const selectedOpt = docSelect.options[docSelect.selectedIndex];
+        const doctorName = selectedOpt?.dataset?.name || selectedOpt?.text || 'Doctor';
+        const fee = Number(selectedOpt?.dataset?.fee) || 1000;
+        const rawDate = document.getElementById('referDate').value;
+        const time = document.getElementById('referTime').value;
+        const reason = document.getElementById('referReason').value;
+
+        const dateObj = new Date(rawDate);
+        const dateLabel = isNaN(dateObj.getTime()) ? rawDate : dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        const payload = {
+            patientId,
+            patientName,
+            department,
+            doctor: doctorName,
+            doctorId,
+            hospitalId: hospitalId || undefined,
+            hospitalName: hospitalName || undefined,
+            dateLabel,
+            timeLabel: time,
+            fee,
+            reason: reason ? `Referral: ${reason}` : 'Referred follow-up consultation',
+            parentAppointmentId,
+            status: 'Pending'
+        };
+
+        const res = await window.NexCareAPI.Appointments.create(payload);
+        if (!res.success) {
+            notify(res.message || 'Failed to create referral appointment', 'error');
+            return;
+        }
+
+        notify('Referral appointment created successfully (will be billed upon completion)', 'success');
+        closeReferModal();
+        await load();
+    } catch (err) {
+        console.error('Referral creation failed:', err);
+        notify('Failed to create referral appointment', 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Create Referral';
+        }
+    }
+}
+

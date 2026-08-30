@@ -74,9 +74,9 @@ export class AppointmentsController {
    * Create new appointment
    */
   @Post()
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT, UserRole.DOCTOR)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Book a new appointment' })
+  @ApiOperation({ summary: 'Book a new appointment or doctor referral' })
   @ApiResponse({ status: 200, description: 'Appointment booking result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
   async create(@Req() req: any, @Body() createAppointmentDto: CreateAppointmentDto) {
@@ -84,6 +84,10 @@ export class AppointmentsController {
     // A patient can only book for themselves.
     if (this.isPatient(req)) {
       dto.patientId = req.user.patientId;
+    }
+    // If booked by a doctor as a referral, track the referring doctor
+    if (req.user?.role === UserRole.DOCTOR && !dto.referredByDoctorId) {
+      dto.referredByDoctorId = req.user.id || req.user.sub;
     }
     return this.appointmentsService.create(dto);
   }

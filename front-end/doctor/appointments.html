@@ -69,6 +69,55 @@
         </div>
     </main>
 
+    <!-- Refer Patient Modal -->
+    <div id="referModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+        <div class="panel" style="background:#fff; border-radius:12px; max-width:480px; width:90%; padding:24px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.15); border:1px solid #E2E8F0;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="margin:0; font-size:18px; font-weight:700; color:#0F172A;">Refer Patient</h3>
+                <button type="button" onclick="closeReferModal()" style="background:none; border:none; font-size:22px; cursor:pointer; color:#64748B; line-height:1;">&times;</button>
+            </div>
+            <p id="referPatientInfo" style="font-size:13px; color:#64748B; margin-bottom:16px;"></p>
+            <form id="referForm" onsubmit="submitReferral(event)">
+                <input type="hidden" id="referPatientId">
+                <input type="hidden" id="referPatientName">
+                <input type="hidden" id="referParentAppointmentId">
+                <input type="hidden" id="referHospitalId">
+                <input type="hidden" id="referHospitalName">
+                
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; font-weight:600; color:#334155; margin-bottom:4px;">Department</label>
+                    <select id="referDepartment" required onchange="onReferDepartmentChange()" style="width:100%; height:38px; border:1px solid #CBD5E1; border-radius:8px; padding:0 10px; font-size:13px; background:#fff;">
+                        <option value="">Select Department...</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; font-weight:600; color:#334155; margin-bottom:4px;">Doctor</label>
+                    <select id="referDoctor" required onchange="onReferDoctorChange()" style="width:100%; height:38px; border:1px solid #CBD5E1; border-radius:8px; padding:0 10px; font-size:13px; background:#fff;">
+                        <option value="">Select Doctor...</option>
+                    </select>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:600; color:#334155; margin-bottom:4px;">Date</label>
+                        <input type="date" id="referDate" required style="width:100%; height:38px; border:1px solid #CBD5E1; border-radius:8px; padding:0 10px; font-size:13px;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:600; color:#334155; margin-bottom:4px;">Time</label>
+                        <input type="text" id="referTime" value="10:00 AM" placeholder="e.g. 10:00 AM" required style="width:100%; height:38px; border:1px solid #CBD5E1; border-radius:8px; padding:0 10px; font-size:13px;">
+                    </div>
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; font-weight:600; color:#334155; margin-bottom:4px;">Reason / Clinical Notes</label>
+                    <textarea id="referReason" rows="2" placeholder="Clinical reason for referral..." style="width:100%; border:1px solid #CBD5E1; border-radius:8px; padding:8px 10px; font-size:13px; resize:vertical;"></textarea>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
+                    <button type="button" class="btn" onclick="closeReferModal()">Cancel</button>
+                    <button type="submit" class="btn primary" id="referSubmitBtn">Create Referral</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../shared/api.js"></script>
     <script src="../shared/session.js"></script>
     <script src="../shared/portal.js"></script>

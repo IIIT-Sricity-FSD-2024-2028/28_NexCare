@@ -591,7 +591,7 @@
     "role": "doctor",
     "dept": "Cardiology",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$e28f33a44b189e4bc4c6c221e0d8399b$bed75bfbe768a5d722d5d406ab19d08fe0d2739a935aab3f9e13658eda45d480a03fba0e9af32cedda12734f022954db139479476c4028a5d5c6804e1961f09d",
     "hospitalId": "H001",
     "specialization": "Cardiology",
     "registrationNo": "APMC-U090",
