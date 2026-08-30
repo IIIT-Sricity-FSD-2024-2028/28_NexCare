@@ -734,21 +734,13 @@ const LeavesAPI = {
 //   /doctor/me, /doctor/:id    a practitioner's earnings and platform charges
 //   /patient/me/membership     a patient's Care+ plan and what it saved them
 const RevenueAPI = {
-    async getPlans() {
-        return await api.get('/revenue/plans');
-    },
+    // Hospital subscription plans were removed from the revenue model on
+    // 2026-08-30 — what a hospital pays is transactional now, and the rate
+    // lives in the platform fee config.
 
-    async updatePlan(planId, changes) {
-        return await api.patch(`/revenue/plans/${encodeURIComponent(planId)}`, changes);
-    },
 
-    async getSubscriptions() {
-        return await api.get('/revenue/subscriptions');
-    },
 
-    async updateSubscription(hospitalId, changes) {
-        return await api.patch(`/revenue/subscriptions/${encodeURIComponent(hospitalId)}`, changes);
-    },
+
 
     async getPlatformOverview(query = {}) {
         const params = new URLSearchParams();
@@ -874,6 +866,47 @@ const RevenueAPI = {
     }
 };
 
+// Payments API
+// Drives the SIMULATED gateway. The amount always comes from the bill, never
+// from here, and only the last four digits of a card are ever retained.
+const PaymentsAPI = {
+    /** The cards the simulation recognises, and what each one does. */
+    async getTestCards() {
+        return await api.get('/payments/test-cards');
+    },
+
+    async createIntent(billId) {
+        return await api.post('/payments/intent', { billId });
+    },
+
+    /**
+     * `idempotencyKey` makes a replay return the original outcome instead of
+     * charging again — a double-clicked Pay button is how people get billed twice.
+     */
+    async confirm(intentId, card, idempotencyKey) {
+        return await api.post(`/payments/${encodeURIComponent(intentId)}/confirm`, {
+            cardNumber: card.cardNumber,
+            expiryMonth: Number(card.expiryMonth),
+            expiryYear: Number(card.expiryYear),
+            cvv: card.cvv,
+            idempotencyKey,
+        });
+    },
+
+    async getMine() {
+        return await api.get('/payments');
+    },
+
+    /** The platform earnings ledger — Admin only. */
+    async getLedger(query = {}) {
+        const params = new URLSearchParams();
+        if (query.stream) params.append('stream', query.stream);
+        if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+        const s = params.toString();
+        return await api.get(`/payments/ledger${s ? `?${s}` : ''}`);
+    }
+};
+
 // Hierarchy API
 // There is no way to ask for someone else's subtree — you get yours, derived
 // from the token. `getScope()` answers "what may I see", `getTree()` answers
@@ -942,6 +975,7 @@ window.NexCareAPI = {
     Leaves: LeavesAPI,
     SupportRequests: SupportRequestsAPI,
     Revenue: RevenueAPI,
+    Payments: PaymentsAPI,
     Hierarchy: HierarchyAPI,
     System: SystemAPI
 };

@@ -4949,104 +4949,6 @@
         ]
       }
     },
-    "/api/revenue/plans": {
-      "get": {
-        "operationId": "RevenueController_findPlans",
-        "summary": "List subscription plans",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Revenue"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/revenue/plans/{id}": {
-      "patch": {
-        "operationId": "RevenueController_updatePlan",
-        "summary": "Update a subscription plan’s pricing",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Revenue"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/revenue/subscriptions": {
-      "get": {
-        "operationId": "RevenueController_findSubscriptions",
-        "summary": "List hospital subscriptions",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Revenue"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/revenue/subscriptions/{hospitalId}": {
-      "patch": {
-        "operationId": "RevenueController_updateSubscription",
-        "summary": "Move a hospital onto a different plan, or change its status",
-        "parameters": [
-          {
-            "name": "hospitalId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Revenue"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
     "/api/revenue/hospital/{hospitalId}": {
       "get": {
         "operationId": "RevenueController_hospitalRevenue",
@@ -5607,6 +5509,152 @@
         },
         "tags": [
           "Hierarchy"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/payments/test-cards": {
+      "get": {
+        "operationId": "PaymentsController_testCards",
+        "summary": "Cards the simulated gateway recognises, and what each one does",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/payments/intent": {
+      "post": {
+        "operationId": "PaymentsController_createIntent",
+        "summary": "Start paying a bill — the amount is taken from the bill",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIntentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/payments/{intentId}/confirm": {
+      "post": {
+        "operationId": "PaymentsController_confirmIntent",
+        "summary": "Confirm a payment with card details (simulated)",
+        "parameters": [
+          {
+            "name": "intentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/payments": {
+      "get": {
+        "operationId": "PaymentsController_findIntents",
+        "summary": "Payment attempts (patients: own only)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/payments/ledger": {
+      "get": {
+        "operationId": "PaymentsController_findLedger",
+        "summary": "The platform earnings ledger — every fee NexCare has taken",
+        "parameters": [
+          {
+            "name": "stream",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hospitalId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
         ],
         "security": [
           {
@@ -6745,6 +6793,55 @@
             "description": "Status of feedback"
           }
         }
+      },
+      "CreateIntentDto": {
+        "type": "object",
+        "properties": {
+          "billId": {
+            "type": "string",
+            "example": "BILL-002",
+            "description": "The bill being settled"
+          }
+        },
+        "required": [
+          "billId"
+        ]
+      },
+      "ConfirmPaymentDto": {
+        "type": "object",
+        "properties": {
+          "cardNumber": {
+            "type": "string",
+            "example": "4242424242424242",
+            "description": "Test card number"
+          },
+          "expiryMonth": {
+            "type": "number",
+            "example": 12,
+            "description": "Expiry month, 1-12"
+          },
+          "expiryYear": {
+            "type": "number",
+            "example": 2030,
+            "description": "Expiry year"
+          },
+          "cvv": {
+            "type": "string",
+            "example": "123",
+            "description": "CVV"
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "example": "bill-002-attempt-1",
+            "description": "Replaying this key returns the original outcome instead of charging again"
+          }
+        },
+        "required": [
+          "cardNumber",
+          "expiryMonth",
+          "expiryYear",
+          "cvv"
+        ]
       }
     }
   }

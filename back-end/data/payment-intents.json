@@ -1,0 +1,34 @@
+[
+  {
+    "id": "PI-UMTFRNU1Y3EN",
+    "billId": "BILL-88167",
+    "patientId": "P001",
+    "hospitalId": "H001",
+    "amount": 2950,
+    "currency": "₹",
+    "status": "declined",
+    "createdAt": "2026-08-30T12:09:12.166Z",
+    "gatewayReference": "MOCK-5AAB8D6D2000",
+    "cardBrand": "Visa",
+    "cardLast4": "0002",
+    "idempotencyKey": "demo-decline",
+    "confirmedAt": "2026-08-30T12:09:12.206Z",
+    "failureCode": "card_declined",
+    "failureMessage": "Card declined by the issuing bank"
+  },
+  {
+    "id": "PI-UMTFRNU494W4",
+    "billId": "BILL-88167",
+    "patientId": "P001",
+    "hospitalId": "H001",
+    "amount": 2950,
+    "currency": "₹",
+    "status": "succeeded",
+    "createdAt": "2026-08-30T12:09:12.249Z",
+    "gatewayReference": "MOCK-CA839F34D32C",
+    "cardBrand": "Visa",
+    "cardLast4": "4242",
+    "idempotencyKey": "demo-ok",
+    "confirmedAt": "2026-08-30T12:09:12.290Z"
+  }
+]

@@ -13,83 +13,51 @@
  *     chain (hospital manager, then the regional officer over their hospitals).
  */
 
-/** A subscription tier hospitals can be placed on. */
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  tagline: string;
-  /** Recurring base fee per billing cycle, in rupees. */
-  monthlyFee: number;
-  /** Beds covered by the base fee before per-bed overage applies. */
-  includedBeds: number;
-  perExtraBedFee: number;
-  /** Share of the hospital's collections NexCare takes, as a fraction (0.015 = 1.5%). */
-  commissionRate: number;
-  maxStaffAccounts: number;
-  supportSla: string;
-  features: string[];
-  status: 'active' | 'retired';
-  currency: string;
-}
-
-/** Which plan a hospital is on. */
-export interface HospitalSubscription {
-  id: string;
-  hospitalId: string;
-  hospitalName: string;
-  planId: string;
-  status: 'active' | 'pending_activation' | 'suspended' | 'cancelled';
-  billingCycle: 'monthly' | 'annual';
-  contractedBeds: number;
-  startedAt: string;
-  renewsOn: string;
-  notes?: string;
-}
-
-/** What one hospital contributes to platform revenue in a cycle. */
+/**
+ * What one hospital contributed to platform revenue in a period.
+ *
+ * Hospital SUBSCRIPTIONS were removed from the model on 2026-08-30, so there is
+ * no plan, no base fee and no bed overage here any more. A hospital pays only
+ * on what it actually collects, which means a hospital that collects nothing
+ * owes nothing.
+ */
 export interface HospitalRevenueLine {
   hospitalId: string;
   hospitalName: string;
-  planId: string;
-  planName: string;
   status: string;
-  contractedBeds: number;
-  /** monthlyFee for the plan. */
-  baseFee: number;
-  /** Charge for beds above the plan's included allowance. */
-  bedOverageFee: number;
-  /** What the hospital collected from patients (paid bills only). */
+  /** What the hospital collected from patients (settled payments only). */
   collections: number;
-  /** commissionRate applied to collections. */
+  /** Commission taken on those collections. */
   commission: number;
-  /** baseFee + bedOverageFee + commission. */
+  /** Processing fee taken on those payments. */
+  processingFees: number;
+  /** commission + processingFees. */
   platformRevenue: number;
+  paymentsProcessed: number;
 }
 
 /** Platform-wide roll-up for the Admin. */
 export interface PlatformRevenueOverview {
   currency: string;
-  /** Recurring component only — base fees + bed overage. Commission is usage-based. */
+  /**
+   * Recurring revenue — doctor listing tiers and Care+ memberships only. The
+   * hospital licence used to sit here; it was removed on 2026-08-30.
+   */
   mrr: number;
   arr: number;
   /** Commission earned on hospital collections in the period. */
   commissionRevenue: number;
-  /** mrr + commissionRevenue. */
+  /** Processing fees earned on those payments. */
+  processingRevenue: number;
+  /** Every stream added together, recurring and transactional. */
   totalRevenue: number;
-  activeSubscriptions: number;
-  pendingActivations: number;
+  /** Hospitals that actually generated revenue in the period. */
+  earningHospitals: number;
+  totalHospitals: number;
   averageRevenuePerHospital: number;
   /** Total the hospitals collected — the base the commission is charged on. */
   gatewayVolume: number;
   outstandingReceivables: number;
-  byPlan: Array<{
-    planId: string;
-    planName: string;
-    hospitals: number;
-    monthlyFee: number;
-    recurringRevenue: number;
-    share: number;
-  }>;
   byHospital: HospitalRevenueLine[];
 }
 
@@ -108,13 +76,15 @@ export interface HospitalOperationalRevenue {
   gstCollected: number;
   byDepartment: Array<{ department: string; amount: number; share: number }>;
   byMonth: Array<{ month: string; collected: number; outstanding: number }>;
-  /** What this hospital owes NexCare for the current cycle. */
+  /**
+   * What this hospital owes NexCare for the period — transactional only, since
+   * the subscription was removed. Null when nothing was settled.
+   */
   platformCharges: {
-    planName: string;
-    baseFee: number;
-    bedOverageFee: number;
     commission: number;
+    processingFees: number;
     total: number;
+    paymentsProcessed: number;
   } | null;
 }
 

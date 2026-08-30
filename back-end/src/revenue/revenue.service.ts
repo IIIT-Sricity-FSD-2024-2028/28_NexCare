@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ResponseUtil } from '../common/utils/response.util';
 import { FileStore } from '../common/utils/file-store.util';
 import {
-  SubscriptionPlan,
-  HospitalSubscription,
   HospitalRevenueLine,
   PlatformRevenueOverview,
   HospitalOperationalRevenue,
@@ -27,14 +25,12 @@ import { PricingService } from './pricing.service';
  */
 @Injectable()
 export class RevenueService {
-  private readonly plansStore = new FileStore<SubscriptionPlan>(
-    'subscription-plans.json',
-    () => RevenueService.seedPlans(),
-  );
-  private readonly subsStore = new FileStore<HospitalSubscription>(
-    'hospital-subscriptions.json',
-    () => [],
-  );
+  /**
+   * The platform earnings ledger, written by PaymentsService at the moment a
+   * fee is charged. Read-only here: reporting must never be able to change
+   * what was earned.
+   */
+  private readonly ledgerStore = new FileStore<any>('platform-transactions.json', () => []);
   // Read-only views of data other modules own.
   private readonly billsStore = new FileStore<any>('billing.json', () => []);
   private readonly hospitalsStore = new FileStore<any>('hospitals.json', () => []);
@@ -45,148 +41,88 @@ export class RevenueService {
 
   constructor(private readonly pricing: PricingService) {}
 
-  private static seedPlans(): SubscriptionPlan[] {
-    return [
-      {
-        id: 'PLAN-STARTER', name: 'Starter', tagline: 'Single-site clinics and small hospitals',
-        monthlyFee: 15000, includedBeds: 50, perExtraBedFee: 120, commissionRate: 0.01,
-        maxStaffAccounts: 15, supportSla: '48-hour email',
-        features: ['Appointments & queue', 'Bed allocation', 'Inventory', 'Patient billing'],
-        status: 'active', currency: '₹',
-      },
-    ];
+  // ── The ledger ────────────────────────────────────────────────────────────
+
+  /** Ledger rows in the period, optionally for one stream. */
+  private ledger(from?: string, to?: string, stream?: string): any[] {
+    let rows = this.ledgerStore.load();
+    if (stream) rows = rows.filter(r => r.stream === stream);
+    if (!from && !to) return rows;
+    const start = from ? new Date(from).getTime() : -Infinity;
+    const endAt = to ? new Date(to).getTime() : Infinity;
+    return rows.filter(r => {
+      const t = new Date(r.createdAt || 0).getTime();
+      return !isNaN(t) && t >= start && t <= endAt;
+    });
   }
 
-  // ── Plans ─────────────────────────────────────────────────────────────────
-
-  async findPlans() {
-    try {
-      return ResponseUtil.success('Subscription plans retrieved successfully', this.plansStore.load());
-    } catch {
-      return ResponseUtil.serverError('Failed to retrieve subscription plans');
-    }
-  }
-
-  async updatePlan(planId: string, changes: Partial<SubscriptionPlan>) {
-    try {
-      const plans = this.plansStore.load();
-      const idx = plans.findIndex(p => p.id === planId);
-      if (idx === -1) return ResponseUtil.notFound('Subscription plan');
-
-      // Pricing fields only — the id is never reassigned.
-      const { id, ...safe } = changes as any;
-      plans[idx] = { ...plans[idx], ...safe };
-      this.plansStore.save(plans);
-      return ResponseUtil.updated('Subscription plan', plans[idx]);
-    } catch {
-      return ResponseUtil.serverError('Failed to update subscription plan');
-    }
-  }
-
-  // ── Subscriptions ─────────────────────────────────────────────────────────
-
-  async findSubscriptions() {
-    try {
-      return ResponseUtil.success('Subscriptions retrieved successfully', this.subsStore.load());
-    } catch {
-      return ResponseUtil.serverError('Failed to retrieve subscriptions');
-    }
-  }
-
-  /** Move a hospital onto a different plan, or change its subscription status. */
-  async updateSubscription(hospitalId: string, changes: { planId?: string; status?: string }) {
-    try {
-      const subs = this.subsStore.load();
-      const idx = subs.findIndex(s => s.hospitalId === hospitalId);
-      if (idx === -1) return ResponseUtil.notFound('Subscription');
-
-      if (changes.planId) {
-        const plan = this.plansStore.load().find(p => p.id === changes.planId);
-        if (!plan) return ResponseUtil.error(`Unknown plan '${changes.planId}'`);
-        subs[idx].planId = changes.planId;
-      }
-      if (changes.status) subs[idx].status = changes.status as HospitalSubscription['status'];
-
-      this.subsStore.save(subs);
-      return ResponseUtil.updated('Subscription', subs[idx]);
-    } catch {
-      return ResponseUtil.serverError('Failed to update subscription');
-    }
+  /** What one stream earned in the period, straight from the ledger. */
+  private ledgerTotal(rows: any[], stream: string): number {
+    return this.sum(rows.filter(r => r.stream === stream), r => r.amount);
   }
 
   // ── Platform revenue (Admin only) ─────────────────────────────────────────
 
   async getPlatformOverview(from?: string, to?: string) {
     try {
-      const plans = this.plansStore.load();
-      const subs = this.subsStore.load();
+      const hospitals = this.hospitalsStore.load();
       const bills = this.inRange(this.billsStore.load(), from, to);
+      const ledgerRows = this.ledger(from, to);
 
-      const planById = new Map(plans.map(p => [p.id, p]));
-      const byHospital: HospitalRevenueLine[] = [];
+      // Hospital revenue is now entirely transactional: a percentage of what
+      // each hospital collected, plus the fee on processing those payments.
+      // There is no base fee and no bed overage — a hospital that collects
+      // nothing is charged nothing. Both figures come from the ledger, which
+      // recorded them at the rate in force when the payment was taken.
+      const byHospital: HospitalRevenueLine[] = hospitals.map(hospital => {
+        const own = ledgerRows.filter(r => r.hospitalId === hospital.id);
+        const commission = this.ledgerTotal(own, 'hospital_commission');
+        const processing = this.ledgerTotal(own, 'payment_gateway_fee');
+        const collections = this.sum(
+          bills.filter(b => b.hospitalId === hospital.id && this.isPaid(b)),
+          b => b.total,
+        );
 
-      for (const sub of subs) {
-        const plan = planById.get(sub.planId);
-        if (!plan) continue;
-
-        const hospitalBills = bills.filter(b => b.hospitalId === sub.hospitalId);
-        const collections = this.sum(hospitalBills.filter(b => this.isPaid(b)), b => b.total);
-
-        // A subscription that is not active bills nothing this cycle.
-        const billable = sub.status === 'active';
-        const baseFee = billable ? plan.monthlyFee : 0;
-        const extraBeds = Math.max(0, (sub.contractedBeds || 0) - plan.includedBeds);
-        const bedOverageFee = billable ? extraBeds * plan.perExtraBedFee : 0;
-        const commission = billable ? this.round(collections * plan.commissionRate) : 0;
-
-        byHospital.push({
-          hospitalId: sub.hospitalId,
-          hospitalName: sub.hospitalName,
-          planId: plan.id,
-          planName: plan.name,
-          status: sub.status,
-          contractedBeds: sub.contractedBeds || 0,
-          baseFee,
-          bedOverageFee,
+        return {
+          hospitalId: hospital.id,
+          hospitalName: hospital.name,
+          status: hospital.verificationStatus || 'unknown',
           collections: this.round(collections),
-          commission,
-          platformRevenue: this.round(baseFee + bedOverageFee + commission),
-        });
-      }
+          commission: this.round(commission),
+          processingFees: this.round(processing),
+          platformRevenue: this.round(commission + processing),
+          paymentsProcessed: own.filter(r => r.stream === 'payment_gateway_fee').length,
+        };
+      })
+      .filter(line => line.collections > 0 || line.platformRevenue > 0);
 
       byHospital.sort((a, b) => b.platformRevenue - a.platformRevenue);
 
-      const mrr = this.round(this.sum(byHospital, l => l.baseFee + l.bedOverageFee));
       const commissionRevenue = this.round(this.sum(byHospital, l => l.commission));
-      const activeSubscriptions = subs.filter(s => s.status === 'active').length;
+      const processingRevenue = this.round(this.sum(byHospital, l => l.processingFees));
+      const earningHospitals = byHospital.length;
 
-      const byPlan = plans.map(plan => {
-        const lines = byHospital.filter(l => l.planId === plan.id);
-        const recurringRevenue = this.round(this.sum(lines, l => l.baseFee + l.bedOverageFee));
-        return {
-          planId: plan.id,
-          planName: plan.name,
-          hospitals: lines.length,
-          monthlyFee: plan.monthlyFee,
-          recurringRevenue,
-          share: mrr > 0 ? this.round((recurringRevenue / mrr) * 100) : 0,
-        };
-      });
+      // Recurring revenue is now the doctor and patient subscriptions only —
+      // the hospital licence is gone, so MRR no longer includes it.
+      const streams = this.computeStreams(from, to);
+      const mrr = this.round(
+        this.sum(streams.filter(l => l.type === 'recurring'), l => l.amount),
+      );
 
       const overview: PlatformRevenueOverview = {
         currency: '₹',
         mrr,
         arr: this.round(mrr * 12),
         commissionRevenue,
-        totalRevenue: this.round(mrr + commissionRevenue),
-        activeSubscriptions,
-        pendingActivations: subs.filter(s => s.status === 'pending_activation').length,
-        averageRevenuePerHospital: activeSubscriptions
-          ? this.round((mrr + commissionRevenue) / activeSubscriptions)
+        processingRevenue,
+        totalRevenue: this.round(this.sum(streams, l => l.amount)),
+        earningHospitals,
+        totalHospitals: hospitals.length,
+        averageRevenuePerHospital: earningHospitals
+          ? this.round((commissionRevenue + processingRevenue) / earningHospitals)
           : 0,
         gatewayVolume: this.round(this.sum(bills.filter(b => this.isPaid(b)), b => b.total)),
         outstandingReceivables: this.round(this.sum(bills.filter(b => !this.isPaid(b)), b => b.total)),
-        byPlan,
         byHospital,
       };
 
@@ -197,43 +133,44 @@ export class RevenueService {
     }
   }
 
-  /** Month-by-month platform revenue, for the trend chart. */
+  /**
+   * Month-by-month platform revenue, for the trend chart.
+   *
+   * Transactional lines come from the ledger, so a month shows what was
+   * actually earned then — repricing today does not restate history. The
+   * recurring line (doctor tiers, Care+) is the current run rate, since those
+   * are billed per cycle rather than per event.
+   */
   async getPlatformTrend(months = 6) {
     try {
-      const bills = this.billsStore.load();
-      const plans = new Map(this.plansStore.load().map(p => [p.id, p]));
-      const subs = this.subsStore.load().filter(s => s.status === 'active');
+      const ledgerRows = this.ledgerStore.load();
+      const streams = this.computeStreams();
+      const recurring = this.round(
+        this.sum(streams.filter(l => l.type === 'recurring'), l => l.amount),
+      );
 
-      const recurring = this.sum(subs, s => {
-        const plan = plans.get(s.planId);
-        if (!plan) return 0;
-        return plan.monthlyFee + Math.max(0, (s.contractedBeds || 0) - plan.includedBeds) * plan.perExtraBedFee;
-      });
+      const trend = this.monthKeys(months).map(({ key, label }) => {
+        const inMonth = ledgerRows.filter(r => String(r.createdAt || '').slice(0, 7) === key);
+        const commission = this.ledgerTotal(inMonth, 'hospital_commission');
+        const processing = this.ledgerTotal(inMonth, 'payment_gateway_fee');
+        const transactional = this.round(this.sum(inMonth, r => r.amount));
 
-      const commissionFor = (hospitalId: string, amount: number) => {
-        const sub = subs.find(s => s.hospitalId === hospitalId);
-        const plan = sub ? plans.get(sub.planId) : null;
-        return plan ? amount * plan.commissionRate : 0;
-      };
-
-      const buckets = this.monthKeys(months);
-      const trend = buckets.map(({ key, label }) => {
-        const monthBills = bills.filter(
-          b => this.isPaid(b) && String(b.createdAt || '').slice(0, 7) === key,
-        );
-        const collections = this.sum(monthBills, b => b.total);
-        const commission = this.sum(monthBills, b => commissionFor(b.hospitalId, b.total));
         return {
           month: label,
-          recurring: this.round(recurring),
+          recurring,
           commission: this.round(commission),
-          collections: this.round(collections),
-          total: this.round(recurring + commission),
+          processing: this.round(processing),
+          transactional,
+          collections: this.round(this.sum(
+            inMonth.filter(r => r.stream === 'hospital_commission'), r => r.gross,
+          )),
+          total: this.round(recurring + transactional),
         };
       });
 
       return ResponseUtil.success('Platform revenue trend retrieved successfully', trend);
-    } catch {
+    } catch (error) {
+      console.error('Trend error:', error);
       return ResponseUtil.serverError('Failed to compute revenue trend');
     }
   }
@@ -279,20 +216,21 @@ export class RevenueService {
           pending.filter(b => String(b.createdAt || '').slice(0, 7) === key), b => b.total)),
       }));
 
-      const sub = this.subsStore.load().find(s => s.hospitalId === hospitalId);
-      const plan = sub ? this.plansStore.load().find(p => p.id === sub.planId) : null;
-      let platformCharges: HospitalOperationalRevenue['platformCharges'] = null;
-      if (sub && plan && sub.status === 'active') {
-        const bedOverageFee = Math.max(0, (sub.contractedBeds || 0) - plan.includedBeds) * plan.perExtraBedFee;
-        const commission = this.round(collected * plan.commissionRate);
-        platformCharges = {
-          planName: plan.name,
-          baseFee: plan.monthlyFee,
-          bedOverageFee,
-          commission,
-          total: this.round(plan.monthlyFee + bedOverageFee + commission),
-        };
-      }
+      // What this hospital owes NexCare is now purely transactional: the
+      // commission and the processing fee actually charged on its settled
+      // bills. No base fee, no bed overage — those went with the subscription.
+      const own = this.ledger(from, to).filter(r => r.hospitalId === hospitalId);
+      const commission = this.round(this.ledgerTotal(own, 'hospital_commission'));
+      const processingFees = this.round(this.ledgerTotal(own, 'payment_gateway_fee'));
+      const platformCharges: HospitalOperationalRevenue['platformCharges'] =
+        commission || processingFees
+          ? {
+              commission,
+              processingFees,
+              total: this.round(commission + processingFees),
+              paymentsProcessed: own.filter(r => r.stream === 'payment_gateway_fee').length,
+            }
+          : null;
 
       const result: HospitalOperationalRevenue = {
         hospitalId,
@@ -378,7 +316,7 @@ export class RevenueService {
       });
 
       const users = this.usersStore.load();
-      const hospitals = this.subsStore.load().filter(s => s.status === 'active').length;
+      const hospitals = this.hospitalsStore.load().length;
       const doctors = users.filter(u => u.role === 'doctor' && u.status !== 'Inactive').length;
       const patients = users.filter(u => u.role === 'patient').length;
 
@@ -416,25 +354,18 @@ export class RevenueService {
    */
   private computeStreams(from?: string, to?: string): RevenueStreamLine[] {
     const fees = this.pricing.loadFeeConfig();
-    const hospitalPlans = new Map(this.plansStore.load().map(p => [p.id, p]));
-    const hospitalSubs = this.subsStore.load().filter(s => s.status === 'active');
     const bills = this.inRange(this.billsStore.load(), from, to);
     const paidBills = bills.filter(b => this.isPaid(b));
+    const ledgerRows = this.ledger(from, to);
 
-    // ── 1 + 2: the hospital licence ───────────────────────────────────────
-    let hospitalRecurring = 0;
-    let hospitalCommission = 0;
-    for (const sub of hospitalSubs) {
-      const plan = hospitalPlans.get(sub.planId);
-      if (!plan) continue;
-      const extraBeds = Math.max(0, (sub.contractedBeds || 0) - plan.includedBeds);
-      hospitalRecurring += plan.monthlyFee + extraBeds * plan.perExtraBedFee;
-      const collections = this.sum(
-        paidBills.filter(b => b.hospitalId === sub.hospitalId),
-        b => b.total,
-      );
-      hospitalCommission += collections * plan.commissionRate;
-    }
+    // ── 1 + 2: what hospitals pay ─────────────────────────────────────────
+    // Hospital SUBSCRIPTIONS were removed from the revenue model on
+    // 2026-08-30. What a hospital pays is now entirely transactional, and both
+    // figures are read from the ledger rather than recomputed, so a rate change
+    // today cannot restate what was charged last month.
+    const hospitalCommission = this.ledgerTotal(ledgerRows, 'hospital_commission');
+    const gatewayRevenue = this.ledgerTotal(ledgerRows, 'payment_gateway_fee');
+    const settledPayments = ledgerRows.filter(r => r.stream === 'payment_gateway_fee').length;
 
     // ── 3 + 4: the doctor listing ladder ──────────────────────────────────
     const doctorPlans = new Map(this.pricing.loadDoctorPlans().map(p => [p.id, p]));
@@ -491,26 +422,14 @@ export class RevenueService {
       return fees.ambulanceDispatchFee * (1 - discount);
     });
 
-    // ── 8: payment gateway ────────────────────────────────────────────────
-    const gatewayVolume = this.sum(paidBills, b => b.total);
-    const gatewayRevenue = gatewayVolume * fees.paymentGatewayRate;
-
     return [
-      {
-        key: 'hospital_subscription',
-        label: 'Hospital SaaS subscriptions',
-        payer: 'hospital', type: 'recurring',
-        amount: this.round(hospitalRecurring), share: 0,
-        units: hospitalSubs.length, unitLabel: 'hospitals',
-        basis: 'Plan base fee plus a per-bed charge for beds above the plan allowance.',
-      },
       {
         key: 'hospital_commission',
         label: 'Commission on hospital collections',
         payer: 'hospital', type: 'usage',
         amount: this.round(hospitalCommission), share: 0,
-        units: paidBills.length, unitLabel: 'bills settled',
-        basis: 'A percentage of what each hospital collected through NexCare billing.',
+        units: settledPayments, unitLabel: 'payments settled',
+        basis: `${this.round(fees.hospitalCommissionRate * 100)}% of what each hospital collects through NexCare. Charged when the payment succeeds, never on an unpaid bill.`,
       },
       {
         key: 'doctor_subscription',
@@ -557,8 +476,8 @@ export class RevenueService {
         label: 'Payment processing',
         payer: 'hospital', type: 'usage',
         amount: this.round(gatewayRevenue), share: 0,
-        units: paidBills.length, unitLabel: 'payments processed',
-        basis: `${this.round(fees.paymentGatewayRate * 100)}% of every bill settled through NexCare.`,
+        units: settledPayments, unitLabel: 'payments processed',
+        basis: `${this.round(fees.paymentGatewayRate * 100)}% of every payment taken through the NexCare gateway.`,
       },
     ];
   }
@@ -765,11 +684,11 @@ export class RevenueService {
       const hospitals = this.hospitalsStore.load();
       const beds = this.bedsStore.load();
       const bills = this.inRange(this.billsStore.load(), from, to);
-      const plans = new Map(this.plansStore.load().map(p => [p.id, p]));
-      const subs = new Map(this.subsStore.load().map(sub => [sub.hospitalId, sub]));
+      const ledgerRows = this.ledger(from, to);
 
       // ── Bucket everything by hospital, once ──────────────────────────────
       const billsByHospital = this.groupBy(bills, b => b.hospitalId);
+      const feesByHospital = this.groupBy(ledgerRows, r => r.hospitalId);
       const staffByHospital = this.groupBy(
         users.filter(u => u.hospitalId && u.role !== 'patient'),
         u => u.hospitalId,
@@ -789,7 +708,7 @@ export class RevenueService {
             isAssigned: true,
           },
           hospitalsByOfficer.get(officer.id) || [],
-          { billsByHospital, staffByHospital, bedsByHospital, plans, subs },
+          { billsByHospital, staffByHospital, bedsByHospital, feesByHospital },
         ),
       );
 
@@ -806,7 +725,7 @@ export class RevenueService {
               isAssigned: false,
             },
             orphans,
-            { billsByHospital, staffByHospital, bedsByHospital, plans, subs },
+            { billsByHospital, staffByHospital, bedsByHospital, feesByHospital },
           ),
         );
       }
@@ -851,8 +770,7 @@ export class RevenueService {
       billsByHospital: Map<string, any[]>;
       staffByHospital: Map<string, any[]>;
       bedsByHospital: Map<string, any[]>;
-      plans: Map<string, SubscriptionPlan>;
-      subs: Map<string, HospitalSubscription>;
+      feesByHospital: Map<string, any[]>;
     },
   ): RegionalOfficerRollup {
     const byHospital = ownHospitals.map(h => {
@@ -862,17 +780,10 @@ export class RevenueService {
       const hospitalBeds = idx.bedsByHospital.get(h.id) || [];
 
       const collections = this.sum(paid, b => b.total);
-      const sub = idx.subs.get(h.id);
-      const plan = sub ? idx.plans.get(sub.planId) : undefined;
 
-      // Only an active subscription bills this cycle — same rule as the
-      // platform overview, so the two reports cannot disagree.
-      let platformRevenue = 0;
-      if (sub && plan && sub.status === 'active') {
-        const extraBeds = Math.max(0, (sub.contractedBeds || 0) - plan.includedBeds);
-        platformRevenue =
-          plan.monthlyFee + extraBeds * plan.perExtraBedFee + collections * plan.commissionRate;
-      }
+      // Straight from the ledger — the same rows the platform overview reads,
+      // so the two reports cannot disagree.
+      const platformRevenue = this.sum(idx.feesByHospital.get(h.id) || [], r => r.amount);
 
       return {
         hospitalId: h.id,

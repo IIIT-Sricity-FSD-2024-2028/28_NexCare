@@ -160,7 +160,7 @@
     "patientId": "P001",
     "visitDate": "2026-05-05T19:54:37.541Z",
     "dueDate": "2026-05-19T19:54:37.541Z",
-    "status": "Pending",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 2500,
     "cgstRate": 0.09,
@@ -175,7 +175,15 @@
         "amount": 2500
       }
     ],
-    "payments": [],
+    "payments": [
+      {
+        "id": "PAY-PI-UMTFRNU494W4",
+        "amount": 2950,
+        "method": "CARD (Visa ••••4242)",
+        "gatewayReference": "MOCK-CA839F34D32C",
+        "createdAt": "2026-08-30T12:09:12.290Z"
+      }
+    ],
     "createdAt": "2026-05-05T19:54:37.549Z",
     "updatedAt": "2026-05-05T19:54:37.549Z",
     "hospitalId": "H001"

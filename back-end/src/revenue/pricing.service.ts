@@ -168,6 +168,7 @@ export class PricingService {
       id: 'FEE-CONFIG',
       currency: '₹',
       patientBookingFee: 39,
+      hospitalCommissionRate: 0.015,
       ambulanceDispatchFee: 149,
       paymentGatewayRate: 0.019,
       extraStaffSeatFee: 250,
@@ -421,8 +422,11 @@ export class PricingService {
           return ResponseUtil.validationError(`${key} cannot be negative`);
         }
       }
-      if (typeof safe.paymentGatewayRate === 'number' && safe.paymentGatewayRate > 1) {
-        return ResponseUtil.validationError('paymentGatewayRate is a fraction — 0.019 means 1.9%');
+      for (const rateKey of ['paymentGatewayRate', 'hospitalCommissionRate']) {
+        const value = (safe as any)[rateKey];
+        if (typeof value === 'number' && value > 1) {
+          return ResponseUtil.validationError(`${rateKey} is a fraction — 0.019 means 1.9%`);
+        }
       }
 
       const next: PlatformFeeConfig = {

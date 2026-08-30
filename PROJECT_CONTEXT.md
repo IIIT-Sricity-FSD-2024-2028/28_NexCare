@@ -326,8 +326,23 @@ neither in the hierarchy nor readable through `/revenue/hospital/H001` (403).
 
 ## 5A. The revenue model (rebuilt 2026-08-30)
 
-NexCare is a **product**, not one hospital's internal tool. It makes money in eight
+NexCare is a **product**, not one hospital's internal tool. It makes money in seven
 ways from three payers, and the streams must never be conflated.
+
+> **Hospital subscriptions were REMOVED on 2026-08-30**, on the course
+> instructor's direction, and the reasoning is worth keeping. A subscription is
+> *declared*, not *earned*: ₹3.87L of "revenue" existed because
+> `hospital-subscriptions.json` said H001 was on the Enterprise plan. Nothing had
+> happened, nothing could be pointed at, and one edited line changed the number.
+> Everything that remains is triggered by a real event — a payment settled, a
+> consultation completed, a booking made — so every rupee traces to a record
+> somebody created by using the app. Removing it cut modelled revenue from
+> ₹4.27L to ₹38.8K. That is the honest figure.
+>
+> `subscription-plans.json` and `hospital-subscriptions.json` are deleted, and
+> `GET /revenue/plans` and `/revenue/subscriptions` now 404. **Do not
+> reintroduce them.** Doctor listing tiers and Care+ memberships stay — those are
+> subscriptions people opt into, and they are billed per cycle.
 
 ### The three payers
 
@@ -341,9 +356,8 @@ ways from three payers, and the streams must never be conflated.
 
 | # | Key | Payer | Type | Charged on |
 |---|---|---|---|---|
-| 1 | `hospital_subscription` | hospital | recurring | Plan base fee + per-bed charge above the plan's included beds |
-| 2 | `hospital_commission` | hospital | usage | Plan commission rate × what the hospital **collected** |
-| 3 | `payment_gateway_fee` | hospital | usage | `paymentGatewayRate` × every bill settled through NexCare |
+| 1 | `hospital_commission` | hospital | usage | `hospitalCommissionRate` × what the hospital **collected** |
+| 2 | `payment_gateway_fee` | hospital | usage | `paymentGatewayRate` × every payment taken through the gateway |
 | 4 | `doctor_subscription` | doctor | recurring | Monthly listing fee (the free tier contributes nothing here) |
 | 5 | `doctor_commission` | doctor | usage | Tier commission × consultation fee, **only when the appointment completes** |
 | 6 | `patient_membership` | patient | recurring | Care+ monthly fee |
@@ -376,18 +390,17 @@ Selecting Pay as you go **is** how a patient cancels — there is no separate ca
 endpoint. `patient/membership.html` shows fees waived against membership paid and is
 honest when the plan is not paying off.
 
-### Hospital plans (unchanged)
+### Hospitals pay only on what they collect
 
-| Plan | Base/month | Included beds | Extra bed | Commission |
-|---|---|---|---|---|
-| Starter | ₹15,000 | 50 | ₹120 | 1.0% |
-| Professional | ₹40,000 | 150 | ₹100 | 1.5% |
-| Enterprise | ₹75,000 | 300 | ₹80 | 2.0% |
+No plan, no base fee, no bed overage. A single platform-wide
+`hospitalCommissionRate` (1.5%) plus the processing fee, both charged when a
+payment actually succeeds. A hospital that collects nothing owes nothing.
 
 ### Cross-cutting rates — `platform-fee-config.json`
 
-Not tied to any one plan, repriced at runtime by the Admin: `patientBookingFee` (₹39),
-`ambulanceDispatchFee` (₹149), `paymentGatewayRate` (1.9%), `extraStaffSeatFee` (₹250),
+Repriced at runtime by the Admin: `patientBookingFee` (₹39),
+`hospitalCommissionRate` (1.5%), `ambulanceDispatchFee` (₹149),
+`paymentGatewayRate` (1.9%), `extraStaffSeatFee` (₹250),
 `notificationCreditFee` (₹0.35). Rates are stored as **fractions** and edited as
 percentages in the UI — `0.019` is 1.9%. `PricingService.updateFeeConfig` refuses a
 negative value and a `paymentGatewayRate` above 1.
@@ -433,6 +446,76 @@ It is computed from **one read of each file**. Bills, staff and beds are buckete
 by hospital once up front (`groupBy`), so a hundredth officer costs a map lookup
 rather than another full pass over every bill. Shown as the *Regional officers*
 tab in `superuser/revenue.html`, with a click-to-expand hospital breakdown.
+
+## 5C. Payments and the platform ledger (added 2026-08-30)
+
+With subscriptions gone, **every remaining rupee is triggered by a payment or a
+completed transaction**, so the payment path is no longer a detail — it is what
+the revenue model rests on.
+
+### The simulated gateway — `payments/gateway/mock-gateway.ts`
+
+A SIMULATION. No real card is accepted, contacted or stored; only the last four
+digits are ever retained. It behaves like a processor's test mode, so the
+outcome is chosen by the card number and **every path can be demonstrated on
+demand** — a decline you cannot reproduce is a decline you cannot test.
+
+| Card | Outcome |
+|---|---|
+| `4242 4242 4242 4242` | approved |
+| `4000 0000 0000 0002` | card declined |
+| `4000 0000 0000 0069` | expired card |
+| `4000 0000 0000 0119` | processing error |
+| `4000 0000 0000 9995` | insufficient funds |
+
+Shape checks (Luhn, CVV, expiry) run before the "processor" is reached. An
+unrecognised but well-formed card is **declined, not approved** — approving it
+would let a demo succeed on a number nobody chose, hiding the simulation.
+
+### The flow
+
+```
+POST /payments/intent          amount comes from the BILL, never the client
+POST /payments/:id/confirm     gateway authorises
+   approved  → bill marked Paid → fee rows written to the ledger
+   declined  → bill untouched   → nothing earned
+```
+
+`idempotencyKey` makes a replay return the original outcome instead of charging
+again — a double-clicked Pay button is the normal way somebody gets billed twice.
+
+### The ledger — `platform-transactions.json`
+
+Every fee NexCare earns is a row, written **at the moment it is charged**, with
+the rate stored on the row. This is the point: deriving fees at read time gets
+history wrong. Raise the processing rate from 1.9% to 2.2% today and a derived
+report silently restates every payment ever taken as though it had been charged
+2.2%. Recording the fee when it is taken means repricing changes what happens
+**next**, and last month stays what it actually was.
+
+`RevenueService` reads the ledger for `hospital_commission` and
+`payment_gateway_fee` and never writes to it — reporting must not be able to
+change what was earned. `PaymentsModule` deliberately does not import
+`RevenueModule`; the dependency only runs one way.
+
+The 190 rows covering the seeded bills are marked `origin: 'backfill'`; rows from
+a real payment are `origin: 'gateway'`.
+
+### Tests — `npx jest`, 8 suites / 51 tests
+
+Revenue had **no coverage at all** before this. Now:
+
+| Suite | Covers |
+|---|---|
+| `mock-gateway.spec.ts` | 14 tests — every approval and decline path, Luhn/CVV/expiry, last-four-only, determinism |
+| `payments.service.spec.ts` | 9 tests — bill settled + both fees recorded, **a decline earns nothing**, idempotent double-click, ownership guards, amount taken from the bill |
+| `revenue.service.spec.ts` | 9 tests — exact rupee figures per stream, ledger rate honoured over the current rate, booking fee waived for Care+, doctor commission only on Completed, and an **end-to-end**: one card payment moves the dashboard by exactly ₹600 |
+
+Both service specs redirect `process.cwd()` to a temp dir **before constructing
+the services**, because `FileStore` resolves its path at construction time.
+Getting that order backwards silently writes to the real seed data.
+
+---
 
 ### Nothing is stored pre-aggregated
 
@@ -808,7 +891,6 @@ Platform routes inherit the class list; everything else re-declares its own.
 |---|---|---|
 | GET | `/revenue/platform/overview`, `/platform/trend`, `/platform/streams` | class |
 | GET | `/revenue/regional-officers` | class — per-officer revenue + operational data |
-| GET · PATCH | `/revenue/plans`, `/plans/:id`, `/subscriptions`, `/subscriptions/:hospitalId` | class |
 | GET · PATCH | `/revenue/fees` | class |
 | PATCH | `/revenue/doctor-plans/:id`, `/patient-plans/:id` | class |
 | GET | `/revenue/doctor-subscriptions`, `/patient-subscriptions` | class |
@@ -826,6 +908,14 @@ Route order matters: `doctor/me` is declared **before** `doctor/:doctorId`.
 ### `users` — regional manager assignment support — superuser only
 `GET /users/regional-managers/city/:city`, `/:id/workload`, `/suggest/:city`,
 `/workloads`. See §5.
+
+### `payments` — class: superuser, administrative_staff, patient
+| Method | Path | Roles |
+|---|---|---|
+| GET | `/payments/test-cards` | class |
+| POST | `/payments/intent`, `/payments/:id/confirm` | class (patients: own bills only) |
+| GET | `/payments` | class (patients: own only) |
+| GET | `/payments/ledger` | **superuser only** |
 
 ### `hierarchy` — class: superuser, regional_manager, hospital_manager, administrative_staff
 | Method | Path | Roles |
@@ -883,8 +973,8 @@ Every service persists through `FileStore<T>`, so **all 25 files survive a resta
 | `wards.json` | 19 | `id, name, hospitalId` |
 | `equipment.json` | 20 | `id, name, type, status, hospitalId` |
 | `uploads.json` | 0 | populated at runtime |
-| `subscription-plans.json` | 3 | Starter / Professional / Enterprise — the hospital SaaS licence |
-| `hospital-subscriptions.json` | 12 | `hospitalId, planId, status, contractedBeds, renewsOn` |
+| `platform-transactions.json` | 192 | **The platform earnings ledger.** One row per fee charged — see §5C |
+| `payment-intents.json` | runtime | Payment attempts, including declines |
 | `doctor-plans.json` | 3 | Practice Free / Verified / Featured — `monthlyFee, commissionRate, monthlyBookingCap` |
 | `doctor-subscriptions.json` | 20 | `doctorId, planId, status, consultationFee` — one per doctor |
 | `patient-plans.json` | 3 | Pay as you go / Care+ / Care+ Family |

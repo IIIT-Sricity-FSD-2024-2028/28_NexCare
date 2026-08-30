@@ -47,32 +47,9 @@ export class RevenueController {
     return this.revenueService.getPlatformTrend(Number.isFinite(n) && n > 0 ? Math.min(n, 24) : 6);
   }
 
-  @Get('plans')
-  @ApiOperation({ summary: 'List subscription plans' })
-  async findPlans() {
-    return this.revenueService.findPlans();
-  }
-
-  @Patch('plans/:id')
-  @ApiOperation({ summary: 'Update a subscription plan’s pricing' })
-  async updatePlan(@Param('id') id: string, @Body() body: any) {
-    return this.revenueService.updatePlan(id, body);
-  }
-
-  @Get('subscriptions')
-  @ApiOperation({ summary: 'List hospital subscriptions' })
-  async findSubscriptions() {
-    return this.revenueService.findSubscriptions();
-  }
-
-  @Patch('subscriptions/:hospitalId')
-  @ApiOperation({ summary: 'Move a hospital onto a different plan, or change its status' })
-  async updateSubscription(
-    @Param('hospitalId') hospitalId: string,
-    @Body() body: { planId?: string; status?: string },
-  ) {
-    return this.revenueService.updateSubscription(hospitalId, body);
-  }
+  // Hospital subscription plans were removed on 2026-08-30. What a hospital
+  // pays is now transactional and lives in the platform fee config, so
+  // /revenue/plans and /revenue/subscriptions no longer exist.
 
   // ── Hospital operational revenue — scoped per caller ─────────────────────
 

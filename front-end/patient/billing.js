@@ -336,125 +336,115 @@ document.addEventListener('DOMContentLoaded', function() {
     renderBillFromStore();
 });
 
-function handlePayment(e) {
+/**
+ * Take a payment through the NexCare gateway.
+ *
+ * This used to validate the card in the browser and then just flip the bill to
+ * Paid on a setTimeout — nothing was authorised and no fee was ever recorded.
+ * It now goes through /payments: the server creates an intent (taking the
+ * amount from the BILL, not from this form), the simulated gateway authorises
+ * it, and only on approval is the bill settled and the platform's fee written
+ * to the ledger.
+ *
+ * The gateway is a SIMULATION. Use 4242 4242 4242 4242 to approve;
+ * 4000 0000 0000 0002 is declined on purpose so the failure path can be shown.
+ */
+async function handlePayment(e) {
     e.preventDefault();
-    
+
     const formData = new FormData(e.target);
-    const cardNumber = formData.get('cardNumber');
-    const cardholderName = formData.get('cardholderName');
-    const expiryDate = formData.get('expiryDate');
-    const cvv = formData.get('cvv');
-    
-    // Basic validation
+    const cardNumber = String(formData.get('cardNumber') || '');
+    const cardholderName = String(formData.get('cardholderName') || '');
+    const expiryDate = String(formData.get('expiryDate') || '');
+    const cvv = String(formData.get('cvv') || '');
+
     if (!cardNumber || !cardholderName || !expiryDate || !cvv) {
-        alert('Please fill in all payment details');
+        showPaymentError('Please fill in all payment details');
         return;
     }
-    
-    // Validate card number length
-    const cleanCardNumber = cardNumber.replace(/\s/g, '');
-    if (cleanCardNumber.length < 13 || cleanCardNumber.length > 19) {
-        alert('Please enter a valid card number');
-        return;
-    }
-    
-    // Validate expiry date values
-    if (expiryDate.length < 5 || !expiryDate.includes('/')) {
-        alert('Please enter a valid expiry date (MM/YY)');
-        return;
-    }
-    const [expMonth, expYear] = expiryDate.split('/').map(v => parseInt(v));
-    const now = new Date();
-    const currentYear = parseInt(now.getFullYear().toString().slice(-2));
-    const currentMonth = now.getMonth() + 1; // getMonth() is 0-indexed
-
-    if (isNaN(expMonth) || expMonth > 12 || expMonth < 1) {
-        alert('Please enter a valid expiry month (01-12)');
-        return;
-    }
-    
-    if (isNaN(expYear) || expYear < currentYear) {
-        alert(`Please enter a valid expiry year (${currentYear} or later)`);
+    if (!expiryDate.includes('/')) {
+        showPaymentError('Enter the expiry as MM/YY');
         return;
     }
 
-    if (expYear === currentYear && expMonth < currentMonth) {
-        alert('This card has already expired');
+    const [rawMonth, rawYear] = expiryDate.split('/');
+    const expiryMonth = parseInt(rawMonth, 10);
+    // The form collects a two-digit year; the API wants four.
+    const expiryYear = 2000 + parseInt(rawYear, 10);
+
+    const bill = await getSelectedBill();
+    if (!bill) {
+        showPaymentError('Could not work out which bill you are paying');
         return;
     }
-    
-    // Validate CVV
-    if (cvv.length < 3) {
-        alert('Please enter a valid CVV');
-        return;
-    }
-    
-    // Show processing
+
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
-    submitBtn.textContent = 'Processing...';
+    submitBtn.textContent = 'Processing…';
     submitBtn.disabled = true;
-    
-    // Simulate payment processing
-    setTimeout(async function() {
-        closePaymentModal();
 
-        // Persist paid status (Update)
-        const store = window.NexCareStore;
-        let paidAmountText = '₹0.00';
-        const transactionId = 'TXN' + Date.now().toString().slice(-10);
-
-        if (store) {
-            const bills = await store.listBills();
-            const selectedId = getSelectedBillId();
-            const bill = selectedId ? bills.find(b => String(b.id) === String(selectedId)) : bills[0];
-            if (bill) {
-                const totals = computeBillTotal(bill);
-                paidAmountText = formatMoneyINR(totals.total);
-                await store.markBillPaid(bill.id, {
-                    method: String(formData.get('paymentMethod') || 'CARD').toUpperCase(),
-                    amount: totals.total,
-                    transactionId: transactionId
-                });
-            }
+    try {
+        const intentRes = await window.NexCareAPI.Payments.createIntent(bill.id);
+        if (!intentRes.success) {
+            showPaymentError(intentRes.message || 'Could not start the payment');
+            return;
         }
-        
-        // Show success message (Premium Modal)
-        const detailsHtml = `
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <span style="font-weight: 500; font-size: 13px;">Amount Paid:</span>
-                <span style="text-align: right; color: #16A34A; font-weight: 600;">${paidAmountText}</span>
-                <span style="font-weight: 500; font-size: 13px;">Transaction ID:</span>
-                <span style="text-align: right; font-family: monospace; font-size: 12px;">${transactionId}</span>
-                <span style="font-weight: 500; font-size: 13px;">Method:</span>
-                <span style="text-align: right; font-size: 13px;">${formData.get('paymentMethod').toUpperCase()}</span>
-            </div>
-        `;
-        
-        NexCareUI.showSuccess({
-            title: 'Payment Successful!',
-            message: 'Your payment has been processed and a confirmation email has been sent.',
-            details: detailsHtml,
-            onClose: async () => {
-                // Receipt download prompt removed as requested
-                await renderBillFromStore();
-            }
-        });
-        
-        // Reset button
+
+        // One key per intent, so a double-clicked Pay replays instead of
+        // charging twice.
+        const idempotencyKey = `${intentRes.data.id}-attempt`;
+        const result = await window.NexCareAPI.Payments.confirm(
+            intentRes.data.id,
+            { cardNumber, expiryMonth, expiryYear, cvv },
+            idempotencyKey,
+        );
+
+        if (!result.success) {
+            // A decline is a normal outcome, not a crash — show why.
+            showPaymentError(result.message || 'The payment was declined');
+            return;
+        }
+
+        closePaymentModal();
+        const fees = (result.data && result.data.platformFees) || [];
+        console.info('[NexCare] Platform fees recorded:', fees);
+        alert(`Payment approved.\n\n${formatMoneyINR(bill.total)} paid for ${bill.id}.`);
+        window.location.reload();
+    } catch (err) {
+        console.error('Payment failed:', err);
+        showPaymentError(err.message || 'The payment could not be processed');
+    } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
-        
-        // Clear form
-        e.target.reset();
-
-        await renderBillFromStore();
-        
-        // Redirect to dashboard or show receipt
-        setTimeout(function() {
-            if (confirm('Would you like to download the payment receipt?')) {
-                alert('Receipt download started...');
-            }
-        }, 500);
-    }, 2000);
+    }
 }
+
+/** The bill the modal was opened for, straight from the API. */
+async function getSelectedBill() {
+    try {
+        const selectedId = getSelectedBillId();
+        const res = await window.NexCareAPI.Billing.getAll();
+        const bills = (res.success ? res.data : []) || [];
+        if (selectedId) {
+            const match = bills.find(b => String(b.id) === String(selectedId));
+            if (match) return match;
+        }
+        return bills.find(b => String(b.status).toLowerCase() !== 'paid') || null;
+    } catch (err) {
+        console.error('Could not load the bill:', err);
+        return null;
+    }
+}
+
+function showPaymentError(message) {
+    let el = document.getElementById('paymentError');
+    if (!el) {
+        el = document.createElement('p');
+        el.id = 'paymentError';
+        el.style.cssText = 'color:#DC2626;font-size:13px;margin:8px 0 0;font-weight:600;';
+        const form = document.getElementById('paymentForm');
+        if (form) form.prepend(el);
+    }
+    el.textContent = message;
+}
+

@@ -392,93 +392,82 @@
 
             <!-- ── Hospitals (the original view) ──────────────────────────── -->
             <div class="tab-section" id="tab-hospitals">
+                <div class="note">
+                    <strong>Hospitals no longer pay a subscription.</strong> The monthly licence and
+                    the per-bed charge were removed on 2026-08-30. A hospital now pays only on money
+                    it actually collects &mdash; a commission on the payment, plus the processing fee
+                    &mdash; so a hospital that collects nothing owes nothing. Both figures are read
+                    from the platform ledger, recorded at the rate in force when each payment was
+                    taken, which is why repricing today does not restate last month.
+                </div>
 
-            <div class="kpi-grid">
-                <div class="kpi accent">
-                    <p class="label">Monthly Recurring Revenue</p>
-                    <p class="value" id="kpiMrr">—</p>
-                    <p class="sub" id="kpiMrrSub">base fees + bed overage</p>
+                <div class="kpi-grid">
+                    <div class="kpi accent">
+                        <p class="label">Monthly Recurring Revenue</p>
+                        <p class="value" id="kpiMrr">&mdash;</p>
+                        <p class="sub" id="kpiMrrSub">doctor tiers + Care+ only</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Annual Run Rate</p>
+                        <p class="value" id="kpiArr">&mdash;</p>
+                        <p class="sub">MRR &times; 12</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Commission</p>
+                        <p class="value" id="kpiCommission">&mdash;</p>
+                        <p class="sub" id="kpiCommissionSub">on hospital collections</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Payment processing</p>
+                        <p class="value" id="kpiProcessing">&mdash;</p>
+                        <p class="sub" id="kpiProcessingSub">&nbsp;</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Earning hospitals</p>
+                        <p class="value" id="kpiSubs">&mdash;</p>
+                        <p class="sub" id="kpiSubsSub">&nbsp;</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Avg. per earning hospital</p>
+                        <p class="value" id="kpiArpa">&mdash;</p>
+                        <p class="sub">commission + processing</p>
+                    </div>
                 </div>
-                <div class="kpi">
-                    <p class="label">Annual Run Rate</p>
-                    <p class="value" id="kpiArr">—</p>
-                    <p class="sub">MRR &times; 12</p>
-                </div>
-                <div class="kpi">
-                    <p class="label">Commission Revenue</p>
-                    <p class="value" id="kpiCommission">—</p>
-                    <p class="sub" id="kpiCommissionSub">on hospital collections</p>
-                </div>
-                <div class="kpi">
-                    <p class="label">Active Subscriptions</p>
-                    <p class="value" id="kpiSubs">—</p>
-                    <p class="sub" id="kpiSubsSub">&nbsp;</p>
-                </div>
-                <div class="kpi">
-                    <p class="label">Avg Revenue / Hospital</p>
-                    <p class="value" id="kpiArpa">—</p>
-                    <p class="sub">per month</p>
-                </div>
-            </div>
 
-            <div class="panel">
-                <div class="panel-head">
-                    <h2>Revenue trend</h2>
-                    <span class="hint">Recurring is flat by design; commission moves with hospital collections</span>
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Revenue trend</h2>
+                        <span class="hint">Transactional lines from the ledger; recurring is the current run rate</span>
+                    </div>
+                    <div class="panel-body" id="trendBody">Loading&hellip;</div>
                 </div>
-                <div class="panel-body" id="trendBody">
-                    <p class="muted">Loading trend…</p>
-                </div>
-            </div>
 
-            <div class="panel">
-                <div class="panel-head">
-                    <h2>Subscription plans</h2>
-                    <span class="hint">Editing a price changes what every hospital on that plan is billed</span>
-                </div>
-                <div class="panel-body">
-                    <div class="plan-grid" id="planGrid">
-                        <p class="muted">Loading plans…</p>
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Revenue by hospital</h2>
+                        <span class="hint">Only hospitals that collected something appear here</span>
+                    </div>
+                    <div class="panel-body flush">
+                        <table class="rev">
+                            <thead>
+                                <tr>
+                                    <th>Hospital</th>
+                                    <th>Status</th>
+                                    <th class="num">Payments</th>
+                                    <th class="num">Collections</th>
+                                    <th class="num">Commission</th>
+                                    <th class="num">Processing</th>
+                                    <th class="num">Platform revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hospitalTableBody">
+                                <tr><td colspan="7" class="empty">Loading&hellip;</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-head">
-                    <h2>Revenue by plan</h2>
-                    <span class="hint">Share of monthly recurring revenue</span>
-                </div>
-                <div class="panel-body" id="planMixBody">
-                    <p class="muted">Loading…</p>
-                </div>
-            </div>
-
-            <div class="panel">
-                <div class="panel-head">
-                    <h2>Revenue by hospital</h2>
-                    <span class="hint">Change a hospital's plan from here</span>
-                </div>
-                <table class="rev">
-                    <thead>
-                        <tr>
-                            <th>Hospital</th>
-                            <th>Plan</th>
-                            <th>Status</th>
-                            <th class="num">Base fee</th>
-                            <th class="num">Bed overage</th>
-                            <th class="num">Their collections</th>
-                            <th class="num">Our commission</th>
-                            <th class="num">Platform revenue</th>
-                        </tr>
-                    </thead>
-                    <tbody id="hospitalTableBody">
-                        <tr><td colspan="8" class="muted" style="text-align:center;padding:24px;">Loading…</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            </div>
-
-            <!-- ── Doctors ────────────────────────────────────────────────── -->
             <div class="tab-section" id="tab-doctors">
                 <div class="note">
                     <strong>The ladder is inverted on purpose.</strong> The free tier carries the

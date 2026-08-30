@@ -1198,5 +1198,135 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-30T11:33:56.751Z"
+  },
+  {
+    "id": "ACT-MTFR6UPEE8A",
+    "timestamp": "2026-08-30T11:55:59.858Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:55:59.858Z"
+  },
+  {
+    "id": "ACT-MTFRNFR61Q0",
+    "timestamp": "2026-08-30T12:08:53.634Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:08:53.634Z"
+  },
+  {
+    "id": "ACT-MTFRNU062D5",
+    "timestamp": "2026-08-30T12:09:12.102Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:09:12.102Z"
+  },
+  {
+    "id": "ACT-MTFRPFDD7UH",
+    "timestamp": "2026-08-30T12:10:26.449Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:10:26.449Z"
+  },
+  {
+    "id": "ACT-MTFRPFF58OO",
+    "timestamp": "2026-08-30T12:10:26.513Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:10:26.513Z"
+  },
+  {
+    "id": "ACT-MTFRPFGV99U",
+    "timestamp": "2026-08-30T12:10:26.575Z",
+    "userId": "M002",
+    "action": "Login",
+    "details": "User Kavitha Menon logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:10:26.575Z"
+  },
+  {
+    "id": "ACT-MTFRPFITAVT",
+    "timestamp": "2026-08-30T12:10:26.645Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:10:26.645Z"
+  },
+  {
+    "id": "ACT-MTFRPFKFBNK",
+    "timestamp": "2026-08-30T12:10:26.703Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:10:26.703Z"
+  },
+  {
+    "id": "ACT-MTFRPFLZCLU",
+    "timestamp": "2026-08-30T12:10:26.759Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:10:26.759Z"
+  },
+  {
+    "id": "ACT-MTFRPFNTD60",
+    "timestamp": "2026-08-30T12:10:26.825Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:10:26.825Z"
+  },
+  {
+    "id": "ACT-MTFRPG12E35",
+    "timestamp": "2026-08-30T12:10:27.302Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:10:27.302Z"
+  },
+  {
+    "id": "ACT-MTFRPG2SFO8",
+    "timestamp": "2026-08-30T12:10:27.364Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:10:27.364Z"
+  },
+  {
+    "id": "ACT-MTFRPG4RGNJ",
+    "timestamp": "2026-08-30T12:10:27.435Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T12:10:27.435Z"
   }
 ]

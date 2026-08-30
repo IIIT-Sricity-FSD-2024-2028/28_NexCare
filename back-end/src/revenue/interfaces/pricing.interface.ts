@@ -96,6 +96,16 @@ export interface PlatformFeeConfig {
   currency: string;
   /** Charged to the patient on each appointment booked through NexCare. */
   patientBookingFee: number;
+  /**
+   * Share of what a hospital collects that NexCare takes, as a fraction.
+   *
+   * This used to live on the hospital's subscription plan. Hospital
+   * subscriptions were removed from the revenue model on 2026-08-30, so the
+   * rate is now a single platform-wide term — every hospital is charged the
+   * same percentage of what it actually collects, and nothing is billed to a
+   * hospital that collects nothing.
+   */
+  hospitalCommissionRate: number;
   /** Charged to the hospital on each completed ambulance dispatch. */
   ambulanceDispatchFee: number;
   /** Taken on every bill settled through NexCare, as a fraction. */
