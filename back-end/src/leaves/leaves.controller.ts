@@ -7,6 +7,7 @@ import {
   Delete, 
   Param, 
   Query,
+  Req,
   HttpCode,
   HttpStatus,
   UseGuards
@@ -100,7 +101,10 @@ export class LeavesController {
   @ApiResponse({ status: 200, description: 'Leave status updated successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Leave not found' })
-  async update(@Param('id') id: string, @Body() updateLeaveDto: UpdateLeaveDto) {
+  async update(@Req() req: any, @Param('id') id: string, @Body() updateLeaveDto: UpdateLeaveDto) {
+    if (!updateLeaveDto.approvedBy) {
+      updateLeaveDto.approvedBy = req.user?.sub || req.user?.id;
+    }
     return this.leavesService.update(id, updateLeaveDto);
   }
 
