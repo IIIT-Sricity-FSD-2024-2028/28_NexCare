@@ -255,4 +255,61 @@ export class HospitalsService {
       return ResponseUtil.serverError('Failed to retrieve nearby hospitals');
     }
   }
+
+  /**
+   * Get hospital performance metrics
+   * Used by regional managers to track hospital performance
+   */
+  async getHospitalPerformance(hospitalId: string) {
+    try {
+      const hospital = this.hospitals.find(h => h.id === hospitalId);
+      if (!hospital) {
+        return ResponseUtil.notFound('Hospital', hospitalId);
+      }
+
+      // Calculate basic performance metrics
+      const performanceMetrics = {
+        hospitalId: hospital.id,
+        hospitalName: hospital.name,
+        bedOccupancyRate: hospital.performanceMetrics?.bedOccupancyRate || 0,
+        appointmentCompletionRate: hospital.performanceMetrics?.appointmentCompletionRate || 0,
+        patientSatisfactionScore: hospital.performanceMetrics?.patientSatisfactionScore || 0,
+        totalBeds: hospital.totalBeds,
+        icuBeds: hospital.icuBeds,
+        verificationStatus: hospital.verificationStatus,
+        lastUpdated: hospital.performanceMetrics?.lastUpdated || hospital.updatedAt
+      };
+
+      return ResponseUtil.success('Hospital performance retrieved successfully', performanceMetrics);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve hospital performance');
+    }
+  }
+
+  /**
+   * Update hospital performance metrics
+   * Used to update performance data
+   */
+  async updatePerformanceMetrics(hospitalId: string, metrics: any) {
+    try {
+      const all = this.hospitals;
+      const idx = all.findIndex(h => h.id === hospitalId);
+      if (idx === -1) return ResponseUtil.notFound('Hospital', hospitalId);
+
+      all[idx] = {
+        ...all[idx],
+        performanceMetrics: {
+          ...all[idx].performanceMetrics,
+          ...metrics,
+          lastUpdated: new Date().toISOString()
+        },
+        updatedAt: new Date().toISOString()
+      };
+      this.hospitals = all;
+
+      return ResponseUtil.updated('Hospital performance metrics updated successfully', all[idx].performanceMetrics);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to update hospital performance metrics');
+    }
+  }
 }

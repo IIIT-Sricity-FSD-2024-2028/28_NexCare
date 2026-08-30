@@ -16,6 +16,9 @@ export interface User {
   hospitalId?: string; // For any user scoped to a single hospital
   /** Local hospital areas/cities a regional manager may review. */
   areas?: string[];
+  city?: string; // For patients
+  state?: string; // For patients
+  pincode?: string; // For patients
   createdAt?: string;
   updatedAt?: string;
 }
@@ -32,6 +35,9 @@ export interface CreateUserRequest {
   dept?: string;
   hospitalId?: string;
   areas?: string[];
+  city?: string; // For patients
+  state?: string; // For patients
+  pincode?: string; // For patients
 }
 
 /**
@@ -47,6 +53,9 @@ export interface UpdateUserRequest {
   dept?: string;
   hospitalId?: string;
   areas?: string[];
+  city?: string; // For patients
+  state?: string; // For patients
+  pincode?: string; // For patients
 }
 
 /**
@@ -58,4 +67,35 @@ export interface UserStats {
   inactive: number;
   onLeave: number;
   byRole: Record<UserRole, number>;
+}
+
+/**
+ * Regional Manager Workload Interface
+ */
+export interface RMWorkload {
+  regionalManagerId: string;
+  regionalManagerName: string;
+  regionalManagerEmail: string;
+  areas?: string[]; // RM's assigned areas/cities
+  totalHospitals: number;
+  pendingVerifications: number;
+  verifiedHospitals: number;
+  rejectedHospitals: number;
+  activeHospitals: number;
+  workloadLevel: 'low' | 'medium' | 'high';
+  lastActivity?: string;
+}
+
+/**
+ * RM Suggestion Interface
+ */
+export interface RMSuggestion {
+  regionalManagerId: string;
+  regionalManagerName: string;
+  regionalManagerEmail: string;
+  areas?: string[]; // RM's assigned areas/cities
+  currentWorkload: number;
+  workloadLevel: 'low' | 'medium' | 'high';
+  recommendation: string;
+  reason: string;
 }
