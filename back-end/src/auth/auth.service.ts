@@ -237,7 +237,8 @@ export class AuthService {
           status: user.status,
           patientId: user.patientId || null,
           hospitalId: user.hospitalId || null,
-        },
+          mustChangePassword: user.mustChangePassword ?? false,
+        } as any,
         token: this.generateToken(user),
       };
 
@@ -494,6 +495,11 @@ export class AuthService {
         return ResponseUtil.error('New password must be different from current password');
       }
 
+      const defaultPassword = process.env.DEFAULT_STAFF_PASSWORD || 'NexCare@123';
+      if (data.newPassword === defaultPassword) {
+        return ResponseUtil.error('New password cannot be the default staff password (NexCare@123)');
+      }
+
       const users = this.loadUsers();
 
       // Only ever operate on the authenticated user's own record.
@@ -508,8 +514,9 @@ export class AuthService {
         return ResponseUtil.error('Current password is incorrect');
       }
 
-      // Update password (stored hashed)
+      // Update password (stored hashed) and clear mustChangePassword flag
       users[userIndex].password = this.hashPassword(data.newPassword);
+      users[userIndex].mustChangePassword = false;
       this.saveUsers(users);
 
       // Log activity

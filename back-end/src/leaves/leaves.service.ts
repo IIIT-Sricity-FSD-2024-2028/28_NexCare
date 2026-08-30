@@ -139,9 +139,15 @@ export class LeavesService {
       return ResponseUtil.error('Doctor already has approved leave during this period');
     }
 
+    // Calculate days count if not provided
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const daysCount = createLeaveDto.daysCount || (Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
+
     const newLeave: Leave = {
       id: IdGenerator.generate('L'),
       ...createLeaveDto,
+      daysCount,
+      requestedAt: createLeaveDto.requestedAt || new Date().toISOString().split('T')[0],
       status: LeaveStatus.PENDING,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -162,11 +168,21 @@ export class LeavesService {
       return ResponseUtil.error('Leave not found', 404);
     }
 
+    const now = new Date().toISOString();
+    const isApproved = updateLeaveDto.status === LeaveStatus.APPROVED;
+    const isRejected = updateLeaveDto.status === LeaveStatus.REJECTED;
+
     this.leaves[index] = {
       ...this.leaves[index],
       ...updateLeaveDto,
-      updatedAt: new Date().toISOString(),
-      approvedAt: updateLeaveDto.status === LeaveStatus.APPROVED ? new Date().toISOString() : undefined
+      updatedAt: now,
+      approvedAt: isApproved ? now : this.leaves[index].approvedAt,
+      approvedBy: isApproved ? updateLeaveDto.approvedBy : this.leaves[index].approvedBy,
+      approvedByName: isApproved ? updateLeaveDto.approvedByName : this.leaves[index].approvedByName,
+      rejectedAt: isRejected ? now : this.leaves[index].rejectedAt,
+      rejectedBy: isRejected ? (updateLeaveDto.rejectedBy || updateLeaveDto.approvedBy) : this.leaves[index].rejectedBy,
+      rejectedByName: isRejected ? (updateLeaveDto.rejectedByName || updateLeaveDto.approvedByName) : this.leaves[index].rejectedByName,
+      rejectionReason: isRejected ? updateLeaveDto.rejectionReason : this.leaves[index].rejectionReason
     };
 
     this.saveLeaves(this.leaves);

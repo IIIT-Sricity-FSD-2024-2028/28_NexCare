@@ -633,5 +633,411 @@ export class InventoryService {
   getRawItem(id: string): Inventory | undefined {
     return this.inventory.find(i => i.id === id);
   }
+
+  // ==========================================
+  // INVENTORY REQUIREMENT REQUESTS WORKFLOW
+  // ==========================================
+  private readonly requirementsFilePath = path.join(process.cwd(), 'data', 'inventory-requirements.json');
+
+  private loadRequirements(): any[] {
+    try {
+      if (!fs.existsSync(this.requirementsFilePath)) {
+        const initial = this.getInitialRequirements();
+        this.saveRequirements(initial);
+        return initial;
+      }
+      const raw = fs.readFileSync(this.requirementsFilePath, 'utf-8');
+      return JSON.parse(raw);
+    } catch {
+      return this.getInitialRequirements();
+    }
+  }
+
+  private saveRequirements(reqs: any[]): void {
+    try {
+      fs.mkdirSync(path.dirname(this.requirementsFilePath), { recursive: true });
+      fs.writeFileSync(this.requirementsFilePath, JSON.stringify(reqs, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to persist inventory requirements:', err);
+    }
+  }
+
+  private getInitialRequirements(): any[] {
+    return [
+      {
+        id: 'REQ-INV-101',
+        hospitalId: 'H001',
+        itemName: 'ECG Electrodes & Cables',
+        category: 'Cardiology Supplies',
+        currentQuantity: 15,
+        requiredQuantity: 100,
+        requestedQuantity: 85,
+        unit: 'packs',
+        department: 'Cardiology',
+        requestedBy: 'Priya Reddy (Administrative Staff)',
+        requestedById: 'U002',
+        requestDate: '2026-08-28',
+        priority: 'URGENT',
+        reason: 'Cardiology ICU requires 85 additional electrode packs due to high patient intake',
+        estimatedCost: 12500,
+        status: 'PENDING',
+        createdAt: '2026-08-28T09:30:00.000Z',
+        updatedAt: '2026-08-28T09:30:00.000Z'
+      },
+      {
+        id: 'REQ-INV-102',
+        hospitalId: 'H001',
+        itemName: 'Sterile Surgical Gloves (Size 7.5)',
+        category: 'Surgical & PPE',
+        currentQuantity: 200,
+        requiredQuantity: 1000,
+        requestedQuantity: 800,
+        unit: 'pairs',
+        department: 'Emergency & OT',
+        requestedBy: 'Priya Reddy (Administrative Staff)',
+        requestedById: 'U002',
+        requestDate: '2026-08-29',
+        priority: 'HIGH',
+        reason: 'Weekly stock replenishment for general surgery and emergency OT suites',
+        estimatedCost: 24000,
+        status: 'PENDING',
+        createdAt: '2026-08-29T11:15:00.000Z',
+        updatedAt: '2026-08-29T11:15:00.000Z'
+      },
+      {
+        id: 'REQ-INV-103',
+        hospitalId: 'H001',
+        itemName: 'IV Cannula 20G (Pink)',
+        category: 'Medical Supplies',
+        currentQuantity: 50,
+        requiredQuantity: 300,
+        requestedQuantity: 250,
+        unit: 'units',
+        department: 'General Medicine',
+        requestedBy: 'Priya Reddy (Administrative Staff)',
+        requestedById: 'U002',
+        requestDate: '2026-08-25',
+        priority: 'MEDIUM',
+        reason: 'Inpatient ward buffer stock replenishment',
+        estimatedCost: 7500,
+        status: 'APPROVED',
+        approvedBy: 'HM001',
+        approvedByName: 'Srinivas Rao (Hospital Manager)',
+        approvedAt: '2026-08-26T14:00:00.000Z',
+        createdAt: '2026-08-25T10:00:00.000Z',
+        updatedAt: '2026-08-26T14:00:00.000Z'
+      },
+      {
+        id: 'REQ-INV-104',
+        hospitalId: 'H002',
+        itemName: 'N95 Respirator Masks',
+        category: 'PPE',
+        currentQuantity: 20,
+        requiredQuantity: 500,
+        requestedQuantity: 480,
+        unit: 'units',
+        department: 'Pulmonology',
+        requestedBy: 'Lakshmi Menon (Administrative Staff)',
+        requestedById: 'U020',
+        requestDate: '2026-08-27',
+        priority: 'HIGH',
+        reason: 'Respiratory isolation ward stock replenishment',
+        estimatedCost: 19200,
+        status: 'PENDING',
+        createdAt: '2026-08-27T08:45:00.000Z',
+        updatedAt: '2026-08-27T08:45:00.000Z'
+      }
+    ];
+  }
+
+  /**
+   * Find all inventory requirement requests with filtering
+   */
+  async findAllRequirements(hospitalId?: string, status?: string, priority?: string, department?: string) {
+    try {
+      let reqs = this.loadRequirements();
+
+      if (hospitalId) {
+        reqs = reqs.filter(r => r.hospitalId === hospitalId);
+      }
+      if (status && status !== 'ALL') {
+        reqs = reqs.filter(r => r.status?.toUpperCase() === status.toUpperCase());
+      }
+      if (priority && priority !== 'ALL') {
+        reqs = reqs.filter(r => r.priority?.toUpperCase() === priority.toUpperCase());
+      }
+      if (department && department !== 'ALL') {
+        reqs = reqs.filter(r => r.department?.toLowerCase() === department.toLowerCase());
+      }
+
+      reqs.sort((a, b) => new Date(b.createdAt || b.requestDate).getTime() - new Date(a.createdAt || a.requestDate).getTime());
+
+      return ResponseUtil.success('Inventory requirements retrieved successfully', reqs);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve inventory requirements');
+    }
+  }
+
+  /**
+   * Find a requirement by ID
+   */
+  async findRequirementById(id: string) {
+    try {
+      const reqs = this.loadRequirements();
+      const item = reqs.find(r => r.id === id);
+      if (!item) {
+        return ResponseUtil.notFound('Inventory Requirement', id);
+      }
+      return ResponseUtil.success('Inventory requirement retrieved successfully', item);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve inventory requirement');
+    }
+  }
+
+  /**
+   * Create a new inventory requirement (Raised by Administrative Staff or Hospital Manager)
+   */
+  async createRequirement(data: any) {
+    try {
+      const reqs = this.loadRequirements();
+      const newId = 'REQ-INV-' + (Math.floor(100 + Math.random() * 900));
+
+      const newReq = {
+        id: newId,
+        hospitalId: data.hospitalId || 'H001',
+        itemId: data.itemId,
+        itemName: data.itemName,
+        category: data.category || 'General Supplies',
+        currentQuantity: Number(data.currentQuantity) || 0,
+        requiredQuantity: Number(data.requiredQuantity) || Number(data.requestedQuantity) || 0,
+        requestedQuantity: Number(data.requestedQuantity) || 1,
+        unit: data.unit || 'units',
+        department: data.department || 'General',
+        requestedBy: data.requestedBy || 'Administrative Staff',
+        requestedById: data.requestedById,
+        requestDate: data.requestDate || new Date().toISOString().split('T')[0],
+        priority: (data.priority || 'MEDIUM').toUpperCase(),
+        reason: data.reason || 'General hospital replenishment',
+        estimatedCost: Number(data.estimatedCost) || (Number(data.requestedQuantity || 1) * 150),
+        status: 'PENDING',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      reqs.unshift(newReq);
+      this.saveRequirements(reqs);
+
+      return ResponseUtil.created('Inventory requirement submitted successfully', newReq);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to create inventory requirement');
+    }
+  }
+
+  /**
+   * Approve an inventory requirement (Hospital Manager action)
+   */
+  async approveRequirement(id: string, managerId: string, managerName: string, managerRemarks?: string) {
+    try {
+      const reqs = this.loadRequirements();
+      const idx = reqs.findIndex(r => r.id === id);
+      if (idx === -1) {
+        return ResponseUtil.notFound('Inventory Requirement', id);
+      }
+
+      reqs[idx] = {
+        ...reqs[idx],
+        status: 'APPROVED',
+        approvedBy: managerId,
+        approvedByName: managerName,
+        approvedAt: new Date().toISOString(),
+        managerRemarks: managerRemarks || 'Approved by Hospital Manager',
+        updatedAt: new Date().toISOString()
+      };
+
+      this.saveRequirements(reqs);
+
+      return ResponseUtil.success('Inventory requirement approved successfully', reqs[idx]);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to approve inventory requirement');
+    }
+  }
+
+  /**
+   * Reject an inventory requirement (Hospital Manager action)
+   */
+  async rejectRequirement(id: string, managerId: string, managerName: string, rejectionReason: string) {
+    try {
+      const reqs = this.loadRequirements();
+      const idx = reqs.findIndex(r => r.id === id);
+      if (idx === -1) {
+        return ResponseUtil.notFound('Inventory Requirement', id);
+      }
+
+      reqs[idx] = {
+        ...reqs[idx],
+        status: 'REJECTED',
+        rejectedBy: managerId,
+        rejectedByName: managerName,
+        rejectedAt: new Date().toISOString(),
+        rejectionReason: rejectionReason || 'Request rejected by Hospital Manager',
+        updatedAt: new Date().toISOString()
+      };
+
+      this.saveRequirements(reqs);
+
+      return ResponseUtil.success('Inventory requirement rejected successfully', reqs[idx]);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to reject inventory requirement');
+    }
+  }
+
+  /**
+   * Start Purchase for an approved requirement (Administrative Staff action)
+   */
+  async startPurchase(id: string, data: any, adminId: string, adminName: string) {
+    try {
+      const reqs = this.loadRequirements();
+      const idx = reqs.findIndex(r => r.id === id);
+      if (idx === -1) {
+        return ResponseUtil.notFound('Inventory Requirement', id);
+      }
+
+      const req = reqs[idx];
+      reqs[idx] = {
+        ...req,
+        status: 'PURCHASE_IN_PROGRESS',
+        supplier: data.supplier || req.supplier || 'Standard Medical Supplies Ltd.',
+        invoiceNumber: data.invoiceNumber || req.invoiceNumber || `INV-${Date.now().toString().slice(-6)}`,
+        purchaseDate: data.purchaseDate || new Date().toISOString().split('T')[0],
+        quantityPurchased: Number(data.quantityPurchased) || Number(req.requestedQuantity) || 0,
+        finalCost: Number(data.finalCost) || Number(req.estimatedCost) || 0,
+        purchaseNotes: data.purchaseNotes || data.notes || req.purchaseNotes || '',
+        purchasedBy: adminId,
+        purchasedByName: adminName,
+        updatedAt: new Date().toISOString()
+      };
+
+      this.saveRequirements(reqs);
+
+      return ResponseUtil.success('Purchase initiated successfully', reqs[idx]);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to initiate purchase');
+    }
+  }
+
+  /**
+   * Mark item as purchased (Administrative Staff action)
+   */
+  async markPurchased(id: string, adminId: string, adminName: string) {
+    try {
+      const reqs = this.loadRequirements();
+      const idx = reqs.findIndex(r => r.id === id);
+      if (idx === -1) {
+        return ResponseUtil.notFound('Inventory Requirement', id);
+      }
+
+      reqs[idx] = {
+        ...reqs[idx],
+        status: 'PURCHASED',
+        purchasedAt: new Date().toISOString(),
+        purchasedBy: adminId || reqs[idx].purchasedBy,
+        purchasedByName: adminName || reqs[idx].purchasedByName,
+        updatedAt: new Date().toISOString()
+      };
+
+      this.saveRequirements(reqs);
+
+      return ResponseUtil.success('Requirement marked as purchased', reqs[idx]);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to mark requirement as purchased');
+    }
+  }
+
+  /**
+   * Mark restocked and update central inventory (Administrative Staff action)
+   */
+  async markRestocked(id: string, adminId: string, adminName: string) {
+    try {
+      const reqs = this.loadRequirements();
+      const idx = reqs.findIndex(r => r.id === id);
+      if (idx === -1) {
+        return ResponseUtil.notFound('Inventory Requirement', id);
+      }
+
+      const req = reqs[idx];
+      const qtyToAdd = Number(req.quantityPurchased) || Number(req.requestedQuantity) || 0;
+
+      reqs[idx] = {
+        ...req,
+        status: 'RESTOCKED',
+        restockedAt: new Date().toISOString(),
+        restockedBy: adminId,
+        restockedByName: adminName,
+        fulfilledAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      this.saveRequirements(reqs);
+
+      // Auto-replenish central inventory stock
+      let inventoryList = this.loadInventory();
+      let matchedItem = inventoryList.find(i => (req.itemId && i.id === req.itemId) || i.name.toLowerCase() === req.itemName.toLowerCase());
+
+      if (matchedItem) {
+        const qtyBefore = matchedItem.quantity;
+        matchedItem.quantity += qtyToAdd;
+        matchedItem.lastRestocked = new Date().toISOString();
+        if (matchedItem.quantity === 0) matchedItem.status = InventoryStatus.OUT_OF_STOCK;
+        else if (matchedItem.quantity < matchedItem.minStock) matchedItem.status = InventoryStatus.LOW_STOCK;
+        else matchedItem.status = InventoryStatus.IN_STOCK;
+        
+        this.saveInventory(inventoryList);
+        this.inventory = inventoryList;
+
+        // Log audit trail
+        this.recordAuditEntry({
+          id: 'AUD-' + Date.now(),
+          itemId: matchedItem.id,
+          action: 'restock',
+          quantityBefore: qtyBefore,
+          quantityAfter: matchedItem.quantity,
+          userId: adminId || 'ADMIN',
+          timestamp: new Date().toISOString(),
+          notes: `Restocked via requirement ${req.id} (+${qtyToAdd} ${matchedItem.unit})`
+        });
+      } else {
+        // Create new item in central inventory if it didn't exist
+        const newItem: Inventory = {
+          id: req.itemId || ('INV-' + String(inventoryList.length + 1).padStart(3, '0')),
+          name: req.itemName,
+          category: req.category || 'General Supplies',
+          quantity: qtyToAdd,
+          minStock: Math.max(10, Math.floor(qtyToAdd * 0.2)),
+          unit: req.unit || 'units',
+          location: req.department || 'Central Store',
+          status: InventoryStatus.IN_STOCK,
+          hospitalId: req.hospitalId,
+          lastRestocked: new Date().toISOString(),
+          createdAt: new Date().toISOString()
+        };
+        inventoryList.push(newItem);
+        this.saveInventory(inventoryList);
+        this.inventory = inventoryList;
+      }
+
+      return ResponseUtil.success('Inventory requirement restocked and central stock increased', {
+        requirement: reqs[idx],
+        restockedQuantity: qtyToAdd
+      });
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to restock inventory requirement');
+    }
+  }
+
+  /**
+   * Alias for legacy fulfill
+   */
+  async fulfillRequirement(id: string) {
+    return this.markRestocked(id, 'SYSTEM', 'System Administrator');
+  }
 }
 

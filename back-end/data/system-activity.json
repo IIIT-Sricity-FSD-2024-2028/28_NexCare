@@ -528,5 +528,285 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-28T06:29:08.804Z"
+  },
+  {
+    "id": "ACT-MTFO8WIN1OI",
+    "timestamp": "2026-08-30T10:33:36.671Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T10:33:36.671Z"
+  },
+  {
+    "id": "ACT-MTFOL5BH1EV",
+    "timestamp": "2026-08-30T10:43:07.949Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T10:43:07.949Z"
+  },
+  {
+    "id": "ACT-MTFOLB2E2LF",
+    "timestamp": "2026-08-30T10:43:15.398Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Rajesh Kumar logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T10:43:15.398Z"
+  },
+  {
+    "id": "ACT-MTFOLB4O38F",
+    "timestamp": "2026-08-30T10:43:15.480Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T10:43:15.480Z"
+  },
+  {
+    "id": "ACT-MTFOLB6G4AA",
+    "timestamp": "2026-08-30T10:43:15.544Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Alex Martinez logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T10:43:15.544Z"
+  },
+  {
+    "id": "ACT-MTFOLB845Z7",
+    "timestamp": "2026-08-30T10:43:15.604Z",
+    "userId": "M001",
+    "action": "Login",
+    "details": "User Rajesh Sharma logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T10:43:15.604Z"
+  },
+  {
+    "id": "ACT-MTFOLB9W6KQ",
+    "timestamp": "2026-08-30T10:43:15.668Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T10:43:15.668Z"
+  },
+  {
+    "id": "ACT-MTFOLPFY7OP",
+    "timestamp": "2026-08-30T10:43:34.030Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T10:43:34.030Z"
+  },
+  {
+    "id": "ACT-MTFPA66C1HJ",
+    "timestamp": "2026-08-30T11:02:35.460Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:02:35.460Z"
+  },
+  {
+    "id": "ACT-MTFPA68R20M",
+    "timestamp": "2026-08-30T11:02:35.547Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:02:35.547Z"
+  },
+  {
+    "id": "ACT-MTFPALG41FB",
+    "timestamp": "2026-08-30T11:02:55.252Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:02:55.252Z"
+  },
+  {
+    "id": "ACT-MTFPALID30A",
+    "timestamp": "2026-08-30T11:02:55.333Z",
+    "userId": "UMTFPALGS2SG",
+    "action": "Login",
+    "details": "User Dr. Ananya Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:02:55.333Z"
+  },
+  {
+    "id": "ACT-MTFPALLB46D",
+    "timestamp": "2026-08-30T11:02:55.439Z",
+    "userId": "UMTFPALGS2SG",
+    "action": "PasswordChange",
+    "details": "Password changed for user Dr. Ananya Sharma",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:02:55.439Z"
+  },
+  {
+    "id": "ACT-MTFPALMZ57W",
+    "timestamp": "2026-08-30T11:02:55.499Z",
+    "userId": "UMTFPALGS2SG",
+    "action": "Login",
+    "details": "User Dr. Ananya Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:02:55.499Z"
+  },
+  {
+    "id": "ACT-MTFPALOL6ZU",
+    "timestamp": "2026-08-30T11:02:55.557Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:02:55.557Z"
+  },
+  {
+    "id": "ACT-MTFPDQ9B7SZ",
+    "timestamp": "2026-08-30T11:05:21.455Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:05:21.455Z"
+  },
+  {
+    "id": "ACT-MTFPL69A8X1",
+    "timestamp": "2026-08-30T11:11:08.782Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:11:08.782Z"
+  },
+  {
+    "id": "ACT-MTFPOQY99TC",
+    "timestamp": "2026-08-30T11:13:55.569Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:13:55.569Z"
+  },
+  {
+    "id": "ACT-MTFPQSS8A0O",
+    "timestamp": "2026-08-30T11:15:31.256Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:15:31.256Z"
+  },
+  {
+    "id": "ACT-MTFPT0CZBMS",
+    "timestamp": "2026-08-30T11:17:14.387Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:17:14.387Z"
+  },
+  {
+    "id": "ACT-MTFQ20331EX",
+    "timestamp": "2026-08-30T11:24:13.935Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:24:13.935Z"
+  },
+  {
+    "id": "ACT-MTFQ50BA3BF",
+    "timestamp": "2026-08-30T11:26:34.198Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:26:34.198Z"
+  },
+  {
+    "id": "ACT-MTFQ6I0X184",
+    "timestamp": "2026-08-30T11:27:43.809Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:27:43.809Z"
+  },
+  {
+    "id": "ACT-MTFQDIVG1SE",
+    "timestamp": "2026-08-30T11:33:11.500Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:33:11.500Z"
+  },
+  {
+    "id": "ACT-MTFQETYN1GT",
+    "timestamp": "2026-08-30T11:34:12.527Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:34:12.527Z"
+  },
+  {
+    "id": "ACT-MTFQG4NP1N1",
+    "timestamp": "2026-08-30T11:35:13.045Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Srinivas Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:35:13.045Z"
+  },
+  {
+    "id": "ACT-MTFQG4OL20K",
+    "timestamp": "2026-08-30T11:35:13.077Z",
+    "userId": "U003",
+    "action": "Update",
+    "details": "Ambulance request AMB-001 updated to Available",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:35:13.077Z"
+  },
+  {
+    "id": "ACT-MTFQG4OY45U",
+    "timestamp": "2026-08-30T11:35:13.091Z",
+    "userId": "P010",
+    "action": "Create",
+    "details": "Ambulance request AMB-MTFQG4OV31T created for Rahul Verma",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:35:13.091Z"
   }
 ]

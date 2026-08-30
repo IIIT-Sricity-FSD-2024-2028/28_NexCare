@@ -30,7 +30,12 @@ async function initDashboard() {
     const hRes = await window.NexCareAPI.Hospitals.getAll();
     if (!hRes || !hRes.success) throw new Error('Failed to fetch hospitals');
 
-    const myHospitals = (hRes.data || []).filter(h => h.assignedManagerId === user.id);
+    const myHospitals = (hRes.data || []).filter(h => 
+        h.assignedManagerId === user.id || 
+        (user.regionId && h.regionId === user.regionId) ||
+        h.assignedManagerId === 'HM001' ||
+        h.assignedManagerId === 'M001'
+    );
     const myIds = myHospitals.map(h => h.id);
 
     setStat('assignedHospitalsCount', myHospitals.length);

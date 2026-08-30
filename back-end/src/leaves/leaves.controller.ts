@@ -7,6 +7,8 @@ import {
   Delete, 
   Param, 
   Query,
+  Req,
+  ForbiddenException,
   HttpCode,
   HttpStatus,
   UseGuards
@@ -41,11 +43,24 @@ export class LeavesController {
   @ApiQuery({ name: 'status', required: false, enum: LeaveStatus })
   @ApiResponse({ status: 200, description: 'List of leaves' })
   async findAll(
+    @Req() req: any,
     @Query('doctorId') doctorId?: string,
     @Query('hospitalId') hospitalId?: string,
     @Query('status') status?: LeaveStatus
   ) {
-    return this.leavesService.findAll(doctorId, hospitalId, status);
+    const user = req.user;
+    let targetHospitalId = hospitalId;
+
+    if (user?.role === UserRole.HOSPITAL_MANAGER || user?.role === UserRole.ADMINISTRATIVE_STAFF) {
+      if (hospitalId && user.hospitalId && hospitalId !== user.hospitalId) {
+        throw new ForbiddenException(
+          `Cross-hospital access denied. You can only view leaves for your assigned hospital (${user.hospitalId}).`
+        );
+      }
+      targetHospitalId = user.hospitalId;
+    }
+
+    return this.leavesService.findAll(doctorId, targetHospitalId, status);
   }
 
   /**
@@ -58,11 +73,19 @@ export class LeavesController {
   @ApiQuery({ name: 'endDate', required: false })
   @ApiResponse({ status: 200, description: 'Calendar view of approved leaves' })
   async getCalendarView(
+    @Req() req: any,
     @Query('hospitalId') hospitalId?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string
   ) {
-    return this.leavesService.getCalendarView(hospitalId, startDate, endDate);
+    const user = req.user;
+    let targetHospitalId = hospitalId;
+
+    if (user?.role === UserRole.HOSPITAL_MANAGER || user?.role === UserRole.ADMINISTRATIVE_STAFF) {
+      targetHospitalId = user.hospitalId;
+    }
+
+    return this.leavesService.getCalendarView(targetHospitalId, startDate, endDate);
   }
 
   /**
@@ -76,7 +99,7 @@ export class LeavesController {
   }
 
   /**
-   * Create new leave request (doctor applies for leave)
+   * Create new leave request (doctor applies for leave or admin applies on doctor behalf)
    * Guard validates no overlapping approved leaves
    */
   @Post()
@@ -86,7 +109,12 @@ export class LeavesController {
   @ApiResponse({ status: 200, description: 'Leave request submitted successfully' })
   @ApiResponse({ status: 409, description: 'Conflict - overlapping approved leave' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async create(@Body() createLeaveDto: CreateLeaveDto) {
+  async create(@Req() req: any, @Body() createLeaveDto: CreateLeaveDto) {
+    const user = req.user;
+    // Auto-bind hospital if user is hospital manager or admin staff
+    if ((user?.role === UserRole.HOSPITAL_MANAGER || user?.role === UserRole.ADMINISTRATIVE_STAFF) && user.hospitalId) {
+      createLeaveDto.hospitalId = user.hospitalId;
+    }
     return this.leavesService.create(createLeaveDto);
   }
 
@@ -100,7 +128,21 @@ export class LeavesController {
   @ApiResponse({ status: 200, description: 'Leave status updated successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Leave not found' })
-  async update(@Param('id') id: string, @Body() updateLeaveDto: UpdateLeaveDto) {
+  async update(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() updateLeaveDto: UpdateLeaveDto
+  ) {
+    const user = req.user;
+    if (user) {
+      if (updateLeaveDto.status === LeaveStatus.APPROVED) {
+        updateLeaveDto.approvedBy = user.id;
+        updateLeaveDto.approvedByName = user.name || 'Hospital Manager';
+      } else if (updateLeaveDto.status === LeaveStatus.REJECTED) {
+        updateLeaveDto.rejectedBy = user.id;
+        updateLeaveDto.rejectedByName = user.name || 'Hospital Manager';
+      }
+    }
     return this.leavesService.update(id, updateLeaveDto);
   }
 

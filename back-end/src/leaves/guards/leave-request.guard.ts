@@ -85,6 +85,20 @@ export class LeaveRequestGuard implements CanActivate {
       );
     }
 
+    // Enforce hospital scope for Hospital Managers
+    if (user.role === UserRole.HOSPITAL_MANAGER && user.hospitalId) {
+      const id = request.params?.id;
+      if (id) {
+        const leaveResult = this.leavesService.findById(id);
+        const leave = leaveResult?.data;
+        if (leave && leave.hospitalId && leave.hospitalId !== user.hospitalId) {
+          throw new ForbiddenException(
+            'Cross-hospital access denied. You cannot approve or reject leave requests for another hospital.',
+          );
+        }
+      }
+    }
+
     return true;
   }
 }

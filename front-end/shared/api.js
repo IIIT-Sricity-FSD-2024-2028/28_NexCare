@@ -107,6 +107,12 @@ class NexCareAPI {
             headers['Authorization'] = `Bearer ${token}`;
         }
         
+        // Add CSRF token if available
+        const csrfToken = sessionStorage.getItem('nexcare_csrf_token') || localStorage.getItem('nexcare_csrf_token');
+        if (csrfToken) {
+            headers['x-csrf-token'] = csrfToken;
+        }
+
         return headers;
     }
 
@@ -129,6 +135,13 @@ class NexCareAPI {
 
     async handleResponse(response) {
         try {
+            // Capture CSRF token header if sent
+            const newCsrf = response.headers?.get('x-csrf-token');
+            if (newCsrf) {
+                sessionStorage.setItem('nexcare_csrf_token', newCsrf);
+                localStorage.setItem('nexcare_csrf_token', newCsrf);
+            }
+
             const data = await response.json();
             
             // If the backend JSON explicitly sets success: false, respect it!
@@ -225,13 +238,28 @@ const AuthAPI = {
 
     async getCurrentUser(userId) {
         return await api.get(`/auth/current/${userId}`);
+    },
+
+    async changePassword(passwordData) {
+        return await api.patch('/auth/change-password', passwordData);
     }
 };
 
 // Users API
 const UsersAPI = {
-    async getAll() {
-        return await api.get('/users');
+    async getAll(query = {}) {
+        let qStr = '';
+        if (typeof query === 'string') {
+            qStr = query.startsWith('?') ? query : `?${query}`;
+        } else if (query && typeof query === 'object') {
+            const params = new URLSearchParams();
+            if (query.role) params.append('role', query.role);
+            if (query.status) params.append('status', query.status);
+            if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+            const s = params.toString();
+            if (s) qStr = `?${s}`;
+        }
+        return await api.get(`/users${qStr}`);
     },
 
     async getById(id) {
@@ -242,12 +270,28 @@ const UsersAPI = {
         return await api.post('/users', userData);
     },
 
+    async previewEmail(name) {
+        return await api.get(`/users/preview-email?name=${encodeURIComponent(name || '')}`);
+    },
+
+    async getDoctors(dept, hospitalId) {
+        const params = new URLSearchParams();
+        if (dept) params.append('dept', dept);
+        if (hospitalId) params.append('hospitalId', hospitalId);
+        const s = params.toString();
+        return await api.get(`/users/doctors${s ? '?' + s : ''}`);
+    },
+
     async update(id, userData) {
         return await api.put(`/users/${id}`, userData);
     },
 
     async delete(id) {
         return await api.delete(`/users/${id}`);
+    },
+
+    async updateStatus(id, status) {
+        return await api.patch(`/users/${id}/status`, { status });
     }
 };
 
@@ -452,6 +496,120 @@ const InventoryAPI = {
 
     async getAudit(id) {
         return await api.get(`/inventory/audit/${id}`);
+    },
+
+    // Inventory Requirement Requests (Staff -> Hospital Manager Approval)
+    async getRequirements(query = {}) {
+        let qStr = '';
+        if (typeof query === 'string') {
+            qStr = query.startsWith('?') ? query : `?${query}`;
+        } else if (query && typeof query === 'object') {
+            const params = new URLSearchParams();
+            if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+            if (query.status) params.append('status', query.status);
+            if (query.priority) params.append('priority', query.priority);
+            if (query.department) params.append('department', query.department);
+            const s = params.toString();
+            if (s) qStr = `?${s}`;
+        }
+        return await api.get(`/inventory/requirements${qStr}`);
+    },
+
+    async getRequirementById(id) {
+        return await api.get(`/inventory/requirements/${id}`);
+    },
+
+    async createRequirement(data) {
+        return await api.post('/inventory/requirements', data);
+    },
+
+    async approveRequirement(id, managerRemarks = '') {
+        return await api.patch(`/inventory/requirements/${id}/approve`, { managerRemarks });
+    },
+
+    async rejectRequirement(id, rejectionReason) {
+        return await api.patch(`/inventory/requirements/${id}/reject`, { rejectionReason });
+    },
+
+    async startPurchase(id, purchaseData = {}) {
+        return await api.patch(`/inventory/requirements/${id}/start-purchase`, purchaseData);
+    },
+
+    async markPurchased(id) {
+        return await api.patch(`/inventory/requirements/${id}/mark-purchased`, {});
+    },
+
+    async markRestocked(id) {
+        return await api.patch(`/inventory/requirements/${id}/mark-restocked`, {});
+    },
+
+    async fulfillRequirement(id) {
+        return await api.patch(`/inventory/requirements/${id}/fulfill`, {});
+    }
+};
+
+// Ambulance API
+const AmbulanceAPI = {
+    async getAll(query = {}) {
+        let qStr = '';
+        if (typeof query === 'string') {
+            qStr = query.startsWith('?') ? query : `?${query}`;
+        } else if (query && typeof query === 'object') {
+            const params = new URLSearchParams();
+            if (query.status) params.append('status', query.status);
+            if (query.patientId) params.append('patientId', query.patientId);
+            const s = params.toString();
+            if (s) qStr = `?${s}`;
+        }
+        return await api.get(`/ambulance${qStr}`);
+    },
+
+    async getAllRequests(patientId = null) {
+        return await api.get(`/ambulance`, patientId ? { patientId } : {});
+    },
+
+    async getById(id) {
+        return await api.get(`/ambulance/${id}`);
+    },
+
+    async create(requestData) {
+        return await api.post('/ambulance', requestData);
+    },
+
+    async createRequest(requestData) {
+        return await api.post('/ambulance', requestData);
+    },
+
+    async update(id, updateData) {
+        return await api.put(`/ambulance/${id}`, updateData);
+    },
+
+    async updateRequest(id, updateData) {
+        return await api.put(`/ambulance/${id}`, updateData);
+    },
+
+    async updateStatus(id, status) {
+        return await api.patch(`/ambulance/${id}/status`, { status });
+    },
+
+    async dispatch(id, assignedTo, vehicleNumber) {
+        return await api.patch(`/ambulance/${id}/dispatch`, { assignedTo, vehicleNumber });
+    },
+
+    async complete(id) {
+        return await api.patch(`/ambulance/${id}/complete`, {});
+    },
+
+    async delete(id) {
+        return await api.delete(`/ambulance/${id}`);
+    },
+
+    async getStats() {
+        return await api.get('/ambulance/stats/overview');
+    },
+
+    async getActive() {
+        return await api.get('/ambulance/active');
     }
 };
 
@@ -492,6 +650,19 @@ const HospitalsAPI = {
 
     async update(id, data) {
         return await api.put(`/hospitals/${id}`, data);
+    },
+
+    // Subscription & Renewal
+    async getSubscription(id) {
+        return await api.get(`/hospitals/${id}/subscription`);
+    },
+
+    async renewSubscription(id, paymentData = {}) {
+        return await api.post(`/hospitals/${id}/renew-subscription`, paymentData);
+    },
+
+    async getPaymentHistory(id) {
+        return await api.get(`/hospitals/${id}/payment-history`);
     },
 
     // Public registration. Validation and duplicate checks are enforced server-side.
@@ -584,6 +755,14 @@ const LeavesAPI = {
 
     async update(id, updateData) {
         return await api.patch(`/leaves/${id}`, updateData);
+    },
+
+    async approve(id) {
+        return await api.patch(`/leaves/${id}`, { status: 'approved' });
+    },
+
+    async reject(id, rejectionReason) {
+        return await api.patch(`/leaves/${id}`, { status: 'rejected', rejectionReason });
     },
 
     async delete(id) {

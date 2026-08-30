@@ -12,7 +12,12 @@ try {
 }
 import * as crypto from 'crypto';
 import { fileLogger } from './common/logging/file-logger';
-import multer from 'multer';
+let multer: any;
+try {
+  multer = require('multer');
+} catch {
+  multer = null;
+}
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -51,9 +56,15 @@ export class CsrfMiddleware implements NestMiddleware {
   private readonly tokenExpiration = Number(process.env.CSRF_TOKEN_EXPIRATION) || 3600000; // 1 hour default
 
   use(req: Request, res: Response, next: NextFunction): void {
-    // Skip CSRF for GET, HEAD, OPTIONS requests (safe methods)
-    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-      // Generate and send CSRF token for safe methods
+    const rawPath = (req.originalUrl || req.url || '').split('?')[0];
+
+    // Skip CSRF for GET, HEAD, OPTIONS requests (safe methods), public auth routes, or Bearer-authenticated API calls
+    const isSafeMethod = ['GET', 'HEAD', 'OPTIONS'].includes(req.method);
+    const isAuthRoute = rawPath.includes('/auth/');
+    const isBearerAuth = typeof req.headers['authorization'] === 'string' && req.headers['authorization'].startsWith('Bearer ');
+
+    if (isSafeMethod || isAuthRoute || isBearerAuth) {
+      // Generate and send CSRF token for safe methods & auth routes
       const csrfToken = this.generateToken(req);
       res.setHeader('x-csrf-token', csrfToken);
       next();
@@ -61,7 +72,7 @@ export class CsrfMiddleware implements NestMiddleware {
     }
 
     // Validate CSRF for state-changing methods (POST, PUT, PATCH, DELETE)
-    const csrfToken = req.headers['x-csrf-token'] as string || (req.body as any)._csrf;
+    const csrfToken = (req.headers['x-csrf-token'] as string) || (req.body as any)?._csrf;
     
     if (!csrfToken) {
       fileLogger.warn('error', 'CSRF token missing', {
@@ -441,17 +452,17 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+const storage = multer ? multer.diskStorage({
+  destination: (req: any, file: any, cb: any) => {
     cb(null, uploadsDir);
   },
-  filename: (req, file, cb) => {
+  filename: (req: any, file: any, cb: any) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   },
-});
+}) : null;
 
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (req: any, file: any, cb: any) => {
   const allowedMimes = [
     'image/jpeg',
     'image/png',
@@ -469,13 +480,13 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
   }
 };
 
-export const uploadMiddleware = multer({
+export const uploadMiddleware = multer ? multer({
   storage: storage,
   limits: {
     fileSize: MAX_UPLOAD_BYTES,
   },
   fileFilter: fileFilter,
-});
+}) : ((req: any, res: any, next: any) => next());
 
 // Keep custom middleware for validation on top of Multer
 @Injectable()

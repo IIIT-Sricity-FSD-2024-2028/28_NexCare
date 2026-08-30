@@ -1,4 +1,4 @@
-import { InventoryStatus } from '../../common/interfaces/api-response.interface';
+import { InventoryStatus, InventoryRequirementStatus, InventoryPriority } from '../../common/interfaces/api-response.interface';
 
 /**
  * Inventory Entity Interface
@@ -29,6 +29,7 @@ export interface CreateInventoryRequest {
   minStock: number;
   unit: string;
   location: string;
+  hospitalId?: string;
 }
 
 /**
@@ -42,6 +43,7 @@ export interface UpdateInventoryRequest {
   unit?: string;
   location?: string;
   status?: InventoryStatus;
+  hospitalId?: string;
 }
 
 /**
@@ -55,7 +57,6 @@ export interface RestockRequest {
   expiryDate?: string;
   restockedBy?: string;
 }
-
 
 /**
  * Inventory Statistics Interface
@@ -87,4 +88,94 @@ export interface InventoryAudit {
   notes?: string;
 }
 
+/**
+ * Inventory Requirement Request Interface
+ * Raised by Administrative Staff, approved/rejected by Hospital Manager
+ */
+export interface InventoryRequirement {
+  id: string;
+  hospitalId: string;
+  itemId?: string;
+  itemName: string;
+  category: string;
+  currentQuantity: number;
+  requiredQuantity: number;
+  requestedQuantity: number;
+  unit: string;
+  department: string;
+  requestedBy: string;
+  requestedById?: string;
+  requestDate: string;
+  priority: InventoryPriority | string;
+  reason: string;
+  estimatedCost: number;
+  status: InventoryRequirementStatus | string;
+  // Hospital Manager Review
+  approvedBy?: string;
+  approvedByName?: string;
+  approvedAt?: string;
+  managerRemarks?: string;
+  rejectionReason?: string;
+  rejectedBy?: string;
+  rejectedByName?: string;
+  rejectedAt?: string;
+  // Admin Staff Purchasing
+  supplier?: string;
+  invoiceNumber?: string;
+  purchaseDate?: string;
+  quantityPurchased?: number;
+  finalCost?: number;
+  purchaseNotes?: string;
+  purchasedAt?: string;
+  purchasedBy?: string;
+  purchasedByName?: string;
+  // Restocking
+  restockedAt?: string;
+  restockedBy?: string;
+  restockedByName?: string;
+  fulfilledAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
+/**
+ * Create Inventory Requirement DTO
+ */
+export interface CreateInventoryRequirementDto {
+  hospitalId?: string;
+  itemId?: string;
+  itemName: string;
+  category: string;
+  currentQuantity?: number;
+  requiredQuantity?: number;
+  requestedQuantity: number;
+  unit: string;
+  department: string;
+  requestedBy?: string;
+  requestedById?: string;
+  requestDate?: string;
+  priority: InventoryPriority | string;
+  reason: string;
+  estimatedCost?: number;
+}
+
+/**
+ * Update / Decision DTO for Inventory Requirement (Hospital Manager)
+ */
+export interface DecideInventoryRequirementDto {
+  status?: InventoryRequirementStatus | string;
+  rejectionReason?: string;
+  managerRemarks?: string;
+}
+
+/**
+ * Start / Update Purchase DTO (Administrative Staff)
+ */
+export interface StartPurchaseDto {
+  supplier: string;
+  invoiceNumber?: string;
+  purchaseDate?: string;
+  quantityPurchased?: number;
+  finalCost?: number;
+  purchaseNotes?: string;
+}

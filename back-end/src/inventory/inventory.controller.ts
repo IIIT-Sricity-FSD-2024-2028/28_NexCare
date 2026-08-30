@@ -8,37 +8,36 @@ import {
   Delete, 
   Param, 
   Query,
-  HttpCode,
-  HttpStatus,
-  UseInterceptors
+  Req,
+  ForbiddenException,
+  HttpCode, 
+  HttpStatus, 
+  UseInterceptors 
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { InventoryService } from './inventory.service';
 import { CreateInventoryDto } from './dto/create-inventory.dto';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { RestockInventoryDto } from './dto/restock-inventory.dto';
+import { CreateInventoryRequirementDto, DecideInventoryRequirementDto } from './interfaces/inventory.interface';
 import { InventoryAuditInterceptor } from './interceptors/inventory-audit.interceptor';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole, InventoryStatus } from '../common/interfaces/api-response.interface';
 
-
 /**
  * Inventory Controller
- * Manages supply chain and inventory tracking in the NexCare system
- * Provides endpoints for inventory CRUD operations and stock management
+ * Manages supply chain, inventory tracking, and inventory requirement workflows
  */
 @ApiTags('Inventory')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER, UserRole.REGIONAL_MANAGER)
 @Controller('inventory')
 export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
   /**
-   * Get all inventory with optional filtering
+   * Get all inventory items with optional filtering
    */
-  // Regional Officers get read-only oversight; the client scopes to one hospital.
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER)
   @Get()
   @ApiOperation({ summary: 'Get all inventory items' })
   @ApiQuery({ name: 'category', required: false })
@@ -53,14 +52,185 @@ export class InventoryController {
     return this.inventoryService.findAll(category, status as any, location);
   }
 
+  // ==============================================================
+  // INVENTORY REQUIREMENT APPROVALS WORKFLOW
+  // ==============================================================
+
+  /**
+   * Get all inventory requirements (Scoped by hospital)
+   */
+  @Get('requirements')
+  @ApiOperation({ summary: 'Get all inventory requirement requests' })
+  @ApiQuery({ name: 'hospitalId', required: false })
+  @ApiQuery({ name: 'status', required: false })
+  @ApiQuery({ name: 'priority', required: false })
+  @ApiQuery({ name: 'department', required: false })
+  @ApiResponse({ status: 200, description: 'List of inventory requirements' })
+  async getRequirements(
+    @Req() req: any,
+    @Query('hospitalId') hospitalId?: string,
+    @Query('status') status?: string,
+    @Query('priority') priority?: string,
+    @Query('department') department?: string,
+  ) {
+    const caller = req.user;
+    let targetHospitalId = hospitalId;
+
+    if (caller?.role === UserRole.HOSPITAL_MANAGER || caller?.role === UserRole.ADMINISTRATIVE_STAFF) {
+      if (hospitalId && caller.hospitalId && hospitalId !== caller.hospitalId) {
+        throw new ForbiddenException(
+          `Cross-hospital access denied. You can only access inventory requirements for your hospital (${caller.hospitalId}).`
+        );
+      }
+      targetHospitalId = caller.hospitalId;
+    }
+
+    return this.inventoryService.findAllRequirements(targetHospitalId, status, priority, department);
+  }
+
+  /**
+   * Get single inventory requirement by ID
+   */
+  @Get('requirements/:id')
+  @ApiOperation({ summary: 'Get single inventory requirement by ID' })
+  @ApiResponse({ status: 200, description: 'Inventory requirement retrieved' })
+  async getRequirementById(@Req() req: any, @Param('id') id: string) {
+    const caller = req.user;
+    const res: any = await this.inventoryService.findRequirementById(id);
+
+    if (caller?.role === UserRole.HOSPITAL_MANAGER && res?.success && res.data) {
+      if (res.data.hospitalId && res.data.hospitalId !== caller.hospitalId) {
+        throw new ForbiddenException('Cross-hospital access denied.');
+      }
+    }
+    return res;
+  }
+
+  /**
+   * Raise a new inventory requirement (Administrative Staff or Manager)
+   */
+  @Roles(UserRole.SUPERUSER, UserRole.HOSPITAL_MANAGER, UserRole.ADMINISTRATIVE_STAFF)
+  @Post('requirements')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Submit an inventory requirement request' })
+  @ApiResponse({ status: 200, description: 'Inventory requirement created' })
+  async createRequirement(@Req() req: any, @Body() data: CreateInventoryRequirementDto) {
+    const caller = req.user;
+    if ((caller?.role === UserRole.HOSPITAL_MANAGER || caller?.role === UserRole.ADMINISTRATIVE_STAFF) && caller.hospitalId) {
+      data.hospitalId = caller.hospitalId;
+    }
+    if (caller) {
+      data.requestedBy = data.requestedBy || caller.name || 'Administrative Staff';
+      data.requestedById = caller.id;
+    }
+    return this.inventoryService.createRequirement(data);
+  }
+
+  /**
+   * Approve an inventory requirement (Hospital Manager action)
+   */
+  @Roles(UserRole.SUPERUSER, UserRole.HOSPITAL_MANAGER)
+  @Patch('requirements/:id/approve')
+  @ApiOperation({ summary: 'Approve an inventory requirement' })
+  @ApiResponse({ status: 200, description: 'Requirement approved' })
+  async approveRequirement(@Req() req: any, @Param('id') id: string, @Body() body?: DecideInventoryRequirementDto) {
+    const caller = req.user;
+    if (caller?.role === UserRole.HOSPITAL_MANAGER) {
+      const currentRes: any = await this.inventoryService.findRequirementById(id);
+      if (currentRes?.success && currentRes.data) {
+        if (currentRes.data.hospitalId && currentRes.data.hospitalId !== caller.hospitalId) {
+          throw new ForbiddenException('Cross-hospital access denied. You can only approve requirements for your hospital.');
+        }
+      }
+    }
+    return this.inventoryService.approveRequirement(id, caller?.id || 'HM', caller?.name || 'Hospital Manager', body?.managerRemarks);
+  }
+
+  /**
+   * Reject an inventory requirement with reason (Hospital Manager action)
+   */
+  @Roles(UserRole.SUPERUSER, UserRole.HOSPITAL_MANAGER)
+  @Patch('requirements/:id/reject')
+  @ApiOperation({ summary: 'Reject an inventory requirement with reason' })
+  @ApiResponse({ status: 200, description: 'Requirement rejected' })
+  async rejectRequirement(@Req() req: any, @Param('id') id: string, @Body() body: DecideInventoryRequirementDto) {
+    const caller = req.user;
+    if (caller?.role === UserRole.HOSPITAL_MANAGER) {
+      const currentRes: any = await this.inventoryService.findRequirementById(id);
+      if (currentRes?.success && currentRes.data) {
+        if (currentRes.data.hospitalId && currentRes.data.hospitalId !== caller.hospitalId) {
+          throw new ForbiddenException('Cross-hospital access denied. You can only reject requirements for your hospital.');
+        }
+      }
+    }
+    return this.inventoryService.rejectRequirement(
+      id, 
+      caller?.id || 'HM', 
+      caller?.name || 'Hospital Manager', 
+      body?.rejectionReason || 'Request rejected by Hospital Manager'
+    );
+  }
+
+  /**
+   * Start Purchase for an approved requirement (Administrative Staff action)
+   */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER)
+  @Patch('requirements/:id/start-purchase')
+  @ApiOperation({ summary: 'Initiate purchasing for an approved requirement' })
+  @ApiResponse({ status: 200, description: 'Purchase initiated' })
+  async startPurchase(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    const caller = req.user;
+    return this.inventoryService.startPurchase(id, body, caller?.id || 'U002', caller?.name || 'Administrative Staff');
+  }
+
+  /**
+   * Mark requirement as purchased (Administrative Staff action)
+   */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER)
+  @Patch('requirements/:id/mark-purchased')
+  @ApiOperation({ summary: 'Mark inventory requirement as purchased' })
+  @ApiResponse({ status: 200, description: 'Requirement marked as purchased' })
+  async markPurchased(@Req() req: any, @Param('id') id: string) {
+    const caller = req.user;
+    return this.inventoryService.markPurchased(id, caller?.id || 'U002', caller?.name || 'Administrative Staff');
+  }
+
+  /**
+   * Mark requirement as restocked and increment central inventory stock (Administrative Staff action)
+   */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER)
+  @Patch('requirements/:id/mark-restocked')
+  @ApiOperation({ summary: 'Mark inventory requirement as restocked and increase stock' })
+  @ApiResponse({ status: 200, description: 'Requirement restocked' })
+  async markRestocked(@Req() req: any, @Param('id') id: string) {
+    const caller = req.user;
+    return this.inventoryService.markRestocked(id, caller?.id || 'U002', caller?.name || 'Administrative Staff');
+  }
+
+  /**
+   * Legacy fulfill endpoint (alias to mark-restocked)
+   */
+  @Roles(UserRole.SUPERUSER, UserRole.HOSPITAL_MANAGER, UserRole.ADMINISTRATIVE_STAFF)
+  @Patch('requirements/:id/fulfill')
+  @ApiOperation({ summary: 'Mark requirement fulfilled and restock stock' })
+  @ApiResponse({ status: 200, description: 'Requirement fulfilled' })
+  async fulfillRequirement(@Req() req: any, @Param('id') id: string) {
+    const caller = req.user;
+    return this.inventoryService.markRestocked(id, caller?.id || 'SYSTEM', caller?.name || 'Administrative Staff');
+  }
+
+  // ==============================================================
+  // STANDARD INVENTORY CRUD & AUDIT
+  // ==============================================================
+
   /**
    * Create new inventory item
    */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER)
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Create a new inventory item' })
-  @ApiResponse({ status: 200, description: 'Item creation result (check success field)' })
-  @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 200, description: 'Item creation result' })
   async create(@Body() createInventoryDto: CreateInventoryDto) {
     return this.inventoryService.create(createInventoryDto as any);
   }
@@ -148,6 +318,7 @@ export class InventoryController {
   /**
    * Update inventory item
    */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER)
   @Put(':id')
   @ApiOperation({ summary: 'Update an inventory item' })
   @ApiResponse({ status: 200, description: 'Item updated successfully' })
@@ -158,6 +329,7 @@ export class InventoryController {
   /**
    * Partial update inventory item
    */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER)
   @Patch(':id')
   @ApiOperation({ summary: 'Partially update an inventory item' })
   @ApiResponse({ status: 200, description: 'Item updated successfully' })
@@ -168,6 +340,7 @@ export class InventoryController {
   /**
    * Delete inventory item
    */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an inventory item' })
   @ApiResponse({ status: 200, description: 'Item deleted successfully' })
@@ -178,6 +351,7 @@ export class InventoryController {
   /**
    * Restock inventory item
    */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER)
   @Patch(':id/restock')
   @UseInterceptors(InventoryAuditInterceptor)
   @ApiOperation({ summary: 'Restock an inventory item' })
@@ -186,10 +360,10 @@ export class InventoryController {
     return this.inventoryService.restock(id, restockDto);
   }
 
-
   /**
    * Use inventory item
    */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER)
   @Patch(':id/use')
   @UseInterceptors(InventoryAuditInterceptor)
   @ApiOperation({ summary: 'Consume/use an inventory item' })
@@ -199,6 +373,3 @@ export class InventoryController {
     return this.inventoryService.useItem(id, quantity, body?.notes);
   }
 }
-
-
-

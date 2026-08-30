@@ -209,9 +209,11 @@
         <div class="header-row">
             <div>
                 <h2>Inventory Management</h2>
+                <p style="font-size:13px; color:#64748B; margin-top:2px;">Stock levels and requisition approval tracking with Hospital Administration</p>
             </div>
-            <div>
-                <button class="btn" type="button" onclick="openCreateItemModal()">Add Item</button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" type="button" style="background:#2563EB;" onclick="openReqModal()">+ Raise Requisition</button>
+                <button class="btn" type="button" onclick="openCreateItemModal()">+ Add Item</button>
             </div>
         </div>
 
@@ -235,8 +237,11 @@
         
         <input id="searchInput" class="search" placeholder="Search inventory items..." />
         
-        <!-- TABLE -->
+        <!-- INVENTORY ITEMS TABLE -->
         <div class="card table-container">
+            <div style="padding:14px 16px; border-bottom:1px solid #E2E8F0; font-weight:700; font-size:15px; color:#0F172A;">
+                Current Stock Inventory
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -247,6 +252,33 @@
                     </tr>
                 </thead>
                 <tbody id="inventoryTable"></tbody>
+            </table>
+        </div>
+
+        <!-- REQUISITIONS & MANAGER APPROVAL STATUS TABLE -->
+        <div class="card table-container" style="margin-top:28px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid #E2E8F0;">
+                <div>
+                    <h3 style="margin:0; font-size:16px; font-weight:700; color:#0F172A;">Requisitions & Hospital Manager Approvals</h3>
+                    <p style="margin:2px 0 0; font-size:12px; color:#64748B;">Live approval status of inventory requirement requests</p>
+                </div>
+                <button class="btn" style="padding:6px 12px; font-size:12px; background:#2563EB;" onclick="openReqModal()">+ Raise New Request</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Req ID</th>
+                        <th>Item & Category</th>
+                        <th>Requested Qty</th>
+                        <th>Department</th>
+                        <th>Priority</th>
+                        <th>Status & Manager Audit</th>
+                        <th>Purchasing & Restock Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="requisitionsTable">
+                    <tr><td colspan="7" style="text-align:center; padding:20px; color:#64748B;">Loading requisition requests...</td></tr>
+                </tbody>
             </table>
         </div>
 
@@ -361,6 +393,111 @@
 
         <div class="modal-actions" style="margin-top:16px;display:flex;justify-content:flex-end;">
             <button class="btn-outline" onclick="closeAuditModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- RAISE INVENTORY REQUIREMENT MODAL (To Hospital Manager) -->
+<div id="reqModal" class="modal">
+    <div class="card modal-card" style="width:440px;">
+        <h3 style="margin-top:0;">Raise Inventory Requirement</h3>
+        <p style="font-size:12.5px; color:#64748B; margin:-4px 0 14px 0;">Submit stock requisition request to Hospital Manager for approval</p>
+
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Item Name *</label>
+        <input id="reqItemName" class="input" placeholder="e.g. ECG Electrodes, Surgical Gloves" required>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+            <div style="flex:1;">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Category *</label>
+                <input id="reqCategory" class="input" placeholder="e.g. Cardiology Supplies, PPE" required>
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Department *</label>
+                <select id="reqDept" class="input" style="height:38px;">
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Emergency & OT">Emergency & OT</option>
+                    <option value="General Medicine">General Medicine</option>
+                    <option value="Pulmonology">Pulmonology</option>
+                    <option value="Orthopaedics">Orthopaedics</option>
+                    <option value="Paediatrics">Paediatrics</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+            <div style="flex:1;">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Requested Qty *</label>
+                <input id="reqQuantity" type="number" min="1" class="input" placeholder="e.g. 100" required>
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Unit *</label>
+                <input id="reqUnit" class="input" placeholder="e.g. packs, pairs, units" value="units" required>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+            <div style="flex:1;">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Priority *</label>
+                <select id="reqPriority" class="input" style="height:38px;">
+                    <option value="LOW">Low (Routine)</option>
+                    <option value="MEDIUM" selected>Medium (Standard)</option>
+                    <option value="HIGH">High (Important)</option>
+                    <option value="URGENT">Urgent (Immediate)</option>
+                </select>
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Est. Cost (₹)</label>
+                <input id="reqEstimatedCost" type="number" min="0" class="input" placeholder="e.g. 12500">
+            </div>
+        </div>
+
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-top:8px;margin-bottom:4px;">Reason / Clinical Need *</label>
+        <textarea id="reqReason" class="input" style="height:60px;resize:none;" placeholder="Describe why this stock is required..." required></textarea>
+
+        <div class="modal-actions" style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end;">
+            <button class="btn" style="background:#2563EB;" onclick="submitRequisition()">Submit for Approval</button>
+            <button class="btn-outline" onclick="closeReqModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- START PURCHASE MODAL (Administrative Staff Action) -->
+<div id="startPurchaseModal" class="modal">
+    <div class="card modal-card" style="width:460px;">
+        <h3 id="purchaseModalTitle" style="margin-top:0;">Initiate Purchase Order</h3>
+        <p id="purchaseModalSubtitle" style="font-size:12.5px; color:#64748B; margin:-4px 0 14px 0;">Record purchasing supplier, invoice, and actual procurement details</p>
+
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Supplier / Vendor Name *</label>
+        <input id="purchaseSupplier" class="input" placeholder="e.g. MedTech Surgicals Pvt. Ltd." required>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+            <div style="flex:1;">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Invoice / PO Number *</label>
+                <input id="purchaseInvoice" class="input" placeholder="e.g. PO-MTS-2026-8819" required>
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Purchase Date *</label>
+                <input id="purchaseDate" type="date" class="input" required>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+            <div style="flex:1;">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Quantity Purchased *</label>
+                <input id="purchaseQuantity" type="number" min="1" class="input" placeholder="100" required>
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Final Cost (₹) *</label>
+                <input id="purchaseCost" type="number" min="0" class="input" placeholder="9200" required>
+            </div>
+        </div>
+
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-top:8px;margin-bottom:4px;">Purchase Notes / Tracking</label>
+        <textarea id="purchaseNotes" class="input" style="height:55px;resize:none;" placeholder="e.g. Dispatched via express courier, tracking #EXP-992144"></textarea>
+
+        <div class="modal-actions" style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end;">
+            <button class="btn" style="background:#2563EB;" onclick="submitStartPurchase()">Save Purchase Details</button>
+            <button class="btn-outline" onclick="closeStartPurchaseModal()">Cancel</button>
         </div>
     </div>
 </div>

@@ -1,483 +1,1716 @@
 /**
  * Hospital Manager Portal JavaScript Logic
+ * NexCare Hospital Management System
  */
+
+// State
 let allLeaves = [];
 let allStaff = [];
+let allInventoryReqs = [];
 let allSupport = [];
+let subscriptionData = null;
 let managerProfile = null;
+
+// Rejection Modal State
+let currentRejectionType = null; // 'LEAVE' or 'INVENTORY'
+let currentRejectionTargetId = null;
+
+// Status Toggle Modal State
+let currentStaffTargetId = null;
+let currentStaffTargetStatus = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     initManagerInfo();
-    await loadOverview();
-    await loadLeaves();
-    await loadStaff();
-    await loadSupport();
+    
+    // Check hash for initial tab
+    const hash = window.location.hash.replace('#', '') || 'overview';
+    switchTab(hash);
+
+    // Initial load
+    await loadAllDashboardData();
 });
 
+// Listen to hash changes (e.g. from nav clicks)
+window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.replace('#', '') || 'overview';
+    switchTab(hash);
+});
+
+/**
+ * Initialize Manager profile from session/local storage
+ */
 function initManagerInfo() {
     const rawUser = sessionStorage.getItem('nexcare_user_data') || localStorage.getItem('nexcare_user_data');
     if (rawUser) {
         try {
             managerProfile = JSON.parse(rawUser);
-            if (document.getElementById('managerName')) document.getElementById('managerName').textContent = managerProfile.name || 'Hospital Manager';
-            if (document.getElementById('managerHospital')) document.getElementById('managerHospital').textContent = `🏥 ${managerProfile.hospitalName || managerProfile.hospital || 'Hospital'}`;
-            
-            const initials = (managerProfile.name || 'HM')
-                .split(' ')
-                .map(n => n[0])
-                .join('')
-                .toUpperCase()
-                .slice(0, 2);
-            if (document.getElementById('managerAvatar')) document.getElementById('managerAvatar').textContent = initials || 'HM';
         } catch (e) {
             console.error('Error parsing user data:', e);
         }
     }
+
+    // Default fallback if manager logged in via demo session
+    if (!managerProfile || managerProfile.role !== 'hospital_manager') {
+        managerProfile = {
+            id: 'HM001',
+            name: 'Srinivas Rao',
+            email: 'hospitalmanager@nexcare.com',
+            role: 'hospital_manager',
+            hospitalId: 'H001',
+            hospitalName: 'NexCare AIIMS Super Speciality Hospital'
+        };
+    }
+
+    if (document.getElementById('managerName')) {
+        document.getElementById('managerName').textContent = managerProfile.name || 'Hospital Manager';
+    }
+    if (document.getElementById('managerHospital')) {
+        document.getElementById('managerHospital').textContent = `🏥 ${managerProfile.hospitalName || 'Hospital'}`;
+    }
+    if (document.getElementById('managerHospitalId')) {
+        document.getElementById('managerHospitalId').textContent = `ID: ${managerProfile.hospitalId || 'H001'}`;
+    }
+
+    // Init Avatar initials
+    const initials = (managerProfile.name || 'HM')
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    if (document.getElementById('managerAvatar')) {
+        document.getElementById('managerAvatar').textContent = initials || 'HM';
+    }
+
+    // Set modal auto-filled hospital info
+    if (document.getElementById('staffHospitalId')) {
+        document.getElementById('staffHospitalId').value = managerProfile.hospitalId || 'H001';
+    }
+    if (document.getElementById('staffHospitalName')) {
+        document.getElementById('staffHospitalName').value = managerProfile.hospitalName || 'NexCare AIIMS Super Speciality Hospital';
+    }
+
+    // Set page auto-filled hospital info
+    if (document.getElementById('pageStaffHospitalId')) {
+        document.getElementById('pageStaffHospitalId').textContent = managerProfile.hospitalId || 'H001';
+    }
+    if (document.getElementById('pageStaffHospitalName')) {
+        document.getElementById('pageStaffHospitalName').textContent = managerProfile.hospitalName || 'NexCare AIIMS Super Speciality Hospital';
+    }
+    if (document.getElementById('pageStaffRegion')) {
+        document.getElementById('pageStaffRegion').textContent = `${managerProfile.regionName || 'Andhra Pradesh South'} (${managerProfile.regionId || 'R001'})`;
+    }
+    if (document.getElementById('pageStaffJoiningDate')) {
+        document.getElementById('pageStaffJoiningDate').value = new Date().toISOString().split('T')[0];
+    }
 }
 
+/**
+ * Switch tabs in the dashboard
+ */
 function switchTab(tabName, event) {
     if (event) event.preventDefault();
-    
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+    const tabs = ['overview', 'leaves', 'staff', 'register-staff', 'inventory-approvals', 'ambulance', 'subscription', 'supervision', 'support'];
+    if (!tabs.includes(tabName)) tabName = 'overview';
+
+    // Update active nav links
+    document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => {
+        el.classList.remove('active');
+        if (el.getAttribute('href') === `#${tabName}`) {
+            el.classList.add('active');
+        }
+    });
+
+    // Update active content
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active-tab'));
-    
-    if (tabName === 'overview') {
-        document.querySelector('a[href="#overview"]').classList.add('active');
-        document.getElementById('overviewTab').classList.add('active-tab');
-        document.getElementById('pageTitle').textContent = 'Hospital Overview';
-        document.getElementById('pageSubtitle').textContent = 'Manage hospital operations and staff';
-    } else if (tabName === 'leaves') {
-        document.querySelector('a[href="#leaves"]').classList.add('active');
-        document.getElementById('leavesTab').classList.add('active-tab');
-        document.getElementById('pageTitle').textContent = 'Leave Approvals';
-        document.getElementById('pageSubtitle').textContent = 'Approve or reject doctor leave requests';
-    } else if (tabName === 'staff') {
-        document.querySelector('a[href="#staff"]').classList.add('active');
-        document.getElementById('staffTab').classList.add('active-tab');
-        document.getElementById('pageTitle').textContent = 'Staff Directory';
-        document.getElementById('pageSubtitle').textContent = 'View and manage hospital staff';
-    } else if (tabName === 'support') {
-        document.querySelector('a[href="#support"]').classList.add('active');
-        document.getElementById('supportTab').classList.add('active-tab');
-        document.getElementById('pageTitle').textContent = 'Support Requests';
-        document.getElementById('pageSubtitle').textContent = 'Handle patient and staff support requests';
+
+    const tabMap = {
+        overview: 'overviewTab',
+        leaves: 'leavesTab',
+        staff: 'staffTab',
+        'register-staff': 'registerStaffTab',
+        'inventory-approvals': 'inventoryApprovalsTab',
+        ambulance: 'ambulanceTab',
+        subscription: 'subscriptionTab',
+        supervision: 'supervisionTab',
+        support: 'supportTab'
+    };
+
+    const targetTabEl = document.getElementById(tabMap[tabName]);
+    if (targetTabEl) targetTabEl.classList.add('active-tab');
+
+    const titles = {
+        overview: { title: 'Hospital Overview', subtitle: 'Comprehensive oversight of staff, doctor leaves, inventory approvals, and annual subscription.' },
+        leaves: { title: 'Doctor Leave Approvals', subtitle: 'Review, approve, or reject doctor leave applications with strict hospital scoping.' },
+        staff: { title: 'Hospital Staff Directory', subtitle: 'Manage doctors, administrative staff, and ambulance drivers for this hospital.' },
+        'register-staff': { title: 'Register Hospital Staff', subtitle: 'Onboard new doctors, administrative staff, or ambulance personnel with automatic credentials.' },
+        'inventory-approvals': { title: 'Inventory Requirements & Approvals', subtitle: 'Approve or reject stock requisition requests raised by administrative staff.' },
+        ambulance: { title: 'Ambulance Fleet & Emergency Status', subtitle: 'Live status tracking, fleet readiness, vehicle standby, and emergency dispatch management.' },
+        subscription: { title: 'Subscription & License Renewal', subtitle: 'Manage 12-month hospital license, payment history, and instant renewal.' },
+        supervision: { title: 'Administrative Staff Supervision', subtitle: 'Assigned responsibilities and front-desk operation tracking.' },
+        support: { title: 'Regional Support Tickets', subtitle: 'Hospital-level issue escalations and compliance tracking.' }
+    };
+
+    if (titles[tabName]) {
+        if (document.getElementById('pageTitle')) document.getElementById('pageTitle').textContent = titles[tabName].title;
+        if (document.getElementById('pageSubtitle')) document.getElementById('pageSubtitle').textContent = titles[tabName].subtitle;
+    }
+
+    // Reflect hash in URL without jump
+    history.replaceState(null, null, `#${tabName}`);
+}
+
+/**
+ * Load all dashboard data concurrently
+ */
+async function loadAllDashboardData() {
+    try {
+        await Promise.all([
+            loadOverview(),
+            loadLeaves(),
+            loadStaff(),
+            loadInventoryReqs(),
+            loadAmbulanceFleet(),
+            loadSubscription(),
+            loadSupport()
+        ]);
+    } catch (e) {
+        console.error('Error loading dashboard data:', e);
     }
 }
 
+/**
+ * TAB 1: Load Overview Metrics & Pending Queue
+ */
 async function loadOverview() {
-    const tbody = document.getElementById('overviewTableBody');
-    
-    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
-        ? window.NexCareUI.showLoading('Loading overview...') 
-        : null;
-    
+    const hospitalId = managerProfile?.hospitalId || 'H001';
+
     try {
-        if (!window.NexCareAPI) {
-            throw new Error('API library not loaded. Please refresh the page.');
-        }
-        
-        // Load various metrics
-        const [leavesResp, supportResp] = await Promise.all([
-            window.NexCareAPI.Leaves.getAll({ status: 'pending' }).catch(() => ({ success: false, data: [] })),
-            window.NexCareAPI.SupportRequests.getAll({ status: 'Open' }).catch(() => ({ success: false, data: [] }))
+        const [leavesResp, usersResp, inventoryResp, subResp] = await Promise.all([
+            window.NexCareAPI.Leaves.getAll({ hospitalId }).catch(() => ({ success: false, data: [] })),
+            window.NexCareAPI.Users.getAll().catch(() => ({ success: false, data: [] })),
+            window.NexCareAPI.Inventory.getRequirements({ hospitalId }).catch(() => ({ success: false, data: [] })),
+            window.NexCareAPI.Hospitals.getSubscription(hospitalId).catch(() => ({ success: false, data: null }))
         ]);
+
+        const leaves = (leavesResp.success && Array.isArray(leavesResp.data)) ? leavesResp.data : [];
+        const users = (usersResp.success && Array.isArray(usersResp.data)) ? usersResp.data : [];
+        const reqs = (inventoryResp.success && Array.isArray(inventoryResp.data)) ? inventoryResp.data : [];
+        subscriptionData = subResp.success ? subResp.data : null;
+
+        // Scoped staff filters
+        const doctors = users.filter(u => u.role === 'doctor' && u.hospitalId === hospitalId);
+        const adminStaff = users.filter(u => u.role === 'administrative_staff' && u.hospitalId === hospitalId);
+        const pendingLeaves = leaves.filter(l => l.status?.toLowerCase() === 'pending');
+        const pendingReqs = reqs.filter(r => r.status?.toUpperCase() === 'PENDING');
+        const urgentReqs = pendingReqs.filter(r => r.priority?.toUpperCase() === 'URGENT');
+
+        // Update Stat Cards
+        document.getElementById('statDoctors').textContent = doctors.length;
+        document.getElementById('statPendingLeavesSub').textContent = `${pendingLeaves.length} pending leave request${pendingLeaves.length === 1 ? '' : 's'}`;
         
-        if (hideLoading) hideLoading();
+        document.getElementById('statAdminStaff').textContent = adminStaff.length;
         
-        const pendingLeaves = leavesResp.success ? leavesResp.data.length : 0;
-        const openSupport = supportResp.success ? supportResp.data.length : 0;
-        
-        document.getElementById('statPendingLeaves').textContent = pendingLeaves;
-        document.getElementById('statSupport').textContent = openSupport;
-        
+        document.getElementById('statPendingInventory').textContent = pendingReqs.length;
+        document.getElementById('statUrgentInventorySub').textContent = `${urgentReqs.length} urgent requisition${urgentReqs.length === 1 ? '' : 's'}`;
+
+        // Nav counters
+        const navLeave = document.getElementById('navLeaveBadge');
+        if (navLeave) {
+            navLeave.textContent = pendingLeaves.length;
+            navLeave.style.display = pendingLeaves.length > 0 ? 'inline-block' : 'none';
+        }
+
+        const navInv = document.getElementById('navInventoryBadge');
+        if (navInv) {
+            navInv.textContent = pendingReqs.length;
+            navInv.style.display = pendingReqs.length > 0 ? 'inline-block' : 'none';
+        }
+
+        // Subscription stats
+        if (subscriptionData) {
+            document.getElementById('statSubscriptionDays').textContent = subscriptionData.daysRemaining !== undefined ? subscriptionData.daysRemaining : '--';
+            document.getElementById('statSubscriptionStatus').textContent = `License ${subscriptionData.status || 'Active'}`;
+            
+            if (document.getElementById('overviewSubHospitalName')) document.getElementById('overviewSubHospitalName').textContent = subscriptionData.hospitalName || managerProfile.hospitalName;
+            if (document.getElementById('overviewSubHospitalId')) document.getElementById('overviewSubHospitalId').textContent = subscriptionData.hospitalId || hospitalId;
+            if (document.getElementById('overviewSubExpiry')) document.getElementById('overviewSubExpiry').textContent = subscriptionData.subscriptionExpiryDate || '--';
+            if (document.getElementById('overviewSubDays')) document.getElementById('overviewSubDays').textContent = `${subscriptionData.daysRemaining} Days`;
+            
+            const badge = document.getElementById('overviewSubBadge');
+            if (badge) {
+                badge.className = `badge badge-${subscriptionData.status === 'EXPIRED' ? 'rejected' : (subscriptionData.status === 'DUE_SOON' ? 'pending' : 'active')}`;
+                badge.textContent = subscriptionData.status || 'Active';
+            }
+
+            const pill = document.getElementById('navSubPill');
+            if (pill) {
+                pill.textContent = subscriptionData.status === 'EXPIRED' ? 'Expired' : (subscriptionData.status === 'DUE_SOON' ? 'Due Soon' : 'Active');
+                pill.className = `nav-pill ${subscriptionData.status === 'EXPIRED' ? 'bg-danger text-white' : ''}`;
+            }
+
+            renderSubscriptionBanner(subscriptionData);
+        }
+
+        // Render Pending Approvals Queue in Overview
+        renderPendingQueue(pendingLeaves, pendingReqs);
+
+    } catch (err) {
+        console.error('Error loading overview:', err);
+    }
+}
+
+/**
+ * Render combined pending queue on overview tab
+ */
+function renderPendingQueue(pendingLeaves, pendingReqs) {
+    const tbody = document.getElementById('pendingQueueTableBody');
+    if (!tbody) return;
+
+    const items = [];
+
+    pendingLeaves.forEach(l => {
+        items.push({
+            type: 'LEAVE',
+            id: l.id,
+            title: `Doctor Leave: ${l.doctorName || 'Doctor'} (${l.leaveType || 'General'})`,
+            requester: `${l.doctorName || 'Doctor'} • ${l.department || 'Clinical'}`,
+            date: `${l.startDate} to ${l.endDate} (${l.daysCount || 1}d)`,
+            priorityOrReason: l.reason || 'Medical / Personal reason',
+            priorityBadge: 'MEDIUM',
+            raw: l
+        });
+    });
+
+    pendingReqs.forEach(r => {
+        items.push({
+            type: 'INVENTORY',
+            id: r.id,
+            title: `Inventory: ${r.itemName} (${r.requestedQuantity} ${r.unit})`,
+            requester: `${r.requestedBy || 'Staff'} • ${r.department}`,
+            date: `Req Date: ${r.requestDate || r.createdAt?.split('T')[0]}`,
+            priorityOrReason: r.reason || 'Restock requisition',
+            priorityBadge: r.priority || 'MEDIUM',
+            raw: r
+        });
+    });
+
+    if (items.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td><strong>Pending Leave Requests</strong></td>
-                <td>${pendingLeaves}</td>
-                <td>${pendingLeaves > 0 ? '<span class="badge badge-inactive">Needs Attention</span>' : '<span class="badge badge-active">All Clear</span>'}</td>
-            </tr>
-            <tr>
-                <td><strong>Open Support Requests</strong></td>
-                <td>${openSupport}</td>
-                <td>${openSupport > 0 ? '<span class="badge badge-inactive">Needs Attention</span>' : '<span class="badge badge-active">All Clear</span>'}</td>
-            </tr>
-            <tr>
-                <td><strong>Hospital Status</strong></td>
-                <td>Operational</td>
-                <td><span class="badge badge-active">Active</span></td>
+                <td colspan="6" class="loading-cell text-success">
+                    ✨ No pending approvals! All doctor leaves and inventory requisitions are up-to-date.
+                </td>
             </tr>
         `;
-    } catch (err) {
-        if (hideLoading) hideLoading();
-        console.error('Failed to load overview:', err);
-        
-        if (window.NexCareUI && window.NexCareUI.showToast) {
-            window.NexCareUI.showToast({ 
-                message: 'Failed to load overview. Please check your connection.', 
-                type: 'error' 
-            });
-        }
-        
-        tbody.innerHTML = '<tr><td colspan="3" class="loading-cell" style="color:#ef4444;">Failed to load overview. Please try again.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = items.map(item => `
+        <tr>
+            <td>
+                <span class="badge ${item.type === 'LEAVE' ? 'badge-role' : 'badge-approved'}">
+                    ${item.type === 'LEAVE' ? '🩺 Doctor Leave' : '📦 Inventory'}
+                </span>
+            </td>
+            <td><strong>${item.title}</strong></td>
+            <td>${item.requester}</td>
+            <td>${item.date}</td>
+            <td>
+                <span class="badge badge-${(item.priorityBadge || 'medium').toLowerCase()}">${item.priorityBadge || 'MEDIUM'}</span>
+                <div style="font-size:11.5px; color:#64748B; margin-top:2px;">${item.priorityOrReason}</div>
+            </td>
+            <td>
+                <div style="display:flex; gap:6px;">
+                    ${item.type === 'LEAVE' ? `
+                        <button class="btn-action-sm btn-action-approve" onclick="approveLeave('${item.id}')">Approve</button>
+                        <button class="btn-action-sm btn-action-reject" onclick="promptRejectLeave('${item.id}')">Reject</button>
+                    ` : `
+                        <button class="btn-action-sm btn-action-approve" onclick="approveInventoryReq('${item.id}')">Approve</button>
+                        <button class="btn-action-sm btn-action-reject" onclick="promptRejectInventoryReq('${item.id}')">Reject</button>
+                    `}
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+/**
+ * Render subscription warning banner based on days remaining
+ */
+function renderSubscriptionBanner(sub) {
+    const bannerContainer = document.getElementById('subscriptionAlertBanner');
+    if (!bannerContainer || !sub) return;
+
+    if (sub.warningLevel === 'expired') {
+        bannerContainer.style.display = 'block';
+        bannerContainer.innerHTML = `
+            <div class="alert-banner alert-banner-expired">
+                <div class="alert-banner-content">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <div>
+                        <strong>Hospital Registration Expired:</strong> Your NexCare subscription ended on ${sub.subscriptionExpiryDate}. Please renew immediately to maintain active hospital services.
+                    </div>
+                </div>
+                <button class="alert-btn alert-btn-danger" onclick="openRenewalModal()">Renew Subscription (12 Months)</button>
+            </div>
+        `;
+    } else if (sub.warningLevel === 'urgent_7') {
+        bannerContainer.style.display = 'block';
+        bannerContainer.innerHTML = `
+            <div class="alert-banner alert-banner-urgent">
+                <div class="alert-banner-content">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <div>
+                        <strong>URGENT: Registration Renewal Due:</strong> Only ${sub.daysRemaining} day${sub.daysRemaining === 1 ? '' : 's'} remaining before your hospital license expires on ${sub.subscriptionExpiryDate}.
+                    </div>
+                </div>
+                <button class="alert-btn alert-btn-warning" onclick="openRenewalModal()">Renew License Now</button>
+            </div>
+        `;
+    } else if (sub.warningLevel === 'warning_30') {
+        bannerContainer.style.display = 'block';
+        bannerContainer.innerHTML = `
+            <div class="alert-banner alert-banner-warning">
+                <div class="alert-banner-content">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <div>
+                        <strong>Renewal Notice:</strong> Your NexCare annual registration expires in ${sub.daysRemaining} days (${sub.subscriptionExpiryDate}).
+                    </div>
+                </div>
+                <button class="alert-btn alert-btn-warning" onclick="openRenewalModal()">Renew (+12 Months)</button>
+            </div>
+        `;
+    } else {
+        bannerContainer.style.display = 'none';
+        bannerContainer.innerHTML = '';
     }
 }
 
+/**
+ * TAB 2: Load Doctor Leaves
+ */
 async function loadLeaves() {
+    const hospitalId = managerProfile?.hospitalId || 'H001';
     const tbody = document.getElementById('leavesTableBody');
-    
-    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
-        ? window.NexCareUI.showLoading('Loading leave requests...') 
-        : null;
-    
+
     try {
-        if (!window.NexCareAPI || !window.NexCareAPI.Leaves) {
-            throw new Error('API library not loaded. Please refresh the page.');
+        const resp = await window.NexCareAPI.Leaves.getAll({ hospitalId });
+        allLeaves = (resp.success && Array.isArray(resp.data)) ? resp.data : [];
+
+        // Populate department filter dropdown
+        const deptFilter = document.getElementById('leaveDeptFilter');
+        if (deptFilter) {
+            const depts = [...new Set(allLeaves.map(l => l.department).filter(Boolean))];
+            deptFilter.innerHTML = '<option value="ALL">All Departments</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
         }
-        
-        const hospitalId = managerProfile ? managerProfile.hospitalId : null;
-        const response = await window.NexCareAPI.Leaves.getAll(hospitalId ? { hospitalId } : {});
-        
-        if (hideLoading) hideLoading();
-        
-        if (response && response.success && Array.isArray(response.data)) {
-            allLeaves = response.data;
-            renderLeaves(allLeaves);
-            document.getElementById('statPendingLeaves').textContent = allLeaves.filter(l => l.status === 'pending').length;
-        } else {
-            tbody.innerHTML = '<tr><td colspan="6" class="loading-cell">No leave requests found.</td></tr>';
-        }
-    } catch (err) {
-        if (hideLoading) hideLoading();
-        console.error('Failed to load leaves:', err);
-        
-        if (window.NexCareUI && window.NexCareUI.showToast) {
-            window.NexCareUI.showToast({ 
-                message: 'Failed to load leave requests. Please check your connection.', 
-                type: 'error' 
-            });
-        }
-        
-        tbody.innerHTML = '<tr><td colspan="6" class="loading-cell" style="color:#ef4444;">Failed to load leave requests. Please try again.</td></tr>';
+
+        filterLeaves();
+    } catch (e) {
+        console.error('Error loading leaves:', e);
+        if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="loading-cell text-danger">Failed to load doctor leaves.</td></tr>`;
     }
 }
 
-function renderLeaves(leaves) {
-    const tbody = document.getElementById('leavesTableBody');
-    if (!leaves || leaves.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="loading-cell">No leave requests found.</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = leaves.map(l => {
-        const statusBadge = l.status === 'approved' ? '<span class="badge badge-active">APPROVED</span>' :
-            l.status === 'rejected' ? '<span class="badge badge-suspended">REJECTED</span>' :
-            '<span class="badge badge-inactive">PENDING</span>';
-        
-        const dates = `${l.startDate || ''} to ${l.endDate || ''}`;
-        const actions = l.status === 'pending' ? `
-            <button onclick="approveLeave('${l.id}')" style="padding:4px 8px; font-size:12px; border-radius:4px; background:#10B981; color:#fff; border:none; cursor:pointer; margin-right:4px;">
-                Approve
-            </button>
-            <button onclick="rejectLeave('${l.id}')" style="padding:4px 8px; font-size:12px; border-radius:4px; background:#EF4444; color:#fff; border:none; cursor:pointer;">
-                Reject
-            </button>
-        ` : '<span style="color:#6A7282; font-size:12px;">Processed</span>';
-        
-        return `
-            <tr>
-                <td><strong>${escapeHtml(l.doctorName || 'Doctor')}</strong></td>
-                <td>${escapeHtml(l.department || 'N/A')}</td>
-                <td>${escapeHtml(dates)}</td>
-                <td>${escapeHtml(l.reason || 'N/A')}</td>
-                <td>${statusBadge}</td>
-                <td>${actions}</td>
-            </tr>
-        `;
-    }).join('');
-}
-
-async function approveLeave(id) {
-    if (!confirm('Approve this leave request?')) return;
-    
-    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
-        ? window.NexCareUI.showLoading('Approving leave...') 
-        : null;
-    
-    try {
-        const response = await window.NexCareAPI.Leaves.update(id, { status: 'approved' });
-        
-        if (hideLoading) hideLoading();
-        
-        if (response && response.success) {
-            if (window.NexCareUI && window.NexCareUI.showToast) {
-                window.NexCareUI.showToast({ 
-                    message: 'Leave request approved successfully', 
-                    type: 'success' 
-                });
-            }
-            await loadLeaves();
-        } else {
-            if (window.NexCareUI && window.NexCareUI.showError) {
-                window.NexCareUI.showError({ 
-                    title: 'Failed to Approve',
-                    message: response.message || 'Could not approve leave request'
-                });
-            }
-        }
-    } catch (err) {
-        if (hideLoading) hideLoading();
-        console.error('Leave approval error:', err);
-        
-        if (window.NexCareUI && window.NexCareUI.showToast) {
-            window.NexCareUI.showToast({ 
-                message: 'Failed to approve leave. Please try again.', 
-                type: 'error' 
-            });
-        }
-    }
-}
-
-async function rejectLeave(id) {
-    if (!confirm('Reject this leave request?')) return;
-    
-    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
-        ? window.NexCareUI.showLoading('Rejecting leave...') 
-        : null;
-    
-    try {
-        const response = await window.NexCareAPI.Leaves.update(id, { status: 'rejected' });
-        
-        if (hideLoading) hideLoading();
-        
-        if (response && response.success) {
-            if (window.NexCareUI && window.NexCareUI.showToast) {
-                window.NexCareUI.showToast({ 
-                    message: 'Leave request rejected', 
-                    type: 'warning' 
-                });
-            }
-            await loadLeaves();
-        } else {
-            if (window.NexCareUI && window.NexCareUI.showError) {
-                window.NexCareUI.showError({ 
-                    title: 'Failed to Reject',
-                    message: response.message || 'Could not reject leave request'
-                });
-            }
-        }
-    } catch (err) {
-        if (hideLoading) hideLoading();
-        console.error('Leave rejection error:', err);
-        
-        if (window.NexCareUI && window.NexCareUI.showToast) {
-            window.NexCareUI.showToast({ 
-                message: 'Failed to reject leave. Please try again.', 
-                type: 'error' 
-            });
-        }
-    }
-}
-
+/**
+ * Filter and render doctor leaves
+ */
 function filterLeaves() {
-    const statusVal = document.getElementById('leaveStatusFilter').value;
-    const filtered = allLeaves.filter(l => !statusVal || l.status === statusVal);
-    renderLeaves(filtered);
+    const tbody = document.getElementById('leavesTableBody');
+    if (!tbody) return;
+
+    const searchTerm = (document.getElementById('leaveSearchInput')?.value || '').toLowerCase().trim();
+    const statusFilter = document.getElementById('leaveStatusFilter')?.value || 'ALL';
+    const deptFilter = document.getElementById('leaveDeptFilter')?.value || 'ALL';
+
+    let filtered = [...allLeaves];
+
+    if (statusFilter !== 'ALL') {
+        filtered = filtered.filter(l => (l.status || '').toLowerCase() === statusFilter.toLowerCase());
+    }
+
+    if (deptFilter !== 'ALL') {
+        filtered = filtered.filter(l => l.department === deptFilter);
+    }
+
+    if (searchTerm) {
+        filtered = filtered.filter(l => 
+            (l.doctorName || '').toLowerCase().includes(searchTerm) ||
+            (l.reason || '').toLowerCase().includes(searchTerm) ||
+            (l.specialization || '').toLowerCase().includes(searchTerm)
+        );
+    }
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="loading-cell">No leave requests match the selected criteria.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = filtered.map(leave => {
+        const isPending = (leave.status || '').toLowerCase() === 'pending';
+        const isApproved = (leave.status || '').toLowerCase() === 'approved';
+        const isRejected = (leave.status || '').toLowerCase() === 'rejected';
+
+        let auditText = '';
+        if (isApproved && leave.approvedByName) {
+            auditText = `<div style="font-size:11px; color:#059669; margin-top:2px;">Approved by ${leave.approvedByName} on ${leave.approvedAt ? leave.approvedAt.split('T')[0] : 'record'}</div>`;
+        } else if (isRejected) {
+            auditText = `<div style="font-size:11px; color:#DC2626; margin-top:2px;"><strong>Rejected:</strong> ${leave.rejectionReason || 'By Manager'}${leave.rejectedByName ? ` (${leave.rejectedByName})` : ''}</div>`;
+        }
+
+        return `
+            <tr>
+                <td>
+                    <strong>${leave.doctorName || 'Dr. Practitioner'}</strong>
+                    <div style="font-size:11px; color:#64748B;">ID: ${leave.doctorId || 'DOC'}</div>
+                </td>
+                <td>
+                    <strong>${leave.department || 'Clinical'}</strong>
+                    <div style="font-size:11px; color:#64748B;">${leave.specialization || 'Consultant'}</div>
+                </td>
+                <td>
+                    <span class="badge badge-role">${leave.leaveType || 'Casual Leave'}</span>
+                </td>
+                <td>${leave.startDate} to ${leave.endDate}</td>
+                <td><strong>${leave.daysCount || 1} day${(leave.daysCount || 1) === 1 ? '' : 's'}</strong></td>
+                <td>${leave.reason || 'Personal / Medical'}</td>
+                <td>
+                    <span class="badge badge-${isPending ? 'pending' : (isApproved ? 'active' : 'rejected')}">
+                        ${leave.status ? leave.status.toUpperCase() : 'PENDING'}
+                    </span>
+                    ${auditText}
+                </td>
+                <td>
+                    ${isPending ? `
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-action-sm btn-action-approve" onclick="approveLeave('${leave.id}')">Approve</button>
+                            <button class="btn-action-sm btn-action-reject" onclick="promptRejectLeave('${leave.id}')">Reject</button>
+                        </div>
+                    ` : `
+                        <span style="font-size:12px; color:#94A3B8;">Completed</span>
+                    `}
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
+/**
+ * Approve doctor leave
+ */
+async function approveLeave(leaveId) {
+    try {
+        const resp = await window.NexCareAPI.Leaves.approve(leaveId);
+        if (resp.success) {
+            showToast('Leave request approved successfully!', 'success');
+            await loadOverview();
+            await loadLeaves();
+        } else {
+            showToast(resp.message || 'Failed to approve leave', 'error');
+        }
+    } catch (e) {
+        showToast('Error approving leave request', 'error');
+    }
+}
+
+/**
+ * Open rejection modal for doctor leave
+ */
+function promptRejectLeave(leaveId) {
+    currentRejectionType = 'LEAVE';
+    currentRejectionTargetId = leaveId;
+    
+    document.getElementById('rejectionModalTitle').textContent = 'Reject Doctor Leave Request';
+    document.getElementById('rejectionModalPrompt').textContent = 'Please provide a clear administrative reason for rejecting this doctor leave request:';
+    document.getElementById('rejectionReasonInput').value = '';
+    document.getElementById('rejectionModal').style.display = 'flex';
+}
+
+/**
+ * TAB 3: Load Staff Directory & Supervision
+ */
 async function loadStaff() {
+    const hospitalId = managerProfile?.hospitalId || 'H001';
     const tbody = document.getElementById('staffTableBody');
-    
-    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
-        ? window.NexCareUI.showLoading('Loading staff...') 
-        : null;
-    
+
     try {
-        if (!window.NexCareAPI || !window.NexCareAPI.Users) {
-            throw new Error('API library not loaded. Please refresh the page.');
-        }
+        const resp = await window.NexCareAPI.Users.getAll();
+        const users = (resp.success && Array.isArray(resp.data)) ? resp.data : [];
         
-        const hospitalId = managerProfile ? managerProfile.hospitalId : null;
-        const response = await window.NexCareAPI.Users.getAll();
-        
-        if (hideLoading) hideLoading();
-        
-        if (response && response.success && Array.isArray(response.data)) {
-            allStaff = response.data.filter(u => !hospitalId || u.hospitalId === hospitalId);
-            renderStaff(allStaff);
-            document.getElementById('statStaff').textContent = allStaff.length;
-        } else {
-            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No staff found.</td></tr>';
-        }
-    } catch (err) {
-        if (hideLoading) hideLoading();
-        console.error('Failed to load staff:', err);
-        
-        if (window.NexCareUI && window.NexCareUI.showToast) {
-            window.NexCareUI.showToast({ 
-                message: 'Failed to load staff. Please check your connection.', 
-                type: 'error' 
-            });
-        }
-        
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-cell" style="color:#ef4444;">Failed to load staff. Please try again.</td></tr>';
+        // Scope to this hospital only
+        allStaff = users.filter(u => u.hospitalId === hospitalId);
+
+        filterStaff();
+        loadSupervision();
+    } catch (e) {
+        console.error('Error loading staff:', e);
+        if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="loading-cell text-danger">Failed to load staff directory.</td></tr>`;
     }
 }
 
-function renderStaff(staff) {
-    const tbody = document.getElementById('staffTableBody');
-    if (!staff || staff.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No staff found.</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = staff.map(s => {
-        const statusBadge = s.status === 'Active' ? '<span class="badge badge-active">Active</span>' :
-            s.status === 'On Leave' ? '<span class="badge badge-inactive">On Leave</span>' :
-            '<span class="badge badge-suspended">Inactive</span>';
-        
-        return `
-            <tr>
-                <td><strong>${escapeHtml(s.name || 'N/A')}</strong></td>
-                <td>${escapeHtml(s.email || 'N/A')}</td>
-                <td>${escapeHtml(s.role || 'N/A')}</td>
-                <td>${escapeHtml(s.dept || 'N/A')}</td>
-                <td>${statusBadge}</td>
-            </tr>
-        `;
-    }).join('');
-}
-
+/**
+ * Filter and render staff directory
+ */
 function filterStaff() {
-    const query = document.getElementById('staffSearch').value.toLowerCase().trim();
-    const filtered = allStaff.filter(s => 
-        !query || 
-        (s.name && s.name.toLowerCase().includes(query)) ||
-        (s.email && s.email.toLowerCase().includes(query)) ||
-        (s.role && s.role.toLowerCase().includes(query))
-    );
-    renderStaff(filtered);
-}
+    const tbody = document.getElementById('staffTableBody');
+    if (!tbody) return;
 
-async function loadSupport() {
-    const tbody = document.getElementById('supportTableBody');
-    
-    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
-        ? window.NexCareUI.showLoading('Loading support requests...') 
-        : null;
-    
-    try {
-        if (!window.NexCareAPI || !window.NexCareAPI.SupportRequests) {
-            throw new Error('API library not loaded. Please refresh the page.');
-        }
-        
-        const response = await window.NexCareAPI.SupportRequests.getAll();
-        
-        if (hideLoading) hideLoading();
-        
-        if (response && response.success && Array.isArray(response.data)) {
-            allSupport = response.data;
-            renderSupport(allSupport);
-            document.getElementById('statSupport').textContent = allSupport.filter(s => s.status === 'Open').length;
-        } else {
-            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No support requests found.</td></tr>';
-        }
-    } catch (err) {
-        if (hideLoading) hideLoading();
-        console.error('Failed to load support requests:', err);
-        
-        if (window.NexCareUI && window.NexCareUI.showToast) {
-            window.NexCareUI.showToast({ 
-                message: 'Failed to load support requests. Please check your connection.', 
-                type: 'error' 
-            });
-        }
-        
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-cell" style="color:#ef4444;">Failed to load support requests. Please try again.</td></tr>';
+    const searchTerm = (document.getElementById('staffSearchInput')?.value || '').toLowerCase().trim();
+    const roleFilter = document.getElementById('staffRoleFilter')?.value || 'ALL';
+    const statusFilter = document.getElementById('staffStatusFilter')?.value || 'ALL';
+
+    let filtered = [...allStaff];
+
+    if (roleFilter !== 'ALL') {
+        filtered = filtered.filter(s => (s.role || '').toLowerCase() === roleFilter.toLowerCase());
     }
-}
 
-function renderSupport(support) {
-    const tbody = document.getElementById('supportTableBody');
-    if (!support || support.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No support requests found.</td></tr>';
+    if (statusFilter !== 'ALL') {
+        filtered = filtered.filter(s => (s.status || '').toLowerCase() === statusFilter.toLowerCase());
+    }
+
+    if (searchTerm) {
+        filtered = filtered.filter(s => 
+            (s.name || '').toLowerCase().includes(searchTerm) ||
+            (s.email || '').toLowerCase().includes(searchTerm) ||
+            (s.employeeId || '').toLowerCase().includes(searchTerm) ||
+            (s.designation || '').toLowerCase().includes(searchTerm)
+        );
+    }
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="loading-cell">No staff members found matching your search.</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = support.map(s => {
-        const statusBadge = s.status === 'Open' ? '<span class="badge badge-inactive">Open</span>' :
-            s.status === 'In Progress' ? '<span class="badge badge-driver">In Progress</span>' :
-            '<span class="badge badge-active">Resolved</span>';
-        
-        const actions = s.status === 'Open' ? `
-            <button onclick="updateSupportStatus('${s.id}', 'In Progress')" style="padding:4px 8px; font-size:12px; border-radius:4px; background:#3B82F6; color:#fff; border:none; cursor:pointer; margin-right:4px;">
-                Start
-            </button>
-        ` : s.status === 'In Progress' ? `
-            <button onclick="updateSupportStatus('${s.id}', 'Resolved')" style="padding:4px 8px; font-size:12px; border-radius:4px; background:#10B981; color:#fff; border:none; cursor:pointer;">
-                Resolve
-            </button>
-        ` : '<span style="color:#10B981; font-size:12px;">Completed</span>';
-        
+    tbody.innerHTML = filtered.map(staff => {
+        const isActive = (staff.status || 'Active').toLowerCase() === 'active';
+        const roleName = staff.role === 'doctor' ? 'Doctor' : (staff.role === 'administrative_staff' ? 'Administrative Staff' : (staff.role === 'ambulance' ? 'Ambulance Staff' : staff.role));
+
+        let roleDetails = '';
+        if (staff.role === 'doctor') {
+            roleDetails = `
+                <div><strong>MRN:</strong> ${staff.medicalRegNumber || 'MCI-REG'}</div>
+                <div style="font-size:11px; color:#64748B;"><strong>OPD:</strong> ${staff.consultationTiming || 'Regular Hours'}</div>
+            `;
+        } else if (staff.role === 'administrative_staff') {
+            const resps = Array.isArray(staff.responsibilities) ? staff.responsibilities : ['Bed Allocation', 'Inventory'];
+            roleDetails = `
+                <div class="resp-tags-container" style="margin-top:2px;">
+                    ${resps.slice(0, 2).map(r => `<span class="resp-tag">${r}</span>`).join('')}
+                </div>
+            `;
+        } else if (staff.role === 'ambulance') {
+            roleDetails = `
+                <div><strong>Veh:</strong> ${staff.assignedVehicle || 'AP-03-AX-1001'}</div>
+                <div style="font-size:11px; color:#64748B;">${staff.shift || 'Day Shift'}</div>
+            `;
+        }
+
         return `
             <tr>
-                <td><strong>${escapeHtml(s.id || 'N/A')}</strong></td>
-                <td>${escapeHtml(s.subject || 'N/A')}</td>
-                <td>${escapeHtml(s.priority || 'Normal')}</td>
-                <td>${statusBadge}</td>
-                <td>${actions}</td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="user-avatar" style="width:34px; height:34px; font-size:12px;">
+                            ${(staff.name || 'S').split(' ').map(n=>n[0]).join('').slice(0,2)}
+                        </div>
+                        <div>
+                            <strong>${staff.name}</strong>
+                            <div style="font-size:11px; color:#64748B;">ID: ${staff.employeeId || staff.id}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge ${staff.role === 'doctor' ? 'badge-role' : 'badge-approved'}">${roleName}</span>
+                    <div style="font-size:12px; font-weight:600; color:#334155; margin-top:3px;">${staff.designation || staff.dept || 'General'}</div>
+                </td>
+                <td>
+                    <div>${staff.email}</div>
+                    <div style="font-size:11px; color:#64748B;">${staff.phone || '+91 98480 00000'}</div>
+                </td>
+                <td>${roleDetails}</td>
+                <td>
+                    <span class="badge badge-${isActive ? 'active' : 'inactive'}">
+                        ${staff.status || 'Active'}
+                    </span>
+                </td>
+                <td>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn-action-sm ${isActive ? 'btn-action-reject' : 'btn-action-approve'}" onclick="promptToggleStaffStatus('${staff.id}', '${isActive ? 'Inactive' : 'Active'}', '${staff.name}')">
+                            ${isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                    </div>
+                </td>
             </tr>
         `;
     }).join('');
 }
 
-async function updateSupportStatus(id, status) {
-    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
-        ? window.NexCareUI.showLoading('Updating status...') 
-        : null;
-    
+/**
+ * Open staff status toggle confirmation modal
+ */
+function promptToggleStaffStatus(userId, newStatus, userName) {
+    currentStaffTargetId = userId;
+    currentStaffTargetStatus = newStatus;
+
+    document.getElementById('staffStatusTitle').textContent = `${newStatus === 'Active' ? 'Activate' : 'Deactivate'} Staff Member`;
+    document.getElementById('staffStatusMsg').textContent = `Are you sure you want to mark ${userName} as ${newStatus}?`;
+    document.getElementById('btnConfirmStaffStatus').onclick = executeToggleStaffStatus;
+    document.getElementById('staffStatusModal').style.display = 'flex';
+}
+
+function closeStaffStatusModal() {
+    document.getElementById('staffStatusModal').style.display = 'none';
+    currentStaffTargetId = null;
+    currentStaffTargetStatus = null;
+}
+
+async function executeToggleStaffStatus() {
+    if (!currentStaffTargetId || !currentStaffTargetStatus) return;
+
     try {
-        const response = await window.NexCareAPI.SupportRequests.update(id, { status });
-        
-        if (hideLoading) hideLoading();
-        
-        if (response && response.success) {
-            if (window.NexCareUI && window.NexCareUI.showToast) {
-                window.NexCareUI.showToast({ 
-                    message: `Support request ${status.toLowerCase()}`, 
-                    type: 'success' 
-                });
-            }
-            await loadSupport();
+        const resp = await window.NexCareAPI.Users.updateStatus(currentStaffTargetId, currentStaffTargetStatus);
+        if (resp.success) {
+            showToast(`Staff member marked as ${currentStaffTargetStatus}`, 'success');
+            closeStaffStatusModal();
+            await loadStaff();
         } else {
-            if (window.NexCareUI && window.NexCareUI.showError) {
-                window.NexCareUI.showError({ 
-                    title: 'Failed to Update',
-                    message: response.message || 'Could not update support request'
-                });
+            showToast(resp.message || 'Failed to update status', 'error');
+        }
+    } catch (e) {
+        showToast('Error updating staff status', 'error');
+    }
+}
+
+/**
+ * TAB 4: Load Inventory Requirements
+ */
+async function loadInventoryReqs() {
+    const hospitalId = managerProfile?.hospitalId || 'H001';
+    const tbody = document.getElementById('inventoryTableBody');
+
+    try {
+        const resp = await window.NexCareAPI.Inventory.getRequirements({ hospitalId });
+        allInventoryReqs = (resp.success && Array.isArray(resp.data)) ? resp.data : [];
+
+        filterInventoryReqs();
+    } catch (e) {
+        console.error('Error loading inventory reqs:', e);
+        if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="loading-cell text-danger">Failed to load inventory requirements.</td></tr>`;
+    }
+}
+
+/**
+ * Filter and render inventory requirements
+ */
+function filterInventoryReqs() {
+    const tbody = document.getElementById('inventoryTableBody');
+    if (!tbody) return;
+
+    const searchTerm = (document.getElementById('inventorySearchInput')?.value || '').toLowerCase().trim();
+    const statusFilter = document.getElementById('inventoryStatusFilter')?.value || 'ALL';
+    const priorityFilter = document.getElementById('inventoryPriorityFilter')?.value || 'ALL';
+
+    let filtered = [...allInventoryReqs];
+
+    if (statusFilter !== 'ALL') {
+        filtered = filtered.filter(r => (r.status || '').toUpperCase() === statusFilter.toUpperCase());
+    }
+
+    if (priorityFilter !== 'ALL') {
+        filtered = filtered.filter(r => (r.priority || '').toUpperCase() === priorityFilter.toUpperCase());
+    }
+
+    if (searchTerm) {
+        filtered = filtered.filter(r => 
+            (r.itemName || '').toLowerCase().includes(searchTerm) ||
+            (r.department || '').toLowerCase().includes(searchTerm) ||
+            (r.reason || '').toLowerCase().includes(searchTerm)
+        );
+    }
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="loading-cell">No inventory requisitions match the selected filter.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = filtered.map(req => {
+        const isPending = (req.status || '').toUpperCase() === 'PENDING' || (req.status || '').toUpperCase() === 'PENDING_APPROVAL';
+        const isApproved = (req.status || '').toUpperCase() === 'APPROVED';
+        const isPurchasing = (req.status || '').toUpperCase() === 'PURCHASE_IN_PROGRESS';
+        const isPurchased = (req.status || '').toUpperCase() === 'PURCHASED';
+        const isRestocked = (req.status || '').toUpperCase() === 'RESTOCKED' || (req.status || '').toUpperCase() === 'FULFILLED';
+        const isRejected = (req.status || '').toUpperCase() === 'REJECTED';
+
+        let auditInfo = '';
+        if (isApproved) {
+            auditInfo = `<div style="font-size:11px; color:#059669; margin-top:2px;">Approved by ${req.approvedByName || 'Manager'}</div>
+                         <div style="font-size:10.5px; color:#64748B;">Awaiting purchasing by Admin Staff</div>`;
+        } else if (isPurchasing) {
+            auditInfo = `<div style="font-size:11px; color:#0284c7; margin-top:2px;">PO in Progress (${req.supplier || 'Vendor'})</div>
+                         <div style="font-size:10.5px; color:#64748B;">Invoice: ${req.invoiceNumber || 'Pending'}</div>`;
+        } else if (isPurchased) {
+            auditInfo = `<div style="font-size:11px; color:#7c3aed; margin-top:2px;">Purchased by Admin Staff</div>
+                         <div style="font-size:10.5px; color:#64748B;">Awaiting delivery & restock</div>`;
+        } else if (isRestocked) {
+            auditInfo = `<div style="font-size:11px; color:#16a34a; margin-top:2px;">✓ Restocked (+${req.quantityPurchased || req.requestedQuantity} ${req.unit})</div>`;
+        } else if (isRejected) {
+            auditInfo = `<div style="font-size:11px; color:#DC2626; margin-top:2px;"><strong>Reason:</strong> ${req.rejectionReason || 'Rejected by Manager'}</div>`;
+        }
+
+        let statusBadgeClass = 'badge-pending';
+        let displayStatus = 'PENDING APPROVAL';
+        if (isApproved) { statusBadgeClass = 'badge-approved'; displayStatus = 'APPROVED'; }
+        else if (isPurchasing) { statusBadgeClass = 'badge-role'; displayStatus = 'PURCHASING'; }
+        else if (isPurchased) { statusBadgeClass = 'badge-active'; displayStatus = 'PURCHASED'; }
+        else if (isRestocked) { statusBadgeClass = 'badge-active'; displayStatus = 'RESTOCKED'; }
+        else if (isRejected) { statusBadgeClass = 'badge-rejected'; displayStatus = 'REJECTED'; }
+
+        return `
+            <tr>
+                <td>
+                    <strong>${req.id}</strong>
+                    <div style="font-size:11px; color:#64748B;">${req.requestDate || req.createdAt?.split('T')[0]}</div>
+                </td>
+                <td>
+                    <strong>${req.itemName}</strong>
+                    <div style="font-size:11px; color:#64748B;">${req.category || 'Supplies'}</div>
+                </td>
+                <td>
+                    <div><strong>${req.requestedQuantity}</strong> ${req.unit} requested</div>
+                    <div style="font-size:11px; color:#64748B;">Current Stock: ${req.currentQuantity} ${req.unit}</div>
+                </td>
+                <td>
+                    <strong>${req.department}</strong>
+                    <div style="font-size:11px; color:#64748B;">${req.requestedBy || 'Admin Staff'}</div>
+                </td>
+                <td>
+                    <span class="badge badge-${(req.priority || 'medium').toLowerCase()}">${req.priority || 'MEDIUM'}</span>
+                    <div style="font-size:11px; color:#64748B; margin-top:2px;">${req.reason || ''}</div>
+                </td>
+                <td>
+                    <strong>₹${(Number(req.estimatedCost) || 0).toLocaleString('en-IN')}</strong>
+                </td>
+                <td>
+                    <span class="badge ${statusBadgeClass}">${displayStatus}</span>
+                    ${auditInfo}
+                </td>
+                <td>
+                    ${isPending ? `
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-action-sm btn-action-approve" onclick="openApprovalModal('${req.id}')">Approve</button>
+                            <button class="btn-action-sm btn-action-reject" onclick="promptRejectInventoryReq('${req.id}')">Reject</button>
+                        </div>
+                    ` : `
+                        <span style="font-size:12px; color:#64748B; font-weight:600;">Processed</span>
+                    `}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+let currentApprovalTargetId = null;
+
+function openApprovalModal(reqId) {
+    currentApprovalTargetId = reqId;
+    document.getElementById('approvalRemarksInput').value = '';
+    document.getElementById('approvalModal').style.display = 'flex';
+}
+
+function closeApprovalModal() {
+    document.getElementById('approvalModal').style.display = 'none';
+    currentApprovalTargetId = null;
+}
+
+async function executeApproval() {
+    if (!currentApprovalTargetId) return;
+    const remarks = document.getElementById('approvalRemarksInput').value.trim();
+
+    try {
+        const resp = await window.NexCareAPI.Inventory.approveRequirement(currentApprovalTargetId, remarks);
+        if (resp.success) {
+            showToast('Inventory requisition approved successfully! Passed to Admin Staff for purchasing.', 'success');
+            closeApprovalModal();
+            await loadOverview();
+            await loadInventoryReqs();
+        } else {
+            showToast(resp.message || 'Failed to approve requirement', 'error');
+        }
+    } catch (e) {
+        showToast('Error approving requirement', 'error');
+    }
+}
+
+/**
+ * Open rejection modal for inventory requirement
+ */
+function promptRejectInventoryReq(reqId) {
+    currentRejectionType = 'INVENTORY';
+    currentRejectionTargetId = reqId;
+
+    document.getElementById('rejectionModalTitle').textContent = 'Reject Inventory Requisition';
+    document.getElementById('rejectionModalPrompt').textContent = 'Please provide an administrative reason for rejecting this stock requirement:';
+    document.getElementById('rejectionReasonInput').value = '';
+    document.getElementById('rejectionModal').style.display = 'flex';
+}
+
+/**
+ * Fulfill inventory requirement
+ */
+async function fulfillInventoryReq(reqId) {
+    try {
+        const resp = await window.NexCareAPI.Inventory.fulfillRequirement(reqId);
+        if (resp.success) {
+            showToast('Requirement fulfilled and item stock replenished!', 'success');
+            await loadInventoryReqs();
+        } else {
+            showToast(resp.message || 'Failed to fulfill requirement', 'error');
+        }
+    } catch (e) {
+        showToast('Error fulfilling requirement', 'error');
+    }
+}
+
+/**
+ * Execute Rejection Confirmation (Doctor Leave or Inventory)
+ */
+async function executeRejection() {
+    const reason = document.getElementById('rejectionReasonInput').value.trim();
+    if (!reason) {
+        showToast('Please provide a rejection reason.', 'error');
+        return;
+    }
+
+    try {
+        if (currentRejectionType === 'LEAVE') {
+            const resp = await window.NexCareAPI.Leaves.reject(currentRejectionTargetId, reason);
+            if (resp.success) {
+                showToast('Doctor leave request rejected with reason.', 'success');
+                closeRejectionModal();
+                await loadOverview();
+                await loadLeaves();
+            } else {
+                showToast(resp.message || 'Failed to reject leave', 'error');
+            }
+        } else if (currentRejectionType === 'INVENTORY') {
+            const resp = await window.NexCareAPI.Inventory.rejectRequirement(currentRejectionTargetId, reason);
+            if (resp.success) {
+                showToast('Inventory requirement rejected with reason.', 'success');
+                closeRejectionModal();
+                await loadOverview();
+                await loadInventoryReqs();
+            } else {
+                showToast(resp.message || 'Failed to reject requirement', 'error');
             }
         }
+    } catch (e) {
+        showToast('Error executing rejection', 'error');
+    }
+}
+
+function closeRejectionModal() {
+    document.getElementById('rejectionModal').style.display = 'none';
+    currentRejectionType = null;
+    currentRejectionTargetId = null;
+}
+
+/**
+ * TAB 5: Load Subscription & Renewal
+ */
+async function loadSubscription() {
+    const hospitalId = managerProfile?.hospitalId || 'H001';
+    const tbody = document.getElementById('paymentHistoryTableBody');
+
+    try {
+        const resp = await window.NexCareAPI.Hospitals.getSubscription(hospitalId);
+        if (resp.success && resp.data) {
+            subscriptionData = resp.data;
+
+            document.getElementById('subHospitalTitle').textContent = `${subscriptionData.hospitalName} - Enterprise License`;
+            document.getElementById('subHospitalIdVal').textContent = subscriptionData.hospitalId;
+            document.getElementById('subRegDateVal').textContent = subscriptionData.registrationDate || '2024-01-01';
+            document.getElementById('subStartDateVal').textContent = subscriptionData.subscriptionStartDate || '2025-01-01';
+            document.getElementById('subExpiryDateVal').textContent = subscriptionData.subscriptionExpiryDate || '--';
+            document.getElementById('subDaysCount').textContent = subscriptionData.daysRemaining !== undefined ? subscriptionData.daysRemaining : '--';
+            
+            const heroStatus = document.getElementById('subHeroStatusPill');
+            if (heroStatus) {
+                heroStatus.textContent = `Status: ${subscriptionData.status || 'Active'}`;
+                heroStatus.style.background = subscriptionData.status === 'EXPIRED' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.2)';
+                heroStatus.style.color = subscriptionData.status === 'EXPIRED' ? '#F87171' : '#34D399';
+            }
+
+            // Render payment history table
+            const history = Array.isArray(subscriptionData.paymentHistory) ? subscriptionData.paymentHistory : [];
+            if (tbody) {
+                if (history.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="loading-cell">No previous renewal transactions recorded yet.</td></tr>`;
+                } else {
+                    tbody.innerHTML = history.map(item => `
+                        <tr>
+                            <td><strong>${item.date ? item.date.split('T')[0] : '--'}</strong></td>
+                            <td><code>${item.transactionId}</code></td>
+                            <td>${item.paymentType || 'UPI'}</td>
+                            <td><strong>₹${(Number(item.amount) || 50000).toLocaleString('en-IN')}</strong></td>
+                            <td>${item.previousExpiry || '--'}</td>
+                            <td class="text-success"><strong>${item.newExpiry}</strong></td>
+                            <td><span class="badge badge-active">${item.status || 'PAID'}</span></td>
+                        </tr>
+                    `).join('');
+                }
+            }
+        }
+    } catch (e) {
+        console.error('Error loading subscription:', e);
+    }
+}
+
+/**
+ * Open 12-Month Renewal Modal with dynamic math
+ */
+function openRenewalModal() {
+    const hospitalId = managerProfile?.hospitalId || 'H001';
+    const hospitalName = subscriptionData?.hospitalName || managerProfile?.hospitalName || 'Hospital';
+
+    document.getElementById('payModalHospitalName').textContent = `${hospitalName} (${hospitalId})`;
+    
+    const currentExpiryStr = subscriptionData?.subscriptionExpiryDate || new Date().toISOString().split('T')[0];
+    document.getElementById('payModalCurrentExpiry').textContent = currentExpiryStr;
+
+    // Calculate +12 months from current expiry (or from now if expired)
+    const now = new Date();
+    let baseDate = now;
+    if (currentExpiryStr) {
+        const curExp = new Date(currentExpiryStr);
+        if (curExp > now) baseDate = curExp;
+    }
+    const newExp = new Date(baseDate);
+    newExp.setFullYear(newExp.getFullYear() + 1);
+
+    document.getElementById('payModalNewExpiry').textContent = `${newExp.toISOString().split('T')[0]} (+12 Months)`;
+
+    document.getElementById('renewalModal').style.display = 'flex';
+}
+
+function closeRenewalModal() {
+    document.getElementById('renewalModal').style.display = 'none';
+}
+
+/**
+ * Switch payment methods in modal
+ */
+function switchPayTab(type, event) {
+    if (event) event.preventDefault();
+
+    document.querySelectorAll('.pay-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pay-form-content').forEach(f => f.classList.remove('active'));
+
+    if (type === 'upi') {
+        document.querySelectorAll('.pay-tab')[0].classList.add('active');
+        document.getElementById('payFormUpi').classList.add('active');
+    } else if (type === 'card') {
+        document.querySelectorAll('.pay-tab')[1].classList.add('active');
+        document.getElementById('payFormCard').classList.add('active');
+    } else if (type === 'netbanking') {
+        document.querySelectorAll('.pay-tab')[2].classList.add('active');
+        document.getElementById('payFormNetbanking').classList.add('active');
+    }
+}
+
+/**
+ * Process mock renewal payment
+ */
+async function processMockRenewalPayment() {
+    const btn = document.getElementById('btnPayConfirm');
+    const hospitalId = managerProfile?.hospitalId || 'H001';
+
+    btn.disabled = true;
+    btn.innerHTML = '<span>Processing Secure Payment...</span>';
+
+    try {
+        const paymentData = {
+            paymentMethod: 'UPI (admin.aiims@icici)',
+            amount: 50000
+        };
+
+        const resp = await window.NexCareAPI.Hospitals.renewSubscription(hospitalId, paymentData);
+        if (resp.success) {
+            showToast('Payment successful! Hospital subscription extended by 12 Months.', 'success');
+            closeRenewalModal();
+            await loadAllDashboardData();
+        } else {
+            showToast(resp.message || 'Payment processing failed', 'error');
+        }
+    } catch (e) {
+        showToast('Error processing renewal payment', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Pay ₹50,000 & Extend 12 Months</span>';
+    }
+}
+
+/**
+ * TAB 6: Load Administrative Supervision
+ */
+function loadSupervision() {
+    const grid = document.getElementById('adminStaffGrid');
+    if (!grid) return;
+
+    const hospitalId = managerProfile?.hospitalId || 'H001';
+    const adminStaff = allStaff.filter(s => s.role === 'administrative_staff' && s.hospitalId === hospitalId);
+
+    if (adminStaff.length === 0) {
+        grid.innerHTML = `<p class="loading-cell">No administrative staff members found for this hospital.</p>`;
+        return;
+    }
+
+    grid.innerHTML = adminStaff.map(staff => {
+        const resps = Array.isArray(staff.responsibilities) ? staff.responsibilities : [
+            'Bed Allocation & Patient Check-in',
+            'Inventory Requisition & Tracking',
+            'Billing & Discharge Administration'
+        ];
+
+        return `
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="admin-avatar">
+                        ${staff.name.split(' ').map(n=>n[0]).join('').slice(0,2)}
+                    </div>
+                    <div>
+                        <h4 style="font-size:15px; font-weight:700; color:#0F172A;">${staff.name}</h4>
+                        <div style="font-size:12px; color:#64748B;">${staff.designation || 'Operations Lead'} • ${staff.employeeId || staff.id}</div>
+                        <div style="font-size:12px; color:#2563EB;">${staff.email}</div>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size:11.5px; font-weight:700; text-transform:uppercase; color:#64748B; margin-bottom:6px; display:block;">
+                        Supervised Responsibilities
+                    </label>
+                    <div class="resp-tags-container">
+                        ${resps.map(r => `<span class="resp-tag">✓ ${r}</span>`).join('')}
+                    </div>
+                </div>
+
+                <div style="border-top:1px solid #F1F5F9; padding-top:10px; display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#64748B;">
+                    <span>Status: <strong class="text-success">${staff.status || 'Active'}</strong></span>
+                    <span>Joined: ${staff.joiningDate || '2024-01-15'}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * TAB 7: Load Support Requests
+ */
+async function loadSupport() {
+    const hospitalId = managerProfile?.hospitalId || 'H001';
+    const tbody = document.getElementById('supportTableBody');
+
+    try {
+        const resp = await window.NexCareAPI.SupportRequests.getAll(hospitalId);
+        allSupport = (resp.success && Array.isArray(resp.data)) ? resp.data : [];
+
+        if (!tbody) return;
+        if (allSupport.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="loading-cell">No support tickets found for your hospital.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = allSupport.map(ticket => `
+            <tr>
+                <td><strong>${ticket.id}</strong></td>
+                <td>
+                    <strong>${ticket.subject || ticket.title}</strong>
+                    <div style="font-size:11px; color:#64748B;">${ticket.category || 'General'}</div>
+                </td>
+                <td><span class="badge badge-${(ticket.priority || 'medium').toLowerCase()}">${ticket.priority || 'MEDIUM'}</span></td>
+                <td>${ticket.createdAt ? ticket.createdAt.split('T')[0] : '--'}</td>
+                <td>
+                    <span class="badge badge-${ticket.status === 'Open' ? 'pending' : 'active'}">
+                        ${ticket.status || 'Open'}
+                    </span>
+                </td>
+                <td>${ticket.response || ticket.resolution || 'Pending regional review'}</td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        console.error('Error loading support:', e);
+    }
+}
+
+let lastRegisteredCredentials = null;
+let emailPreviewTimeout = null;
+
+function previewDedicatedStaffEmail() {
+    clearTimeout(emailPreviewTimeout);
+    const name = document.getElementById('pageStaffName').value.trim();
+    if (!name) {
+        document.getElementById('pageStaffEmailPreview').value = 'name@nexcare.in';
+        return;
+    }
+
+    emailPreviewTimeout = setTimeout(async () => {
+        try {
+            const resp = await window.NexCareAPI.Users.previewEmail(name);
+            if (resp.success && resp.data?.email) {
+                document.getElementById('pageStaffEmailPreview').value = resp.data.email;
+            }
+        } catch (e) {
+            console.error('Email preview error:', e);
+        }
+    }, 250);
+}
+
+function handlePageStaffRoleChange() {
+    const role = document.getElementById('pageStaffRole').value;
+    const docSec = document.getElementById('pageDoctorFields');
+    const admSec = document.getElementById('pageAdminFields');
+    const ambSec = document.getElementById('pageAmbulanceFields');
+
+    if (docSec) docSec.style.display = role === 'doctor' ? 'block' : 'none';
+    if (admSec) admSec.style.display = role === 'administrative_staff' ? 'block' : 'none';
+    if (ambSec) ambSec.style.display = role === 'ambulance' ? 'block' : 'none';
+}
+
+async function handleDedicatedStaffSubmit(e) {
+    e.preventDefault();
+
+    const role = document.getElementById('pageStaffRole').value;
+    const hospitalId = managerProfile?.hospitalId || 'H001';
+    const hospitalName = managerProfile?.hospitalName || 'NexCare AIIMS Super Speciality Hospital';
+    const name = document.getElementById('pageStaffName')?.value.trim();
+
+    if (!name) {
+        showToast('Please enter staff full name', 'error');
+        return;
+    }
+
+    const newStaff = {
+        name,
+        phone: document.getElementById('pageStaffPhone')?.value.trim() || '+91 98480 12345',
+        dob: document.getElementById('pageStaffDob')?.value || undefined,
+        gender: document.getElementById('pageStaffGender')?.value || 'Other',
+        address: document.getElementById('pageStaffAddress')?.value.trim() || undefined,
+        dept: document.getElementById('pageStaffDept')?.value || 'General Medicine',
+        designation: document.getElementById('pageStaffDesignation')?.value.trim() || 'Staff Member',
+        qualification: document.getElementById('pageStaffQualification')?.value.trim() || undefined,
+        joiningDate: document.getElementById('pageStaffJoiningDate')?.value || new Date().toISOString().split('T')[0],
+        employmentType: document.getElementById('pageStaffEmploymentType')?.value || 'Full-time',
+        role,
+        hospitalId,
+        hospitalName,
+        status: 'Active'
+    };
+
+    if (role === 'doctor') {
+        newStaff.specialization = document.getElementById('pageDoctorSpecialization')?.value.trim() || 'General Medicine';
+        newStaff.medicalRegNumber = document.getElementById('pageDoctorMRN')?.value.trim() || 'MCI-00000';
+        newStaff.experienceYears = Number(document.getElementById('pageDoctorExperience')?.value) || 5;
+        newStaff.consultationTiming = document.getElementById('pageDoctorTiming')?.value.trim() || '09:00 AM - 01:00 PM (Mon-Fri)';
+        newStaff.consultationFee = Number(document.getElementById('pageDoctorFee')?.value) || 500;
+    } else if (role === 'administrative_staff') {
+        const checked = Array.from(document.querySelectorAll('input[name="pageAdminResp"]:checked')).map(c => c.value);
+        newStaff.responsibilities = checked.length > 0 ? checked : ['Bed Allocation & Patient Check-in', 'Inventory Requisition & Tracking'];
+    } else if (role === 'ambulance') {
+        newStaff.driverLicense = document.getElementById('pageAmbLicense')?.value.trim() || 'DL-AP-TEMP';
+        newStaff.assignedVehicle = document.getElementById('pageAmbVehicle')?.value.trim() || 'AP-03-AX-1001';
+        newStaff.shift = document.getElementById('pageAmbShift')?.value || 'Day Shift (08:00 - 16:00)';
+    }
+
+    const btn = document.getElementById('submitRegBtn');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Registering Staff...';
+    }
+
+    try {
+        const resp = await window.NexCareAPI.Users.create(newStaff);
+        if (resp.success && resp.data) {
+            showToast(`Staff member ${newStaff.name} registered successfully!`, 'success');
+            showRegistrationSuccessModal(resp.data);
+            document.getElementById('dedicatedStaffForm').reset();
+            await loadOverview();
+            await loadStaff();
+        } else {
+            const err = resp.message ? (Array.isArray(resp.message) ? resp.message.join(', ') : resp.message) : 'Staff registration failed';
+            showToast(err, 'error');
+        }
     } catch (err) {
-        if (hideLoading) hideLoading();
-        console.error('Support update error:', err);
-        
-        if (window.NexCareUI && window.NexCareUI.showToast) {
-            window.NexCareUI.showToast({ 
-                message: 'Failed to update support request. Please try again.', 
-                type: 'error' 
-            });
+        showToast('Error registering staff member: ' + (err.message || 'Server error'), 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Submit Registration';
         }
     }
 }
 
-function filterSupport() {
-    const statusVal = document.getElementById('supportStatusFilter').value;
-    const filtered = allSupport.filter(s => !statusVal || s.status === statusVal);
-    renderSupport(filtered);
+let modalEmailPreviewTimeout = null;
+
+function previewModalStaffEmail() {
+    clearTimeout(modalEmailPreviewTimeout);
+    const name = document.getElementById('staffName')?.value.trim();
+    const emailField = document.getElementById('staffEmail');
+    if (!emailField) return;
+
+    if (!name) {
+        emailField.value = '';
+        return;
+    }
+
+    modalEmailPreviewTimeout = setTimeout(async () => {
+        try {
+            const resp = await window.NexCareAPI.Users.previewEmail(name);
+            if (resp.success && resp.data?.email) {
+                emailField.value = resp.data.email;
+            }
+        } catch (e) {
+            console.error('Modal email preview error:', e);
+        }
+    }, 250);
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+/**
+ * STAFF REGISTRATION MODAL CONTROLS
+ */
+function openStaffModal() {
+    initManagerInfo();
+    document.getElementById('staffForm').reset();
+    document.getElementById('staffHospitalId').value = managerProfile?.hospitalId || 'H001';
+    document.getElementById('staffHospitalName').value = managerProfile?.hospitalName || 'NexCare AIIMS Super Speciality Hospital';
+    document.getElementById('staffEmail').value = '';
+    handleStaffRoleChange();
+    document.getElementById('staffModal').style.display = 'flex';
+}
+
+function closeStaffModal() {
+    document.getElementById('staffModal').style.display = 'none';
+}
+
+function handleStaffRoleChange() {
+    const role = document.getElementById('staffRole').value;
+    const docSec = document.getElementById('doctorFieldsSection');
+    const admSec = document.getElementById('adminStaffFieldsSection');
+    const ambSec = document.getElementById('ambulanceFieldsSection');
+
+    if (docSec) docSec.style.display = role === 'doctor' ? 'block' : 'none';
+    if (admSec) admSec.style.display = role === 'administrative_staff' ? 'block' : 'none';
+    if (ambSec) ambSec.style.display = role === 'ambulance' ? 'block' : 'none';
+}
+
+async function handleStaffSubmit(e) {
+    e.preventDefault();
+
+    const role = document.getElementById('staffRole').value;
+    const hospitalId = managerProfile?.hospitalId || 'H001';
+    const hospitalName = managerProfile?.hospitalName || 'NexCare AIIMS Super Speciality Hospital';
+    const name = document.getElementById('staffName')?.value.trim();
+
+    if (!name) {
+        showToast('Please enter staff full name', 'error');
+        return;
+    }
+
+    const newStaff = {
+        name,
+        phone: document.getElementById('staffPhone')?.value.trim() || '+91 98480 12345',
+        dept: document.getElementById('staffDept')?.value || 'General Medicine',
+        designation: document.getElementById('staffDesignation')?.value.trim() || 'Staff Member',
+        gender: document.getElementById('staffGender')?.value || 'Other',
+        employmentType: document.getElementById('staffEmploymentType')?.value || 'Full-time',
+        role,
+        hospitalId,
+        hospitalName,
+        status: 'Active'
+    };
+
+    if (role === 'doctor') {
+        newStaff.specialization = document.getElementById('doctorSpecialization')?.value.trim() || 'General Medicine';
+        newStaff.medicalRegNumber = document.getElementById('doctorMRN')?.value.trim() || 'MCI-00000';
+        newStaff.qualification = document.getElementById('doctorQualification')?.value.trim() || 'MBBS, MD';
+        newStaff.experienceYears = Number(document.getElementById('doctorExperience')?.value) || 5;
+        newStaff.consultationTiming = document.getElementById('doctorTiming')?.value.trim() || '09:00 AM - 01:00 PM';
+    } else if (role === 'administrative_staff') {
+        const checked = Array.from(document.querySelectorAll('input[name="adminResp"]:checked')).map(c => c.value);
+        newStaff.responsibilities = checked.length > 0 ? checked : ['Bed Allocation & Patient Check-in'];
+    } else if (role === 'ambulance') {
+        newStaff.driverLicense = document.getElementById('ambulanceLicense')?.value.trim() || 'DL-AP-TEMP';
+        newStaff.assignedVehicle = document.getElementById('ambulanceVehicle')?.value.trim() || 'AP-03-AX-1001';
+        newStaff.shift = document.getElementById('ambulanceShift')?.value || 'Day Shift (08:00 - 16:00)';
+    }
+
+    const btn = document.getElementById('submitStaffRegistration') || document.getElementById('btnSubmitStaff');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Registering Staff...';
+    }
+
+    try {
+        const resp = await window.NexCareAPI.Users.create(newStaff);
+        if (resp.success && resp.data) {
+            closeStaffModal();
+            showRegistrationSuccessModal(resp.data);
+            await loadOverview();
+            await loadStaff();
+        } else {
+            const err = resp.message ? (Array.isArray(resp.message) ? resp.message.join(', ') : resp.message) : 'Staff registration failed';
+            showToast(err, 'error');
+        }
+    } catch (err) {
+        showToast('Error creating staff record: ' + (err.message || 'Server error'), 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Submit Registration';
+        }
+    }
+}
+
+/**
+ * Show Registration Success Credentials Modal
+ */
+function showRegistrationSuccessModal(userData) {
+    lastRegisteredCredentials = {
+        name: userData.name,
+        employeeId: userData.employeeId || userData.id,
+        role: userData.role === 'doctor' ? 'Doctor' : (userData.role === 'administrative_staff' ? 'Administrative Staff' : (userData.role === 'ambulance' ? 'Ambulance Staff' : userData.role)),
+        hospital: userData.hospitalName || managerProfile?.hospitalName || 'Hospital',
+        email: userData.email,
+        password: userData.tempPassword || 'NexCare@123'
+    };
+
+    document.getElementById('successEmpName').textContent = lastRegisteredCredentials.name;
+    document.getElementById('successEmpId').textContent = lastRegisteredCredentials.employeeId;
+    document.getElementById('successEmpRole').textContent = lastRegisteredCredentials.role;
+    document.getElementById('successEmpHospital').textContent = lastRegisteredCredentials.hospital;
+    document.getElementById('successEmpEmail').textContent = lastRegisteredCredentials.email;
+    document.getElementById('successEmpPass').textContent = lastRegisteredCredentials.password;
+
+    document.getElementById('registrationSuccessModal').style.display = 'flex';
+}
+
+function copyStaffCredentials() {
+    if (!lastRegisteredCredentials) return;
+    const credText = `NexCare Staff Credentials:\nName: ${lastRegisteredCredentials.name}\nEmployee ID: ${lastRegisteredCredentials.employeeId}\nRole: ${lastRegisteredCredentials.role}\nHospital: ${lastRegisteredCredentials.hospital}\nEmail: ${lastRegisteredCredentials.email}\nTemporary Password: ${lastRegisteredCredentials.password}\n(Note: Password change required on first login)`;
+    
+    navigator.clipboard.writeText(credText).then(() => {
+        showToast('Staff credentials copied to clipboard!', 'success');
+    }).catch(() => {
+        showToast('Credentials ready: ' + lastRegisteredCredentials.email, 'info');
+    });
+}
+
+function registerAnotherStaff() {
+    document.getElementById('registrationSuccessModal').style.display = 'none';
+    switchTab('register-staff');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToStaffDirectory() {
+    document.getElementById('registrationSuccessModal').style.display = 'none';
+    switchTab('staff');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/**
+ * Global Toast Notification Utility
+ */
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            ${type === 'success' ? '<polyline points="20 6 9 17 4 12"></polyline>' : '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>'}
+        </svg>
+        <span>${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(20px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+/**
+ * Logout Helper
+ */
+function logoutUser() {
+    sessionStorage.clear();
+    localStorage.removeItem('nexcare_token');
+    localStorage.removeItem('nexcare_user_data');
+    window.location.href = '../login.html';
+}
+
+/**
+ * =========================================================
+ * AMBULANCE FLEET & EMERGENCY STATUS MANAGEMENT
+ * =========================================================
+ */
+let ambulanceCache = [];
+
+async function loadAmbulanceFleet() {
+    const hospitalId = managerProfile?.hospitalId || 'H001';
+    const tbody = document.getElementById('ambulanceTableBody');
+    if (!tbody) return;
+
+    try {
+        const resp = await window.NexCareAPI.Ambulance.getAll({ hospitalId }).catch(() => ({ success: false, data: [] }));
+        if (resp.success && Array.isArray(resp.data)) {
+            ambulanceCache = resp.data;
+        } else {
+            ambulanceCache = [];
+        }
+
+        updateAmbulanceKpis();
+        renderAmbulances(ambulanceCache);
+    } catch (err) {
+        console.error('Error loading ambulance fleet:', err);
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted" style="padding:24px;">Failed to load ambulance records.</td></tr>`;
+    }
+}
+
+function updateAmbulanceKpis() {
+    const total = ambulanceCache.length;
+    const available = ambulanceCache.filter(a => (a.status || '').toLowerCase() === 'available').length;
+    const onDuty = ambulanceCache.filter(a => ['dispatched', 'en route', 'pending'].includes((a.status || '').toLowerCase())).length;
+    const maintenance = ambulanceCache.filter(a => ['maintenance', 'unavailable'].includes((a.status || '').toLowerCase())).length;
+
+    if (document.getElementById('ambStatTotal')) document.getElementById('ambStatTotal').textContent = total;
+    if (document.getElementById('ambStatAvailable')) document.getElementById('ambStatAvailable').textContent = available;
+    if (document.getElementById('ambStatOnDuty')) document.getElementById('ambStatOnDuty').textContent = onDuty;
+    if (document.getElementById('ambStatMaintenance')) document.getElementById('ambStatMaintenance').textContent = maintenance;
+
+    const navBadge = document.getElementById('navAmbulanceBadge');
+    if (navBadge) {
+        navBadge.textContent = onDuty;
+        navBadge.style.display = onDuty > 0 ? 'inline-block' : 'none';
+    }
+}
+
+function renderAmbulances(list) {
+    const tbody = document.getElementById('ambulanceTableBody');
+    if (!tbody) return;
+
+    if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted" style="padding:28px;">No ambulance fleet records matching criteria.</td></tr>`;
+        return;
+    }
+
+    const getStatusBadge = (st) => {
+        const s = (st || '').toLowerCase();
+        if (s === 'available') return `<span class="badge" style="background:#dcfce7; color:#15803d; font-weight:700;">🟢 Available</span>`;
+        if (s === 'dispatched') return `<span class="badge" style="background:#dbeafe; color:#1d4ed8; font-weight:700;">🔵 Dispatched</span>`;
+        if (s === 'en route') return `<span class="badge" style="background:#fef3c7; color:#b45309; font-weight:700;">🟡 En Route</span>`;
+        if (s === 'pending') return `<span class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:700;">🔴 Pending Dispatch</span>`;
+        if (s === 'maintenance') return `<span class="badge" style="background:#f3e8ff; color:#7e22ce; font-weight:700;">⚙️ Maintenance</span>`;
+        if (s === 'completed') return `<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">✅ Completed</span>`;
+        return `<span class="badge" style="background:#f1f5f9; color:#475569;">${st || 'Unknown'}</span>`;
+    };
+
+    tbody.innerHTML = list.map(item => `
+        <tr>
+            <td>
+                <div style="font-weight:700; color:#0f172a;">${item.vehicleNumber || item.id}</div>
+                <small style="color:#64748b; font-size:11.5px;">Unit ID: ${item.id}</small>
+            </td>
+            <td>
+                <span class="badge" style="background:#f1f5f9; color:#334155; font-size:12px; font-weight:600;">
+                    ${item.type || 'Emergency Ambulance'}
+                </span>
+            </td>
+            <td>
+                <div style="font-weight:600; color:#1e293b;">${item.driverName || 'Unassigned'}</div>
+                <small style="color:#64748b; font-size:12px;">📞 ${item.driverPhone || item.contact || '--'}</small>
+            </td>
+            <td>
+                <div style="font-weight:600; color:#0f172a;">${item.patientName || 'Standby / Fleet Unit'}</div>
+                <small style="color:#64748b; display:block; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.notes || ''}">
+                    ${item.notes || 'Emergency standby ready'}
+                </small>
+            </td>
+            <td>
+                <div style="color:#334155; font-size:13px;">📍 ${item.pickupLocation || 'Central Hospital Bay'}</div>
+            </td>
+            <td>
+                ${getStatusBadge(item.status)}
+            </td>
+            <td>
+                <span style="font-weight:700; color:#0284c7; font-size:13px;">${item.eta || 'Ready'}</span>
+            </td>
+            <td>
+                <button class="btn-action-sm btn-action-view" onclick="openAmbulanceStatusModal('${item.id}')" title="Update Status">
+                    ✏️ Update
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function handleAmbulanceSearch() {
+    const q = (document.getElementById('ambSearchInput')?.value || '').toLowerCase().trim();
+    const st = document.getElementById('ambStatusFilter')?.value || 'all';
+
+    let filtered = [...ambulanceCache];
+    if (st !== 'all') {
+        filtered = filtered.filter(a => (a.status || '').toLowerCase() === st.toLowerCase());
+    }
+    if (q) {
+        filtered = filtered.filter(a =>
+            (a.id || '').toLowerCase().includes(q) ||
+            (a.vehicleNumber || '').toLowerCase().includes(q) ||
+            (a.driverName || '').toLowerCase().includes(q) ||
+            (a.patientName || '').toLowerCase().includes(q) ||
+            (a.pickupLocation || '').toLowerCase().includes(q) ||
+            (a.type || '').toLowerCase().includes(q)
+        );
+    }
+    renderAmbulances(filtered);
+}
+
+function handleAmbulanceFilter() {
+    handleAmbulanceSearch();
+}
+
+function filterAmbulances(st) {
+    const sel = document.getElementById('ambStatusFilter');
+    if (!sel) return;
+    if (st === 'all') sel.value = 'all';
+    else if (st === 'active') sel.value = 'Dispatched';
+    else sel.value = st;
+    handleAmbulanceFilter();
+}
+
+function openAmbulanceStatusModal(id) {
+    const item = ambulanceCache.find(a => a.id === id);
+    if (!item) return;
+
+    document.getElementById('ambModalId').value = item.id;
+    document.getElementById('ambModalVehicle').value = `${item.vehicleNumber || item.id} (${item.type || 'Ambulance'})`;
+    document.getElementById('ambModalStatus').value = item.status || 'Available';
+    document.getElementById('ambModalDriver').value = item.driverName ? `${item.driverName} (${item.driverPhone || ''})` : '';
+    document.getElementById('ambModalEta').value = item.eta || '';
+    document.getElementById('ambModalNotes').value = item.notes || '';
+
+    document.getElementById('ambulanceStatusModal').style.display = 'flex';
+}
+
+function closeAmbulanceStatusModal() {
+    document.getElementById('ambulanceStatusModal').style.display = 'none';
+}
+
+async function saveAmbulanceStatus(e) {
+    e.preventDefault();
+    const id = document.getElementById('ambModalId').value;
+    const status = document.getElementById('ambModalStatus').value;
+    const driverRaw = document.getElementById('ambModalDriver').value.trim();
+    const eta = document.getElementById('ambModalEta').value.trim() || (status === 'Available' ? 'Ready' : '--');
+    const notes = document.getElementById('ambModalNotes').value.trim();
+
+    let driverName = driverRaw;
+    let driverPhone = '';
+    if (driverRaw.includes('(')) {
+        const parts = driverRaw.split('(');
+        driverName = parts[0].trim();
+        driverPhone = parts[1].replace(')', '').trim();
+    }
+
+    const btn = document.getElementById('btnSaveAmbulanceStatus');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+    }
+
+    try {
+        const resp = await window.NexCareAPI.Ambulance.update(id, {
+            status,
+            driverName,
+            driverPhone: driverPhone || undefined,
+            eta,
+            notes: notes || undefined
+        });
+
+        if (resp.success) {
+            showToast(`Ambulance ${id} status updated to ${status}`, 'success');
+            closeAmbulanceStatusModal();
+            await loadAmbulanceFleet();
+            await loadOverview();
+        } else {
+            showToast(resp.message || 'Failed to update status', 'error');
+        }
+    } catch (err) {
+        showToast('Error updating ambulance status', 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Save Status';
+        }
+    }
+}
+
+function openNewAmbulanceRequestModal() {
+    document.getElementById('newAmbulanceForm').reset();
+    document.getElementById('newAmbulanceModal').style.display = 'flex';
+}
+
+function closeNewAmbulanceRequestModal() {
+    document.getElementById('newAmbulanceModal').style.display = 'none';
+}
+
+async function handleNewAmbulanceSubmit(e) {
+    e.preventDefault();
+    const patientName = document.getElementById('newAmbPatientName').value.trim();
+    const contact = document.getElementById('newAmbContact').value.trim();
+    const pickupLocation = document.getElementById('newAmbPickup').value.trim();
+    const type = document.getElementById('newAmbType').value;
+    const vehicleNumber = document.getElementById('newAmbVehicle').value;
+    const notes = document.getElementById('newAmbNotes').value.trim();
+    const hospitalId = managerProfile?.hospitalId || 'H001';
+
+    const btn = document.getElementById('btnSubmitNewAmbulance');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Dispatching...';
+    }
+
+    try {
+        const resp = await window.NexCareAPI.Ambulance.create({
+            patientName,
+            contact,
+            pickupLocation,
+            type,
+            vehicleNumber,
+            notes: notes || `Emergency ${type} requested by manager`,
+            status: 'Dispatched',
+            eta: '8 mins',
+            hospitalId
+        });
+
+        if (resp.success) {
+            showToast(`Ambulance ${vehicleNumber} dispatched for ${patientName}!`, 'success');
+            closeNewAmbulanceRequestModal();
+            await loadAmbulanceFleet();
+            await loadOverview();
+        } else {
+            showToast(resp.message || 'Failed to dispatch ambulance', 'error');
+        }
+    } catch (err) {
+        showToast('Error dispatching ambulance', 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Dispatch Ambulance';
+        }
+    }
 }

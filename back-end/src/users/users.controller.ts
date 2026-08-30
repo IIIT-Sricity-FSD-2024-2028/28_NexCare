@@ -7,10 +7,11 @@ import {
   Patch, 
   Delete, 
   Param, 
-  Query,
-  Req,
-  HttpCode,
-  HttpStatus
+  Query, 
+  Req, 
+  ForbiddenException,
+  HttpCode, 
+  HttpStatus 
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { UsersService } from './users.service';
@@ -23,11 +24,11 @@ import { UserRole } from '../common/interfaces/api-response.interface';
 /**
  * Users Controller
  * Manages user accounts across all roles in the NexCare system
- * Provides endpoints for user CRUD operations and management
+ * Enforces hospital-level and regional scoping
  */
 @ApiTags('Users')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER, UserRole.REGIONAL_MANAGER)
 @Controller('users')
 export class UsersController {
   constructor(
@@ -37,35 +38,63 @@ export class UsersController {
 
   /**
    * Get all users with optional filtering.
-   *
-   * A Regional Officer gets read-only oversight, scoped to the hospitals assigned
-   * to them — they never see staff at hospitals they do not manage. Everyone else
-   * on the allow-list sees the unscoped list, as before.
+   * Scoped by role:
+   *  - Superuser: sees all
+   *  - Regional Officer: sees staff in their assigned region
+   *  - Hospital Manager: sees staff ONLY for their own hospital
    */
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER)
   @Get()
-  @ApiOperation({ summary: 'Get all users (Regional Officers see only their hospitals)' })
+  @ApiOperation({ summary: 'Get all users (Scoped by caller role and hospital)' })
   @ApiQuery({ name: 'role', required: false, enum: UserRole })
   @ApiQuery({ name: 'status', required: false })
+  @ApiQuery({ name: 'hospitalId', required: false })
   @ApiResponse({ status: 200, description: 'List of users' })
   async findAll(
     @Req() req: any,
     @Query('role') role?: string,
     @Query('status') status?: string,
+    @Query('hospitalId') hospitalIdQuery?: string,
   ) {
     const result = await this.usersService.findAll(role as any, status as any);
-
-    if (req.user?.role !== UserRole.REGIONAL_MANAGER || !result?.success) {
+    if (!result?.success || !Array.isArray(result.data)) {
       return result;
     }
 
-    const managedIds = await this.managedHospitalIds(req.user.id);
-    return {
-      ...result,
-      data: (result.data || []).filter(
-        (u: any) => u.hospitalId && managedIds.includes(u.hospitalId),
-      ),
-    };
+    const caller = req.user;
+
+    // Hospital Manager scope: strictly their own hospital
+    if (caller?.role === UserRole.HOSPITAL_MANAGER) {
+      if (hospitalIdQuery && caller.hospitalId && hospitalIdQuery !== caller.hospitalId) {
+        throw new ForbiddenException(
+          `Cross-hospital access denied. You can only view staff for your assigned hospital (${caller.hospitalId}).`
+        );
+      }
+      return {
+        ...result,
+        data: result.data.filter((u: any) => u.hospitalId === caller.hospitalId),
+      };
+    }
+
+    // Regional Officer scope: hospitals in their region
+    if (caller?.role === UserRole.REGIONAL_MANAGER) {
+      const managedIds = await this.managedHospitalIds(caller.id);
+      return {
+        ...result,
+        data: result.data.filter(
+          (u: any) => u.hospitalId && managedIds.includes(u.hospitalId),
+        ),
+      };
+    }
+
+    // Explicit hospital query filter for superuser / other callers
+    if (hospitalIdQuery) {
+      return {
+        ...result,
+        data: result.data.filter((u: any) => u.hospitalId === hospitalIdQuery),
+      };
+    }
+
+    return result;
   }
 
   /** Hospital ids assigned to a given regional manager. */
@@ -78,26 +107,71 @@ export class UsersController {
 
   /**
    * Create new user
+   * Hospital Managers can ONLY register Doctors, Administrative Staff, and Ambulance Staff for their own hospital.
    */
   @Post()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Create a new user' })
-  @ApiResponse({ status: 200, description: 'User creation result (check success field)' })
+  @ApiOperation({ summary: 'Create a new user / staff member' })
+  @ApiResponse({ status: 200, description: 'User creation result' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async create(@Body() createUserDto: CreateUserDto) {
+  @ApiResponse({ status: 403, description: 'Forbidden - role or hospital scope violation' })
+  async create(@Req() req: any, @Body() createUserDto: CreateUserDto) {
+    const caller = req.user;
+
+    if (caller?.role === UserRole.HOSPITAL_MANAGER) {
+      // Disallow creating Superuser, Regional Officer, or another Hospital Manager
+      const forbiddenRoles = [UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER];
+      if (forbiddenRoles.includes(createUserDto.role)) {
+        throw new ForbiddenException(
+          'Hospital Managers are not permitted to create Super Users, Regional Officers, or other Hospital Managers.',
+        );
+      }
+
+      // Automatically force the hospitalId and region to the manager's assigned hospital
+      createUserDto.hospitalId = caller.hospitalId;
+      if (!createUserDto.hospitalName && caller.hospitalName) {
+        createUserDto.hospitalName = caller.hospitalName;
+      }
+      if (!createUserDto.regionId && caller.regionId) {
+        createUserDto.regionId = caller.regionId;
+      }
+    }
+
     return this.usersService.create(createUserDto as any);
+  }
+
+  /**
+   * Preview auto-generated staff email
+   */
+  @Get('preview-email')
+  @ApiOperation({ summary: 'Preview auto-generated unique staff email' })
+  @ApiQuery({ name: 'name', required: true })
+  previewEmail(@Query('name') name: string) {
+    const email = this.usersService.generateStaffEmail(name || '');
+    return { success: true, data: { email } };
   }
 
   /**
    * Get active doctors (available to patients for appointment booking)
    */
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT, UserRole.HOSPITAL_MANAGER, UserRole.REGIONAL_MANAGER)
   @Get('doctors')
   @ApiOperation({ summary: 'Get active doctors, optionally filtered by department' })
   @ApiQuery({ name: 'dept', required: false })
+  @ApiQuery({ name: 'hospitalId', required: false })
   @ApiResponse({ status: 200, description: 'Doctors retrieved successfully' })
-  async findDoctors(@Query('dept') dept?: string) {
-    return this.usersService.findDoctors(dept);
+  async findDoctors(@Req() req: any, @Query('dept') dept?: string, @Query('hospitalId') hospitalId?: string) {
+    const caller = req.user;
+    const targetHospitalId = (caller?.role === UserRole.HOSPITAL_MANAGER) ? caller.hospitalId : hospitalId;
+    const res: any = await this.usersService.findDoctors(dept);
+    
+    if (targetHospitalId && res?.success && Array.isArray(res.data)) {
+      return {
+        ...res,
+        data: res.data.filter((d: any) => !d.hospitalId || d.hospitalId === targetHospitalId),
+      };
+    }
+    return res;
   }
 
   /**
@@ -135,9 +209,17 @@ export class UsersController {
    */
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID' })
-  @ApiResponse({ status: 200, description: 'User retrieved (check success field for not-found)' })
-  async findById(@Param('id') id: string) {
-    return this.usersService.findById(id);
+  @ApiResponse({ status: 200, description: 'User retrieved' })
+  async findById(@Req() req: any, @Param('id') id: string) {
+    const caller = req.user;
+    const userRes: any = await this.usersService.findById(id);
+    
+    if (caller?.role === UserRole.HOSPITAL_MANAGER && userRes?.success && userRes.data) {
+      if (userRes.data.hospitalId && userRes.data.hospitalId !== caller.hospitalId) {
+        throw new ForbiddenException('Cross-hospital access denied. You can only view staff in your hospital.');
+      }
+    }
+    return userRes;
   }
 
   /**
@@ -145,8 +227,9 @@ export class UsersController {
    */
   @Put(':id')
   @ApiOperation({ summary: 'Update user' })
-  @ApiResponse({ status: 200, description: 'User update result (check success field)' })
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  @ApiResponse({ status: 200, description: 'User update result' })
+  async update(@Req() req: any, @Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    await this.validateHospitalManagerAccess(req.user, id, updateUserDto);
     return this.usersService.update(id, updateUserDto as any);
   }
 
@@ -155,8 +238,9 @@ export class UsersController {
    */
   @Patch(':id')
   @ApiOperation({ summary: 'Partial update user' })
-  @ApiResponse({ status: 200, description: 'User update result (check success field)' })
-  async patchUpdate(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  @ApiResponse({ status: 200, description: 'User update result' })
+  async patchUpdate(@Req() req: any, @Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    await this.validateHospitalManagerAccess(req.user, id, updateUserDto);
     return this.usersService.update(id, updateUserDto as any);
   }
 
@@ -165,18 +249,39 @@ export class UsersController {
    */
   @Delete(':id')
   @ApiOperation({ summary: 'Delete user' })
-  @ApiResponse({ status: 200, description: 'User deletion result (check success field)' })
-  async delete(@Param('id') id: string) {
+  @ApiResponse({ status: 200, description: 'User deletion result' })
+  async delete(@Req() req: any, @Param('id') id: string) {
+    await this.validateHospitalManagerAccess(req.user, id);
     return this.usersService.delete(id);
   }
 
   /**
-   * Update user status
+   * Update user status (Activate / Deactivate)
    */
   @Patch(':id/status')
   @ApiOperation({ summary: 'Update user status' })
-  @ApiResponse({ status: 200, description: 'Status update result (check success field)' })
-  async updateStatus(@Param('id') id: string, @Body('status') status: string) {
+  @ApiResponse({ status: 200, description: 'Status update result' })
+  async updateStatus(@Req() req: any, @Param('id') id: string, @Body('status') status: string) {
+    await this.validateHospitalManagerAccess(req.user, id);
     return this.usersService.updateStatus(id, status as any);
+  }
+
+  /** Helper to validate that a Hospital Manager only modifies their own hospital's staff */
+  private async validateHospitalManagerAccess(caller: any, targetUserId: string, updateDto?: any) {
+    if (!caller) return;
+    if (caller.role === UserRole.HOSPITAL_MANAGER) {
+      const targetRes: any = await this.usersService.findById(targetUserId);
+      if (targetRes?.success && targetRes.data) {
+        if (targetRes.data.hospitalId && targetRes.data.hospitalId !== caller.hospitalId) {
+          throw new ForbiddenException('Cross-hospital access denied. You can only manage staff belonging to your hospital.');
+        }
+      }
+      if (updateDto?.role) {
+        const forbidden = [UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER];
+        if (forbidden.includes(updateDto.role)) {
+          throw new ForbiddenException('Hospital managers cannot assign administrative oversight roles.');
+        }
+      }
+    }
   }
 }
