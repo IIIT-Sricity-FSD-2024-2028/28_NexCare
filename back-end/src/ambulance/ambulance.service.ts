@@ -7,6 +7,7 @@ import { AmbulanceStatus } from '../common/interfaces/api-response.interface';
 
 import { SystemService } from '../system/system.service';
 import { PatientsService } from '../patients/patients.service';
+import { BillingService } from '../billing/billing.service';
 
 /**
  * Ambulance Service
@@ -18,7 +19,12 @@ export class AmbulanceService {
   constructor(
     private readonly systemService: SystemService,
     private readonly patientsService: PatientsService,
+    private readonly billingService: BillingService,
   ) {}
+
+  /** Fixed fees — distance is not known, so emergency vs routine is the only split. */
+  static readonly EMERGENCY_FEE = 2500;
+  static readonly ROUTINE_FEE = 1500;
 
   private readonly store = new FileStore<AmbulanceRequest>('ambulance.json', () => AmbulanceService.seed());
 
@@ -80,22 +86,6 @@ export class AmbulanceService {
     }
   }
 
-  async findByIdWithAccessCheck(id: string, userHospitalId?: string) {
-    try {
-      const request = this.store.load().find(r => r.id === id);
-      if (!request) return ResponseUtil.notFound('Ambulance request', id);
-      
-      // If userHospitalId is provided, validate access
-      if (userHospitalId && request.hospitalId !== userHospitalId) {
-        return ResponseUtil.error('You do not have access to this ambulance request');
-      }
-      
-      return ResponseUtil.success('Ambulance request retrieved successfully', request);
-    } catch (error) {
-      return ResponseUtil.serverError('Failed to retrieve ambulance request');
-    }
-  }
-
   async create(requestData: CreateAmbulanceRequest & { hospitalId?: string }) {
     try {
       const requests = this.store.load();
@@ -117,6 +107,8 @@ export class AmbulanceService {
         return ResponseUtil.error('Hospital ID is required for ambulance request');
       }
 
+      const { requestKind, fee } = this.resolveTripFee(requestData);
+
       const newRequest: AmbulanceRequest = {
         id: newRequestId,
         patientId: requestData.patientId,
@@ -126,6 +118,9 @@ export class AmbulanceService {
         notes: requestData.notes || '',
         status: AmbulanceStatus.PENDING,
         hospitalId: requestData.hospitalId,
+        requestKind,
+        fee,
+        billed: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -153,11 +148,15 @@ export class AmbulanceService {
       const requestIndex = requests.findIndex(r => r.id === id);
       if (requestIndex === -1) return ResponseUtil.notFound('Ambulance request', id);
 
+      const previousStatus = requests[requestIndex].status;
       const updatedRequest = { ...requests[requestIndex], ...updateData, updatedAt: new Date().toISOString() };
       requests[requestIndex] = updatedRequest;
       this.store.save(requests);
 
       const isCompleted = updateData.status === AmbulanceStatus.COMPLETED;
+      if (isCompleted && previousStatus !== AmbulanceStatus.COMPLETED) {
+        await this.chargeAmbulance(updatedRequest);
+      }
       this.systemService.createActivity({
         userId: updatedRequest.assignedTo || 'System',
         action: isCompleted ? 'Complete' : 'Update',
@@ -258,6 +257,7 @@ export class AmbulanceService {
       requests[requestIndex].status = AmbulanceStatus.COMPLETED;
       requests[requestIndex].updatedAt = new Date().toISOString();
       this.store.save(requests);
+      await this.chargeAmbulance(requests[requestIndex]);
       return ResponseUtil.updated('Ambulance request completed successfully', requests[requestIndex]);
     } catch (error) {
       return ResponseUtil.serverError('Failed to complete ambulance request');
@@ -283,12 +283,9 @@ export class AmbulanceService {
     }
   }
 
-  async getStats(hospitalId?: string) {
+  async getStats() {
     try {
-      let requests = this.store.load();
-      if (hospitalId) {
-        requests = requests.filter(r => r.hospitalId === hospitalId);
-      }
+      const requests = this.store.load();
       const count = (s: AmbulanceStatus) => requests.filter(r => r.status === s).length;
 
       const byStatus: Record<AmbulanceStatus, number> = {
@@ -347,28 +344,68 @@ export class AmbulanceService {
     }
   }
 
-  async getActiveRequests(hospitalId?: string) {
+  async getActiveRequests() {
     try {
-      let requests = this.store.load().filter(r => r.status !== AmbulanceStatus.COMPLETED);
-      if (hospitalId) {
-        requests = requests.filter(r => r.hospitalId === hospitalId);
-      }
-      return ResponseUtil.success('Active ambulance requests retrieved successfully', requests);
+      const activeRequests = this.store.load().filter(r => r.status !== AmbulanceStatus.COMPLETED);
+      return ResponseUtil.success('Active ambulance requests retrieved successfully', activeRequests);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve active ambulance requests');
     }
   }
 
-  async findByAssignedStaff(assignedTo: string, hospitalId?: string) {
+  async findByAssignedStaff(assignedTo: string) {
     try {
-      let requests = this.store.load().filter(r => r.assignedTo === assignedTo);
-      // Apply hospital scoping for non-superuser access
-      if (hospitalId) {
-        requests = requests.filter(r => r.hospitalId === hospitalId);
-      }
+      const requests = this.store.load().filter(r => r.assignedTo === assignedTo);
       return ResponseUtil.success(`Ambulance requests assigned to ${assignedTo} retrieved successfully`, requests);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve assigned ambulance requests');
+    }
+  }
+
+  private resolveTripFee(data: {
+    requestKind?: string;
+    priority?: string;
+    type?: string;
+    notes?: string;
+  }): { requestKind: 'emergency' | 'routine'; fee: number } {
+    const blob = `${data.requestKind || ''} ${data.priority || ''} ${data.type || ''} ${data.notes || ''}`.toLowerCase();
+    const isRoutine =
+      data.requestKind === 'routine' ||
+      /\b(routine|medium|low)\b/.test(blob);
+    const isEmergency =
+      data.requestKind === 'emergency' ||
+      /\b(emergency|high|urgent|critical|als)\b/.test(blob);
+    const requestKind: 'emergency' | 'routine' = isRoutine && !isEmergency ? 'routine' : 'emergency';
+    return {
+      requestKind,
+      fee: requestKind === 'emergency' ? AmbulanceService.EMERGENCY_FEE : AmbulanceService.ROUTINE_FEE,
+    };
+  }
+
+  private async chargeAmbulance(request: AmbulanceRequest): Promise<void> {
+    try {
+      if (request.billed) return;
+      const kind = request.requestKind || this.resolveTripFee(request).requestKind;
+      const fee = Number(request.fee) || (kind === 'routine' ? AmbulanceService.ROUTINE_FEE : AmbulanceService.EMERGENCY_FEE);
+      if (fee <= 0) return;
+
+      await this.billingService.appendCharge(request.patientId, {
+        description: kind === 'routine' ? 'Ambulance transport (routine)' : 'Ambulance transport (emergency)',
+        department: 'Ambulance',
+        amount: fee,
+        sourceId: `ambulance:${request.id}`,
+      });
+
+      const requests = this.store.load();
+      const idx = requests.findIndex(r => r.id === request.id);
+      if (idx !== -1) {
+        requests[idx].billed = true;
+        requests[idx].requestKind = kind;
+        requests[idx].fee = fee;
+        this.store.save(requests);
+      }
+    } catch (err) {
+      console.error('Failed to add ambulance fee to pending bill:', err);
     }
   }
 
