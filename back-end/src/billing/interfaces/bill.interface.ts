@@ -7,6 +7,9 @@ export interface BillItem {
   description: string;
   department: string;
   amount: number;
+  date?: string;
+  /** Prevents charging the same consult / ambulance trip twice. */
+  sourceId?: string;
 }
 
 /**
