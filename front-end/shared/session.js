@@ -82,7 +82,7 @@ async function logoutUser() {
     localStorage.removeItem("nexcare_db_v3");
     
     // Redirect to landing page
-    window.location.href = "../landing/landing.html";
+    window.location.href = "/landing/landing.html";
 }
 window.logoutUser = logoutUser;
 
@@ -291,7 +291,7 @@ function injectBackButton() {
             // Fallback: go to role dashboard if there's no history stack
             const role = sessionStorage.getItem("nexcare_current_role");
             if (role) loginUser(role);
-            else window.location.href = "../landing/landing.html";
+            else window.location.href = "/landing/landing.html";
         }
     });
 

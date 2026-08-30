@@ -121,5 +121,28 @@ export class IdGenerator {
   static generateAuditId(): string {
     return this.generate('AUD-');
   }
+
+  /**
+   * Generate hospital ID with sequential pattern (H001, H002, etc.)
+   * This maintains consistency with existing hospital IDs
+   * @param existingIds - Array of existing hospital IDs to avoid conflicts
+   */
+  static generateHospitalId(existingIds: string[] = []): string {
+    // Extract numeric parts from existing IDs (H001 -> 1, H010 -> 10, HSP001 -> 1, etc.)
+    const numericIds = existingIds
+      .map(id => {
+        // Match both H001 and HSP001 patterns
+        const match = id.match(/^H(?:SP)?(\d+)$/);
+        return match ? parseInt(match[1], 10) : 0;
+      })
+      .filter(num => num > 0);
+
+    // Find the highest existing ID
+    const maxId = numericIds.length > 0 ? Math.max(...numericIds) : 0;
+    
+    // Generate the next sequential ID
+    const nextId = maxId + 1;
+    return `H${nextId.toString().padStart(3, '0')}`;
+  }
 }
 

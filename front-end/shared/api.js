@@ -17,7 +17,7 @@ class NexCareAPI {
         //   - empty hostname                               → fallback localhost
         //   - any HTTP/HTTPS host                         → use that host:3001
         const protocol = window.location.protocol;
-        const hostname  = window.location.hostname;
+        const hostname = window.location.hostname;
         const backendHost = (protocol === 'http:' || protocol === 'https:') && hostname
             ? hostname
             : 'localhost';
@@ -35,7 +35,7 @@ class NexCareAPI {
                 method: 'GET',
                 headers: this.getHeaders()
             });
-            
+
             return await this.handleResponse(response);
         } catch (error) {
             return this.handleError(error, 'GET', endpoint);
@@ -112,7 +112,7 @@ class NexCareAPI {
     // Helper Methods
     getHeaders() {
         const headers = { ...this.defaultHeaders };
-        
+
         // Add auth token if available
         const token = this.getAuthToken();
         if (token) {
@@ -174,8 +174,8 @@ class NexCareAPI {
 
     getAuthToken() {
         // Try to get token from sessionStorage or localStorage
-        return sessionStorage.getItem('nexcare_auth_token') || 
-               localStorage.getItem('nexcare_auth_token');
+        return sessionStorage.getItem('nexcare_auth_token') ||
+            localStorage.getItem('nexcare_auth_token');
     }
 
     setAuthToken(token) {
@@ -200,7 +200,7 @@ class NexCareAPI {
             }
 
             const data = await response.json();
-            
+
             // If the backend JSON explicitly sets success: false, respect it!
             // Even if the HTTP status is 2xx (like 201 Created default for NestJS Post)
             if (data && typeof data.success === 'boolean' && !data.success) {
@@ -235,21 +235,21 @@ class NexCareAPI {
 
     handleError(error, method, endpoint) {
         console.error(`API Error (${method} ${endpoint}):`, error);
-        
+
         // Show toast notification for better user feedback
         if (window.NexCareUI && window.NexCareUI.showToast) {
             let errorMessage = 'An unexpected error occurred';
             let errorType = 'error';
-            
+
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 errorMessage = 'Network error: Unable to connect to server. Please check your connection.';
             } else if (error.message) {
                 errorMessage = error.message;
             }
-            
+
             window.NexCareUI.showToast({ message: errorMessage, type: errorType });
         }
-        
+
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
             return {
                 success: false,
@@ -257,7 +257,7 @@ class NexCareAPI {
                 message: 'Network error: Unable to connect to server. Please check your connection.'
             };
         }
-        
+
         return {
             success: false,
             data: null,
@@ -463,33 +463,6 @@ const BillingAPI = {
 
     async markPaid(id, paymentData) {
         return await api.patch(`/billing/${id}/pay`, paymentData);
-    }
-};
-
-// Ambulance API
-const AmbulanceAPI = {
-    async getAllRequests() {
-        return await api.get('/ambulance');
-    },
-
-    async getRequestById(id) {
-        return await api.get(`/ambulance/${id}`);
-    },
-
-    async createRequest(requestData) {
-        return await api.post('/ambulance', requestData);
-    },
-
-    async updateRequest(id, requestData) {
-        return await api.put(`/ambulance/${id}`, requestData);
-    },
-
-    async updateStatus(id, status) {
-        return await api.patch(`/ambulance/${id}/status`, { status });
-    },
-
-    async cancelRequest(id) {
-        return await api.delete(`/ambulance/${id}`);
     }
 };
 
@@ -1059,7 +1032,7 @@ const HierarchyAPI = {
 
     async getScope() {
         return await api.get('/hierarchy/scope');
->>>>>>> origin/main
+
     }
 };
 
@@ -1097,12 +1070,12 @@ window.NexCareAPI = {
     put: api.put.bind(api),
     patch: api.patch.bind(api),
     delete: api.delete.bind(api),
-    
+
     // Token management
     setAuthToken: api.setAuthToken.bind(api),
     clearAuthToken: api.clearAuthToken.bind(api),
     getAuthToken: api.getAuthToken.bind(api),
-    
+
     // API Modules
     Auth: AuthAPI,
     Users: UsersAPI,

@@ -250,6 +250,19 @@ export class AuthService {
         csrfToken: this.generateCsrfToken(), // Include new CSRF token for post-login requests
       };
 
+      // Add additional fields if they exist in the user object
+      const userAny = user as any;
+      if (userAny.phone) authResponse.user.phone = userAny.phone;
+      if (userAny.employeeId) authResponse.user.employeeId = userAny.employeeId;
+      if (userAny.areas) authResponse.user.areas = userAny.areas;
+      if (userAny.area) authResponse.user.area = userAny.area;
+      if (userAny.regionName) authResponse.user.regionName = userAny.regionName;
+      if (userAny.regionId) authResponse.user.regionId = userAny.regionId;
+      if (userAny.designation) authResponse.user.designation = userAny.designation;
+      if (userAny.hospitalName) authResponse.user.hospitalName = userAny.hospitalName;
+      if (userAny.responsibilities) authResponse.user.responsibilities = userAny.responsibilities;
+      if (userAny.gender) authResponse.user.gender = userAny.gender;
+
       // Log activity
       this.systemService.createActivity({
         userId: user.id,
