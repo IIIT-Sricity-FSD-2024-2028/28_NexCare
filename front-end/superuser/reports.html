@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analytics | Super User | NexCare</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="../shared/nav.css">
+    <style>
+        .page-body { padding: 24px; }
+        
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header-title { font-size: 16px; font-weight: 600; color: #101828; }
+        .header-user { display: flex; align-items: center; gap: 10px; }
+        .header-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: #2563EB; color: #FFFFFF;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 12px;
+        }
+        .header-user-name { font-size: 13px; font-weight: 600; color: #101828; margin: 0; }
+        .header-user-role { font-size: 11px; color: #6A7282; margin: 0; }
+
+        .page-header {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        .page-header h1 { margin: 0; font-size: 18px; font-weight: 700; color: #101828; }
+        .page-header p { margin: 4px 0 0; font-size: 13px; color: #6A7282; }
+
+        .tab-container {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6A7282;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover { background: #F3F4F6; }
+        .tab-btn.active { background: #2563EB; color: #FFFFFF; }
+
+        .report-section { display: none; }
+        .report-section.active { display: block; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease;
+        }
+        .stat-card:hover {
+            border-color: #155DFC;
+            box-shadow: 0 4px 12px rgba(21, 93, 252, 0.1);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6A7282;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #101828;
+            line-height: 1;
+        }
+        .stat-trend {
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 8px;
+            display: block;
+        }
+        .trend-up { color: #00A63E; }
+        .trend-down { color: #E7000B; }
+        .trend-neutral { color: #6A7282; }
+
+        .chart-container {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .chart-header h3 { margin: 0; font-size: 16px; font-weight: 700; color: #101828; }
+
+        .date-filter {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .date-filter select {
+            padding: 6px 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            font-size: 13px;
+            background: #FFFFFF;
+        }
+
+        .simple-bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            height: 200px;
+            padding: 20px 0;
+        }
+
+        .bar-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bar {
+            width: 100%;
+            background: #2563EB;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s ease;
+            min-height: 4px;
+        }
+        .bar:hover { background: #1D4ED8; }
+
+        .bar-label {
+            font-size: 11px;
+            color: #6A7282;
+            text-align: center;
+        }
+
+        .bar-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: #101828;
+        }
+
+        .data-table-container {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .table-header h3 { margin: 0; font-size: 16px; font-weight: 700; color: #101828; }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .performance-item {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .perf-label { font-size: 14px; font-weight: 500; color: #374151; }
+        .perf-value { font-size: 18px; font-weight: 700; color: #101828; }
+        .perf-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-good { background: #DCFCE7; color: #15803D; }
+        .status-warning { background: #FEF3C7; color: #D97706; }
+        .status-critical { background: #FEE2E2; color: #DC2626; }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: #6A7282;
+        }
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #DC2626;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="main-content">
+        <header class="header">
+            <span class="header-title">Portal Analytics & Reports</span>
+            <div class="header-user">
+                <div class="header-avatar">SU</div>
+                <div>
+                    <p class="header-user-name">Super User</p>
+                    <p class="header-user-role">System Administrator</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-body">
+            <div class="page-header">
+                <div>
+                    <h1>Analytics Dashboard</h1>
+                    <p style="margin: 5px 0 0; color: var(--text-muted); font-size: 14px;">Comprehensive portal performance and operational metrics.</p>
+                </div>
+                <div class="date-filter">
+                    <select id="dateRange" onchange="refreshAllReports()">
+                        <option value="7">Last 7 Days</option>
+                        <option value="30" selected>Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                        <option value="365">Last Year</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('usage')">Usage Analytics</button>
+                <button class="tab-btn" onclick="switchTab('performance')">System Performance</button>
+                <button class="tab-btn" onclick="switchTab('operational')">Operational Reports</button>
+                <button class="tab-btn" onclick="switchTab('security')">Security Reports</button>
+            </div>
+
+            <!-- Usage Analytics Section -->
+            <div id="usage-section" class="report-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <p class="stat-label">Daily Active Users</p>
+                        <p class="stat-value" id="dailyActiveUsers">--</p>
+                        <span class="stat-trend trend-up">↑ 12% vs last period</span>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Total Sessions</p>
+                        <p class="stat-value" id="totalSessions">--</p>
+                        <span class="stat-trend trend-up">↑ 8% vs last period</span>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Avg Session Duration</p>
+                        <p class="stat-value" id="avgSessionDuration">--</p>
+                        <span class="stat-trend trend-neutral">→ Stable</span>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Peak Concurrent Users</p>
+                        <p class="stat-value" id="peakConcurrentUsers">--</p>
+                        <span class="stat-trend trend-up">↑ 5% vs last period</span>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>User Activity Over Time</h3>
+                    </div>
+                    <div class="simple-bar-chart" id="userActivityChart">
+                        <div class="loading-spinner">Loading chart data...</div>
+                    </div>
+                </div>
+
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h3>Feature Usage Statistics</h3>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Feature/Module</th>
+                                <th>Total Visits</th>
+                                <th>Unique Users</th>
+                                <th>Avg Time Spent</th>
+                                <th>Usage Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody id="featureUsageTable">
+                            <tr><td colspan="5" class="loading-spinner">Loading feature usage data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- System Performance Section -->
+            <div id="performance-section" class="report-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <p class="stat-label">API Response Time</p>
+                        <p class="stat-value" id="apiResponseTime">--</p>
+                        <span class="stat-trend trend-up">Excellent</span>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">System Uptime</p>
+                        <p class="stat-value" id="systemUptime">--</p>
+                        <span class="stat-trend trend-up">99.9%</span>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Error Rate</p>
+                        <p class="stat-value" id="errorRate">--</p>
+                        <span class="stat-trend trend-down">Low</span>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Database Performance</p>
+                        <p class="stat-value" id="dbPerformance">--</p>
+                        <span class="stat-trend trend-up">Good</span>
+                    </div>
+                </div>
+
+                <div class="performance-grid">
+                    <div class="performance-item">
+                        <div>
+                            <div class="perf-label">Server CPU Usage</div>
+                            <div class="perf-value" id="cpuUsage">--</div>
+                        </div>
+                        <span class="perf-status status-good">Normal</span>
+                    </div>
+                    <div class="performance-item">
+                        <div>
+                            <div class="perf-label">Memory Usage</div>
+                            <div class="perf-value" id="memoryUsage">--</div>
+                        </div>
+                        <span class="perf-status status-good">Normal</span>
+                    </div>
+                    <div class="performance-item">
+                        <div>
+                            <div class="perf-label">Disk I/O</div>
+                            <div class="perf-value" id="diskIO">--</div>
+                        </div>
+                        <span class="perf-status status-good">Normal</span>
+                    </div>
+                    <div class="performance-item">
+                        <div>
+                            <div class="perf-label">Network Latency</div>
+                            <div class="perf-value" id="networkLatency">--</div>
+                        </div>
+                        <span class="perf-status status-good">Low</span>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>API Response Time Trends</h3>
+                    </div>
+                    <div class="simple-bar-chart" id="apiResponseChart">
+                        <div class="loading-spinner">Loading performance data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operational Reports Section -->
+            <div id="operational-section" class="report-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <p class="stat-label">New Registrations</p>
+                        <p class="stat-value" id="newRegistrations">--</p>
+                        <span class="stat-trend trend-up">↑ 15% vs last period</span>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Hospital Verification Rate</p>
+                        <p class="stat-value" id="hospitalVerifyRate">--</p>
+                        <span class="stat-trend trend-up">↑ 3% vs last period</span>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Avg Feedback Rating</p>
+                        <p class="stat-value" id="avgFeedbackRating">--</p>
+                        <span class="stat-trend trend-up">↑ 0.2 vs last period</span>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Staff Activity Level</p>
+                        <p class="stat-value" id="staffActivityLevel">--</p>
+                        <span class="stat-trend trend-neutral">→ Stable</span>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Registration Trends</h3>
+                    </div>
+                    <div class="simple-bar-chart" id="registrationChart">
+                        <div class="loading-spinner">Loading registration data...</div>
+                    </div>
+                </div>
+
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h3>Department Performance</h3>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th>Active Staff</th>
+                                <th>Patient Interactions</th>
+                                <th>Avg Response Time</th>
+                                <th>Performance Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="departmentPerformanceTable">
+                            <tr><td colspan="5" class="loading-spinner">Loading department data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Security Reports Section -->
+            <div id="security-section" class="report-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <p class="stat-label">Failed Login Attempts</p>
+                        <p class="stat-value" id="failedLogins">--</p>
+                        <span class="stat-trend trend-down">↓ 8% vs last period</span>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Security Incidents</p>
+                        <p class="stat-value" id="securityIncidents">--</p>
+                        <span class="stat-trend trend-neutral">→ Resolved</span>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Permission Changes</p>
+                        <p class="stat-value" id="permissionChanges">--</p>
+                        <span class="stat-trend trend-neutral">→ Normal</span>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Data Access Logs</p>
+                        <p class="stat-value" id="dataAccessLogs">--</p>
+                        <span class="stat-trend trend-up">↑ 12% vs last period</span>
+                    </div>
+                </div>
+
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h3>Recent Security Events</h3>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Event Type</th>
+                                <th>User/Source</th>
+                                <th>Severity</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="securityEventsTable">
+                            <tr><td colspan="5" class="loading-spinner">Loading security data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div> <!-- /.page-body -->
+    </main>
+
+    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script src="../shared/nav.js"></script>
+    <script src="../shared/db.js?v=5"></script>
+    <script src="../logo.js"></script>
+        <script>
+        // JWT-based early auth guard (runs before body renders, prevents flash)
+        (function () {
+            function decodeJWT(token) {
+                try {
+                    var parts = token.split('.');
+                    if (parts.length !== 3) return null;
+                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(json);
+                } catch(e) { return null; }
+            }
+            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            var payload = token ? decodeJWT(token) : null;
+            var now = Math.floor(Date.now() / 1000);
+            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'superuser') {
+                sessionStorage.clear();
+                window.location.replace('../auth/login.html');
+            }
+            // Sync legacy keys so other inline scripts don't break
+            if (payload) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('nexcare_current_role', payload.role);
+            }
+        })();
+    </script>
+    <script src="reports.js?v=1"></script>
+</body>
+</html>

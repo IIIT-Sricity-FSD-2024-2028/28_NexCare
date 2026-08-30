@@ -232,6 +232,16 @@ export class InventoryService {
    */
   async create(itemData: CreateInventoryRequest) {
     try {
+      // Validate quantity is not negative
+      if (itemData.quantity < 0) {
+        return ResponseUtil.error('Quantity cannot be negative');
+      }
+
+      // Validate minStock is not negative
+      if (itemData.minStock < 0) {
+        return ResponseUtil.error('Minimum stock cannot be negative');
+      }
+
       // Generate new item ID
       const newItemId = IdGenerator.generateInventoryId();
 
@@ -282,6 +292,16 @@ export class InventoryService {
       
       if (itemIndex === -1) {
         return ResponseUtil.notFound('Inventory item', id);
+      }
+
+      // Validate quantity is not negative if being updated
+      if (updateData.quantity !== undefined && updateData.quantity < 0) {
+        return ResponseUtil.error('Quantity cannot be negative');
+      }
+
+      // Validate minStock is not negative if being updated
+      if (updateData.minStock !== undefined && updateData.minStock < 0) {
+        return ResponseUtil.error('Minimum stock cannot be negative');
       }
 
       // Update item

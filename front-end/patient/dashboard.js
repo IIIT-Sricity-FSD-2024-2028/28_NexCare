@@ -176,22 +176,25 @@ async function loadAppointments() {
     if (table) {
         table.innerHTML = "";
         if (upcoming.length === 0) {
-            table.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #6A7282; padding: 20px;">No upcoming appointments found.</td></tr>`;
+            table.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #6A7282; padding: 20px;">No upcoming appointments found.</td></tr>`;
         } else {
             upcoming.forEach(appt => {
                 let badgeClass = "badge-pending";
                 if(appt.status === 'Confirmed') badgeClass = "badge-confirmed";
                 
-                let viewMsg = `Viewing details for Appointment: ${appt.token || appt.id}\\nReason: ${appt.reason || "N/A"}`.replace(/'/g, "");
-                let cancelConfirm = `Are you sure you want to cancel this appointment with ${appt.doctor}?`.replace(/'/g, "");
+                const hosp = escapeHtml(appt.hospitalName || appt.hospital || 'NexCare General Hospital');
+                const doc = escapeHtml(appt.doctor && appt.doctor.startsWith('Dr.') ? appt.doctor : (appt.doctorName || `Dr. ${appt.department || 'General'} Specialist`));
+                let viewMsg = `Viewing details for Appointment: ${appt.token || appt.id}\\nHospital: ${hosp}\\nDoctor: ${doc}\\nReason: ${appt.reason || "N/A"}`.replace(/'/g, "");
+                let cancelConfirm = `Are you sure you want to cancel this appointment with ${doc} at ${hosp}?`.replace(/'/g, "");
                 
                 table.innerHTML += `
                     <tr>
-                        <td>${appt.doctor}</td>
-                        <td>${appt.department}</td>
-                        <td>${appt.dateLabel}</td>
-                        <td>${appt.timeLabel}</td>
-                        <td><span class="badge ${badgeClass}">${appt.status}</span></td>
+                        <td><strong>${hosp}</strong></td>
+                        <td>${doc}</td>
+                        <td>${escapeHtml(appt.department)}</td>
+                        <td>${escapeHtml(appt.dateLabel)}</td>
+                        <td>${escapeHtml(appt.timeLabel)}</td>
+                        <td><span class="badge ${badgeClass}">${escapeHtml(appt.status)}</span></td>
                         <td>
                             <button class="btn-icon" title="View" onclick="showSystemModal('Appointment Details', '${viewMsg}')">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="#4A5565" stroke-width="1.5"/><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" stroke="#4A5565" stroke-width="1.5"/></svg>
@@ -341,7 +344,7 @@ function setupDashboardSearch() {
 window.bookHospitalAppt = function(hospitalId) {
     if (hospitalId) {
         try { localStorage.setItem('selectedHospitalId', hospitalId); } catch(e) {}
-        window.location.href = `appointments/appointments.html?hospitalId=${encodeURIComponent(hospitalId)}`;
+        window.location.href = pageLink('appointments/appointments', { hospitalId });
     } else {
         window.location.href = 'appointments/appointments.html';
     }

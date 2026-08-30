@@ -1,43 +1,12 @@
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Catch } from '@nestjs/common';
+import { AllExceptionsFilter } from './all-exceptions.filter';
 
 /**
- * Global HTTP Exception Filter
- * Catches all HTTP exceptions and formats them into a standardized error response.
+ * Kept as an alias so existing imports keep working.
+ *
+ * The behaviour now lives in AllExceptionsFilter, which catches every
+ * exception (not only HttpException) and writes it to the error log.
+ * Prefer importing AllExceptionsFilter directly in new code.
  */
-@Catch(HttpException)
-export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
-    const status = exception.getStatus();
-    const exceptionResponse = exception.getResponse();
-
-    const message =
-      typeof exceptionResponse === 'object' && 'message' in exceptionResponse
-        ? (exceptionResponse as any).message
-        : exception.message;
-
-    const errors =
-      typeof exceptionResponse === 'object' && 'errors' in exceptionResponse
-        ? (exceptionResponse as any).errors
-        : undefined;
-
-    response.status(status).json({
-      success: false,
-      statusCode: status,
-      message: message,
-      errors: errors,
-      error: HttpStatus[status],
-      timestamp: new Date().toISOString(),
-      path: request.url,
-    });
-  }
-}
+@Catch()
+export class HttpExceptionFilter extends AllExceptionsFilter {}

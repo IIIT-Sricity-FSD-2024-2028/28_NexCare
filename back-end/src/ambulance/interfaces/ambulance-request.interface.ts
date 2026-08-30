@@ -13,6 +13,7 @@ export interface AmbulanceRequest {
   notes: string;
   status: AmbulanceStatus;
   assignedTo?: string;
+  hospitalId?: string;
   createdAt: string;
   updatedAt?: string;
   stepIndex?: number;

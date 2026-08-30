@@ -1,11 +1,11 @@
 [
   {
     "id": "U001",
-    "name": "System Administrator",
+    "name": "Rajesh Kumar",
     "email": "superuser@nexcare.com",
     "role": "superuser",
     "status": "Active",
-    "password": "Password123"
+    "password": "scrypt$3df5eaecf475b76c7206905a6a777913$f546d4ba5178e530b4030750e317ecfc1e1ab3818872668d313ff643951b81642c6cb5258d65e17ae84a9707e81aa384cfa277c8368e8cdc418e5daa239e1400"
   },
   {
     "id": "M001",
@@ -13,7 +13,7 @@
     "email": "regional@nexcare.com",
     "role": "regional_manager",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$3d25e2f21abcb0ae7309960189c7c57a$95967ea076fe59af28e5247040baaf0578f537b09e200396fdd8297fd319c1655b7d423a72c02e62187537bb3d8beb568f86b4e7afedc8e57223951fbab3ccc7",
     "city": "Tirupati",
     "state": "Andhra Pradesh",
     "pincode": "517501"
@@ -23,6 +23,15 @@
     "name": "Priya Reddy",
     "email": "admin@nexcare.com",
     "role": "administrative_staff",
+    "status": "Active",
+    "password": "scrypt$b3b248e737ab235d2c3b931dcc45d7e2$e3105900f9af9520b4830a3917b25499cbe5176e40e5c633c459ce746e6b454e3edbc8f6482da39417f25952e557774a333b4ab7ff6fffff961e335e901c638a",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "HM001",
+    "name": "Srinivas Rao",
+    "email": "hospitalmanager@nexcare.com",
+    "role": "hospital_manager",
     "status": "Active",
     "password": "Password123",
     "hospitalId": "H001"
@@ -42,16 +51,70 @@
     "email": "patient@gmail.com",
     "role": "patient",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$5c05985ef7a9c83e1e0c0ce8cac01bb5$15f489fd79cf00a87a045657f67c2ed1fedc2f81a2b89a2ddaa92a1880d6a95ac28db469aa73b653d182edd0a3e70efdbcc1ba250355595c5b5d5a709dd180cb",
     "patientId": "P001",
     "city": "Tirupati",
     "state": "Andhra Pradesh",
     "pincode": "517501"
   },
   {
+    "id": "U047",
+    "name": "Vivian Mathew",
+    "email": "patient2@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P003"
+  },
+  {
+    "id": "U048",
+    "name": "Priya Sharma",
+    "email": "patient3@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P004"
+  },
+  {
+    "id": "U049",
+    "name": "Abhishek Kumar",
+    "email": "patient4@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P005"
+  },
+  {
+    "id": "U050",
+    "name": "Heya Reddy",
+    "email": "patient5@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P006"
+  },
+  {
+    "id": "U051",
+    "name": "Suresh Kumar",
+    "email": "patient6@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P007"
+  },
+  {
+    "id": "U052",
+    "name": "Vishv Reddy",
+    "email": "patient7@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P008"
+  },
+  {
     "id": "U005",
-    "name": "Dr. Sarah Smith",
-    "email": "sarah.smith@nexcare.com",
+    "name": "Dr. Sunita Sharma",
+    "email": "sunita@nexcare.com",
     "role": "doctor",
     "dept": "Cardiology",
     "status": "Active",
@@ -61,9 +124,9 @@
   {
     "id": "U006",
     "name": "Dr. Vikram Patel",
-    "email": "vikram.patel@nexcare.com",
+    "email": "vikram@nexcare.com",
     "role": "doctor",
-    "dept": "Orthopedics",
+    "dept": "Orthopaedics",
     "status": "Active",
     "password": "Password123",
     "hospitalId": "H001"
@@ -71,7 +134,7 @@
   {
     "id": "U007",
     "name": "Dr. Anjali Desai",
-    "email": "anjali.desai@nexcare.com",
+    "email": "anjali@nexcare.com",
     "role": "doctor",
     "dept": "General Medicine",
     "status": "On Leave",
@@ -81,17 +144,17 @@
   {
     "id": "U010",
     "name": "Dr. Priya Nair",
-    "email": "priya.nair@nexcare.com",
+    "email": "priya@nexcare.com",
     "role": "doctor",
-    "dept": "Pediatrics",
+    "dept": "Paediatrics",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$fb29245edf14016bf1fb5a4789aeb4d4$c2baf5b11928e6a615b9301d69b77c8c6911f1d9bceb93714754481552fbf8d60782c58a363f7066c673983097bd57c68e7a5ece9dd0820eea7da5f404569b8d",
     "hospitalId": "H001"
   },
   {
     "id": "U011",
     "name": "Dr. Rajesh Khanna",
-    "email": "rajesh.khanna@nexcare.com",
+    "email": "rajesh@nexcare.com",
     "role": "doctor",
     "dept": "Neurology",
     "status": "Active",
@@ -101,7 +164,7 @@
   {
     "id": "U012",
     "name": "Dr. Meera Iyer",
-    "email": "meera.iyer@nexcare.com",
+    "email": "meera@nexcare.com",
     "role": "doctor",
     "dept": "Dermatology",
     "status": "Active",
@@ -111,11 +174,283 @@
   {
     "id": "U013",
     "name": "Dr. Arjun Mehta",
-    "email": "arjun.mehta@nexcare.com",
+    "email": "arjun@nexcare.com",
     "role": "doctor",
     "dept": "General Medicine",
     "status": "Active",
     "password": "Password123",
     "hospitalId": "H001"
+  },
+  {
+    "id": "U020",
+    "name": "Lakshmi Menon",
+    "email": "lakshmi@nexcare.com",
+    "role": "administrative_staff",
+    "dept": "Front Desk",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "U021",
+    "name": "Suresh Babu",
+    "email": "suresh@nexcare.com",
+    "role": "ambulance",
+    "dept": "Transport",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "U022",
+    "name": "Dr. Kavya Reddy",
+    "email": "kavya@nexcare.com",
+    "role": "doctor",
+    "dept": "Gynaecology",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "U023",
+    "name": "Dr. Naveen Kumar",
+    "email": "naveen@nexcare.com",
+    "role": "doctor",
+    "dept": "Paediatrics",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "U024",
+    "name": "Dr. Sneha Pillai",
+    "email": "sneha@nexcare.com",
+    "role": "doctor",
+    "dept": "General Medicine",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "U025",
+    "name": "Dr. Harish Varma",
+    "email": "harish@nexcare.com",
+    "role": "doctor",
+    "dept": "Cardiology",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "U030",
+    "name": "Divya Krishnan",
+    "email": "divya@nexcare.com",
+    "role": "administrative_staff",
+    "dept": "Front Desk",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "U031",
+    "name": "Karthik Raman",
+    "email": "karthik@nexcare.com",
+    "role": "administrative_staff",
+    "dept": "Billing",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "U032",
+    "name": "Manoj Selvam",
+    "email": "manoj@nexcare.com",
+    "role": "ambulance",
+    "dept": "Transport",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "U033",
+    "name": "Dr. Ananya Iyer",
+    "email": "ananya@nexcare.com",
+    "role": "doctor",
+    "dept": "Cardiology",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "U034",
+    "name": "Dr. Ravi Shankar",
+    "email": "ravi@nexcare.com",
+    "role": "doctor",
+    "dept": "Neurology",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "U035",
+    "name": "Dr. Deepak Nair",
+    "email": "deepak@nexcare.com",
+    "role": "doctor",
+    "dept": "Orthopaedics",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "U036",
+    "name": "Dr. Shalini Rao",
+    "email": "shalini@nexcare.com",
+    "role": "doctor",
+    "dept": "General Medicine",
+    "status": "On Leave",
+    "password": "Password123",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "U037",
+    "name": "Dr. Vignesh Murthy",
+    "email": "vignesh@nexcare.com",
+    "role": "doctor",
+    "dept": "Emergency Medicine",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "U014",
+    "name": "Anita Joshi",
+    "email": "anita@nexcare.com",
+    "role": "administrative_staff",
+    "dept": "Billing",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "U015",
+    "name": "Dr. Sanjay Gupta",
+    "email": "sanjay@nexcare.com",
+    "role": "doctor",
+    "dept": "Neurology",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "U040",
+    "name": "Ananya Sharma",
+    "email": "ananya.sharma@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "scrypt$392c07e9856d607dc7591a64ec452a36$5b307a7a7d057f12121568d04c94dcae61b006cb03630baf2aab445e411d545415daee9bc768228c1cae56856fde87ac11f7bb7458b688b8626e47c0706432a1",
+    "patientId": "P009",
+    "city": "Tirupati",
+    "state": "Andhra Pradesh",
+    "pincode": "517501"
+  },
+  {
+    "id": "U041",
+    "name": "Rahul Verma",
+    "email": "rahul.verma@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P010",
+    "city": "Tirupati",
+    "state": "Andhra Pradesh",
+    "pincode": "517502"
+  },
+  {
+    "id": "U042",
+    "name": "Meena Kumari",
+    "email": "meena.kumari@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P011",
+    "city": "Chittoor",
+    "state": "Andhra Pradesh",
+    "pincode": "517001"
+  },
+  {
+    "id": "U043",
+    "name": "Sandeep Reddy",
+    "email": "sandeep.reddy@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P012",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "pincode": "600001"
+  },
+  {
+    "id": "U044",
+    "name": "Fatima Sheikh",
+    "email": "fatima.sheikh@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P013",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "pincode": "600002"
+  },
+  {
+    "id": "U045",
+    "name": "Vijay Anand",
+    "email": "vijay.anand@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P014",
+    "city": "Nellore",
+    "state": "Andhra Pradesh",
+    "pincode": "524001"
+  },
+  {
+    "id": "U046",
+    "name": "Ramesh Gupta",
+    "email": "patient8@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "scrypt$e27c70ddb1e3947c7af9f11bc32a979b$ca73131f8526cd3ed91121fc78a043f967fc134b3f10440d41c8fa3f270d2a0ea7a7b099268e9c39665bfa5cd9ec067fb7206f5a6e0238593e6c38d9809388fd",
+    "patientId": "P015"
+  },
+  {
+    "id": "U026",
+    "name": "Dr. Preethi Nambiar",
+    "email": "preethi@nexcare.com",
+    "role": "doctor",
+    "dept": "Orthopaedics",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "U038",
+    "name": "Dr. Bhavana Menon",
+    "email": "bhavana@nexcare.com",
+    "role": "doctor",
+    "dept": "General Medicine",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "UMTCJMTLL4ZC",
+    "name": "Test Patient",
+    "email": "patient@nexcare.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "scrypt$93602ebc345ba4293bf283c399d27f3e$21295e9f2035c4f4a835fa346c2cb3c9135bde2cf1ffa64efc597582bbc381791908940bd0539ee97ce46a8c1aeea4f2020e74f5f3c893a5db3dff173b12ddfd",
+    "patientId": "P001",
+    "city": "Bangalore",
+    "pincode": "560001"
   }
 ]

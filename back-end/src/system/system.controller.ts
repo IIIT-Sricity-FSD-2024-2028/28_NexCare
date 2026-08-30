@@ -164,6 +164,16 @@ export class SystemController {
   }
 
   /**
+   * Bulk update system settings from a key→value map
+   */
+  @Put('settings')
+  @ApiOperation({ summary: 'Bulk update system settings (key→value map)' })
+  @ApiResponse({ status: 200, description: 'Settings updated successfully' })
+  async updateSettingsBulk(@Body() settingsMap: Record<string, any>) {
+    return this.systemService.updateSettingsBulk(settingsMap);
+  }
+
+  /**
    * Update system setting
    */
   @Put('settings/:id')

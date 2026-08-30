@@ -32,6 +32,9 @@ export interface Hospital {
     patientSatisfactionScore?: number;
     lastUpdated?: string;
   };
+  regionalReviewStatus?: 'pending' | 'cleared' | 'rejected';
+  regionalReviewedAt?: string;
+  regionalReviewNotes?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -88,4 +91,7 @@ export interface UpdateHospitalDto {
     patientSatisfactionScore?: number;
     lastUpdated?: string;
   };
+  regionalReviewStatus?: 'pending' | 'cleared' | 'rejected';
+  regionalReviewedAt?: string;
+  regionalReviewNotes?: string;
 }

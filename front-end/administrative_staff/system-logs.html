@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Hospital Management System - System Logs</title>
+    <meta name="description" content="Access, error and application logs stored on the server">
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="logo.css">
+    <script src="../shared/api.js"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script defer src="logo.js"></script>
+    <style>
+        .log-tabs { display: flex; gap: 8px; margin: 16px 0; }
+        .log-tab {
+            padding: 8px 16px; border-radius: 8px; border: 1px solid #e5e7eb;
+            background: #fff; cursor: pointer; font-size: 13px; color: #374151;
+        }
+        .log-tab.active { background: #2563eb; border-color: #2563eb; color: #fff; font-weight: 600; }
+        .log-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+        .log-table th {
+            background: #f9fafb; color: #6b7280; font-weight: 600; text-transform: uppercase;
+            font-size: 11px; padding: 10px 12px; position: sticky; top: 0;
+        }
+        .log-table td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; vertical-align: top; }
+        .log-table tr:hover { background: #f9fafb; }
+        .log-wrapper { max-height: 520px; overflow: auto; }
+        .lvl { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
+        .lvl.info { background: #dbeafe; color: #1e40af; }
+        .lvl.warn { background: #fef3c7; color: #92400e; }
+        .lvl.error { background: #fee2e2; color: #991b1b; }
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+        .log-detail { color: #6b7280; white-space: pre-wrap; word-break: break-word; }
+    </style>
+</head>
+<body>
+
+    <script>
+        // JWT-based early auth guard (runs before body renders, prevents flash)
+        (function () {
+            function decodeJWT(token) {
+                try {
+                    var parts = token.split('.');
+                    if (parts.length !== 3) return null;
+                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(json);
+                } catch(e) { return null; }
+            }
+            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            var payload = token ? decodeJWT(token) : null;
+            var now = Math.floor(Date.now() / 1000);
+            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'administrative_staff') {
+                sessionStorage.clear();
+                window.location.replace('../auth/login.html');
+            }
+            if (payload) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('nexcare_current_role', payload.role);
+            }
+        })();
+    </script>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <nex-care-logo></nex-care-logo>
+
+        <ul class="menu" id="adminMenu">
+            <li>
+                <a href="dashboard.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="patient_checkin.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                    Patient Check-in
+                </a>
+            </li>
+            <li>
+                <a href="patient-directory.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Patient Directory
+                </a>
+            </li>
+            <li>
+                <a href="manage_appointments.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Manage Appointments
+                </a>
+            </li>
+            <li>
+                <a href="bed-allocation.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="18" height="5" rx="1"/><rect x="4" y="7" width="4" height="3" rx="1"/><line x1="3" y1="7" x2="3" y2="15"/><line x1="21" y1="10" x2="21" y2="15"/></svg>
+                    Bed Allocation
+                </a>
+            </li>
+            <li>
+                <a href="inventory.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3 8 12 13 21 8"/></svg>
+                    Inventory
+                </a>
+            </li>
+            <li>
+                <a href="staff_scheduling.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M17 11a4 4 0 1 0-4-4"/><path d="M3 21v-2a4 4 0 0 1 6-3.46"/><path d="M16 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                    Staff Scheduling
+                </a>
+            </li>
+            <li>
+                <a href="leave-requests.html">
+                    <!-- Leave Requests -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M9 16h6"/></svg>
+                    Leave Requests
+                </a>
+            </li>
+            <li>
+                <a href="generate-bill.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="9" x2="8" y2="9"/></svg>
+                    Generate Bill
+                </a>
+            </li>
+            <li class="active">
+                <a href="system-logs.html">
+                    <!-- System Logs -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="8" y1="13" x2="16" y2="13"/>
+                        <line x1="8" y1="17" x2="16" y2="17"/>
+                    </svg>
+                    System Logs
+                </a>
+            </li>
+            <li>
+                <a href="feedback.html">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
+                    Feedback
+                </a>
+            </li>
+        </ul>
+
+        <div class="logout">
+            <button type="button" class="logout-btn" onclick="logoutUser()">
+                <svg class="logout-icon" viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16 17l5-5-5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 12H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <div class="user" id="displayUserName">Admin</div>
+        </div>
+
+        <div class="header-row">
+            <div>
+                <h1>System Logs</h1>
+                <div class="sub">Requests, errors and application events written to the server log files</div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <label class="small" style="display:flex; align-items:center; gap:6px; color:#6b7280;">
+                    <input type="checkbox" id="autoRefresh"> Auto-refresh
+                </label>
+                <button class="btn" onclick="refreshLogs()">Refresh</button>
+            </div>
+        </div>
+
+        <!-- LOG FILES ON DISK -->
+        <div id="logFiles" class="cards"></div>
+
+        <!-- STREAM TABS -->
+        <div class="log-tabs">
+            <button class="log-tab active" data-stream="access" onclick="selectStream('access')">Access</button>
+            <button class="log-tab" data-stream="error" onclick="selectStream('error')">Errors</button>
+            <button class="log-tab" data-stream="app" onclick="selectStream('app')">Application</button>
+        </div>
+
+        <div class="card" style="padding: 0;">
+            <div class="log-wrapper">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 165px;">Time</th>
+                            <th style="width: 70px;">Level</th>
+                            <th>Message</th>
+                            <th style="width: 260px;">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="system-logs.js"></script>
+
+</body>
+</html>

@@ -251,9 +251,19 @@ document.addEventListener('DOMContentLoaded', () => {
             actionBtn.style.textAlign = 'center';
             actionBtn.textContent = 'Book Appointment';
             actionBtn.onclick = () => {
+                // Check if user is logged in
+                const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+                const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+
+                if (!token || !isLoggedIn) {
+                    alert('Please login to book an appointment');
+                    return;
+                }
+
+                // User is logged in, proceed to booking
                 if (h && h.id) {
                     try { localStorage.setItem('selectedHospitalId', h.id); } catch(e) {}
-                    window.location.href = `appointments/appointments.html?hospitalId=${encodeURIComponent(h.id)}`;
+                    window.location.href = pageLink('appointments/appointments', { hospitalId: h.id });
                 } else {
                     window.location.href = 'appointments/appointments.html';
                 }

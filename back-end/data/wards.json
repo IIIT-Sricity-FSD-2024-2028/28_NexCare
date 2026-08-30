@@ -1,0 +1,97 @@
+[
+  {
+    "id": "W-001-01",
+    "name": "Emergency",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "W-001-02",
+    "name": "General",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "W-001-03",
+    "name": "ICU",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "W-001-04",
+    "name": "Maternity",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "W-001-05",
+    "name": "Paediatrics",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "W-001-06",
+    "name": "Orthopaedics",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "W-001-07",
+    "name": "Cardiology",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "W-002-01",
+    "name": "Emergency",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "W-002-02",
+    "name": "General",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "W-002-03",
+    "name": "ICU",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "W-002-04",
+    "name": "Maternity",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "W-002-05",
+    "name": "Paediatrics",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "W-002-06",
+    "name": "Dermatology",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "W-003-01",
+    "name": "Emergency",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "W-003-02",
+    "name": "General",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "W-003-03",
+    "name": "ICU",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "W-003-04",
+    "name": "Orthopaedics",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "W-003-05",
+    "name": "Neurology",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "W-003-06",
+    "name": "Cardiology",
+    "hospitalId": "H003"
+  }
+]

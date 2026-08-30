@@ -76,6 +76,7 @@ async function loadInventory() {
         render();
     } catch (err) {
         console.error("Error loading inventory:", err);
+        alert('Failed to load inventory. Please check your connection and try again.');
         const table = document.getElementById("inventoryTable");
         if (table) table.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:#dc2626;">Failed to load inventory. Backend may be offline.</td></tr>`;
     }
@@ -490,4 +491,4 @@ window.closeAuditModal = () => {
 document.getElementById("searchInput")?.addEventListener("input", applySearch);
 
 // ---------------- INIT ----------------
-loadInventory();
+loadInventory();

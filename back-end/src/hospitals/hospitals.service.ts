@@ -118,15 +118,25 @@ export class HospitalsService {
 
   async create(data: CreateHospitalDto) {
     try {
-      const existing = this.hospitals.find(h => h.registrationNumber === data.registrationNumber);
+      const validationError = this.validateRegistration(data);
+      if (validationError) return ResponseUtil.validationError(validationError);
+
+      const registrationNumber = data.registrationNumber.trim().toUpperCase();
+      const existing = this.hospitals.find(
+        h => h.registrationNumber.trim().toUpperCase() === registrationNumber,
+      );
       if (existing) {
         return ResponseUtil.error('Hospital with this registration number already exists');
       }
 
       const newHospital: Hospital = {
         ...data,
+        registrationNumber,
+        email: data.email.trim().toLowerCase(),
+        adminEmail: data.adminEmail.trim().toLowerCase(),
         id: IdGenerator.generate('H'),
         verificationStatus: VerificationStatus.PENDING_VERIFICATION,
+        regionalReviewStatus: 'pending',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -139,6 +149,59 @@ export class HospitalsService {
     } catch (error) {
       return ResponseUtil.serverError('Failed to register hospital');
     }
+  }
+
+  /** Records a regional manager's due-diligence decision; it never activates a hospital. */
+  async recordRegionalReview(
+    id: string,
+    managerId: string,
+    decision: 'cleared' | 'rejected',
+    notes?: string,
+  ) {
+    const all = this.hospitals;
+    const idx = all.findIndex(h => h.id === id);
+    if (idx === -1) return ResponseUtil.notFound('Hospital', id);
+    const hospital = all[idx];
+
+    if (hospital.assignedManagerId !== managerId) {
+      return ResponseUtil.forbidden('This registration is not assigned to you');
+    }
+    if (hospital.verificationStatus !== VerificationStatus.PENDING_VERIFICATION) {
+      return ResponseUtil.error('Only pending registrations can be reviewed');
+    }
+
+    all[idx] = {
+      ...hospital,
+      regionalReviewStatus: decision,
+      regionalReviewedAt: new Date().toISOString(),
+      regionalReviewNotes: notes?.trim() || undefined,
+      updatedAt: new Date().toISOString(),
+    };
+    this.hospitals = all;
+    return ResponseUtil.updated(`Regional review ${decision}`, all[idx]);
+  }
+
+  private validateRegistration(data: CreateHospitalDto): string | null {
+    const requiredText: Array<[keyof CreateHospitalDto, string]> = [
+      ['name', 'Hospital name'], ['registrationNumber', 'Registration number'], ['type', 'Hospital type'],
+      ['ownershipType', 'Ownership type'], ['address', 'Address'], ['city', 'City'], ['state', 'State'],
+      ['pincode', 'PIN code'], ['phone', 'Official phone'], ['email', 'Official email'],
+      ['adminName', 'Administrator name'], ['adminEmail', 'Administrator email'], ['adminPhone', 'Administrator phone'],
+    ];
+    for (const [field, label] of requiredText) {
+      if (typeof data[field] !== 'string' || !data[field].trim()) return `${label} is required`;
+    }
+    if (!/^\d{6}$/.test(data.pincode.trim())) return 'PIN code must contain exactly 6 digits';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) return 'Official email is invalid';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.adminEmail.trim())) return 'Administrator email is invalid';
+    const phone = (value: string) => /^\+?[0-9][0-9\s()-]{8,14}$/.test(value.trim());
+    if (!phone(data.phone)) return 'Official phone must contain 10 to 15 digits';
+    if (!/^\+?[0-9][0-9\s()-]{8,14}$/.test(data.adminPhone.trim())) return 'Administrator phone must contain 10 to 15 digits';
+    if (!Number.isInteger(Number(data.totalBeds)) || Number(data.totalBeds) < 1) return 'Total beds must be at least 1';
+    if (!Number.isInteger(Number(data.icuBeds)) || Number(data.icuBeds) < 0) return 'ICU beds cannot be negative';
+    if (Number(data.icuBeds) > Number(data.totalBeds)) return 'ICU beds cannot exceed total beds';
+    if (!Array.isArray(data.specialities) || data.specialities.length === 0) return 'At least one speciality is required';
+    return null;
   }
 
   async update(id: string, updateData: UpdateHospitalDto) {
@@ -165,31 +228,29 @@ export class HospitalsService {
         (h) => !h.verificationStatus || h.verificationStatus === VerificationStatus.VERIFIED,
       );
 
-      const targetCity = city ? city.trim().toLowerCase() : null;
-      const targetState = state ? state.trim().toLowerCase() : null;
-      const targetPincode = pincode ? pincode.trim() : null;
+      // Proximity score: same pincode (3) > same city (2) > same state (1).
+      const score = (h: Hospital) => {
+        let s = 0;
+        if (pincode && h.pincode === pincode) s += 3;
+        if (city && h.city?.toLowerCase() === city.toLowerCase()) s += 2;
+        if (state && h.state?.toLowerCase() === state.toLowerCase()) s += 1;
+        return s;
+      };
 
-      // Sort logic: 
-      // 1. Same pincode (+3)
-      // 2. Same city (+2)
-      // 3. Same state (+1)
-      verified.sort((a, b) => {
-        let scoreA = 0;
-        let scoreB = 0;
-        
-        if (targetPincode && String(a.pincode || '').trim() === targetPincode) scoreA += 3;
-        if (targetPincode && String(b.pincode || '').trim() === targetPincode) scoreB += 3;
-        
-        if (targetCity && String(a.city || '').trim().toLowerCase() === targetCity) scoreA += 2;
-        if (targetCity && String(b.city || '').trim().toLowerCase() === targetCity) scoreB += 2;
-        
-        if (targetState && String(a.state || '').trim().toLowerCase() === targetState) scoreA += 1;
-        if (targetState && String(b.state || '').trim().toLowerCase() === targetState) scoreB += 1;
-        
-        return scoreB - scoreA;
-      });
+      const hasLocation = !!(pincode || city || state);
 
-      return ResponseUtil.success('Nearby hospitals retrieved successfully', verified);
+      // When a location is supplied, actually narrow to hospitals that share
+      // at least the state/city/pincode. If nothing matches locally, fall back
+      // to the full verified list so the patient still sees options.
+      let result = verified;
+      if (hasLocation) {
+        const local = verified.filter(h => score(h) > 0);
+        result = local.length > 0 ? local : verified;
+      }
+
+      result.sort((a, b) => score(b) - score(a));
+
+      return ResponseUtil.success('Nearby hospitals retrieved successfully', result);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve nearby hospitals');
     }

@@ -24,34 +24,94 @@
     "emergency24x7": true,
     "ambulanceService": true,
     "adminName": "Dr. Ramesh Babu",
-    "adminEmail": "admin.tirupati@nexcare.in",
+    "adminEmail": "hospitalmanager@nexcare.com",
     "adminPhone": "+91 98480 12345",
     "verificationStatus": "verified",
-    "assignedManagerId": "M001",
+    "assignedManagerId": "HM001",
     "createdAt": "2023-01-01T00:00:00.000Z",
-    "updatedAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2026-08-26T00:00:00.000Z",
     "availability": {
       "Cardiology": {
-        "days": [1, 2, 3, 4, 5],
-        "slots": ["09:00 AM", "10:30 AM", "12:00 PM", "03:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "slots": [
+          "09:00 AM",
+          "10:30 AM",
+          "12:00 PM",
+          "03:00 PM"
+        ]
       },
       "Neurology": {
-        "days": [1, 3, 5],
-        "slots": ["10:00 AM", "11:30 AM", "02:30 PM"]
+        "days": [
+          1,
+          3,
+          5
+        ],
+        "slots": [
+          "10:00 AM",
+          "11:30 AM",
+          "02:30 PM"
+        ]
       },
       "General Medicine": {
-        "days": [1, 2, 3, 4, 5, 6],
-        "slots": ["08:30 AM", "10:00 AM", "01:00 PM", "05:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "08:30 AM",
+          "10:00 AM",
+          "01:00 PM",
+          "05:00 PM"
+        ]
       },
       "Orthopaedics": {
-        "days": [2, 3, 4, 5, 6],
-        "slots": ["09:30 AM", "11:00 AM", "04:00 PM"]
+        "days": [
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "09:30 AM",
+          "11:00 AM",
+          "04:00 PM"
+        ]
       },
       "Paediatrics": {
-        "days": [1, 3, 5],
-        "slots": ["11:00 AM", "01:30 PM", "03:30 PM"]
+        "days": [
+          1,
+          3,
+          5
+        ],
+        "slots": [
+          "11:00 AM",
+          "01:30 PM",
+          "03:30 PM"
+        ]
       }
-    }
+    },
+    "availableBeds": 62,
+    "occupiedBeds": 188,
+    "latitude": 13.6288,
+    "longitude": 79.4192,
+    "emergencyAvailable": true,
+    "establishedYear": 2005,
+    "accreditation": "NABH",
+    "departmentsCount": 12,
+    "ambulanceCount": 6,
+    "operationTheatres": 8,
+    "contactPersonDesignation": "Medical Superintendent"
   },
   {
     "id": "H002",
@@ -80,42 +140,111 @@
     "emergency24x7": true,
     "ambulanceService": true,
     "adminName": "Kavitha Sharma",
-    "adminEmail": "kavitha@apollohealth.in",
+    "adminEmail": "kavitha@nexcare.com",
     "adminPhone": "+91 94400 54321",
     "verificationStatus": "verified",
     "assignedManagerId": "M001",
     "createdAt": "2024-03-15T10:00:00.000Z",
-    "updatedAt": "2024-03-15T10:00:00.000Z",
+    "updatedAt": "2026-08-26T00:00:00.000Z",
     "availability": {
       "Cardiology": {
-        "days": [1, 3, 5],
-        "slots": ["09:45 AM", "11:15 AM", "03:15 PM"]
+        "days": [
+          1,
+          3,
+          5
+        ],
+        "slots": [
+          "09:45 AM",
+          "11:15 AM",
+          "03:15 PM"
+        ]
       },
       "Neurology": {
-        "days": [2, 4, 6],
-        "slots": ["10:15 AM", "12:15 PM", "04:15 PM"]
+        "days": [
+          2,
+          4,
+          6
+        ],
+        "slots": [
+          "10:15 AM",
+          "12:15 PM",
+          "04:15 PM"
+        ]
       },
       "Orthopaedics": {
-        "days": [1, 2, 3, 4, 5],
-        "slots": ["08:45 AM", "01:45 PM", "05:15 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "slots": [
+          "08:45 AM",
+          "01:45 PM",
+          "05:15 PM"
+        ]
       },
       "General Medicine": {
-        "days": [1, 2, 3, 4, 5, 6],
-        "slots": ["09:00 AM", "12:00 PM", "03:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "09:00 AM",
+          "12:00 PM",
+          "03:00 PM"
+        ]
       },
       "Dermatology": {
-        "days": [1, 4, 6],
-        "slots": ["11:00 AM", "02:00 PM"]
+        "days": [
+          1,
+          4,
+          6
+        ],
+        "slots": [
+          "11:00 AM",
+          "02:00 PM"
+        ]
       },
       "Paediatrics": {
-        "days": [1, 3, 5],
-        "slots": ["10:00 AM", "02:00 PM"]
+        "days": [
+          1,
+          3,
+          5
+        ],
+        "slots": [
+          "10:00 AM",
+          "02:00 PM"
+        ]
       },
       "Gynaecology": {
-        "days": [2, 4, 6],
-        "slots": ["09:00 AM", "01:00 PM"]
+        "days": [
+          2,
+          4,
+          6
+        ],
+        "slots": [
+          "09:00 AM",
+          "01:00 PM"
+        ]
       }
-    }
+    },
+    "availableBeds": 41,
+    "occupiedBeds": 139,
+    "latitude": 13.6357,
+    "longitude": 79.4103,
+    "emergencyAvailable": true,
+    "establishedYear": 2012,
+    "accreditation": "NABH",
+    "departmentsCount": 9,
+    "ambulanceCount": 4,
+    "operationTheatres": 5,
+    "contactPersonDesignation": "Hospital Administrator"
   },
   {
     "id": "H003",
@@ -142,34 +271,97 @@
     "emergency24x7": true,
     "ambulanceService": true,
     "adminName": "Suresh Kumar",
-    "adminEmail": "admin@fortiscare.in",
+    "adminEmail": "suresh@nexcare.com",
     "adminPhone": "+91 98400 98765",
     "verificationStatus": "verified",
     "assignedManagerId": "M001",
     "createdAt": "2024-05-10T08:30:00.000Z",
-    "updatedAt": "2024-05-10T08:30:00.000Z",
+    "updatedAt": "2026-08-26T00:00:00.000Z",
     "availability": {
       "Cardiology": {
-        "days": [1, 2, 3, 4, 5],
-        "slots": ["08:45 AM", "10:15 AM", "01:15 PM", "04:15 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "slots": [
+          "08:45 AM",
+          "10:15 AM",
+          "01:15 PM",
+          "04:15 PM"
+        ]
       },
       "Neurology": {
-        "days": [1, 3, 5],
-        "slots": ["09:45 AM", "12:15 PM", "03:45 PM"]
+        "days": [
+          1,
+          3,
+          5
+        ],
+        "slots": [
+          "09:45 AM",
+          "12:15 PM",
+          "03:45 PM"
+        ]
       },
       "Orthopaedics": {
-        "days": [2, 4, 6],
-        "slots": ["09:00 AM", "11:00 AM", "02:00 PM"]
+        "days": [
+          2,
+          4,
+          6
+        ],
+        "slots": [
+          "09:00 AM",
+          "11:00 AM",
+          "02:00 PM"
+        ]
       },
       "General Medicine": {
-        "days": [1, 2, 3, 4, 5, 6],
-        "slots": ["08:00 AM", "10:00 AM", "12:00 PM", "05:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "08:00 AM",
+          "10:00 AM",
+          "12:00 PM",
+          "05:00 PM"
+        ]
       },
       "Emergency Medicine": {
-        "days": [0, 1, 2, 3, 4, 5, 6],
-        "slots": ["06:00 AM", "10:00 AM", "02:00 PM", "06:00 PM"]
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "06:00 AM",
+          "10:00 AM",
+          "02:00 PM",
+          "06:00 PM"
+        ]
       }
-    }
+    },
+    "availableBeds": 55,
+    "occupiedBeds": 145,
+    "latitude": 13.0067,
+    "longitude": 80.2206,
+    "emergencyAvailable": true,
+    "establishedYear": 2009,
+    "accreditation": "NABH, ISO 9001:2015",
+    "departmentsCount": 10,
+    "ambulanceCount": 5,
+    "operationTheatres": 6,
+    "contactPersonDesignation": "General Manager - Operations"
   },
   {
     "id": "H004",
@@ -193,19 +385,39 @@
     "emergency24x7": false,
     "ambulanceService": true,
     "adminName": "Narayana Swamy",
-    "adminEmail": "swamy@svcare.org",
+    "adminEmail": "narayana@nexcare.com",
     "adminPhone": "+91 97010 33445",
-    "verificationStatus": "pending_verification",
+    "verificationStatus": "verified",
     "createdAt": "2026-08-20T14:20:00.000Z",
-    "updatedAt": "2026-08-20T14:20:00.000Z",
+    "updatedAt": "2026-08-27T14:10:25.865Z",
     "availability": {
       "General Medicine": {
-        "days": [1, 2, 3, 4, 5, 6],
-        "slots": ["09:00 AM", "11:00 AM", "02:00 PM", "04:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "09:00 AM",
+          "11:00 AM",
+          "02:00 PM",
+          "04:00 PM"
+        ]
       },
       "Paediatrics": {
-        "days": [1, 3, 5],
-        "slots": ["09:30 AM", "11:30 AM", "03:30 PM"]
+        "days": [
+          1,
+          3,
+          5
+        ],
+        "slots": [
+          "09:30 AM",
+          "11:30 AM",
+          "03:30 PM"
+        ]
       }
     }
   },
@@ -236,37 +448,99 @@
     "emergencyAvailable": true,
     "ambulanceService": true,
     "adminName": "Dr. S. K. Reddy",
-    "adminEmail": "admin.hsp001@nexcare.in",
+    "adminEmail": "skreddy@nexcare.com",
     "adminPhone": "0877-2233445",
     "verificationStatus": "verified",
-    "latitude": 13.6500,
-    "longitude": 79.4200,
+    "latitude": 13.65,
+    "longitude": 79.42,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z",
     "availability": {
       "Cardiology": {
-        "days": [1, 2, 3, 4, 5],
-        "slots": ["09:00 AM", "10:30 AM", "12:00 PM", "03:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "slots": [
+          "09:00 AM",
+          "10:30 AM",
+          "12:00 PM",
+          "03:00 PM"
+        ]
       },
       "Neurology": {
-        "days": [1, 3, 5],
-        "slots": ["10:00 AM", "11:30 AM", "02:30 PM"]
+        "days": [
+          1,
+          3,
+          5
+        ],
+        "slots": [
+          "10:00 AM",
+          "11:30 AM",
+          "02:30 PM"
+        ]
       },
       "Orthopaedics": {
-        "days": [2, 3, 4, 5, 6],
-        "slots": ["09:30 AM", "11:00 AM", "04:00 PM"]
+        "days": [
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "09:30 AM",
+          "11:00 AM",
+          "04:00 PM"
+        ]
       },
       "General Medicine": {
-        "days": [1, 2, 3, 4, 5, 6],
-        "slots": ["08:30 AM", "10:00 AM", "01:00 PM", "05:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "08:30 AM",
+          "10:00 AM",
+          "01:00 PM",
+          "05:00 PM"
+        ]
       },
       "Dermatology": {
-        "days": [2, 4, 6],
-        "slots": ["11:00 AM", "01:30 PM", "03:30 PM"]
+        "days": [
+          2,
+          4,
+          6
+        ],
+        "slots": [
+          "11:00 AM",
+          "01:30 PM",
+          "03:30 PM"
+        ]
       },
       "Emergency Medicine": {
-        "days": [0, 1, 2, 3, 4, 5, 6],
-        "slots": ["08:00 AM", "12:00 PM", "04:00 PM", "08:00 PM"]
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "08:00 AM",
+          "12:00 PM",
+          "04:00 PM",
+          "08:00 PM"
+        ]
       }
     }
   },
@@ -294,7 +568,7 @@
     "emergencyAvailable": true,
     "ambulanceService": true,
     "adminName": "Dr. P. Lakshmi",
-    "adminEmail": "admin.hsp002@nexcare.in",
+    "adminEmail": "plakshmi@nexcare.com",
     "adminPhone": "0877-2256789",
     "verificationStatus": "verified",
     "latitude": 13.6288,
@@ -303,16 +577,49 @@
     "updatedAt": "2024-01-01T00:00:00.000Z",
     "availability": {
       "Gynaecology": {
-        "days": [1, 2, 3, 4, 5, 6],
-        "slots": ["09:30 AM", "11:30 AM", "02:30 PM", "04:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "09:30 AM",
+          "11:30 AM",
+          "02:30 PM",
+          "04:00 PM"
+        ]
       },
       "Paediatrics": {
-        "days": [1, 2, 3, 5, 6],
-        "slots": ["08:30 AM", "10:00 AM", "12:30 PM", "03:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          5,
+          6
+        ],
+        "slots": [
+          "08:30 AM",
+          "10:00 AM",
+          "12:30 PM",
+          "03:00 PM"
+        ]
       },
       "General Medicine": {
-        "days": [1, 2, 3, 4, 5],
-        "slots": ["10:00 AM", "01:00 PM", "05:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "slots": [
+          "10:00 AM",
+          "01:00 PM",
+          "05:00 PM"
+        ]
       }
     }
   },
@@ -340,7 +647,7 @@
     "emergencyAvailable": true,
     "ambulanceService": true,
     "adminName": "Dr. T. Rao",
-    "adminEmail": "admin.hsp003@nexcare.in",
+    "adminEmail": "trao@nexcare.com",
     "adminPhone": "0877-2278901",
     "verificationStatus": "verified",
     "latitude": 13.6355,
@@ -349,16 +656,51 @@
     "updatedAt": "2024-01-01T00:00:00.000Z",
     "availability": {
       "Orthopaedics": {
-        "days": [1, 2, 3, 4, 5, 6],
-        "slots": ["08:30 AM", "10:30 AM", "01:30 PM", "04:30 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "08:30 AM",
+          "10:30 AM",
+          "01:30 PM",
+          "04:30 PM"
+        ]
       },
       "Emergency Medicine": {
-        "days": [0, 1, 2, 3, 4, 5, 6],
-        "slots": ["06:00 AM", "12:00 PM", "06:00 PM"]
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "06:00 AM",
+          "12:00 PM",
+          "06:00 PM"
+        ]
       },
       "Physiotherapy": {
-        "days": [1, 2, 3, 4, 5],
-        "slots": ["09:00 AM", "11:00 AM", "03:00 PM", "05:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "slots": [
+          "09:00 AM",
+          "11:00 AM",
+          "03:00 PM",
+          "05:00 PM"
+        ]
       }
     }
   },
@@ -386,7 +728,7 @@
     "emergencyAvailable": true,
     "ambulanceService": true,
     "adminName": "Dr. R. Mohan",
-    "adminEmail": "admin.hsp004@nexcare.in",
+    "adminEmail": "rmohan@nexcare.com",
     "adminPhone": "0877-2290123",
     "verificationStatus": "verified",
     "latitude": 13.6211,
@@ -395,16 +737,43 @@
     "updatedAt": "2024-01-01T00:00:00.000Z",
     "availability": {
       "Cardiology": {
-        "days": [1, 2, 3, 4, 5, 6],
-        "slots": ["08:00 AM", "09:30 AM", "11:00 AM", "02:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "08:00 AM",
+          "09:30 AM",
+          "11:00 AM",
+          "02:00 PM"
+        ]
       },
       "Cardiothoracic Surgery": {
-        "days": [1, 3, 5],
-        "slots": ["10:00 AM", "12:30 PM"]
+        "days": [
+          1,
+          3,
+          5
+        ],
+        "slots": [
+          "10:00 AM",
+          "12:30 PM"
+        ]
       },
       "General Medicine": {
-        "days": [2, 4, 6],
-        "slots": ["09:00 AM", "11:30 AM", "04:00 PM"]
+        "days": [
+          2,
+          4,
+          6
+        ],
+        "slots": [
+          "09:00 AM",
+          "11:30 AM",
+          "04:00 PM"
+        ]
       }
     }
   },
@@ -434,7 +803,7 @@
     "emergencyAvailable": true,
     "ambulanceService": true,
     "adminName": "Dr. C. V. Naidu",
-    "adminEmail": "admin.hsp005@nexcare.in",
+    "adminEmail": "cvnaidu@nexcare.com",
     "adminPhone": "08572-241234",
     "verificationStatus": "verified",
     "latitude": 13.2172,
@@ -443,24 +812,70 @@
     "updatedAt": "2024-01-01T00:00:00.000Z",
     "availability": {
       "General Medicine": {
-        "days": [1, 2, 3, 4, 5, 6],
-        "slots": ["09:00 AM", "11:00 AM", "02:00 PM", "04:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "09:00 AM",
+          "11:00 AM",
+          "02:00 PM",
+          "04:00 PM"
+        ]
       },
       "Dermatology": {
-        "days": [2, 4],
-        "slots": ["10:00 AM", "12:30 PM"]
+        "days": [
+          2,
+          4
+        ],
+        "slots": [
+          "10:00 AM",
+          "12:30 PM"
+        ]
       },
       "Paediatrics": {
-        "days": [1, 3, 5],
-        "slots": ["09:30 AM", "11:30 AM", "03:30 PM"]
+        "days": [
+          1,
+          3,
+          5
+        ],
+        "slots": [
+          "09:30 AM",
+          "11:30 AM",
+          "03:30 PM"
+        ]
       },
       "Orthopaedics": {
-        "days": [2, 4, 6],
-        "slots": ["08:30 AM", "01:00 PM", "04:30 PM"]
+        "days": [
+          2,
+          4,
+          6
+        ],
+        "slots": [
+          "08:30 AM",
+          "01:00 PM",
+          "04:30 PM"
+        ]
       },
       "Emergency Medicine": {
-        "days": [0, 1, 2, 3, 4, 5, 6],
-        "slots": ["07:00 AM", "01:00 PM", "07:00 PM"]
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "07:00 AM",
+          "01:00 PM",
+          "07:00 PM"
+        ]
       }
     }
   },
@@ -488,7 +903,7 @@
     "emergencyAvailable": true,
     "ambulanceService": true,
     "adminName": "Dr. R. K. Prasad",
-    "adminEmail": "admin.hsp006@nexcare.in",
+    "adminEmail": "hospitalmanager@nexcare.com",
     "adminPhone": "0877-2543210",
     "verificationStatus": "verified",
     "latitude": 13.6365,
@@ -497,16 +912,50 @@
     "updatedAt": "2024-01-01T00:00:00.000Z",
     "availability": {
       "General Medicine": {
-        "days": [1, 2, 3, 4, 5, 6],
-        "slots": ["09:00 AM", "11:00 AM", "01:00 PM", "04:30 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "09:00 AM",
+          "11:00 AM",
+          "01:00 PM",
+          "04:30 PM"
+        ]
       },
       "Paediatrics": {
-        "days": [1, 2, 3, 5, 6],
-        "slots": ["08:30 AM", "10:30 AM", "02:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          5,
+          6
+        ],
+        "slots": [
+          "08:30 AM",
+          "10:30 AM",
+          "02:00 PM"
+        ]
       },
       "Emergency Medicine": {
-        "days": [0, 1, 2, 3, 4, 5, 6],
-        "slots": ["07:00 AM", "01:00 PM", "07:00 PM"]
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "07:00 AM",
+          "01:00 PM",
+          "07:00 PM"
+        ]
       }
     }
   },
@@ -543,16 +992,42 @@
     "updatedAt": "2024-01-01T00:00:00.000Z",
     "availability": {
       "Neurology": {
-        "days": [1, 2, 3, 4, 5, 6],
-        "slots": ["10:00 AM", "12:00 PM", "03:00 PM"]
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "slots": [
+          "10:00 AM",
+          "12:00 PM",
+          "03:00 PM"
+        ]
       },
       "Neurosurgery": {
-        "days": [2, 4],
-        "slots": ["09:30 AM", "11:30 AM", "02:30 PM"]
+        "days": [
+          2,
+          4
+        ],
+        "slots": [
+          "09:30 AM",
+          "11:30 AM",
+          "02:30 PM"
+        ]
       },
       "Physiotherapy": {
-        "days": [1, 3, 5],
-        "slots": ["10:30 AM", "01:00 PM", "04:00 PM"]
+        "days": [
+          1,
+          3,
+          5
+        ],
+        "slots": [
+          "10:30 AM",
+          "01:00 PM",
+          "04:00 PM"
+        ]
       }
     }
   },
@@ -589,16 +1064,38 @@
     "updatedAt": "2024-01-01T00:00:00.000Z",
     "availability": {
       "Dermatology": {
-        "days": [1, 3, 6],
-        "slots": ["10:00 AM", "12:00 PM", "03:00 PM"]
+        "days": [
+          1,
+          3,
+          6
+        ],
+        "slots": [
+          "10:00 AM",
+          "12:00 PM",
+          "03:00 PM"
+        ]
       },
       "Cardiology": {
-        "days": [2, 5],
-        "slots": ["09:30 AM", "11:30 AM", "02:30 PM"]
+        "days": [
+          2,
+          5
+        ],
+        "slots": [
+          "09:30 AM",
+          "11:30 AM",
+          "02:30 PM"
+        ]
       },
       "Neurology": {
-        "days": [4, 6],
-        "slots": ["10:30 AM", "01:00 PM", "04:00 PM"]
+        "days": [
+          4,
+          6
+        ],
+        "slots": [
+          "10:30 AM",
+          "01:00 PM",
+          "04:00 PM"
+        ]
       }
     }
   }

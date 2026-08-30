@@ -12,11 +12,13 @@ export interface User {
   status: UserStatus;
   password: string;
   patientId?: string; // For patient users
-  dept?: string; // For doctor/nurse users
-  hospitalId?: string; // For hospital managers - their assigned hospital
-  city?: string; // For regional managers and patients
-  state?: string; // For regional managers and patients
-  pincode?: string; // For regional managers and patients
+  dept?: string; // Department within the hospital (e.g. Front Desk, Cardiology)
+  hospitalId?: string; // For any user scoped to a single hospital
+  /** Local hospital areas/cities a regional manager may review. */
+  areas?: string[];
+  city?: string; // For patients
+  state?: string; // For patients
+  pincode?: string; // For patients
   createdAt?: string;
   updatedAt?: string;
 }
@@ -31,10 +33,11 @@ export interface CreateUserRequest {
   password: string;
   patientId?: string;
   dept?: string;
-  hospitalId?: string; // For hospital managers
-  city?: string; // For regional managers and patients
-  state?: string; // For regional managers and patients
-  pincode?: string; // For regional managers and patients
+  hospitalId?: string;
+  areas?: string[];
+  city?: string; // For patients
+  state?: string; // For patients
+  pincode?: string; // For patients
 }
 
 /**
@@ -48,10 +51,11 @@ export interface UpdateUserRequest {
   password?: string;
   patientId?: string;
   dept?: string;
-  hospitalId?: string; // For hospital managers
-  city?: string; // For regional managers and patients
-  state?: string; // For regional managers and patients
-  pincode?: string; // For regional managers and patients
+  hospitalId?: string;
+  areas?: string[];
+  city?: string; // For patients
+  state?: string; // For patients
+  pincode?: string; // For patients
 }
 
 /**
@@ -72,8 +76,7 @@ export interface RMWorkload {
   regionalManagerId: string;
   regionalManagerName: string;
   regionalManagerEmail: string;
-  city: string; // RM's assigned city
-  state?: string;
+  areas?: string[]; // RM's assigned areas/cities
   totalHospitals: number;
   pendingVerifications: number;
   verifiedHospitals: number;
@@ -90,8 +93,7 @@ export interface RMSuggestion {
   regionalManagerId: string;
   regionalManagerName: string;
   regionalManagerEmail: string;
-  city: string; // RM's assigned city
-  state?: string;
+  areas?: string[]; // RM's assigned areas/cities
   currentWorkload: number;
   workloadLevel: 'low' | 'medium' | 'high';
   recommendation: string;

@@ -20,13 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTable();
 });
 
+// Keyed by the canonical UserRole values from the backend enum. 'doctor' and
+// 'nurse' are directory-only records — they have no portal and cannot log in.
 const ROLE_DEPARTMENTS = {
-    'admin': ['Management', 'IT Support', 'Human Resources', 'Billing'],
     'administrative_staff': ['Management', 'Front Desk', 'Billing'],
+    'ambulance': ['Transport', 'Maintenance'],
+    'regional_manager': ['Regional Oversight'],
     'doctor': ['Cardiology', 'Orthopedics', 'Pediatrics', 'Neurology', 'General Medicine', 'Dermatology', 'Emergency'],
-    'nurse': ['ER', 'ICU', 'General Ward', 'Pediatrics'],
-    'driver': ['Transport', 'Maintenance'],
-    'ambulance': ['Transport']
+    'nurse': ['ER', 'ICU', 'General Ward', 'Pediatrics']
 };
 
 // Read: Render Table Dynamically (fetches live from backend)
@@ -94,6 +95,8 @@ function updateDeptDropdown(role, selectedDept = null) {
             deptSelect.innerHTML += `<option value="${dept}" ${isSelected}>${dept}</option>`;
         });
     }
+    const regionGroup = document.getElementById('regionGroup');
+    if (regionGroup) regionGroup.style.display = role === 'regional_manager' ? 'block' : 'none';
 }
 
 // Modal Management
@@ -141,6 +144,7 @@ async function handleSaveUser(e) {
     const role = document.getElementById('userRole').value;
     const dept = document.getElementById('userDept').value;
     const status = document.getElementById('userStatus').value;
+    const areas = document.getElementById('userRegion').value.split(',').map(area => area.trim()).filter(Boolean);
 
     let isValid = true;
 
@@ -166,7 +170,17 @@ async function handleSaveUser(e) {
         isValid = false;
     }
 
+    if (role === 'regional_manager' && !areas.length) {
+        showError('userRegion', 'errorRegion');
+        isValid = false;
+    }
+
     if(!isValid) return; // Stop processing if invalid
+
+    // Show loading state
+    const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
+        ? window.NexCareUI.showLoading(idInput === '' ? 'Creating user...' : 'Updating user...') 
+        : null;
 
     // Save Data via API
     try {
@@ -178,8 +192,16 @@ async function handleSaveUser(e) {
                 role, 
                 dept, 
                 status,
+                areas: role === 'regional_manager' ? areas : undefined,
                 password: "Password123"
             });
+            
+            if (window.NexCareUI && window.NexCareUI.showToast) {
+                window.NexCareUI.showToast({ 
+                    message: `Successfully created ${role} account for ${name}`, 
+                    type: 'success' 
+                });
+            }
             
             if (window.NexCareStore) {
                 window.NexCareStore.logActivity('Create', 'Users', `New ${role} account created: ${name} (${dept})`);
@@ -191,19 +213,38 @@ async function handleSaveUser(e) {
                 email, 
                 role, 
                 dept, 
-                status 
+                status,
+                areas: role === 'regional_manager' ? areas : undefined
             });
+
+            if (window.NexCareUI && window.NexCareUI.showToast) {
+                window.NexCareUI.showToast({ 
+                    message: `Successfully updated user details for ${name}`, 
+                    type: 'success' 
+                });
+            }
 
             if (window.NexCareStore) {
                 window.NexCareStore.logActivity('Update', 'Users', `Updated user details for ${name} (ID: ${idInput})`);
             }
         }
     } catch (err) {
+        if (hideLoading) hideLoading();
         console.error('Save user failed:', err);
-        alert('Failed to save user. Please try again.');
+        
+        if (window.NexCareUI && window.NexCareUI.showError) {
+            window.NexCareUI.showError({ 
+                title: 'Failed to Save User',
+                message: 'There was an error saving the user. Please check your connection and try again.',
+                onRetry: () => handleSaveUser(e)
+            });
+        } else {
+            alert('Failed to save user. Please try again.');
+        }
         return;
     }
 
+    if (hideLoading) hideLoading();
     renderTable();
     closeUserModal();
 }
@@ -220,6 +261,7 @@ function editUser(id) {
     document.getElementById('userEmail').value = user.email;
     document.getElementById('userRole').value = user.role;
     updateDeptDropdown(user.role, user.dept);
+    document.getElementById('userRegion').value = Array.isArray(user.areas) ? user.areas.join(', ') : '';
     document.getElementById('userStatus').value = user.status || 'Active';
 
     modalOverlay.classList.add('active');

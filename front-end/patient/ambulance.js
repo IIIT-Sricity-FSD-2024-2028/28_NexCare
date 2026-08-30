@@ -74,7 +74,7 @@ function handleAmbulanceRequest(e) {
             onConfirm: () => {
                 // Create request in shared store (Create)
                 
-                const patientId = getPatientIdFromToken() || 'P001';
+                const patientId = (window.NexCareStore?.getActivePatientScope && window.NexCareStore.getActivePatientScope()) || getPatientIdFromToken() || sessionStorage.getItem('nexcare_patient_id') || 'PM-PAT-DEFAULT';
                 
                 let patientName = 'Unknown Patient';
                 try {

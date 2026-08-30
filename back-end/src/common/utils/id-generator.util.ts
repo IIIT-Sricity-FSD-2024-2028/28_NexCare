@@ -4,13 +4,23 @@
  */
 
 export class IdGenerator {
+  // Per-process monotonic counter — guarantees uniqueness for IDs minted within
+  // the same millisecond, which a bare Math.random() could not.
+  private static counter = 0;
+
   /**
-   * Generate a unique ID with specified prefix
+   * Generate a collision-resistant unique ID with the specified prefix.
+   * Combines a millisecond timestamp, a per-process sequence, and randomness,
+   * so IDs stay unique both within a burst and across server restarts.
    * @param prefix - The prefix for the ID (e.g., 'U', 'P', 'APT-')
    * @returns Generated unique ID string
    */
   static generate(prefix: string): string {
-    return `${prefix}${Math.floor(Math.random() * 90000 + 10000)}`;
+    const time = Date.now().toString(36);
+    const seq = (IdGenerator.counter = (IdGenerator.counter + 1) % 1_000_000)
+      .toString(36);
+    const rand = Math.floor(Math.random() * 1296).toString(36).padStart(2, '0');
+    return `${prefix}${time}${seq}${rand}`.toUpperCase();
   }
 
   /**
@@ -21,10 +31,25 @@ export class IdGenerator {
   }
 
   /**
-   * Generate patient ID
+   * Generate patient ID with sequential pattern (P001, P002, etc.)
+   * This maintains consistency with existing patient IDs
+   * @param existingIds - Array of existing patient IDs to avoid conflicts
    */
-  static generatePatientId(): string {
-    return this.generate('P');
+  static generatePatientId(existingIds: string[] = []): string {
+    // Extract numeric parts from existing IDs (P001 -> 1, P010 -> 10, etc.)
+    const numericIds = existingIds
+      .map(id => {
+        const match = id.match(/^P(\d+)$/);
+        return match ? parseInt(match[1], 10) : 0;
+      })
+      .filter(num => num > 0);
+
+    // Find the highest existing ID
+    const maxId = numericIds.length > 0 ? Math.max(...numericIds) : 0;
+    
+    // Generate the next sequential ID
+    const nextId = maxId + 1;
+    return `P${nextId.toString().padStart(3, '0')}`;
   }
 
   /**

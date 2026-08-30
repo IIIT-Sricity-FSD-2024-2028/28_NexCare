@@ -5,9 +5,11 @@ import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { ArrayUtil } from '../common/utils/array.util';
 import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest, AppointmentStats } from './interfaces/appointment.interface';
-import { AppointmentStatus } from '../common/interfaces/api-response.interface';
+import { AppointmentStatus, LeaveStatus } from '../common/interfaces/api-response.interface';
 
 import { SystemService } from '../system/system.service';
+import { PatientsService } from '../patients/patients.service';
+import { LeavesService } from '../leaves/leaves.service';
 
 /**
  * Appointments Service
@@ -16,7 +18,29 @@ import { SystemService } from '../system/system.service';
  */
 @Injectable()
 export class AppointmentsService {
-  constructor(private readonly systemService: SystemService) {}
+  constructor(
+    private readonly systemService: SystemService,
+    private readonly patientsService: PatientsService,
+    private readonly leavesService: LeavesService,
+  ) {}
+
+  /** Resolve a patient's display name, falling back to a placeholder. */
+  private async resolvePatientName(patientId: string): Promise<string> {
+    try {
+      const res: any = await this.patientsService.findById(patientId);
+      if (res?.success && res.data?.fullName) return res.data.fullName;
+    } catch {
+      /* fall through to placeholder */
+    }
+    return `Patient ${patientId}`;
+  }
+
+  /** True if the given human date label refers to today (format-tolerant). */
+  private isToday(dateLabel: string): boolean {
+    const d = new Date(dateLabel);
+    if (isNaN(d.getTime())) return false;
+    return d.toDateString() === new Date().toDateString();
+  }
 
   private readonly appointmentsFilePath = path.join(process.cwd(), 'data', 'appointments.json');
 
@@ -92,107 +116,6 @@ export class AppointmentsService {
     ];
   }
 
-  // In-memory mock appointments database (aligned with frontend db.js)
-  private appointments: Appointment[] = [
-    {
-      id: 'APT-001',
-      patientId: 'P001',
-      patientName: 'John Anderson',
-      department: 'Cardiology',
-      doctor: 'Dr. Sarah Smith',
-      dateLabel: 'March 15, 2026',
-      timeLabel: '10:00 AM',
-      token: 'TKN-1234',
-      fee: 150,
-      status: AppointmentStatus.CONFIRMED,
-      reason: 'Routine heart checkup',
-      createdAt: '2026-03-01T00:00:00Z'
-    },
-    {
-      id: 'APT-002',
-      patientId: 'P002',
-      patientName: 'Maria Garcia',
-      department: 'Orthopedics',
-      doctor: 'Dr. Vikram Patel',
-      dateLabel: 'April 02, 2026',
-      timeLabel: '02:30 PM',
-      token: 'TKN-5678',
-      fee: 200,
-      status: AppointmentStatus.PENDING,
-      reason: 'Severe knee pain - Emergency Consult',
-      createdAt: '2026-03-25T00:00:00Z'
-    },
-    {
-      id: 'APT-003',
-      patientId: 'P001',
-      patientName: 'John Anderson',
-      department: 'General Medicine',
-      doctor: 'Dr. Anjali Desai',
-      dateLabel: 'March 01, 2026',
-      timeLabel: '11:00 AM',
-      token: 'TKN-9012',
-      fee: 100,
-      status: AppointmentStatus.COMPLETED,
-      reason: 'Annual physical',
-      createdAt: '2026-02-15T00:00:00Z'
-    },
-    {
-      id: 'APT-004',
-      patientId: 'P001',
-      patientName: 'John Anderson',
-      department: 'Pediatrics',
-      doctor: 'Dr. Maya Rao',
-      dateLabel: 'April 05, 2026',
-      timeLabel: '09:30 AM',
-      token: 'TKN-1456',
-      fee: 120,
-      status: AppointmentStatus.CONFIRMED,
-      reason: 'Child wellness consultation (family)',
-      createdAt: '2026-03-20T00:00:00Z'
-    },
-    {
-      id: 'APT-005',
-      patientId: 'P002',
-      patientName: 'Maria Garcia',
-      department: 'Neurology',
-      doctor: 'Dr. Ethan Brown',
-      dateLabel: 'April 08, 2026',
-      timeLabel: '01:00 PM',
-      token: 'TKN-2789',
-      fee: 220,
-      status: AppointmentStatus.PENDING,
-      reason: 'Recurring headaches - evaluation',
-      createdAt: '2026-03-28T00:00:00Z'
-    },
-    {
-      id: 'APT-006',
-      patientId: 'P001',
-      patientName: 'John Anderson',
-      department: 'Dermatology',
-      doctor: 'Dr. Aisha Khan',
-      dateLabel: 'April 10, 2026',
-      timeLabel: '04:00 PM',
-      token: 'TKN-3301',
-      fee: 140,
-      status: AppointmentStatus.CONFIRMED,
-      reason: 'Skin allergy follow-up',
-      createdAt: '2026-03-30T00:00:00Z'
-    },
-    {
-      id: 'APT-007',
-      patientId: 'P002',
-      patientName: 'Maria Garcia',
-      department: 'Emergency',
-      doctor: 'Dr. Liam Chen',
-      dateLabel: 'April 02, 2026',
-      timeLabel: '06:15 PM',
-      token: 'TKN-7721',
-      fee: 250,
-      status: AppointmentStatus.CONFIRMED,
-      reason: 'ER triage follow-up',
-      createdAt: '2026-04-01T00:00:00Z'
-    }
-  ];
 
   /**
    * Get all appointments with optional filtering
@@ -255,25 +178,91 @@ export class AppointmentsService {
   async create(appointmentData: CreateAppointmentRequest) {
     try {
       const appointments = this.loadAppointments();
-      
+
+      // Validate appointment date is not in the past
+      const appointmentDate = new Date(appointmentData.dateLabel);
+      if (isNaN(appointmentDate.getTime())) {
+        return ResponseUtil.error('Invalid date format');
+      }
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (appointmentDate < today) {
+        return ResponseUtil.error('Cannot book appointments in the past');
+      }
+
+      // Check for duplicate appointment (same patient, same doctor, same date/time)
+      const duplicate = appointments.find(apt =>
+        apt.patientId === appointmentData.patientId &&
+        apt.doctor === appointmentData.doctor &&
+        apt.dateLabel === appointmentData.dateLabel &&
+        apt.timeLabel === appointmentData.timeLabel &&
+        apt.status !== AppointmentStatus.CANCELLED &&
+        apt.status !== AppointmentStatus.COMPLETED
+      );
+      if (duplicate) {
+        return ResponseUtil.error('Appointment already exists for this patient with this doctor at the same time');
+      }
+
+      // Check for time slot conflict (same doctor, same date/time)
+      const timeConflict = appointments.find(apt =>
+        apt.doctor === appointmentData.doctor &&
+        apt.dateLabel === appointmentData.dateLabel &&
+        apt.timeLabel === appointmentData.timeLabel &&
+        apt.status !== AppointmentStatus.CANCELLED &&
+        apt.status !== AppointmentStatus.COMPLETED
+      );
+      if (timeConflict) {
+        return ResponseUtil.error('Time slot already booked for this doctor');
+      }
+
+      // Check doctor availability (not on leave)
+      if (appointmentData.doctor && appointmentData.doctor !== 'TBD') {
+        try {
+          const leavesRes: any = await this.leavesService.findAll(undefined, undefined, LeaveStatus.APPROVED);
+          if (leavesRes?.success && Array.isArray(leavesRes.data)) {
+            const doctorOnLeave = leavesRes.data.some((leave: any) => {
+              const leaveStart = new Date(leave.startDate);
+              const leaveEnd = new Date(leave.endDate);
+              const aptDate = new Date(appointmentData.dateLabel);
+              // Check if appointment date falls within leave period
+              return (
+                leave.doctorName === appointmentData.doctor &&
+                aptDate >= leaveStart &&
+                aptDate <= leaveEnd
+              );
+            });
+            if (doctorOnLeave) {
+              return ResponseUtil.error(`Doctor ${appointmentData.doctor} is on leave during this period`);
+            }
+          }
+        } catch (err) {
+          console.error('Error checking doctor leave status:', err);
+          // Continue with booking if leave check fails (non-blocking)
+        }
+      }
+
       // Generate new appointment ID
       const newAppointmentId = IdGenerator.generateAppointmentId();
-      
+
       // Generate token
       const token = IdGenerator.generateTokenId();
 
-      // Create new appointment
+      // Resolve the real patient name instead of a placeholder
+      const patientName = await this.resolvePatientName(appointmentData.patientId);
+
+      // Create new appointment.
+      // New bookings start as PENDING and are confirmed by staff (see confirm()).
       const newAppointment: Appointment = {
         id: newAppointmentId,
         patientId: appointmentData.patientId,
-        patientName: `Patient ${appointmentData.patientId}`, // Would fetch from patient service
+        patientName,
         department: appointmentData.department,
         doctor: appointmentData.doctor || 'TBD',
         dateLabel: appointmentData.dateLabel,
         timeLabel: appointmentData.timeLabel,
         token,
         fee: appointmentData.fee || 100,
-        status: AppointmentStatus.CONFIRMED,
+        status: AppointmentStatus.PENDING,
         reason: appointmentData.reason || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -498,9 +487,8 @@ export class AppointmentsService {
       const completedAppointments = appointments.filter(a => a.status === AppointmentStatus.COMPLETED).length;
       const cancelledAppointments = appointments.filter(a => a.status === AppointmentStatus.CANCELLED).length;
       
-      // Today's appointments
-      const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-      const todayAppointments = appointments.filter(a => a.dateLabel === today).length;
+      // Today's appointments (format-tolerant date comparison)
+      const todayAppointments = appointments.filter(a => this.isToday(a.dateLabel)).length;
 
       // By department
       const byDepartment: Record<string, number> = {};
@@ -508,10 +496,14 @@ export class AppointmentsService {
         byDepartment[apt.department] = (byDepartment[apt.department] || 0) + 1;
       });
 
-      // Revenue from completed appointments
-      const revenue = appointments
+      // Revenue from completed appointments minus cancelled (refunded)
+      const completedRevenue = appointments
         .filter(a => a.status === AppointmentStatus.COMPLETED)
         .reduce((sum, apt) => sum + apt.fee, 0);
+      const cancelledRefunds = appointments
+        .filter(a => a.status === AppointmentStatus.CANCELLED)
+        .reduce((sum, apt) => sum + apt.fee, 0);
+      const revenue = completedRevenue - cancelledRefunds;
 
       const stats: AppointmentStats = {
         total: totalAppointments,
@@ -575,9 +567,8 @@ export class AppointmentsService {
    */
   async getTodayAppointments() {
     try {
-      const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-      const todayAppointments = this.loadAppointments().filter(a => a.dateLabel === today);
-      
+      const todayAppointments = this.loadAppointments().filter(a => this.isToday(a.dateLabel));
+
       return ResponseUtil.success('Today\'s appointments retrieved successfully', todayAppointments);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve today\'s appointments');
