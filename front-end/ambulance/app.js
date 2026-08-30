@@ -1576,6 +1576,10 @@ function bindRequestCrudForm() {
     // `async` because the backend sync below awaits. It was a plain function,
     // which made the whole file a syntax error — the ambulance portal's scripts
     // never ran at all, so nothing on the page worked.
+    //
+    // `e.preventDefault()` must stay. origin/main's fix (07091dd) added `async`
+    // but dropped this line, which lets the browser submit the form natively and
+    // reload the page — the handler's work is thrown away mid-flight.
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
         
