@@ -466,33 +466,6 @@ const BillingAPI = {
     }
 };
 
-// Ambulance API
-const AmbulanceAPI = {
-    async getAllRequests() {
-        return await api.get('/ambulance');
-    },
-
-    async getRequestById(id) {
-        return await api.get(`/ambulance/${id}`);
-    },
-
-    async createRequest(requestData) {
-        return await api.post('/ambulance', requestData);
-    },
-
-    async updateRequest(id, requestData) {
-        return await api.put(`/ambulance/${id}`, requestData);
-    },
-
-    async updateStatus(id, status) {
-        return await api.patch(`/ambulance/${id}/status`, { status });
-    },
-
-    async cancelRequest(id) {
-        return await api.delete(`/ambulance/${id}`);
-    }
-};
-
 // Feedback API
 const FeedbackAPI = {
     async getAll() {
@@ -1059,7 +1032,6 @@ const HierarchyAPI = {
 
     async getScope() {
         return await api.get('/hierarchy/scope');
->>>>>>> origin/main
     }
 };
 
