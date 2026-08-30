@@ -30,6 +30,7 @@ export interface CreateAmbulanceRequest {
   contact: string;
   notes?: string;
   patientName?: string;
+  hospitalId: string;
 }
 
 /**

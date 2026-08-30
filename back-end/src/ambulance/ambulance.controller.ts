@@ -116,8 +116,8 @@ export class AmbulanceController {
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get ambulance statistics' })
   @ApiResponse({ status: 200, description: 'Ambulance statistics retrieved' })
-  async getStats() {
-    return this.ambulanceService.getStats();
+  async getStats(@Req() req: any) {
+    return this.ambulanceService.getStats(this.scopeHospitalId(req));
   }
 
   /**
@@ -140,8 +140,8 @@ export class AmbulanceController {
   @Get('active')
   @ApiOperation({ summary: 'Get all active ambulance requests' })
   @ApiResponse({ status: 200, description: 'Active requests retrieved' })
-  async getActiveRequests() {
-    return this.ambulanceService.getActiveRequests();
+  async getActiveRequests(@Req() req: any) {
+    return this.ambulanceService.getActiveRequests(this.scopeHospitalId(req));
   }
 
   /**
@@ -150,8 +150,8 @@ export class AmbulanceController {
   @Get('assigned/:assignedTo')
   @ApiOperation({ summary: 'Get ambulance requests by assigned staff' })
   @ApiResponse({ status: 200, description: 'Staff assigned requests retrieved' })
-  async findByAssignedStaff(@Param('assignedTo') assignedTo: string) {
-    return this.ambulanceService.findByAssignedStaff(assignedTo);
+  async findByAssignedStaff(@Param('assignedTo') assignedTo: string, @Req() req: any) {
+    return this.ambulanceService.findByAssignedStaff(assignedTo, this.scopeHospitalId(req));
   }
 
   /**

@@ -2483,7 +2483,8 @@
                 "En Route",
                 "Picked Up",
                 "At Hospital",
-                "Completed"
+                "Completed",
+                "Cancelled"
               ],
               "type": "string"
             }
@@ -3249,6 +3250,217 @@
         },
         "tags": [
           "Appointments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/leaves": {
+      "get": {
+        "operationId": "LeavesController_findAll",
+        "summary": "Get all leaves",
+        "parameters": [
+          {
+            "name": "doctorId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hospitalId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "pending",
+                "approved",
+                "rejected"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of leaves"
+          }
+        },
+        "tags": [
+          "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "LeavesController_create",
+        "summary": "Apply for leave",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Leave request submitted successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "409": {
+            "description": "Conflict - overlapping approved leave"
+          }
+        },
+        "tags": [
+          "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/leaves/calendar": {
+      "get": {
+        "operationId": "LeavesController_getCalendarView",
+        "summary": "Get calendar view of approved leaves",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Calendar view of approved leaves"
+          }
+        },
+        "tags": [
+          "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/leaves/{id}": {
+      "get": {
+        "operationId": "LeavesController_findById",
+        "summary": "Get leave by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leave details"
+          }
+        },
+        "tags": [
+          "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "LeavesController_update",
+        "summary": "Approve or reject leave request",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leave status updated successfully"
+          },
+          "403": {
+            "description": "Forbidden - insufficient permissions"
+          },
+          "404": {
+            "description": "Leave not found"
+          }
+        },
+        "tags": [
+          "Leaves"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "LeavesController_delete",
+        "summary": "Delete a leave request",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leave deleted successfully"
+          },
+          "404": {
+            "description": "Leave not found"
+          }
+        },
+        "tags": [
+          "Leaves"
         ],
         "security": [
           {
@@ -4124,217 +4336,6 @@
             "description": ""
           }
         }
-      }
-    },
-    "/api/leaves": {
-      "get": {
-        "operationId": "LeavesController_findAll",
-        "summary": "Get all leaves",
-        "parameters": [
-          {
-            "name": "doctorId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "hospitalId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "enum": [
-                "pending",
-                "approved",
-                "rejected"
-              ],
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of leaves"
-          }
-        },
-        "tags": [
-          "Leaves"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "post": {
-        "operationId": "LeavesController_create",
-        "summary": "Apply for leave",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Leave request submitted successfully"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "409": {
-            "description": "Conflict - overlapping approved leave"
-          }
-        },
-        "tags": [
-          "Leaves"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/leaves/calendar": {
-      "get": {
-        "operationId": "LeavesController_getCalendarView",
-        "summary": "Get calendar view of approved leaves",
-        "parameters": [
-          {
-            "name": "hospitalId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "startDate",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "endDate",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Calendar view of approved leaves"
-          }
-        },
-        "tags": [
-          "Leaves"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/leaves/{id}": {
-      "get": {
-        "operationId": "LeavesController_findById",
-        "summary": "Get leave by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Leave details"
-          }
-        },
-        "tags": [
-          "Leaves"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "patch": {
-        "operationId": "LeavesController_update",
-        "summary": "Approve or reject leave request",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Leave status updated successfully"
-          },
-          "403": {
-            "description": "Forbidden - insufficient permissions"
-          },
-          "404": {
-            "description": "Leave not found"
-          }
-        },
-        "tags": [
-          "Leaves"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "LeavesController_delete",
-        "summary": "Delete a leave request",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Leave deleted successfully"
-          },
-          "404": {
-            "description": "Leave not found"
-          }
-        },
-        "tags": [
-          "Leaves"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
       }
     },
     "/api/uploads": {
@@ -5292,12 +5293,18 @@
             "type": "string",
             "example": "Patient has chest pain",
             "description": "Additional notes"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital ID for the ambulance request"
           }
         },
         "required": [
           "patientId",
           "pickupLocation",
-          "contact"
+          "contact",
+          "hospitalId"
         ]
       },
       "UpdateAmbulanceRequestDto": {
@@ -5326,7 +5333,8 @@
               "En Route",
               "Picked Up",
               "At Hospital",
-              "Completed"
+              "Completed",
+              "Cancelled"
             ],
             "example": "Pending",
             "description": "Request status"
@@ -5383,7 +5391,8 @@
           }
         },
         "required": [
-          "assignedTo"
+          "assignedTo",
+          "dispatchedBy"
         ]
       },
       "CreateAppointmentDto": {

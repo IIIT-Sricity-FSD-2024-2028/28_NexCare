@@ -39,7 +39,7 @@
     "email": "ambulance@nexcare.com",
     "role": "ambulance",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$aa653913deebb16826a7bd0f5568aba2$a2e70421690b79820f479d7b0e0322d128c608d825a363ae22cfd5a9b8151803337266dc3ceb9aeaa48e6a114f26601707a511d0782d3688094b425fcffabc7c",
     "hospitalId": "H001"
   },
   {

@@ -92,12 +92,42 @@ function handleAmbulanceRequest(e) {
                     }
                 } catch(e) {}
                 
+                // Get hospitalId from patient data or token
+                let hospitalId = null;
+                try {
+                    const patientRes = await window.NexCareAPI.Patients.getById(patientId);
+                    if (patientRes.success && patientRes.data) {
+                        hospitalId = patientRes.data.hospitalId;
+                    }
+                } catch (err) {
+                    console.error('Failed to get hospitalId from patient data', err);
+                }
+
+                // Fallback: try to get from token
+                if (!hospitalId) {
+                    try {
+                        const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+                        if (token) {
+                            const payload = JSON.parse(decodeURIComponent(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+                            hospitalId = payload.hospitalId;
+                        }
+                    } catch (e) {
+                        console.error('Failed to get hospitalId from token', e);
+                    }
+                }
+
+                if (!hospitalId) {
+                    showNexCareModal('Error', 'Unable to determine hospital. Please contact support.', { isError: true });
+                    return;
+                }
+
                 window.NexCareAPI.Ambulance.createRequest({
                     patientId: patientId,
                     patientName: patientName,
                     pickupLocation: location,
                     contact: contact,
-                    notes: notes || ''
+                    notes: notes || '',
+                    hospitalId: hospitalId
                 }).then(res => {
                     const req = res.data;
                     const requestId = req?.id || ('AMB-2026-' + String(Math.floor(Math.random() * 900 + 100)).padStart(3, '0'));

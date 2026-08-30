@@ -44,6 +44,11 @@ export class AuthService {
   // ── In-memory sessions (intentionally ephemeral) ─────────────────────────
   private sessions: Map<string, UserSession> = new Map();
 
+  // ── CSRF token generation for auth responses ─────────────────────────────
+  private generateCsrfToken(): string {
+    return crypto.randomBytes(32).toString('hex');
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // File-backed user store
   // ─────────────────────────────────────────────────────────────────────────
@@ -239,6 +244,7 @@ export class AuthService {
           hospitalId: user.hospitalId || null,
         },
         token: this.generateToken(user),
+        csrfToken: this.generateCsrfToken(), // Include new CSRF token for post-login requests
       };
 
       // Log activity
@@ -327,6 +333,7 @@ export class AuthService {
           patientId: newUser.patientId,
         },
         token: this.generateToken(newUser),
+        csrfToken: this.generateCsrfToken(), // Include new CSRF token for post-registration requests
       };
 
       // Log activity
@@ -405,6 +412,7 @@ export class AuthService {
           hospitalId: newUser.hospitalId,
         },
         token: this.generateToken(newUser),
+        csrfToken: this.generateCsrfToken(), // Include new CSRF token for post-registration requests
       };
 
       this.systemService.createActivity({

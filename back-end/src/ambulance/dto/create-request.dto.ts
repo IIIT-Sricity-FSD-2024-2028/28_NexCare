@@ -30,4 +30,9 @@ export class CreateAmbulanceRequestDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @ApiProperty({ example: 'H001', description: 'Hospital ID for the ambulance request' })
+  @IsString()
+  @IsNotEmpty({ message: 'Hospital ID is required' })
+  hospitalId: string;
 }

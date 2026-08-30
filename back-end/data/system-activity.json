@@ -528,5 +528,85 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-28T06:29:08.804Z"
+  },
+  {
+    "id": "ACT-MTFQ82MU1HT",
+    "timestamp": "2026-08-30T11:28:57.174Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Alex Martinez logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:28:57.174Z"
+  },
+  {
+    "id": "ACT-MTFQHX971HN",
+    "timestamp": "2026-08-30T11:36:36.795Z",
+    "userId": "U003",
+    "action": "Update",
+    "details": "Ambulance request AMB-001 updated to En Route",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:36:36.795Z"
+  },
+  {
+    "id": "ACT-MTFQHZOI2CP",
+    "timestamp": "2026-08-30T11:36:39.906Z",
+    "userId": "U003",
+    "action": "Update",
+    "details": "Ambulance request AMB-001 updated to En Route",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:36:39.906Z"
+  },
+  {
+    "id": "ACT-MTFQI0IB3HA",
+    "timestamp": "2026-08-30T11:36:40.979Z",
+    "userId": "U003",
+    "action": "Update",
+    "details": "Ambulance request AMB-001 updated to Picked Up",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:36:40.979Z"
+  },
+  {
+    "id": "ACT-MTFQI4844XX",
+    "timestamp": "2026-08-30T11:36:45.796Z",
+    "userId": "U003",
+    "action": "Update",
+    "details": "Ambulance request AMB-001 updated to At Hospital",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:36:45.796Z"
+  },
+  {
+    "id": "ACT-MTFQI50D5M1",
+    "timestamp": "2026-08-30T11:36:46.813Z",
+    "userId": "U003",
+    "action": "Complete",
+    "details": "Ambulance transport AMB-001 completed for Maria Garcia",
+    "module": "Ambulance",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-30T11:36:46.813Z"
+  },
+  {
+    "id": "ACT-MTFQNLLC6V1",
+    "timestamp": "2026-08-30T11:41:01.584Z",
+    "userId": "U003",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:41:01.584Z"
+  },
+  {
+    "id": "ACT-MTFQSG8U1AH",
+    "timestamp": "2026-08-30T11:44:47.934Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Alex Martinez logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T11:44:47.934Z"
   }
 ]

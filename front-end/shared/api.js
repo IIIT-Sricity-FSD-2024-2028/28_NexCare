@@ -107,6 +107,12 @@ class NexCareAPI {
             headers['Authorization'] = `Bearer ${token}`;
         }
         
+        // Add CSRF token if available
+        const csrfToken = this.getCsrfToken();
+        if (csrfToken) {
+            headers['x-csrf-token'] = csrfToken;
+        }
+        
         return headers;
     }
 
@@ -125,10 +131,34 @@ class NexCareAPI {
     clearAuthToken() {
         sessionStorage.removeItem('nexcare_auth_token');
         localStorage.removeItem('nexcare_auth_token');
+        // Also clear CSRF token on logout
+        this.clearCsrfToken();
+    }
+
+    getCsrfToken() {
+        // Get CSRF token from localStorage
+        return localStorage.getItem('nexcare_csrf_token');
+    }
+
+    setCsrfToken(token) {
+        // Store CSRF token in localStorage
+        if (token) {
+            localStorage.setItem('nexcare_csrf_token', token);
+        }
+    }
+
+    clearCsrfToken() {
+        localStorage.removeItem('nexcare_csrf_token');
     }
 
     async handleResponse(response) {
         try {
+            // Extract and store CSRF token from response headers
+            const csrfToken = response.headers.get('x-csrf-token');
+            if (csrfToken) {
+                this.setCsrfToken(csrfToken);
+            }
+
             const data = await response.json();
             
             // If the backend JSON explicitly sets success: false, respect it!
@@ -207,12 +237,24 @@ const AuthAPI = {
         const response = await api.post('/auth/login', credentials);
         if (response.success && response.data?.token) {
             api.setAuthToken(response.data.token);
+            // Store CSRF token from login response if provided
+            if (response.data?.csrfToken) {
+                api.setCsrfToken(response.data.csrfToken);
+            }
         }
         return response;
     },
 
     async register(userData) {
-        return await api.post('/auth/register', userData);
+        const response = await api.post('/auth/register', userData);
+        if (response.success && response.data?.token) {
+            api.setAuthToken(response.data.token);
+            // Store CSRF token from registration response if provided
+            if (response.data?.csrfToken) {
+                api.setCsrfToken(response.data.csrfToken);
+            }
+        }
+        return response;
     },
 
     async logout(userId) {

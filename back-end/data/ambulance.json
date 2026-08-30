@@ -6,11 +6,12 @@
     "pickupLocation": "742 Evergreen Terrace, Springfield",
     "contact": "+1 (555) 987-6543",
     "notes": "Patient is experiencing severe chest pains and shortness of breath.",
-    "status": "Dispatched",
+    "status": "Completed",
     "assignedTo": "U003",
     "createdAt": "2026-04-02T10:15:00Z",
-    "updatedAt": "2026-04-02T10:20:00Z",
-    "hospitalId": "H001"
+    "updatedAt": "2026-08-30T11:36:46.796Z",
+    "hospitalId": "H001",
+    "stepIndex": 4
   },
   {
     "id": "AMB-002",
