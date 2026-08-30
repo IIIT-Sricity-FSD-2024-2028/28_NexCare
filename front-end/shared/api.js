@@ -324,6 +324,27 @@ const UsersAPI = {
         return await api.delete(`/users/${id}`);
     },
 
+    // ── Regional manager assignment (Admin only) ────────────────────────────
+    // Backed by UsersService's workload views: who covers a city, how loaded
+    // each officer is, and who should take the next hospital.
+
+    async getRegionalManagersByCity(city) {
+        return await api.get(`/users/regional-managers/city/${encodeURIComponent(city)}`);
+    },
+
+    async getRegionalManagerWorkload(managerId) {
+        return await api.get(`/users/regional-managers/${encodeURIComponent(managerId)}/workload`);
+    },
+
+    /** Ranked suggestions for a hospital's city: coverage first, then lightest load. */
+    async suggestRegionalManagers(city) {
+        return await api.get(`/users/regional-managers/suggest/${encodeURIComponent(city)}`);
+    },
+
+    async getRegionalManagerWorkloads() {
+        return await api.get('/users/regional-managers/workloads');
+    },
+
     /** Active doctors, for the booking wizard. Patients may call this. */
     async getDoctors(dept) {
         const q = dept ? `?dept=${encodeURIComponent(dept)}` : '';
@@ -758,6 +779,15 @@ const RevenueAPI = {
     },
 
     // ── Multi-stream roll-up (superuser) ────────────────────────────────────
+
+    /** Revenue and operational data per regional officer, for the Admin. */
+    async getRegionalOfficerOverview(query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/regional-officers${s ? `?${s}` : ''}`);
+    },
 
     async getPlatformStreams(query = {}) {
         const params = new URLSearchParams();

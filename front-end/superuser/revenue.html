@@ -322,6 +322,7 @@
                 <button class="tab-btn" data-tab="hospitals">Hospitals</button>
                 <button class="tab-btn" data-tab="doctors">Doctors</button>
                 <button class="tab-btn" data-tab="patients">Patients</button>
+                <button class="tab-btn" data-tab="regions">Regional officers</button>
                 <button class="tab-btn" data-tab="fees">Pricing controls</button>
             </div>
 
@@ -578,6 +579,74 @@
                         <table class="rev">
                             <thead><tr><th>Patient</th><th>Plan</th><th>Status</th><th>Started</th><th>Renews</th></tr></thead>
                             <tbody id="memberBody"><tr><td colspan="5" class="empty">Loading&hellip;</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Regional officers ──────────────────────────────────────── -->
+            <div class="tab-section" id="tab-regions">
+                <div class="note">
+                    <strong>What each regional officer's patch is worth, and how much they carry.</strong>
+                    Collections belong to the hospitals; platform revenue is NexCare's cut of them.
+                    Hospitals with no officer assigned appear as their own row &mdash; an unassigned
+                    hospital is a gap in the review chain, not missing data.
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi accent">
+                        <p class="label">Regional officers</p>
+                        <p class="value" id="rTotalOfficers">&mdash;</p>
+                        <p class="sub" id="rTotalHospitals">&nbsp;</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Platform revenue</p>
+                        <p class="value" id="rPlatformRevenue">&mdash;</p>
+                        <p class="sub">across every region</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Hospital collections</p>
+                        <p class="value" id="rCollections">&mdash;</p>
+                        <p class="sub">the hospitals&rsquo; own money</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Staff overseen</p>
+                        <p class="value" id="rStaff">&mdash;</p>
+                        <p class="sub" id="rDoctors">&nbsp;</p>
+                    </div>
+                    <div class="kpi" id="rUnassignedTile" style="display:none;">
+                        <p class="label">Unassigned hospitals</p>
+                        <p class="value bad" id="rUnassigned">&mdash;</p>
+                        <p class="sub">no officer &mdash; review chain blocked</p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Revenue by regional officer</h2>
+                        <span class="hint">Share of total platform revenue</span>
+                    </div>
+                    <div class="panel-body" id="regionBarBody">Loading&hellip;</div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Regions</h2>
+                        <span class="hint">Click a row to see the hospitals under it</span>
+                    </div>
+                    <div class="panel-body flush">
+                        <table class="rev">
+                            <thead>
+                                <tr>
+                                    <th>Officer</th><th>Areas</th><th class="num">Hospitals</th>
+                                    <th>Load</th><th class="num">Doctors</th><th class="num">Staff</th>
+                                    <th class="num">Beds free</th><th class="num">Collections</th>
+                                    <th class="num">Platform revenue</th><th class="num">Share</th>
+                                </tr>
+                            </thead>
+                            <tbody id="regionBody">
+                                <tr><td colspan="10" class="empty">Loading&hellip;</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>

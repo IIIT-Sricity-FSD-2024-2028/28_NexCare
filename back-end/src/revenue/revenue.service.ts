@@ -7,6 +7,8 @@ import {
   HospitalRevenueLine,
   PlatformRevenueOverview,
   HospitalOperationalRevenue,
+  RegionalOfficerRollup,
+  RegionalOfficerOverview,
 } from './interfaces/revenue.interface';
 import {
   RevenueStreamLine,
@@ -39,6 +41,7 @@ export class RevenueService {
   private readonly usersStore = new FileStore<any>('users.json', () => []);
   private readonly appointmentsStore = new FileStore<any>('appointments.json', () => []);
   private readonly ambulanceStore = new FileStore<any>('ambulance.json', () => []);
+  private readonly bedsStore = new FileStore<any>('beds.json', () => []);
 
   constructor(private readonly pricing: PricingService) {}
 
@@ -741,6 +744,216 @@ export class RevenueService {
     if (isNaN(start.getTime())) return 1;
     const now = new Date();
     return (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth()) + 1;
+  }
+
+  // ── Revenue and data per regional officer ─────────────────────────────────
+
+  /**
+   * The Admin's regional overview: for every regional officer, what their
+   * hospitals collect, what NexCare earns from them, and how much there is to
+   * look after.
+   *
+   * Everything is computed from ONE read of each file. The naive shape — loop
+   * the officers, and for each one query hospitals/bills/users — turns into
+   * O(officers x hospitals x bills) work and a file read per officer. Here the
+   * bills and staff are bucketed by hospital once up front, so adding a
+   * hundredth officer costs a map lookup rather than another full pass.
+   */
+  async getRegionalOfficerOverview(from?: string, to?: string) {
+    try {
+      const users = this.usersStore.load();
+      const hospitals = this.hospitalsStore.load();
+      const beds = this.bedsStore.load();
+      const bills = this.inRange(this.billsStore.load(), from, to);
+      const plans = new Map(this.plansStore.load().map(p => [p.id, p]));
+      const subs = new Map(this.subsStore.load().map(sub => [sub.hospitalId, sub]));
+
+      // ── Bucket everything by hospital, once ──────────────────────────────
+      const billsByHospital = this.groupBy(bills, b => b.hospitalId);
+      const staffByHospital = this.groupBy(
+        users.filter(u => u.hospitalId && u.role !== 'patient'),
+        u => u.hospitalId,
+      );
+      const bedsByHospital = this.groupBy(beds, b => b.hospitalId);
+
+      const officers = users.filter(u => u.role === 'regional_manager');
+      const hospitalsByOfficer = this.groupBy(hospitals, h => h.assignedManagerId || 'UNASSIGNED');
+
+      const rows: RegionalOfficerRollup[] = officers.map(officer =>
+        this.rollupFor(
+          {
+            id: officer.id,
+            name: officer.name,
+            email: officer.email,
+            areas: officer.areas || [],
+            isAssigned: true,
+          },
+          hospitalsByOfficer.get(officer.id) || [],
+          { billsByHospital, staffByHospital, bedsByHospital, plans, subs },
+        ),
+      );
+
+      // Hospitals nobody oversees are a gap in the review chain — surface them.
+      const orphans = hospitalsByOfficer.get('UNASSIGNED') || [];
+      if (orphans.length) {
+        rows.push(
+          this.rollupFor(
+            {
+              id: 'UNASSIGNED',
+              name: 'Unassigned hospitals',
+              email: '—',
+              areas: [],
+              isAssigned: false,
+            },
+            orphans,
+            { billsByHospital, staffByHospital, bedsByHospital, plans, subs },
+          ),
+        );
+      }
+
+      const totalPlatformRevenue = this.sum(rows, r => r.platformRevenue);
+      for (const row of rows) {
+        row.revenueShare = totalPlatformRevenue > 0
+          ? this.round((row.platformRevenue / totalPlatformRevenue) * 100)
+          : 0;
+      }
+      rows.sort((a, b) => b.platformRevenue - a.platformRevenue);
+
+      const overview: RegionalOfficerOverview = {
+        currency: '₹',
+        officers: rows,
+        totals: {
+          officers: officers.length,
+          hospitals: hospitals.length,
+          unassignedHospitals: orphans.length,
+          collections: this.round(this.sum(rows, r => r.collections)),
+          platformRevenue: this.round(totalPlatformRevenue),
+          doctors: this.sum(rows, r => r.doctors),
+          staff: this.sum(rows, r => r.staff),
+        },
+      };
+
+      return ResponseUtil.success(
+        'Regional officer revenue overview retrieved successfully',
+        overview,
+      );
+    } catch (error) {
+      console.error('Regional officer overview error:', error);
+      return ResponseUtil.serverError('Failed to compute the regional officer overview');
+    }
+  }
+
+  /** One officer's row, built entirely from the pre-bucketed lookups. */
+  private rollupFor(
+    officer: { id: string; name: string; email: string; areas: string[]; isAssigned: boolean },
+    ownHospitals: any[],
+    idx: {
+      billsByHospital: Map<string, any[]>;
+      staffByHospital: Map<string, any[]>;
+      bedsByHospital: Map<string, any[]>;
+      plans: Map<string, SubscriptionPlan>;
+      subs: Map<string, HospitalSubscription>;
+    },
+  ): RegionalOfficerRollup {
+    const byHospital = ownHospitals.map(h => {
+      const hospitalBills = idx.billsByHospital.get(h.id) || [];
+      const paid = hospitalBills.filter(b => this.isPaid(b));
+      const staff = idx.staffByHospital.get(h.id) || [];
+      const hospitalBeds = idx.bedsByHospital.get(h.id) || [];
+
+      const collections = this.sum(paid, b => b.total);
+      const sub = idx.subs.get(h.id);
+      const plan = sub ? idx.plans.get(sub.planId) : undefined;
+
+      // Only an active subscription bills this cycle — same rule as the
+      // platform overview, so the two reports cannot disagree.
+      let platformRevenue = 0;
+      if (sub && plan && sub.status === 'active') {
+        const extraBeds = Math.max(0, (sub.contractedBeds || 0) - plan.includedBeds);
+        platformRevenue =
+          plan.monthlyFee + extraBeds * plan.perExtraBedFee + collections * plan.commissionRate;
+      }
+
+      return {
+        hospitalId: h.id,
+        hospitalName: h.name,
+        city: h.city || '—',
+        verificationStatus: h.verificationStatus || 'unknown',
+        collections: this.round(collections),
+        outstanding: this.round(this.sum(hospitalBills.filter(b => !this.isPaid(b)), b => b.total)),
+        platformRevenue: this.round(platformRevenue),
+        doctors: staff.filter(u => u.role === 'doctor').length,
+        availableBeds: hospitalBeds.filter(b => b.status === 'available').length,
+        totalBeds: hospitalBeds.length,
+      };
+    });
+
+    byHospital.sort((a, b) => b.platformRevenue - a.platformRevenue);
+
+    const allStaff = ownHospitals.flatMap(h => idx.staffByHospital.get(h.id) || []);
+    const billsIssued = ownHospitals.reduce(
+      (n, h) => n + (idx.billsByHospital.get(h.id) || []).length, 0,
+    );
+    const billsPaid = ownHospitals.reduce(
+      (n, h) => n + (idx.billsByHospital.get(h.id) || []).filter(b => this.isPaid(b)).length, 0,
+    );
+
+    const pendingVerifications = ownHospitals.filter(
+      h => h.verificationStatus === 'pending_verification',
+    ).length;
+    const verifiedHospitals = ownHospitals.filter(h => h.verificationStatus === 'verified').length;
+
+    // Same pressure formula as UsersService.workloadFor — pending reviews weigh
+    // more than a settled portfolio. Kept in step deliberately.
+    const pressure = pendingVerifications * 3 + ownHospitals.length;
+    const workloadLevel: 'low' | 'medium' | 'high' =
+      pressure > 15 ? 'high' : pressure > 8 ? 'medium' : 'low';
+
+    const totalBeds = this.sum(byHospital, h => h.totalBeds);
+    const availableBeds = this.sum(byHospital, h => h.availableBeds);
+
+    return {
+      officerId: officer.id,
+      officerName: officer.name,
+      officerEmail: officer.email,
+      areas: officer.areas,
+      isAssigned: officer.isAssigned,
+
+      hospitals: ownHospitals.length,
+      pendingVerifications,
+      verifiedHospitals,
+      workloadLevel,
+      doctors: allStaff.filter(u => u.role === 'doctor').length,
+      staff: allStaff.filter(u => u.role !== 'doctor').length,
+      totalBeds,
+      availableBeds,
+      occupancyRate: totalBeds ? this.round(((totalBeds - availableBeds) / totalBeds) * 100) : 0,
+
+      collections: this.round(this.sum(byHospital, h => h.collections)),
+      outstanding: this.round(this.sum(byHospital, h => h.outstanding)),
+      billsIssued,
+      collectionRate: billsIssued ? this.round((billsPaid / billsIssued) * 100) : 0,
+      platformRevenue: this.round(this.sum(byHospital, h => h.platformRevenue)),
+      revenueShare: 0, // filled in by the caller, once the total is known
+      revenuePerHospital: ownHospitals.length
+        ? this.round(this.sum(byHospital, h => h.platformRevenue) / ownHospitals.length)
+        : 0,
+
+      byHospital,
+    };
+  }
+
+  /** Bucket rows by a key, skipping rows whose key is missing. */
+  private groupBy<T>(items: T[], key: (item: T) => string | undefined): Map<string, T[]> {
+    const out = new Map<string, T[]>();
+    for (const item of items) {
+      const k = key(item);
+      if (!k) continue;
+      const bucket = out.get(k);
+      if (bucket) bucket.push(item);
+      else out.set(k, [item]);
+    }
+    return out;
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────

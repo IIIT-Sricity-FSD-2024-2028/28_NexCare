@@ -1285,6 +1285,113 @@
         ]
       }
     },
+    "/api/users/regional-managers/city/{city}": {
+      "get": {
+        "operationId": "UsersController_getRegionalManagersByCity",
+        "summary": "Get regional managers by city",
+        "parameters": [
+          {
+            "name": "city",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Regional managers retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/regional-managers/{id}/workload": {
+      "get": {
+        "operationId": "UsersController_getRMWorkload",
+        "summary": "Get regional manager workload",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RM workload retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/regional-managers/suggest/{city}": {
+      "get": {
+        "operationId": "UsersController_suggestRMForHospital",
+        "summary": "Suggest regional manager for hospital by city",
+        "parameters": [
+          {
+            "name": "city",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RM suggestions retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/regional-managers/workloads": {
+      "get": {
+        "operationId": "UsersController_getAllRMWorkloads",
+        "summary": "Get all regional managers with workload",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "All RM workloads retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
     "/api/hospitals": {
       "get": {
         "operationId": "HospitalsController_findAll",
@@ -1498,6 +1605,119 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/my-hospitals": {
+      "get": {
+        "operationId": "HospitalsController_getMyHospitals",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/pending-verifications": {
+      "get": {
+        "operationId": "HospitalsController_getPendingVerifications",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/verify-detailed": {
+      "patch": {
+        "operationId": "HospitalsController_verifyHospitalDetailed",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/reject-detailed": {
+      "patch": {
+        "operationId": "HospitalsController_rejectHospitalDetailed",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/verification-history": {
+      "get": {
+        "operationId": "HospitalsController_getVerificationHistory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/performance": {
+      "get": {
+        "operationId": "HospitalsController_getHospitalPerformance",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/dashboard": {
+      "get": {
+        "operationId": "HospitalsController_getRegionalDashboard",
+        "parameters": [],
         "responses": {
           "200": {
             "description": ""
@@ -4913,6 +5133,43 @@
       "get": {
         "operationId": "RevenueController_platformStreams",
         "summary": "Every revenue stream — hospital licence, doctor listings, patient memberships and per-transaction fees",
+        "parameters": [
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/regional-officers": {
+      "get": {
+        "operationId": "RevenueController_regionalOfficerOverview",
+        "summary": "Revenue and operational data per regional officer, plus an unassigned-hospitals bucket",
         "parameters": [
           {
             "name": "from",

@@ -15,6 +15,77 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+// ─── Regional manager suggestions ───────────────────────────────────────────
+// One request per distinct city on the page, cached for the render. The backend
+// ranks by area coverage first, then by current workload, so the dropdown order
+// IS the recommendation — the page does no ranking of its own.
+
+const suggestionCache = new Map();
+
+async function loadSuggestions(hospitals) {
+    if (!window.NexCareAPI || !window.NexCareAPI.Users.suggestRegionalManagers) return;
+
+    const cities = [...new Set(
+        hospitals.map(h => String(h.city || '').trim()).filter(Boolean)
+    )].filter(city => !suggestionCache.has(cityKey(city)));
+
+    await Promise.all(cities.map(async city => {
+        try {
+            const res = await window.NexCareAPI.Users.suggestRegionalManagers(city);
+            if (res.success && Array.isArray(res.data)) {
+                suggestionCache.set(cityKey(city), res.data);
+            }
+        } catch (err) {
+            // A failed suggestion must not stop the table rendering; the
+            // dropdown falls back to the plain officer list below.
+            console.warn(`Could not load RM suggestions for ${city}:`, err.message);
+        }
+    }));
+}
+
+function cityKey(city) {
+    return String(city || '').trim().toLowerCase();
+}
+
+/**
+ * Ranked officers for a city. Falls back to the raw officer list — with
+ * coverage worked out client-side — if the suggestion call did not land, so the
+ * Admin is never left with an empty dropdown.
+ */
+function suggestionsFor(city, regionalOfficers) {
+    const cached = suggestionCache.get(cityKey(city));
+    if (cached) {
+        return cached.map(r => ({ ...r, coversCity: covers(r.areas, city) }));
+    }
+    return (regionalOfficers || []).map(ro => ({
+        regionalManagerId: ro.id,
+        regionalManagerName: ro.name,
+        regionalManagerEmail: ro.email,
+        areas: ro.areas || [],
+        currentWorkload: null,
+        workloadLevel: null,
+        reason: '',
+        coversCity: covers(ro.areas, city),
+    })).sort((a, b) => (b.coversCity === true) - (a.coversCity === true));
+}
+
+function covers(areas, city) {
+    return Array.isArray(areas) && areas.some(a => cityKey(a) === cityKey(city));
+}
+
+/** "Kavitha Menon · Chittoor, Nellore · 2 hospitals (low)" */
+function loadLabel(r) {
+    const parts = [r.regionalManagerName];
+    if (r.areas && r.areas.length) parts.push(r.areas.join(', '));
+    if (r.currentWorkload !== null && r.currentWorkload !== undefined) {
+        const level = r.workloadLevel ? ` (${r.workloadLevel})` : '';
+        parts.push(`${r.currentWorkload} hospital${r.currentWorkload === 1 ? '' : 's'}${level}`);
+    } else {
+        parts.push(r.regionalManagerEmail);
+    }
+    return parts.join(' · ');
+}
+
 async function loadHospitals(searchTerm = '') {
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: #6A7282;">Loading hospitals...</td></tr>`;
@@ -47,7 +118,7 @@ async function loadHospitals(searchTerm = '') {
             );
         }
 
-        // Fetch Regional Officers for dropdown
+        // Fetch Regional Officers for dropdown.
         let regionalOfficers = [];
         if (window.NexCareAPI && window.NexCareAPI.Users) {
             const uRes = await window.NexCareAPI.Users.getAll();
@@ -64,6 +135,13 @@ async function loadHospitals(searchTerm = '') {
             const resp = await res.json();
             regionalOfficers = (resp.data || []).filter(u => u.role === 'regional_manager');
         }
+
+        // Suggestions come from the backend (UsersService.suggestRMForHospital),
+        // which ranks officers by area coverage and then by how loaded they are.
+        // Doing it server-side means the dropdown shows the same answer the
+        // backend would give, and one request covers every city on the page
+        // instead of one per row.
+        await loadSuggestions(hospitals);
 
         if (hospitals.length === 0) {
             tableBody.innerHTML = `
@@ -84,16 +162,28 @@ async function loadHospitals(searchTerm = '') {
             else if (h.verificationStatus === 'rejected') statusBadge = '<span class="badge" style="background:#FEE2E2;color:#DC2626;">Rejected</span>';
             else statusBadge = `<span class="badge" style="background:#F3F4F6;color:#374151;">${h.verificationStatus || 'Unknown'}</span>`;
 
-            // Assignment is intentionally limited to managers configured for the
-            // hospital's local city/area. The backend enforces the same rule.
-            const hospitalArea = String(h.city || '').trim().toLowerCase();
-            const eligibleManagers = regionalOfficers.filter(ro =>
-                Array.isArray(ro.areas) && ro.areas.some(area => String(area).trim().toLowerCase() === hospitalArea)
-            );
-            let roSelect = `<select class="form-control" style="padding: 4px; font-size: 12px; width: 220px;" onchange="assignRegionalOfficer('${h.id}', this.value)" ${h.verificationStatus !== 'pending_verification' ? 'disabled' : ''}>
-                <option value="">${eligibleManagers.length ? '-- Assign regional manager --' : '-- No manager configured for this area --'}</option>
-                ${eligibleManagers.map(ro => `<option value="${ro.id}" ${h.assignedManagerId === ro.id ? 'selected' : ''}>${escapeHtml(ro.name)} · ${escapeHtml(ro.areas.join(', '))} · ${escapeHtml(ro.email)}</option>`).join('')}
+            // Ranked suggestions for this hospital's city, with the officer's
+            // current load shown so the Admin can see who is already stretched.
+            const ranked = suggestionsFor(h.city, regionalOfficers);
+            const covering = ranked.filter(r => r.coversCity);
+            const others = ranked.filter(r => !r.coversCity);
+
+            const optionFor = r => `<option value="${r.regionalManagerId}" ${h.assignedManagerId === r.regionalManagerId ? 'selected' : ''}>${escapeHtml(loadLabel(r))}</option>`;
+
+            let roSelect = `<select class="form-control" style="padding: 4px; font-size: 12px; width: 260px;" onchange="assignRegionalOfficer('${h.id}', this.value)" ${h.verificationStatus !== 'pending_verification' ? 'disabled' : ''}>
+                <option value="">${ranked.length ? '-- Assign regional manager --' : '-- No regional managers configured --'}</option>
+                ${covering.length ? `<optgroup label="Covers ${escapeHtml(h.city || 'this area')}">${covering.map(optionFor).join('')}</optgroup>` : ''}
+                ${others.length ? `<optgroup label="Other areas">${others.map(optionFor).join('')}</optgroup>` : ''}
             </select>`;
+
+            // Surface the top recommendation next to the control, so the Admin
+            // does not have to open the dropdown to see who the system favours.
+            const top = ranked[0];
+            if (top && h.verificationStatus === 'pending_verification' && !h.assignedManagerId) {
+                roSelect += `<div style="font-size:11px;color:#6A7282;margin-top:4px;">
+                    Suggested: <strong>${escapeHtml(top.regionalManagerName)}</strong> — ${escapeHtml(top.reason || '')}
+                </div>`;
+            }
 
             // Actions
             let actions = '';

@@ -124,6 +124,16 @@ export class RevenueController {
     return this.revenueService.getPlatformStreams(from, to);
   }
 
+  @Get('regional-officers')
+  @ApiOperation({
+    summary: 'Revenue and operational data per regional officer, plus an unassigned-hospitals bucket',
+  })
+  @ApiQuery({ name: 'from', required: false })
+  @ApiQuery({ name: 'to', required: false })
+  async regionalOfficerOverview(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.revenueService.getRegionalOfficerOverview(from, to);
+  }
+
   @Get('fees')
   @ApiOperation({ summary: 'The cross-cutting fee rates (booking, ambulance, gateway, seats, notifications)' })
   async findFees() {

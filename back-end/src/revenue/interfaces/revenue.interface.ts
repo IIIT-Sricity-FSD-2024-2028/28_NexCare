@@ -117,3 +117,73 @@ export interface HospitalOperationalRevenue {
     total: number;
   } | null;
 }
+
+/**
+ * One regional officer's slice of the platform — what their hospitals collect,
+ * what NexCare earns from them, and how much there is to look after.
+ *
+ * This is the Admin's answer to "which regions are actually carrying the
+ * business, and is anyone overloaded?". Hospitals with no officer assigned are
+ * reported under a synthetic UNASSIGNED row rather than dropped, because an
+ * unassigned hospital is a gap in the review chain, not an absence of data.
+ */
+export interface RegionalOfficerRollup {
+  officerId: string;
+  officerName: string;
+  officerEmail: string;
+  areas: string[];
+  /** False for the synthetic UNASSIGNED bucket. */
+  isAssigned: boolean;
+
+  // ── What there is to look after ──────────────────────────────────────────
+  hospitals: number;
+  pendingVerifications: number;
+  verifiedHospitals: number;
+  workloadLevel: 'low' | 'medium' | 'high';
+  doctors: number;
+  staff: number;
+  totalBeds: number;
+  availableBeds: number;
+  occupancyRate: number;
+
+  // ── Money ────────────────────────────────────────────────────────────────
+  /** What the officer's hospitals collected from patients — their money. */
+  collections: number;
+  outstanding: number;
+  billsIssued: number;
+  collectionRate: number;
+  /** What NexCare earns from those hospitals — the platform's money. */
+  platformRevenue: number;
+  /** Share of total platform revenue across all officers, as a percentage. */
+  revenueShare: number;
+  /** platformRevenue divided by hospitals, so small regions compare fairly. */
+  revenuePerHospital: number;
+
+  byHospital: Array<{
+    hospitalId: string;
+    hospitalName: string;
+    city: string;
+    verificationStatus: string;
+    collections: number;
+    outstanding: number;
+    platformRevenue: number;
+    doctors: number;
+    availableBeds: number;
+    totalBeds: number;
+  }>;
+}
+
+/** The Admin's regional overview: every officer, plus platform-wide totals. */
+export interface RegionalOfficerOverview {
+  currency: string;
+  officers: RegionalOfficerRollup[];
+  totals: {
+    officers: number;
+    hospitals: number;
+    unassignedHospitals: number;
+    collections: number;
+    platformRevenue: number;
+    doctors: number;
+    staff: number;
+  };
+}

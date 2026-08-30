@@ -16,6 +16,7 @@ let doctorSubs = [];
 let patientPlans = [];
 let patientSubs = [];
 let fees = null;
+let regions = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     const user = getCurrentUser();
@@ -42,7 +43,7 @@ async function load() {
     const R = window.NexCareAPI.Revenue;
     try {
         const [planRes, overviewRes, trendRes, streamRes,
-               docPlanRes, docSubRes, patPlanRes, patSubRes, feeRes] = await Promise.all([
+               docPlanRes, docSubRes, patPlanRes, patSubRes, feeRes, regionRes] = await Promise.all([
             R.getPlans(),
             R.getPlatformOverview(),
             R.getPlatformTrend(6),
@@ -52,6 +53,7 @@ async function load() {
             R.getPatientPlans(),
             R.getPatientSubscriptions(),
             R.getFees(),
+            R.getRegionalOfficerOverview(),
         ]);
 
         if (!planRes.success || !overviewRes.success) {
@@ -66,6 +68,7 @@ async function load() {
         patientPlans = patPlanRes.success ? (patPlanRes.data || []) : [];
         patientSubs = patSubRes.success ? (patSubRes.data || []) : [];
         fees = feeRes.success ? feeRes.data : null;
+        regions = regionRes.success ? regionRes.data : null;
 
         renderKpis(overview);
         renderPlans(plans);
@@ -77,6 +80,7 @@ async function load() {
         renderDoctors();
         renderPatients();
         renderFees();
+        renderRegions();
     } catch (err) {
         console.error('Revenue load failed:', err);
         document.getElementById('hospitalTableBody').innerHTML =
@@ -256,6 +260,105 @@ async function savePatientPlanFee(planId) {
         return;
     }
     await apply(() => window.NexCareAPI.Revenue.updatePatientPlan(planId, { monthlyFee }), 'Membership tier repriced');
+}
+
+// ── Regional officers ───────────────────────────────────────────────────────
+
+function renderRegions() {
+    if (!regions) {
+        setHTML('regionBody', '<tr><td colspan="10" class="empty">Could not load the regional overview.</td></tr>');
+        return;
+    }
+
+    const t = regions.totals || {};
+    setText('rTotalOfficers', t.officers ?? 0);
+    setText('rTotalHospitals', `${t.hospitals ?? 0} hospitals on the platform`);
+    setText('rPlatformRevenue', money(t.platformRevenue));
+    setText('rCollections', money(t.collections));
+    setText('rStaff', t.staff ?? 0);
+    setText('rDoctors', `plus ${t.doctors ?? 0} doctors`);
+
+    // Only shown when there is something wrong to look at.
+    const unassignedTile = document.getElementById('rUnassignedTile');
+    if (t.unassignedHospitals) {
+        unassignedTile.style.display = '';
+        setText('rUnassigned', t.unassignedHospitals);
+    } else {
+        unassignedTile.style.display = 'none';
+    }
+
+    const rows = regions.officers || [];
+    const peak = Math.max(1, ...rows.map(r => r.platformRevenue));
+    setHTML('regionBarBody', rows.map(r => `
+        <div class="bar-row">
+            <span class="name">${esc(r.officerName)}</span>
+            <div class="bar-track">
+                <div class="bar-fill ${r.isAssigned ? '' : 'patient'}" style="width:${(r.platformRevenue / peak) * 100}%"></div>
+            </div>
+            <span class="amt">${money(r.platformRevenue)}</span>
+            <span class="amt">${r.revenueShare}%</span>
+        </div>
+    `).join('') || '<p class="empty">No regional officers configured.</p>');
+
+    setHTML('regionBody', rows.map(r => `
+        <tr style="cursor:pointer;" onclick="toggleRegion('${esc(r.officerId)}')">
+            <td>
+                <strong>${esc(r.officerName)}</strong>
+                ${r.isAssigned ? '' : ' <span class="pill pending">gap</span>'}
+                <br><span class="muted">${esc(r.officerEmail)}</span>
+            </td>
+            <td class="muted">${r.areas.length ? esc(r.areas.join(', ')) : '—'}</td>
+            <td class="num">${r.hospitals}${r.pendingVerifications ? `<br><span class="muted">${r.pendingVerifications} pending</span>` : ''}</td>
+            <td><span class="pill ${r.workloadLevel === 'high' ? 'cancelled' : (r.workloadLevel === 'medium' ? 'pending' : 'active')}">${esc(r.workloadLevel)}</span></td>
+            <td class="num">${r.doctors}</td>
+            <td class="num">${r.staff}</td>
+            <td class="num">${r.availableBeds}/${r.totalBeds}</td>
+            <td class="num muted">${money(r.collections)}</td>
+            <td class="num" style="font-weight:700;">${money(r.platformRevenue)}</td>
+            <td class="num">${r.revenueShare}%</td>
+        </tr>
+        <tr id="region-${esc(r.officerId)}" style="display:none;">
+            <td colspan="10" style="background:#F9FAFB;padding:0;">
+                ${hospitalBreakdown(r)}
+            </td>
+        </tr>
+    `).join('') || '<tr><td colspan="10" class="empty">No regional officers configured.</td></tr>');
+}
+
+function hospitalBreakdown(r) {
+    if (!r.byHospital || !r.byHospital.length) {
+        return '<p class="empty">No hospitals in this region yet.</p>';
+    }
+    return `
+        <table class="rev" style="margin:0;">
+            <thead>
+                <tr>
+                    <th>Hospital</th><th>City</th><th>Status</th>
+                    <th class="num">Doctors</th><th class="num">Beds free</th>
+                    <th class="num">Collections</th><th class="num">Outstanding</th>
+                    <th class="num">Platform revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${r.byHospital.map(h => `
+                    <tr>
+                        <td>${esc(h.hospitalName)}<br><span class="muted">${esc(h.hospitalId)}</span></td>
+                        <td class="muted">${esc(h.city)}</td>
+                        <td><span class="pill ${esc(h.verificationStatus)}">${esc(String(h.verificationStatus).replace(/_/g, ' '))}</span></td>
+                        <td class="num">${h.doctors}</td>
+                        <td class="num">${h.availableBeds}/${h.totalBeds}</td>
+                        <td class="num muted">${money(h.collections)}</td>
+                        <td class="num muted">${money(h.outstanding)}</td>
+                        <td class="num" style="font-weight:600;">${money(h.platformRevenue)}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>`;
+}
+
+function toggleRegion(officerId) {
+    const row = document.getElementById(`region-${officerId}`);
+    if (row) row.style.display = row.style.display === 'none' ? '' : 'none';
 }
 
 // ── Pricing controls ────────────────────────────────────────────────────────

@@ -264,6 +264,42 @@ A regional officer clearing a registration is due diligence, not activation.
 - `support-requests.html` — triage requests and advance their status.
 - Login at `auth/regional-officer-login.html`.
 
+### Assignment support — Deekshitha's endpoints (merged 2026-08-30)
+
+`UsersService` carries four read-only views that back the Admin's "assign a
+regional officer" flow. `superuser/hospital-registrations.js` uses them instead
+of filtering the officer list in the browser, so the dropdown shows the same
+ranking the backend would produce.
+
+| Endpoint | Returns |
+|---|---|
+| `GET /users/regional-managers/city/:city` | Officers whose `areas` cover the city |
+| `GET /users/regional-managers/:id/workload` | One officer's `RMWorkload` |
+| `GET /users/regional-managers/suggest/:city` | Officers ranked: coverage first, then lightest load |
+| `GET /users/regional-managers/workloads` | Every officer with their workload |
+
+All four are **superuser-only** and return the standard `ApiResponse` envelope.
+
+Three things were changed on merge, and the reasons matter:
+
+1. **They now use one snapshot per request.** `this.users` and `this.hospitals`
+   are getters that re-read and re-parse JSON *on every access*, and
+   `suggestRMForHospital` called `getRMWorkload` in a loop — 2 file reads per
+   officer, so 7 reads for 3 officers and 101 for 50. It is 2 reads now,
+   whatever the officer count.
+2. **The envelope is consistent.** `city/:city` returned `ApiResponse`; the other
+   three returned raw arrays/objects, and an unknown officer id threw, producing
+   a 500 "incident has been logged" instead of a not-found message. Every route
+   in this app returns `ApiResponse` — see `response.util.ts`.
+3. **Area matching is case-insensitive.** `hospitals.json` stores `"tirupati"`
+   for the HSP rows and `"Tirupati"` for H001–H004; an exact-match filter
+   silently returned nobody for the lowercase ones.
+
+Workload level is driven by `pendingVerifications * 3 + totalHospitals`, not by
+headcount alone: three registrations awaiting a decision is more work than ten
+hospitals already verified and quiet. `RevenueService.rollupFor` uses the same
+formula deliberately — keep them in step.
+
 ### There are three regional officers now, not one
 
 The seed data had a single officer with **no `areas` array**, which meant
@@ -382,6 +418,21 @@ Enforced in `revenue.controller.ts`. `assertMayReadHospital` checks the caller
 actually oversees the hospital; `patientKey(user)` maps a login account to its
 **patient record id** (`P001`, not `U020`) because appointments and bills are keyed
 that way — otherwise a member's own bookings would never match their waiver.
+
+### Revenue and data per regional officer
+
+`GET /revenue/regional-officers` (superuser) answers *"which regions are
+carrying the business, and is anyone overloaded?"* — for each officer: hospitals,
+pending reviews, workload level, doctors, staff, beds, occupancy, collections,
+outstanding, collection rate, platform revenue, share of platform revenue, and a
+per-hospital drill-down. Hospitals with **no** officer are reported as a
+synthetic `UNASSIGNED` row rather than dropped; an unassigned hospital is a gap
+in the review chain, not missing data.
+
+It is computed from **one read of each file**. Bills, staff and beds are bucketed
+by hospital once up front (`groupBy`), so a hundredth officer costs a map lookup
+rather than another full pass over every bill. Shown as the *Regional officers*
+tab in `superuser/revenue.html`, with a click-to-expand hospital breakdown.
 
 ### Nothing is stored pre-aggregated
 
@@ -756,6 +807,7 @@ Platform routes inherit the class list; everything else re-declares its own.
 | Method | Path | Roles |
 |---|---|---|
 | GET | `/revenue/platform/overview`, `/platform/trend`, `/platform/streams` | class |
+| GET | `/revenue/regional-officers` | class — per-officer revenue + operational data |
 | GET · PATCH | `/revenue/plans`, `/plans/:id`, `/subscriptions`, `/subscriptions/:hospitalId` | class |
 | GET · PATCH | `/revenue/fees` | class |
 | PATCH | `/revenue/doctor-plans/:id`, `/patient-plans/:id` | class |
@@ -770,6 +822,10 @@ Platform routes inherit the class list; everything else re-declares its own.
 | GET · PATCH | `/revenue/patient/me/membership` | **patient** (own only, keyed on `patientId`) |
 
 Route order matters: `doctor/me` is declared **before** `doctor/:doctorId`.
+
+### `users` — regional manager assignment support — superuser only
+`GET /users/regional-managers/city/:city`, `/:id/workload`, `/suggest/:city`,
+`/workloads`. See §5.
 
 ### `hierarchy` — class: superuser, regional_manager, hospital_manager, administrative_staff
 | Method | Path | Roles |
@@ -954,6 +1010,31 @@ loaded by 0 pages — still dead, left in place deliberately).
 ---
 
 ## 14. Cleanup log and remaining traps
+
+### Done on 2026-08-30 (second pass)
+
+**Merged `origin/deekshitha`** — regional-manager assignment support. One
+conflict, in `data/users.json`: her branch gave M001 `["Tirupati"]`, main already
+had `["Tirupati","Renigunta"]` plus M002/M003. Kept the superset — HSP006 sits in
+Renigunta and would otherwise have had no officer. She also deleted
+`docs/swagger.json` and some tracked `dist/` files; the `dist/` deletions were
+kept (that directory is gitignored and should never have been tracked),
+`swagger.json` was kept in the tree because it is the API deliverable served at
+`/api/docs`, and it has been regenerated to document her routes and mine.
+
+**Her four RM endpoints were hardened** — snapshot reads, consistent envelope,
+case-insensitive area matching. See §5 for what changed and why.
+
+**`GET /revenue/regional-officers`** — revenue and operational data per regional
+officer, plus the *Regional officers* tab in `superuser/revenue.html`. See §5A.
+
+**The assignment dropdown now asks the backend.**
+`superuser/hospital-registrations.js` used to filter officers client-side by
+`areas`; it now calls `suggest/:city`, groups the dropdown into "Covers <city>"
+and "Other areas", shows each officer's current load, and prints the top
+recommendation under the control. One request per distinct city on the page,
+cached for the render, with a client-side fallback so a failed suggestion call
+never leaves the Admin with an empty dropdown.
 
 ### Done on 2026-08-30
 

@@ -343,121 +343,150 @@ private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals
     }
   }
 
+  // ── Regional manager assignment support ───────────────────────────────────
+  //
+  // These four read-only views back the Admin's "assign a regional officer"
+  // flow. They all work off a SNAPSHOT: `this.users` and `this.hospitals` are
+  // getters that re-read and re-parse JSON from disk on every access, so the
+  // original implementation performed 2 file reads per officer per request
+  // (suggestRMForHospital called getRMWorkload in a loop, and each call re-read
+  // both files). With 3 officers that is 7 reads; with 50 it is 101. Taking one
+  // snapshot per request makes it 2 reads regardless of how many officers exist.
+
+  /** One read of each file, shared by every calculation in a single request. */
+  private snapshot(): { users: User[]; hospitals: any[] } {
+    return { users: this.users, hospitals: this.hospitals };
+  }
+
   /**
-   * Get regional managers by city
-   * Used by super admin for RM assignment
-   * Returns RMs assigned to the specified city
+   * Workload for one officer, computed against an existing snapshot.
+   *
+   * Level is driven by hospitals still needing a decision, not by headcount:
+   * an officer with three pending registrations has more work in front of them
+   * than one with ten hospitals already verified and quiet.
+   */
+  private workloadFor(rm: User, snap: { hospitals: any[] }): RMWorkload {
+    const assigned = snap.hospitals.filter(h => h.assignedManagerId === rm.id);
+
+    const countBy = (status: VerificationStatus) =>
+      assigned.filter(h => h.verificationStatus === status).length;
+
+    const pendingVerifications = countBy(VerificationStatus.PENDING_VERIFICATION);
+    const verifiedHospitals = countBy(VerificationStatus.VERIFIED);
+    const rejectedHospitals = countBy(VerificationStatus.REJECTED);
+    const totalHospitals = assigned.length;
+
+    // Pending work counts for more than a settled portfolio.
+    const pressure = pendingVerifications * 3 + totalHospitals;
+    let workloadLevel: 'low' | 'medium' | 'high' = 'low';
+    if (pressure > 15) workloadLevel = 'high';
+    else if (pressure > 8) workloadLevel = 'medium';
+
+    return {
+      regionalManagerId: rm.id,
+      regionalManagerName: rm.name,
+      regionalManagerEmail: rm.email,
+      areas: rm.areas || [],
+      totalHospitals,
+      pendingVerifications,
+      verifiedHospitals,
+      rejectedHospitals,
+      activeHospitals: verifiedHospitals,
+      workloadLevel,
+      lastActivity: rm.updatedAt,
+    };
+  }
+
+  /**
+   * Regional managers whose areas cover a city.
+   * Used by the Admin when assigning an officer to a hospital.
    */
   async getRegionalManagersByCity(city: string) {
     try {
-      const regionalManagers = this.users.filter(user => 
-        user.role === UserRole.REGIONAL_MANAGER && 
-        user.areas && 
-        user.areas.includes(city)
+      const wanted = String(city || '').trim().toLowerCase();
+      const regionalManagers = this.users.filter(
+        user =>
+          user.role === UserRole.REGIONAL_MANAGER &&
+          // Area matching is case-insensitive: hospitals.json stores "tirupati"
+          // for some rows and "Tirupati" for others, and an exact-match filter
+          // silently returned nobody for the lowercase ones.
+          (user.areas || []).some(area => String(area).trim().toLowerCase() === wanted),
       );
 
-      const rmsWithoutPassword = DataSanitizer.removePasswords(regionalManagers);
-
-      return ResponseUtil.success(`Regional managers for city '${city}' retrieved successfully`, rmsWithoutPassword);
+      return ResponseUtil.success(
+        `Regional managers for city '${city}' retrieved successfully`,
+        DataSanitizer.removePasswords(regionalManagers),
+      );
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve regional managers by city');
     }
   }
 
   /**
-   * Get regional manager workload
-   * Used by super admin for workload balancing
+   * One regional manager's current workload.
+   * Returns the standard envelope like every other endpoint in the app.
    */
-  async getRMWorkload(managerId: string): Promise<RMWorkload> {
+  async getRMWorkload(managerId: string) {
     try {
-      const rm = ArrayUtil.findById(this.users, managerId);
+      const snap = this.snapshot();
+      const rm = snap.users.find(u => u.id === managerId);
       if (!rm || rm.role !== UserRole.REGIONAL_MANAGER) {
-        throw new Error('Regional manager not found');
+        return ResponseUtil.notFound('Regional manager', managerId);
       }
-
-      const hospitals = this.hospitals;
-      const assignedHospitals = hospitals.filter(h => h.assignedManagerId === managerId);
-
-      const pendingVerifications = assignedHospitals.filter(h => 
-        h.verificationStatus === VerificationStatus.PENDING_VERIFICATION
-      ).length;
-
-      const verifiedHospitals = assignedHospitals.filter(h => 
-        h.verificationStatus === VerificationStatus.VERIFIED
-      ).length;
-
-      const rejectedHospitals = assignedHospitals.filter(h => 
-        h.verificationStatus === VerificationStatus.REJECTED
-      ).length;
-
-      const activeHospitals = verifiedHospitals; // Active = verified
-
-      // Calculate workload level
-      const totalHospitals = assignedHospitals.length;
-      let workloadLevel: 'low' | 'medium' | 'high' = 'low';
-      if (totalHospitals > 15) workloadLevel = 'high';
-      else if (totalHospitals > 8) workloadLevel = 'medium';
-
-      const workload: RMWorkload = {
-        regionalManagerId: rm.id,
-        regionalManagerName: rm.name,
-        regionalManagerEmail: rm.email,
-        areas: rm.areas || [],
-        totalHospitals,
-        pendingVerifications,
-        verifiedHospitals,
-        rejectedHospitals,
-        activeHospitals,
-        workloadLevel,
-        lastActivity: rm.updatedAt
-      };
-
-      return workload;
+      return ResponseUtil.success(
+        'Regional manager workload retrieved successfully',
+        this.workloadFor(rm, snap),
+      );
     } catch (error) {
-      throw new Error('Failed to get RM workload');
+      return ResponseUtil.serverError('Failed to get regional manager workload');
     }
   }
 
   /**
-   * Suggest regional manager for hospital
-   * Used by super admin for smart assignment
-   * Suggests RM based on city match and workload
+   * Who should take a hospital in this city.
+   *
+   * Officers whose areas cover the city come first, then the least loaded.
+   * Officers from other areas are still returned rather than hidden — a city
+   * with nobody assigned to it must not produce an empty dropdown, which is
+   * what made assignment impossible before areas were seeded at all.
    */
-  async suggestRMForHospital(hospitalCity: string): Promise<RMSuggestion[]> {
+  async suggestRMForHospital(hospitalCity: string) {
     try {
-      // Get all regional managers
-      const regionalManagers = this.users.filter(user => user.role === UserRole.REGIONAL_MANAGER);
+      const snap = this.snapshot();
+      const wanted = String(hospitalCity || '').trim().toLowerCase();
+      const regionalManagers = snap.users.filter(u => u.role === UserRole.REGIONAL_MANAGER);
 
-      if (regionalManagers.length === 0) {
-        return [];
-      }
+      const covers = (rm: User) =>
+        (rm.areas || []).some(area => String(area).trim().toLowerCase() === wanted);
 
-      // Calculate workload for each RM
-      const suggestions: RMSuggestion[] = [];
-      for (const rm of regionalManagers) {
-        const workload = await this.getRMWorkload(rm.id);
-        
-        // Check if RM's areas include hospital city
-        const cityMatch = rm.areas && rm.areas.includes(hospitalCity);
-        
-        let recommendation = 'available';
-        let reason = 'No current workload';
-        
+      const suggestions: RMSuggestion[] = regionalManagers.map(rm => {
+        const workload = this.workloadFor(rm, snap);
+        const cityMatch = covers(rm);
+
+        let recommendation: string;
+        let reason: string;
         if (workload.workloadLevel === 'high') {
           recommendation = 'not_recommended';
-          reason = 'High current workload';
+          reason = `Already carrying ${workload.totalHospitals} hospitals`;
         } else if (workload.workloadLevel === 'medium') {
           recommendation = 'acceptable';
-          reason = 'Moderate workload, still available';
-        }
-
-        if (cityMatch) {
-          reason += ', assigned to this city';
+          reason = `Moderate load — ${workload.totalHospitals} hospitals`;
         } else {
-          reason += ', different city assignment';
+          recommendation = 'available';
+          // The original text said "No current workload" regardless of the real
+          // number, so an officer with two hospitals still read as idle.
+          reason = workload.totalHospitals
+            ? `Light load — ${workload.totalHospitals} hospital${workload.totalHospitals === 1 ? '' : 's'}`
+            : 'No hospitals assigned yet';
         }
+        if (workload.pendingVerifications) {
+          reason += `, ${workload.pendingVerifications} awaiting review`;
+        }
+        reason += cityMatch
+          ? `, covers ${hospitalCity}`
+          : `, does not cover ${hospitalCity}`;
 
-        suggestions.push({
+        return {
           regionalManagerId: rm.id,
           regionalManagerName: rm.name,
           regionalManagerEmail: rm.email,
@@ -465,52 +494,42 @@ private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals
           currentWorkload: workload.totalHospitals,
           workloadLevel: workload.workloadLevel,
           recommendation,
-          reason
-        });
-      }
-
-      // Sort by workload (low to high), prioritize city match
-      suggestions.sort((a, b) => {
-        // First sort by city match (RMs assigned to this city get priority)
-        const aCityMatch = a.areas && a.areas.includes(hospitalCity);
-        const bCityMatch = b.areas && b.areas.includes(hospitalCity);
-        if (aCityMatch && !bCityMatch) return -1;
-        if (!aCityMatch && bCityMatch) return 1;
-        
-        // Then sort by workload
-        if (a.currentWorkload !== b.currentWorkload) {
-          return a.currentWorkload - b.currentWorkload;
-        }
-        return 0;
+          reason,
+        };
       });
 
-      return suggestions;
+      // City coverage first, then the lightest load.
+      suggestions.sort((a, b) => {
+        const aMatch = covers({ areas: a.areas } as User);
+        const bMatch = covers({ areas: b.areas } as User);
+        if (aMatch !== bMatch) return aMatch ? -1 : 1;
+        return a.currentWorkload - b.currentWorkload;
+      });
+
+      return ResponseUtil.success(
+        `Regional manager suggestions for '${hospitalCity}' retrieved successfully`,
+        suggestions,
+      );
     } catch (error) {
-      throw new Error('Failed to suggest regional manager');
+      return ResponseUtil.serverError('Failed to suggest a regional manager');
     }
   }
 
-  /**
-   * Get all regional managers with their workload
-   * Used by super admin for overview
-   */
-  async getAllRMWorkloads(): Promise<RMWorkload[]> {
+  /** Every regional manager with their workload — the Admin's overview. */
+  async getAllRMWorkloads() {
     try {
-      const regionalManagers = this.users.filter(user => user.role === UserRole.REGIONAL_MANAGER);
-      const workloads: RMWorkload[] = [];
+      const snap = this.snapshot();
+      const workloads = snap.users
+        .filter(u => u.role === UserRole.REGIONAL_MANAGER)
+        .map(rm => this.workloadFor(rm, snap))
+        .sort((a, b) => b.totalHospitals - a.totalHospitals);
 
-      for (const rm of regionalManagers) {
-        try {
-          const workload = await this.getRMWorkload(rm.id);
-          workloads.push(workload);
-        } catch (error) {
-          console.error(`Failed to get workload for RM ${rm.id}:`, error);
-        }
-      }
-
-      return workloads;
+      return ResponseUtil.success(
+        'Regional manager workloads retrieved successfully',
+        workloads,
+      );
     } catch (error) {
-      throw new Error('Failed to get all RM workloads');
+      return ResponseUtil.serverError('Failed to get regional manager workloads');
     }
   }
 }
