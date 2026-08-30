@@ -285,8 +285,18 @@
             <button class="btn-outline" onclick="fetchPatientDetails()" style="padding: 0 15px;">Fetch Details</button>
         </div>
         <input id="name" class="input" placeholder="Patient Name" readonly style="background: #f3f4f6;">
-        <input id="services" class="input" placeholder="Services">
-        <input id="amount" class="input" placeholder="Amount">
+        <div id="lineItemsContainer" style="margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin: 0; color: #374151;">Line Items</h4>
+                <button class="btn-outline" onclick="addLineItem()" style="padding: 4px 10px; font-size: 12px; height: 28px;">+ Add Item</button>
+            </div>
+            <div id="lineItemsList" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- dynamic items injected here -->
+            </div>
+        </div>
+        <div style="text-align: right; font-weight: bold; margin-bottom: 15px; font-size: 16px;">
+            Subtotal: ₹<span id="billTotalAmount">0.00</span>
+        </div>
         <div class="modal-actions">
             <button class="btn" onclick="save()">Save</button>
             <button class="btn-outline" onclick="closeModal()">Cancel</button>

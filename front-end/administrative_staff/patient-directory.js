@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:#6b7280;">Loading patients…</td></tr>`;
 
     try {
-        const resp = await apiGet('/patients');
+        const resp = await apiGet('/users?role=patient');
         allPatients = resp.data || [];
     } catch (err) {
         console.error('Failed to load patients:', err);
@@ -47,8 +47,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('searchInput').addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase().trim();
         const filtered = allPatients.filter(p =>
-            (p.fullName && p.fullName.toLowerCase().includes(term)) ||
+            ((p.name || p.fullName) && (p.name || p.fullName).toLowerCase().includes(term)) ||
             (p.email && p.email.toLowerCase().includes(term)) ||
+            (p.patientId && p.patientId.toLowerCase().includes(term)) ||
             (p.patientIdDisplay && p.patientIdDisplay.toLowerCase().includes(term)) ||
             (p.id && p.id.toLowerCase().includes(term))
         );
@@ -67,19 +68,19 @@ function renderPatients(patients) {
 
     tbody.innerHTML = patients.map(p => {
         const statusClass = p.status === 'Active' ? 'active' : (p.status === 'Critical' ? 'critical' : '');
-        const patientId = p.patientIdDisplay || p.id;
+        const patientId = p.patientId || p.patientIdDisplay || p.id;
         return `
             <tr>
                 <td><strong>${patientId}</strong></td>
-                <td>${p.fullName}</td>
-                <td>${p.email}</td>
+                <td>${p.name || p.fullName || '-'}</td>
+                <td>${p.email || '-'}</td>
                 <td>${p.phone || '-'}</td>
                 <td>${p.bloodGroup || '-'}</td>
                 <td>${p.age || '-'}</td>
                 <td><span class="badge ${statusClass}">${p.status || 'Registered'}</span></td>
                 <td>
                     <button class="btn-outline" style="padding:4px 10px; font-size:11px;"
-                            onclick="openDocsModal('${patientId}', '${(p.fullName || '').replace(/'/g, "\\'")}')">
+                            onclick="openDocsModal('${patientId}', '${(p.name || p.fullName || '').replace(/'/g, "\\'")}')">
                         Documents
                     </button>
                 </td>

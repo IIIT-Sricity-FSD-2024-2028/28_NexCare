@@ -10,23 +10,21 @@ function escapeHtml(str) {
 }
 
 // ---------------- API HELPER ----------------
-function apiGet(path) {
-    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-    const host = window.location.hostname || 'localhost';
-    return fetch(`http://${host}:3001/api${path}`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-    }).then(r => r.json());
+function getHospitalId() {
+    try {
+        const user = JSON.parse(sessionStorage.getItem('nexcare_user_data') || localStorage.getItem('nexcare_user_data') || '{}');
+        return user.hospitalId || '';
+    } catch { return ''; }
 }
 
+function apiGet(path) {
+    return window.NexCareAPI.get(path);
+}
 
-function apiRequest(method, path, body) {
-    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-    const host = window.location.hostname || 'localhost';
-    return fetch(`http://${host}:3001/api${path}`, {
-        method,
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: body ? JSON.stringify(body) : undefined
-    }).then(r => r.json());
+async function apiRequest(method, path, body) {
+    const apiMethod = window.NexCareAPI[method.toLowerCase()];
+    if (!apiMethod) throw new Error(`Unsupported method: ${method}`);
+    return await apiMethod(path, body);
 }
 
 // ---------------- STATE ----------------
@@ -72,7 +70,9 @@ function normalizeInventoryRow(row) {
 // ---------------- LOAD DATA FROM API ----------------
 async function loadInventory() {
     try {
-        const resp = await apiGet('/inventory');
+        const hid = getHospitalId();
+        const hidQuery = hid ? `?hospitalId=${encodeURIComponent(hid)}` : '';
+        const resp = await apiGet(`/inventory${hidQuery}`);
         const rows = resp.data || [];
         inventory = rows.map(normalizeInventoryRow).filter(Boolean);
         filteredInventory = [...inventory];
@@ -499,7 +499,9 @@ async function loadRequisitions() {
     if (!tableBody) return;
 
     try {
-        const resp = await apiGet('/inventory/requirements');
+        const hid = getHospitalId();
+        const hidQuery = hid ? `?hospitalId=${encodeURIComponent(hid)}` : '';
+        const resp = await apiGet(`/inventory/requirements${hidQuery}`);
         const reqs = resp.data || [];
         allRequisitionsCache = reqs;
 

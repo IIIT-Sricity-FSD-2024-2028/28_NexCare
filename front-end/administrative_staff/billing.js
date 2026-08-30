@@ -1,20 +1,19 @@
 // ---------------- API HELPER ----------------
-function apiGet(path) {
-    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-    const host = window.location.hostname || 'localhost';
-    return fetch(`http://${host}:3001/api${path}`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-    }).then(r => r.json());
+function getHospitalId() {
+    try {
+        const user = JSON.parse(sessionStorage.getItem('nexcare_user_data') || localStorage.getItem('nexcare_user_data') || '{}');
+        return user.hospitalId || '';
+    } catch { return ''; }
 }
 
-function apiRequest(method, path, body) {
-    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-    const host = window.location.hostname || 'localhost';
-    return fetch(`http://${host}:3001/api${path}`, {
-        method,
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: body ? JSON.stringify(body) : undefined
-    }).then(r => r.json());
+function apiGet(path) {
+    return window.NexCareAPI.get(path);
+}
+
+async function apiRequest(method, path, body) {
+    const apiMethod = window.NexCareAPI[method.toLowerCase()];
+    if (!apiMethod) throw new Error(`Unsupported method: ${method}`);
+    return await apiMethod(path, body);
 }
 
 // ---------------- STATE ----------------
@@ -32,9 +31,11 @@ let patientsCache = [];
 // ---------------- LOAD DATA FROM API ----------------
 async function loadBills() {
     try {
+        const hid = getHospitalId();
+        const hidQuery = hid ? `?hospitalId=${encodeURIComponent(hid)}` : '';
         const [billsResp, patientsResp] = await Promise.all([
-            apiGet('/billing'),
-            apiGet('/patients')
+            apiGet(`/billing${hidQuery}`),
+            apiGet('/users?role=patient')
         ]);
 
         patientsCache = patientsResp.data || [];
@@ -153,6 +154,42 @@ window.closeModal = () => {
     document.getElementById("modal").style.display = "none";
 };
 
+let currentLineItems = [];
+
+window.renderLineItems = () => {
+    const container = document.getElementById("lineItemsList");
+    if (!container) return;
+    container.innerHTML = "";
+    let total = 0;
+    currentLineItems.forEach((item, index) => {
+        total += Number(item.amount) || 0;
+        container.innerHTML += `
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input class="input" style="flex: 2; margin-bottom: 0;" placeholder="Description" value="${item.description}" onchange="updateLineItem(${index}, 'description', this.value)">
+                <input class="input" style="flex: 1; margin-bottom: 0;" type="number" placeholder="Amount" value="${item.amount}" onchange="updateLineItem(${index}, 'amount', this.value)">
+                <button class="btn-outline" style="color: red; border-color: red; padding: 4px 8px;" onclick="removeLineItem(${index})">X</button>
+            </div>
+        `;
+    });
+    const totalEl = document.getElementById("billTotalAmount");
+    if (totalEl) totalEl.innerText = total.toFixed(2);
+};
+
+window.addLineItem = () => {
+    currentLineItems.push({ description: "", amount: 0 });
+    window.renderLineItems();
+};
+
+window.updateLineItem = (index, field, value) => {
+    currentLineItems[index][field] = field === 'amount' ? Number(value) : value;
+    window.renderLineItems();
+};
+
+window.removeLineItem = (index) => {
+    currentLineItems.splice(index, 1);
+    window.renderLineItems();
+};
+
 window.fetchPatientDetails = async () => {
     const patientId = document.getElementById("patientId").value.trim();
     if (!patientId) {
@@ -161,30 +198,70 @@ window.fetchPatientDetails = async () => {
     }
 
     try {
-        // Fetch patient from API
-        const pResp = await apiGet('/patients');
+        const pResp = await apiGet('/users?role=patient');
         const patients = pResp.data || [];
-        const patient = patients.find(p => p.id === patientId || p.patientIdDisplay === patientId);
+        const searchId = patientId.toLowerCase();
+        const patient = patients.find(p => 
+            (p.id && p.id.toLowerCase() === searchId) || 
+            (p.patientId && p.patientId.toLowerCase() === searchId) || 
+            (p.patientIdDisplay && p.patientIdDisplay.toLowerCase() === searchId)
+        );
 
         if (!patient) {
             alert("Patient not found. Please check the ID.");
             return;
         }
 
-        document.getElementById("name").value = patient.fullName;
+        document.getElementById("name").value = patient.name || patient.fullName || "Unknown";
+        currentLineItems = [];
 
-        // Fetch beds to find ward allocation
-        const bedsResp = await apiGet('/beds');
-        const beds = bedsResp.data || [];
-        const bed = beds.find(b => b.patientId === patient.id || (b.patient && b.patient === patient.fullName));
+        // Fetch items based on hospital
+        const hid = getHospitalId();
+        const hidQuery = hid ? `?hospitalId=${encodeURIComponent(hid)}` : '';
 
-        if (bed && bed.ward && WARD_RATES[bed.ward]) {
-            document.getElementById("services").value = WARD_RATES[bed.ward].service;
-            document.getElementById("amount").value = WARD_RATES[bed.ward].amount;
+        // 1. Beds
+        try {
+            const bedsResp = await apiGet(`/beds${hidQuery}`);
+            const beds = bedsResp.data || [];
+            const pName = patient.name || patient.fullName;
+            const bed = beds.find(b => b.patientId === patient.id || (b.patient && b.patient === pName));
+            if (bed && bed.ward && WARD_RATES[bed.ward]) {
+                currentLineItems.push({ description: WARD_RATES[bed.ward].service, amount: WARD_RATES[bed.ward].amount });
+            }
+        } catch (e) { console.warn("Failed fetching beds", e); }
+
+        // 2. Appointments
+        try {
+            const apptsResp = await apiGet(`/appointments${hidQuery}`);
+            const appts = apptsResp.data || [];
+            const patientAppts = appts.filter(a => (a.patientId === patient.id || a.patientId === patient.patientId) && a.status !== 'Cancelled');
+            patientAppts.forEach(a => {
+                currentLineItems.push({
+                    description: `Consultation: Dr. ${a.doctor || 'Unknown'} (${a.department || 'General'})`,
+                    amount: a.amount || 500
+                });
+            });
+        } catch (e) { console.warn("Failed fetching appts", e); }
+
+        // 3. Ambulance
+        try {
+            const ambResp = await apiGet('/ambulance'); 
+            const ambs = ambResp.data || [];
+            const pName = patient.name || patient.fullName;
+            const patientAmbs = ambs.filter(a => a.patientName === pName);
+            patientAmbs.forEach(a => {
+                currentLineItems.push({
+                    description: `Ambulance Transport: ${a.type || 'Standard'}`,
+                    amount: a.amount || 1200
+                });
+            });
+        } catch (e) { console.warn("Failed fetching ambulance", e); }
+
+        if (currentLineItems.length === 0) {
+            alert("No active charges found for this patient. Please enter items manually.");
+            window.addLineItem();
         } else {
-            alert("No active bed allocation found for this patient. Please enter services and amount manually.");
-            document.getElementById("services").value = "";
-            document.getElementById("amount").value = "";
+            window.renderLineItems();
         }
     } catch (err) {
         console.error("fetchPatientDetails error:", err);
@@ -195,44 +272,61 @@ window.fetchPatientDetails = async () => {
 window.save = async () => {
     const patientId = document.getElementById("patientId").value.trim();
     const name = document.getElementById("name").value;
-    const amount = document.getElementById("amount").value;
-    const services = document.getElementById("services").value;
-
-    const error = validateBillForm({ name, amount, services });
-
+    
     if (!patientId) {
         alert("Patient ID is required.");
         return;
     }
 
-    if (error) {
-        alert(error);
+    if (currentLineItems.length === 0) {
+        alert("Please add at least one line item.");
         return;
     }
 
+    for (let item of currentLineItems) {
+        if (!item.description.trim() || item.amount <= 0) {
+            alert("All line items must have a valid description and amount greater than 0.");
+            return;
+        }
+    }
+
     try {
-        const pResp = await apiGet('/patients');
+        const pResp = await apiGet('/users?role=patient');
         const patients = pResp.data || [];
-        const patient = patients.find(p => p.id === patientId || p.patientIdDisplay === patientId);
+        const searchId = patientId.toLowerCase();
+        const patient = patients.find(p => 
+            (p.id && p.id.toLowerCase() === searchId) || 
+            (p.patientId && p.patientId.toLowerCase() === searchId) || 
+            (p.patientIdDisplay && p.patientIdDisplay.toLowerCase() === searchId)
+        );
 
         if (!patient) {
             alert("Patient not found. Please verify the Patient ID.");
             return;
         }
 
+        const subtotal = currentLineItems.reduce((sum, item) => sum + Number(item.amount), 0);
         const dateStr = new Date().toISOString().split("T")[0];
+        
         const payload = {
             patientId: patient.id,
             visitDate: dateStr,
             dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
             status: "Pending",
             currency: "₹",
-            subtotal: Number(amount),
+            subtotal: subtotal,
             cgstRate: 0.09,
             sgstRate: 0.09,
-            items: [{ description: services, department: "Administrative", amount: Number(amount) }],
+            items: currentLineItems.map(item => ({
+                description: item.description,
+                department: "Administrative",
+                amount: Number(item.amount)
+            })),
             payments: []
         };
+
+        const hid = getHospitalId();
+        if (hid) payload.hospitalId = hid;
 
         await apiRequest('POST', '/billing', payload);
 
@@ -248,8 +342,8 @@ window.save = async () => {
     document.getElementById("modal").style.display = "none";
     document.getElementById("patientId").value = "";
     document.getElementById("name").value = "";
-    document.getElementById("amount").value = "";
-    document.getElementById("services").value = "";
+    currentLineItems = [];
+    window.renderLineItems();
 
     loadBills();
 };

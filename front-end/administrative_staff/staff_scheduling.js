@@ -48,38 +48,27 @@ function currentUser() {
 }
 
 function hospitalId() {
-    return currentUser().hospitalId || 'H001';
+    const hid = currentUser().hospitalId;
+    if (!hid) {
+        alert("Error: You are not assigned to a hospital.");
+        return '';
+    }
+    return hid;
 }
 
 function apiGet(path) {
-    if (window.NexCareAPI) return window.NexCareAPI.get(path);
-    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-    const host = window.location.hostname || 'localhost';
-    return fetch(`http://${host}:3001/api${path}`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-    }).then(r => r.json());
+    return window.NexCareAPI.get(path);
 }
 
-function apiPost(path, body) {
-    if (window.NexCareAPI) return window.NexCareAPI.post(path, body);
-    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-    const host = window.location.hostname || 'localhost';
-    return fetch(`http://${host}:3001/api${path}`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-    }).then(r => r.json());
+async function apiPost(path, body) {
+    return await window.NexCareAPI.post(path, body);
 }
 
-function apiDelete(path) {
-    if (window.NexCareAPI) return window.NexCareAPI.delete(path);
-    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-    const host = window.location.hostname || 'localhost';
-    return fetch(`http://${host}:3001/api${path}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-    }).then(r => r.json());
+async function apiDelete(path) {
+    return await window.NexCareAPI.delete(path);
 }
+
+
 
 // --- DATE HELPERS ---
 function getStartOfWeek(date) {
@@ -181,7 +170,7 @@ function renderWeeklySchedule() {
     // Filter doctors strictly for logged-in admin's hospital
     const hospitalDoctors = cachedDoctors.filter(d => {
         const isDoc = (d.role || '').toLowerCase() === 'doctor';
-        const isSameHospital = (d.hospitalId || 'H001') === hid;
+        const isSameHospital = d.hospitalId === hid;
         return isDoc && isSameHospital;
     });
 

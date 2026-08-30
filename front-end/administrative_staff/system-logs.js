@@ -1,10 +1,13 @@
 // ---------------- API HELPER ----------------
+function getHospitalId() {
+    try {
+        const user = JSON.parse(sessionStorage.getItem('nexcare_user_data') || localStorage.getItem('nexcare_user_data') || '{}');
+        return user.hospitalId || '';
+    } catch { return ''; }
+}
+
 function apiGet(path) {
-    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-    const host = window.location.hostname || 'localhost';
-    return fetch(`http://${host}:3001/api${path}`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-    }).then(r => r.json());
+    return window.NexCareAPI.get(path);
 }
 
 // ---------------- STATE ----------------

@@ -11,12 +11,14 @@ let appointments = [];
 let filteredAppointments = [];
 
 // ---------------- API HELPER ----------------
+function getHospitalId() {
+    try {
+        const user = JSON.parse(sessionStorage.getItem('nexcare_user_data') || localStorage.getItem('nexcare_user_data') || '{}');
+        return user.hospitalId || '';
+    } catch { return ''; }
+}
 function apiGet(path) {
-    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-    const host = window.location.hostname || 'localhost';
-    return fetch(`http://${host}:3001/api${path}`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-    }).then(r => r.json());
+    return window.NexCareAPI.get(path);
 }
 
 async function loadDashboardData() {
@@ -26,11 +28,13 @@ async function loadDashboardData() {
         : null;
 
     try {
+        const hid = getHospitalId();
+        const hidQuery = hid ? `?hospitalId=${encodeURIComponent(hid)}` : '';
         const [patientsResp, apptResp, bedsResp, feedbackResp] = await Promise.all([
-            apiGet('/patients').catch(() => ({ data: [] })),
-            apiGet('/appointments').catch(() => ({ data: [] })),
-            apiGet('/beds').catch(() => ({ data: [] })),
-            apiGet('/feedback').catch(() => ({ data: [] }))
+            apiGet('/users?role=patient').catch(() => ({ data: [] })),
+            apiGet(`/appointments${hidQuery}`).catch(() => ({ data: [] })),
+            apiGet(`/beds${hidQuery}`).catch(() => ({ data: [] })),
+            apiGet(`/feedback${hidQuery}`).catch(() => ({ data: [] }))
         ]);
 
         const patients = patientsResp.data || [];

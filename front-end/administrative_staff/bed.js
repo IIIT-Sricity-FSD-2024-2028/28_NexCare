@@ -1,28 +1,23 @@
 // ---------------- API HELPER ----------------
-function apiGet(path) {
-    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-    const host = window.location.hostname || 'localhost';
-    return fetch(`http://${host}:3001/api${path}`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-    }).then(r => r.json());
+function getHospitalId() {
+    try {
+        const user = JSON.parse(sessionStorage.getItem('nexcare_user_data') || localStorage.getItem('nexcare_user_data') || '{}');
+        return user.hospitalId || '';
+    } catch { return ''; }
 }
 
-// Rejects with the API's own message so middleware errors (e.g. an illegal bed
-// status transition) can be shown to the user instead of being swallowed.
-async function apiRequest(method, path, body) {
-    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-    const host = window.location.hostname || 'localhost';
-    const res = await fetch(`http://${host}:3001/api${path}`, {
-        method,
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: body ? JSON.stringify(body) : undefined
-    });
+function apiGet(path) {
+    return window.NexCareAPI.get(path);
+}
 
-    const payload = await res.json().catch(() => ({}));
-    if (!res.ok || payload.success === false) {
-        throw new Error(payload.message || `Request failed (${res.status})`);
+async function apiRequest(method, path, body) {
+    const apiMethod = window.NexCareAPI[method.toLowerCase()];
+    if (!apiMethod) throw new Error(`Unsupported method: ${method}`);
+    const res = await apiMethod(path, body);
+    if (res && res.success === false) {
+        throw new Error(res.message || `Request failed`);
     }
-    return payload;
+    return res;
 }
 
 // ---------------- STATE ----------------
@@ -55,9 +50,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadData() {
     try {
+        const hid = getHospitalId();
+        const hidQuery = hid ? `?hospitalId=${encodeURIComponent(hid)}` : '';
         const [bedsResp, patientsResp] = await Promise.all([
-            apiGet('/beds'),
-            apiGet('/patients')
+            apiGet(`/beds${hidQuery}`),
+            apiGet('/users?role=patient')
         ]);
         bedsCache = bedsResp.data || [];
         patientsCache = patientsResp.data || [];
@@ -321,7 +318,12 @@ window.fetchPatientForUpdate = function() {
         return;
     }
     
-    const patient = patientsCache.find(p => p.id === pid || p.patientIdDisplay === pid);
+    const searchId = pid.toLowerCase();
+    const patient = patientsCache.find(p => 
+        (p.id && p.id.toLowerCase() === searchId) || 
+        (p.patientId && p.patientId.toLowerCase() === searchId) || 
+        (p.patientIdDisplay && p.patientIdDisplay.toLowerCase() === searchId)
+    );
     if (patient) {
         document.getElementById('patientName').value = patient.fullName;
     } else {
@@ -434,7 +436,12 @@ window.fetchPatientForAdmit = function() {
         return;
     }
     
-    const patient = patientsCache.find(p => p.id === pid || p.patientIdDisplay === pid);
+    const searchId = pid.toLowerCase();
+    const patient = patientsCache.find(p => 
+        (p.id && p.id.toLowerCase() === searchId) || 
+        (p.patientId && p.patientId.toLowerCase() === searchId) || 
+        (p.patientIdDisplay && p.patientIdDisplay.toLowerCase() === searchId)
+    );
     if (patient) {
         document.getElementById('admitName').value = patient.fullName;
     } else {
