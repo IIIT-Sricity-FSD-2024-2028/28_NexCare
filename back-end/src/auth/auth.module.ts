@@ -3,6 +3,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { SystemModule } from '../system/system.module';
 import { PatientsModule } from '../patients/patients.module';
+import { PricingModule } from '../revenue/pricing.module';
 
 /**
  * Authentication Module
@@ -10,7 +11,7 @@ import { PatientsModule } from '../patients/patients.module';
  * Provides services for login, registration, and user session tracking
  */
 @Module({
-  imports: [SystemModule, PatientsModule],
+  imports: [SystemModule, PatientsModule, PricingModule],
   controllers: [AuthController],
   providers: [AuthService],
   exports: [AuthService],

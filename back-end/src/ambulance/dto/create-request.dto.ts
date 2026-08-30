@@ -61,7 +61,7 @@ export class CreateAmbulanceRequestDto {
   @IsString()
   eta?: string;
 
-  @ApiPropertyOptional({ example: 'H001', description: 'Hospital ID' })
+  @ApiPropertyOptional({ example: 'H001', description: 'Hospital the ambulance is dispatched from' })
   @IsOptional()
   @IsString()
   hospitalId?: string;

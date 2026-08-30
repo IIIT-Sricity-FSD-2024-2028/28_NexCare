@@ -1,2 +1,0 @@
- INFO  Accepting connections at http://localhost:8080
-Killed

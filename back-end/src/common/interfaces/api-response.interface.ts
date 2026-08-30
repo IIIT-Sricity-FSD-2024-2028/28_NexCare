@@ -13,17 +13,23 @@ export interface ApiResponse<T = any> {
 /**
  * User Roles Enumeration
  *
- * NexCare is a strictly non-clinical platform, so the roles split in two:
+ * NexCare stays out of clinical work — no diagnosis, treatment, prescriptions
+ * or medical records — but the people who do that work are on the platform. The
+ * roles split in two:
  *
  *  Login actors — each owns a portal and can be issued a session:
  *    patient, administrative_staff, ambulance, superuser,
- *    regional_manager (displayed as "Regional Officer"), hospital_manager.
+ *    regional_manager (displayed as "Regional Officer"), hospital_manager,
+ *    doctor.
+ *
+ *  A doctor's portal is administrative, not clinical: their own schedule,
+ *  confirming and completing the appointments booked with them, leave requests,
+ *  and their earnings against the platform's listing tiers.
  *
  *  Directory-only records — no portal, no login (enforced in AuthService.login
- *  and excluded from staff self-registration). They exist so an appointment can
- *  name the consultant a slot belongs to and so rosters, leave records, and
- *  headcount statistics can reference clinical staff:
- *    doctor, nurse.
+ *  and excluded from staff self-registration). They exist so rosters, leave
+ *  records and headcount statistics can reference clinical staff:
+ *    nurse.
  *
  * ADMINISTRATIVE_STAFF is displayed as "Administrative Staff". "Front Desk" is a
  * department within that role, never the role itself.
@@ -35,8 +41,8 @@ export enum UserRole {
   AMBULANCE = 'ambulance',
   REGIONAL_MANAGER = 'regional_manager',
   HOSPITAL_MANAGER = 'hospital_manager',
-  // Directory-only — see note above.
   DOCTOR = 'doctor',
+  // Directory-only — see note above.
   NURSE = 'nurse'
 }
 

@@ -57,6 +57,10 @@
                     <span>Subscription & Renewal</span>
                     <span class="nav-pill" id="navSubPill">Active</span>
                 </a>
+                <a href="#revenue" class="nav-item" onclick="switchTab('revenue', event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    <span>Revenue</span>
+                </a>
                 <a href="#supervision" class="nav-item" onclick="switchTab('supervision', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
                     <span>Admin Supervision</span>
@@ -891,6 +895,23 @@
                     </div>
                 </div>
             </section>
+
+            <section id="revenueTab" class="tab-content">
+                <div class="stats-grid" id="revenueStats"></div>
+                <div class="card">
+                    <div class="card-header"><h2>Revenue by department</h2></div>
+                    <div style="padding:20px;" id="revenueDeptBody">
+                        <p class="loading-cell">Loading revenue…</p>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:20px;">
+                    <div class="card-header"><h2>What this hospital owes NexCare</h2></div>
+                    <div style="padding:20px;" id="revenuePlatformBody">
+                        <p class="loading-cell">Loading…</p>
+                    </div>
+                </div>
+            </section>
+
         </main>
     </div>
 

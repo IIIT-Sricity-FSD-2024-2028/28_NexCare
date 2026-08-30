@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organisation Hierarchy | NexCare</title>
+    <link rel="stylesheet" href="../shared/global.css">
+    <link rel="stylesheet" href="../shared/nav.css">
+    <link rel="stylesheet" href="../shared/portal.css">
+    <style>
+        .node { --depth: 0; padding: 8px 12px; border-radius: 8px; }
+        .node-children { margin-left: 22px; border-left: 2px solid #E5E7EB; padding-left: 10px; }
+        details.node > summary {
+            list-style: none; cursor: pointer; padding: 8px 12px; border-radius: 8px;
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        }
+        details.node > summary::-webkit-details-marker { display: none; }
+        details.node > summary::before {
+            content: '\25B8'; color: #9CA3AF; font-size: 11px; transition: transform .15s ease;
+        }
+        details.node[open] > summary::before { transform: rotate(90deg); }
+        details.node > summary:hover, .node.leaf:hover { background: #F9FAFB; }
+        .node.leaf { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-left: 31px; }
+
+        .node-type {
+            font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+            padding: 2px 7px; border-radius: 4px; background: #F3F4F6; color: #6B7280;
+        }
+        .node-type.platform   { background: #1E293B; color: #fff; }
+        .node-type.region     { background: #EDE9FE; color: #5B21B6; }
+        .node-type.hospital   { background: #DBEAFE; color: #1D4ED8; }
+        .node-type.department { background: #ECFDF5; color: #047857; }
+        .node-type.user       { background: #FEF3C7; color: #92400E; }
+
+        .node-label { font-size: 14px; font-weight: 600; color: #111827; }
+        .node-sub   { font-size: 12px; color: #6B7280; }
+        .chip {
+            font-size: 11px; color: #4B5563; background: #F3F4F6;
+            border-radius: 999px; padding: 2px 9px;
+        }
+        code { background: #F3F4F6; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <main class="main-content">
+        <header class="header">
+            <span class="header-title">Organisation Hierarchy</span>
+            <div class="header-user">
+                <div class="header-avatar" id="userAvatar">?</div>
+                <div>
+                    <p class="header-user-name" id="userNameDisplay">User</p>
+                    <p class="header-user-role" id="userRoleDisplay">System Administrator</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-body">
+
+            <div class="page-header">
+                <div>
+                    <h1>Organisation Hierarchy</h1>
+                    <p>The whole platform: every region, the hospitals in it, and the people who staff them.</p>
+                </div>
+                <input id="treeSearch" placeholder="Find a hospital, department or person…"
+                       style="height:38px;border:1px solid #E5E7EB;border-radius:8px;padding:0 12px;font-size:13px;min-width:280px;">
+            </div>
+
+            <div id="scopeBanner"></div>
+            <div class="kpi-grid" id="scopeCounts"></div>
+
+            <div class="panel">
+                <div class="panel-head">
+                    <h2>Everything below you</h2>
+                    <span class="hint">You see your own node and its subtree — nothing above it, nothing beside it</span>
+                </div>
+                <div class="panel-body" id="treeRoot">Loading…</div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="../shared/api.js"></script>
+    <script src="../shared/session.js"></script>
+    <script src="../shared/portal.js"></script>
+    <script src="../shared/hierarchy-view.js"></script>
+    <script src="../shared/nav.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            fillHeader('System Administrator');
+            wireHierarchySearch();
+            await loadHierarchy();
+        });
+    </script>
+</body>
+</html>

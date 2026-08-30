@@ -21,6 +21,15 @@ export class CreateAppointmentDto {
   @IsString()
   doctor?: string;
 
+  // The doctor's user id. `doctor` above is the display name the patient picked;
+  // this is what the doctor portal filters on and what the revenue model
+  // attributes the consultation commission to. Optional so a walk-in booked
+  // against a department rather than a named consultant still validates.
+  @ApiPropertyOptional({ example: 'U005', description: 'User id of the doctor the slot belongs to' })
+  @IsOptional()
+  @IsString()
+  doctorId?: string;
+
   @ApiProperty({ example: 'March 15, 2026', description: 'Date of appointment' })
   @IsString()
   @IsNotEmpty({ message: 'Date label is required' })
@@ -41,4 +50,19 @@ export class CreateAppointmentDto {
   @IsOptional()
   @IsString()
   reason?: string;
+
+  // The booking wizard already asks the patient to pick a hospital, and db.js
+  // sends both of these. Neither was declared, so the ValidationPipe
+  // (forbidNonWhitelisted) rejected every booking with 400 "property
+  // hospitalName should not exist" — and no appointment, and therefore no bill,
+  // could be attributed to a hospital.
+  @ApiPropertyOptional({ example: 'H001', description: 'Hospital the appointment is booked at' })
+  @IsOptional()
+  @IsString()
+  hospitalId?: string;
+
+  @ApiPropertyOptional({ example: 'Apollo Health City', description: 'Hospital name, denormalised for display' })
+  @IsOptional()
+  @IsString()
+  hospitalName?: string;
 }

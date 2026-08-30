@@ -162,7 +162,8 @@
     "departmentsCount": 12,
     "ambulanceCount": 6,
     "operationTheatres": 8,
-    "contactPersonDesignation": "Medical Superintendent"
+    "contactPersonDesignation": "Medical Superintendent",
+    "regionalReviewStatus": "cleared"
   },
   {
     "id": "H002",
@@ -316,7 +317,8 @@
     "departmentsCount": 9,
     "ambulanceCount": 4,
     "operationTheatres": 5,
-    "contactPersonDesignation": "Hospital Administrator"
+    "contactPersonDesignation": "Hospital Administrator",
+    "regionalReviewStatus": "cleared"
   },
   {
     "id": "H003",
@@ -454,7 +456,8 @@
     "departmentsCount": 10,
     "ambulanceCount": 5,
     "operationTheatres": 6,
-    "contactPersonDesignation": "General Manager - Operations"
+    "contactPersonDesignation": "General Manager - Operations",
+    "regionalReviewStatus": "cleared"
   },
   {
     "id": "H004",
@@ -512,7 +515,9 @@
           "03:30 PM"
         ]
       }
-    }
+    },
+    "assignedManagerId": "M001",
+    "regionalReviewStatus": "cleared"
   },
   {
     "id": "HSP001",
@@ -635,7 +640,9 @@
           "08:00 PM"
         ]
       }
-    }
+    },
+    "assignedManagerId": "M001",
+    "regionalReviewStatus": "cleared"
   },
   {
     "id": "HSP002",
@@ -714,7 +721,9 @@
           "05:00 PM"
         ]
       }
-    }
+    },
+    "assignedManagerId": "M001",
+    "regionalReviewStatus": "cleared"
   },
   {
     "id": "HSP003",
@@ -795,7 +804,9 @@
           "05:00 PM"
         ]
       }
-    }
+    },
+    "assignedManagerId": "M001",
+    "regionalReviewStatus": "cleared"
   },
   {
     "id": "HSP004",
@@ -868,7 +879,9 @@
           "04:00 PM"
         ]
       }
-    }
+    },
+    "assignedManagerId": "M001",
+    "regionalReviewStatus": "cleared"
   },
   {
     "id": "HSP005",
@@ -970,7 +983,9 @@
           "07:00 PM"
         ]
       }
-    }
+    },
+    "assignedManagerId": "M002",
+    "regionalReviewStatus": "cleared"
   },
   {
     "id": "HSP006",
@@ -1050,7 +1065,9 @@
           "07:00 PM"
         ]
       }
-    }
+    },
+    "assignedManagerId": "M001",
+    "regionalReviewStatus": "cleared"
   },
   {
     "id": "HSP007",
@@ -1122,7 +1139,9 @@
           "04:00 PM"
         ]
       }
-    }
+    },
+    "assignedManagerId": "M002",
+    "regionalReviewStatus": "cleared"
   },
   {
     "id": "HSP008",
@@ -1190,6 +1209,8 @@
           "04:00 PM"
         ]
       }
-    }
+    },
+    "assignedManagerId": "M001",
+    "regionalReviewStatus": "cleared"
   }
 ]

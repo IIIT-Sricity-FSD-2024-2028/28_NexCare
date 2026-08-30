@@ -281,6 +281,9 @@ export class AppointmentsService {
         patientName,
         department: appointmentData.department,
         doctor: appointmentData.doctor || 'TBD',
+        doctorId: appointmentData.doctorId || this.resolveDoctorId(appointmentData.doctor),
+        hospitalId: appointmentData.hospitalId,
+        hospitalName: appointmentData.hospitalName,
         dateLabel: appointmentData.dateLabel,
         timeLabel: appointmentData.timeLabel,
         token,
@@ -712,6 +715,102 @@ export class AppointmentsService {
       return match?.hospitalId;
     } catch {
       return undefined;
+    }
+  }
+
+  // ── Doctor views ──────────────────────────────────────────────────────────
+
+  /**
+   * Every appointment belonging to one doctor.
+   *
+   * Matches on `doctorId` where the booking carried one and falls back to the
+   * consultant's name for rows created before the doctor portal existed — the
+   * seed data is all name-only, so without the fallback a doctor's first login
+   * would show an empty schedule.
+   */
+  async findByDoctor(doctorId: string, status?: AppointmentStatus, date?: string) {
+    try {
+      const doctor = this.loadUsers().find(
+        (u: any) => u.id === doctorId && u.role === UserRole.DOCTOR,
+      );
+      if (!doctor) return ResponseUtil.notFound('Doctor', doctorId);
+
+      const wanted = this.normaliseDoctorName(doctor.name);
+      let mine = this.loadAppointments().filter((apt: any) =>
+        apt.doctorId
+          ? apt.doctorId === doctorId
+          : this.normaliseDoctorName(apt.doctor) === wanted,
+      );
+
+      if (status) mine = mine.filter(apt => apt.status === status);
+      if (date) mine = mine.filter(apt => apt.dateLabel === date);
+
+      mine.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+      return ResponseUtil.success('Doctor appointments retrieved successfully', mine);
+    } catch (error) {
+      console.error('Doctor appointments error:', error);
+      return ResponseUtil.serverError('Failed to retrieve appointments for this doctor');
+    }
+  }
+
+  /** Headline numbers for the doctor dashboard. */
+  async getDoctorStats(doctorId: string) {
+    try {
+      const res: any = await this.findByDoctor(doctorId);
+      if (!res.success) return res;
+      const mine: any[] = res.data || [];
+
+      const is = (apt: any, status: AppointmentStatus) => apt.status === status;
+      const today = new Date().toLocaleDateString('en-US', {
+        month: 'long', day: '2-digit', year: 'numeric',
+      });
+
+      return ResponseUtil.success('Doctor appointment statistics retrieved successfully', {
+        total: mine.length,
+        pending: mine.filter(a => is(a, AppointmentStatus.PENDING)).length,
+        confirmed: mine.filter(a => is(a, AppointmentStatus.CONFIRMED)).length,
+        completed: mine.filter(a => is(a, AppointmentStatus.COMPLETED)).length,
+        cancelled: mine.filter(a => is(a, AppointmentStatus.CANCELLED)).length,
+        today: mine.filter(a => a.dateLabel === today).length,
+        uniquePatients: new Set(mine.map(a => a.patientId)).size,
+      });
+    } catch {
+      return ResponseUtil.serverError('Failed to compute doctor appointment statistics');
+    }
+  }
+
+  /** True when the appointment is this doctor's to act on. */
+  async isDoctorsOwn(doctorId: string, appointmentId: string): Promise<boolean> {
+    const res: any = await this.findByDoctor(doctorId);
+    return !!res.success && (res.data || []).some((a: any) => a.id === appointmentId);
+  }
+
+  /** Look up a doctor's user id from the display name the booking captured. */
+  private resolveDoctorId(doctorName?: string): string | undefined {
+    if (!doctorName || doctorName === 'TBD') return undefined;
+    const wanted = this.normaliseDoctorName(doctorName);
+    const match = this.loadUsers().find(
+      (u: any) => u.role === UserRole.DOCTOR && this.normaliseDoctorName(u.name) === wanted,
+    );
+    return match ? match.id : undefined;
+  }
+
+  /** "Dr. Sarah Smith", "dr sarah smith" and "Sarah Smith" are one person. */
+  private normaliseDoctorName(name: any): string {
+    return String(name || '')
+      .toLowerCase()
+      .replace(/^dr\.?\s+/, '')
+      .replace(/[^a-z0-9]/g, '');
+  }
+
+  /** Read-only view of the user directory, for doctor lookups. */
+  private loadUsers(): any[] {
+    try {
+      return JSON.parse(
+        fs.readFileSync(path.join(process.cwd(), 'data', 'users.json'), 'utf-8'),
+      );
+    } catch {
+      return [];
     }
   }
 }
