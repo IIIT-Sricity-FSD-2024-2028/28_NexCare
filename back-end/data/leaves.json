@@ -40,6 +40,7 @@
     "approvedAt": "2026-08-30T10:33:36.705Z"
   },
   {
+
     "id": "L003",
     "doctorId": "U006",
     "doctorName": "Dr. Vikram Patel",
@@ -52,11 +53,15 @@
     "daysCount": 3,
     "reason": "Recovery from dental surgery procedure",
     "requestedAt": "2026-08-29",
-    "status": "pending",
+    "status": "approved",
     "createdAt": "2026-08-29T14:20:00.000Z",
-    "updatedAt": "2026-08-29T14:20:00.000Z"
+    "updatedAt": "2026-08-30T16:49:16.557Z",
+    "approvedBy": "HM001",
+    "approvedByName": "Srinivas Rao",
+    "approvedAt": "2026-08-30T16:49:16.557Z"
   },
   {
+
     "id": "L004",
     "doctorId": "U010",
     "doctorName": "Dr. Priya Nair",

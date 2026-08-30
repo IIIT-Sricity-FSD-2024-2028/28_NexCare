@@ -78,6 +78,227 @@
         .modal-content {
             background-color: white; padding: 24px; border-radius: 8px; width: 450px; max-width: 90%;
         }
+
+        /* --- WEEKLY SCHEDULE STYLES --- */
+        .week-selector-bar {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 4px 8px;
+            border-radius: 10px;
+        }
+        .btn-week-nav {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-week-nav:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+        .week-label-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            padding: 0 10px;
+        }
+
+        /* Department Accordion Cards */
+        .department-schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .dept-accordion-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .dept-accordion-card:hover {
+            border-color: #cbd5e1;
+        }
+        .dept-accordion-card.expanded {
+            border-color: #93c5fd;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.08);
+        }
+        .dept-accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            background: #f8fafc;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s ease;
+        }
+        .dept-accordion-card.expanded .dept-accordion-header {
+            background: #eff6ff;
+            border-bottom: 1px solid #dbeafe;
+        }
+        .dept-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .dept-icon {
+            font-size: 18px;
+        }
+        .dept-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .dept-count-badge {
+            font-size: 12px;
+            font-weight: 600;
+            background: #e2e8f0;
+            color: #475569;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+        .dept-accordion-card.expanded .dept-count-badge {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        .dept-expand-indicator {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+        }
+        .dept-accordion-body {
+            padding: 16px 20px;
+            background: #ffffff;
+        }
+
+        /* Doctor Schedule Week Table */
+        .schedule-week-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin: 0;
+        }
+        .schedule-week-table th {
+            background: #f8fafc;
+            color: #475569;
+            padding: 10px 10px;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 12px;
+        }
+        .schedule-week-table th .col-date {
+            display: block;
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: normal;
+            margin-top: 2px;
+        }
+        .schedule-week-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        .schedule-week-table tr:hover td {
+            background: #fafafa;
+        }
+        .doctor-meta-cell {
+            text-align: left !important;
+        }
+        .doc-name {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 14px;
+        }
+        .doc-spec {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        /* Timing & Status Badges */
+        .timing-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .leave-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .off-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #f1f5f9;
+            color: #94a3b8;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .btn-delete-schedule {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #dc2626;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-delete-schedule:hover {
+            background: #fee2e2;
+            border-color: #f87171;
+        }
+        .dept-empty-message {
+            padding: 24px;
+            text-align: center;
+            color: #64748b;
+            font-style: italic;
+            background: #f8fafc;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .schedule-empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: #64748b;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+        }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-header h2 { font-size: 18px; margin: 0; }
         .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; }
@@ -206,20 +427,30 @@
             <button class="btn-dark" onclick="openScheduleModal()">+ Submit Schedule</button>
         </div>
 
-        <div class="card" style="margin-bottom: 20px;">
-            <h2 style="font-size:16px;margin:0 0 12px;">Published schedule</h2>
-            <p style="font-size:13px;color:#6b7280;margin:0 0 12px;">Visible after hospital manager approval. Department shifts, not individual doctors.</p>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Valid</th>
-                            <th>Departments &amp; shifts</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="publishedTableBody"></tbody>
-                </table>
+        <div class="card" style="margin-bottom: 24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #f1f5f9;">
+                <div>
+                    <h2 style="font-size:18px; font-weight:700; margin:0 0 4px; color:#0f172a;">Weekly Department Schedule</h2>
+                    <p style="font-size:13px; color:#6b7280; margin:0;">Click any department to expand available doctors and view their day-wise weekly working timings.</p>
+                </div>
+                <!-- Week Selector Controls -->
+                <div class="week-selector-bar">
+                    <button type="button" class="btn-week-nav" onclick="changeWeek(-1)" title="Previous Week">
+                        &lt; Previous Week
+                    </button>
+                    <div class="week-label-display">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <span id="currentWeekRangeDisplay">01 Sep 2026 – 07 Sep 2026</span>
+                    </div>
+                    <button type="button" class="btn-week-nav" onclick="changeWeek(1)" title="Next Week">
+                        Next Week &gt;
+                    </button>
+                </div>
+            </div>
+
+            <!-- Department Accordion Schedule List -->
+            <div id="weeklyScheduleContainer" class="department-schedule-list">
+                <div style="text-align:center; padding:30px; color:#6b7280;">Loading weekly department schedule...</div>
             </div>
         </div>
 
@@ -232,6 +463,7 @@
                             <th>Valid</th>
                             <th>Departments &amp; shifts</th>
                             <th>Status</th>
+                            <th style="text-align:right;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="pendingTableBody"></tbody>

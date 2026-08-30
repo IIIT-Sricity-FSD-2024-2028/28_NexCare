@@ -520,9 +520,9 @@
     "regionalReviewStatus": "cleared"
   },
   {
-    "id": "HSP001",
+    "id": "H005",
     "name": "Sri Venkateswara Multi Speciality Hospital",
-    "registrationNumber": "AP-MED-517501-HSP001",
+    "registrationNumber": "AP-MED-517501-H005",
     "type": "Multi Speciality",
     "ownershipType": "Private",
     "address": "Alipiri Road, Tirupati, Andhra Pradesh",
@@ -645,9 +645,9 @@
     "regionalReviewStatus": "cleared"
   },
   {
-    "id": "HSP002",
+    "id": "H006",
     "name": "Padmavathi Women and Children Hospital",
-    "registrationNumber": "AP-MED-517501-HSP002",
+    "registrationNumber": "AP-MED-517501-H006",
     "type": "Specialty Hospital",
     "ownershipType": "Private",
     "address": "MR Palli Road, Tirupati, Andhra Pradesh",
@@ -726,9 +726,9 @@
     "regionalReviewStatus": "cleared"
   },
   {
-    "id": "HSP003",
+    "id": "H007",
     "name": "Tirumala Orthopaedic and Trauma Centre",
-    "registrationNumber": "AP-MED-517502-HSP003",
+    "registrationNumber": "AP-MED-517502-H007",
     "type": "Trauma Center",
     "ownershipType": "Private",
     "address": "Renigunta Road, Tirupati, Andhra Pradesh",
@@ -809,9 +809,9 @@
     "regionalReviewStatus": "cleared"
   },
   {
-    "id": "HSP004",
+    "id": "H008",
     "name": "Rayalaseema Heart Institute",
-    "registrationNumber": "AP-MED-517501-HSP004",
+    "registrationNumber": "AP-MED-517501-H008",
     "type": "Super Speciality",
     "ownershipType": "Private",
     "address": "Air Bypass Road, Tirupati, Andhra Pradesh",
@@ -884,9 +884,9 @@
     "regionalReviewStatus": "cleared"
   },
   {
-    "id": "HSP005",
+    "id": "H009",
     "name": "Chittoor District General Hospital",
-    "registrationNumber": "AP-MED-517001-HSP005",
+    "registrationNumber": "AP-MED-517001-H009",
     "type": "General Hospital",
     "ownershipType": "Government",
     "address": "Government Hospital Road, Chittoor, Andhra Pradesh",
@@ -988,9 +988,9 @@
     "regionalReviewStatus": "cleared"
   },
   {
-    "id": "HSP006",
+    "id": "H010",
     "name": "Renigunta Community Hospital",
-    "registrationNumber": "AP-MED-517520-HSP006",
+    "registrationNumber": "AP-MED-517520-H010",
     "type": "Community Hospital",
     "ownershipType": "Trust",
     "address": "Station Road, Renigunta, Andhra Pradesh",
@@ -1070,9 +1070,9 @@
     "regionalReviewStatus": "cleared"
   },
   {
-    "id": "HSP007",
+    "id": "H011",
     "name": "Nellore Neuro Care Centre",
-    "registrationNumber": "AP-MED-524001-HSP007",
+    "registrationNumber": "AP-MED-524001-H011",
     "type": "Specialty Center",
     "ownershipType": "Private",
     "address": "Magunta Layout, Nellore, Andhra Pradesh",
@@ -1144,9 +1144,9 @@
     "regionalReviewStatus": "cleared"
   },
   {
-    "id": "HSP008",
+    "id": "H012",
     "name": "Apollo Specialty Clinic Tirupati",
-    "registrationNumber": "AP-MED-517507-HSP008",
+    "registrationNumber": "AP-MED-517507-H012",
     "type": "Specialty Clinic",
     "ownershipType": "Private",
     "address": "Mangalam Road, Tirupati, Andhra Pradesh",

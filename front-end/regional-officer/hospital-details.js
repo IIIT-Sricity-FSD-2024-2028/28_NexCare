@@ -79,18 +79,51 @@ async function loadHospitalDetails() {
         document.getElementById('overviewPhone').textContent = hospital.phone || 'N/A';
         document.getElementById('overviewEmail').textContent = hospital.email || 'N/A';
         document.getElementById('overviewAdmin').textContent = hospital.adminName || 'N/A';
-        document.getElementById('overviewBeds').textContent = hospital.totalBeds || 0;
-        document.getElementById('overviewIcu').textContent = hospital.icuBeds || 0;
         document.getElementById('overviewEmergency').textContent = hospital.emergency24x7 ? 'Yes' : 'No';
-        setIfPresent('overviewAvailableBeds', hospital.availableBeds);
         setIfPresent('overviewAccreditation', hospital.accreditation);
         setIfPresent('overviewEstablished', hospital.establishedYear);
         setIfPresent('overviewDepartments', hospital.departmentsCount);
         setIfPresent('overviewTheatres', hospital.operationTheatres);
         setIfPresent('overviewAmbulances', hospital.ambulanceCount);
 
+        // Fetch actual bed counts from database instead of using static hospital record
+        let beds = [];
+        let inventory = [];
+        
+        try {
+            const bedsRes = await window.NexCareAPI.get(`/hospitals/${encodeURIComponent(currentHospitalId)}/beds`);
+            if (bedsRes.success && bedsRes.data) {
+                beds = bedsRes.data;
+            }
+        } catch (bedErr) {
+            console.warn('Failed to load beds data:', bedErr);
+        }
+
+        try {
+            const inventoryRes = await window.NexCareAPI.get(`/hospitals/${encodeURIComponent(currentHospitalId)}/inventory`);
+            if (inventoryRes.success && inventoryRes.data) {
+                inventory = inventoryRes.data;
+            }
+        } catch (invErr) {
+            console.warn('Failed to load inventory data:', invErr);
+        }
+
+        // Calculate actual bed counts
+        const totalBeds = beds.length;
+        const availableBeds = beds.filter(b => (b.status || '').toLowerCase() === 'available').length;
+        const icuBeds = beds.filter(b => (b.ward || '').toLowerCase() === 'icu').length;
+        const occupiedBeds = beds.filter(b => (b.status || '').toLowerCase() === 'occupied').length;
+
+        // Update UI with actual data
+        document.getElementById('overviewBeds').textContent = totalBeds;
+        document.getElementById('overviewIcu').textContent = icuBeds;
+        document.getElementById('overviewAvailableBeds').textContent = availableBeds;
+        
+        const inventoryCount = inventory.length;
+        document.getElementById('overviewInventory').textContent = inventoryCount;
+
         const specs = Array.isArray(hospital.specialities) ? hospital.specialities.join(', ') : (hospital.speciality || 'N/A');
-        setStatCard('overviewStatsSummary', `${hospital.totalBeds || 0} Total Beds · ${hospital.icuBeds || 0} ICU · ${specs}`);
+        setStatCard('overviewStatsSummary', `${totalBeds} Total Beds · ${icuBeds} ICU · ${availableBeds} Available · ${inventoryCount} Inventory Items · ${specs}`);
     } catch (err) {
         console.error(err);
         document.getElementById('hospitalName').textContent = 'Failed to load hospital';
@@ -158,8 +191,14 @@ async function loadBeds() {
     const available = beds.filter(b => (b.status || '').toLowerCase() === 'available').length;
     const occupied = beds.filter(b => (b.status || '').toLowerCase() === 'occupied').length;
     const maintenance = beds.filter(b => (b.status || '').toLowerCase() === 'maintenance').length;
+    const icuBeds = beds.filter(b => (b.ward || '').toLowerCase() === 'icu').length;
 
     setStatCard('bedsStatsSummary', `${beds.length} Beds · ${available} Available · ${occupied} Occupied · ${maintenance} Maintenance`);
+
+    // Update overview counts to stay consistent
+    document.getElementById('overviewBeds').textContent = beds.length;
+    document.getElementById('overviewIcu').textContent = icuBeds;
+    document.getElementById('overviewAvailableBeds').textContent = available;
 
     if (beds.length === 0) {
         tbody.innerHTML = `<tr class="empty-state"><td colspan="3">No beds configured.</td></tr>`;
@@ -188,10 +227,13 @@ async function loadInventory() {
     const inv = (res.data || []).filter(hospitalMatches);
     const low = inv.filter(i => {
         const status = (i.status || '').toLowerCase();
-        return status.includes('low') || status.includes('out');
+        return status.includes('low') || status.includes('out') || status === 'critical';
     }).length;
 
     setStatCard('inventoryStatsSummary', `${inv.length} Items · ${low} Low / Out of Stock`);
+
+    // Update overview inventory count to stay consistent
+    document.getElementById('overviewInventory').textContent = inv.length;
 
     if (inv.length === 0) {
         tbody.innerHTML = `<tr class="empty-state"><td colspan="4">No inventory data.</td></tr>`;

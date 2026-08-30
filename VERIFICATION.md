@@ -311,7 +311,7 @@ system logs · feedback.
 2. Dashboard, hospital approvals, revenue comparison, support requests.
 3. **The scope test — this is the important one.** Log out, sign in as
    `regional2@nexcare.com` (Kavitha Menon, Chittoor + Nellore).
-   - **Expected:** she sees **only HSP005 and HSP007**. H001, H002 and the rest
+   - **Expected:** she sees **only H009 and H011**. H001, H002 and the rest
      of M001's region must be completely absent from her hierarchy, her
      dashboard and her revenue comparison.
 
@@ -400,9 +400,9 @@ hit () { printf '%-46s %s\n' "$1" \
 hit "admin: platform streams        (200)" "$SU"  /revenue/platform/streams
 hit "admin: payments ledger         (200)" "$SU"  /payments/ledger
 hit "admin: hierarchy               (200)" "$SU"  /hierarchy
-hit "M002: own hospital revenue     (200)" "$RO2" /revenue/hospital/HSP005
+hit "M002: own hospital revenue     (200)" "$RO2" /revenue/hospital/H009
 hit "M002: OTHER region's revenue   (403)" "$RO2" /revenue/hospital/H001
-hit "M001: other region's revenue   (403)" "$RO1" /revenue/hospital/HSP005
+hit "M001: other region's revenue   (403)" "$RO1" /revenue/hospital/H009
 hit "M002: platform streams         (403)" "$RO2" /revenue/platform/streams
 hit "M002: payments ledger          (403)" "$RO2" /payments/ledger
 hit "HM:   own hospital revenue     (200)" "$HM"  /revenue/hospital/H001

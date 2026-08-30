@@ -134,7 +134,7 @@ export class HospitalsService {
         registrationNumber,
         email: data.email.trim().toLowerCase(),
         adminEmail: data.adminEmail.trim().toLowerCase(),
-        id: IdGenerator.generate('H'),
+        id: IdGenerator.generateHospitalId(this.hospitals.map(h => h.id)),
         verificationStatus: VerificationStatus.PENDING_VERIFICATION,
         regionalReviewStatus: 'pending',
         createdAt: new Date().toISOString(),
