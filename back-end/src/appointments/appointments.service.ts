@@ -13,6 +13,7 @@ import { LeavesService } from '../leaves/leaves.service';
 import { UsersService } from '../users/users.service';
 import { SchedulesService } from '../schedules/schedules.service';
 import { Leave } from '../leaves/interfaces/leave.interface';
+import { BillingService } from '../billing/billing.service';
 
 /**
  * Appointments Service
@@ -28,6 +29,7 @@ export class AppointmentsService {
     private readonly leavesService: LeavesService,
     private readonly usersService: UsersService,
     private readonly schedulesService: SchedulesService,
+    private readonly billingService: BillingService,
   ) {}
 
   /** Resolve a patient's display name, falling back to a placeholder. */
@@ -329,6 +331,8 @@ export class AppointmentsService {
         return ResponseUtil.notFound('Appointment', id);
       }
 
+      const previousStatus = appointment.status;
+
       // Update appointment
       const updatedIndex = appointments.findIndex(a => a.id === id);
       appointments[updatedIndex] = {
@@ -338,6 +342,14 @@ export class AppointmentsService {
       };
       
       this.saveAppointments(appointments);
+
+      const updated = appointments[updatedIndex];
+      if (
+        previousStatus !== AppointmentStatus.COMPLETED &&
+        updated.status === AppointmentStatus.COMPLETED
+      ) {
+        await this.chargeConsultation(updated);
+      }
 
       // Log activity
       this.systemService.createActivity({
@@ -440,6 +452,14 @@ export class AppointmentsService {
         return ResponseUtil.notFound('Appointment', id);
       }
 
+      const current = appointments[appointmentIndex];
+      if (current.status === AppointmentStatus.COMPLETED) {
+        return ResponseUtil.updated('Appointment completed successfully', current);
+      }
+      if (current.status === AppointmentStatus.CANCELLED) {
+        return ResponseUtil.error('Cannot complete a cancelled appointment');
+      }
+
       // Update status to completed
       appointments[appointmentIndex].status = AppointmentStatus.COMPLETED;
       appointments[appointmentIndex].updatedAt = new Date().toISOString();
@@ -447,6 +467,8 @@ export class AppointmentsService {
       this.saveAppointments(appointments);
 
       const updatedAppointment = appointments[appointmentIndex];
+
+      await this.chargeConsultation(updatedAppointment);
 
       // Log activity
       this.systemService.createActivity({
@@ -598,6 +620,106 @@ export class AppointmentsService {
       return ResponseUtil.success('Today\'s appointments retrieved successfully', todayAppointments);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve today\'s appointments');
+    }
+  }
+
+  /**
+   * Refer the patient to another doctor. Optionally completes this consult first
+   * so both fees land on the same pending bill when each visit is completed.
+   */
+  async refer(id: string, body: {
+    doctorId: string;
+    department?: string;
+    dateLabel: string;
+    timeLabel: string;
+    fee?: number;
+    completeCurrent?: boolean;
+  }) {
+    try {
+      const sourceRes: any = await this.findById(id);
+      if (!sourceRes?.success || !sourceRes.data) return sourceRes;
+      const source: Appointment = sourceRes.data;
+
+      if (source.status === AppointmentStatus.CANCELLED) {
+        return ResponseUtil.error('Cannot refer from a cancelled appointment');
+      }
+
+      const shouldComplete = body.completeCurrent !== false
+        && source.status !== AppointmentStatus.COMPLETED;
+      if (shouldComplete) {
+        const done: any = await this.complete(id);
+        if (!done?.success) return done;
+      }
+
+      const doctorsRes: any = await this.usersService.findByRole(UserRole.DOCTOR);
+      const doctors = Array.isArray(doctorsRes?.data) ? doctorsRes.data : [];
+      const target = doctors.find((d: any) => d.id === body.doctorId);
+      if (!target) return ResponseUtil.notFound('Doctor', body.doctorId);
+      if (target.id === source.doctorId || this.sameDoctor(target.name, source.doctor)) {
+        return ResponseUtil.error('Choose a different doctor for the referral');
+      }
+
+      const fee = body.fee != null
+        ? Number(body.fee)
+        : Number(target.consultationFee) || 500;
+      const department = body.department || target.dept || source.department;
+
+      return this.create({
+        patientId: source.patientId,
+        department,
+        doctor: target.name,
+        doctorId: target.id,
+        hospitalId: source.hospitalId || target.hospitalId,
+        hospitalName: source.hospitalName || target.hospitalName,
+        dateLabel: body.dateLabel,
+        timeLabel: body.timeLabel,
+        fee,
+        reason: `Referral from ${source.doctor} (${source.department})`,
+      });
+    } catch (error) {
+      console.error('Refer appointment error:', error);
+      return ResponseUtil.serverError('Failed to create referral appointment');
+    }
+  }
+
+  /** Doctors a colleague can refer to (same hospital when known). */
+  async listReferralDoctors(excludeDoctorId?: string, hospitalId?: string, dept?: string) {
+    try {
+      const res: any = await this.usersService.findByRole(UserRole.DOCTOR);
+      if (!res?.success) return res;
+      let doctors = (res.data || []).filter((d: any) => d.status === UserStatus.ACTIVE);
+      if (excludeDoctorId) doctors = doctors.filter((d: any) => d.id !== excludeDoctorId);
+      if (hospitalId) {
+        const atHospital = doctors.filter((d: any) => !d.hospitalId || d.hospitalId === hospitalId);
+        if (atHospital.length) doctors = atHospital;
+      }
+      if (dept) doctors = doctors.filter((d: any) => !dept || d.dept === dept);
+      return ResponseUtil.success('Referral doctors retrieved successfully', doctors.map((d: any) => ({
+        id: d.id,
+        name: d.name,
+        dept: d.dept,
+        hospitalId: d.hospitalId,
+        hospitalName: d.hospitalName,
+        consultationFee: Number(d.consultationFee) || 500,
+      })));
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve referral doctors');
+    }
+  }
+
+  private async chargeConsultation(appointment: Appointment): Promise<void> {
+    try {
+      const fee = Number(appointment.fee) || 0;
+      if (fee <= 0) return;
+      await this.billingService.appendCharge(appointment.patientId, {
+        description: `Consultation — ${appointment.doctor} (${appointment.department})`,
+        department: appointment.department || 'Consultation',
+        amount: fee,
+        date: appointment.dateLabel,
+        sourceId: `consult:${appointment.id}`,
+      });
+    } catch (err) {
+      console.error('Failed to add consultation to pending bill:', err);
     }
   }
 
