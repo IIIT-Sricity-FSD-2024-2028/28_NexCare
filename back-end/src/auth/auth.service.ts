@@ -252,16 +252,17 @@ export class AuthService {
 
       // Add additional fields if they exist in the user object
       const userAny = user as any;
-      if (userAny.phone) authResponse.user.phone = userAny.phone;
-      if (userAny.employeeId) authResponse.user.employeeId = userAny.employeeId;
-      if (userAny.areas) authResponse.user.areas = userAny.areas;
-      if (userAny.area) authResponse.user.area = userAny.area;
-      if (userAny.regionName) authResponse.user.regionName = userAny.regionName;
-      if (userAny.regionId) authResponse.user.regionId = userAny.regionId;
-      if (userAny.designation) authResponse.user.designation = userAny.designation;
-      if (userAny.hospitalName) authResponse.user.hospitalName = userAny.hospitalName;
-      if (userAny.responsibilities) authResponse.user.responsibilities = userAny.responsibilities;
-      if (userAny.gender) authResponse.user.gender = userAny.gender;
+      const respUserAny = authResponse.user as any;
+      if (userAny.phone) respUserAny.phone = userAny.phone;
+      if (userAny.employeeId) respUserAny.employeeId = userAny.employeeId;
+      if (userAny.areas) respUserAny.areas = userAny.areas;
+      if (userAny.area) respUserAny.area = userAny.area;
+      if (userAny.regionName) respUserAny.regionName = userAny.regionName;
+      if (userAny.regionId) respUserAny.regionId = userAny.regionId;
+      if (userAny.designation) respUserAny.designation = userAny.designation;
+      if (userAny.hospitalName) respUserAny.hospitalName = userAny.hospitalName;
+      if (userAny.responsibilities) respUserAny.responsibilities = userAny.responsibilities;
+      if (userAny.gender) respUserAny.gender = userAny.gender;
 
       // Log activity
       this.systemService.createActivity({
