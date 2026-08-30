@@ -44,12 +44,7 @@ class NexCareAPI {
 
     async post(endpoint, data = {}) {
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, {
-                method: 'POST',
-                headers: this.getHeaders(),
-                body: JSON.stringify(data)
-            });
-            
+            const response = await this.sendWrite('POST', endpoint, data);
             return await this.handleResponse(response);
         } catch (error) {
             return this.handleError(error, 'POST', endpoint);
@@ -58,12 +53,7 @@ class NexCareAPI {
 
     async put(endpoint, data = {}) {
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, {
-                method: 'PUT',
-                headers: this.getHeaders(),
-                body: JSON.stringify(data)
-            });
-            
+            const response = await this.sendWrite('PUT', endpoint, data);
             return await this.handleResponse(response);
         } catch (error) {
             return this.handleError(error, 'PUT', endpoint);
@@ -72,12 +62,7 @@ class NexCareAPI {
 
     async patch(endpoint, data = {}) {
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, {
-                method: 'PATCH',
-                headers: this.getHeaders(),
-                body: JSON.stringify(data)
-            });
-            
+            const response = await this.sendWrite('PATCH', endpoint, data);
             return await this.handleResponse(response);
         } catch (error) {
             return this.handleError(error, 'PATCH', endpoint);
@@ -86,15 +71,42 @@ class NexCareAPI {
 
     async delete(endpoint) {
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, {
-                method: 'DELETE',
-                headers: this.getHeaders()
-            });
-            
+            const response = await this.sendWrite('DELETE', endpoint);
             return await this.handleResponse(response);
         } catch (error) {
             return this.handleError(error, 'DELETE', endpoint);
         }
+    }
+
+    /**
+     * One write, retried once if the server rejects it for a missing or stale
+     * CSRF token. The retry matters for a page whose first action is a write:
+     * nothing has issued a GET yet, so no token has been handed out.
+     */
+    async sendWrite(method, endpoint, data) {
+        const build = () => {
+            const options = { method, headers: this.getHeaders() };
+            if (data !== undefined) options.body = JSON.stringify(data);
+            return options;
+        };
+
+        let response = await fetch(`${this.baseURL}${endpoint}`, build());
+        if (response.status !== 403) return response;
+
+        // Peek without consuming the body the caller still needs.
+        const copy = response.clone();
+        let message = '';
+        try {
+            message = String((await copy.json()).message || '');
+        } catch (e) {
+            return response;
+        }
+        if (!/csrf/i.test(message)) return response;
+
+        this.captureCsrfToken(response);
+        await this.primeCsrfToken();
+        response = await fetch(`${this.baseURL}${endpoint}`, build());
+        return response;
     }
 
     // Helper Methods
@@ -106,14 +118,58 @@ class NexCareAPI {
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
-        
-        // Add CSRF token if available
-        const csrfToken = this.getCsrfToken();
-        if (csrfToken) {
-            headers['x-csrf-token'] = csrfToken;
+        // CsrfMiddleware challenges state-changing requests that carry no Bearer
+        // credential — in practice the public hospital registration. Replaying
+        // the token the server last handed us costs nothing on the requests it
+        // does not challenge, so it is sent unconditionally.
+        const csrf = this.getCsrfToken() || sessionStorage.getItem('nexcare_csrf_token') || localStorage.getItem('nexcare_csrf_token');
+        if (csrf) {
+            headers['x-csrf-token'] = csrf;
         }
-        
+
         return headers;
+    }
+
+    // ── CSRF ────────────────────────────────────────────────────────────────
+    // The backend returns a token in the `x-csrf-token` response header on every
+    // request. Cache it in sessionStorage so it survives navigation between the
+    // static pages, which each reload this script from scratch.
+
+    getCsrfToken() {
+        try {
+            return sessionStorage.getItem('nexcare_csrf_token');
+        } catch (e) {
+            return this._csrfToken || null;
+        }
+    }
+
+    captureCsrfToken(response) {
+        try {
+            const token = response.headers && response.headers.get('x-csrf-token');
+            if (!token) return;
+            this._csrfToken = token;
+            sessionStorage.setItem('nexcare_csrf_token', token);
+        } catch (e) {
+            // Private-mode storage failures must never break the request itself.
+        }
+    }
+
+    /**
+     * Fetch a CSRF token by making a safe request, for the case where the very
+     * first thing a page does is a write — the public hospital registration
+     * form submits before anything has issued a GET.
+     */
+    async primeCsrfToken() {
+        try {
+            const response = await fetch(`${this.baseURL}/hospitals`, {
+                method: 'GET',
+                headers: this.defaultHeaders,
+            });
+            this.captureCsrfToken(response);
+        } catch (e) {
+            // Offline; the caller's own error handling takes over.
+        }
+        return this.getCsrfToken();
     }
 
     getAuthToken() {
@@ -131,32 +187,16 @@ class NexCareAPI {
     clearAuthToken() {
         sessionStorage.removeItem('nexcare_auth_token');
         localStorage.removeItem('nexcare_auth_token');
-        // Also clear CSRF token on logout
-        this.clearCsrfToken();
-    }
-
-    getCsrfToken() {
-        // Get CSRF token from localStorage
-        return localStorage.getItem('nexcare_csrf_token');
-    }
-
-    setCsrfToken(token) {
-        // Store CSRF token in localStorage
-        if (token) {
-            localStorage.setItem('nexcare_csrf_token', token);
-        }
-    }
-
-    clearCsrfToken() {
-        localStorage.removeItem('nexcare_csrf_token');
     }
 
     async handleResponse(response) {
+        this.captureCsrfToken(response);
         try {
-            // Extract and store CSRF token from response headers
-            const csrfToken = response.headers.get('x-csrf-token');
-            if (csrfToken) {
-                this.setCsrfToken(csrfToken);
+            // Capture CSRF token header if sent
+            const newCsrf = response.headers?.get('x-csrf-token');
+            if (newCsrf) {
+                sessionStorage.setItem('nexcare_csrf_token', newCsrf);
+                localStorage.setItem('nexcare_csrf_token', newCsrf);
             }
 
             const data = await response.json();
@@ -237,24 +277,12 @@ const AuthAPI = {
         const response = await api.post('/auth/login', credentials);
         if (response.success && response.data?.token) {
             api.setAuthToken(response.data.token);
-            // Store CSRF token from login response if provided
-            if (response.data?.csrfToken) {
-                api.setCsrfToken(response.data.csrfToken);
-            }
         }
         return response;
     },
 
     async register(userData) {
-        const response = await api.post('/auth/register', userData);
-        if (response.success && response.data?.token) {
-            api.setAuthToken(response.data.token);
-            // Store CSRF token from registration response if provided
-            if (response.data?.csrfToken) {
-                api.setCsrfToken(response.data.csrfToken);
-            }
-        }
-        return response;
+        return await api.post('/auth/register', userData);
     },
 
     async logout(userId) {
@@ -267,13 +295,34 @@ const AuthAPI = {
 
     async getCurrentUser(userId) {
         return await api.get(`/auth/current/${userId}`);
+    },
+
+    /** The backend binds this to the authenticated user — no id is sent. */
+    async changePassword(currentPassword, newPassword) {
+        return await api.patch('/auth/change-password', { currentPassword, newPassword });
+    },
+
+    /** Self-registration for administrative staff, ambulance crew and doctors. */
+    async registerStaff(data) {
+        return await api.post('/auth/register-staff', data);
     }
 };
 
 // Users API
 const UsersAPI = {
-    async getAll() {
-        return await api.get('/users');
+    async getAll(query = {}) {
+        let qStr = '';
+        if (typeof query === 'string') {
+            qStr = query.startsWith('?') ? query : `?${query}`;
+        } else if (query && typeof query === 'object') {
+            const params = new URLSearchParams();
+            if (query.role) params.append('role', query.role);
+            if (query.status) params.append('status', query.status);
+            if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+            const s = params.toString();
+            if (s) qStr = `?${s}`;
+        }
+        return await api.get(`/users${qStr}`);
     },
 
     async getById(id) {
@@ -284,12 +333,28 @@ const UsersAPI = {
         return await api.post('/users', userData);
     },
 
+    async previewEmail(name) {
+        return await api.get(`/users/preview-email?name=${encodeURIComponent(name || '')}`);
+    },
+
+    async getDoctors(dept, hospitalId) {
+        const params = new URLSearchParams();
+        if (dept) params.append('dept', dept);
+        if (hospitalId) params.append('hospitalId', hospitalId);
+        const s = params.toString();
+        return await api.get(`/users/doctors${s ? '?' + s : ''}`);
+    },
+
     async update(id, userData) {
         return await api.put(`/users/${id}`, userData);
     },
 
     async delete(id) {
         return await api.delete(`/users/${id}`);
+    },
+
+    async updateStatus(id, status) {
+        return await api.patch(`/users/${id}/status`, { status });
     }
 };
 
@@ -339,12 +404,37 @@ const AppointmentsAPI = {
         return await api.patch(`/appointments/${id}/status`, { status });
     },
 
+    async confirm(id) {
+        return await api.patch(`/appointments/${id}/confirm`);
+    },
+
+    async complete(id) {
+        return await api.patch(`/appointments/${id}/complete`);
+    },
+
     async cancel(id) {
         return await api.patch(`/appointments/${id}/cancel`);
     },
 
     async delete(id) {
         return await api.delete(`/appointments/${id}`);
+    },
+
+    /**
+     * A doctor's own schedule. Pass 'me' as the id — the backend refuses any
+     * other id for a doctor account, so 'me' is the only form the doctor portal
+     * should ever send.
+     */
+    async getByDoctor(doctorId = 'me', query = {}) {
+        const params = new URLSearchParams();
+        if (query.status) params.append('status', query.status);
+        if (query.date) params.append('date', query.date);
+        const s = params.toString();
+        return await api.get(`/appointments/doctor/${encodeURIComponent(doctorId)}${s ? `?${s}` : ''}`);
+    },
+
+    async getDoctorStats(doctorId = 'me') {
+        return await api.get(`/appointments/doctor/${encodeURIComponent(doctorId)}/stats`);
     }
 };
 
@@ -494,6 +584,120 @@ const InventoryAPI = {
 
     async getAudit(id) {
         return await api.get(`/inventory/audit/${id}`);
+    },
+
+    // Inventory Requirement Requests (Staff -> Hospital Manager Approval)
+    async getRequirements(query = {}) {
+        let qStr = '';
+        if (typeof query === 'string') {
+            qStr = query.startsWith('?') ? query : `?${query}`;
+        } else if (query && typeof query === 'object') {
+            const params = new URLSearchParams();
+            if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+            if (query.status) params.append('status', query.status);
+            if (query.priority) params.append('priority', query.priority);
+            if (query.department) params.append('department', query.department);
+            const s = params.toString();
+            if (s) qStr = `?${s}`;
+        }
+        return await api.get(`/inventory/requirements${qStr}`);
+    },
+
+    async getRequirementById(id) {
+        return await api.get(`/inventory/requirements/${id}`);
+    },
+
+    async createRequirement(data) {
+        return await api.post('/inventory/requirements', data);
+    },
+
+    async approveRequirement(id, managerRemarks = '') {
+        return await api.patch(`/inventory/requirements/${id}/approve`, { managerRemarks });
+    },
+
+    async rejectRequirement(id, rejectionReason) {
+        return await api.patch(`/inventory/requirements/${id}/reject`, { rejectionReason });
+    },
+
+    async startPurchase(id, purchaseData = {}) {
+        return await api.patch(`/inventory/requirements/${id}/start-purchase`, purchaseData);
+    },
+
+    async markPurchased(id) {
+        return await api.patch(`/inventory/requirements/${id}/mark-purchased`, {});
+    },
+
+    async markRestocked(id) {
+        return await api.patch(`/inventory/requirements/${id}/mark-restocked`, {});
+    },
+
+    async fulfillRequirement(id) {
+        return await api.patch(`/inventory/requirements/${id}/fulfill`, {});
+    }
+};
+
+// Ambulance API
+const AmbulanceAPI = {
+    async getAll(query = {}) {
+        let qStr = '';
+        if (typeof query === 'string') {
+            qStr = query.startsWith('?') ? query : `?${query}`;
+        } else if (query && typeof query === 'object') {
+            const params = new URLSearchParams();
+            if (query.status) params.append('status', query.status);
+            if (query.patientId) params.append('patientId', query.patientId);
+            const s = params.toString();
+            if (s) qStr = `?${s}`;
+        }
+        return await api.get(`/ambulance${qStr}`);
+    },
+
+    async getAllRequests(patientId = null) {
+        return await api.get(`/ambulance`, patientId ? { patientId } : {});
+    },
+
+    async getById(id) {
+        return await api.get(`/ambulance/${id}`);
+    },
+
+    async create(requestData) {
+        return await api.post('/ambulance', requestData);
+    },
+
+    async createRequest(requestData) {
+        return await api.post('/ambulance', requestData);
+    },
+
+    async update(id, updateData) {
+        return await api.put(`/ambulance/${id}`, updateData);
+    },
+
+    async updateRequest(id, updateData) {
+        return await api.put(`/ambulance/${id}`, updateData);
+    },
+
+    async updateStatus(id, status) {
+        return await api.patch(`/ambulance/${id}/status`, { status });
+    },
+
+    async dispatch(id, assignedTo, vehicleNumber) {
+        return await api.patch(`/ambulance/${id}/dispatch`, { assignedTo, vehicleNumber });
+    },
+
+    async complete(id) {
+        return await api.patch(`/ambulance/${id}/complete`, {});
+    },
+
+    async delete(id) {
+        return await api.delete(`/ambulance/${id}`);
+    },
+
+    async getStats() {
+        return await api.get('/ambulance/stats/overview');
+    },
+
+    async getActive() {
+        return await api.get('/ambulance/active');
     }
 };
 
@@ -534,6 +738,19 @@ const HospitalsAPI = {
 
     async update(id, data) {
         return await api.put(`/hospitals/${id}`, data);
+    },
+
+    // Subscription & Renewal
+    async getSubscription(id) {
+        return await api.get(`/hospitals/${id}/subscription`);
+    },
+
+    async renewSubscription(id, paymentData = {}) {
+        return await api.post(`/hospitals/${id}/renew-subscription`, paymentData);
+    },
+
+    async getPaymentHistory(id) {
+        return await api.get(`/hospitals/${id}/payment-history`);
     },
 
     // Public registration. Validation and duplicate checks are enforced server-side.
@@ -628,6 +845,14 @@ const LeavesAPI = {
         return await api.patch(`/leaves/${id}`, updateData);
     },
 
+    async approve(id) {
+        return await api.patch(`/leaves/${id}`, { status: 'approved' });
+    },
+
+    async reject(id, rejectionReason) {
+        return await api.patch(`/leaves/${id}`, { status: 'rejected', rejectionReason });
+    },
+
     async delete(id) {
         return await api.delete(`/leaves/${id}`);
     },
@@ -639,6 +864,175 @@ const LeavesAPI = {
         if (query.endDate) params.append('endDate', query.endDate);
         const s = params.toString();
         return await api.get(`/leaves/calendar${s ? `?${s}` : ''}`);
+    }
+};
+
+const SchedulesAPI = {
+    async getAll(query = {}) {
+        const params = new URLSearchParams();
+        if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+        if (query.status) params.append('status', query.status);
+        const s = params.toString();
+        return await api.get(`/schedules${s ? `?${s}` : ''}`);
+    },
+    async create(data) {
+        return await api.post('/schedules', data);
+    },
+    async update(id, data) {
+        return await api.patch(`/schedules/${id}`, data);
+    }
+};
+
+// Revenue API
+// Four audiences, deliberately separate:
+//   /platform/*                NexCare's own commercials — superuser only
+//   /hospital/:id              a hospital's own collections
+//   /doctor/me, /doctor/:id    a practitioner's earnings and platform charges
+//   /patient/me/membership     a patient's Care+ plan and what it saved them
+const RevenueAPI = {
+    async getPlans() {
+        return await api.get('/revenue/plans');
+    },
+
+    async updatePlan(planId, changes) {
+        return await api.patch(`/revenue/plans/${encodeURIComponent(planId)}`, changes);
+    },
+
+    async getSubscriptions() {
+        return await api.get('/revenue/subscriptions');
+    },
+
+    async updateSubscription(hospitalId, changes) {
+        return await api.patch(`/revenue/subscriptions/${encodeURIComponent(hospitalId)}`, changes);
+    },
+
+    async getPlatformOverview(query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/platform/overview${s ? `?${s}` : ''}`);
+    },
+
+    async getPlatformTrend(months) {
+        return await api.get(`/revenue/platform/trend${months ? `?months=${months}` : ''}`);
+    },
+
+    async getHospitalRevenue(hospitalId, query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/hospital/${encodeURIComponent(hospitalId)}${s ? `?${s}` : ''}`);
+    },
+
+    async compareMyHospitals(query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/my-hospitals/compare${s ? `?${s}` : ''}`);
+    },
+
+    // ── Multi-stream roll-up (superuser) ────────────────────────────────────
+
+    async getPlatformStreams(query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/platform/streams${s ? `?${s}` : ''}`);
+    },
+
+    async getFees() {
+        return await api.get('/revenue/fees');
+    },
+
+    async updateFees(changes) {
+        return await api.patch('/revenue/fees', changes);
+    },
+
+    // ── Doctor listing tiers ────────────────────────────────────────────────
+
+    async getDoctorPlans() {
+        return await api.get('/revenue/doctor-plans');
+    },
+
+    async updateDoctorPlan(planId, changes) {
+        return await api.patch(`/revenue/doctor-plans/${encodeURIComponent(planId)}`, changes);
+    },
+
+    async getDoctorSubscriptions(doctorId) {
+        const s = doctorId ? `?doctorId=${encodeURIComponent(doctorId)}` : '';
+        return await api.get(`/revenue/doctor-subscriptions${s}`);
+    },
+
+    async updateDoctorSubscription(doctorId, changes) {
+        return await api.patch(`/revenue/doctor-subscriptions/${encodeURIComponent(doctorId)}`, changes);
+    },
+
+    /** The signed-in doctor's own statement. */
+    async getMyDoctorEarnings(query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/doctor/me${s ? `?${s}` : ''}`);
+    },
+
+    async getMyDoctorSubscription() {
+        return await api.get('/revenue/doctor/me/subscription');
+    },
+
+    /** A doctor changing their own tier or consultation fee. */
+    async updateMyDoctorSubscription(changes) {
+        return await api.patch('/revenue/doctor/me/subscription', changes);
+    },
+
+    async getDoctorEarnings(doctorId, query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/doctor/${encodeURIComponent(doctorId)}${s ? `?${s}` : ''}`);
+    },
+
+    // ── Patient memberships ─────────────────────────────────────────────────
+
+    async getPatientPlans() {
+        return await api.get('/revenue/patient-plans');
+    },
+
+    async updatePatientPlan(planId, changes) {
+        return await api.patch(`/revenue/patient-plans/${encodeURIComponent(planId)}`, changes);
+    },
+
+    async getPatientSubscriptions() {
+        return await api.get('/revenue/patient-subscriptions');
+    },
+
+    async getMyMembership() {
+        return await api.get('/revenue/patient/me/membership');
+    },
+
+    /** Join, switch or cancel — CARE-PAYG is how a patient cancels. */
+    async setMyMembership(planId) {
+        return await api.patch('/revenue/patient/me/membership', { planId });
+    }
+};
+
+// Hierarchy API
+// There is no way to ask for someone else's subtree — you get yours, derived
+// from the token. `getScope()` answers "what may I see", `getTree()` answers
+// "show it to me".
+const HierarchyAPI = {
+    async getTree() {
+        return await api.get('/hierarchy');
+    },
+
+    async getScope() {
+        return await api.get('/hierarchy/scope');
+>>>>>>> origin/main
     }
 };
 
@@ -694,7 +1088,10 @@ window.NexCareAPI = {
     Inventory: InventoryAPI,
     Hospitals: HospitalsAPI,
     Leaves: LeavesAPI,
+    Schedules: SchedulesAPI,
     SupportRequests: SupportRequestsAPI,
+    Revenue: RevenueAPI,
+    Hierarchy: HierarchyAPI,
     System: SystemAPI
 };
 

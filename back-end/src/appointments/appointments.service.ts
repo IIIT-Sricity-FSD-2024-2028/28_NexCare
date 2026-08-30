@@ -1,15 +1,18 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { ArrayUtil } from '../common/utils/array.util';
 import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest, AppointmentStats } from './interfaces/appointment.interface';
-import { AppointmentStatus, LeaveStatus } from '../common/interfaces/api-response.interface';
+import { AppointmentStatus, LeaveStatus, UserRole, UserStatus } from '../common/interfaces/api-response.interface';
 
 import { SystemService } from '../system/system.service';
 import { PatientsService } from '../patients/patients.service';
 import { LeavesService } from '../leaves/leaves.service';
+import { UsersService } from '../users/users.service';
+import { SchedulesService } from '../schedules/schedules.service';
+import { Leave } from '../leaves/interfaces/leave.interface';
 
 /**
  * Appointments Service
@@ -21,7 +24,10 @@ export class AppointmentsService {
   constructor(
     private readonly systemService: SystemService,
     private readonly patientsService: PatientsService,
+    @Inject(forwardRef(() => LeavesService))
     private readonly leavesService: LeavesService,
+    private readonly usersService: UsersService,
+    private readonly schedulesService: SchedulesService,
   ) {}
 
   /** Resolve a patient's display name, falling back to a placeholder. */
@@ -215,6 +221,23 @@ export class AppointmentsService {
         return ResponseUtil.error('Time slot already booked for this doctor');
       }
 
+      const hospitalId = (appointmentData as any).hospitalId || await this.resolveDoctorHospital(appointmentData.doctor);
+
+      if (hospitalId && !this.schedulesService.hasPublishedSchedule(hospitalId)) {
+        return ResponseUtil.error('No hospital schedule has been published yet. Wait for the hospital manager to approve the roster.');
+      }
+      if (
+        hospitalId &&
+        !this.schedulesService.isPublishedCoverage(
+          hospitalId,
+          appointmentData.department,
+          appointmentData.dateLabel,
+          appointmentData.timeLabel,
+        )
+      ) {
+        return ResponseUtil.error('That slot is outside the published hospital schedule.');
+      }
+
       // Check doctor availability (not on leave)
       if (appointmentData.doctor && appointmentData.doctor !== 'TBD') {
         try {
@@ -258,6 +281,9 @@ export class AppointmentsService {
         patientName,
         department: appointmentData.department,
         doctor: appointmentData.doctor || 'TBD',
+        doctorId: appointmentData.doctorId || this.resolveDoctorId(appointmentData.doctor),
+        hospitalId: appointmentData.hospitalId,
+        hospitalName: appointmentData.hospitalName,
         dateLabel: appointmentData.dateLabel,
         timeLabel: appointmentData.timeLabel,
         token,
@@ -572,6 +598,219 @@ export class AppointmentsService {
       return ResponseUtil.success('Today\'s appointments retrieved successfully', todayAppointments);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve today\'s appointments');
+    }
+  }
+
+  /**
+   * After a hospital manager approves leave: mark the doctor on leave,
+   * then reassign open appointments in that window to another doctor in
+   * the same department, or cancel if nobody is available.
+   */
+  async handleDoctorLeaveApproved(leave: Leave): Promise<void> {
+    try {
+      if (leave.doctorId) {
+        await this.usersService.updateStatus(leave.doctorId, UserStatus.ON_LEAVE);
+      }
+
+      const leaveStart = this.startOfDay(new Date(leave.startDate));
+      const leaveEnd = this.startOfDay(new Date(leave.endDate));
+      if (isNaN(leaveStart.getTime()) || isNaN(leaveEnd.getTime())) return;
+
+      const doctorsRes: any = await this.usersService.findByRole(UserRole.DOCTOR);
+      const doctors = Array.isArray(doctorsRes?.data) ? doctorsRes.data : [];
+      const leavesRes: any = await this.leavesService.findAll(undefined, leave.hospitalId, LeaveStatus.APPROVED);
+      const approvedLeaves = Array.isArray(leavesRes?.data) ? leavesRes.data : [];
+
+      const appointments = this.loadAppointments();
+      let changed = false;
+
+      for (const apt of appointments) {
+        if (apt.status === AppointmentStatus.CANCELLED || apt.status === AppointmentStatus.COMPLETED) {
+          continue;
+        }
+        if (!this.sameDoctor(apt.doctor, leave.doctorName)) continue;
+
+        const aptDate = this.startOfDay(new Date(apt.dateLabel));
+        if (isNaN(aptDate.getTime()) || aptDate < leaveStart || aptDate > leaveEnd) continue;
+
+        const replacement = doctors.find((doc: any) => {
+          if (doc.id === leave.doctorId) return false;
+          if (this.sameDoctor(doc.name, leave.doctorName)) return false;
+          if (leave.hospitalId && doc.hospitalId && doc.hospitalId !== leave.hospitalId) return false;
+          if (apt.department && doc.dept && doc.dept !== apt.department) return false;
+          if (doc.status === UserStatus.ON_LEAVE) return false;
+          const onLeave = approvedLeaves.some((l: any) => {
+            if (l.doctorId !== doc.id && !this.sameDoctor(l.doctorName, doc.name)) return false;
+            const s = this.startOfDay(new Date(l.startDate));
+            const e = this.startOfDay(new Date(l.endDate));
+            return aptDate >= s && aptDate <= e;
+          });
+          if (onLeave) return false;
+          const slotTaken = appointments.some(
+            other =>
+              other.id !== apt.id &&
+              other.status !== AppointmentStatus.CANCELLED &&
+              other.status !== AppointmentStatus.COMPLETED &&
+              this.sameDoctor(other.doctor, doc.name) &&
+              other.dateLabel === apt.dateLabel &&
+              other.timeLabel === apt.timeLabel,
+          );
+          return !slotTaken;
+        });
+
+        if (replacement) {
+          apt.doctor = replacement.name;
+          apt.reason = [apt.reason, `Reassigned from ${leave.doctorName} (on leave)`]
+            .filter(Boolean)
+            .join(' — ');
+          apt.updatedAt = new Date().toISOString();
+          apt.status = AppointmentStatus.PENDING;
+          changed = true;
+        } else {
+          apt.status = AppointmentStatus.CANCELLED;
+          apt.reason = [apt.reason, `Cancelled — ${leave.doctorName} on approved leave`]
+            .filter(Boolean)
+            .join(' — ');
+          apt.updatedAt = new Date().toISOString();
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        this.saveAppointments(appointments);
+        this.systemService.createActivity({
+          userId: leave.approvedBy || 'hospital_manager',
+          action: 'Update',
+          details: `Appointments adjusted for approved leave of ${leave.doctorName} (${leave.startDate} to ${leave.endDate})`,
+          module: 'Appointments',
+          severity: 'INFO',
+        });
+      }
+    } catch (err) {
+      console.error('Dynamic appointment handling after leave approval failed:', err);
+    }
+  }
+
+  private sameDoctor(a?: string, b?: string): boolean {
+    const norm = (v?: string) =>
+      String(v || '')
+        .toLowerCase()
+        .replace(/^dr\.?\s*/i, '')
+        .trim();
+    return !!norm(a) && norm(a) === norm(b);
+  }
+
+  private startOfDay(d: Date): Date {
+    const copy = new Date(d);
+    copy.setHours(0, 0, 0, 0);
+    return copy;
+  }
+
+  private async resolveDoctorHospital(doctorName?: string): Promise<string | undefined> {
+    if (!doctorName) return undefined;
+    try {
+      const res: any = await this.usersService.findByRole(UserRole.DOCTOR);
+      const doctors = Array.isArray(res?.data) ? res.data : [];
+      const match = doctors.find((d: any) => this.sameDoctor(d.name, doctorName));
+      return match?.hospitalId;
+    } catch {
+      return undefined;
+    }
+  }
+
+  // ── Doctor views ──────────────────────────────────────────────────────────
+
+  /**
+   * Every appointment belonging to one doctor.
+   *
+   * Matches on `doctorId` where the booking carried one and falls back to the
+   * consultant's name for rows created before the doctor portal existed — the
+   * seed data is all name-only, so without the fallback a doctor's first login
+   * would show an empty schedule.
+   */
+  async findByDoctor(doctorId: string, status?: AppointmentStatus, date?: string) {
+    try {
+      const doctor = this.loadUsers().find(
+        (u: any) => u.id === doctorId && u.role === UserRole.DOCTOR,
+      );
+      if (!doctor) return ResponseUtil.notFound('Doctor', doctorId);
+
+      const wanted = this.normaliseDoctorName(doctor.name);
+      let mine = this.loadAppointments().filter((apt: any) =>
+        apt.doctorId
+          ? apt.doctorId === doctorId
+          : this.normaliseDoctorName(apt.doctor) === wanted,
+      );
+
+      if (status) mine = mine.filter(apt => apt.status === status);
+      if (date) mine = mine.filter(apt => apt.dateLabel === date);
+
+      mine.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+      return ResponseUtil.success('Doctor appointments retrieved successfully', mine);
+    } catch (error) {
+      console.error('Doctor appointments error:', error);
+      return ResponseUtil.serverError('Failed to retrieve appointments for this doctor');
+    }
+  }
+
+  /** Headline numbers for the doctor dashboard. */
+  async getDoctorStats(doctorId: string) {
+    try {
+      const res: any = await this.findByDoctor(doctorId);
+      if (!res.success) return res;
+      const mine: any[] = res.data || [];
+
+      const is = (apt: any, status: AppointmentStatus) => apt.status === status;
+      const today = new Date().toLocaleDateString('en-US', {
+        month: 'long', day: '2-digit', year: 'numeric',
+      });
+
+      return ResponseUtil.success('Doctor appointment statistics retrieved successfully', {
+        total: mine.length,
+        pending: mine.filter(a => is(a, AppointmentStatus.PENDING)).length,
+        confirmed: mine.filter(a => is(a, AppointmentStatus.CONFIRMED)).length,
+        completed: mine.filter(a => is(a, AppointmentStatus.COMPLETED)).length,
+        cancelled: mine.filter(a => is(a, AppointmentStatus.CANCELLED)).length,
+        today: mine.filter(a => a.dateLabel === today).length,
+        uniquePatients: new Set(mine.map(a => a.patientId)).size,
+      });
+    } catch {
+      return ResponseUtil.serverError('Failed to compute doctor appointment statistics');
+    }
+  }
+
+  /** True when the appointment is this doctor's to act on. */
+  async isDoctorsOwn(doctorId: string, appointmentId: string): Promise<boolean> {
+    const res: any = await this.findByDoctor(doctorId);
+    return !!res.success && (res.data || []).some((a: any) => a.id === appointmentId);
+  }
+
+  /** Look up a doctor's user id from the display name the booking captured. */
+  private resolveDoctorId(doctorName?: string): string | undefined {
+    if (!doctorName || doctorName === 'TBD') return undefined;
+    const wanted = this.normaliseDoctorName(doctorName);
+    const match = this.loadUsers().find(
+      (u: any) => u.role === UserRole.DOCTOR && this.normaliseDoctorName(u.name) === wanted,
+    );
+    return match ? match.id : undefined;
+  }
+
+  /** "Dr. Sarah Smith", "dr sarah smith" and "Sarah Smith" are one person. */
+  private normaliseDoctorName(name: any): string {
+    return String(name || '')
+      .toLowerCase()
+      .replace(/^dr\.?\s+/, '')
+      .replace(/[^a-z0-9]/g, '');
+  }
+
+  /** Read-only view of the user directory, for doctor lookups. */
+  private loadUsers(): any[] {
+    try {
+      return JSON.parse(
+        fs.readFileSync(path.join(process.cwd(), 'data', 'users.json'), 'utf-8'),
+      );
+    } catch {
+      return [];
     }
   }
 }

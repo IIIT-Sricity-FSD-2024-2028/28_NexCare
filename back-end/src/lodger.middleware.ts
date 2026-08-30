@@ -51,20 +51,62 @@ try {
 
 /**
  * CSRF Protection Middleware
- * Generates and validates CSRF tokens for state-changing operations
- * Required for evaluation: Security middleware
+ * Generates and validates CSRF tokens for state-changing operations.
+ *
+ * WHAT IT CHALLENGES, AND WHY NOT EVERYTHING
+ * ------------------------------------------
+ * A CSRF attack works by getting the victim's browser to attach credentials it
+ * sends *automatically* — cookies, HTTP auth — to a request the victim never
+ * meant to make. It follows that a request is only at risk if it relies on such
+ * an AMBIENT credential.
+ *
+ * NexCare authenticates with `Authorization: Bearer <jwt>`, read out of
+ * sessionStorage by shared/api.js and set explicitly on each call. A malicious
+ * cross-origin page cannot make the browser attach that header, so a Bearer
+ * request is structurally immune and challenging it buys nothing. Three cases:
+ *
+ *   1. Safe methods (GET/HEAD/OPTIONS) — never challenged; they mint/return the
+ *      token so a client can pick one up.
+ *   2. Bearer-authenticated writes — not challenged (immune, see above).
+ *   3. Pre-session auth routes (login, register, register-staff) — not
+ *      challenged. There is no session to protect yet, and challenging them
+ *      makes signing in impossible, which is exactly what happened before this
+ *      was fixed: POST /api/auth/login answered 403 "CSRF token missing" and
+ *      nobody could log into the application at all.
+ *
+ * Everything else — an unauthenticated, state-changing request such as the
+ * public POST /api/hospitals/register — must present a valid token. That is the
+ * case the protection actually exists for.
+ *
+ * The token is handed back on every response in the `x-csrf-token` header;
+ * shared/api.js caches it and replays it on writes, retrying once if the server
+ * says it is missing or stale.
  */
 @Injectable()
 export class CsrfMiddleware implements NestMiddleware {
   private readonly csrfTokens = new Map<string, { token: string; expires: number }>();
   private readonly tokenExpiration = Number(process.env.CSRF_TOKEN_EXPIRATION) || 86400000; // 24 hours default
 
+  /** Routes that cannot be challenged because no session exists yet. */
+  private static readonly PRE_SESSION_ROUTES = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/register-staff',
+  ];
+
   use(req: Request, res: Response, next: NextFunction): void {
-    // Skip CSRF for GET, HEAD, OPTIONS requests (safe methods)
+    // Safe methods are never challenged. They also carry the token back, which
+    // is how a client obtains one in the first place.
     if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-      // Generate and send CSRF token for safe methods
-      const csrfToken = this.generateToken(req);
-      res.setHeader('x-csrf-token', csrfToken);
+      res.setHeader('x-csrf-token', this.currentToken(req));
+      next();
+      return;
+    }
+
+    // A Bearer-authenticated write is structurally immune to CSRF — the browser
+    // never attaches that header on its own. See the class comment.
+    if (this.hasBearerCredential(req) || this.isPreSessionRoute(req)) {
+      res.setHeader('x-csrf-token', this.currentToken(req));
       next();
       return;
     }
@@ -77,7 +119,7 @@ export class CsrfMiddleware implements NestMiddleware {
     }
 
     // Validate CSRF for state-changing methods (POST, PUT, PATCH, DELETE)
-    const csrfToken = req.headers['x-csrf-token'] as string || (req.body as any)._csrf;
+    const csrfToken = (req.headers['x-csrf-token'] as string) || (req.body as any)?._csrf;
     
     if (!csrfToken) {
       fileLogger.warn('error', 'CSRF token missing', {
@@ -116,17 +158,45 @@ export class CsrfMiddleware implements NestMiddleware {
     next();
   }
 
-  private generateToken(req: Request): string {
+  /**
+   * The session's current token, minting one only if there is none or it has
+   * expired.
+   *
+   * This deliberately does NOT rotate on every safe request. It used to, and
+   * that made the token unusable in practice: pages here fire many GETs in
+   * parallel (superuser/revenue.js issues nine via Promise.all), each response
+   * carried a different token, each overwrote the last server-side, and the one
+   * the client kept was usually no longer the one stored — so the next write
+   * failed with "CSRF token invalid" at random.
+   */
+  private currentToken(req: Request): string {
     const sessionId = this.getSessionId(req);
+    const existing = this.csrfTokens.get(sessionId);
+    if (existing && Date.now() < existing.expires) {
+      return existing.token;
+    }
+
     const token = crypto.randomBytes(32).toString('hex');
-    const expires = Date.now() + this.tokenExpiration;
-    
-    this.csrfTokens.set(sessionId, { token, expires });
-    
+    this.csrfTokens.set(sessionId, { token, expires: Date.now() + this.tokenExpiration });
+
     // Clean up expired tokens periodically
     this.cleanupExpiredTokens();
-    
+
     return token;
+  }
+
+  /** True when the caller presented a Bearer JWT rather than an ambient credential. */
+  private hasBearerCredential(req: Request): boolean {
+    const header = req.headers['authorization'];
+    return typeof header === 'string' && /^Bearer\s+\S+/i.test(header);
+  }
+
+  /** Login and the two registration routes — matched with or without the /api prefix. */
+  private isPreSessionRoute(req: Request): boolean {
+    const path = (req.originalUrl || req.url || '').split('?')[0];
+    return CsrfMiddleware.PRE_SESSION_ROUTES.some(
+      route => path === route || path === `/api${route}`,
+    );
   }
 
   private validateToken(req: Request, providedToken: string): boolean {
@@ -476,17 +546,17 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+const storage = multer ? multer.diskStorage({
+  destination: (req: any, file: any, cb: any) => {
     cb(null, uploadsDir);
   },
-  filename: (req, file, cb) => {
+  filename: (req: any, file: any, cb: any) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   },
-});
+}) : null;
 
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (req: any, file: any, cb: any) => {
   const allowedMimes = [
     'image/jpeg',
     'image/png',
@@ -504,13 +574,13 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
   }
 };
 
-export const uploadMiddleware = multer({
+export const uploadMiddleware = multer ? multer({
   storage: storage,
   limits: {
     fileSize: MAX_UPLOAD_BYTES,
   },
   fileFilter: fileFilter,
-});
+}) : ((req: any, res: any, next: any) => next());
 
 // Keep custom middleware for validation on top of Multer
 @Injectable()

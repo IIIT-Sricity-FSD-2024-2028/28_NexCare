@@ -1,0 +1,12 @@
+[
+  {
+    "id": "FEE-CONFIG",
+    "currency": "₹",
+    "patientBookingFee": 39,
+    "ambulanceDispatchFee": 149,
+    "paymentGatewayRate": 0.019,
+    "extraStaffSeatFee": 250,
+    "notificationCreditFee": 0.35,
+    "updatedAt": "2026-08-30T10:16:47.346Z"
+  }
+]

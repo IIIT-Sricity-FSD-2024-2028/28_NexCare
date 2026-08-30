@@ -31,8 +31,38 @@ export class CreateAmbulanceRequestDto {
   @IsString()
   notes?: string;
 
-  @ApiProperty({ example: 'H001', description: 'Hospital ID for the ambulance request' })
+  @ApiPropertyOptional({ example: 'Available', description: 'Request status' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'Hospital ID is required' })
-  hospitalId: string;
+  status?: string;
+
+  @ApiPropertyOptional({ example: 'AP-03-AX-1001', description: 'Vehicle Number' })
+  @IsOptional()
+  @IsString()
+  vehicleNumber?: string;
+
+  @ApiPropertyOptional({ example: 'Advanced Life Support (ALS)', description: 'Ambulance Type' })
+  @IsOptional()
+  @IsString()
+  type?: string;
+
+  @ApiPropertyOptional({ example: 'Ravi Teja', description: 'Driver Name' })
+  @IsOptional()
+  @IsString()
+  driverName?: string;
+
+  @ApiPropertyOptional({ example: '+91 98480 55001', description: 'Driver Phone' })
+  @IsOptional()
+  @IsString()
+  driverPhone?: string;
+
+  @ApiPropertyOptional({ example: '8 mins', description: 'ETA' })
+  @IsOptional()
+  @IsString()
+  eta?: string;
+
+  @ApiPropertyOptional({ example: 'H001', description: 'Hospital the ambulance is dispatched from' })
+  @IsOptional()
+  @IsString()
+  hospitalId?: string;
 }

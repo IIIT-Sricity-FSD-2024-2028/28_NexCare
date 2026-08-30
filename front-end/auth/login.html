@@ -49,10 +49,10 @@
                             <input type="radio" name="role" value="hospital_manager" required> Hospital Manager
                         </label>
                         <label class="role-option">
-                            <input type="radio" name="role" value="doctor" required> Doctor
+                            <input type="radio" name="role" value="ambulance" required> Ambulance Staff
                         </label>
                         <label class="role-option">
-                            <input type="radio" name="role" value="ambulance" required> Ambulance Staff
+                            <input type="radio" name="role" value="doctor" required> Doctor
                         </label>
                     </div>
 
@@ -71,8 +71,9 @@
                     
                     <div class="auth-links" style="display:flex; flex-direction:column; gap:8px; align-items:center; margin-top:16px;">
                         <div>New Patient? <a href="patient-register.html" style="font-weight:600;">Register Patient</a></div>
-                        <div>Hospital Administrator? <a href="../hospital-registration/register.html" style="font-weight:600;">Register Your Hospital</a></div>
+                        <div>Hospital Administrator? <a href="../landing/hospital-registration.html" style="font-weight:600;">Register Your Hospital</a></div>
                         <div style="margin-top:12px; display:flex; gap:16px;">
+                            <a href="doctor-login.html" style="font-size:12px; color:#64748B;">Doctor Login</a>
                             <a href="regional-officer-login.html" style="font-size:12px; color:#64748B;">Regional Officer Login</a>
                             <a href="superuser-login.html" style="font-size:12px; color:#64748B;">Superuser Login</a>
                         </div>
@@ -128,6 +129,10 @@
                     if (response.data.token) {
                         sessionStorage.setItem('nexcare_auth_token', response.data.token);
                         localStorage.setItem('nexcare_auth_token', response.data.token);
+                    }
+                    if (response.data?.user?.mustChangePassword) {
+                        window.location.href = 'change-password.html';
+                        return;
                     }
                     loginUser(role);
                 } else {

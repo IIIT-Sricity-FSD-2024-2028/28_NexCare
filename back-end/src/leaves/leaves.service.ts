@@ -1,10 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { Leave, CreateLeaveDto, UpdateLeaveDto, LeaveCalendarView } from './interfaces/leave.interface';
 import { LeaveStatus } from '../common/interfaces/api-response.interface';
+import { AppointmentsService } from '../appointments/appointments.service';
 
 /**
  * Leaves Service
@@ -13,6 +14,11 @@ import { LeaveStatus } from '../common/interfaces/api-response.interface';
  */
 @Injectable()
 export class LeavesService {
+  constructor(
+    @Inject(forwardRef(() => AppointmentsService))
+    private readonly appointmentsService: AppointmentsService,
+  ) {}
+
   private readonly leavesFilePath = path.join(process.cwd(), 'data', 'leaves.json');
 
   /** Load leaves from disk */
@@ -139,9 +145,15 @@ export class LeavesService {
       return ResponseUtil.error('Doctor already has approved leave during this period');
     }
 
+    // Calculate days count if not provided
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const daysCount = createLeaveDto.daysCount || (Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
+
     const newLeave: Leave = {
       id: IdGenerator.generate('L'),
       ...createLeaveDto,
+      daysCount,
+      requestedAt: createLeaveDto.requestedAt || new Date().toISOString().split('T')[0],
       status: LeaveStatus.PENDING,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -154,22 +166,38 @@ export class LeavesService {
   }
 
   /**
-   * Update leave status (approve/reject)
+   * Update leave status (approve/reject).
+   * Approval is hospital-manager gated (LeaveRequestGuard) and then
+   * reassigns or cancels appointments in the leave window.
    */
-  update(id: string, updateLeaveDto: UpdateLeaveDto): any {
+  async update(id: string, updateLeaveDto: UpdateLeaveDto): Promise<any> {
     const index = this.leaves.findIndex(l => l.id === id);
     if (index === -1) {
       return ResponseUtil.error('Leave not found', 404);
     }
 
+    const now = new Date().toISOString();
+    const isApproved = updateLeaveDto.status === LeaveStatus.APPROVED;
+    const isRejected = updateLeaveDto.status === LeaveStatus.REJECTED;
+
     this.leaves[index] = {
       ...this.leaves[index],
       ...updateLeaveDto,
-      updatedAt: new Date().toISOString(),
-      approvedAt: updateLeaveDto.status === LeaveStatus.APPROVED ? new Date().toISOString() : undefined
+      updatedAt: now,
+      approvedAt: isApproved ? now : this.leaves[index].approvedAt,
+      approvedBy: isApproved ? updateLeaveDto.approvedBy : this.leaves[index].approvedBy,
+      approvedByName: isApproved ? updateLeaveDto.approvedByName : this.leaves[index].approvedByName,
+      rejectedAt: isRejected ? now : this.leaves[index].rejectedAt,
+      rejectedBy: isRejected ? (updateLeaveDto.rejectedBy || updateLeaveDto.approvedBy) : this.leaves[index].rejectedBy,
+      rejectedByName: isRejected ? (updateLeaveDto.rejectedByName || updateLeaveDto.approvedByName) : this.leaves[index].rejectedByName,
+      rejectionReason: isRejected ? updateLeaveDto.rejectionReason : this.leaves[index].rejectionReason
     };
 
     this.saveLeaves(this.leaves);
+
+    if (updateLeaveDto.status === LeaveStatus.APPROVED) {
+      await this.appointmentsService.handleDoctorLeaveApproved(this.leaves[index]);
+    }
 
     return ResponseUtil.success('Leave status updated successfully', this.leaves[index]);
   }

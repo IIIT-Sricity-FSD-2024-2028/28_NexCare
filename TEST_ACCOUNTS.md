@@ -1,28 +1,68 @@
 # NexCare — Seed Account Reference
 
 > Demo/test accounts shipped in `back-end/data/users.json`. For local development and
-> project demos only. Last verified: 2026-08-26.
+> project demos only. **Last verified against the seed file: 2026-08-30.**
 
 **Every account uses the same password: `Password123`**
 
-Two accounts (`superuser@nexcare.com`, `patient@gmail.com`) are stored as scrypt
-hashes rather than plaintext — they were hashed by the login upgrade path described at
-the bottom of this file. Their password is still `Password123`; this was verified by
-recomputing the scrypt digest, not assumed.
+Some accounts are stored as scrypt hashes rather than plaintext — they were hashed by
+the login upgrade path described at the bottom of this file. Their password is still
+`Password123`.
+
+**Totals:** 48 user records — **47 can log in**. Doctors became login actors on
+2026-08-30 and have a portal of their own; only nurses remain directory-only, and
+the seed data ships none.
 
 ---
 
 ## Accounts that can log in
 
-Five of the twelve seed accounts are real login actors.
+### Oversight
 
-| Role | Name | Email | Password | Hospital |
-|---|---|---|---|---|
-| Admin (superuser) | System Administrator | `superuser@nexcare.com` | `Password123` | — |
-| Regional Officer | Rajesh Sharma | `regional@nexcare.com` | `Password123` | — |
-| Administrative Staff | Priya Reddy | `admin@nexcare.com` | `Password123` | H001 |
-| Ambulance Staff | Alex Martinez | `ambulance@nexcare.com` | `Password123` | H001 |
-| Patient | John Anderson | `patient@gmail.com` | `Password123` | — |
+| Role | Name | Email | Hospital |
+|---|---|---|---|
+| Admin (superuser) — `U001` | Rajesh Kumar | `superuser@nexcare.com` | — (all 12) |
+| Regional Officer — `M001` | Rajesh Sharma | `regional@nexcare.com` | Tirupati + Renigunta — 9 hospitals |
+| Regional Officer — `M002` | Kavitha Menon | `regional2@nexcare.com` | Chittoor + Nellore — HSP005, HSP007 |
+| Regional Officer — `M003` | Arjun Raghavan | `regional3@nexcare.com` | Chennai — H003 |
+| Hospital Manager — `HM001` | Srinivas Rao | `hospitalmanager@nexcare.com` | H001 |
+
+Three regional officers rather than one, so the visibility scope is actually
+demonstrable: sign in as `regional2@nexcare.com` and H001 is neither visible in the
+hierarchy nor readable through `/revenue/hospital/H001` (403).
+
+### Hospital staff
+
+| Role | Name | Email | Hospital |
+|---|---|---|---|
+| Administrative Staff | Priya Reddy | `admin@nexcare.com` | H001 |
+| Administrative Staff | Anita Joshi | `anita@nexcare.com` | H001 |
+| Administrative Staff | Lakshmi Menon | `lakshmi@nexcare.com` | H002 |
+| Administrative Staff | Divya Krishnan | `divya@nexcare.com` | H003 |
+| Administrative Staff | Karthik Raman | `karthik@nexcare.com` | H003 |
+| Ambulance Staff | Alex Martinez | `ambulance@nexcare.com` | H001 |
+| Ambulance Staff | Suresh Babu | `suresh@nexcare.com` | H002 |
+| Ambulance Staff | Manoj Selvam | `manoj@nexcare.com` | H003 |
+
+### Patients (15)
+
+| Name | Email |
+|---|---|
+| John Anderson | `patient@gmail.com` |
+| Vivian Mathew | `patient2@gmail.com` |
+| Priya Sharma | `patient3@gmail.com` |
+| Abhishek Kumar | `patient4@gmail.com` |
+| Heya Reddy | `patient5@gmail.com` |
+| Suresh Kumar | `patient6@gmail.com` |
+| Vishv Reddy | `patient7@gmail.com` |
+| Ramesh Gupta | `patient8@gmail.com` |
+| Ananya Sharma | `ananya.sharma@gmail.com` |
+| Rahul Verma | `rahul.verma@gmail.com` |
+| Meena Kumari | `meena.kumari@gmail.com` |
+| Sandeep Reddy | `sandeep.reddy@gmail.com` |
+| Fatima Sheikh | `fatima.sheikh@gmail.com` |
+| Vijay Anand | `vijay.anand@gmail.com` |
+| Test Patient | `patient@nexcare.com` |
 
 ### Where to log in
 
@@ -30,9 +70,16 @@ Five of the twelve seed accounts are real login actors.
 |---|---|
 | Admin / superuser | `front-end/auth/superuser-login.html` |
 | Regional Officer | `front-end/auth/regional-officer-login.html` |
+| Hospital Manager | `front-end/auth/hospital-manager-login.html` |
 | Administrative Staff, Ambulance Staff | `front-end/auth/staff-login.html` |
+| Doctor | `front-end/auth/doctor-login.html` |
 | Patient | `front-end/auth/patient-login.html` |
-| Any of the above | `front-end/auth/login.html` (combined page) |
+| Patient / Admin Staff / Ambulance / Hospital Manager / Doctor | `front-end/auth/login.html` (combined) |
+
+Doctors, administrative staff and ambulance crew can also self-register at
+`front-end/auth/staff-register.html`. A new doctor must give a specialisation —
+that is the department patients book them under — and is auto-enrolled on the free
+listing tier.
 
 The login form sends the selected role alongside the credentials, and the backend
 rejects a mismatch — signing in as Priya Reddy with the "Ambulance Staff" radio
@@ -40,46 +87,90 @@ selected fails even though the password is correct.
 
 ---
 
-## Directory-only records — these CANNOT log in
+## Doctors (20) — these DO log in
 
-The remaining seven accounts are doctors. NexCare is a non-clinical platform, so they
-exist purely as directory records that appointments and leave rosters can reference.
-They have a password field in the seed data, but `AuthService.login` refuses them with:
+Doctors became login actors on 2026-08-30. Each has a portal at
+`front-end/doctor/` covering their own schedule, the appointments booked with them,
+their leave requests, and their earnings against the platform's listing tiers.
+Sign in at `front-end/auth/doctor-login.html` with the same `Password123`.
 
-> `Access Denied: 'doctor' is a directory record, not a NexCare login account.`
+The listing tier is what NexCare charges the doctor. The ladder is inverted on
+purpose — Practice Free carries a 12% commission, Practice Featured only 5% — so a
+busy consultant saves money by paying more up front. A doctor can change their own
+tier and consultation fee from the Earnings & Plan page.
 
-| Name | Email | Department | Status | Hospital |
-|---|---|---|---|---|
-| Dr. Sarah Smith | `sarah.smith@nexcare.com` | Cardiology | Active | H001 |
-| Dr. Vikram Patel | `vikram.patel@nexcare.com` | Orthopedics | Active | H001 |
-| Dr. Anjali Desai | `anjali.desai@nexcare.com` | General Medicine | **On Leave** | H001 |
-| Dr. Priya Nair | `priya.nair@nexcare.com` | Pediatrics | Active | H001 |
-| Dr. Rajesh Khanna | `rajesh.khanna@nexcare.com` | Neurology | Active | H002 |
-| Dr. Meera Iyer | `meera.iyer@nexcare.com` | Dermatology | Active | H002 |
-| Dr. Arjun Mehta | `arjun.mehta@nexcare.com` | General Medicine | Active | H001 |
+| Name | Email | Department | Hospital | Status | Listing tier | Fee |
+|---|---|---|---|---|---|---|
+| Dr. Sunita Sharma | `sunita@nexcare.com` | Cardiology | H001 | Active | Practice Featured | ₹900 |
+| Dr. Vikram Patel | `vikram@nexcare.com` | Orthopaedics | H001 | Active | Practice Free | ₹800 |
+| Dr. Anjali Desai | `anjali@nexcare.com` | General Medicine | H001 | **On Leave** | Practice Verified | ₹500 |
+| Dr. Priya Nair | `priya@nexcare.com` | Paediatrics | H001 | Active | Practice Free | ₹600 |
+| Dr. Rajesh Khanna | `rajesh@nexcare.com` | Neurology | H002 | Active | Practice Verified | ₹1100 |
+| Dr. Meera Iyer | `meera@nexcare.com` | Dermatology | H002 | Active | Practice Featured | ₹700 |
+| Dr. Arjun Mehta | `arjun@nexcare.com` | General Medicine | H001 | Active | Practice Verified | ₹500 |
+| Dr. Kavya Reddy | `kavya@nexcare.com` | Gynaecology | H002 | Active | Practice Free | ₹750 |
+| Dr. Naveen Kumar | `naveen@nexcare.com` | Paediatrics | H002 | Active | Practice Verified | ₹600 |
+| Dr. Sneha Pillai | `sneha@nexcare.com` | General Medicine | H002 | Active | Practice Free | ₹500 |
+| Dr. Harish Varma | `harish@nexcare.com` | Cardiology | H002 | Active | Practice Featured | ₹900 |
+| Dr. Ananya Iyer | `ananya@nexcare.com` | Cardiology | H003 | Active | Practice Free | ₹900 |
+| Dr. Ravi Shankar | `ravi@nexcare.com` | Neurology | H003 | Active | Practice Verified | ₹1100 |
+| Dr. Deepak Nair | `deepak@nexcare.com` | Orthopaedics | H003 | Active | Practice Free | ₹800 |
+| Dr. Shalini Rao | `shalini@nexcare.com` | General Medicine | H003 | **On Leave** | Practice Verified | ₹500 |
+| Dr. Vignesh Murthy | `vignesh@nexcare.com` | Emergency Medicine | H003 | Active | Practice Featured | ₹600 |
+| Dr. Sanjay Gupta | `sanjay@nexcare.com` | Neurology | H001 | Active | Practice Verified | ₹1100 |
+| Dr. Preethi Nambiar | `preethi@nexcare.com` | Orthopaedics | H002 | Active | Practice Free | ₹800 |
+| Dr. Bhavana Menon | `bhavana@nexcare.com` | General Medicine | H003 | Active | Practice Verified | ₹500 |
+| Dr. Sarah Smith | `sarah.smith@nexcare.com` | Cardiology | H001 | Active | Practice Free | ₹900 |
 
-See `PROJECT_CONTEXT.md` §3 for why doctors are modelled this way.
+Two are seeded **On Leave**: `anjali@nexcare.com` and `shalini@nexcare.com`. The
+booking wizard will not offer a slot with a doctor on approved leave.
+
+Nurses remain directory-only records with no portal — `AuthService.login` still
+refuses them — but the seed data ships none. The Admin creates them at
+`front-end/superuser/manage-users.html`. See `PROJECT_CONTEXT.md` §4.
 
 ---
 
-## Hospitals
+## Hospitals (12)
 
-| ID | Name | City |
-|---|---|---|
-| H001 | NexCare AIIMS Super Speciality Hospital | Tirupati |
-| H002 | Apollo Health City | Tirupati |
+`Manager` is the **regional officer** assigned to the hospital — that is what
+`assignedManagerId` means everywhere it is read. Each is assigned by matching the
+hospital's city against the officer's `areas`, the same rule
+`superuser/hospital-registrations.js` uses.
+
+| ID | Name | City | Status | Regional officer |
+|---|---|---|---|---|
+| H001 | NexCare AIIMS Super Speciality Hospital | Tirupati | verified | M001 |
+| H002 | Apollo Health City | Tirupati | verified | M001 |
+| H003 | Fortis Care Hospital | Chennai | verified | M003 |
+| H004 | Sri Venkateswara Care Center | Tirupati | verified | M001 |
+| HSP001 | Sri Venkateswara Multi Speciality Hospital | Tirupati | verified | M001 |
+| HSP002 | Padmavathi Women and Children Hospital | Tirupati | verified | M001 |
+| HSP003 | Tirumala Orthopaedic and Trauma Centre | Tirupati | verified | M001 |
+| HSP004 | Rayalaseema Heart Institute | Tirupati | verified | M001 |
+| HSP005 | Chittoor District General Hospital | Chittoor | verified | M002 |
+| HSP006 | Renigunta Community Hospital | Renigunta | verified | M001 |
+| HSP007 | Nellore Neuro Care Centre | Nellore | verified | M002 |
+| HSP008 | Apollo Specialty Clinic Tirupati | Tirupati | verified | M001 |
+
+H001's hospital *manager* is `HM001`; that link is on the user record
+(`hospitalId`), not on the hospital.
 
 Staff accounts are scoped to a hospital and only see that hospital's data. The Admin
-and Regional Officer are not scoped and see across hospitals.
+and Regional Officer are not scoped that way — the Admin sees everything, the Regional
+Officer sees the hospitals assigned to them.
 
 ---
 
 ## Notes
 
-**These accounts survive a backend restart.** Users are read from and written to
-`back-end/data/users.json` on every change, so anything you register through the UI
-persists. (Wards, departments, and equipment do *not* persist — see
-`PROJECT_CONTEXT.md` §6.)
+**Everything persists across a backend restart.** All 25 data files go through
+`FileStore`, including `wards.json`, `departments.json` and `equipment.json`, and
+the six revenue files (`subscription-plans`, `hospital-subscriptions`,
+`doctor-plans`, `doctor-subscriptions`, `patient-plans`, `patient-subscriptions`)
+plus `platform-fee-config.json`.
+(An earlier version of this file claimed those three were in-memory only — that is no
+longer true.)
 
 **Passwords rewrite themselves on first login.** `AuthService.login` upgrades a legacy
 plaintext password to a scrypt hash *before* it checks the role, so simply attempting a

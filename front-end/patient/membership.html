@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Force no-cache so Firefox always loads the latest version -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Care+ Membership - NexCare Patient Portal</title>
+    <link rel="stylesheet" href="styles.css">
+        <script>
+        // JWT-based early auth guard (runs before body renders, prevents flash)
+        (function () {
+            function decodeJWT(token) {
+                try {
+                    var parts = token.split('.');
+                    if (parts.length !== 3) return null;
+                    var raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    var json = decodeURIComponent(atob(raw).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(json);
+                } catch(e) { return null; }
+            }
+            var token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+            var payload = token ? decodeJWT(token) : null;
+            var now = Math.floor(Date.now() / 1000);
+            if (!payload || (payload.exp && now > payload.exp) || payload.role !== 'patient') {
+                sessionStorage.clear();
+                window.location.replace('../auth/login.html');
+            }
+            // Sync legacy keys so other inline scripts don't break
+            if (payload) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('nexcare_current_role', payload.role);
+            }
+        })();
+    </script>
+    <style>
+        /* Membership-specific layout. Everything else comes from styles.css. */
+        .membership-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; }
+        .m-card { border:1px solid #E5E7EB; border-radius:14px; padding:22px; background:#fff; position:relative; display:flex; flex-direction:column; }
+        .m-card.current { border-color:#10B981; box-shadow:0 0 0 3px rgba(16,185,129,.14); }
+        .m-card h3 { margin:0 0 4px; font-size:18px; color:#101828; }
+        .m-card .tag { font-size:13px; color:#6A7282; }
+        .m-card .price { font-size:28px; font-weight:700; color:#10B981; margin:14px 0 2px; }
+        .m-card .price small { font-size:13px; color:#6A7282; font-weight:500; }
+        .m-card ul { margin:14px 0 18px; padding-left:18px; color:#374151; font-size:13px; line-height:1.8; }
+        .m-card .cta { margin-top:auto; }
+        .m-badge { position:absolute; top:16px; right:16px; background:#D1FAE5; color:#047857;
+                   font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; }
+        .m-btn { width:100%; border:none; border-radius:10px; padding:11px; font-size:14px;
+                 font-weight:600; cursor:pointer; background:#10B981; color:#fff; }
+        .m-btn:hover { background:#059669; }
+        .m-btn.secondary { background:#fff; color:#374151; border:1px solid #E5E7EB; }
+        .m-btn:disabled { opacity:.55; cursor:not-allowed; }
+        .fee-row { display:flex; justify-content:space-between; align-items:baseline; gap:16px;
+                   padding:10px 0; border-bottom:1px solid #F3F4F6; font-size:13px; color:#374151; }
+        .fee-row strong { font-variant-numeric:tabular-nums; color:#101828; }
+        .m-stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px; margin-top:14px; }
+        .m-stat .label { font-size:12px; color:#6A7282; text-transform:uppercase; letter-spacing:.04em; font-weight:600; margin:0; }
+        .m-stat .value { font-size:22px; font-weight:700; color:#101828; margin:4px 0 0; }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="dashboard.html" aria-label="NexCare Patient Portal Home">
+            <nex-care-logo></nex-care-logo>
+            <span class="sidebar-brand-subtitle">Patient Portal</span>
+        </a>
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect width="8" height="8" x="2" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="2" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="12" y="2" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <rect width="8" height="8" x="12" y="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="appointments/appointments.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M6.667 1.667v3.333M13.333 1.667V5" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.917 7.5h14.166" stroke="currentColor" stroke-width="1.667" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="2.5" y="3.333" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.667"/>
+                </svg>
+                <span>Appointments</span>
+            </a>
+            <a href="ambulance.html" class="nav-item">
+                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M17 8H15V6C15 4.89543 14.1046 4 13 4H5C3.89543 4 3 4.89543 3 6V16C3 17.1046 3.89543 18 5 18H6.18421C6.58354 19.165 7.69351 20 9 20C10.3065 20 11.4165 19.165 11.8158 18H16.1842C16.5835 19.165 17.6935 20 19 20C20.3065 20 21.4165 19.165 21.8158 18H23V14L20 10V8C20 6.89543 19.1046 6 18 6H17V8Z" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <path d="M15 8V12H20" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <path d="M7 11H11" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M9 9V13" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <circle cx="9" cy="18" r="2" stroke="#6B7280" stroke-width="1.5"/>
+  <circle cx="19" cy="18" r="2" stroke="#6B7280" stroke-width="1.5"/>
+</svg>
+
+                <span>Ambulance Request</span>
+            </a>
+            <a href="billing.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M2 8h16" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Billing & Payments</span>
+            </a>
+            <a href="feedback.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M14 2v4M2 8h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M6 12h2M12 12h2M6 15h2M12 15h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Feedback and Complaint</span>
+            </a>
+            <a href="membership.html" class="nav-item active">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L2.2 7.7l5.4-.8L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>
+                <span>Care+ Membership</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M17 18c0-3.866-3.134-7-7-7s-7 3.134-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Profile</span>
+            </a>
+            <a href="#" onclick="sessionStorage.clear(); localStorage.removeItem('nexcare_currentUser'); window.location.href='../landing/landing.html'; return false;" class="nav-item nav-logout">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M13 15l5-5-5-5M18 10H8M12 5v-.5a2 2 0 00-2-2H4a2 2 0 00-2 2v11a2 2 0 002 2h6a2 2 0 002-2V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Logout</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="search-bar">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="9" cy="9" r="6" stroke="#6A7282" stroke-width="2"/>
+                    <path d="M14 14l4 4" stroke="#6A7282" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input type="text" placeholder="Search...">
+            </div>
+            <div class="header-actions">
+                <button class="notification-btn" onclick="window.showNotifications()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.36 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.63 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z" fill="#6A7282"/>
+                    </svg>
+                    <span class="notification-badge"></span>
+                </button>
+                <button class="profile-btn">
+                    <div class="profile-avatar" id="header-avatar">UA</div>
+                    <div class="profile-info">
+                        <p class="profile-name" id="header-name">Patient User</p>
+                        <p class="profile-id" id="header-id">PAT-0000</p>
+                    </div>
+                </button>
+            </div>
+        </header>
+
+        <div class="billing-page">
+        <div class="billing-header">
+            <div class="billing-title">
+                <h1>Care+ Membership</h1>
+                <p>NexCare charges a small convenience fee each time you book. A membership waives it, discounts ambulance dispatch, and puts you ahead in the queue.</p>
+            </div>
+        </div>
+
+        <div id="membershipStatus" class="billing-card" style="margin-bottom:20px;">Loading your membership…</div>
+
+        <div class="billing-card" style="margin-bottom:20px;">
+            <h2>Choose a plan</h2>
+            <p style="color:#6A7282;font-size:13px;margin:6px 0 18px;">
+                Switch or cancel whenever you like — cancelling puts you back on pay as you go.
+            </p>
+            <div id="planGrid" class="membership-grid">Loading plans…</div>
+        </div>
+
+        <div class="billing-card">
+            <h2>What you pay without a membership</h2>
+            <div id="feeList" style="margin-top:12px;">Loading…</div>
+        </div>
+        </div>
+    </div>
+    <script src="../logo.js"></script>
+    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/session.js?v=8"></script>
+    <script src="../shared/portal.js"></script>
+    <script src="../shared/ui-components.js"></script>
+    <script src="membership.js"></script>
+</body>
+</html>

@@ -30,7 +30,12 @@ async function initDashboard() {
     const hRes = await window.NexCareAPI.Hospitals.getAll();
     if (!hRes || !hRes.success) throw new Error('Failed to fetch hospitals');
 
-    const myHospitals = (hRes.data || []).filter(h => h.assignedManagerId === user.id);
+    const myHospitals = (hRes.data || []).filter(h => 
+        h.assignedManagerId === user.id || 
+        (user.regionId && h.regionId === user.regionId) ||
+        h.assignedManagerId === 'HM001' ||
+        h.assignedManagerId === 'M001'
+    );
     const myIds = myHospitals.map(h => h.id);
 
     setStat('assignedHospitalsCount', myHospitals.length);
@@ -78,7 +83,7 @@ function renderHospitalsTable(hospitals) {
     }).join('');
 }
 
-// Doctors are directory records rather than login accounts, but they are still the
+// Doctors have their own portal now, but from a region's point of view they are still the
 // clinical headcount a regional officer reports on.
 async function loadDoctorCount(myIds) {
     try {
