@@ -189,8 +189,21 @@ export class AmbulanceController {
   /**
    * Delete ambulance request
    */
-  @Delete(':id')
+  /**
+   * Cancel a request. This is what the portals' "Cancel" button should call —
+   * it keeps the record. DELETE below destroys it and is staff-only.
+   */
+  @Patch(':id/cancel')
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Cancel an ambulance request (patients: own only)' })
+  @ApiResponse({ status: 200, description: 'Ambulance request cancelled successfully' })
+  async cancel(@Req() req: any, @Param('id') id: string, @Body() body: { reason?: string } = {}) {
+    await this.assertOwnsRequest(req, id);
+    return this.ambulanceService.cancel(id, req.user?.id, body?.reason);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
   @ApiOperation({ summary: 'Delete/cancel an ambulance request (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Request deleted successfully' })
   async delete(@Req() req: any, @Param('id') id: string) {

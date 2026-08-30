@@ -182,11 +182,12 @@ async function renderAmbulanceRequests() {
             <td>${r.contact}</td>
             <td><span class="badge ${badge(r.status)}">${r.status}</span></td>
             <td>
-                ${r.status === 'Pending'
+                ${r.status === 'Pending' || r.status === 'Dispatched' || r.status === 'En Route'
                     ? `<button type="button" class="btn-primary-sm" data-action="cancel">Cancel</button>`
-                    : (r.status === 'Completed' || r.status === 'Canceled' || r.status === 'Cancelled')
-                        ? `<button type="button" class="btn-outline-sm" data-action="delete">Delete</button>`
-                        : `<span class="badge badge-gray" style="font-size:11px;">In Progress</span>`
+                    : `<span class="badge badge-gray" style="font-size:11px;">${
+                          r.status === 'Completed' ? 'Completed'
+                        : r.status === 'Cancelled' ? 'Cancelled'
+                        : 'In Progress'}</span>`
                 }
             </td>
         </tr>
@@ -206,24 +207,23 @@ function handleAmbulanceTableClick(e) {
         showNexCareModal('Cancel Request', 'Are you sure you want to cancel this ambulance request?', {
             isConfirm: true,
             onConfirm: async () => {
-                await window.NexCareAPI.Ambulance.updateStatus(id, 'Canceled');
+                // This used to PATCH the status to 'Canceled' — one L, which is
+                // not the AmbulanceStatus enum value ('Cancelled'), so the row
+                // ended up in a state nothing else recognised. That is also why
+                // the table above used to test for both spellings.
+                const res = await window.NexCareAPI.Ambulance.cancelRequest(id);
+                if (res && res.success === false) {
+                    showNexCareModal('Could not cancel', res.message || 'The request could not be cancelled.');
+                }
                 renderAmbulanceRequests();
             }
         });
         return;
     }
 
-    if (action === 'delete') {
-        showNexCareModal('Delete History', 'Are you sure you want to delete this record permanently?', {
-            isConfirm: true,
-            onConfirm: async () => {
-                await window.NexCareAPI.Ambulance.cancelRequest(id); // delete route
-                renderAmbulanceRequests();
-            }
-        });
-        return;
-    }
-
+    // The Delete action is gone: a completed or cancelled trip is the record of
+    // what happened. Cancellation keeps the row now, and the hard delete is
+    // staff-only.
 }
 
 /**

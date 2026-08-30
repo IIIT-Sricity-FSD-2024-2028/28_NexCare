@@ -3405,6 +3405,35 @@
         ]
       }
     },
+    "/api/ambulance/{id}/cancel": {
+      "patch": {
+        "operationId": "AmbulanceController_cancel",
+        "summary": "Cancel an ambulance request (patients: own only)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ambulance request cancelled successfully"
+          }
+        },
+        "tags": [
+          "Ambulance"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
     "/api/ambulance/{id}/dispatch": {
       "patch": {
         "operationId": "AmbulanceController_dispatch",

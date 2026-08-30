@@ -10,9 +10,23 @@ import { AuthService } from '../../auth/auth.service';
 import { UserRole } from '../../common/interfaces/api-response.interface';
 
 /**
- * Restricts ambulance request access so hospital-scoped users can only
- * see and act on requests belonging to their assigned hospital.
- * Superusers bypass the check.
+ * Restricts ambulance request access so hospital-scoped users can only see and
+ * act on requests belonging to their assigned hospital.
+ *
+ * Not every role IS hospital-scoped, and requiring a hospitalId of the ones
+ * that are not made the endpoint unusable for them:
+ *
+ *  - PATIENT has no hospitalId. A patient is a customer of the platform who
+ *    picks a hospital per request, so demanding one up front rejected every
+ *    patient ambulance request with 403 "You are not assigned to any hospital".
+ *    Patients are already constrained to their own records by
+ *    assertOwnsRequest() in the controller.
+ *  - REGIONAL_MANAGER has no hospitalId either; they oversee a SET of
+ *    hospitals, and their scope is enforced against that set elsewhere.
+ *  - SUPERUSER sees everything.
+ *
+ * Everyone else — administrative staff, ambulance crew, hospital managers — is
+ * pinned to exactly one hospital, and that is what this middleware enforces.
  */
 @Injectable()
 export class AmbulanceAccessMiddleware implements NestMiddleware {
@@ -29,8 +43,14 @@ export class AmbulanceAccessMiddleware implements NestMiddleware {
       return next();
     }
 
-    // Superusers bypass all hospital checks
-    if (user.role === UserRole.SUPERUSER) {
+    // Roles that are not pinned to a single hospital. See the class comment —
+    // requiring a hospitalId of these made the endpoint unusable for them.
+    const NOT_HOSPITAL_SCOPED: string[] = [
+      UserRole.SUPERUSER,
+      UserRole.PATIENT,
+      UserRole.REGIONAL_MANAGER,
+    ];
+    if (NOT_HOSPITAL_SCOPED.includes(user.role)) {
       return next();
     }
 

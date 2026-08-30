@@ -175,5 +175,19 @@
     "createdAt": "2026-08-30T16:39:22.284Z",
     "updatedAt": "2026-08-30T16:39:22.303Z",
     "assignedTo": "U003"
+  },
+  {
+    "id": "AMB-MTG5AREP2SI",
+    "patientId": "P001",
+    "patientName": "Patient 001",
+    "pickupLocation": "14 Gandhi Road, Tirupati",
+    "contact": "9876543210",
+    "notes": "Patient arranged own transport",
+    "status": "Cancelled",
+    "hospitalId": "H001",
+    "createdAt": "2026-08-30T18:30:56.834Z",
+    "updatedAt": "2026-08-30T18:30:56.853Z",
+    "cancelledAt": "2026-08-30T18:30:56.853Z",
+    "cancellationReason": "Patient arranged own transport"
   }
 ]

@@ -490,7 +490,17 @@ const AmbulanceAPI = {
         return await api.patch(`/ambulance/${id}/status`, { status });
     },
 
-    async cancelRequest(id) {
+    /**
+     * Cancel a request. This used to call DELETE, which spliced the record out
+     * of the store — a cancelled dispatch left no trace and the CANCELLED
+     * status was never written. It is a soft cancel now; the row is kept.
+     */
+    async cancelRequest(id, reason) {
+        return await api.patch(`/ambulance/${id}/cancel`, reason ? { reason } : {});
+    },
+
+    /** Hard delete — staff only, and it refuses completed or cancelled rows. */
+    async deleteRequest(id) {
         return await api.delete(`/ambulance/${id}`);
     },
 

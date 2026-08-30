@@ -616,7 +616,8 @@ window.NexCareStore = {
             try {
                 const result = await window.NexCareAPI.Ambulance.cancelRequest(id);
                 if (result.success) {
-                    await NexCareDB.logActivity('Delete', 'Ambulance', `Deleted ambulance request (${id}).`);
+                    // Soft cancel — the row is kept. Log it as what it is.
+                    await NexCareDB.logActivity('Cancel', 'Ambulance', `Cancelled ambulance request (${id}).`);
                     return;
                 }
             } catch (error) {

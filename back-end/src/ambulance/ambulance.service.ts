@@ -188,6 +188,65 @@ export class AmbulanceService {
     }
   }
 
+  /**
+   * Cancel a request — a SOFT cancel that keeps the record.
+   *
+   * The portals label this "Cancel" but it used to call DELETE, which spliced
+   * the row out of the store entirely. Three things were wrong with that:
+   * a cancelled dispatch left no audit trail at all; `AmbulanceStatus.CANCELLED`
+   * existed in the enum and in getStats() but nothing ever wrote it, so that
+   * counter was permanently zero; and the duplicate-request check deliberately
+   * skips cancelled requests, which only means anything if they still exist.
+   *
+   * Once a patient has been picked up the trip runs to completion — cancelling
+   * someone already in the vehicle is not a real operation.
+   */
+  async cancel(id: string, cancelledBy?: string, reason?: string) {
+    try {
+      const requests = this.store.load();
+      const requestIndex = requests.findIndex(r => r.id === id);
+      if (requestIndex === -1) return ResponseUtil.notFound('Ambulance request', id);
+
+      const request = requests[requestIndex];
+      if (request.status === AmbulanceStatus.COMPLETED) {
+        return ResponseUtil.error('Cannot cancel a completed ambulance request');
+      }
+      if (request.status === AmbulanceStatus.CANCELLED) {
+        return ResponseUtil.error('This ambulance request is already cancelled');
+      }
+
+      const cancellable = [
+        AmbulanceStatus.PENDING,
+        AmbulanceStatus.DISPATCHED,
+        AmbulanceStatus.EN_ROUTE,
+      ];
+      if (!cancellable.includes(request.status)) {
+        return ResponseUtil.error(
+          `Cannot cancel a request that is already '${request.status}' — the patient is in transit`,
+        );
+      }
+
+      requests[requestIndex].status = AmbulanceStatus.CANCELLED;
+      requests[requestIndex].cancelledAt = new Date().toISOString();
+      requests[requestIndex].cancellationReason = reason || '';
+      requests[requestIndex].updatedAt = new Date().toISOString();
+      this.store.save(requests);
+
+      this.systemService.createActivity({
+        userId: cancelledBy || 'System',
+        action: 'Cancel',
+        details: `Ambulance request ${id} cancelled${reason ? `: ${reason}` : ''}`,
+        module: 'Ambulance',
+        severity: 'WARNING',
+      });
+
+      return ResponseUtil.updated('Ambulance request', requests[requestIndex]);
+    } catch (error) {
+      console.error('Cancel ambulance request error:', error);
+      return ResponseUtil.serverError('Failed to cancel ambulance request');
+    }
+  }
+
   async delete(id: string) {
     try {
       const requests = this.store.load();
@@ -197,6 +256,11 @@ export class AmbulanceService {
       const request = requests[requestIndex];
       if (request.status === AmbulanceStatus.COMPLETED) {
         return ResponseUtil.error('Cannot delete completed ambulance requests');
+      }
+      if (request.status === AmbulanceStatus.CANCELLED) {
+        return ResponseUtil.error(
+          'Cannot delete a cancelled request — it is kept as the record of what happened',
+        );
       }
 
       requests.splice(requestIndex, 1);

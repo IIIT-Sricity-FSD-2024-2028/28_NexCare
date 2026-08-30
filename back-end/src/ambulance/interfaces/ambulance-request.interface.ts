@@ -19,6 +19,9 @@ export interface AmbulanceRequest {
   stepIndex?: number;
   completedDate?: string;
   completedTime?: string;
+  /** Set when a request is cancelled — the row is kept, never deleted. */
+  cancelledAt?: string;
+  cancellationReason?: string;
 }
 
 /**
