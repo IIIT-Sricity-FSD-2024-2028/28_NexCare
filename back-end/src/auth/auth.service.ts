@@ -250,7 +250,13 @@ export class AuthService {
         csrfToken: this.generateCsrfToken(), // Include new CSRF token for post-login requests
       };
 
-      // Add additional fields if they exist in the user object
+      // Add additional fields if they exist in the user object.
+      //
+      // These assign straight onto authResponse.user because every one of these
+      // fields is now declared on AuthResponse. The `as any` that used to sit on
+      // the destination silenced the build error but also meant a typo
+      // (respUserAny.reginId = …) would compile and ship a field nobody reads.
+      // The source still needs its cast — `user` is a raw row off users.json.
       const userAny = user as any;
       if (userAny.phone) authResponse.user.phone = userAny.phone;
       if (userAny.employeeId) authResponse.user.employeeId = userAny.employeeId;
