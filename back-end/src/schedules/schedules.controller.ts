@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { SchedulesService } from './schedules.service';
 import { CreateHospitalScheduleDto, UpdateHospitalScheduleDto } from './interfaces/schedule.interface';
@@ -56,5 +56,13 @@ export class SchedulesController {
   update(@Req() req: any, @Param('id') id: string, @Body() dto: UpdateHospitalScheduleDto) {
     dto.approvedBy = req.user?.sub || req.user?.id || dto.approvedBy;
     return this.schedulesService.update(id, dto);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER, UserRole.SUPERUSER)
+  @ApiOperation({ summary: 'Delete a hospital-wide schedule' })
+  remove(@Req() req: any, @Param('id') id: string) {
+    const scopedHospital = req.user?.role === UserRole.SUPERUSER ? undefined : req.user?.hospitalId;
+    return this.schedulesService.remove(id, scopedHospital);
   }
 }

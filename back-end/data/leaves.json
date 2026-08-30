@@ -40,23 +40,6 @@
     "approvedAt": "2026-08-30T10:33:36.705Z"
   },
   {
-    "id": "L003",
-    "doctorId": "U006",
-    "doctorName": "Dr. Vikram Patel",
-    "department": "Orthopaedics",
-    "specialization": "Joint Replacement & Arthroscopy",
-    "hospitalId": "H001",
-    "leaveType": "Medical Leave",
-    "startDate": "2026-09-02",
-    "endDate": "2026-09-04",
-    "daysCount": 3,
-    "reason": "Recovery from dental surgery procedure",
-    "requestedAt": "2026-08-29",
-    "status": "pending",
-    "createdAt": "2026-08-29T14:20:00.000Z",
-    "updatedAt": "2026-08-29T14:20:00.000Z"
-  },
-  {
     "id": "L004",
     "doctorId": "U010",
     "doctorName": "Dr. Priya Nair",

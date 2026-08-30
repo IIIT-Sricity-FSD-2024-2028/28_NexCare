@@ -31,8 +31,9 @@
     "id": "G1",
     "ward": "General",
     "status": "critical",
-    "patient": "Fatima Begum",
-    "hospitalId": "H001"
+    "patient": "Suresh Kumar",
+    "hospitalId": "H001",
+    "updatedAt": "2026-08-30T18:16:13.224Z"
   },
   {
     "id": "G2",

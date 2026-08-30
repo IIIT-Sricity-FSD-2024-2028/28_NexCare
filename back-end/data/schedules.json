@@ -6,17 +6,72 @@
     "validFrom": "2026-01-01",
     "validTo": "2027-12-31",
     "slots": [
-      { "department": "Cardiology", "shift": "Morning (08:00 - 16:00)", "startTime": "08:00", "endTime": "16:00" },
-      { "department": "Cardiology", "shift": "Afternoon (14:00 - 22:00)", "startTime": "14:00", "endTime": "22:00" },
-      { "department": "Orthopedics", "shift": "Morning (08:00 - 16:00)", "startTime": "08:00", "endTime": "16:00" },
-      { "department": "Orthopedics", "shift": "Afternoon (14:00 - 22:00)", "startTime": "14:00", "endTime": "22:00" },
-      { "department": "Neurology", "shift": "Morning (08:00 - 16:00)", "startTime": "08:00", "endTime": "16:00" },
-      { "department": "General Medicine", "shift": "Morning (08:00 - 16:00)", "startTime": "08:00", "endTime": "16:00" },
-      { "department": "General Medicine", "shift": "Afternoon (14:00 - 22:00)", "startTime": "14:00", "endTime": "22:00" },
-      { "department": "ER", "shift": "Morning (08:00 - 16:00)", "startTime": "08:00", "endTime": "16:00" },
-      { "department": "ER", "shift": "Afternoon (14:00 - 22:00)", "startTime": "14:00", "endTime": "22:00" },
-      { "department": "ER", "shift": "Night (20:00 - 08:00)", "startTime": "20:00", "endTime": "08:00" },
-      { "department": "Pathology", "shift": "Morning (08:00 - 16:00)", "startTime": "08:00", "endTime": "16:00" }
+      {
+        "department": "Cardiology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      },
+      {
+        "department": "Cardiology",
+        "shift": "Afternoon (14:00 - 22:00)",
+        "startTime": "14:00",
+        "endTime": "22:00"
+      },
+      {
+        "department": "Orthopedics",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      },
+      {
+        "department": "Orthopedics",
+        "shift": "Afternoon (14:00 - 22:00)",
+        "startTime": "14:00",
+        "endTime": "22:00"
+      },
+      {
+        "department": "Neurology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      },
+      {
+        "department": "General Medicine",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      },
+      {
+        "department": "General Medicine",
+        "shift": "Afternoon (14:00 - 22:00)",
+        "startTime": "14:00",
+        "endTime": "22:00"
+      },
+      {
+        "department": "ER",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      },
+      {
+        "department": "ER",
+        "shift": "Afternoon (14:00 - 22:00)",
+        "startTime": "14:00",
+        "endTime": "22:00"
+      },
+      {
+        "department": "ER",
+        "shift": "Night (20:00 - 08:00)",
+        "startTime": "20:00",
+        "endTime": "08:00"
+      },
+      {
+        "department": "Pathology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      }
     ],
     "notes": "Published hospital-wide OPD roster",
     "status": "approved",
@@ -25,5 +80,62 @@
     "approvedAt": "2026-01-01T00:00:00Z",
     "createdAt": "2026-01-01T00:00:00Z",
     "updatedAt": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": "SCHMTG51NE99OS",
+    "hospitalId": "H001",
+    "validFrom": "2026-10-01",
+    "validTo": "2026-10-07",
+    "slots": [
+      {
+        "department": "Cardiology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      }
+    ],
+    "notes": "Test weekly roster proposal",
+    "status": "pending",
+    "submittedBy": "U002",
+    "createdAt": "2026-08-30T18:23:51.729Z",
+    "updatedAt": "2026-08-30T18:23:51.729Z"
+  },
+  {
+    "id": "SCHMTG58BDVD3M",
+    "hospitalId": "H001",
+    "validFrom": "2026-11-01",
+    "validTo": "2026-11-07",
+    "slots": [
+      {
+        "department": "Cardiology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      }
+    ],
+    "notes": "To be deleted",
+    "status": "pending",
+    "submittedBy": "U002",
+    "createdAt": "2026-08-30T18:29:02.755Z",
+    "updatedAt": "2026-08-30T18:29:02.755Z"
+  },
+  {
+    "id": "SCHMTG58WB3FOD",
+    "hospitalId": "H001",
+    "validFrom": "2026-11-01",
+    "validTo": "2026-11-07",
+    "slots": [
+      {
+        "department": "Cardiology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      }
+    ],
+    "notes": "To be deleted",
+    "status": "pending",
+    "submittedBy": "U002",
+    "createdAt": "2026-08-30T18:29:29.871Z",
+    "updatedAt": "2026-08-30T18:29:29.871Z"
   }
 ]

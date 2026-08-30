@@ -2108,5 +2108,105 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-30T18:00:10.496Z"
+  },
+  {
+    "id": "ACT-MTG4PWKG692",
+    "timestamp": "2026-08-30T18:14:43.744Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T18:14:43.744Z"
+  },
+  {
+    "id": "ACT-MTG513AZ7G7",
+    "timestamp": "2026-08-30T18:23:25.691Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T18:23:25.691Z"
+  },
+  {
+    "id": "ACT-MTG51NCX8RI",
+    "timestamp": "2026-08-30T18:23:51.681Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T18:23:51.681Z"
+  },
+  {
+    "id": "ACT-MTG523MVA20",
+    "timestamp": "2026-08-30T18:24:12.775Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T18:24:12.775Z"
+  },
+  {
+    "id": "ACT-MTG57ZSZBHI",
+    "timestamp": "2026-08-30T18:28:47.747Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T18:28:47.747Z"
+  },
+  {
+    "id": "ACT-MTG58BDCC5X",
+    "timestamp": "2026-08-30T18:29:02.736Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T18:29:02.736Z"
+  },
+  {
+    "id": "ACT-MTG58WANEQE",
+    "timestamp": "2026-08-30T18:29:29.855Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T18:29:29.855Z"
+  },
+  {
+    "id": "ACT-MTG5AXY31KC",
+    "timestamp": "2026-08-30T18:31:05.307Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T18:31:05.307Z"
+  },
+  {
+    "id": "ACT-MTG5BRX335G",
+    "timestamp": "2026-08-30T18:31:44.151Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T18:31:44.151Z"
+  },
+  {
+    "id": "ACT-MTG5EJLG58P",
+    "timestamp": "2026-08-30T18:33:53.332Z",
+    "userId": "U002",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-30T18:33:53.332Z"
   }
 ]

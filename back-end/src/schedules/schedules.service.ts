@@ -131,6 +131,18 @@ export class SchedulesService {
     );
   }
 
+  remove(id: string, hospitalId?: string) {
+    const rows = this.load();
+    const index = rows.findIndex(s => s.id === id);
+    if (index === -1) return ResponseUtil.error('Schedule not found', 404);
+    if (hospitalId && rows[index].hospitalId !== hospitalId) {
+      return ResponseUtil.error('You do not have permission to delete this schedule', 403);
+    }
+    const [deleted] = rows.splice(index, 1);
+    this.save(rows);
+    return ResponseUtil.success('Schedule deleted successfully', deleted);
+  }
+
   /**
    * True when an appointment date/time falls inside a published (approved)
    * hospital-wide roster for that department. Unpublished drafts are ignored.
