@@ -9,6 +9,7 @@ let allStaff = [];
 let allInventoryReqs = [];
 let allSupport = [];
 let subscriptionData = null;
+let allSchedules = [];
 let managerProfile = null;
 
 // Rejection Modal State
@@ -124,10 +125,10 @@ function switchTab(tabName, event) {
 
     // Update active content
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active-tab'));
-
     const tabMap = {
         overview: 'overviewTab',
         leaves: 'leavesTab',
+        schedules: 'schedulesTab',
         staff: 'staffTab',
         'register-staff': 'registerStaffTab',
         'inventory-approvals': 'inventoryApprovalsTab',
@@ -143,6 +144,7 @@ function switchTab(tabName, event) {
     const titles = {
         overview: { title: 'Hospital Overview', subtitle: 'Comprehensive oversight of staff, doctor leaves, inventory approvals, and annual subscription.' },
         leaves: { title: 'Doctor Leave Approvals', subtitle: 'Review, approve, or reject doctor leave applications with strict hospital scoping.' },
+        schedules: { title: 'Schedule Approvals', subtitle: 'Approve the hospital-wide roster before it is published to department staff.' },
         staff: { title: 'Hospital Staff Directory', subtitle: 'Manage doctors, administrative staff, and ambulance drivers for this hospital.' },
         'register-staff': { title: 'Register Hospital Staff', subtitle: 'Onboard new doctors, administrative staff, or ambulance personnel with automatic credentials.' },
         'inventory-approvals': { title: 'Inventory Requirements & Approvals', subtitle: 'Approve or reject stock requisition requests raised by administrative staff.' },
@@ -169,6 +171,7 @@ async function loadAllDashboardData() {
         await Promise.all([
             loadOverview(),
             loadLeaves(),
+            loadSchedules(),
             loadStaff(),
             loadInventoryReqs(),
             loadAmbulanceFleet(),
@@ -187,17 +190,21 @@ async function loadOverview() {
     const hospitalId = managerProfile?.hospitalId || 'H001';
 
     try {
-        const [leavesResp, usersResp, inventoryResp, subResp] = await Promise.all([
+        const [leavesResp, usersResp, inventoryResp, subResp, schedulesResp, supportResp] = await Promise.all([
             window.NexCareAPI.Leaves.getAll({ hospitalId }).catch(() => ({ success: false, data: [] })),
             window.NexCareAPI.Users.getAll().catch(() => ({ success: false, data: [] })),
             window.NexCareAPI.Inventory.getRequirements({ hospitalId }).catch(() => ({ success: false, data: [] })),
-            window.NexCareAPI.Hospitals.getSubscription(hospitalId).catch(() => ({ success: false, data: null }))
+            window.NexCareAPI.Hospitals.getSubscription(hospitalId).catch(() => ({ success: false, data: null })),
+            window.NexCareAPI.get(`/schedules?hospitalId=${encodeURIComponent(hospitalId)}&status=pending`).catch(() => ({ success: false, data: [] })),
+            window.NexCareAPI.SupportRequests.getAll({ status: 'Open' }).catch(() => ({ success: false, data: [] }))
         ]);
 
         const leaves = (leavesResp.success && Array.isArray(leavesResp.data)) ? leavesResp.data : [];
         const users = (usersResp.success && Array.isArray(usersResp.data)) ? usersResp.data : [];
         const reqs = (inventoryResp.success && Array.isArray(inventoryResp.data)) ? inventoryResp.data : [];
         subscriptionData = subResp.success ? subResp.data : null;
+        const pendingSchedules = (schedulesResp && schedulesResp.success && Array.isArray(schedulesResp.data)) ? schedulesResp.data.length : 0;
+        const openSupport = (supportResp && supportResp.success && Array.isArray(supportResp.data)) ? supportResp.data.length : 0;
 
         // Scoped staff filters
         const doctors = users.filter(u => u.role === 'doctor' && u.hospitalId === hospitalId);
@@ -209,8 +216,17 @@ async function loadOverview() {
         // Update Stat Cards
         document.getElementById('statDoctors').textContent = doctors.length;
         document.getElementById('statPendingLeavesSub').textContent = `${pendingLeaves.length} pending leave request${pendingLeaves.length === 1 ? '' : 's'}`;
+        if (document.getElementById('statPendingLeaves')) {
+            document.getElementById('statPendingLeaves').textContent = pendingLeaves.length;
+        }
         
         document.getElementById('statAdminStaff').textContent = adminStaff.length;
+        if (document.getElementById('statPendingSchedules')) {
+            document.getElementById('statPendingSchedules').textContent = pendingSchedules;
+        }
+        if (document.getElementById('statSupport')) {
+            document.getElementById('statSupport').textContent = openSupport;
+        }
         
         document.getElementById('statPendingInventory').textContent = pendingReqs.length;
         document.getElementById('statUrgentInventorySub').textContent = `${urgentReqs.length} urgent requisition${urgentReqs.length === 1 ? '' : 's'}`;
@@ -525,6 +541,104 @@ function promptRejectLeave(leaveId) {
     document.getElementById('rejectionModalPrompt').textContent = 'Please provide a clear administrative reason for rejecting this doctor leave request:';
     document.getElementById('rejectionReasonInput').value = '';
     document.getElementById('rejectionModal').style.display = 'flex';
+}
+
+/**
+ * TAB: Schedules Management
+ */
+async function loadSchedules() {
+    const tbody = document.getElementById('schedulesTableBody');
+    if (!tbody) return;
+    try {
+        const hospitalId = managerProfile ? managerProfile.hospitalId : null;
+        const path = hospitalId ? `/schedules?hospitalId=${encodeURIComponent(hospitalId)}` : '/schedules';
+        const response = await window.NexCareAPI.get(path);
+        if (response && response.success && Array.isArray(response.data)) {
+            allSchedules = response.data;
+            renderSchedules(allSchedules);
+            const pending = allSchedules.filter(s => s.status === 'pending').length;
+            if (document.getElementById('statPendingSchedules')) {
+                document.getElementById('statPendingSchedules').textContent = pending;
+            }
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No schedules found.</td></tr>';
+        }
+    } catch (err) {
+        console.error('Failed to load schedules:', err);
+        tbody.innerHTML = '<tr><td colspan="5" class="loading-cell" style="color:#ef4444;">Failed to load schedules.</td></tr>';
+    }
+}
+
+function renderSchedules(rows) {
+    const tbody = document.getElementById('schedulesTableBody');
+    if (!rows || rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No schedules found.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = rows.map(s => {
+        const statusBadge = s.status === 'approved' ? '<span class="badge badge-active">APPROVED</span>' :
+            s.status === 'rejected' ? '<span class="badge badge-suspended">REJECTED</span>' :
+            '<span class="badge badge-inactive">PENDING</span>';
+        const coverage = (s.slots || []).map(sl => `${sl.department} · ${sl.shift}`).join('; ') || '—';
+        const actions = s.status === 'pending' ? `
+            <button onclick="approveSchedule('${s.id}')" style="padding:4px 8px; font-size:12px; border-radius:4px; background:#10B981; color:#fff; border:none; cursor:pointer; margin-right:4px;">Approve</button>
+            <button onclick="rejectSchedule('${s.id}')" style="padding:4px 8px; font-size:12px; border-radius:4px; background:#EF4444; color:#fff; border:none; cursor:pointer;">Reject</button>
+        ` : '<span style="color:#6A7282; font-size:12px;">Processed</span>';
+        return `
+            <tr>
+                <td>${escapeHtml((s.validFrom || '') + ' to ' + (s.validTo || ''))}</td>
+                <td>${escapeHtml(coverage)}</td>
+                <td>${escapeHtml(s.notes || '—')}</td>
+                <td>${statusBadge}</td>
+                <td>${actions}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function approveSchedule(id) {
+    if (!confirm('Approve and publish this hospital schedule?')) return;
+    const response = await window.NexCareAPI.patch(`/schedules/${id}`, { status: 'approved' });
+    if (response && response.success) {
+        showToast('Schedule approved and published!', 'success');
+        if (window.NexCareUI && window.NexCareUI.showToast) {
+            window.NexCareUI.showToast({ message: 'Schedule published', type: 'success' });
+        }
+        await loadSchedules();
+        await loadOverview();
+    } else {
+        showToast((response && response.message) || 'Could not approve schedule', 'error');
+    }
+}
+
+async function rejectSchedule(id) {
+    if (!confirm('Reject this hospital schedule?')) return;
+    const response = await window.NexCareAPI.patch(`/schedules/${id}`, { status: 'rejected' });
+    if (response && response.success) {
+        showToast('Schedule rejected', 'warning');
+        if (window.NexCareUI && window.NexCareUI.showToast) {
+            window.NexCareUI.showToast({ message: 'Schedule rejected', type: 'warning' });
+        }
+        await loadSchedules();
+        await loadOverview();
+    } else {
+        showToast((response && response.message) || 'Could not reject schedule', 'error');
+    }
+}
+
+function filterSchedules() {
+    const statusVal = document.getElementById('scheduleStatusFilter').value;
+    renderSchedules(allSchedules.filter(s => !statusVal || s.status === statusVal));
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 /**

@@ -136,12 +136,15 @@ export class LeavesController {
     const user = req.user;
     if (user) {
       if (updateLeaveDto.status === LeaveStatus.APPROVED) {
-        updateLeaveDto.approvedBy = user.id;
+        updateLeaveDto.approvedBy = user.id || user.sub;
         updateLeaveDto.approvedByName = user.name || 'Hospital Manager';
       } else if (updateLeaveDto.status === LeaveStatus.REJECTED) {
-        updateLeaveDto.rejectedBy = user.id;
+        updateLeaveDto.rejectedBy = user.id || user.sub;
         updateLeaveDto.rejectedByName = user.name || 'Hospital Manager';
       }
+    }
+    if (!updateLeaveDto.approvedBy && req.user) {
+      updateLeaveDto.approvedBy = req.user?.sub || req.user?.id;
     }
     return this.leavesService.update(id, updateLeaveDto);
   }

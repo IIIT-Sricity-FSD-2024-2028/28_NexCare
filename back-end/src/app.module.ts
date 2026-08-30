@@ -16,6 +16,7 @@ import { WardsModule } from './wards/wards.module';
 import { EquipmentModule } from './equipment/equipment.module';
 import { SupportRequestsModule } from './support-requests/support-requests.module';
 import { LeavesModule } from './leaves/leaves.module';
+import { SchedulesModule } from './schedules/schedules.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { LoggingModule } from './common/logging/logging.module';
 import { AuthGuard } from './common/guards/auth.guard';
@@ -58,6 +59,7 @@ import { RequestLoggerMiddleware, SecurityMiddleware, CsrfMiddleware } from './l
     EquipmentModule,
     SupportRequestsModule,
     LeavesModule,
+    SchedulesModule,
     UploadsModule,
     LoggingModule,
   ],

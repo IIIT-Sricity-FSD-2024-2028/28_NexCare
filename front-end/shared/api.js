@@ -779,6 +779,22 @@ const LeavesAPI = {
     }
 };
 
+const SchedulesAPI = {
+    async getAll(query = {}) {
+        const params = new URLSearchParams();
+        if (query.hospitalId) params.append('hospitalId', query.hospitalId);
+        if (query.status) params.append('status', query.status);
+        const s = params.toString();
+        return await api.get(`/schedules${s ? `?${s}` : ''}`);
+    },
+    async create(data) {
+        return await api.post('/schedules', data);
+    },
+    async update(id, data) {
+        return await api.patch(`/schedules/${id}`, data);
+    }
+};
+
 // Export all APIs as global window object for easy access
 /**
  * Build an in-app link that survives however the frontend is being served.
@@ -831,6 +847,7 @@ window.NexCareAPI = {
     Inventory: InventoryAPI,
     Hospitals: HospitalsAPI,
     Leaves: LeavesAPI,
+    Schedules: SchedulesAPI,
     SupportRequests: SupportRequestsAPI,
     System: SystemAPI
 };
