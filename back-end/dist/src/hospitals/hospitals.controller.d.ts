@@ -12,4 +12,17 @@ export declare class HospitalsController {
     verify(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     reject(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     assignManager(id: string, managerId: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    getMyHospitals(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    getPendingVerifications(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    verifyHospitalDetailed(hospitalId: string, body: {
+        comments?: string;
+        suggestedChanges?: string[];
+    }): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    rejectHospitalDetailed(hospitalId: string, body: {
+        comments?: string;
+        rejectionReason?: string;
+    }): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    getVerificationHistory(hospitalId: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    getHospitalPerformance(hospitalId: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    getRegionalDashboard(): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
 }

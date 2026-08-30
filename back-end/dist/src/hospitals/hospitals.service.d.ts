@@ -9,4 +9,6 @@ export declare class HospitalsService {
     create(data: CreateHospitalDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     update(id: string, updateData: UpdateHospitalDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     findNearby(city?: string, state?: string, pincode?: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    getHospitalPerformance(hospitalId: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    updatePerformanceMetrics(hospitalId: string, metrics: any): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
 }

@@ -20,6 +20,7 @@ const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const api_response_interface_2 = require("../common/interfaces/api-response.interface");
 const public_decorator_1 = require("../common/decorators/public.decorator");
 const hospital_query_interceptor_1 = require("./interceptors/hospital-query.interceptor");
+const response_util_1 = require("../common/utils/response.util");
 let HospitalsController = class HospitalsController {
     constructor(hospitalsService) {
         this.hospitalsService = hospitalsService;
@@ -47,6 +48,113 @@ let HospitalsController = class HospitalsController {
     }
     async assignManager(id, managerId) {
         return this.hospitalsService.update(id, { assignedManagerId: managerId });
+    }
+    async getMyHospitals() {
+        try {
+            const hospitalsResult = await this.hospitalsService.findAll();
+            const allHospitals = hospitalsResult.data || [];
+            const myHospitals = allHospitals.filter((hospital) => hospital.assignedManagerId);
+            return response_util_1.ResponseUtil.success('Assigned hospitals retrieved successfully', myHospitals);
+        }
+        catch (error) {
+            return response_util_1.ResponseUtil.serverError('Failed to retrieve assigned hospitals');
+        }
+    }
+    async getPendingVerifications() {
+        try {
+            const hospitalsResult = await this.hospitalsService.findAll();
+            const allHospitals = hospitalsResult.data || [];
+            const pendingHospitals = allHospitals.filter((hospital) => hospital.assignedManagerId &&
+                hospital.verificationStatus === 'pending_verification');
+            return response_util_1.ResponseUtil.success('Pending verifications retrieved successfully', pendingHospitals);
+        }
+        catch (error) {
+            return response_util_1.ResponseUtil.serverError('Failed to retrieve pending verifications');
+        }
+    }
+    async verifyHospitalDetailed(hospitalId, body) {
+        try {
+            const updateData = {
+                verificationStatus: 'verified',
+            };
+            if (body.comments) {
+                updateData.verificationComments = body.comments;
+            }
+            if (body.suggestedChanges && body.suggestedChanges.length > 0) {
+                updateData.suggestedChanges = body.suggestedChanges;
+            }
+            return await this.hospitalsService.update(hospitalId, updateData);
+        }
+        catch (error) {
+            return response_util_1.ResponseUtil.serverError('Failed to verify hospital');
+        }
+    }
+    async rejectHospitalDetailed(hospitalId, body) {
+        try {
+            const updateData = {
+                verificationStatus: 'rejected',
+            };
+            if (body.comments) {
+                updateData.verificationComments = body.comments;
+            }
+            if (body.rejectionReason) {
+                updateData.rejectionReason = body.rejectionReason;
+            }
+            return await this.hospitalsService.update(hospitalId, updateData);
+        }
+        catch (error) {
+            return response_util_1.ResponseUtil.serverError('Failed to reject hospital');
+        }
+    }
+    async getVerificationHistory(hospitalId) {
+        try {
+            const hospitalResult = await this.hospitalsService.findById(hospitalId);
+            const hospital = hospitalResult.data;
+            if (!hospital) {
+                return response_util_1.ResponseUtil.notFound('Hospital', hospitalId);
+            }
+            const history = [
+                {
+                    status: 'registered',
+                    date: hospital.createdAt,
+                    description: 'Hospital registered'
+                },
+                {
+                    status: hospital.verificationStatus,
+                    date: hospital.updatedAt,
+                    description: `Current status: ${hospital.verificationStatus}`,
+                    comments: hospital.verificationComments || null
+                }
+            ];
+            return response_util_1.ResponseUtil.success('Verification history retrieved successfully', history);
+        }
+        catch (error) {
+            return response_util_1.ResponseUtil.serverError('Failed to retrieve verification history');
+        }
+    }
+    async getHospitalPerformance(hospitalId) {
+        return await this.hospitalsService.getHospitalPerformance(hospitalId);
+    }
+    async getRegionalDashboard() {
+        try {
+            const hospitalsResult = await this.hospitalsService.findAll();
+            const allHospitals = hospitalsResult.data || [];
+            const myHospitals = allHospitals.filter((hospital) => hospital.assignedManagerId);
+            const pendingHospitals = myHospitals.filter((hospital) => hospital.verificationStatus === 'pending_verification');
+            const verifiedHospitals = myHospitals.filter((hospital) => hospital.verificationStatus === 'verified');
+            const dashboard = {
+                totalHospitals: myHospitals.length,
+                pendingVerifications: pendingHospitals.length,
+                verifiedHospitals: verifiedHospitals.length,
+                rejectedHospitals: myHospitals.filter((h) => h.verificationStatus === 'rejected').length,
+                activeHospitals: verifiedHospitals.length,
+                hospitals: myHospitals
+            };
+            return response_util_1.ResponseUtil.success('Dashboard overview retrieved successfully', dashboard);
+        }
+        catch (error) {
+            return response_util_1.ResponseUtil.serverError('Failed to retrieve dashboard overview');
+        }
     }
 };
 exports.HospitalsController = HospitalsController;
@@ -123,6 +231,61 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], HospitalsController.prototype, "assignManager", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_2.UserRole.REGIONAL_MANAGER),
+    (0, common_1.Get)('regional/my-hospitals'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], HospitalsController.prototype, "getMyHospitals", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_2.UserRole.REGIONAL_MANAGER),
+    (0, common_1.Get)('regional/pending-verifications'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], HospitalsController.prototype, "getPendingVerifications", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_2.UserRole.REGIONAL_MANAGER),
+    (0, common_1.Patch)(':id/verify-detailed'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], HospitalsController.prototype, "verifyHospitalDetailed", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_2.UserRole.REGIONAL_MANAGER),
+    (0, common_1.Patch)(':id/reject-detailed'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], HospitalsController.prototype, "rejectHospitalDetailed", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_2.UserRole.REGIONAL_MANAGER),
+    (0, common_1.Get)(':id/verification-history'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], HospitalsController.prototype, "getVerificationHistory", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_2.UserRole.REGIONAL_MANAGER),
+    (0, common_1.Get)(':id/performance'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], HospitalsController.prototype, "getHospitalPerformance", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(api_response_interface_2.UserRole.REGIONAL_MANAGER),
+    (0, common_1.Get)('regional/dashboard'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], HospitalsController.prototype, "getRegionalDashboard", null);
 exports.HospitalsController = HospitalsController = __decorate([
     (0, common_1.Controller)('hospitals'),
     __metadata("design:paramtypes", [hospitals_service_1.HospitalsService])

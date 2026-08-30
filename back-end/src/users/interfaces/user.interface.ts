@@ -13,6 +13,10 @@ export interface User {
   password: string;
   patientId?: string; // For patient users
   dept?: string; // For doctor/nurse users
+  hospitalId?: string; // For hospital managers - their assigned hospital
+  city?: string; // For regional managers and patients
+  state?: string; // For regional managers and patients
+  pincode?: string; // For regional managers and patients
   createdAt?: string;
   updatedAt?: string;
 }
@@ -27,6 +31,10 @@ export interface CreateUserRequest {
   password: string;
   patientId?: string;
   dept?: string;
+  hospitalId?: string; // For hospital managers
+  city?: string; // For regional managers and patients
+  state?: string; // For regional managers and patients
+  pincode?: string; // For regional managers and patients
 }
 
 /**
@@ -40,6 +48,10 @@ export interface UpdateUserRequest {
   password?: string;
   patientId?: string;
   dept?: string;
+  hospitalId?: string; // For hospital managers
+  city?: string; // For regional managers and patients
+  state?: string; // For regional managers and patients
+  pincode?: string; // For regional managers and patients
 }
 
 /**
@@ -51,4 +63,37 @@ export interface UserStats {
   inactive: number;
   onLeave: number;
   byRole: Record<UserRole, number>;
+}
+
+/**
+ * Regional Manager Workload Interface
+ */
+export interface RMWorkload {
+  regionalManagerId: string;
+  regionalManagerName: string;
+  regionalManagerEmail: string;
+  city: string; // RM's assigned city
+  state?: string;
+  totalHospitals: number;
+  pendingVerifications: number;
+  verifiedHospitals: number;
+  rejectedHospitals: number;
+  activeHospitals: number;
+  workloadLevel: 'low' | 'medium' | 'high';
+  lastActivity?: string;
+}
+
+/**
+ * RM Suggestion Interface
+ */
+export interface RMSuggestion {
+  regionalManagerId: string;
+  regionalManagerName: string;
+  regionalManagerEmail: string;
+  city: string; // RM's assigned city
+  state?: string;
+  currentWorkload: number;
+  workloadLevel: 'low' | 'medium' | 'high';
+  recommendation: string;
+  reason: string;
 }

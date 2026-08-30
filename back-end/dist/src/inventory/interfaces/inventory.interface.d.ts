@@ -53,8 +53,8 @@ export interface InventoryAudit {
     action: 'restock' | 'use';
     quantityBefore: number;
     quantityAfter: number;
-    statusBefore: InventoryStatus;
-    statusAfter: InventoryStatus;
+    statusBefore?: InventoryStatus;
+    statusAfter?: InventoryStatus;
     userId: string;
     timestamp: string;
     notes?: string;

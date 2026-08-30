@@ -14,4 +14,8 @@ export declare class UsersController {
     patchUpdate(id: string, updateUserDto: UpdateUserDto): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     delete(id: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
     updateStatus(id: string, status: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    getRegionalManagersByCity(city: string): Promise<import("../common/interfaces/api-response.interface").ApiResponse<any>>;
+    getRMWorkload(id: string): Promise<import("./interfaces/user.interface").RMWorkload>;
+    suggestRMForHospital(city: string): Promise<import("./interfaces/user.interface").RMSuggestion[]>;
+    getAllRMWorkloads(): Promise<import("./interfaces/user.interface").RMWorkload[]>;
 }

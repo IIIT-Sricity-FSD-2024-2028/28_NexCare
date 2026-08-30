@@ -171,6 +171,51 @@ let HospitalsService = class HospitalsService {
             return response_util_1.ResponseUtil.serverError('Failed to retrieve nearby hospitals');
         }
     }
+    async getHospitalPerformance(hospitalId) {
+        try {
+            const hospital = this.hospitals.find(h => h.id === hospitalId);
+            if (!hospital) {
+                return response_util_1.ResponseUtil.notFound('Hospital', hospitalId);
+            }
+            const performanceMetrics = {
+                hospitalId: hospital.id,
+                hospitalName: hospital.name,
+                bedOccupancyRate: hospital.performanceMetrics?.bedOccupancyRate || 0,
+                appointmentCompletionRate: hospital.performanceMetrics?.appointmentCompletionRate || 0,
+                patientSatisfactionScore: hospital.performanceMetrics?.patientSatisfactionScore || 0,
+                totalBeds: hospital.totalBeds,
+                icuBeds: hospital.icuBeds,
+                verificationStatus: hospital.verificationStatus,
+                lastUpdated: hospital.performanceMetrics?.lastUpdated || hospital.updatedAt
+            };
+            return response_util_1.ResponseUtil.success('Hospital performance retrieved successfully', performanceMetrics);
+        }
+        catch (error) {
+            return response_util_1.ResponseUtil.serverError('Failed to retrieve hospital performance');
+        }
+    }
+    async updatePerformanceMetrics(hospitalId, metrics) {
+        try {
+            const all = this.hospitals;
+            const idx = all.findIndex(h => h.id === hospitalId);
+            if (idx === -1)
+                return response_util_1.ResponseUtil.notFound('Hospital', hospitalId);
+            all[idx] = {
+                ...all[idx],
+                performanceMetrics: {
+                    ...all[idx].performanceMetrics,
+                    ...metrics,
+                    lastUpdated: new Date().toISOString()
+                },
+                updatedAt: new Date().toISOString()
+            };
+            this.hospitals = all;
+            return response_util_1.ResponseUtil.updated('Hospital performance metrics updated successfully', all[idx].performanceMetrics);
+        }
+        catch (error) {
+            return response_util_1.ResponseUtil.serverError('Failed to update hospital performance metrics');
+        }
+    }
 };
 exports.HospitalsService = HospitalsService;
 exports.HospitalsService = HospitalsService = __decorate([

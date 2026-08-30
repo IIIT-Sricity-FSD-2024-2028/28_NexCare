@@ -280,11 +280,15 @@ let InventoryService = class InventoryService {
     }
     async restock(id, restockData) {
         try {
+            const quantity = Number(restockData?.quantity);
+            if (isNaN(quantity) || quantity <= 0 || !Number.isInteger(quantity)) {
+                return response_util_1.ResponseUtil.error('Restock quantity must be a positive integer');
+            }
             const itemIndex = this.inventory.findIndex(i => i.id === id);
             if (itemIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Inventory item', id);
             }
-            this.inventory[itemIndex].quantity += restockData.quantity;
+            this.inventory[itemIndex].quantity += quantity;
             this.inventory[itemIndex].lastRestocked = new Date().toISOString();
             this.inventory[itemIndex].updatedAt = new Date().toISOString();
             const item = this.inventory[itemIndex];
@@ -306,6 +310,9 @@ let InventoryService = class InventoryService {
     }
     async useItem(id, quantity, notes) {
         try {
+            if (typeof quantity !== 'number' || isNaN(quantity) || quantity <= 0 || !Number.isInteger(quantity)) {
+                return response_util_1.ResponseUtil.error('Quantity must be a positive integer');
+            }
             const itemIndex = this.inventory.findIndex(i => i.id === id);
             if (itemIndex === -1) {
                 return response_util_1.ResponseUtil.notFound('Inventory item', id);

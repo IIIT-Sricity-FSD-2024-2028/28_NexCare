@@ -54,6 +54,18 @@ let UsersController = class UsersController {
     async updateStatus(id, status) {
         return this.usersService.updateStatus(id, status);
     }
+    async getRegionalManagersByCity(city) {
+        return this.usersService.getRegionalManagersByCity(city);
+    }
+    async getRMWorkload(id) {
+        return this.usersService.getRMWorkload(id);
+    }
+    async suggestRMForHospital(city) {
+        return this.usersService.suggestRMForHospital(city);
+    }
+    async getAllRMWorkloads() {
+        return this.usersService.getAllRMWorkloads();
+    }
 };
 exports.UsersController = UsersController;
 __decorate([
@@ -154,6 +166,45 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateStatus", null);
+__decorate([
+    (0, common_1.Get)('regional-managers/city/:city'),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER),
+    (0, swagger_1.ApiOperation)({ summary: 'Get regional managers by city' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Regional managers retrieved successfully' }),
+    __param(0, (0, common_1.Param)('city')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getRegionalManagersByCity", null);
+__decorate([
+    (0, common_1.Get)('regional-managers/:id/workload'),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER),
+    (0, swagger_1.ApiOperation)({ summary: 'Get regional manager workload' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'RM workload retrieved successfully' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getRMWorkload", null);
+__decorate([
+    (0, common_1.Get)('regional-managers/suggest/:city'),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER),
+    (0, swagger_1.ApiOperation)({ summary: 'Suggest regional manager for hospital by city' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'RM suggestions retrieved successfully' }),
+    __param(0, (0, common_1.Param)('city')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "suggestRMForHospital", null);
+__decorate([
+    (0, common_1.Get)('regional-managers/workloads'),
+    (0, roles_decorator_1.Roles)(api_response_interface_1.UserRole.SUPERUSER),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all regional managers with workload' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'All RM workloads retrieved successfully' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getAllRMWorkloads", null);
 exports.UsersController = UsersController = __decorate([
     (0, swagger_1.ApiTags)('Users'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),

@@ -69,7 +69,7 @@ let InventoryController = class InventoryController {
         return this.inventoryService.restock(id, restockDto);
     }
     async useItem(id, body) {
-        const quantity = typeof body === 'number' ? body : (body?.quantity ? Number(body.quantity) : 1);
+        const quantity = typeof body === 'number' ? body : Number(body?.quantity);
         return this.inventoryService.useItem(id, quantity, body?.notes);
     }
 };

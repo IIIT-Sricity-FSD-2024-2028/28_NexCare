@@ -134,4 +134,52 @@ export class UsersController {
   async updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.usersService.updateStatus(id, status as any);
   }
+
+  /**
+   * Get regional managers by city
+   * Used by super admin for RM assignment
+   */
+  @Get('regional-managers/city/:city')
+  @Roles(UserRole.SUPERUSER)
+  @ApiOperation({ summary: 'Get regional managers by city' })
+  @ApiResponse({ status: 200, description: 'Regional managers retrieved successfully' })
+  async getRegionalManagersByCity(@Param('city') city: string) {
+    return this.usersService.getRegionalManagersByCity(city);
+  }
+
+  /**
+   * Get regional manager workload
+   * Used by super admin for workload balancing
+   */
+  @Get('regional-managers/:id/workload')
+  @Roles(UserRole.SUPERUSER)
+  @ApiOperation({ summary: 'Get regional manager workload' })
+  @ApiResponse({ status: 200, description: 'RM workload retrieved successfully' })
+  async getRMWorkload(@Param('id') id: string) {
+    return this.usersService.getRMWorkload(id);
+  }
+
+  /**
+   * Suggest regional manager for hospital
+   * Used by super admin for smart assignment
+   */
+  @Get('regional-managers/suggest/:city')
+  @Roles(UserRole.SUPERUSER)
+  @ApiOperation({ summary: 'Suggest regional manager for hospital by city' })
+  @ApiResponse({ status: 200, description: 'RM suggestions retrieved successfully' })
+  async suggestRMForHospital(@Param('city') city: string) {
+    return this.usersService.suggestRMForHospital(city);
+  }
+
+  /**
+   * Get all regional managers with their workload
+   * Used by super admin for overview
+   */
+  @Get('regional-managers/workloads')
+  @Roles(UserRole.SUPERUSER)
+  @ApiOperation({ summary: 'Get all regional managers with workload' })
+  @ApiResponse({ status: 200, description: 'All RM workloads retrieved successfully' })
+  async getAllRMWorkloads() {
+    return this.usersService.getAllRMWorkloads();
+  }
 }

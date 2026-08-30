@@ -1210,6 +1210,113 @@
         ]
       }
     },
+    "/api/users/regional-managers/city/{city}": {
+      "get": {
+        "operationId": "UsersController_getRegionalManagersByCity",
+        "summary": "Get regional managers by city",
+        "parameters": [
+          {
+            "name": "city",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Regional managers retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/regional-managers/{id}/workload": {
+      "get": {
+        "operationId": "UsersController_getRMWorkload",
+        "summary": "Get regional manager workload",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RM workload retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/regional-managers/suggest/{city}": {
+      "get": {
+        "operationId": "UsersController_suggestRMForHospital",
+        "summary": "Suggest regional manager for hospital by city",
+        "parameters": [
+          {
+            "name": "city",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RM suggestions retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/users/regional-managers/workloads": {
+      "get": {
+        "operationId": "UsersController_getAllRMWorkloads",
+        "summary": "Get all regional managers with workload",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "All RM workloads retrieved successfully"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
     "/api/appointments": {
       "get": {
         "operationId": "AppointmentsController_findAll",
@@ -3790,6 +3897,199 @@
     "/api/hospitals/{id}/assign-manager": {
       "patch": {
         "operationId": "HospitalsController_assignManager",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/my-hospitals": {
+      "get": {
+        "operationId": "HospitalsController_getMyHospitals",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/pending-verifications": {
+      "get": {
+        "operationId": "HospitalsController_getPendingVerifications",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/verify-detailed": {
+      "patch": {
+        "operationId": "HospitalsController_verifyHospitalDetailed",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/reject-detailed": {
+      "patch": {
+        "operationId": "HospitalsController_rejectHospitalDetailed",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/verification-history": {
+      "get": {
+        "operationId": "HospitalsController_getVerificationHistory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/performance": {
+      "get": {
+        "operationId": "HospitalsController_getHospitalPerformance",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/regional/dashboard": {
+      "get": {
+        "operationId": "HospitalsController_getRegionalDashboard",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/doctors": {
+      "get": {
+        "operationId": "HospitalDetailsController_getDoctors",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/beds": {
+      "get": {
+        "operationId": "HospitalDetailsController_getBeds",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/inventory": {
+      "get": {
+        "operationId": "HospitalDetailsController_getInventory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/hospitals/{id}/ambulances": {
+      "get": {
+        "operationId": "HospitalDetailsController_getAmbulances",
         "parameters": [
           {
             "name": "id",

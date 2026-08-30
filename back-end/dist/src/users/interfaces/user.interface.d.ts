@@ -8,6 +8,10 @@ export interface User {
     password: string;
     patientId?: string;
     dept?: string;
+    hospitalId?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -18,6 +22,10 @@ export interface CreateUserRequest {
     password: string;
     patientId?: string;
     dept?: string;
+    hospitalId?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
 }
 export interface UpdateUserRequest {
     name?: string;
@@ -27,6 +35,10 @@ export interface UpdateUserRequest {
     password?: string;
     patientId?: string;
     dept?: string;
+    hospitalId?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
 }
 export interface UserStats {
     total: number;
@@ -34,4 +46,29 @@ export interface UserStats {
     inactive: number;
     onLeave: number;
     byRole: Record<UserRole, number>;
+}
+export interface RMWorkload {
+    regionalManagerId: string;
+    regionalManagerName: string;
+    regionalManagerEmail: string;
+    city: string;
+    state?: string;
+    totalHospitals: number;
+    pendingVerifications: number;
+    verifiedHospitals: number;
+    rejectedHospitals: number;
+    activeHospitals: number;
+    workloadLevel: 'low' | 'medium' | 'high';
+    lastActivity?: string;
+}
+export interface RMSuggestion {
+    regionalManagerId: string;
+    regionalManagerName: string;
+    regionalManagerEmail: string;
+    city: string;
+    state?: string;
+    currentWorkload: number;
+    workloadLevel: 'low' | 'medium' | 'high';
+    recommendation: string;
+    reason: string;
 }

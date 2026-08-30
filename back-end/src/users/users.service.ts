@@ -5,8 +5,8 @@ import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { ArrayUtil } from '../common/utils/array.util';
 import { DataSanitizer } from '../common/utils/sanitizer.util';
-import { User, CreateUserRequest, UpdateUserRequest, UserStats } from './interfaces/user.interface';
-import { UserRole, UserStatus } from '../common/interfaces/api-response.interface';
+import { User, CreateUserRequest, UpdateUserRequest, UserStats, RMWorkload, RMSuggestion } from './interfaces/user.interface';
+import { UserRole, UserStatus, VerificationStatus } from '../common/interfaces/api-response.interface';
 
 /**
  * Users Service
@@ -17,6 +17,7 @@ import { UserRole, UserStatus } from '../common/interfaces/api-response.interfac
 export class UsersService {
   // In-memory mock users database (aligned with frontend db.js)
 private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
+private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals.json');
 
   private get users(): User[] {
     try {
@@ -33,6 +34,15 @@ private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
       fs.writeFileSync(this.usersFilePath, JSON.stringify(val, null, 2), 'utf-8');
     } catch (err) {
       console.error('Failed to persist users to disk:', err);
+    }
+  }
+
+  private get hospitals(): any[] {
+    try {
+      const raw = fs.readFileSync(this.hospitalsFilePath, 'utf-8');
+      return JSON.parse(raw);
+    } catch {
+      return [];
     }
   }
 
@@ -114,6 +124,10 @@ private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
         password: userData.password,
         patientId: userData.patientId,
         dept: userData.dept,
+        hospitalId: userData.hospitalId,
+        city: userData.city,
+        state: userData.state,
+        pincode: userData.pincode,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -159,6 +173,10 @@ private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
       const currentUsers = this.users;
       const updatedUser = ArrayUtil.updateById(currentUsers, id, {
         ...updateData,
+        hospitalId: updateData.hospitalId,
+        city: updateData.city,
+        state: updateData.state,
+        pincode: updateData.pincode,
         updatedAt: new Date().toISOString()
       });
       this.users = currentUsers;
@@ -298,6 +316,179 @@ private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
       return ResponseUtil.success('Search results retrieved successfully', usersWithoutPassword);
     } catch (error) {
       return ResponseUtil.serverError('Failed to search users');
+    }
+  }
+
+  /**
+   * Get regional managers by city
+   * Used by super admin for RM assignment
+   * Returns RMs assigned to the specified city
+   */
+  async getRegionalManagersByCity(city: string) {
+    try {
+      const regionalManagers = this.users.filter(user => 
+        user.role === UserRole.REGIONAL_MANAGER && 
+        user.city && 
+        user.city.toLowerCase() === city.toLowerCase()
+      );
+
+      const rmsWithoutPassword = DataSanitizer.removePasswords(regionalManagers);
+
+      return ResponseUtil.success(`Regional managers for city '${city}' retrieved successfully`, rmsWithoutPassword);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve regional managers by city');
+    }
+  }
+
+  /**
+   * Get regional manager workload
+   * Used by super admin for workload balancing
+   */
+  async getRMWorkload(managerId: string): Promise<RMWorkload> {
+    try {
+      const rm = ArrayUtil.findById(this.users, managerId);
+      if (!rm || rm.role !== UserRole.REGIONAL_MANAGER) {
+        throw new Error('Regional manager not found');
+      }
+
+      const hospitals = this.hospitals;
+      const assignedHospitals = hospitals.filter(h => h.assignedManagerId === managerId);
+
+      const pendingVerifications = assignedHospitals.filter(h => 
+        h.verificationStatus === VerificationStatus.PENDING_VERIFICATION
+      ).length;
+
+      const verifiedHospitals = assignedHospitals.filter(h => 
+        h.verificationStatus === VerificationStatus.VERIFIED
+      ).length;
+
+      const rejectedHospitals = assignedHospitals.filter(h => 
+        h.verificationStatus === VerificationStatus.REJECTED
+      ).length;
+
+      const activeHospitals = verifiedHospitals; // Active = verified
+
+      // Calculate workload level
+      const totalHospitals = assignedHospitals.length;
+      let workloadLevel: 'low' | 'medium' | 'high' = 'low';
+      if (totalHospitals > 15) workloadLevel = 'high';
+      else if (totalHospitals > 8) workloadLevel = 'medium';
+
+      const workload: RMWorkload = {
+        regionalManagerId: rm.id,
+        regionalManagerName: rm.name,
+        regionalManagerEmail: rm.email,
+        city: rm.city || 'Not assigned',
+        state: rm.state,
+        totalHospitals,
+        pendingVerifications,
+        verifiedHospitals,
+        rejectedHospitals,
+        activeHospitals,
+        workloadLevel,
+        lastActivity: rm.updatedAt
+      };
+
+      return workload;
+    } catch (error) {
+      throw new Error('Failed to get RM workload');
+    }
+  }
+
+  /**
+   * Suggest regional manager for hospital
+   * Used by super admin for smart assignment
+   * Suggests RM based on city match and workload
+   */
+  async suggestRMForHospital(hospitalCity: string): Promise<RMSuggestion[]> {
+    try {
+      // Get all regional managers
+      const regionalManagers = this.users.filter(user => user.role === UserRole.REGIONAL_MANAGER);
+
+      if (regionalManagers.length === 0) {
+        return [];
+      }
+
+      // Calculate workload for each RM
+      const suggestions: RMSuggestion[] = [];
+      for (const rm of regionalManagers) {
+        const workload = await this.getRMWorkload(rm.id);
+        
+        // Check if RM's city matches hospital city
+        const cityMatch = rm.city && rm.city.toLowerCase() === hospitalCity.toLowerCase();
+        
+        let recommendation = 'available';
+        let reason = 'No current workload';
+        
+        if (workload.workloadLevel === 'high') {
+          recommendation = 'not_recommended';
+          reason = 'High current workload';
+        } else if (workload.workloadLevel === 'medium') {
+          recommendation = 'acceptable';
+          reason = 'Moderate workload, still available';
+        }
+
+        if (cityMatch) {
+          reason += ', assigned to this city';
+        } else {
+          reason += ', different city assignment';
+        }
+
+        suggestions.push({
+          regionalManagerId: rm.id,
+          regionalManagerName: rm.name,
+          regionalManagerEmail: rm.email,
+          city: rm.city || 'Not assigned',
+          state: rm.state,
+          currentWorkload: workload.totalHospitals,
+          workloadLevel: workload.workloadLevel,
+          recommendation,
+          reason
+        });
+      }
+
+      // Sort by workload (low to high), prioritize city match
+      suggestions.sort((a, b) => {
+        // First sort by city match (RMs assigned to this city get priority)
+        const aCityMatch = a.city.toLowerCase() === hospitalCity.toLowerCase();
+        const bCityMatch = b.city.toLowerCase() === hospitalCity.toLowerCase();
+        if (aCityMatch && !bCityMatch) return -1;
+        if (!aCityMatch && bCityMatch) return 1;
+        
+        // Then sort by workload
+        if (a.currentWorkload !== b.currentWorkload) {
+          return a.currentWorkload - b.currentWorkload;
+        }
+        return 0;
+      });
+
+      return suggestions;
+    } catch (error) {
+      throw new Error('Failed to suggest regional manager');
+    }
+  }
+
+  /**
+   * Get all regional managers with their workload
+   * Used by super admin for overview
+   */
+  async getAllRMWorkloads(): Promise<RMWorkload[]> {
+    try {
+      const regionalManagers = this.users.filter(user => user.role === UserRole.REGIONAL_MANAGER);
+      const workloads: RMWorkload[] = [];
+
+      for (const rm of regionalManagers) {
+        try {
+          const workload = await this.getRMWorkload(rm.id);
+          workloads.push(workload);
+        } catch (error) {
+          console.error(`Failed to get workload for RM ${rm.id}:`, error);
+        }
+      }
+
+      return workloads;
+    } catch (error) {
+      throw new Error('Failed to get all RM workloads');
     }
   }
 }

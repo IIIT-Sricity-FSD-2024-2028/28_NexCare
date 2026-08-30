@@ -18,6 +18,7 @@ const api_response_interface_1 = require("../common/interfaces/api-response.inte
 let UsersService = class UsersService {
     constructor() {
         this.usersFilePath = path.join(process.cwd(), 'data', 'users.json');
+        this.hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals.json');
     }
     get users() {
         try {
@@ -35,6 +36,15 @@ let UsersService = class UsersService {
         }
         catch (err) {
             console.error('Failed to persist users to disk:', err);
+        }
+    }
+    get hospitals() {
+        try {
+            const raw = fs.readFileSync(this.hospitalsFilePath, 'utf-8');
+            return JSON.parse(raw);
+        }
+        catch {
+            return [];
         }
     }
     async findAll(role, status) {
@@ -82,6 +92,10 @@ let UsersService = class UsersService {
                 password: userData.password,
                 patientId: userData.patientId,
                 dept: userData.dept,
+                hospitalId: userData.hospitalId,
+                city: userData.city,
+                state: userData.state,
+                pincode: userData.pincode,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
@@ -111,6 +125,10 @@ let UsersService = class UsersService {
             const currentUsers = this.users;
             const updatedUser = array_util_1.ArrayUtil.updateById(currentUsers, id, {
                 ...updateData,
+                hospitalId: updateData.hospitalId,
+                city: updateData.city,
+                state: updateData.state,
+                pincode: updateData.pincode,
                 updatedAt: new Date().toISOString()
             });
             this.users = currentUsers;
@@ -200,6 +218,131 @@ let UsersService = class UsersService {
         }
         catch (error) {
             return response_util_1.ResponseUtil.serverError('Failed to search users');
+        }
+    }
+    async getRegionalManagersByCity(city) {
+        try {
+            const regionalManagers = this.users.filter(user => user.role === api_response_interface_1.UserRole.REGIONAL_MANAGER &&
+                user.city &&
+                user.city.toLowerCase() === city.toLowerCase());
+            const rmsWithoutPassword = sanitizer_util_1.DataSanitizer.removePasswords(regionalManagers);
+            return response_util_1.ResponseUtil.success(`Regional managers for city '${city}' retrieved successfully`, rmsWithoutPassword);
+        }
+        catch (error) {
+            return response_util_1.ResponseUtil.serverError('Failed to retrieve regional managers by city');
+        }
+    }
+    async getRMWorkload(managerId) {
+        try {
+            const rm = array_util_1.ArrayUtil.findById(this.users, managerId);
+            if (!rm || rm.role !== api_response_interface_1.UserRole.REGIONAL_MANAGER) {
+                throw new Error('Regional manager not found');
+            }
+            const hospitals = this.hospitals;
+            const assignedHospitals = hospitals.filter(h => h.assignedManagerId === managerId);
+            const pendingVerifications = assignedHospitals.filter(h => h.verificationStatus === api_response_interface_1.VerificationStatus.PENDING_VERIFICATION).length;
+            const verifiedHospitals = assignedHospitals.filter(h => h.verificationStatus === api_response_interface_1.VerificationStatus.VERIFIED).length;
+            const rejectedHospitals = assignedHospitals.filter(h => h.verificationStatus === api_response_interface_1.VerificationStatus.REJECTED).length;
+            const activeHospitals = verifiedHospitals;
+            const totalHospitals = assignedHospitals.length;
+            let workloadLevel = 'low';
+            if (totalHospitals > 15)
+                workloadLevel = 'high';
+            else if (totalHospitals > 8)
+                workloadLevel = 'medium';
+            const workload = {
+                regionalManagerId: rm.id,
+                regionalManagerName: rm.name,
+                regionalManagerEmail: rm.email,
+                city: rm.city || 'Not assigned',
+                state: rm.state,
+                totalHospitals,
+                pendingVerifications,
+                verifiedHospitals,
+                rejectedHospitals,
+                activeHospitals,
+                workloadLevel,
+                lastActivity: rm.updatedAt
+            };
+            return workload;
+        }
+        catch (error) {
+            throw new Error('Failed to get RM workload');
+        }
+    }
+    async suggestRMForHospital(hospitalCity) {
+        try {
+            const regionalManagers = this.users.filter(user => user.role === api_response_interface_1.UserRole.REGIONAL_MANAGER);
+            if (regionalManagers.length === 0) {
+                return [];
+            }
+            const suggestions = [];
+            for (const rm of regionalManagers) {
+                const workload = await this.getRMWorkload(rm.id);
+                const cityMatch = rm.city && rm.city.toLowerCase() === hospitalCity.toLowerCase();
+                let recommendation = 'available';
+                let reason = 'No current workload';
+                if (workload.workloadLevel === 'high') {
+                    recommendation = 'not_recommended';
+                    reason = 'High current workload';
+                }
+                else if (workload.workloadLevel === 'medium') {
+                    recommendation = 'acceptable';
+                    reason = 'Moderate workload, still available';
+                }
+                if (cityMatch) {
+                    reason += ', assigned to this city';
+                }
+                else {
+                    reason += ', different city assignment';
+                }
+                suggestions.push({
+                    regionalManagerId: rm.id,
+                    regionalManagerName: rm.name,
+                    regionalManagerEmail: rm.email,
+                    city: rm.city || 'Not assigned',
+                    state: rm.state,
+                    currentWorkload: workload.totalHospitals,
+                    workloadLevel: workload.workloadLevel,
+                    recommendation,
+                    reason
+                });
+            }
+            suggestions.sort((a, b) => {
+                const aCityMatch = a.city.toLowerCase() === hospitalCity.toLowerCase();
+                const bCityMatch = b.city.toLowerCase() === hospitalCity.toLowerCase();
+                if (aCityMatch && !bCityMatch)
+                    return -1;
+                if (!aCityMatch && bCityMatch)
+                    return 1;
+                if (a.currentWorkload !== b.currentWorkload) {
+                    return a.currentWorkload - b.currentWorkload;
+                }
+                return 0;
+            });
+            return suggestions;
+        }
+        catch (error) {
+            throw new Error('Failed to suggest regional manager');
+        }
+    }
+    async getAllRMWorkloads() {
+        try {
+            const regionalManagers = this.users.filter(user => user.role === api_response_interface_1.UserRole.REGIONAL_MANAGER);
+            const workloads = [];
+            for (const rm of regionalManagers) {
+                try {
+                    const workload = await this.getRMWorkload(rm.id);
+                    workloads.push(workload);
+                }
+                catch (error) {
+                    console.error(`Failed to get workload for RM ${rm.id}:`, error);
+                }
+            }
+            return workloads;
+        }
+        catch (error) {
+            throw new Error('Failed to get all RM workloads');
         }
     }
 };

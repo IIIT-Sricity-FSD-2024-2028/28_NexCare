@@ -13,7 +13,10 @@
     "email": "regional@nexcare.com",
     "role": "regional_manager",
     "status": "Active",
-    "password": "Password123"
+    "password": "Password123",
+    "city": "Tirupati",
+    "state": "Andhra Pradesh",
+    "pincode": "517501"
   },
   {
     "id": "U002",
