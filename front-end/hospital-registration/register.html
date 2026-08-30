@@ -26,6 +26,9 @@
                 <h2>HOSPITAL REGISTRATION</h2>
                 <p style="color: #64748B; font-size: 14px; margin-bottom: 20px;">Register your institution on NexCare. All registrations start in PENDING status for Superuser review.</p>
 
+                <div id="registerError" style="display:none; padding: 12px; margin-bottom: 20px; background: #fee2e2; color: #b91c1c; border-radius: 6px; font-size: 14px; font-weight: 500; border: 1px solid #fecaca;"></div>
+                <div id="registerSuccess" style="display:none; padding: 12px; margin-bottom: 20px; background: #dcfce7; color: #15803d; border-radius: 6px; font-size: 14px; font-weight: 500; border: 1px solid #bbf7d0;"></div>
+
                 <form id="hospitalRegisterForm">
                     <div class="form-grid">
                         <div class="form-group">
@@ -79,11 +82,11 @@
                         </div>
                         <div class="form-group">
                             <label>Admin Phone</label>
-                            <input type="tel" id="adminPhone" class="form-control" inputmode="tel" pattern="\+?[0-9][0-9\s()\-]{8,14}" title="Enter a valid 10 to 15 digit phone number" placeholder="10-digit mobile" required>
+                            <input type="tel" id="adminPhone" class="form-control" inputmode="tel" pattern="\+?[0-9][0-9\s\(\)\-]{8,14}" title="Enter a valid 10 to 15 digit phone number" placeholder="10-digit mobile" required>
                         </div>
                         <div class="form-group">
                             <label>Hospital Contact Phone</label>
-                            <input type="tel" id="phone" class="form-control" inputmode="tel" pattern="\+?[0-9][0-9\s()\-]{8,14}" title="Enter a valid 10 to 15 digit phone number" placeholder="Landline / Desk phone" required>
+                            <input type="tel" id="phone" class="form-control" inputmode="tel" pattern="\+?[0-9][0-9\s\(\)\-]{8,14}" title="Enter a valid 10 to 15 digit phone number" placeholder="Landline / Desk phone" required>
                         </div>
                     </div>
 
@@ -131,20 +134,45 @@
             };
 
             if (data.icuBeds > data.totalBeds) {
-                alert('ICU beds cannot exceed total beds.');
+                document.getElementById('registerError').textContent = 'ICU beds cannot exceed total beds.';
+                document.getElementById('registerError').style.display = 'block';
                 return;
             }
+
+            const errorDiv = document.getElementById('registerError');
+            const successDiv = document.getElementById('registerSuccess');
+            const btn = e.target.querySelector('button[type="submit"]');
+            
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            btn.disabled = true;
+            btn.innerHTML = 'Submitting...';
 
             try {
                 const res = await window.NexCareAPI.Hospitals.register(data);
                 if (res.success) {
-                    alert('Hospital Registration Submitted Successfully!\nYour application is now PENDING verification by the Superuser.');
-                    window.location.href = '../auth/login.html';
+                    successDiv.innerHTML = '<strong>Registration Submitted Successfully!</strong><br>Your application is now PENDING verification by the Superuser. Redirecting to login...';
+                    successDiv.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = '../auth/login.html';
+                    }, 3500);
                 } else {
-                    alert(res.message || 'Registration failed.');
+                    errorDiv.textContent = res.message || 'Registration failed.';
+                    errorDiv.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerHTML = `Submit Registration
+                        <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <polyline points="0,60 25,60 40,25 55,60 70,90 85,60 100,60" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>`;
                 }
             } catch (err) {
-                alert('Error submitting registration: ' + err.message);
+                errorDiv.textContent = 'Error submitting registration: ' + err.message;
+                errorDiv.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = `Submit Registration
+                    <svg class="nexcare-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <polyline points="0,60 25,60 40,25 55,60 70,90 85,60 100,60" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>`;
             }
         });
     </script>

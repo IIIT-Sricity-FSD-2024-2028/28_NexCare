@@ -169,6 +169,51 @@ export class HospitalsController {
     });
   }
 
+  /**
+   * Superadmin Final Approval
+   * Automatically generates a hospital_manager account for the contact person.
+   */
+  @Roles(UserRole.SUPERUSER)
+  @Post(':id/approve')
+  async approveHospital(@Param('id') id: string) {
+    const hospitalResult = await this.hospitalsService.findById(id);
+    if (!hospitalResult.success || !hospitalResult.data) {
+      return hospitalResult;
+    }
+
+    const hospital = hospitalResult.data;
+    
+    // Update status to Approved
+    await this.hospitalsService.update(id, {
+      verificationStatus: VerificationStatus.VERIFIED,
+      regionalReviewStatus: 'cleared'
+    });
+
+    // Auto-generate hospital manager credentials
+    const contactName = hospital.adminName || 'admin';
+    const nameParts = contactName.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ');
+    let emailPrefix = nameParts[0] || 'admin'; // just use first name
+    
+    const shortId = id.toLowerCase();
+    const generatedEmail = `${emailPrefix}.${shortId}@nexcare.com`;
+    const generatedPassword = 'Patient123';
+
+    // Create the user
+    await this.usersService.create({
+      name: hospital.adminName || 'Hospital Admin',
+      email: generatedEmail,
+      password: generatedPassword,
+      role: UserRole.HOSPITAL_MANAGER,
+      status: 'Active',
+      hospitalId: id
+    } as any);
+
+    return ResponseUtil.success('Hospital approved and manager account created', {
+      email: generatedEmail,
+      password: generatedPassword
+    });
+  }
+
   // ========================================================================
   // Regional Manager Specific Endpoints
   // ========================================================================

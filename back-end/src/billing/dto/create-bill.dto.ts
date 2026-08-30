@@ -1,6 +1,6 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsString, ValidateNested, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class BillItemDto {
   @ApiProperty({ example: 'General Consultation', description: 'Description of the item' })
@@ -28,6 +28,11 @@ export class CreateBillDto {
   @IsString()
   @IsNotEmpty({ message: 'Patient ID is required' })
   patientId: string;
+
+  @ApiPropertyOptional({ example: 'H002', description: 'ID of the hospital' })
+  @IsOptional()
+  @IsString()
+  hospitalId?: string;
 
   @ApiProperty({ example: '2026-03-01T00:00:00Z', description: 'Date of visit' })
   @IsString()

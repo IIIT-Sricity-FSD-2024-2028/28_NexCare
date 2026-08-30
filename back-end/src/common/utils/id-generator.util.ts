@@ -60,10 +60,23 @@ export class IdGenerator {
   }
 
   /**
-   * Generate bill ID
+   * Generate bill ID with sequential pattern (BILL-0001, BILL-0002, etc.)
+   * @param existingIds - Array of existing bill IDs to avoid conflicts
    */
-  static generateBillId(): string {
-    return this.generate('BILL-');
+  static generateBillId(existingIds: string[] = []): string {
+    const numericIds = existingIds
+      .map(id => {
+        // Match BILL-0088, BILL-101, etc.
+        const match = id.match(/^BILL-(?:0*)?(\d+)$/);
+        return match ? parseInt(match[1], 10) : 0;
+      })
+      .filter(num => num > 0);
+
+    const maxId = numericIds.length > 0 ? Math.max(...numericIds) : 0;
+    const nextId = maxId + 1;
+    
+    // Pad to 4 digits to match existing format like BILL-0088
+    return `BILL-${nextId.toString().padStart(4, '0')}`;
   }
 
   /**

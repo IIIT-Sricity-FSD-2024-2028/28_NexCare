@@ -19,18 +19,16 @@
 </head>
 <body>
     <div class="portal-shell">
-        <header class="header-container" role="banner">
-            <div class="header-content">
-                <div class="logo-container" role="button" tabindex="0" aria-label="Go to dashboard">
-                    <nex-care-logo></nex-care-logo>
-                    <p class="subtitle">Ambulance Portal</p>
-                </div>
-            </div>
-        </header>
-
         <div class="app-container">
         
         <aside class="sidebar">
+            <div class="logo-container" style="padding: 24px; padding-bottom: 12px; display: flex; flex-direction: column;">
+                <div style="transform: scale(0.65); transform-origin: left top; margin-bottom: -10px; height: 35px;">
+                    <nex-care-logo></nex-care-logo>
+                </div>
+                <p class="subtitle" style="font-size: 11px; color: #6b7280; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; margin-left: 2px;">Ambulance Portal</p>
+                <div id="logoHospitalName" style="margin-top: 8px; font-size: 13px; color: #374151; font-weight: 600; padding-left: 2px; line-height: 1.3;"></div>
+            </div>
             <nav class="nav" aria-label="Main">
                 <ul class="nav-list">
                     <li class="nav-item">

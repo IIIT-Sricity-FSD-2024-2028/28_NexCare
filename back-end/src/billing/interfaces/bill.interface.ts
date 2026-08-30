@@ -41,6 +41,7 @@ export interface Payment {
 export interface Bill {
   id: string;
   patientId: string;
+  hospitalId?: string;
   visitDate: string;
   dueDate: string;
   status: BillStatus;
@@ -62,6 +63,7 @@ export interface Bill {
  */
 export interface CreateBillRequest {
   patientId: string;
+  hospitalId?: string;
   visitDate: string;
   dueDate: string;
   items: BillItem[];

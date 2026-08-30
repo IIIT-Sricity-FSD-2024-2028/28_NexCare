@@ -4575,5 +4575,35 @@
     "payments": [],
     "createdAt": "2026-08-30T16:39:22.390Z",
     "updatedAt": "2026-08-30T16:39:22.397Z"
+  },
+  {
+    "id": "BILL-MTGBI93I50R",
+    "patientId": "P008",
+    "hospitalId": "H001",
+    "visitDate": "2026-08-30",
+    "dueDate": "2026-09-13",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 1400,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 126,
+    "sgstAmount": 126,
+    "total": 1652,
+    "items": [
+      {
+        "description": "Consultation: Dr. Ananya Iyer (Cardiology)",
+        "department": "Administrative",
+        "amount": 900
+      },
+      {
+        "description": "Consultation: Dr. Arjun Mehta (General Medicine)",
+        "department": "Administrative",
+        "amount": 500
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-30T21:24:44.047Z",
+    "updatedAt": "2026-08-30T21:24:44.047Z"
   }
 ]

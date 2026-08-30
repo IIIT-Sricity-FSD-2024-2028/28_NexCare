@@ -102,7 +102,7 @@ export class PatientsService {
   async findById(id: string) {
     try {
       const patients = this.loadPatients();
-      const patient = patients.find(p => p.id === id);
+      const patient = patients.find(p => p.id === id || p.patientId === id);
       
       if (!patient) {
         return ResponseUtil.notFound('Patient', id);

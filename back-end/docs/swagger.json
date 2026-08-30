@@ -1720,6 +1720,26 @@
         }
       }
     },
+    "/api/hospitals/{id}/approve": {
+      "post": {
+        "operationId": "HospitalsController_approveHospital",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/hospitals/regional/my-hospitals": {
       "get": {
         "operationId": "HospitalsController_getMyHospitals",
@@ -7402,6 +7422,11 @@
             "type": "string",
             "example": "P001",
             "description": "ID of the patient"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H002",
+            "description": "ID of the hospital"
           },
           "visitDate": {
             "type": "string",

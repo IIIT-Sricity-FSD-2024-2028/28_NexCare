@@ -136,7 +136,7 @@
     "email": "patient7@gmail.com",
     "role": "patient",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$0763608d7c7adde99346140d1ed964bd$eb7b44346e6f0d90c9175205ccd2b4b13ae6b46982a4e38d44719ce339484a6d2ea4fc5f914894c8329639076acf8022085e6247901a07c8a0f34a2e72e68689",
     "patientId": "P008"
   },
   {
@@ -162,12 +162,27 @@
     "gender": "Female",
     "hospitalName": "NexCare AIIMS Super Speciality Hospital",
     "schedule": {
-      "monday": { "start": "08:00", "end": "16:00" },
-      "tuesday": { "start": "08:00", "end": "16:00" },
-      "wednesday": { "start": "14:00", "end": "22:00" },
+      "monday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "tuesday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "wednesday": {
+        "start": "14:00",
+        "end": "22:00"
+      },
       "thursday": null,
-      "friday": { "start": "08:00", "end": "16:00" },
-      "saturday": { "start": "08:00", "end": "14:00" },
+      "friday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "saturday": {
+        "start": "08:00",
+        "end": "14:00"
+      },
       "sunday": null
     }
   },
@@ -194,11 +209,23 @@
     "gender": "Male",
     "hospitalName": "NexCare AIIMS Super Speciality Hospital",
     "schedule": {
-      "monday": { "start": "14:00", "end": "22:00" },
-      "tuesday": { "start": "14:00", "end": "22:00" },
+      "monday": {
+        "start": "14:00",
+        "end": "22:00"
+      },
+      "tuesday": {
+        "start": "14:00",
+        "end": "22:00"
+      },
       "wednesday": null,
-      "thursday": { "start": "08:00", "end": "16:00" },
-      "friday": { "start": "08:00", "end": "16:00" },
+      "thursday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "friday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
       "saturday": null,
       "sunday": null
     }
@@ -227,11 +254,26 @@
     "hospitalName": "NexCare AIIMS Super Speciality Hospital",
     "updatedAt": "2026-08-30T16:49:16.570Z",
     "schedule": {
-      "monday": { "start": "08:00", "end": "16:00" },
-      "tuesday": { "start": "08:00", "end": "16:00" },
-      "wednesday": { "start": "08:00", "end": "16:00" },
-      "thursday": { "start": "14:00", "end": "22:00" },
-      "friday": { "start": "08:00", "end": "16:00" },
+      "monday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "tuesday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "wednesday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "thursday": {
+        "start": "14:00",
+        "end": "22:00"
+      },
+      "friday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
       "saturday": null,
       "sunday": null
     }
@@ -259,12 +301,27 @@
     "gender": "Female",
     "hospitalName": "NexCare AIIMS Super Speciality Hospital",
     "schedule": {
-      "monday": { "start": "08:00", "end": "16:00" },
+      "monday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
       "tuesday": null,
-      "wednesday": { "start": "08:00", "end": "16:00" },
-      "thursday": { "start": "08:00", "end": "16:00" },
-      "friday": { "start": "14:00", "end": "22:00" },
-      "saturday": { "start": "08:00", "end": "14:00" },
+      "wednesday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "thursday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "friday": {
+        "start": "14:00",
+        "end": "22:00"
+      },
+      "saturday": {
+        "start": "08:00",
+        "end": "14:00"
+      },
       "sunday": null
     }
   },
@@ -291,12 +348,30 @@
     "gender": "Female",
     "hospitalName": "NexCare AIIMS Super Speciality Hospital",
     "schedule": {
-      "monday": { "start": "08:00", "end": "16:00" },
-      "tuesday": { "start": "08:00", "end": "16:00" },
-      "wednesday": { "start": "08:00", "end": "16:00" },
-      "thursday": { "start": "08:00", "end": "16:00" },
-      "friday": { "start": "08:00", "end": "16:00" },
-      "saturday": { "start": "08:00", "end": "14:00" },
+      "monday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "tuesday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "wednesday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "thursday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "friday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "saturday": {
+        "start": "08:00",
+        "end": "14:00"
+      },
       "sunday": null
     }
   },
@@ -323,11 +398,26 @@
     "gender": "Male",
     "hospitalName": "NexCare AIIMS Super Speciality Hospital",
     "schedule": {
-      "monday": { "start": "14:00", "end": "22:00" },
-      "tuesday": { "start": "14:00", "end": "22:00" },
-      "wednesday": { "start": "14:00", "end": "22:00" },
-      "thursday": { "start": "14:00", "end": "22:00" },
-      "friday": { "start": "14:00", "end": "22:00" },
+      "monday": {
+        "start": "14:00",
+        "end": "22:00"
+      },
+      "tuesday": {
+        "start": "14:00",
+        "end": "22:00"
+      },
+      "wednesday": {
+        "start": "14:00",
+        "end": "22:00"
+      },
+      "thursday": {
+        "start": "14:00",
+        "end": "22:00"
+      },
+      "friday": {
+        "start": "14:00",
+        "end": "22:00"
+      },
       "saturday": null,
       "sunday": null
     }
@@ -355,12 +445,27 @@
     "gender": "Female",
     "hospitalName": "NexCare AIIMS Super Speciality Hospital",
     "schedule": {
-      "monday": { "start": "08:00", "end": "16:00" },
-      "tuesday": { "start": "08:00", "end": "16:00" },
+      "monday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "tuesday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
       "wednesday": null,
-      "thursday": { "start": "08:00", "end": "16:00" },
-      "friday": { "start": "08:00", "end": "16:00" },
-      "saturday": { "start": "08:00", "end": "14:00" },
+      "thursday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "friday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "saturday": {
+        "start": "08:00",
+        "end": "14:00"
+      },
       "sunday": null
     }
   },
@@ -387,12 +492,30 @@
     "gender": "Male",
     "hospitalName": "NexCare AIIMS Super Speciality Hospital",
     "schedule": {
-      "monday": { "start": "08:00", "end": "16:00" },
-      "tuesday": { "start": "08:00", "end": "16:00" },
-      "wednesday": { "start": "08:00", "end": "16:00" },
-      "thursday": { "start": "08:00", "end": "16:00" },
-      "friday": { "start": "08:00", "end": "16:00" },
-      "saturday": { "start": "08:00", "end": "14:00" },
+      "monday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "tuesday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "wednesday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "thursday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "friday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "saturday": {
+        "start": "08:00",
+        "end": "14:00"
+      },
       "sunday": null
     }
   },
@@ -419,13 +542,31 @@
     "gender": "Female",
     "hospitalName": "NexCare AIIMS Super Speciality Hospital",
     "schedule": {
-      "monday": { "start": "08:00", "end": "16:00" },
-      "tuesday": { "start": "08:00", "end": "16:00" },
-      "wednesday": { "start": "14:00", "end": "22:00" },
-      "thursday": { "start": "20:00", "end": "08:00" },
+      "monday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "tuesday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "wednesday": {
+        "start": "14:00",
+        "end": "22:00"
+      },
+      "thursday": {
+        "start": "20:00",
+        "end": "08:00"
+      },
       "friday": null,
-      "saturday": { "start": "08:00", "end": "16:00" },
-      "sunday": { "start": "08:00", "end": "16:00" }
+      "saturday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "sunday": {
+        "start": "08:00",
+        "end": "16:00"
+      }
     }
   },
   {
@@ -887,12 +1028,27 @@
     "consultationTiming": "08:00 AM - 04:00 PM",
     "consultationFee": 800,
     "schedule": {
-      "monday": { "start": "08:00", "end": "16:00" },
-      "tuesday": { "start": "08:00", "end": "16:00" },
-      "wednesday": { "start": "14:00", "end": "22:00" },
+      "monday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "tuesday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "wednesday": {
+        "start": "14:00",
+        "end": "22:00"
+      },
       "thursday": null,
-      "friday": { "start": "08:00", "end": "16:00" },
-      "saturday": { "start": "08:00", "end": "14:00" },
+      "friday": {
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "saturday": {
+        "start": "08:00",
+        "end": "14:00"
+      },
       "sunday": null
     },
     "createdAt": "2026-08-30T11:02:55.276Z",
@@ -1232,5 +1388,21 @@
     "consultationFee": 700,
     "employeeId": "DOC-1202",
     "designation": "Cardiologist"
+  },
+  {
+    "id": "UMTGCUIPMCN4",
+    "name": "Hospital Admin",
+    "email": "hospitaladmin.hospitalmanager@nexcare.com",
+    "role": "hospital_manager",
+    "status": "Active",
+    "password": "Patient123",
+    "mustChangePassword": true,
+    "employeeId": "EMP-H013-001",
+    "joiningDate": "2026-08-30",
+    "employmentType": "Full-time",
+    "hospitalId": "H013",
+    "regionId": "R001",
+    "createdAt": "2026-08-30T22:02:15.995Z",
+    "updatedAt": "2026-08-30T22:02:15.995Z"
   }
 ]

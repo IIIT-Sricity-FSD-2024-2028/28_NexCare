@@ -240,6 +240,7 @@
     "notes": ""
   },
   {
+<<<<<<< Updated upstream
     "id": "DSUB-UMTFO8WK32OV",
     "doctorId": "UMTFO8WK32OV",
     "doctorName": "Dr. Radhika Sen",
@@ -300,6 +301,8 @@
     "notes": "Auto-enrolled on the free listing tier."
   },
   {
+=======
+>>>>>>> Stashed changes
     "id": "DSUB-U008",
     "doctorId": "U008",
     "doctorName": "Dr. Rahul Mehta",
@@ -307,7 +310,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.457Z",
+=======
+    "startedAt": "2026-08-30T19:18:00.716Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -319,7 +326,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.458Z",
+=======
+    "startedAt": "2026-08-30T19:18:00.771Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -331,7 +342,71 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.458Z",
+=======
+    "startedAt": "2026-08-30T19:18:00.839Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-UMTFO8WK32OV",
+    "doctorId": "UMTFO8WK32OV",
+    "doctorName": "Dr. Radhika Sen",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-30T19:18:00.902Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-UMTFPALGS2SG",
+    "doctorId": "UMTFPALGS2SG",
+    "doctorName": "Dr. Ananya Sharma",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-30T19:18:00.950Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-UMTFQ203L2PL",
+    "doctorId": "UMTFQ203L2PL",
+    "doctorName": "Dr. Ramesh Gupta",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-30T19:18:00.991Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-UMTFQ6I253VA",
+    "doctorId": "UMTFQ6I253VA",
+    "doctorName": "Ananya Doctor",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-30T19:18:01.026Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-UMTFQ760I4HD",
+    "doctorId": "UMTFQ760I4HD",
+    "doctorName": "ananya",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-30T19:18:01.085Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -343,7 +418,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.459Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.125Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -355,7 +434,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.460Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.178Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -367,7 +450,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.460Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.211Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -379,7 +466,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.460Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.257Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -391,7 +482,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.461Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.312Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -403,7 +498,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.461Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.363Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -415,7 +514,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.461Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.385Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -427,7 +530,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.461Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.442Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -439,7 +546,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.462Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.495Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -451,7 +562,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.462Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.555Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -463,7 +578,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.462Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.578Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -475,7 +594,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.462Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.601Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -487,7 +610,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.462Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.630Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -499,7 +626,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.462Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.661Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -511,7 +642,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.463Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.730Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -523,7 +658,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.463Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.760Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   },
@@ -535,7 +674,11 @@
     "planId": "DOC-FREE",
     "status": "active",
     "consultationFee": 500,
+<<<<<<< Updated upstream
     "startedAt": "2026-08-30T18:52:45.463Z",
+=======
+    "startedAt": "2026-08-30T19:18:01.794Z",
+>>>>>>> Stashed changes
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
   }

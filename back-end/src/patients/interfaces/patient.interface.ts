@@ -4,6 +4,7 @@
  */
 export interface Patient {
   id: string;
+  patientId?: string;
   fullName: string;
   phone: string;
   email: string;

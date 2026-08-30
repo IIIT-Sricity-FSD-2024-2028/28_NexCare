@@ -162,7 +162,8 @@ async function loadUserInfo() {
 
     // ── Populate Patient ID ────────────────────────────────────────────────
     const idNode = document.querySelector('.profile-id');
-    if (idNode && patientId) idNode.textContent = `Patient ID: ${patientId}`;
+    const patientIdentifier = patientProfile.patientId || patientProfile.patientIdDisplay || patientProfile.id;
+    if (idNode && patientIdentifier) idNode.textContent = `Patient ID: ${patientIdentifier}`;
 }
 
 async function loadAppointments() {

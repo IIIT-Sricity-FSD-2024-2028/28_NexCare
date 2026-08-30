@@ -42,10 +42,11 @@ async function loadBills() {
         const dbBills = billsResp.data || [];
 
         bills = dbBills.map(db => {
-            const patient = patientsCache.find(p => p.id === db.patientId);
+            const patient = patientsCache.find(p => p.id === db.patientId || p.patientId === db.patientId);
             return {
                 id: db.id,
-                patient: patient ? patient.fullName : (db.patientName || "Unknown Patient"),
+                patientId: db.patientId,
+                patient: patient ? (patient.fullName || patient.name) : (db.patientName || "Unknown Patient"),
                 date: db.visitDate || db.date || '',
                 services: db.items && db.items.length > 0 ? db.items[0].description : "Medical Services",
                 amount: db.subtotal || db.amount || 0,
@@ -165,7 +166,7 @@ window.renderLineItems = () => {
         total += Number(item.amount) || 0;
         container.innerHTML += `
             <div style="display: flex; gap: 10px; align-items: center;">
-                <input class="input" style="flex: 2; margin-bottom: 0;" placeholder="Description" value="${item.description}" onchange="updateLineItem(${index}, 'description', this.value)">
+                <input class="input" style="flex: 2; margin-bottom: 0;" placeholder="Description" value="${item.description}" title="${item.description}" onchange="updateLineItem(${index}, 'description', this.value)">
                 <input class="input" style="flex: 1; margin-bottom: 0;" type="number" placeholder="Amount" value="${item.amount}" onchange="updateLineItem(${index}, 'amount', this.value)">
                 <button class="btn-outline" style="color: red; border-color: red; padding: 4px 8px;" onclick="removeLineItem(${index})">X</button>
             </div>
@@ -236,9 +237,15 @@ window.fetchPatientDetails = async () => {
             const appts = apptsResp.data || [];
             const patientAppts = appts.filter(a => (a.patientId === patient.id || a.patientId === patient.patientId) && a.status !== 'Cancelled');
             patientAppts.forEach(a => {
+                let doctorName = a.doctor || 'Unknown';
+                // Remove extra 'Dr. ' if it already exists in the name
+                if (doctorName.startsWith('Dr. ')) {
+                    doctorName = doctorName.substring(4).trim();
+                }
+                
                 currentLineItems.push({
-                    description: `Consultation: Dr. ${a.doctor || 'Unknown'} (${a.department || 'General'})`,
-                    amount: a.amount || 500
+                    description: `Consultation: Dr. ${doctorName} (${a.department || 'General'})`,
+                    amount: a.fee || a.amount || 500
                 });
             });
         } catch (e) { console.warn("Failed fetching appts", e); }
@@ -309,20 +316,14 @@ window.save = async () => {
         const dateStr = new Date().toISOString().split("T")[0];
         
         const payload = {
-            patientId: patient.id,
+            patientId: patient.patientId || patient.id,
             visitDate: dateStr,
             dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-            status: "Pending",
-            currency: "₹",
-            subtotal: subtotal,
-            cgstRate: 0.09,
-            sgstRate: 0.09,
             items: currentLineItems.map(item => ({
                 description: item.description,
                 department: "Administrative",
                 amount: Number(item.amount)
-            })),
-            payments: []
+            }))
         };
 
         const hid = getHospitalId();

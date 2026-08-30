@@ -281,7 +281,7 @@ async function loadProfileFromStore() {
     const memberSinceEl = document.getElementById('profileMemberSince');
     const statusEl = document.getElementById('profileAccountStatus');
 
-    if (patientIdEl) patientIdEl.textContent = profileData.patientIdDisplay || profileData.id || '--';
+    if (patientIdEl) patientIdEl.textContent = profileData.patientId || profileData.patientIdDisplay || profileData.id || '--';
     if (memberSinceEl) memberSinceEl.textContent = profileData.memberSince || '--';
     
     if (statusEl) {

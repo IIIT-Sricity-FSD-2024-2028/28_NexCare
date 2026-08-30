@@ -1212,5 +1212,63 @@
     },
     "assignedManagerId": "M001",
     "regionalReviewStatus": "cleared"
+  },
+  {
+    "name": "Rainbow Hospitals",
+    "registrationNumber": "AP-MAC-12345",
+    "type": "Multi-Speciality",
+    "ownershipType": "Private",
+    "address": "Beside park",
+    "city": "Renigunta",
+    "state": "Andhra Pradesh",
+    "pincode": "511152",
+    "phone": "9898292921",
+    "email": "abcd@gmail.com",
+    "totalBeds": 120,
+    "icuBeds": 18,
+    "emergency24x7": true,
+    "ambulanceService": true,
+    "adminName": "Deekshitha",
+    "adminEmail": "abcde@gmail.com",
+    "adminPhone": "8182930381",
+    "specialities": [
+      "General"
+    ],
+    "id": "H013",
+    "verificationStatus": "verified",
+    "regionalReviewStatus": "cleared",
+    "createdAt": "2026-08-30T19:15:02.825Z",
+    "updatedAt": "2026-08-30T22:02:15.975Z",
+    "assignedManagerId": "M001",
+    "regionalReviewedAt": "2026-08-30T19:26:24.045Z"
+  },
+  {
+    "name": "Health Hospitals",
+    "registrationNumber": "AP-MAC-12347",
+    "type": "Super-Speciality",
+    "ownershipType": "Private",
+    "address": "Beside park",
+    "city": "Chittoor",
+    "state": "Andhra Pradesh",
+    "pincode": "568373",
+    "phone": "9898292921",
+    "email": "abcd@gmail.com",
+    "totalBeds": 100,
+    "icuBeds": 29,
+    "emergency24x7": true,
+    "ambulanceService": true,
+    "adminName": "Poorna Sri",
+    "adminEmail": "abvds@gmail.com",
+    "adminPhone": "929292921",
+    "specialities": [
+      "General"
+    ],
+    "id": "H014",
+    "verificationStatus": "verified",
+    "regionalReviewStatus": "cleared",
+    "createdAt": "2026-08-30T21:47:02.274Z",
+    "updatedAt": "2026-08-30T22:05:54.772Z",
+    "assignedManagerId": "M002",
+    "regionalReviewedAt": "2026-08-30T21:50:35.163Z"
   }
 ]

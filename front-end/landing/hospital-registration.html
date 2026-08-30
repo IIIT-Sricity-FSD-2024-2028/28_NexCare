@@ -164,7 +164,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="phone">Official Phone *</label>
-                    <input type="tel" id="phone" name="phone" inputmode="tel" pattern="\+?[0-9][0-9\s()\-]{8,14}" title="Enter a valid 10 to 15 digit phone number" required>
+                    <input type="tel" id="phone" name="phone" inputmode="tel" pattern="\+?[0-9][0-9\s\(\)\-]{8,14}" title="Enter a valid 10 to 15 digit phone number" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Official Email *</label>
@@ -211,7 +211,7 @@
                 </div>
                 <div class="form-group">
                     <label for="adminPhone">Administrator Phone *</label>
-                    <input type="tel" id="adminPhone" name="adminPhone" inputmode="tel" pattern="\+?[0-9][0-9\s()\-]{8,14}" title="Enter a valid 10 to 15 digit phone number" required>
+                    <input type="tel" id="adminPhone" name="adminPhone" inputmode="tel" pattern="\+?[0-9][0-9\s\(\)\-]{8,14}" title="Enter a valid 10 to 15 digit phone number" required>
                 </div>
             </div>
 
@@ -247,6 +247,7 @@
             if (data.icuBeds > data.totalBeds) {
                 alertBox.className = 'alert error';
                 alertBox.textContent = 'ICU beds cannot exceed total beds.';
+                alertBox.style.display = 'block';
                 return;
             }
 
@@ -255,15 +256,21 @@
                 
                 if (response.success) {
                     alertBox.className = 'alert success';
-                    alertBox.innerHTML = '<strong>Success!</strong> Your hospital registration request has been submitted. It is now Pending Verification.';
+                    alertBox.innerHTML = '<strong>Success!</strong> Your hospital registration request has been submitted. It is now Pending Verification. Redirecting to login...';
+                    alertBox.style.display = 'block';
                     e.target.reset();
+                    setTimeout(() => {
+                        window.location.href = '../auth/login.html';
+                    }, 3000);
                 } else {
                     alertBox.className = 'alert error';
                     alertBox.innerHTML = `<strong>Error:</strong> ${response.message}`;
+                    alertBox.style.display = 'block';
                 }
             } catch (err) {
                 alertBox.className = 'alert error';
-                alertBox.innerHTML = '<strong>Error:</strong> Network error. Please try again later.';
+                alertBox.innerHTML = `<strong>Error:</strong> ${err.message || 'Network error. Please try again later.'}`;
+                alertBox.style.display = 'block';
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Submit Registration Request';

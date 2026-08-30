@@ -7,6 +7,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsGrid = document.getElementById('resultsGrid');
     const statusContainer = document.getElementById('statusContainer');
 
+    // 1. Auth check and routing setup
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    const userRole = sessionStorage.getItem('nexcare_current_role') || localStorage.getItem('nexcare_current_role');
+    
+    if (token && userRole === 'patient') {
+        // Update Home links to point to Patient Dashboard
+        const navHome = document.querySelector('.nav-item[href="../landing/landing.html"]');
+        if (navHome) navHome.href = 'dashboard.html';
+
+        const backBtn = document.getElementById('backToDashboardBtn');
+        if (backBtn) {
+            backBtn.href = 'dashboard.html';
+            backBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M10 12L4 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to Dashboard
+            `;
+        }
+
+        const loginBtn = document.querySelector('.nav-item[href="../auth/login.html"]');
+        if (loginBtn) {
+            loginBtn.style.display = 'none';
+        }
+    }
+
     async function fetchHospitals() {
         showLoadingState();
 
@@ -38,6 +64,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 throw new Error((res && res.message) || "Failed to retrieve hospitals from API");
+            }
+            
+            // Try to fetch beds and doctors dynamically
+            if (window.NexCareAPI) {
+                try {
+                    const [bedsRes, docsRes] = await Promise.all([
+                        window.NexCareAPI.get('/beds'),
+                        window.NexCareAPI.get('/users?role=doctor')
+                    ]);
+                    window._dynamicBeds = bedsRes?.data || [];
+                    window._dynamicDoctors = docsRes?.data || [];
+                } catch (e) {
+                    console.warn("Could not fetch real bed/doctor data", e);
+                }
             }
         } catch (err) {
             console.warn("Backend unavailable or returned error for search, using client-side mock fallback:", err);

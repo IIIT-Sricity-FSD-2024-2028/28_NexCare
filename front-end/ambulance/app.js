@@ -3601,3 +3601,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 5000);
 });
+
+// Fetch and display hospital name dynamically based on JWT
+document.addEventListener('DOMContentLoaded', async () => {
+    function decodeJWT(token) {
+        try {
+            const parts = token.split('.');
+            if (parts.length !== 3) return null;
+            const raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+            const json = decodeURIComponent(atob(raw).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            return JSON.parse(json);
+        } catch(e) { return null; }
+    }
+    
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    const payload = token ? decodeJWT(token) : null;
+    
+    if (payload && payload.hospitalId) {
+        try {
+            const host = window.location.hostname || 'localhost';
+            const res = await fetch(`http://${host}:3001/api/hospitals/${payload.hospitalId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data && data.success && data.data && data.data.name) {
+                const el = document.getElementById('logoHospitalName');
+                if (el) el.textContent = data.data.name;
+            }
+        } catch (err) {
+            console.error('Failed to fetch hospital name:', err);
+        }
+    }
+});

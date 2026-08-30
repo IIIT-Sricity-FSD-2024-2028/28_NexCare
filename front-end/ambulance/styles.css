@@ -17,9 +17,6 @@ body {
     min-height: 100vh;
     width: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
     line-height: 1.6;
 }
 
@@ -79,14 +76,14 @@ body {
 }
 
 .portal-shell {
-    width: 1440px;
-    max-width: 100%;
-    max-height: calc(100vh - 40px);
+    width: 100%;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
-    background: var(--background-gray);
+    background: var(--background-white);
     overflow: hidden;
+    position: relative;
+    box-shadow: none;
 }
 
 .app-container {

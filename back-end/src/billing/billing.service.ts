@@ -153,7 +153,8 @@ export class BillingService {
       const bills = this.loadBills();
 
       // Generate new bill ID
-      const newBillId = IdGenerator.generateBillId();
+      const existingIds = bills.map(b => b.id);
+      const newBillId = IdGenerator.generateBillId(existingIds);
 
       // Calculate totals
       const subtotal = this.round2(billData.items.reduce((sum, item) => sum + item.amount, 0));
@@ -167,6 +168,7 @@ export class BillingService {
       const newBill: Bill = {
         id: newBillId,
         patientId: billData.patientId,
+        hospitalId: billData.hospitalId,
         visitDate: billData.visitDate,
         dueDate: billData.dueDate,
         status: BillStatus.PENDING,
@@ -219,8 +221,9 @@ export class BillingService {
       due.setDate(due.getDate() + 14);
       const dDate = due.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
 
+      const existingIds = bills.map(b => b.id);
       pendingBill = {
-        id: IdGenerator.generateBillId(),
+        id: IdGenerator.generateBillId(existingIds),
         patientId,
         visitDate: vDate,
         dueDate: dDate,

@@ -118,6 +118,20 @@ async function loadHospitals(searchTerm = '') {
             );
         }
 
+        // Sort: pending first (cleared > rejected > pending), then everything else
+        hospitals.sort((a, b) => {
+            if (a.verificationStatus === 'pending_verification' && b.verificationStatus !== 'pending_verification') return -1;
+            if (b.verificationStatus === 'pending_verification' && a.verificationStatus !== 'pending_verification') return 1;
+            if (a.verificationStatus === 'pending_verification' && b.verificationStatus === 'pending_verification') {
+                if (a.regionalReviewStatus === 'cleared' && b.regionalReviewStatus !== 'cleared') return -1;
+                if (b.regionalReviewStatus === 'cleared' && a.regionalReviewStatus !== 'cleared') return 1;
+            }
+            // Fallback to newest first
+            const tA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const tB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return tB - tA;
+        });
+
         // Fetch Regional Officers for dropdown.
         let regionalOfficers = [];
         if (window.NexCareAPI && window.NexCareAPI.Users) {
@@ -170,7 +184,7 @@ async function loadHospitals(searchTerm = '') {
 
             const optionFor = r => `<option value="${r.regionalManagerId}" ${h.assignedManagerId === r.regionalManagerId ? 'selected' : ''}>${escapeHtml(loadLabel(r))}</option>`;
 
-            let roSelect = `<select class="form-control" style="padding: 4px; font-size: 12px; width: 260px;" onchange="assignRegionalOfficer('${h.id}', this.value)" ${h.verificationStatus !== 'pending_verification' ? 'disabled' : ''}>
+            let roSelect = `<select class="form-control" style="padding: 4px; font-size: 12px; max-width: 150px; text-overflow: ellipsis;" onchange="assignRegionalOfficer('${h.id}', this.value)" ${h.verificationStatus !== 'pending_verification' ? 'disabled' : ''}>
                 <option value="">${ranked.length ? '-- Assign regional manager --' : '-- No regional managers configured --'}</option>
                 ${covering.length ? `<optgroup label="Covers ${escapeHtml(h.city || 'this area')}">${covering.map(optionFor).join('')}</optgroup>` : ''}
                 ${others.length ? `<optgroup label="Other areas">${others.map(optionFor).join('')}</optgroup>` : ''}
@@ -189,10 +203,10 @@ async function loadHospitals(searchTerm = '') {
             let actions = '';
             if (h.verificationStatus === 'pending_verification') {
                 if (h.regionalReviewStatus === 'cleared') {
-                    actions = `<button class="btn-icon" onclick="verifyHospital('${h.id}')" title="Final approve">Final approve</button>
-                        <button class="btn-icon danger" onclick="rejectHospital('${h.id}')" title="Reject">Reject</button>`;
+                    actions = `<button class="btn-icon btn-approve" onclick="verifyHospital('${h.id}')" title="Final approve">Final approve</button>
+                        <button class="btn-icon btn-reject" onclick="rejectHospital('${h.id}')" title="Reject">Reject</button>`;
                 } else if (h.regionalReviewStatus === 'rejected') {
-                    actions = `<button class="btn-icon danger" onclick="rejectHospital('${h.id}')" title="Reject">Reject</button>`;
+                    actions = `<button class="btn-icon btn-reject" onclick="rejectHospital('${h.id}')" title="Reject">Reject</button>`;
                 } else if (h.assignedManagerId) {
                     actions = '<span style="font-size:12px;color:#6A7282;">Regional review pending</span>';
                 } else {
@@ -224,22 +238,25 @@ function escapeHtml(value) {
 }
 
 window.verifyHospital = async function(id) {
-    if(!confirm("Are you sure you want to verify this hospital?")) return;
+    if(!confirm("Are you sure you want to final approve this hospital? This will generate a manager account.")) return;
     try {
-        let res;
-        if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
-            res = await window.NexCareAPI.Hospitals.verify(id);
-        } else {
-            // Fallback to direct API call
-            const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-            const host = window.location.hostname || 'localhost';
-            const response = await fetch(`http://${host}:3001/api/hospitals/${id}/verify`, {
-                method: 'PATCH',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-            });
-            res = await response.json();
-        }
+        const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+        const host = window.location.hostname || 'localhost';
+        
+        // Call the new approve endpoint that creates the manager account
+        const response = await fetch(`http://${host}:3001/api/hospitals/${id}/approve`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        const res = await response.json();
+        
         if(res.success) {
+            // Show the generated credentials
+            if (res.data && res.data.email && res.data.password) {
+                alert(`Hospital Approved!\n\nManager Account Created:\nEmail: ${res.data.email}\nPassword: ${res.data.password}\n\nPlease share these securely.`);
+            } else {
+                alert("Hospital Approved!");
+            }
             loadHospitals();
         } else {
             alert(res.message);

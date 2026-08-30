@@ -58,8 +58,8 @@ async function renderBillFromStore() {
     const headerAvatar = document.getElementById('header-avatar');
 
     if (nameDisplay) nameDisplay.textContent = patient.fullName || "Guest";
-    if (headerName) headerName.textContent = patient.fullName || "Guest";
-    if (headerId) headerId.textContent = `Patient ID: ${patient.patientIdDisplay || patient.id || 'N/A'}`;
+    if (headerName) headerName.textContent = patient.fullName || patient.name || 'Unknown Patient';
+    if (headerId) headerId.textContent = `Patient ID: ${patient.patientId || patient.patientIdDisplay || patient.id || 'N/A'}`;
     if (headerAvatar && patient.fullName) {
         const initials = patient.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
         headerAvatar.textContent = initials;
@@ -83,7 +83,7 @@ async function renderBillFromStore() {
     // Patient info card (Main Page) - Targeted by IDs
     const fields = {
         'billing-patientName': patient.fullName,
-        'billing-patientId': patient.patientIdDisplay || patient.id,
+        'billing-patientId': patient.patientId || patient.patientIdDisplay || patient.id,
         'billing-phone': patient.phone,
         'billing-email': patient.email,
         'billing-visitDate': bill.visitDate || bill.dueDate,
@@ -219,7 +219,7 @@ async function renderBillFromStore() {
     const modalInfoValues = document.querySelectorAll('.modal-info-grid p');
     if (modalInfoValues.length >= 6) {
         modalInfoValues[0].textContent = patient.fullName || "N/A";
-        modalInfoValues[1].textContent = patient.patientIdDisplay || patient.id || "N/A";
+        modalInfoValues[1].textContent = patient.patientId || patient.patientIdDisplay || patient.id || "N/A";
         modalInfoValues[2].textContent = patient.phone || "N/A";
         modalInfoValues[3].textContent = patient.email || "N/A";
         modalInfoValues[4].textContent = bill.visitDate || bill.dueDate || "N/A";

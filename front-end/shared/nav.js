@@ -197,6 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="sidebar-brand">
             <nex-care-logo></nex-care-logo>
             <span class="sidebar-role-tag">${displayRoleName}</span>
+            <div id="sidebarHospitalName" style="margin-top: 8px; font-size: 13px; color: #374151; font-weight: 600; padding-left: 8px; line-height: 1.3;"></div>
         </div>
         <nav class="nav-menu">
             ${navLinks}
@@ -217,4 +218,136 @@ document.addEventListener('DOMContentLoaded', () => {
             link.classList.add('active');
         }
     });
+
+    // --- Task 4: Staff Profile Hospital ID Badge ---
+    // Extract user details from JWT (copied from dashboard logic)
+    function decodeJWT(token) {
+        try {
+            const parts = token.split('.');
+            if (parts.length !== 3) return null;
+            const raw = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+            const json = decodeURIComponent(atob(raw).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            return JSON.parse(json);
+        } catch (e) { return null; }
+    }
+
+    const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+    if (token) {
+        const payload = decodeJWT(token);
+        if (payload && payload.hospitalId) {
+            // Find the topbar user element
+            const userEl = document.querySelector('.topbar .user');
+            if (userEl) {
+                // Update text to real name if available
+                if (payload.name) {
+                    userEl.childNodes[0].textContent = payload.name + ' ';
+                }
+                
+                // Add the badge
+                const badge = document.createElement('span');
+                badge.style.display = 'inline-block';
+                badge.style.marginLeft = '8px';
+                badge.style.padding = '4px 8px';
+                badge.style.background = '#E0E7FF';
+                badge.style.color = '#4338CA';
+                badge.style.borderRadius = '6px';
+                badge.style.fontSize = '12px';
+                badge.style.fontWeight = '600';
+                badge.style.border = '1px solid #C7D2FE';
+                badge.textContent = 'Hospital: ' + payload.hospitalId;
+                
+                userEl.appendChild(badge);
+
+                // Fetch real name
+                if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
+                    window.NexCareAPI.Hospitals.getById(payload.hospitalId)
+                        .then(res => {
+                            if (res && res.data && res.data.name) {
+                                badge.textContent = res.data.name;
+                                
+                                const sidebarHospital = document.getElementById('sidebarHospitalName');
+                                if (sidebarHospital) sidebarHospital.textContent = res.data.name;
+                            }
+                        })
+                        .catch(err => console.error("Could not fetch hospital name for badge:", err));
+                }
+            }
+        }
+        
+        // --- Task 5: Notifications Dropdown ---
+        const topbar = document.querySelector('.topbar');
+        if (topbar && !document.querySelector('.notification-bell')) {
+            const bellWrap = document.createElement('div');
+            bellWrap.className = 'notification-bell';
+            bellWrap.style.position = 'relative';
+            bellWrap.style.cursor = 'pointer';
+            bellWrap.style.marginLeft = 'auto';
+            bellWrap.style.marginRight = '20px';
+            
+            bellWrap.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <div class="notif-dot" style="position:absolute; top:-2px; right:-2px; width:8px; height:8px; background:red; border-radius:50%; display:none;"></div>
+                <div class="notif-dropdown" style="position:absolute; top:30px; right:0; width:300px; background:#fff; border:1px solid #e5e7eb; border-radius:8px; box-shadow:0 4px 6px rgba(0,0,0,0.1); display:none; z-index:100; max-height:400px; overflow-y:auto;">
+                    <div style="padding:12px; border-bottom:1px solid #e5e7eb; font-weight:600; font-size:14px;">Recent Activity</div>
+                    <div class="notif-list" style="padding:8px;"></div>
+                </div>
+            `;
+            
+            topbar.insertBefore(bellWrap, topbar.firstChild);
+            
+            let isOpen = false;
+            bellWrap.addEventListener('click', async (e) => {
+                const dropdown = bellWrap.querySelector('.notif-dropdown');
+                const dot = bellWrap.querySelector('.notif-dot');
+                isOpen = !isOpen;
+                dropdown.style.display = isOpen ? 'block' : 'none';
+                dot.style.display = 'none'; // mark as read
+                
+                if (isOpen) {
+                    const list = dropdown.querySelector('.notif-list');
+                    list.innerHTML = '<div style="font-size:12px; color:#6b7280; text-align:center; padding:10px;">Loading...</div>';
+                    
+                    try {
+                        let res;
+                        if (window.NexCareAPI && window.NexCareAPI.get) {
+                            res = await window.NexCareAPI.get('/system-activity');
+                        } else {
+                            const response = await fetch(`http://${window.location.hostname || 'localhost'}:3001/api/system-activity`);
+                            res = await response.json();
+                        }
+                        
+                        if (res && res.data) {
+                            let logs = res.data;
+                            if (payload.hospitalId) {
+                                // Filter logs for this specific hospital
+                                logs = logs.filter(l => !l.hospitalId || l.hospitalId === payload.hospitalId);
+                            }
+                            
+                            if (logs.length === 0) {
+                                list.innerHTML = '<div style="font-size:12px; color:#6b7280; text-align:center; padding:10px;">No recent notifications</div>';
+                            } else {
+                                list.innerHTML = logs.slice(0, 10).map(l => `
+                                    <div style="padding:8px; border-bottom:1px solid #f3f4f6; font-size:12px;">
+                                        <div style="font-weight:600; color:#111827;">${l.action}</div>
+                                        <div style="color:#4b5563;">${l.details}</div>
+                                        <div style="color:#9ca3af; font-size:10px; margin-top:4px;">${new Date(l.timestamp).toLocaleString()}</div>
+                                    </div>
+                                `).join('');
+                            }
+                        }
+                    } catch (err) {
+                        list.innerHTML = '<div style="font-size:12px; color:#dc2626; text-align:center; padding:10px;">Failed to load notifications</div>';
+                    }
+                }
+            });
+            
+            // Randomly simulate an unread notification on page load just to show it works
+            if (Math.random() > 0.3) {
+                bellWrap.querySelector('.notif-dot').style.display = 'block';
+            }
+        }
+    }
 });
