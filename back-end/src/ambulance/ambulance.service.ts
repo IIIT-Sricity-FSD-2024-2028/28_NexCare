@@ -7,6 +7,8 @@ import { AmbulanceStatus } from '../common/interfaces/api-response.interface';
 
 import { SystemService } from '../system/system.service';
 import { PatientsService } from '../patients/patients.service';
+import { BillingService } from '../billing/billing.service';
+import { FIXED_AMBULANCE_FEE } from '../common/constants/app.constants';
 
 /**
  * Ambulance Service
@@ -18,6 +20,7 @@ export class AmbulanceService {
   constructor(
     private readonly systemService: SystemService,
     private readonly patientsService: PatientsService,
+    private readonly billingService: BillingService,
   ) {}
 
   private readonly store = new FileStore<AmbulanceRequest>('ambulance.json', () => AmbulanceService.seed());
@@ -158,6 +161,17 @@ export class AmbulanceService {
       this.store.save(requests);
 
       const isCompleted = updateData.status === AmbulanceStatus.COMPLETED;
+
+      if (isCompleted && updatedRequest.patientId) {
+        this.billingService.addChargeToPendingBill(updatedRequest.patientId, {
+          type: 'AMBULANCE',
+          description: 'Ambulance Transport',
+          amount: FIXED_AMBULANCE_FEE,
+          referenceId: updatedRequest.id,
+          department: 'Emergency Transport',
+        });
+      }
+
       this.systemService.createActivity({
         userId: updatedRequest.assignedTo || 'System',
         action: isCompleted ? 'Complete' : 'Update',
@@ -258,6 +272,26 @@ export class AmbulanceService {
       requests[requestIndex].status = AmbulanceStatus.COMPLETED;
       requests[requestIndex].updatedAt = new Date().toISOString();
       this.store.save(requests);
+
+      const completedReq = requests[requestIndex];
+      if (completedReq.patientId) {
+        this.billingService.addChargeToPendingBill(completedReq.patientId, {
+          type: 'AMBULANCE',
+          description: 'Ambulance Transport',
+          amount: FIXED_AMBULANCE_FEE,
+          referenceId: completedReq.id,
+          department: 'Emergency Transport',
+        });
+      }
+
+      this.systemService.createActivity({
+        userId: completedReq.assignedTo || 'System',
+        action: 'Complete',
+        details: `Ambulance transport ${id} completed for ${completedReq.patientName}`,
+        module: 'Ambulance',
+        severity: 'SUCCESS',
+      });
+
       return ResponseUtil.updated('Ambulance request completed successfully', requests[requestIndex]);
     } catch (error) {
       return ResponseUtil.serverError('Failed to complete ambulance request');
@@ -277,6 +311,18 @@ export class AmbulanceService {
       requests[requestIndex].status = status;
       requests[requestIndex].updatedAt = new Date().toISOString();
       this.store.save(requests);
+
+      if (status === AmbulanceStatus.COMPLETED && requests[requestIndex].patientId) {
+        const completedReq = requests[requestIndex];
+        this.billingService.addChargeToPendingBill(completedReq.patientId, {
+          type: 'AMBULANCE',
+          description: 'Ambulance Transport',
+          amount: FIXED_AMBULANCE_FEE,
+          referenceId: completedReq.id,
+          department: 'Emergency Transport',
+        });
+      }
+
       return ResponseUtil.updated('Request status updated successfully', requests[requestIndex]);
     } catch (error) {
       return ResponseUtil.serverError('Failed to update request status');

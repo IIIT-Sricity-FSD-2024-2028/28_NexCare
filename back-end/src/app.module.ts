@@ -24,7 +24,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { LoggingModule } from './common/logging/logging.module';
 import { AuthGuard } from './common/guards/auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
-import { RequestLoggerMiddleware, SecurityMiddleware } from './lodger.middleware';
+import { RequestLoggerMiddleware, SecurityMiddleware, CsrfMiddleware } from './lodger.middleware';
 
 /**
  * Main Application Module
@@ -85,7 +85,15 @@ import { RequestLoggerMiddleware, SecurityMiddleware } from './lodger.middleware
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // Order matters: reject abusive or oversized traffic before logging it,
-    // then log everything that survives.
-    consumer.apply(SecurityMiddleware, RequestLoggerMiddleware).forRoutes('*');
+    // then log everything that survives, then apply CSRF protection.
+    //
+    // CsrfMiddleware was unwired on 2026-08-30 because it was answering 403 to
+    // every request, including POST /auth/login — nobody could sign in. That
+    // was a bug in the middleware, not a reason to drop the protection: it now
+    // exempts pre-session auth routes and Bearer-authenticated writes (which
+    // are structurally immune, since a browser never attaches an Authorization
+    // header on its own) and challenges only unauthenticated state-changing
+    // requests. See the class comment in lodger.middleware.ts.
+    consumer.apply(SecurityMiddleware, RequestLoggerMiddleware, CsrfMiddleware).forRoutes('*');
   }
 }

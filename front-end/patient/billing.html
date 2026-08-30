@@ -238,25 +238,48 @@
 
                 <!-- Itemized Bill -->
                 <div class="billing-card">
-                    <h2>Itemized Bill</h2>
-                    <p class="card-subtitle">Detailed breakdown of charges</p>
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                        <div>
+                            <h2 style="margin:0;">Itemized Bill</h2>
+                            <p class="card-subtitle" style="margin:4px 0 0;">Detailed breakdown of charges & services</p>
+                        </div>
+                        <button type="button" id="btnDownloadCurrentBill" class="btn-outline-sm" onclick="downloadActiveBillPDF()" style="display:inline-flex; align-items:center; gap:6px; background:#F8FAFC; border:1px solid #CBD5E1; color:#0F172A; padding:7px 14px; border-radius:8px; font-weight:600; cursor:pointer; font-size:13px;">
+                            <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                                <path d="M14 10v3.333A1.333 1.333 0 0112.667 14.667H3.333A1.333 1.333 0 012 13.333V10" stroke="#0F172A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M4.667 6.667L8 10l3.333-3.333M8 10V1.333" stroke="#0F172A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Download PDF Invoice
+                        </button>
+                    </div>
                     
                     <div class="itemized-table">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Description</th>
-                                    <th>Department</th>
-                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Reference</th>
                                     <th>Amount</th>
                                 </tr>
                             </thead>
-                            <tbody>
                             <tbody id="billItemsBody">
                                 <!-- Dynamic items -->
                             </tbody>
-                            </tbody>
                         </table>
+                    </div>
+
+                    <!-- Ambulance Fee Status Callout -->
+                    <div id="billingAmbulanceCallout" style="padding:12px 16px; border-radius:8px; margin:16px 0; display:flex; align-items:center; justify-content:space-between; background:#F8FAFC; border:1px solid #E2E8F0;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span id="ambIcon" style="font-size:18px;">🏥</span>
+                            <div>
+                                <strong id="ambTitle" style="font-size:13px; color:#475569;">Ambulance Service: Not Availed</strong>
+                                <p id="ambSubtitle" style="margin:2px 0 0; font-size:12px; color:#64748B;">No ambulance transport requested for this visit</p>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span id="ambFeeDisplay" style="font-size:13px; font-weight:700; color:#64748B;">₹0.00 (No fee)</span>
+                        </div>
                     </div>
 
                     <div class="bill-summary">
@@ -500,10 +523,12 @@
     </div>
 
     <script src="../logo.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="../shared/api.js?v=8"></script>
     <script src="../shared/session.js?v=8"></script>
     <script src="../shared/db.js?v=10"></script>
     <script src="../shared/ui-components.js"></script>
-    <script src="billing.js?v=2"></script>
+    <script src="../shared/invoice-pdf.js"></script>
+    <script src="billing.js?v=3"></script>
 </body>
 </html>

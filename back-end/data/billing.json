@@ -4305,5 +4305,275 @@
     ],
     "createdAt": "2026-08-13T04:30:00.000Z",
     "hospitalId": "H001"
+  },
+  {
+    "id": "BILL-MTG09CHM5CW",
+    "patientId": "P-TEST-1788106192719",
+    "visitDate": "September 15, 2026",
+    "dueDate": "September 13, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Ananya Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTG09CH62O3",
+        "date": "September 15, 2026"
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-30T16:09:52.762Z",
+    "updatedAt": "2026-08-30T16:09:52.771Z"
+  },
+  {
+    "id": "BILL-MTG0A7RSDI1",
+    "patientId": "P-TEST-1788106233280",
+    "visitDate": "September 15, 2026",
+    "dueDate": "September 13, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Ananya Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTG0A7RFA6D",
+        "date": "September 15, 2026"
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-30T16:10:33.304Z",
+    "updatedAt": "2026-08-30T16:10:33.310Z"
+  },
+  {
+    "id": "BILL-MTG0AF00M1Z",
+    "patientId": "P-TEST-1788106242649",
+    "visitDate": "September 15, 2026",
+    "dueDate": "September 13, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Ananya Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTG0AEZNJN2",
+        "date": "September 15, 2026"
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-30T16:10:42.671Z",
+    "updatedAt": "2026-08-30T16:10:42.678Z"
+  },
+  {
+    "id": "BILL-MTG0AKR2VMY",
+    "patientId": "P-TEST-1788106250103",
+    "visitDate": "September 15, 2026",
+    "dueDate": "September 13, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Ananya Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTG0AKQOS3R",
+        "date": "September 15, 2026"
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-30T16:10:50.126Z",
+    "updatedAt": "2026-08-30T16:10:50.132Z"
+  },
+  {
+    "id": "BILL-MTG0B02D166Z",
+    "patientId": "P-TEST-1788106269952",
+    "visitDate": "September 15, 2026",
+    "dueDate": "September 13, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 2300,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 207,
+    "sgstAmount": 207,
+    "total": 2714,
+    "items": [
+      {
+        "description": "Consultation — Dr. Ananya Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTG0B02113JT",
+        "date": "September 15, 2026"
+      },
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency Transport",
+        "amount": 500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-MTG0B0311A5I",
+        "date": "August 30, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Mehta (Neurology)",
+        "department": "Neurology",
+        "amount": 1000,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTG0B0441FLY",
+        "date": "September 16, 2026"
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-MTG0B0531KC4",
+        "amount": 2714,
+        "method": "CARD",
+        "createdAt": "2026-08-30T16:11:10.071Z"
+      }
+    ],
+    "createdAt": "2026-08-30T16:11:09.973Z",
+    "updatedAt": "2026-08-30T16:11:10.071Z"
+  },
+  {
+    "id": "BILL-MTG0B05Q1P0Y",
+    "patientId": "P-TEST-1788106269952",
+    "visitDate": "October 01, 2026",
+    "dueDate": "September 13, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 1400,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 126,
+    "sgstAmount": 126,
+    "total": 1652,
+    "items": [
+      {
+        "description": "Consultation — Dr. Rao (Dermatology)",
+        "department": "Dermatology",
+        "amount": 600,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTG0B05E1MCJ",
+        "date": "October 01, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Ananya Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTG0B02113JT",
+        "date": "September 15, 2026"
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-30T16:11:10.094Z",
+    "updatedAt": "2026-08-30T16:11:10.122Z"
+  },
+  {
+    "id": "BILL-MTG1B9U8506",
+    "patientId": "P-TEST-1788107962220",
+    "visitDate": "September 15, 2026",
+    "dueDate": "September 13, 2026",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 2300,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 207,
+    "sgstAmount": 207,
+    "total": 2714,
+    "items": [
+      {
+        "description": "Consultation — Dr. Ananya Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTG1B9TS2XB",
+        "date": "September 15, 2026"
+      },
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency Transport",
+        "amount": 500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-MTG1B9V09L6",
+        "date": "August 30, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Mehta (Neurology)",
+        "department": "Neurology",
+        "amount": 1000,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTG1B9W7ELA",
+        "date": "September 16, 2026"
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-MTG1B9XBJ0F",
+        "amount": 2714,
+        "method": "CARD",
+        "createdAt": "2026-08-30T16:39:22.367Z"
+      }
+    ],
+    "createdAt": "2026-08-30T16:39:22.255Z",
+    "updatedAt": "2026-08-30T16:39:22.367Z"
+  },
+  {
+    "id": "BILL-MTG1B9XYOFT",
+    "patientId": "P-TEST-1788107962220",
+    "visitDate": "October 01, 2026",
+    "dueDate": "September 13, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 600,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 54,
+    "sgstAmount": 54,
+    "total": 708,
+    "items": [
+      {
+        "description": "Consultation — Dr. Rao (Dermatology)",
+        "department": "Dermatology",
+        "amount": 600,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTG1B9XLLKY",
+        "date": "October 01, 2026"
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-30T16:39:22.390Z",
+    "updatedAt": "2026-08-30T16:39:22.397Z"
   }
 ]

@@ -12,6 +12,7 @@ import { PatientsService } from '../patients/patients.service';
 import { LeavesService } from '../leaves/leaves.service';
 import { UsersService } from '../users/users.service';
 import { SchedulesService } from '../schedules/schedules.service';
+import { BillingService } from '../billing/billing.service';
 import { Leave } from '../leaves/interfaces/leave.interface';
 
 /**
@@ -28,6 +29,7 @@ export class AppointmentsService {
     private readonly leavesService: LeavesService,
     private readonly usersService: UsersService,
     private readonly schedulesService: SchedulesService,
+    private readonly billingService: BillingService,
   ) {}
 
   /** Resolve a patient's display name, falling back to a placeholder. */
@@ -288,8 +290,10 @@ export class AppointmentsService {
         timeLabel: appointmentData.timeLabel,
         token,
         fee: appointmentData.fee || 100,
-        status: AppointmentStatus.PENDING,
+        status: (appointmentData as any).status || AppointmentStatus.PENDING,
         reason: appointmentData.reason || '',
+        referredByDoctorId: appointmentData.referredByDoctorId,
+        parentAppointmentId: appointmentData.parentAppointmentId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -339,6 +343,25 @@ export class AppointmentsService {
       
       this.saveAppointments(appointments);
 
+      const updatedAppointment = appointments[updatedIndex];
+
+      // If status transitioned to completed, append consultation fee to patient's active pending bill
+      if (updateData.status === AppointmentStatus.COMPLETED) {
+        const fee = Number(updatedAppointment.fee) || 800;
+        const doctorName = updatedAppointment.doctor || 'Doctor';
+        const deptName = updatedAppointment.department || 'General';
+        const description = `Consultation — ${doctorName} (${deptName})`;
+
+        this.billingService.addChargeToPendingBill(updatedAppointment.patientId, {
+          type: 'CONSULTATION',
+          description,
+          amount: fee,
+          referenceId: updatedAppointment.id,
+          department: deptName,
+          date: updatedAppointment.dateLabel
+        });
+      }
+
       // Log activity
       this.systemService.createActivity({
         userId: 'System',
@@ -348,7 +371,7 @@ export class AppointmentsService {
         severity: 'INFO'
       });
 
-      return ResponseUtil.updated('Appointment updated successfully', appointments[updatedIndex]);
+      return ResponseUtil.updated('Appointment updated successfully', updatedAppointment);
     } catch (error) {
       return ResponseUtil.serverError('Failed to update appointment');
     }
@@ -447,6 +470,21 @@ export class AppointmentsService {
       this.saveAppointments(appointments);
 
       const updatedAppointment = appointments[appointmentIndex];
+
+      // Append consultation fee to patient's active pending bill
+      const fee = Number(updatedAppointment.fee) || 800;
+      const doctorName = updatedAppointment.doctor || 'Doctor';
+      const deptName = updatedAppointment.department || 'General';
+      const description = `Consultation — ${doctorName} (${deptName})`;
+
+      this.billingService.addChargeToPendingBill(updatedAppointment.patientId, {
+        type: 'CONSULTATION',
+        description,
+        amount: fee,
+        referenceId: updatedAppointment.id,
+        department: deptName,
+        date: updatedAppointment.dateLabel
+      });
 
       // Log activity
       this.systemService.createActivity({

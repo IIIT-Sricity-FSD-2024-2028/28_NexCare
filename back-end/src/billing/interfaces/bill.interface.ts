@@ -7,6 +7,21 @@ export interface BillItem {
   description: string;
   department: string;
   amount: number;
+  type?: string;
+  referenceId?: string;
+  date?: string;
+}
+
+/**
+ * Pending Bill Charge Interface for adding charges to active patient bill
+ */
+export interface PendingBillCharge {
+  type: string;
+  description: string;
+  amount: number;
+  referenceId: string;
+  department?: string;
+  date?: string;
 }
 
 /**
