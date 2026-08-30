@@ -17,6 +17,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@ne
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { ReferAppointmentDto } from './dto/refer-appointment.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole, AppointmentStatus } from '../common/interfaces/api-response.interface';
 
@@ -193,6 +194,24 @@ export class AppointmentsController {
   }
 
   /**
+   * Doctors available to receive a referral from the signed-in doctor.
+   */
+  @Get('referral-doctors')
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR)
+  @ApiOperation({ summary: 'List doctors that can receive a referral' })
+  @ApiQuery({ name: 'dept', required: false })
+  @ApiQuery({ name: 'hospitalId', required: false })
+  async listReferralDoctors(
+    @Req() req: any,
+    @Query('dept') dept?: string,
+    @Query('hospitalId') hospitalId?: string,
+  ) {
+    const exclude = req?.user?.role === UserRole.DOCTOR ? req.user.id : undefined;
+    const hospital = hospitalId || req?.user?.hospitalId;
+    return this.appointmentsService.listReferralDoctors(exclude, hospital, dept);
+  }
+
+  /**
    * Get appointment by ID
    */
   @Get(':id')
@@ -254,6 +273,23 @@ export class AppointmentsController {
   async complete(@Req() req: any, @Param('id') id: string) {
     await this.assertDoctorOwnsAppointment(req, id);
     return this.appointmentsService.complete(id);
+  }
+
+  /**
+   * Refer the patient to another doctor (creates a follow-up appointment).
+   */
+  @Post(':id/refer')
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Refer the patient to another doctor after this consult' })
+  @ApiResponse({ status: 200, description: 'Referral appointment created' })
+  async refer(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: ReferAppointmentDto,
+  ) {
+    await this.assertDoctorOwnsAppointment(req, id);
+    return this.appointmentsService.refer(id, body);
   }
 
   /**
