@@ -410,6 +410,90 @@ export class BillingService {
   }
 
   /**
+   * Append a charge to this patient's single running (pending) bill.
+   * Paid bills are never modified. If there is no pending bill, one is created.
+   */
+  async appendCharge(patientId: string, item: BillItem): Promise<Bill | null> {
+    try {
+      if (!patientId || !item?.description) return null;
+      const amount = this.round2(Number(item.amount) || 0);
+      if (amount <= 0) return null;
+
+      const bills = this.loadBills();
+      const openStatuses = [BillStatus.PENDING, BillStatus.OVERDUE];
+      const open = bills
+        .filter(b => b.patientId === patientId && openStatuses.includes(b.status))
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+
+      const sourceId = item.sourceId;
+      if (sourceId && open.some(b => (b.items || []).some(i => i.sourceId === sourceId))) {
+        return open.find(b => (b.items || []).some(i => i.sourceId === sourceId)) || null;
+      }
+
+      const visitDate = item.date || this.formatVisitDate(new Date());
+      const line: BillItem = {
+        description: item.description,
+        department: item.department || 'General',
+        amount,
+        date: visitDate,
+        sourceId,
+      };
+
+      if (open.length > 0) {
+        const bill = open[0];
+        const index = bills.findIndex(b => b.id === bill.id);
+        const items = [...(bill.items || []), line];
+        const gst = this.calculateGST(this.round2(items.reduce((sum, i) => sum + i.amount, 0)));
+        const updated: Bill = {
+          ...bill,
+          ...gst,
+          items,
+          updatedAt: new Date().toISOString(),
+        };
+        bills[index] = updated;
+        this.saveBills(bills);
+        return updated;
+      }
+
+      const due = new Date();
+      due.setDate(due.getDate() + 14);
+      const gst = this.calculateGST(amount);
+      const newBill: Bill = {
+        id: IdGenerator.generateBillId(),
+        patientId,
+        visitDate,
+        dueDate: this.formatVisitDate(due),
+        status: BillStatus.PENDING,
+        currency: '₹',
+        ...gst,
+        items: [line],
+        payments: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      bills.push(newBill);
+      this.saveBills(bills);
+
+      this.systemService.createActivity({
+        userId: patientId,
+        action: 'Create',
+        details: `Pending bill ${newBill.id} opened with ${line.description}`,
+        module: 'Billing',
+        severity: 'INFO',
+      });
+
+      return newBill;
+    } catch (err) {
+      console.error('Failed to append bill charge:', err);
+      return null;
+    }
+  }
+
+  private formatVisitDate(d: Date): string {
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  /**
    * Get bills by patient
    * @param patientId Patient ID
    * @returns Patient bills
