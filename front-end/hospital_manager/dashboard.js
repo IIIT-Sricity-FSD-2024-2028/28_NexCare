@@ -4,12 +4,14 @@
 let allLeaves = [];
 let allStaff = [];
 let allSupport = [];
+let allSchedules = [];
 let managerProfile = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     initManagerInfo();
     await loadOverview();
     await loadLeaves();
+    await loadSchedules();
     await loadStaff();
     await loadSupport();
 });
@@ -51,6 +53,11 @@ function switchTab(tabName, event) {
         document.getElementById('leavesTab').classList.add('active-tab');
         document.getElementById('pageTitle').textContent = 'Leave Approvals';
         document.getElementById('pageSubtitle').textContent = 'Approve or reject doctor leave requests';
+    } else if (tabName === 'schedules') {
+        document.querySelector('a[href="#schedules"]').classList.add('active');
+        document.getElementById('schedulesTab').classList.add('active-tab');
+        document.getElementById('pageTitle').textContent = 'Schedule Approvals';
+        document.getElementById('pageSubtitle').textContent = 'Approve the hospital-wide roster before it is published';
     } else if (tabName === 'staff') {
         document.querySelector('a[href="#staff"]').classList.add('active');
         document.getElementById('staffTab').classList.add('active-tab');
@@ -77,24 +84,34 @@ async function loadOverview() {
         }
         
         // Load various metrics
-        const [leavesResp, supportResp] = await Promise.all([
+        const [leavesResp, supportResp, schedulesResp] = await Promise.all([
             window.NexCareAPI.Leaves.getAll({ status: 'pending' }).catch(() => ({ success: false, data: [] })),
-            window.NexCareAPI.SupportRequests.getAll({ status: 'Open' }).catch(() => ({ success: false, data: [] }))
+            window.NexCareAPI.SupportRequests.getAll({ status: 'Open' }).catch(() => ({ success: false, data: [] })),
+            window.NexCareAPI.get('/schedules?status=pending').catch(() => ({ success: false, data: [] }))
         ]);
         
         if (hideLoading) hideLoading();
         
         const pendingLeaves = leavesResp.success ? leavesResp.data.length : 0;
         const openSupport = supportResp.success ? supportResp.data.length : 0;
-        
+        const pendingSchedules = schedulesResp.success ? (schedulesResp.data || []).length : 0;
+
         document.getElementById('statPendingLeaves').textContent = pendingLeaves;
         document.getElementById('statSupport').textContent = openSupport;
+        if (document.getElementById('statPendingSchedules')) {
+            document.getElementById('statPendingSchedules').textContent = pendingSchedules;
+        }
         
         tbody.innerHTML = `
             <tr>
                 <td><strong>Pending Leave Requests</strong></td>
                 <td>${pendingLeaves}</td>
                 <td>${pendingLeaves > 0 ? '<span class="badge badge-inactive">Needs Attention</span>' : '<span class="badge badge-active">All Clear</span>'}</td>
+            </tr>
+            <tr>
+                <td><strong>Pending Hospital Schedules</strong></td>
+                <td>${pendingSchedules}</td>
+                <td>${pendingSchedules > 0 ? '<span class="badge badge-inactive">Needs Attention</span>' : '<span class="badge badge-active">All Clear</span>'}</td>
             </tr>
             <tr>
                 <td><strong>Open Support Requests</strong></td>
@@ -282,6 +299,89 @@ function filterLeaves() {
     const statusVal = document.getElementById('leaveStatusFilter').value;
     const filtered = allLeaves.filter(l => !statusVal || l.status === statusVal);
     renderLeaves(filtered);
+}
+
+async function loadSchedules() {
+    const tbody = document.getElementById('schedulesTableBody');
+    if (!tbody) return;
+    try {
+        const hospitalId = managerProfile ? managerProfile.hospitalId : null;
+        const path = hospitalId ? `/schedules?hospitalId=${encodeURIComponent(hospitalId)}` : '/schedules';
+        const response = await window.NexCareAPI.get(path);
+        if (response && response.success && Array.isArray(response.data)) {
+            allSchedules = response.data;
+            renderSchedules(allSchedules);
+            const pending = allSchedules.filter(s => s.status === 'pending').length;
+            if (document.getElementById('statPendingSchedules')) {
+                document.getElementById('statPendingSchedules').textContent = pending;
+            }
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No schedules found.</td></tr>';
+        }
+    } catch (err) {
+        console.error('Failed to load schedules:', err);
+        tbody.innerHTML = '<tr><td colspan="5" class="loading-cell" style="color:#ef4444;">Failed to load schedules.</td></tr>';
+    }
+}
+
+function renderSchedules(rows) {
+    const tbody = document.getElementById('schedulesTableBody');
+    if (!rows || rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No schedules found.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = rows.map(s => {
+        const statusBadge = s.status === 'approved' ? '<span class="badge badge-active">APPROVED</span>' :
+            s.status === 'rejected' ? '<span class="badge badge-suspended">REJECTED</span>' :
+            '<span class="badge badge-inactive">PENDING</span>';
+        const coverage = (s.slots || []).map(sl => `${sl.department} · ${sl.shift}`).join('; ') || '—';
+        const actions = s.status === 'pending' ? `
+            <button onclick="approveSchedule('${s.id}')" style="padding:4px 8px; font-size:12px; border-radius:4px; background:#10B981; color:#fff; border:none; cursor:pointer; margin-right:4px;">Approve</button>
+            <button onclick="rejectSchedule('${s.id}')" style="padding:4px 8px; font-size:12px; border-radius:4px; background:#EF4444; color:#fff; border:none; cursor:pointer;">Reject</button>
+        ` : '<span style="color:#6A7282; font-size:12px;">Processed</span>';
+        return `
+            <tr>
+                <td>${escapeHtml((s.validFrom || '') + ' to ' + (s.validTo || ''))}</td>
+                <td>${escapeHtml(coverage)}</td>
+                <td>${escapeHtml(s.notes || '—')}</td>
+                <td>${statusBadge}</td>
+                <td>${actions}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function approveSchedule(id) {
+    if (!confirm('Approve and publish this hospital schedule?')) return;
+    const response = await window.NexCareAPI.patch(`/schedules/${id}`, { status: 'approved' });
+    if (response && response.success) {
+        if (window.NexCareUI && window.NexCareUI.showToast) {
+            window.NexCareUI.showToast({ message: 'Schedule published', type: 'success' });
+        }
+        await loadSchedules();
+        await loadOverview();
+    } else {
+        alert((response && response.message) || 'Could not approve schedule');
+    }
+}
+
+async function rejectSchedule(id) {
+    if (!confirm('Reject this hospital schedule?')) return;
+    const response = await window.NexCareAPI.patch(`/schedules/${id}`, { status: 'rejected' });
+    if (response && response.success) {
+        if (window.NexCareUI && window.NexCareUI.showToast) {
+            window.NexCareUI.showToast({ message: 'Schedule rejected', type: 'warning' });
+        }
+        await loadSchedules();
+        await loadOverview();
+    } else {
+        alert((response && response.message) || 'Could not reject schedule');
+    }
+}
+
+function filterSchedules() {
+    const statusVal = document.getElementById('scheduleStatusFilter').value;
+    renderSchedules(allSchedules.filter(s => !statusVal || s.status === statusVal));
 }
 
 async function loadStaff() {
