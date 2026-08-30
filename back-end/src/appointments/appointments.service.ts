@@ -1,15 +1,18 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { ArrayUtil } from '../common/utils/array.util';
 import { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest, AppointmentStats } from './interfaces/appointment.interface';
-import { AppointmentStatus, LeaveStatus } from '../common/interfaces/api-response.interface';
+import { AppointmentStatus, LeaveStatus, UserRole, UserStatus } from '../common/interfaces/api-response.interface';
 
 import { SystemService } from '../system/system.service';
 import { PatientsService } from '../patients/patients.service';
 import { LeavesService } from '../leaves/leaves.service';
+import { UsersService } from '../users/users.service';
+import { SchedulesService } from '../schedules/schedules.service';
+import { Leave } from '../leaves/interfaces/leave.interface';
 
 /**
  * Appointments Service
@@ -21,7 +24,10 @@ export class AppointmentsService {
   constructor(
     private readonly systemService: SystemService,
     private readonly patientsService: PatientsService,
+    @Inject(forwardRef(() => LeavesService))
     private readonly leavesService: LeavesService,
+    private readonly usersService: UsersService,
+    private readonly schedulesService: SchedulesService,
   ) {}
 
   /** Resolve a patient's display name, falling back to a placeholder. */
@@ -213,6 +219,23 @@ export class AppointmentsService {
       );
       if (timeConflict) {
         return ResponseUtil.error('Time slot already booked for this doctor');
+      }
+
+      const hospitalId = (appointmentData as any).hospitalId || await this.resolveDoctorHospital(appointmentData.doctor);
+
+      if (hospitalId && !this.schedulesService.hasPublishedSchedule(hospitalId)) {
+        return ResponseUtil.error('No hospital schedule has been published yet. Wait for the hospital manager to approve the roster.');
+      }
+      if (
+        hospitalId &&
+        !this.schedulesService.isPublishedCoverage(
+          hospitalId,
+          appointmentData.department,
+          appointmentData.dateLabel,
+          appointmentData.timeLabel,
+        )
+      ) {
+        return ResponseUtil.error('That slot is outside the published hospital schedule.');
       }
 
       // Check doctor availability (not on leave)
@@ -572,6 +595,123 @@ export class AppointmentsService {
       return ResponseUtil.success('Today\'s appointments retrieved successfully', todayAppointments);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve today\'s appointments');
+    }
+  }
+
+  /**
+   * After a hospital manager approves leave: mark the doctor on leave,
+   * then reassign open appointments in that window to another doctor in
+   * the same department, or cancel if nobody is available.
+   */
+  async handleDoctorLeaveApproved(leave: Leave): Promise<void> {
+    try {
+      if (leave.doctorId) {
+        await this.usersService.updateStatus(leave.doctorId, UserStatus.ON_LEAVE);
+      }
+
+      const leaveStart = this.startOfDay(new Date(leave.startDate));
+      const leaveEnd = this.startOfDay(new Date(leave.endDate));
+      if (isNaN(leaveStart.getTime()) || isNaN(leaveEnd.getTime())) return;
+
+      const doctorsRes: any = await this.usersService.findByRole(UserRole.DOCTOR);
+      const doctors = Array.isArray(doctorsRes?.data) ? doctorsRes.data : [];
+      const leavesRes: any = await this.leavesService.findAll(undefined, leave.hospitalId, LeaveStatus.APPROVED);
+      const approvedLeaves = Array.isArray(leavesRes?.data) ? leavesRes.data : [];
+
+      const appointments = this.loadAppointments();
+      let changed = false;
+
+      for (const apt of appointments) {
+        if (apt.status === AppointmentStatus.CANCELLED || apt.status === AppointmentStatus.COMPLETED) {
+          continue;
+        }
+        if (!this.sameDoctor(apt.doctor, leave.doctorName)) continue;
+
+        const aptDate = this.startOfDay(new Date(apt.dateLabel));
+        if (isNaN(aptDate.getTime()) || aptDate < leaveStart || aptDate > leaveEnd) continue;
+
+        const replacement = doctors.find((doc: any) => {
+          if (doc.id === leave.doctorId) return false;
+          if (this.sameDoctor(doc.name, leave.doctorName)) return false;
+          if (leave.hospitalId && doc.hospitalId && doc.hospitalId !== leave.hospitalId) return false;
+          if (apt.department && doc.dept && doc.dept !== apt.department) return false;
+          if (doc.status === UserStatus.ON_LEAVE) return false;
+          const onLeave = approvedLeaves.some((l: any) => {
+            if (l.doctorId !== doc.id && !this.sameDoctor(l.doctorName, doc.name)) return false;
+            const s = this.startOfDay(new Date(l.startDate));
+            const e = this.startOfDay(new Date(l.endDate));
+            return aptDate >= s && aptDate <= e;
+          });
+          if (onLeave) return false;
+          const slotTaken = appointments.some(
+            other =>
+              other.id !== apt.id &&
+              other.status !== AppointmentStatus.CANCELLED &&
+              other.status !== AppointmentStatus.COMPLETED &&
+              this.sameDoctor(other.doctor, doc.name) &&
+              other.dateLabel === apt.dateLabel &&
+              other.timeLabel === apt.timeLabel,
+          );
+          return !slotTaken;
+        });
+
+        if (replacement) {
+          apt.doctor = replacement.name;
+          apt.reason = [apt.reason, `Reassigned from ${leave.doctorName} (on leave)`]
+            .filter(Boolean)
+            .join(' — ');
+          apt.updatedAt = new Date().toISOString();
+          apt.status = AppointmentStatus.PENDING;
+          changed = true;
+        } else {
+          apt.status = AppointmentStatus.CANCELLED;
+          apt.reason = [apt.reason, `Cancelled — ${leave.doctorName} on approved leave`]
+            .filter(Boolean)
+            .join(' — ');
+          apt.updatedAt = new Date().toISOString();
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        this.saveAppointments(appointments);
+        this.systemService.createActivity({
+          userId: leave.approvedBy || 'hospital_manager',
+          action: 'Update',
+          details: `Appointments adjusted for approved leave of ${leave.doctorName} (${leave.startDate} to ${leave.endDate})`,
+          module: 'Appointments',
+          severity: 'INFO',
+        });
+      }
+    } catch (err) {
+      console.error('Dynamic appointment handling after leave approval failed:', err);
+    }
+  }
+
+  private sameDoctor(a?: string, b?: string): boolean {
+    const norm = (v?: string) =>
+      String(v || '')
+        .toLowerCase()
+        .replace(/^dr\.?\s*/i, '')
+        .trim();
+    return !!norm(a) && norm(a) === norm(b);
+  }
+
+  private startOfDay(d: Date): Date {
+    const copy = new Date(d);
+    copy.setHours(0, 0, 0, 0);
+    return copy;
+  }
+
+  private async resolveDoctorHospital(doctorName?: string): Promise<string | undefined> {
+    if (!doctorName) return undefined;
+    try {
+      const res: any = await this.usersService.findByRole(UserRole.DOCTOR);
+      const doctors = Array.isArray(res?.data) ? res.data : [];
+      const match = doctors.find((d: any) => this.sameDoctor(d.name, doctorName));
+      return match?.hospitalId;
+    } catch {
+      return undefined;
     }
   }
 }
