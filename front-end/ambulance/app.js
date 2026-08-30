@@ -1573,8 +1573,7 @@ function bindRequestCrudForm() {
     document.getElementById('req-contact').setAttribute('name', 'contact');
     document.getElementById('req-priority').setAttribute('name', 'priority');
 
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
+    form.addEventListener('submit', async function (e) {
         
         // Get existing contacts for duplicate checking
         const existingContacts = appState.requests.map(r => r.contact);
