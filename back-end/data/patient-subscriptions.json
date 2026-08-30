@@ -1,0 +1,47 @@
+[
+  {
+    "id": "PSUB-P001",
+    "patientId": "P001",
+    "patientName": "John Anderson",
+    "planId": "CARE-PLUS",
+    "status": "active",
+    "startedAt": "2026-05-01T00:00:00.000Z",
+    "renewsOn": "2026-09-29T18:30:00.000Z"
+  },
+  {
+    "id": "PSUB-P002",
+    "patientId": "P002",
+    "patientName": "Maria Garcia",
+    "planId": "CARE-PLUS",
+    "status": "active",
+    "startedAt": "2026-05-01T00:00:00.000Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z"
+  },
+  {
+    "id": "PSUB-P003",
+    "patientId": "P003",
+    "patientName": "Vivian Mathew",
+    "planId": "CARE-PLUS",
+    "status": "active",
+    "startedAt": "2026-05-01T00:00:00.000Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z"
+  },
+  {
+    "id": "PSUB-P004",
+    "patientId": "P004",
+    "patientName": "Priya Sharma",
+    "planId": "CARE-PLUS",
+    "status": "active",
+    "startedAt": "2026-05-01T00:00:00.000Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z"
+  },
+  {
+    "id": "PSUB-P005",
+    "patientId": "P005",
+    "patientName": "Abhishek Kumar",
+    "planId": "CARE-PLUS",
+    "status": "active",
+    "startedAt": "2026-05-01T00:00:00.000Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z"
+  }
+]

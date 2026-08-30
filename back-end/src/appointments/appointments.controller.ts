@@ -113,6 +113,66 @@ export class AppointmentsController {
   }
 
   /**
+   * Get appointments by doctor
+   *
+   * A doctor may only ask for their own list. The route still takes an id so
+   * staff and managers can look at a colleague's schedule, but 'me' is the
+   * form the doctor portal uses and the only one that works for a doctor.
+   */
+  @Get('doctor/:doctorId')
+  @Roles(
+    UserRole.SUPERUSER,
+    UserRole.ADMINISTRATIVE_STAFF,
+    UserRole.HOSPITAL_MANAGER,
+    UserRole.DOCTOR,
+  )
+  @ApiOperation({ summary: "Get a doctor's appointments (doctors: own only, pass 'me')" })
+  @ApiResponse({ status: 200, description: 'List of the doctor’s appointments' })
+  async findByDoctor(
+    @Req() req: any,
+    @Param('doctorId') doctorId: string,
+    @Query('status') status?: AppointmentStatus,
+    @Query('date') date?: string,
+  ) {
+    return this.appointmentsService.findByDoctor(
+      this.resolveDoctorId(req, doctorId),
+      status,
+      date,
+    );
+  }
+
+  @Get('doctor/:doctorId/stats')
+  @Roles(
+    UserRole.SUPERUSER,
+    UserRole.ADMINISTRATIVE_STAFF,
+    UserRole.HOSPITAL_MANAGER,
+    UserRole.DOCTOR,
+  )
+  @ApiOperation({ summary: "Headline counts for a doctor's dashboard" })
+  async doctorStats(@Req() req: any, @Param('doctorId') doctorId: string) {
+    return this.appointmentsService.getDoctorStats(this.resolveDoctorId(req, doctorId));
+  }
+
+  /**
+   * Resolve the doctor whose list is being asked for. 'me' means the caller;
+   * a doctor asking for anyone else is refused rather than silently redirected,
+   * so a bug in the portal surfaces instead of showing the wrong schedule.
+   */
+  private resolveDoctorId(req: any, requested: string): string {
+    const isDoctor = req?.user?.role === UserRole.DOCTOR;
+    if (requested === 'me') {
+      if (!isDoctor) {
+        throw new ForbiddenException("'me' is only meaningful for a doctor account.");
+      }
+      return req.user.id;
+    }
+    if (isDoctor && requested !== req.user.id) {
+      throw new ForbiddenException('You can only view your own appointments.');
+    }
+    return requested;
+  }
+
+  /**
    * Get appointments by department
    */
   @Get('department/:department')
@@ -180,7 +240,8 @@ export class AppointmentsController {
   @Patch(':id/confirm')
   @ApiOperation({ summary: 'Confirm an appointment' })
   @ApiResponse({ status: 200, description: 'Appointment confirmed successfully' })
-  async confirm(@Param('id') id: string) {
+  async confirm(@Req() req: any, @Param('id') id: string) {
+    await this.assertDoctorOwnsAppointment(req, id);
     return this.appointmentsService.confirm(id);
   }
 
@@ -190,7 +251,8 @@ export class AppointmentsController {
   @Patch(':id/complete')
   @ApiOperation({ summary: 'Mark an appointment as completed' })
   @ApiResponse({ status: 200, description: 'Appointment completed successfully' })
-  async complete(@Param('id') id: string) {
+  async complete(@Req() req: any, @Param('id') id: string) {
+    await this.assertDoctorOwnsAppointment(req, id);
     return this.appointmentsService.complete(id);
   }
 
@@ -204,5 +266,18 @@ export class AppointmentsController {
   async cancel(@Req() req: any, @Param('id') id: string) {
     await this.assertOwnsAppointment(req, id);
     return this.appointmentsService.cancel(id);
+  }
+
+  /**
+   * Confirm and complete are open to the whole class-level role list, which now
+   * includes doctors. Staff may action any appointment at their hospital; a
+   * doctor may only action the ones on their own list.
+   */
+  private async assertDoctorOwnsAppointment(req: any, appointmentId: string): Promise<void> {
+    if (req?.user?.role !== UserRole.DOCTOR) return;
+    const owns = await this.appointmentsService.isDoctorsOwn(req.user.id, appointmentId);
+    if (!owns) {
+      throw new ForbiddenException('You can only update appointments booked with you.');
+    }
   }
 }

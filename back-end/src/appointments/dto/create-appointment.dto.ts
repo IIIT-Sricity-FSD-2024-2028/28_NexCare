@@ -21,6 +21,15 @@ export class CreateAppointmentDto {
   @IsString()
   doctor?: string;
 
+  // The doctor's user id. `doctor` above is the display name the patient picked;
+  // this is what the doctor portal filters on and what the revenue model
+  // attributes the consultation commission to. Optional so a walk-in booked
+  // against a department rather than a named consultant still validates.
+  @ApiPropertyOptional({ example: 'U005', description: 'User id of the doctor the slot belongs to' })
+  @IsOptional()
+  @IsString()
+  doctorId?: string;
+
   @ApiProperty({ example: 'March 15, 2026', description: 'Date of appointment' })
   @IsString()
   @IsNotEmpty({ message: 'Date label is required' })

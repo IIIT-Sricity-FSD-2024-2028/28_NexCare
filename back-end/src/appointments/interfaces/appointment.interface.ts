@@ -10,6 +10,8 @@ export interface Appointment {
   patientName: string;
   department: string;
   doctor: string;
+  /** User id of the doctor. Absent on rows booked before the doctor portal. */
+  doctorId?: string;
   /** Hospital the appointment belongs to — drives per-hospital revenue reporting. */
   hospitalId?: string;
   hospitalName?: string;
@@ -30,6 +32,7 @@ export interface CreateAppointmentRequest {
   patientId: string;
   department: string;
   doctor?: string;
+  doctorId?: string;
   hospitalId?: string;
   hospitalName?: string;
   dateLabel: string;
@@ -44,6 +47,7 @@ export interface CreateAppointmentRequest {
 export interface UpdateAppointmentRequest {
   department?: string;
   doctor?: string;
+  doctorId?: string;
   hospitalId?: string;
   hospitalName?: string;
   dateLabel?: string;

@@ -78,7 +78,7 @@ function renderHospitalsTable(hospitals) {
     }).join('');
 }
 
-// Doctors are directory records rather than login accounts, but they are still the
+// Doctors have their own portal now, but from a region's point of view they are still the
 // clinical headcount a regional officer reports on.
 async function loadDoctorCount(myIds) {
     try {

@@ -9,11 +9,12 @@ import { UserRole, UserStatus } from '../common/interfaces/api-response.interfac
 
 import { SystemService } from '../system/system.service';
 import { PatientsService } from '../patients/patients.service';
+import { PricingService } from '../revenue/pricing.service';
 
 /**
- * Roles that exist purely as directory records on this non-clinical platform.
- * They can be created and referenced (appointments, leave rosters, headcount) but
- * are never granted a session — NexCare has no clinical portal.
+ * Roles that exist purely as directory records. They can be created and
+ * referenced (rosters, leave, headcount) but are never granted a session.
+ * Doctors are NOT on this list — they have a portal of their own.
  */
 const NON_LOGIN_ROLES: UserRole[] = [UserRole.NURSE];
 
@@ -31,6 +32,7 @@ export class AuthService {
   constructor(
     private readonly systemService: SystemService,
     private readonly patientsService: PatientsService,
+    private readonly pricingService: PricingService,
   ) {}
 
   // ── Paths ────────────────────────────────────────────────────────────────
@@ -202,9 +204,9 @@ export class AuthService {
         );
       }
 
-      // NexCare is a non-clinical platform. Clinical roles exist only as directory
-      // records so appointments and rosters can reference them — they have no portal
-      // and are never issued a session.
+      // Some clinical roles exist only as directory records so rosters and leave
+      // calendars can reference them. They have no portal and are never issued a
+      // session. Doctors are not among them — see NON_LOGIN_ROLES.
       if (NON_LOGIN_ROLES.includes(user.role)) {
         return ResponseUtil.error(
           `Access Denied: '${user.role}' is a directory record, not a NexCare login account.`,
@@ -358,6 +360,9 @@ export class AuthService {
     role: UserRole;
     hospitalId: string;
     dept?: string;
+    specialization?: string;
+    registrationNo?: string;
+    consultationFee?: number;
   }) {
     try {
       const users = this.loadUsers();
@@ -369,20 +374,48 @@ export class AuthService {
         return ResponseUtil.error('Email is already registered');
       }
 
-      const newUser = {
+      const isDoctor = data.role === UserRole.DOCTOR;
+
+      // A doctor without a specialisation cannot be placed in the booking
+      // wizard's department list, so the account would be unbookable.
+      if (isDoctor && !(data.specialization || data.dept)) {
+        return ResponseUtil.validationError('Specialisation is required for a doctor account');
+      }
+
+      const newUser: any = {
         id: IdGenerator.generateUserId(),
-        name: data.fullName,
+        name: this.doctorDisplayName(data.fullName, isDoctor),
         email: data.email,
         role: data.role,
         status: UserStatus.ACTIVE,
         password: this.hashPassword(data.password),
         phone: data.phone,
         hospitalId: data.hospitalId,
-        dept: data.dept,
+        // Doctors are listed under their specialisation — that is the department
+        // a patient picks in the booking wizard.
+        dept: isDoctor ? (data.specialization || data.dept) : data.dept,
       };
+
+      if (isDoctor) {
+        newUser.specialization = data.specialization || data.dept;
+        newUser.registrationNo = data.registrationNo || '';
+        newUser.consultationFee = data.consultationFee ?? 500;
+      }
 
       users.push(newUser);
       this.saveUsers(users);
+
+      // A new doctor is enrolled on the free listing tier immediately, so they
+      // appear in the revenue model from their first day rather than only once
+      // somebody remembers to place them on a plan.
+      if (isDoctor) {
+        this.pricingService.ensureDoctorSubscription({
+          id: newUser.id,
+          name: newUser.name,
+          hospitalId: newUser.hospitalId,
+          consultationFee: newUser.consultationFee,
+        });
+      }
 
       const session: UserSession = {
         id: newUser.id,
@@ -526,5 +559,17 @@ export class AuthService {
       console.error('Change password error:', error);
       return ResponseUtil.serverError('Failed to change password');
     }
+  }
+
+  /**
+   * Appointments, leave records and the doctor directory all carry the "Dr. "
+   * prefix, and the booking wizard matches consultants by name. Normalising it
+   * once at registration keeps a self-registered doctor from showing up as a
+   * second, unmatched person.
+   */
+  private doctorDisplayName(fullName: string, isDoctor: boolean): string {
+    const name = String(fullName || '').trim();
+    if (!isDoctor || /^dr\.?\s/i.test(name)) return name;
+    return `Dr. ${name}`;
   }
 }

@@ -44,12 +44,7 @@ class NexCareAPI {
 
     async post(endpoint, data = {}) {
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, {
-                method: 'POST',
-                headers: this.getHeaders(),
-                body: JSON.stringify(data)
-            });
-            
+            const response = await this.sendWrite('POST', endpoint, data);
             return await this.handleResponse(response);
         } catch (error) {
             return this.handleError(error, 'POST', endpoint);
@@ -58,12 +53,7 @@ class NexCareAPI {
 
     async put(endpoint, data = {}) {
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, {
-                method: 'PUT',
-                headers: this.getHeaders(),
-                body: JSON.stringify(data)
-            });
-            
+            const response = await this.sendWrite('PUT', endpoint, data);
             return await this.handleResponse(response);
         } catch (error) {
             return this.handleError(error, 'PUT', endpoint);
@@ -72,12 +62,7 @@ class NexCareAPI {
 
     async patch(endpoint, data = {}) {
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, {
-                method: 'PATCH',
-                headers: this.getHeaders(),
-                body: JSON.stringify(data)
-            });
-            
+            const response = await this.sendWrite('PATCH', endpoint, data);
             return await this.handleResponse(response);
         } catch (error) {
             return this.handleError(error, 'PATCH', endpoint);
@@ -86,15 +71,42 @@ class NexCareAPI {
 
     async delete(endpoint) {
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, {
-                method: 'DELETE',
-                headers: this.getHeaders()
-            });
-            
+            const response = await this.sendWrite('DELETE', endpoint);
             return await this.handleResponse(response);
         } catch (error) {
             return this.handleError(error, 'DELETE', endpoint);
         }
+    }
+
+    /**
+     * One write, retried once if the server rejects it for a missing or stale
+     * CSRF token. The retry matters for a page whose first action is a write:
+     * nothing has issued a GET yet, so no token has been handed out.
+     */
+    async sendWrite(method, endpoint, data) {
+        const build = () => {
+            const options = { method, headers: this.getHeaders() };
+            if (data !== undefined) options.body = JSON.stringify(data);
+            return options;
+        };
+
+        let response = await fetch(`${this.baseURL}${endpoint}`, build());
+        if (response.status !== 403) return response;
+
+        // Peek without consuming the body the caller still needs.
+        const copy = response.clone();
+        let message = '';
+        try {
+            message = String((await copy.json()).message || '');
+        } catch (e) {
+            return response;
+        }
+        if (!/csrf/i.test(message)) return response;
+
+        this.captureCsrfToken(response);
+        await this.primeCsrfToken();
+        response = await fetch(`${this.baseURL}${endpoint}`, build());
+        return response;
     }
 
     // Helper Methods
@@ -106,8 +118,59 @@ class NexCareAPI {
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
-        
+
+        // CsrfMiddleware challenges state-changing requests that carry no Bearer
+        // credential — in practice the public hospital registration. Replaying
+        // the token the server last handed us costs nothing on the requests it
+        // does not challenge, so it is sent unconditionally.
+        const csrf = this.getCsrfToken();
+        if (csrf) {
+            headers['x-csrf-token'] = csrf;
+        }
+
         return headers;
+    }
+
+    // ── CSRF ────────────────────────────────────────────────────────────────
+    // The backend returns a token in the `x-csrf-token` response header on every
+    // request. Cache it in sessionStorage so it survives navigation between the
+    // static pages, which each reload this script from scratch.
+
+    getCsrfToken() {
+        try {
+            return sessionStorage.getItem('nexcare_csrf_token');
+        } catch (e) {
+            return this._csrfToken || null;
+        }
+    }
+
+    captureCsrfToken(response) {
+        try {
+            const token = response.headers && response.headers.get('x-csrf-token');
+            if (!token) return;
+            this._csrfToken = token;
+            sessionStorage.setItem('nexcare_csrf_token', token);
+        } catch (e) {
+            // Private-mode storage failures must never break the request itself.
+        }
+    }
+
+    /**
+     * Fetch a CSRF token by making a safe request, for the case where the very
+     * first thing a page does is a write — the public hospital registration
+     * form submits before anything has issued a GET.
+     */
+    async primeCsrfToken() {
+        try {
+            const response = await fetch(`${this.baseURL}/hospitals`, {
+                method: 'GET',
+                headers: this.defaultHeaders,
+            });
+            this.captureCsrfToken(response);
+        } catch (e) {
+            // Offline; the caller's own error handling takes over.
+        }
+        return this.getCsrfToken();
     }
 
     getAuthToken() {
@@ -128,6 +191,7 @@ class NexCareAPI {
     }
 
     async handleResponse(response) {
+        this.captureCsrfToken(response);
         try {
             const data = await response.json();
             
@@ -225,6 +289,16 @@ const AuthAPI = {
 
     async getCurrentUser(userId) {
         return await api.get(`/auth/current/${userId}`);
+    },
+
+    /** The backend binds this to the authenticated user — no id is sent. */
+    async changePassword(currentPassword, newPassword) {
+        return await api.patch('/auth/change-password', { currentPassword, newPassword });
+    },
+
+    /** Self-registration for administrative staff, ambulance crew and doctors. */
+    async registerStaff(data) {
+        return await api.post('/auth/register-staff', data);
     }
 };
 
@@ -248,6 +322,12 @@ const UsersAPI = {
 
     async delete(id) {
         return await api.delete(`/users/${id}`);
+    },
+
+    /** Active doctors, for the booking wizard. Patients may call this. */
+    async getDoctors(dept) {
+        const q = dept ? `?dept=${encodeURIComponent(dept)}` : '';
+        return await api.get(`/users/doctors${q}`);
     }
 };
 
@@ -297,12 +377,37 @@ const AppointmentsAPI = {
         return await api.patch(`/appointments/${id}/status`, { status });
     },
 
+    async confirm(id) {
+        return await api.patch(`/appointments/${id}/confirm`);
+    },
+
+    async complete(id) {
+        return await api.patch(`/appointments/${id}/complete`);
+    },
+
     async cancel(id) {
         return await api.patch(`/appointments/${id}/cancel`);
     },
 
     async delete(id) {
         return await api.delete(`/appointments/${id}`);
+    },
+
+    /**
+     * A doctor's own schedule. Pass 'me' as the id — the backend refuses any
+     * other id for a doctor account, so 'me' is the only form the doctor portal
+     * should ever send.
+     */
+    async getByDoctor(doctorId = 'me', query = {}) {
+        const params = new URLSearchParams();
+        if (query.status) params.append('status', query.status);
+        if (query.date) params.append('date', query.date);
+        const s = params.toString();
+        return await api.get(`/appointments/doctor/${encodeURIComponent(doctorId)}${s ? `?${s}` : ''}`);
+    },
+
+    async getDoctorStats(doctorId = 'me') {
+        return await api.get(`/appointments/doctor/${encodeURIComponent(doctorId)}/stats`);
     }
 };
 
@@ -602,8 +707,11 @@ const LeavesAPI = {
 
 
 // Revenue API
-// Two streams, deliberately separate: /platform/* is NexCare's own commercials
-// (superuser only), /hospital/:id is a hospital's own collections.
+// Four audiences, deliberately separate:
+//   /platform/*                NexCare's own commercials — superuser only
+//   /hospital/:id              a hospital's own collections
+//   /doctor/me, /doctor/:id    a practitioner's earnings and platform charges
+//   /patient/me/membership     a patient's Care+ plan and what it saved them
 const RevenueAPI = {
     async getPlans() {
         return await api.get('/revenue/plans');
@@ -647,6 +755,106 @@ const RevenueAPI = {
         if (query.to) params.append('to', query.to);
         const s = params.toString();
         return await api.get(`/revenue/my-hospitals/compare${s ? `?${s}` : ''}`);
+    },
+
+    // ── Multi-stream roll-up (superuser) ────────────────────────────────────
+
+    async getPlatformStreams(query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/platform/streams${s ? `?${s}` : ''}`);
+    },
+
+    async getFees() {
+        return await api.get('/revenue/fees');
+    },
+
+    async updateFees(changes) {
+        return await api.patch('/revenue/fees', changes);
+    },
+
+    // ── Doctor listing tiers ────────────────────────────────────────────────
+
+    async getDoctorPlans() {
+        return await api.get('/revenue/doctor-plans');
+    },
+
+    async updateDoctorPlan(planId, changes) {
+        return await api.patch(`/revenue/doctor-plans/${encodeURIComponent(planId)}`, changes);
+    },
+
+    async getDoctorSubscriptions(doctorId) {
+        const s = doctorId ? `?doctorId=${encodeURIComponent(doctorId)}` : '';
+        return await api.get(`/revenue/doctor-subscriptions${s}`);
+    },
+
+    async updateDoctorSubscription(doctorId, changes) {
+        return await api.patch(`/revenue/doctor-subscriptions/${encodeURIComponent(doctorId)}`, changes);
+    },
+
+    /** The signed-in doctor's own statement. */
+    async getMyDoctorEarnings(query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/doctor/me${s ? `?${s}` : ''}`);
+    },
+
+    async getMyDoctorSubscription() {
+        return await api.get('/revenue/doctor/me/subscription');
+    },
+
+    /** A doctor changing their own tier or consultation fee. */
+    async updateMyDoctorSubscription(changes) {
+        return await api.patch('/revenue/doctor/me/subscription', changes);
+    },
+
+    async getDoctorEarnings(doctorId, query = {}) {
+        const params = new URLSearchParams();
+        if (query.from) params.append('from', query.from);
+        if (query.to) params.append('to', query.to);
+        const s = params.toString();
+        return await api.get(`/revenue/doctor/${encodeURIComponent(doctorId)}${s ? `?${s}` : ''}`);
+    },
+
+    // ── Patient memberships ─────────────────────────────────────────────────
+
+    async getPatientPlans() {
+        return await api.get('/revenue/patient-plans');
+    },
+
+    async updatePatientPlan(planId, changes) {
+        return await api.patch(`/revenue/patient-plans/${encodeURIComponent(planId)}`, changes);
+    },
+
+    async getPatientSubscriptions() {
+        return await api.get('/revenue/patient-subscriptions');
+    },
+
+    async getMyMembership() {
+        return await api.get('/revenue/patient/me/membership');
+    },
+
+    /** Join, switch or cancel — CARE-PAYG is how a patient cancels. */
+    async setMyMembership(planId) {
+        return await api.patch('/revenue/patient/me/membership', { planId });
+    }
+};
+
+// Hierarchy API
+// There is no way to ask for someone else's subtree — you get yours, derived
+// from the token. `getScope()` answers "what may I see", `getTree()` answers
+// "show it to me".
+const HierarchyAPI = {
+    async getTree() {
+        return await api.get('/hierarchy');
+    },
+
+    async getScope() {
+        return await api.get('/hierarchy/scope');
     }
 };
 
@@ -704,6 +912,7 @@ window.NexCareAPI = {
     Leaves: LeavesAPI,
     SupportRequests: SupportRequestsAPI,
     Revenue: RevenueAPI,
+    Hierarchy: HierarchyAPI,
     System: SystemAPI
 };
 

@@ -13,7 +13,11 @@
     "email": "regional@nexcare.com",
     "role": "regional_manager",
     "status": "Active",
-    "password": "scrypt$3d25e2f21abcb0ae7309960189c7c57a$95967ea076fe59af28e5247040baaf0578f537b09e200396fdd8297fd319c1655b7d423a72c02e62187537bb3d8beb568f86b4e7afedc8e57223951fbab3ccc7"
+    "password": "scrypt$3d25e2f21abcb0ae7309960189c7c57a$95967ea076fe59af28e5247040baaf0578f537b09e200396fdd8297fd319c1655b7d423a72c02e62187537bb3d8beb568f86b4e7afedc8e57223951fbab3ccc7",
+    "areas": [
+      "Tirupati",
+      "Renigunta"
+    ]
   },
   {
     "id": "U002",
@@ -30,7 +34,7 @@
     "email": "hospitalmanager@nexcare.com",
     "role": "hospital_manager",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$9cf543d9db857fb537c8841f59ac46b9$22b0cdc045f4081018cb78180894b816ea0213f5269cf6c1d4bade61e7bc4ad17bcab1148ba2ff192fd81d3510b3ecbccb2c8e0109ab517ec20613e591d198bd",
     "hospitalId": "H001"
   },
   {
@@ -115,8 +119,9 @@
     "role": "doctor",
     "dept": "Cardiology",
     "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H001"
+    "password": "scrypt$245eba25db749f6fae00f5f3f425c844$041771767f2e8e8f63f3f21c65ba9c4ea2fad2aeedb895a9b857908ea4725f957661ee9c789998b7c02ab4f561cac25794d80ceb7c4e60af716fc889bcc03bdf",
+    "hospitalId": "H001",
+    "consultationFee": 900
   },
   {
     "id": "U006",
@@ -125,8 +130,9 @@
     "role": "doctor",
     "dept": "Orthopaedics",
     "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H001"
+    "password": "scrypt$95c3bf9e05c9fda6c5f4c2397c4020eb$7462da3c17576d07560e511cca485b618faa92b33c93096d7834f765480225a9c400a2311cc822dec7a4108dfbc85963815ffc1774c8413fd32e2c241693d45b",
+    "hospitalId": "H001",
+    "consultationFee": 800
   },
   {
     "id": "U007",
@@ -136,7 +142,8 @@
     "dept": "General Medicine",
     "status": "On Leave",
     "password": "Password123",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "consultationFee": 500
   },
   {
     "id": "U010",
@@ -146,7 +153,8 @@
     "dept": "Paediatrics",
     "status": "Active",
     "password": "scrypt$fb29245edf14016bf1fb5a4789aeb4d4$c2baf5b11928e6a615b9301d69b77c8c6911f1d9bceb93714754481552fbf8d60782c58a363f7066c673983097bd57c68e7a5ece9dd0820eea7da5f404569b8d",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "consultationFee": 600
   },
   {
     "id": "U011",
@@ -156,7 +164,8 @@
     "dept": "Neurology",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "consultationFee": 1100
   },
   {
     "id": "U012",
@@ -166,7 +175,8 @@
     "dept": "Dermatology",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "consultationFee": 700
   },
   {
     "id": "U013",
@@ -176,7 +186,8 @@
     "dept": "General Medicine",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "consultationFee": 500
   },
   {
     "id": "U020",
@@ -206,7 +217,8 @@
     "dept": "Gynaecology",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "consultationFee": 750
   },
   {
     "id": "U023",
@@ -216,7 +228,8 @@
     "dept": "Paediatrics",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "consultationFee": 600
   },
   {
     "id": "U024",
@@ -226,7 +239,8 @@
     "dept": "General Medicine",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "consultationFee": 500
   },
   {
     "id": "U025",
@@ -236,7 +250,8 @@
     "dept": "Cardiology",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "consultationFee": 900
   },
   {
     "id": "U030",
@@ -276,7 +291,8 @@
     "dept": "Cardiology",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "consultationFee": 900
   },
   {
     "id": "U034",
@@ -286,7 +302,8 @@
     "dept": "Neurology",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "consultationFee": 1100
   },
   {
     "id": "U035",
@@ -296,7 +313,8 @@
     "dept": "Orthopaedics",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "consultationFee": 800
   },
   {
     "id": "U036",
@@ -306,7 +324,8 @@
     "dept": "General Medicine",
     "status": "On Leave",
     "password": "Password123",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "consultationFee": 500
   },
   {
     "id": "U037",
@@ -316,7 +335,8 @@
     "dept": "Emergency Medicine",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "consultationFee": 600
   },
   {
     "id": "U014",
@@ -336,7 +356,8 @@
     "dept": "Neurology",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H001"
+    "hospitalId": "H001",
+    "consultationFee": 1100
   },
   {
     "id": "U040",
@@ -427,7 +448,8 @@
     "dept": "Orthopaedics",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H002"
+    "hospitalId": "H002",
+    "consultationFee": 800
   },
   {
     "id": "U038",
@@ -437,7 +459,8 @@
     "dept": "General Medicine",
     "status": "Active",
     "password": "Password123",
-    "hospitalId": "H003"
+    "hospitalId": "H003",
+    "consultationFee": 500
   },
   {
     "id": "UMTCJMTLL4ZC",
@@ -449,5 +472,41 @@
     "patientId": "P001",
     "city": "Bangalore",
     "pincode": "560001"
+  },
+  {
+    "id": "U090",
+    "name": "Dr. Sarah Smith",
+    "email": "sarah.smith@nexcare.com",
+    "role": "doctor",
+    "dept": "Cardiology",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001",
+    "specialization": "Cardiology",
+    "registrationNo": "APMC-U090",
+    "consultationFee": 900
+  },
+  {
+    "id": "M002",
+    "name": "Kavitha Menon",
+    "email": "regional2@nexcare.com",
+    "role": "regional_manager",
+    "status": "Active",
+    "password": "scrypt$28f7390e07820edf130818f6a0a41b59$bc651f18f4d2c7b5d2cd06dccd5bf75f930c749a09bd847bc4813aa4acd845dfe7692e4eb6c6bea845c05a6e77cc02400cb0a45133bf8d805848f35f8c9e17b3",
+    "areas": [
+      "Chittoor",
+      "Nellore"
+    ]
+  },
+  {
+    "id": "M003",
+    "name": "Arjun Raghavan",
+    "email": "regional3@nexcare.com",
+    "role": "regional_manager",
+    "status": "Active",
+    "password": "Password123",
+    "areas": [
+      "Chennai"
+    ]
   }
 ]

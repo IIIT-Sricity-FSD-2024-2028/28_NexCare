@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { RevenueController } from './revenue.controller';
 import { RevenueService } from './revenue.service';
+import { PricingModule } from './pricing.module';
 import { HospitalsModule } from '../hospitals/hospitals.module';
 
 /**
@@ -14,7 +15,7 @@ import { HospitalsModule } from '../hospitals/hospitals.module';
  * pulls in other feature modules, so importing it directly risks a cycle.
  */
 @Module({
-  imports: [forwardRef(() => HospitalsModule)],
+  imports: [forwardRef(() => HospitalsModule), PricingModule],
   controllers: [RevenueController],
   providers: [RevenueService],
   exports: [RevenueService],

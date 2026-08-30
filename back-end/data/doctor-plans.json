@@ -1,0 +1,57 @@
+[
+  {
+    "id": "DOC-FREE",
+    "name": "Practice Free",
+    "tagline": "Get listed and take your first bookings",
+    "monthlyFee": 0,
+    "commissionRate": 0.12,
+    "monthlyBookingCap": 25,
+    "featuredPlacement": false,
+    "verifiedBadge": false,
+    "features": [
+      "Listed in patient search",
+      "Up to 25 bookings a month",
+      "Own schedule and leave calendar",
+      "12% platform commission per completed consultation"
+    ],
+    "status": "active",
+    "currency": "₹"
+  },
+  {
+    "id": "DOC-VERIFIED",
+    "name": "Practice Verified",
+    "tagline": "For consultants with a steady clinic",
+    "monthlyFee": 999,
+    "commissionRate": 0.08,
+    "monthlyBookingCap": null,
+    "featuredPlacement": false,
+    "verifiedBadge": true,
+    "features": [
+      "Everything in Practice Free",
+      "Verified badge on your profile",
+      "Unlimited bookings",
+      "8% platform commission per completed consultation",
+      "Earnings and payout statements"
+    ],
+    "status": "active",
+    "currency": "₹"
+  },
+  {
+    "id": "DOC-FEATURED",
+    "name": "Practice Featured",
+    "tagline": "Top placement in patient search",
+    "monthlyFee": 2499,
+    "commissionRate": 0.05,
+    "monthlyBookingCap": null,
+    "featuredPlacement": true,
+    "verifiedBadge": true,
+    "features": [
+      "Everything in Practice Verified",
+      "Ranked first in department search",
+      "5% platform commission — the lowest take rate",
+      "Priority support"
+    ],
+    "status": "active",
+    "currency": "₹"
+  }
+]

@@ -10,6 +10,7 @@
     <title>Revenue Model | Super User | NexCare</title>
     <link rel="stylesheet" href="../shared/global.css">
     <link rel="stylesheet" href="../shared/nav.css">
+    <link rel="stylesheet" href="../shared/portal.css">
     <style>
         .page-body { padding: 24px; }
         
@@ -308,12 +309,88 @@
         <div class="page-body">
 
             <div class="note">
-                <strong>NexCare earns from hospitals, not from patients.</strong>
-                Each hospital subscribes to a plan — a monthly base fee, a per-bed charge above
-                the plan's allowance, and a commission on what the hospital collects through
-                NexCare billing. Patient billing itself is the <em>hospital's</em> revenue and is
-                shown to that hospital's manager, not here.
+                <strong>NexCare makes money in eight ways, from three different payers.</strong>
+                Hospitals buy the platform, doctors buy visibility, patients buy convenience.
+                Everything below is derived at read time from the underlying bills, appointments
+                and dispatches — nothing is stored pre-aggregated, so a total can never drift
+                away from what actually happened. What a hospital collects from its own patients
+                is that <em>hospital's</em> revenue and is shown to its manager, not counted here.
             </div>
+
+            <div class="tab-container" id="revenueTabs">
+                <button class="tab-btn active" data-tab="streams">All streams</button>
+                <button class="tab-btn" data-tab="hospitals">Hospitals</button>
+                <button class="tab-btn" data-tab="doctors">Doctors</button>
+                <button class="tab-btn" data-tab="patients">Patients</button>
+                <button class="tab-btn" data-tab="fees">Pricing controls</button>
+            </div>
+
+            <!-- ── All streams ────────────────────────────────────────────── -->
+            <div class="tab-section active" id="tab-streams">
+                <div class="kpi-grid">
+                    <div class="kpi accent">
+                        <p class="label">Total platform revenue</p>
+                        <p class="value" id="sTotal">&mdash;</p>
+                        <p class="sub" id="sTotalSub">this cycle, all streams</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Recurring</p>
+                        <p class="value" id="sRecurring">&mdash;</p>
+                        <p class="sub" id="sRecurringSub">subscriptions and memberships</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Usage-based</p>
+                        <p class="value" id="sUsage">&mdash;</p>
+                        <p class="sub">commissions and per-transaction fees</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Revenue per hospital</p>
+                        <p class="value" id="sArpHospital">&mdash;</p>
+                        <p class="sub" id="sHospitalCount">&nbsp;</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Revenue per doctor</p>
+                        <p class="value" id="sArpDoctor">&mdash;</p>
+                        <p class="sub" id="sDoctorCount">&nbsp;</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Revenue per patient</p>
+                        <p class="value" id="sArpPatient">&mdash;</p>
+                        <p class="sub" id="sPatientCount">&nbsp;</p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Where the money comes from</h2>
+                        <span class="hint">Each stream, who pays it, and what it is charged on</span>
+                    </div>
+                    <div class="panel-body flush">
+                        <table class="rev">
+                            <thead>
+                                <tr>
+                                    <th>Stream</th><th>Payer</th><th>Type</th>
+                                    <th class="num">Units</th><th class="num">Revenue</th><th class="num">Share</th>
+                                </tr>
+                            </thead>
+                            <tbody id="streamBody">
+                                <tr><td colspan="6" class="empty">Loading&hellip;</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Revenue by payer</h2>
+                        <span class="hint">Hospitals, doctors and patients as a share of the total</span>
+                    </div>
+                    <div class="panel-body" id="payerBody">Loading&hellip;</div>
+                </div>
+            </div>
+
+            <!-- ── Hospitals (the original view) ──────────────────────────── -->
+            <div class="tab-section" id="tab-hospitals">
 
             <div class="kpi-grid">
                 <div class="kpi accent">
@@ -398,12 +475,142 @@
                     </tbody>
                 </table>
             </div>
+            </div>
+
+            <!-- ── Doctors ────────────────────────────────────────────────── -->
+            <div class="tab-section" id="tab-doctors">
+                <div class="note">
+                    <strong>The ladder is inverted on purpose.</strong> The free tier carries the
+                    highest commission, so a busy doctor saves money by moving <em>up</em> and a
+                    quiet one saves by staying put. Nobody is forced to upgrade, and NexCare earns
+                    from every practitioner either way.
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi accent">
+                        <p class="label">Doctor revenue</p>
+                        <p class="value" id="dTotal">&mdash;</p>
+                        <p class="sub">listing fees + consultation commission</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Listing fees</p>
+                        <p class="value" id="dRecurring">&mdash;</p>
+                        <p class="sub" id="dRecurringSub">&nbsp;</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Consultation commission</p>
+                        <p class="value" id="dCommission">&mdash;</p>
+                        <p class="sub" id="dCommissionSub">&nbsp;</p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Listing tiers</h2>
+                        <span class="hint">Edit the monthly fee, then Save</span>
+                    </div>
+                    <div class="panel-body"><div class="plan-grid" id="doctorPlanGrid">Loading&hellip;</div></div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Doctors on the platform</h2>
+                        <span class="hint" id="doctorCount"></span>
+                    </div>
+                    <div class="panel-body flush">
+                        <table class="rev">
+                            <thead>
+                                <tr><th>Doctor</th><th>Hospital</th><th>Tier</th><th>Status</th><th class="num">Consultation fee</th></tr>
+                            </thead>
+                            <tbody id="doctorSubBody">
+                                <tr><td colspan="5" class="empty">Loading&hellip;</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Patients ───────────────────────────────────────────────── -->
+            <div class="tab-section" id="tab-patients">
+                <div class="note">
+                    <strong>Patients pay for convenience, never for care.</strong> A booking fee on
+                    each appointment, waived by a Care+ membership, plus a dispatch fee on a
+                    completed ambulance trip. Hospital bills are the hospital's and are not touched.
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi accent">
+                        <p class="label">Patient revenue</p>
+                        <p class="value" id="pTotal">&mdash;</p>
+                        <p class="sub">memberships + booking + dispatch fees</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Memberships</p>
+                        <p class="value" id="pMembership">&mdash;</p>
+                        <p class="sub" id="pMembershipSub">&nbsp;</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Booking fees</p>
+                        <p class="value" id="pBooking">&mdash;</p>
+                        <p class="sub" id="pBookingSub">&nbsp;</p>
+                    </div>
+                    <div class="kpi">
+                        <p class="label">Ambulance dispatch</p>
+                        <p class="value" id="pAmbulance">&mdash;</p>
+                        <p class="sub" id="pAmbulanceSub">&nbsp;</p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Membership tiers</h2>
+                        <span class="hint">Edit the monthly fee, then Save</span>
+                    </div>
+                    <div class="panel-body"><div class="plan-grid" id="patientPlanGrid">Loading&hellip;</div></div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Care+ members</h2>
+                        <span class="hint" id="memberCount"></span>
+                    </div>
+                    <div class="panel-body flush">
+                        <table class="rev">
+                            <thead><tr><th>Patient</th><th>Plan</th><th>Status</th><th>Started</th><th>Renews</th></tr></thead>
+                            <tbody id="memberBody"><tr><td colspan="5" class="empty">Loading&hellip;</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Pricing controls ───────────────────────────────────────── -->
+            <div class="tab-section" id="tab-fees">
+                <div class="note">
+                    Rates that are not tied to any one plan. They apply across the whole platform
+                    and take effect on the next read &mdash; every figure on this page is derived,
+                    so changing a rate here re-prices the reports immediately.
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Cross-cutting fees</h2>
+                        <span class="hint" id="feeUpdated"></span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="field-grid" id="feeFields">Loading&hellip;</div>
+                        <div style="margin-top:20px;">
+                            <button class="btn primary" id="saveFeesBtn">Save pricing</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </main>
 
     <script src="../shared/api.js?v=8"></script>
     <script src="../shared/session.js?v=8"></script>
+    <script src="../shared/portal.js"></script>
     <script src="../shared/nav.js"></script>
     <script src="../shared/db.js?v=5"></script>
     <script src="../logo.js"></script>
@@ -435,6 +642,6 @@
             }
         })();
     </script>
-    <script src="revenue.js?v=1"></script>
+    <script src="revenue.js?v=2"></script>
 </body>
 </html>

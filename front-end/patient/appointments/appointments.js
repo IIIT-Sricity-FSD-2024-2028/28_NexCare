@@ -5,6 +5,9 @@ let bookingData = {
     department: null,
     doctorId: null,
     doctor: null,
+    // What the consultant charges. Carried on the booking so the bill, the
+    // doctor's earnings and the platform's commission all agree on one number.
+    fee: null,
     date: null,
     time: null,
     patientInfo: {}
@@ -95,6 +98,13 @@ async function getBookedSlotsForDoctor(hospitalId, doctorName, dateStr) {
 
 // ── Main Page Initialization & Router ─────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+    // shared/doctor-directory.js replaces the offline catalogue with the real
+    // hospitals and registered doctors. Wait for it before the first render, or
+    // step 0 paints hospitals that do not exist in the database.
+    if (window.doctorDirectoryReady) {
+        try { await window.doctorDirectoryReady; } catch (e) { /* offline catalogue stands */ }
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const viewParam = urlParams.get('view') || urlParams.get('mode');
     const urlHospitalId = urlParams.get('hospitalId');
@@ -594,6 +604,7 @@ function renderStep2(container) {
         if (selectedDoc) {
             bookingData.doctorId = selectedDoc.id;
             bookingData.doctor = selectedDoc.name;
+            bookingData.fee = selectedDoc.consultationFee || null;
 
             // Render Doctor Info Card (Requirement 14)
             const dObj = new Date(dateVal);
@@ -791,6 +802,7 @@ function renderStep3(container) {
                 department: bookingData.department,
                 doctorId: bookingData.doctorId || '',
                 doctor: bookingData.doctor,
+                fee: bookingData.fee || undefined,
                 dateLabel: bookingData.date,
                 timeLabel: bookingData.time,
                 patientName: 'Patient',
