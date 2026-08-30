@@ -3502,6 +3502,355 @@
         ]
       }
     },
+    "/api/billing": {
+      "get": {
+        "operationId": "BillingController_findAll",
+        "summary": "Get all bills (patients: only their own)",
+        "parameters": [
+          {
+            "name": "patientId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "Pending",
+                "Paid",
+                "Overdue",
+                "Cancelled"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of bills"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "BillingController_create",
+        "summary": "Create a new bill",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBillDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bill creation result (check success field)"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/stats/overview": {
+      "get": {
+        "operationId": "BillingController_getStats",
+        "summary": "Get billing statistics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Billing statistics retrieved"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/patient/{patientId}": {
+      "get": {
+        "operationId": "BillingController_findByPatient",
+        "summary": "Get bills by patient ID (patients: own only)",
+        "parameters": [
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of patient bills"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/overdue": {
+      "get": {
+        "operationId": "BillingController_getOverdueBills",
+        "summary": "Get all overdue bills",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of overdue bills"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/revenue": {
+      "get": {
+        "operationId": "BillingController_getRevenueByDateRange",
+        "summary": "Get revenue by date range",
+        "parameters": [
+          {
+            "name": "startDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Revenue statistics retrieved"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/{id}": {
+      "get": {
+        "operationId": "BillingController_findById",
+        "summary": "Get bill by ID (patients: own only)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bill details retrieved"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "BillingController_update",
+        "summary": "Update bill details",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBillDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bill updated successfully"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "BillingController_patchUpdate",
+        "summary": "Partially update bill details",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBillDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bill updated successfully"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "BillingController_delete",
+        "summary": "Delete a bill",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bill deleted successfully"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/{id}/pay": {
+      "patch": {
+        "operationId": "BillingController_processPayment",
+        "summary": "Process payment for a bill (patients: own only)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProcessPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment processed successfully"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
     "/api/appointments": {
       "get": {
         "operationId": "AppointmentsController_findAll",
@@ -3554,7 +3903,7 @@
       },
       "post": {
         "operationId": "AppointmentsController_create",
-        "summary": "Book a new appointment",
+        "summary": "Book a new appointment or doctor referral",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -4266,293 +4615,10 @@
             "JWT-auth": []
           }
         ]
-      }
-    },
-    "/api/billing": {
-      "get": {
-        "operationId": "BillingController_findAll",
-        "summary": "Get all bills (patients: only their own)",
-        "parameters": [
-          {
-            "name": "patientId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "enum": [
-                "Pending",
-                "Paid",
-                "Overdue",
-                "Cancelled"
-              ],
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of bills"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "post": {
-        "operationId": "BillingController_create",
-        "summary": "Create a new bill",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateBillDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Bill creation result (check success field)"
-          },
-          "400": {
-            "description": "Validation error"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/billing/stats/overview": {
-      "get": {
-        "operationId": "BillingController_getStats",
-        "summary": "Get billing statistics",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Billing statistics retrieved"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/billing/patient/{patientId}": {
-      "get": {
-        "operationId": "BillingController_findByPatient",
-        "summary": "Get bills by patient ID (patients: own only)",
-        "parameters": [
-          {
-            "name": "patientId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of patient bills"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/billing/overdue": {
-      "get": {
-        "operationId": "BillingController_getOverdueBills",
-        "summary": "Get all overdue bills",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "List of overdue bills"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/billing/revenue": {
-      "get": {
-        "operationId": "BillingController_getRevenueByDateRange",
-        "summary": "Get revenue by date range",
-        "parameters": [
-          {
-            "name": "startDate",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "endDate",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Revenue statistics retrieved"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/billing/{id}": {
-      "get": {
-        "operationId": "BillingController_findById",
-        "summary": "Get bill by ID (patients: own only)",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Bill details retrieved"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "put": {
-        "operationId": "BillingController_update",
-        "summary": "Update bill details",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateBillDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Bill updated successfully"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "patch": {
-        "operationId": "BillingController_patchUpdate",
-        "summary": "Partially update bill details",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateBillDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Bill updated successfully"
-          }
-        },
-        "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
       },
       "delete": {
-        "operationId": "BillingController_delete",
-        "summary": "Delete a bill",
+        "operationId": "SchedulesController_remove",
+        "summary": "Delete a hospital-wide schedule",
         "parameters": [
           {
             "name": "id",
@@ -4565,50 +4631,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Bill deleted successfully"
+            "description": ""
           }
         },
         "tags": [
-          "Billing"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/api/billing/{id}/pay": {
-      "patch": {
-        "operationId": "BillingController_processPayment",
-        "summary": "Process payment for a bill (patients: own only)",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProcessPaymentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Payment processed successfully"
-          }
-        },
-        "tags": [
-          "Billing"
+          "Schedules"
         ],
         "security": [
           {
@@ -7229,113 +7256,6 @@
           "dispatchedBy"
         ]
       },
-      "CreateAppointmentDto": {
-        "type": "object",
-        "properties": {
-          "patientId": {
-            "type": "string",
-            "example": "P001",
-            "description": "ID of the patient"
-          },
-          "department": {
-            "type": "string",
-            "example": "Cardiology",
-            "description": "Department to book"
-          },
-          "doctor": {
-            "type": "string",
-            "example": "Dr. Sarah Smith",
-            "description": "Specific doctor"
-          },
-          "doctorId": {
-            "type": "string",
-            "example": "U005",
-            "description": "User id of the doctor the slot belongs to"
-          },
-          "dateLabel": {
-            "type": "string",
-            "example": "March 15, 2026",
-            "description": "Date of appointment"
-          },
-          "timeLabel": {
-            "type": "string",
-            "example": "10:00 AM",
-            "description": "Time of appointment"
-          },
-          "fee": {
-            "type": "number",
-            "example": 150,
-            "description": "Consultation fee"
-          },
-          "reason": {
-            "type": "string",
-            "example": "Routine checkup",
-            "description": "Reason for visit"
-          },
-          "hospitalId": {
-            "type": "string",
-            "example": "H001",
-            "description": "Hospital the appointment is booked at"
-          },
-          "hospitalName": {
-            "type": "string",
-            "example": "Apollo Health City",
-            "description": "Hospital name, denormalised for display"
-          }
-        },
-        "required": [
-          "patientId",
-          "department",
-          "dateLabel",
-          "timeLabel"
-        ]
-      },
-      "UpdateAppointmentDto": {
-        "type": "object",
-        "properties": {
-          "department": {
-            "type": "string",
-            "example": "Cardiology",
-            "description": "Department to book"
-          },
-          "doctor": {
-            "type": "string",
-            "example": "Dr. Sarah Smith",
-            "description": "Specific doctor"
-          },
-          "dateLabel": {
-            "type": "string",
-            "example": "March 15, 2026",
-            "description": "Date of appointment"
-          },
-          "timeLabel": {
-            "type": "string",
-            "example": "10:00 AM",
-            "description": "Time of appointment"
-          },
-          "fee": {
-            "type": "number",
-            "example": 150,
-            "description": "Consultation fee"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "Pending",
-              "Confirmed",
-              "Completed",
-              "Cancelled"
-            ],
-            "example": "Confirmed",
-            "description": "Status of the appointment"
-          },
-          "reason": {
-            "type": "string",
-            "example": "Routine checkup",
-            "description": "Reason for visit"
-          }
-        }
-      },
       "BillItemDto": {
         "type": "object",
         "properties": {
@@ -7455,6 +7375,128 @@
           "method",
           "amount"
         ]
+      },
+      "CreateAppointmentDto": {
+        "type": "object",
+        "properties": {
+          "patientId": {
+            "type": "string",
+            "example": "P001",
+            "description": "ID of the patient"
+          },
+          "department": {
+            "type": "string",
+            "example": "Cardiology",
+            "description": "Department to book"
+          },
+          "doctor": {
+            "type": "string",
+            "example": "Dr. Sarah Smith",
+            "description": "Specific doctor"
+          },
+          "doctorId": {
+            "type": "string",
+            "example": "U005",
+            "description": "User id of the doctor the slot belongs to"
+          },
+          "dateLabel": {
+            "type": "string",
+            "example": "March 15, 2026",
+            "description": "Date of appointment"
+          },
+          "timeLabel": {
+            "type": "string",
+            "example": "10:00 AM",
+            "description": "Time of appointment"
+          },
+          "fee": {
+            "type": "number",
+            "example": 150,
+            "description": "Consultation fee"
+          },
+          "reason": {
+            "type": "string",
+            "example": "Routine checkup",
+            "description": "Reason for visit"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the appointment is booked at"
+          },
+          "hospitalName": {
+            "type": "string",
+            "example": "Apollo Health City",
+            "description": "Hospital name, denormalised for display"
+          },
+          "referredByDoctorId": {
+            "type": "string",
+            "example": "U005",
+            "description": "ID of the referring doctor"
+          },
+          "parentAppointmentId": {
+            "type": "string",
+            "example": "APT-001",
+            "description": "ID of the parent appointment"
+          },
+          "status": {
+            "type": "string",
+            "example": "Pending",
+            "description": "Appointment status"
+          }
+        },
+        "required": [
+          "patientId",
+          "department",
+          "dateLabel",
+          "timeLabel"
+        ]
+      },
+      "UpdateAppointmentDto": {
+        "type": "object",
+        "properties": {
+          "department": {
+            "type": "string",
+            "example": "Cardiology",
+            "description": "Department to book"
+          },
+          "doctor": {
+            "type": "string",
+            "example": "Dr. Sarah Smith",
+            "description": "Specific doctor"
+          },
+          "dateLabel": {
+            "type": "string",
+            "example": "March 15, 2026",
+            "description": "Date of appointment"
+          },
+          "timeLabel": {
+            "type": "string",
+            "example": "10:00 AM",
+            "description": "Time of appointment"
+          },
+          "fee": {
+            "type": "number",
+            "example": 150,
+            "description": "Consultation fee"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Pending",
+              "Confirmed",
+              "Completed",
+              "Cancelled"
+            ],
+            "example": "Confirmed",
+            "description": "Status of the appointment"
+          },
+          "reason": {
+            "type": "string",
+            "example": "Routine checkup",
+            "description": "Reason for visit"
+          }
+        }
       },
       "CreateFeedbackDto": {
         "type": "object",

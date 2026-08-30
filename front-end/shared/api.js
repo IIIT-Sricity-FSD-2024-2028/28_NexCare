@@ -1032,7 +1032,6 @@ const HierarchyAPI = {
 
     async getScope() {
         return await api.get('/hierarchy/scope');
-
     }
 };
 

@@ -107,5 +107,62 @@
     "updatedAt": "2026-08-30T16:48:39.545Z",
     "approvedBy": "HM001",
     "approvedAt": "2026-08-30T16:48:39.545Z"
+  },
+  {
+    "id": "SCHMTG51NE99OS",
+    "hospitalId": "H001",
+    "validFrom": "2026-10-01",
+    "validTo": "2026-10-07",
+    "slots": [
+      {
+        "department": "Cardiology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      }
+    ],
+    "notes": "Test weekly roster proposal",
+    "status": "pending",
+    "submittedBy": "U002",
+    "createdAt": "2026-08-30T18:23:51.729Z",
+    "updatedAt": "2026-08-30T18:23:51.729Z"
+  },
+  {
+    "id": "SCHMTG58BDVD3M",
+    "hospitalId": "H001",
+    "validFrom": "2026-11-01",
+    "validTo": "2026-11-07",
+    "slots": [
+      {
+        "department": "Cardiology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      }
+    ],
+    "notes": "To be deleted",
+    "status": "pending",
+    "submittedBy": "U002",
+    "createdAt": "2026-08-30T18:29:02.755Z",
+    "updatedAt": "2026-08-30T18:29:02.755Z"
+  },
+  {
+    "id": "SCHMTG58WB3FOD",
+    "hospitalId": "H001",
+    "validFrom": "2026-11-01",
+    "validTo": "2026-11-07",
+    "slots": [
+      {
+        "department": "Cardiology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      }
+    ],
+    "notes": "To be deleted",
+    "status": "pending",
+    "submittedBy": "U002",
+    "createdAt": "2026-08-30T18:29:29.871Z",
+    "updatedAt": "2026-08-30T18:29:29.871Z"
   }
 ]

@@ -5,6 +5,7 @@ import { SystemModule } from '../system/system.module';
 import { PatientsModule } from '../patients/patients.module';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
+import { BillingModule } from '../billing/billing.module';
 import { AmbulanceAccessMiddleware } from './middleware/ambulance-access.middleware';
 
 /**
@@ -13,7 +14,7 @@ import { AmbulanceAccessMiddleware } from './middleware/ambulance-access.middlew
  * Provides CRUD operations and ambulance status management functionality
  */
 @Module({
-  imports: [SystemModule, PatientsModule, forwardRef(() => UsersModule), forwardRef(() => AuthModule)],
+  imports: [SystemModule, PatientsModule, forwardRef(() => UsersModule), forwardRef(() => AuthModule), BillingModule],
   controllers: [AmbulanceController],
   providers: [AmbulanceService, AmbulanceAccessMiddleware],
   exports: [AmbulanceService],

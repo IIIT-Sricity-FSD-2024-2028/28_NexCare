@@ -6,6 +6,7 @@ import { PatientsModule } from '../patients/patients.module';
 import { LeavesModule } from '../leaves/leaves.module';
 import { UsersModule } from '../users/users.module';
 import { SchedulesModule } from '../schedules/schedules.module';
+import { BillingModule } from '../billing/billing.module';
 
 /**
  * Appointments Module
@@ -13,7 +14,7 @@ import { SchedulesModule } from '../schedules/schedules.module';
  * Provides CRUD operations and appointment management functionality
  */
 @Module({
-  imports: [SystemModule, PatientsModule, forwardRef(() => LeavesModule), UsersModule, SchedulesModule],
+  imports: [SystemModule, PatientsModule, forwardRef(() => LeavesModule), UsersModule, SchedulesModule, BillingModule],
   controllers: [AppointmentsController],
   providers: [AppointmentsService],
   exports: [AppointmentsService],
