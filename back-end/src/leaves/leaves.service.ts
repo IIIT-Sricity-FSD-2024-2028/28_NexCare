@@ -1,10 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { Leave, CreateLeaveDto, UpdateLeaveDto, LeaveCalendarView } from './interfaces/leave.interface';
 import { LeaveStatus } from '../common/interfaces/api-response.interface';
+import { AppointmentsService } from '../appointments/appointments.service';
 
 /**
  * Leaves Service
@@ -13,6 +14,11 @@ import { LeaveStatus } from '../common/interfaces/api-response.interface';
  */
 @Injectable()
 export class LeavesService {
+  constructor(
+    @Inject(forwardRef(() => AppointmentsService))
+    private readonly appointmentsService: AppointmentsService,
+  ) {}
+
   private readonly leavesFilePath = path.join(process.cwd(), 'data', 'leaves.json');
 
   /** Load leaves from disk */
@@ -154,9 +160,11 @@ export class LeavesService {
   }
 
   /**
-   * Update leave status (approve/reject)
+   * Update leave status (approve/reject).
+   * Approval is hospital-manager gated (LeaveRequestGuard) and then
+   * reassigns or cancels appointments in the leave window.
    */
-  update(id: string, updateLeaveDto: UpdateLeaveDto): any {
+  async update(id: string, updateLeaveDto: UpdateLeaveDto): Promise<any> {
     const index = this.leaves.findIndex(l => l.id === id);
     if (index === -1) {
       return ResponseUtil.error('Leave not found', 404);
@@ -170,6 +178,10 @@ export class LeavesService {
     };
 
     this.saveLeaves(this.leaves);
+
+    if (updateLeaveDto.status === LeaveStatus.APPROVED) {
+      await this.appointmentsService.handleDoctorLeaveApproved(this.leaves[index]);
+    }
 
     return ResponseUtil.success('Leave status updated successfully', this.leaves[index]);
   }
