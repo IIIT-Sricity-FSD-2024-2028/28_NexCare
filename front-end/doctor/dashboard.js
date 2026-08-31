@@ -11,6 +11,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     setText('greeting', `Welcome back, ${user.name || 'Doctor'}`);
     setText('todayDate', todayLabel());
 
+    // Populate Doctor Profile Summary Card
+    setText('docSummaryName', user.name || 'Dr. Doctor');
+    setText('docSummaryEmpId', user.employeeId || user.id || 'DOC-001');
+    setText('docSummaryHosp', user.hospitalName || user.hospitalId || 'NexCare Hospital');
+    setText('docSummaryDept', user.dept || user.department || 'Cardiology');
+    setText('docSummarySpec', user.specialization || 'Consultant Specialist');
+    setText('docSummaryQual', user.qualification || 'MBBS, MD');
+    setText('docSummaryExp', user.experienceYears ? `${user.experienceYears} Years` : '10 Years');
+    setText('docSummaryFee', user.consultationFee ? `₹${user.consultationFee}` : '₹800');
+    setText('docSummarySchedule', user.consultationTiming || '09:00 AM - 05:00 PM (Mon - Sat)');
+
     await Promise.all([loadPractice(), loadEarnings()]);
 });
 

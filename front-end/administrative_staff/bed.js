@@ -198,6 +198,12 @@ function renderBeds(ward) {
         container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(180px, 1fr))';
         container.style.gap = '15px';
         
+        function getDisplayBedName(b) {
+            if (b.bedNumber) return 'Bed ' + b.bedNumber.replace(/^[A-Z]+-0*/i, '');
+            const m = String(b.id || '').match(/(\d+)$/);
+            return m ? 'Bed ' + parseInt(m[1], 10) : 'Bed ' + (b.id || '1');
+        }
+
         container.innerHTML = wardBeds.map(b => {
             const status = (b.status || 'available').toLowerCase();
             let colorClass = 'green';
@@ -207,10 +213,12 @@ function renderBeds(ward) {
             else if (status === 'critical') { colorClass = 'red'; statusText = 'Critical'; }
             else if (status === 'maintenance') { colorClass = 'gray'; statusText = 'Maintenance'; }
             
+            const bedLabel = getDisplayBedName(b);
+
             return `
                 <div class="card" style="padding: 15px; border-left: 4px solid var(--${colorClass}-500); cursor: pointer;" onclick="window.openUpdateModal('${b.id}')">
                     <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <strong>Bed ${b.id}</strong>
+                        <strong>${bedLabel}</strong>
                         <span class="dot ${colorClass}" title="${statusText}"></span>
                     </div>
                     <div class="small" style="color: #4b5563; min-height: 20px;">
@@ -221,12 +229,17 @@ function renderBeds(ward) {
         }).join('');
     } else {
         // List mode
+        function getDisplayBedName(b) {
+            if (b.bedNumber) return 'Bed ' + b.bedNumber.replace(/^[A-Z]+-0*/i, '');
+            const m = String(b.id || '').match(/(\d+)$/);
+            return m ? 'Bed ' + parseInt(m[1], 10) : 'Bed ' + (b.id || '1');
+        }
         container.style.display = 'block';
         container.innerHTML = `
             <table style="width: 100%; border-collapse: collapse; text-align: left;">
                 <thead>
                     <tr>
-                        <th style="padding: 10px; border-bottom: 1px solid #e5e7eb;">Bed ID</th>
+                        <th style="padding: 10px; border-bottom: 1px solid #e5e7eb;">Bed Number</th>
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb;">Status</th>
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb;">Patient</th>
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb;">Actions</th>
@@ -242,7 +255,7 @@ function renderBeds(ward) {
                         
                         return `
                             <tr>
-                                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>${b.id}</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>${getDisplayBedName(b)}</strong></td>
                                 <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
                                     <span style="padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; ${badgeColor}">${status.toUpperCase()}</span>
                                 </td>

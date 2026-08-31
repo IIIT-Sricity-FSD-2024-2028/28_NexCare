@@ -18,7 +18,7 @@ async function loadDashboard() {
 
     if (!overviewRes || !overviewRes.success) throw new Error('Failed to fetch regional overview');
 
-    const { summary, hospitals } = overviewRes.data || {};
+    const { summary, hospitals, hospitalRevenueList } = overviewRes.data || {};
     const alerts = alertsRes?.success ? alertsRes.data : { total: 0, alerts: [] };
 
     setText('assignedHospitalsCount', summary?.assignedHospitals ?? 0);
@@ -32,8 +32,39 @@ async function loadDashboard() {
     setText('satisfactionSub', `${summary?.averageSatisfaction ?? 0}/5 avg satisfaction`);
     setText('lowStockCount', summary?.lowStockItems ?? 0);
 
+    // Revenue KPIs
+    const formatINR = num => '₹' + (Number(num) || 0).toLocaleString('en-IN');
+    setText('totalRegionalRev', formatINR(summary?.totalRegionalRevenue ?? 0));
+    setText('revMonth', formatINR(summary?.revenueThisMonth ?? 0));
+    setText('revYear', formatINR(summary?.revenueThisYear ?? 0));
+    setText('activePaidHospitals', summary?.activePaidHospitals ?? 0);
+    setText('pendingRenewals', summary?.pendingRenewals ?? 0);
+    setText('expiredSubs', summary?.expiredSubscriptions ?? 0);
+    setText('renewalsDueSoon', summary?.renewalsDueSoon ?? 0);
+
     renderHospitalsTable(hospitals || []);
+    renderRevenueTable(hospitalRevenueList || []);
     renderAlertsPreview(alerts.alerts || []);
+}
+
+function renderRevenueTable(list) {
+    const tbody = document.getElementById('revenueTableBody');
+    if (!tbody) return;
+    if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No subscription revenue data found for this region.</td></tr>';
+        return;
+    }
+    const formatINR = num => '₹' + (Number(num) || 0).toLocaleString('en-IN');
+    tbody.innerHTML = list.map(item => `
+        <tr>
+            <td><strong>${escapeHtml(item.hospitalName)}</strong><div style="font-size:11px;color:#6B7280;">${escapeHtml(item.hospitalId)}</div></td>
+            <td><span class="badge badge-info">${escapeHtml(item.subscriptionPlan)}</span></td>
+            <td>${escapeHtml(item.lastPaymentDate)}</td>
+            <td style="font-weight:700;color:#059669;">${formatINR(item.amountPaid)}</td>
+            <td>${escapeHtml(item.subscriptionExpiryDate)}</td>
+            <td><span class="badge badge-success">${escapeHtml(item.status)}</span></td>
+        </tr>
+    `).join('');
 }
 
 function renderHospitalsTable(hospitals) {

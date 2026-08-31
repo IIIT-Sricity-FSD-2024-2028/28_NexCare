@@ -950,5 +950,17 @@
     "startedAt": "2026-08-31T03:54:02.078Z",
     "renewsOn": "2026-08-31T18:30:00.000Z",
     "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-UMTGQ6VSQ29YH",
+    "doctorId": "UMTGQ6VSQ29YH",
+    "doctorName": "Dr. Test Audit",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-31T04:15:48.610Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
   }
 ]

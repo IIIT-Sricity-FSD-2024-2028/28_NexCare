@@ -129,5 +129,24 @@
     "approvedBy": "HM001",
     "approvedByName": "Priya Reddy (Alias)",
     "approvedAt": "2026-08-31T03:54:01.718Z"
+  },
+  {
+    "id": "LMTGQ6W2L2EKI",
+    "doctorId": "U005",
+    "doctorName": "Dr. Sunita Sharma",
+    "hospitalId": "H001",
+    "startDate": "2028-07-10",
+    "endDate": "2028-07-15",
+    "type": "CASUAL",
+    "reason": "Family event audit test",
+    "daysCount": 6,
+    "requestedAt": "2026-08-31",
+    "status": "approved",
+    "createdAt": "2026-08-31T04:15:48.189Z",
+    "updatedAt": "2026-08-31T04:15:48.204Z",
+    "comment": "Approved for audit",
+    "approvedBy": "HM001",
+    "approvedByName": "Priya Reddy (Alias)",
+    "approvedAt": "2026-08-31T04:15:48.204Z"
   }
 ]

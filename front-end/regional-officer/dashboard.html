@@ -160,6 +160,81 @@
                 </div>
             </section>
 
+            <section class="panel" aria-labelledby="revenue-title">
+                <div class="panel-header">
+                    <h2 class="section-title" id="revenue-title" style="margin:0;">Regional Subscription Revenue</h2>
+                </div>
+                <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
+                    <div class="stat-card">
+                        <div>
+                            <p class="stat-label">Total Regional Revenue</p>
+                            <p class="stat-value" id="totalRegionalRev">—</p>
+                            <p class="stat-sub">Cumulative subscription income</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <p class="stat-label">Revenue This Month</p>
+                            <p class="stat-value" id="revMonth">—</p>
+                            <p class="stat-sub">Monthly collected</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <p class="stat-label">Revenue This Year</p>
+                            <p class="stat-value" id="revYear">—</p>
+                            <p class="stat-sub">YTD collected</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <p class="stat-label">Active Paid Hospitals</p>
+                            <p class="stat-value" id="activePaidHospitals">—</p>
+                            <p class="stat-sub">Current active subscriptions</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <p class="stat-label">Pending Renewals</p>
+                            <p class="stat-value" id="pendingRenewals">—</p>
+                            <p class="stat-sub">Awaiting payment</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <p class="stat-label">Expired Subscriptions</p>
+                            <p class="stat-value" id="expiredSubs">—</p>
+                            <p class="stat-sub">Lapsed contracts</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <p class="stat-label">Renewals Due Soon</p>
+                            <p class="stat-value" id="renewalsDueSoon">—</p>
+                            <p class="stat-sub">Due in next 60 days</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Hospital</th>
+                                <th>Subscription Plan</th>
+                                <th>Last Payment</th>
+                                <th>Amount</th>
+                                <th>Expiry Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="revenueTableBody">
+                            <tr><td colspan="6" class="empty-state">Loading subscription revenue data…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
             <section class="panel" aria-labelledby="alerts-preview-title">
                 <div class="panel-header">
                     <h2 class="section-title" id="alerts-preview-title" style="margin:0;">Recent Performance Alerts</h2>

@@ -1660,10 +1660,13 @@ function showToast(message, type = 'info') {
  * Logout Helper
  */
 function logoutUser() {
-    sessionStorage.clear();
-    localStorage.removeItem('nexcare_token');
-    localStorage.removeItem('nexcare_user_data');
-    window.location.href = '../login.html';
+    try {
+        sessionStorage.clear();
+        localStorage.removeItem('nexcare_token');
+        localStorage.removeItem('nexcare_user_data');
+        localStorage.removeItem('nexcare_currentUser');
+    } catch (e) {}
+    window.location.href = '../auth/login.html';
 }
 
 /**

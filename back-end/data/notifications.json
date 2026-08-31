@@ -1,5 +1,142 @@
 [
   {
+    "id": "NOTIFMTGQ6W942ZSR",
+    "recipientRole": "ambulance",
+    "hospitalId": "H001",
+    "type": "ALERT",
+    "title": "Emergency Ambulance Request",
+    "message": "New pickup requested for Patient P001 at Main Square, Tirupati.",
+    "entityType": "AMBULANCE",
+    "entityId": "AMB-MTGQ6W8Z2YKD",
+    "createdAt": "2026-08-31T04:15:48.424Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGQ6W7R2UJ9",
+    "recipientUserId": "U006",
+    "recipientRole": "doctor",
+    "hospitalId": "H001",
+    "type": "ACTION_REQUIRED",
+    "title": "New Patient Referral",
+    "message": "Patient Patient P001 has been referred to you for December 15, 2026.",
+    "entityType": "REFERRAL",
+    "entityId": "APT-MTGQ6W7G2RCM",
+    "createdAt": "2026-08-31T04:15:48.375Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGQ6W7L2T16",
+    "recipientUserId": "P001",
+    "recipientRole": "patient",
+    "hospitalId": "H001",
+    "type": "INFO",
+    "title": "Doctor Referral Assigned",
+    "message": "You have been referred to Dr. Vikram Patel (Neurology) on December 15, 2026.",
+    "entityType": "REFERRAL",
+    "entityId": "APT-MTGQ6W7G2RCM",
+    "createdAt": "2026-08-31T04:15:48.369Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGQ6W602NAN",
+    "recipientUserId": "U005",
+    "recipientRole": "doctor",
+    "hospitalId": "H001",
+    "type": "INFO",
+    "title": "New Appointment Booked",
+    "message": "New appointment booked by Patient P001 on December 13, 2026 at 10:00 AM.",
+    "entityType": "APPOINTMENT",
+    "entityId": "APT-MTGQ6W5S2KI6",
+    "createdAt": "2026-08-31T04:15:48.312Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGQ6W5X2MJB",
+    "recipientUserId": "P001",
+    "recipientRole": "patient",
+    "hospitalId": "H001",
+    "type": "SUCCESS",
+    "title": "Appointment Booked",
+    "message": "Appointment confirmed with Dr. Sunita Sharma on December 13, 2026 at 10:00 AM.",
+    "entityType": "APPOINTMENT",
+    "entityId": "APT-MTGQ6W5S2KI6",
+    "createdAt": "2026-08-31T04:15:48.309Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGQ6W5C2JGR",
+    "recipientRole": "administrative_staff",
+    "hospitalId": "H001",
+    "type": "SUCCESS",
+    "title": "Inventory Purchase Approved",
+    "message": "Purchase request for N95 Protective Masks (100 Boxes) has been approved.",
+    "entityType": "INVENTORY",
+    "entityId": "REQ-INV-218",
+    "createdAt": "2026-08-31T04:15:48.288Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGQ6W4W2IBJ",
+    "recipientRole": "hospital_manager",
+    "hospitalId": "H001",
+    "type": "ACTION_REQUIRED",
+    "title": "Inventory Purchase Request",
+    "message": "New purchase request for N95 Protective Masks (100 Boxes) submitted by Lakshmi Naidu.",
+    "entityType": "INVENTORY",
+    "entityId": "REQ-INV-218",
+    "createdAt": "2026-08-31T04:15:48.272Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGQ6W342GVS",
+    "recipientUserId": "U005",
+    "recipientRole": "doctor",
+    "hospitalId": "H001",
+    "type": "SUCCESS",
+    "title": "Leave Request Approved",
+    "message": "Your leave request (2028-07-10 to 2028-07-15) has been approved.",
+    "entityType": "LEAVE",
+    "entityId": "LMTGQ6W2L2EKI",
+    "createdAt": "2026-08-31T04:15:48.208Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGQ6W2O2FEH",
+    "recipientRole": "hospital_manager",
+    "hospitalId": "H001",
+    "type": "ACTION_REQUIRED",
+    "title": "New Leave Request",
+    "message": "New leave request from Dr. Sunita Sharma (2028-07-10 to 2028-07-15).",
+    "entityType": "LEAVE",
+    "entityId": "LMTGQ6W2L2EKI",
+    "createdAt": "2026-08-31T04:15:48.193Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGQ6VT52AP3",
+    "recipientUserId": "UMTGQ6VSQ29YH",
+    "recipientRole": "doctor",
+    "hospitalId": "H001",
+    "type": "SUCCESS",
+    "title": "Account Created",
+    "message": "Your NexCare staff account (DOC-H001-007) has been created for H001.",
+    "entityType": "STAFF",
+    "entityId": "UMTGQ6VSQ29YH",
+    "createdAt": "2026-08-31T04:15:47.849Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGQ6VRA289T",
+    "recipientRole": "superuser",
+    "type": "INFO",
+    "title": "Audit Test Notification",
+    "message": "System audit verification event.",
+    "entityType": "SYSTEM",
+    "createdAt": "2026-08-31T04:15:47.782Z",
+    "read": true,
+    "readAt": "2026-08-31T04:15:47.797Z"
+  },
+  {
     "id": "NOTIFMTGPEW5W1K7J",
     "recipientRole": "ambulance",
     "hospitalId": "H001",
@@ -9,7 +146,8 @@
     "entityType": "AMBULANCE",
     "entityId": "AMB-MTGPEW5S1J46",
     "createdAt": "2026-08-31T03:54:01.940Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-08-31T04:15:47.814Z"
   },
   {
     "id": "NOTIFMTGPEW4B1FU3",
@@ -22,7 +160,8 @@
     "entityType": "REFERRAL",
     "entityId": "APT-MTGPEW441CIP",
     "createdAt": "2026-08-31T03:54:01.883Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-08-31T04:15:47.814Z"
   },
   {
     "id": "NOTIFMTGPEW481ER2",
@@ -35,7 +174,8 @@
     "entityType": "REFERRAL",
     "entityId": "APT-MTGPEW441CIP",
     "createdAt": "2026-08-31T03:54:01.880Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-08-31T04:15:47.814Z"
   },
   {
     "id": "NOTIFMTGPEW2M18YJ",
@@ -48,7 +188,8 @@
     "entityType": "APPOINTMENT",
     "entityId": "APT-MTGPEW2G15ZU",
     "createdAt": "2026-08-31T03:54:01.822Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-08-31T04:15:47.814Z"
   },
   {
     "id": "NOTIFMTGPEW2J17QU",
@@ -61,7 +202,8 @@
     "entityType": "APPOINTMENT",
     "entityId": "APT-MTGPEW2G15ZU",
     "createdAt": "2026-08-31T03:54:01.820Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-08-31T04:15:47.814Z"
   },
   {
     "id": "NOTIFMTGPEW2014M8",
@@ -73,7 +215,8 @@
     "entityType": "INVENTORY",
     "entityId": "REQ-INV-492",
     "createdAt": "2026-08-31T03:54:01.800Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-08-31T04:15:47.814Z"
   },
   {
     "id": "NOTIFMTGPEW1P13QJ",
@@ -85,7 +228,8 @@
     "entityType": "INVENTORY",
     "entityId": "REQ-INV-492",
     "createdAt": "2026-08-31T03:54:01.789Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-08-31T04:15:47.814Z"
   },
   {
     "id": "NOTIFMTGPEVZT116L",
@@ -98,7 +242,8 @@
     "entityType": "LEAVE",
     "entityId": "LMTGPEVZCZNK",
     "createdAt": "2026-08-31T03:54:01.721Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-08-31T04:15:47.814Z"
   },
   {
     "id": "NOTIFMTGPEVZF10HE",
@@ -110,7 +255,8 @@
     "entityType": "LEAVE",
     "entityId": "LMTGPEVZCZNK",
     "createdAt": "2026-08-31T03:54:01.707Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-08-31T04:15:47.814Z"
   },
   {
     "id": "NOTIFMTGPEVSKVIQ",
@@ -123,7 +269,8 @@
     "entityType": "STAFF",
     "entityId": "UMTGPEVSGUZU",
     "createdAt": "2026-08-31T03:54:01.460Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-08-31T04:15:47.814Z"
   },
   {
     "id": "NOTIFMTGPEVR3T46",

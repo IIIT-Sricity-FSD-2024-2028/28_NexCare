@@ -1,320 +1,59 @@
 // Reusable Mock Hospital & Doctor Data for NexCare Frontend
 // Structured Hierarchy: Hospital -> Departments -> Doctors -> Availability & Slots
+// Synced with real synthetic datastore (H001 - H008)
 
 window.MOCK_HOSPITALS = [
   {
-    id: "apollo",
-    name: "Apollo Hospitals",
-    city: "Chennai",
-    pincode: "600006",
-    address: "21 Greams Lane, Thousand Lights, Chennai, Tamil Nadu",
-    phone: "+91 44 2829 0200",
+    id: "H001",
+    name: "Sri Venkateswara Multispeciality Hospital",
+    city: "Tirupati",
+    pincode: "517501",
+    address: "108 SV University Road, Tirupati, Andhra Pradesh",
+    phone: "+91 877 2288990",
     emergencyAvailable: true,
     verificationStatus: "verified",
-    availableBeds: 35,
-    totalBeds: 250,
-    specialities: ["Cardiology", "Neurology", "Orthopaedics", "General Medicine"],
+    availableBeds: 36,
+    totalBeds: 120,
+    specialities: ["Cardiology", "General Medicine", "Orthopaedics", "Neurology", "Paediatrics", "Dermatology"],
     departments: [
       {
         id: "cardiology",
         name: "Cardiology",
         doctors: [
           {
-            id: "doc_apollo_card_01",
-            name: "Dr. Arjun Reddy",
-            qualification: "MD, DM Cardiology",
-            experience: 12,
-            availableDays: ["Monday", "Wednesday", "Friday"],
-            slots: {
-              "Monday": ["09:00 AM", "10:30 AM", "12:00 PM"],
-              "Wednesday": ["10:00 AM", "11:30 AM", "03:00 PM"],
-              "Friday": ["09:30 AM", "01:00 PM", "04:00 PM"]
-            }
-          },
-          {
-            id: "doc_apollo_card_02",
-            name: "Dr. Meera Iyer",
-            qualification: "MD, DM Cardiology",
-            experience: 9,
-            availableDays: ["Tuesday", "Thursday", "Saturday"],
-            slots: {
-              "Tuesday": ["10:00 AM", "11:00 AM", "02:30 PM"],
-              "Thursday": ["09:30 AM", "12:30 PM", "03:30 PM"],
-              "Saturday": ["10:00 AM", "12:00 PM"]
-            }
-          }
-        ]
-      },
-      {
-        id: "neurology",
-        name: "Neurology",
-        doctors: [
-          {
-            id: "doc_apollo_neuro_01",
-            name: "Dr. Kavya Sharma",
-            qualification: "MD, DM Neurology",
+            id: "U005",
+            name: "Dr. Sunita Sharma",
+            qualification: "MBBS, MD, DM",
             experience: 14,
-            availableDays: ["Monday", "Tuesday", "Thursday"],
-            slots: {
-              "Monday": ["09:30 AM", "11:00 AM", "02:00 PM"],
-              "Tuesday": ["10:00 AM", "01:00 PM", "03:30 PM"],
-              "Thursday": ["09:00 AM", "11:30 AM", "04:00 PM"]
-            }
-          },
-          {
-            id: "doc_apollo_neuro_02",
-            name: "Dr. Vivek Krishnan",
-            qualification: "MD, DM Neurology",
-            experience: 10,
-            availableDays: ["Wednesday", "Friday", "Saturday"],
-            slots: {
-              "Wednesday": ["09:00 AM", "11:30 AM", "02:30 PM"],
-              "Friday": ["10:00 AM", "12:00 PM", "03:00 PM"],
-              "Saturday": ["09:30 AM", "11:00 AM"]
-            }
-          }
-        ]
-      },
-      {
-        id: "orthopaedics",
-        name: "Orthopaedics",
-        doctors: [
-          {
-            id: "doc_apollo_ortho_01",
-            name: "Dr. Subhash Chandra",
-            qualification: "MS Orthopaedics",
-            experience: 16,
-            availableDays: ["Monday", "Wednesday", "Saturday"],
-            slots: {
-              "Monday": ["08:30 AM", "11:00 AM", "02:00 PM"],
-              "Wednesday": ["09:30 AM", "12:00 PM", "03:30 PM"],
-              "Saturday": ["09:00 AM", "11:30 AM"]
-            }
-          },
-          {
-            id: "doc_apollo_ortho_02",
-            name: "Dr. Aditya Rao",
-            qualification: "MS Orthopaedics",
-            experience: 11,
-            availableDays: ["Tuesday", "Thursday", "Friday"],
-            slots: {
-              "Tuesday": ["09:00 AM", "11:00 AM", "02:30 PM"],
-              "Thursday": ["10:00 AM", "01:00 PM", "04:00 PM"],
-              "Friday": ["08:30 AM", "11:30 AM", "03:00 PM"]
-            }
-          }
-        ]
-      },
-      {
-        id: "general_medicine",
-        name: "General Medicine",
-        doctors: [
-          {
-            id: "doc_apollo_gen_01",
-            name: "Dr. R. K. Namboodiri",
-            qualification: "MD General Medicine",
-            experience: 20,
+            consultationFee: 900,
             availableDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
             slots: {
-              "Monday": ["08:30 AM", "10:00 AM", "01:00 PM"],
-              "Tuesday": ["09:00 AM", "11:00 AM", "02:00 PM"],
-              "Wednesday": ["08:30 AM", "10:30 AM", "01:30 PM"],
-              "Thursday": ["09:00 AM", "11:30 AM", "03:00 PM"],
-              "Friday": ["08:30 AM", "11:00 AM", "02:30 PM"],
-              "Saturday": ["09:00 AM", "11:00 AM"]
-            }
-          },
-          {
-            id: "doc_apollo_gen_02",
-            name: "Dr. Sandeep Reddy",
-            qualification: "MD Internal Medicine",
-            experience: 10,
-            availableDays: ["Monday", "Wednesday", "Friday"],
-            slots: {
-              "Monday": ["10:00 AM", "02:00 PM", "04:30 PM"],
-              "Wednesday": ["09:00 AM", "01:00 PM", "03:30 PM"],
-              "Friday": ["10:30 AM", "02:30 PM", "05:00 PM"]
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: "fortis",
-    name: "Fortis Hospital",
-    city: "Bangalore",
-    pincode: "560076",
-    address: "154/9 Bannerghatta Road, Opposite IIM-B, Bangalore, Karnataka",
-    phone: "+91 80 6621 4444",
-    emergencyAvailable: true,
-    verificationStatus: "verified",
-    availableBeds: 28,
-    totalBeds: 200,
-    specialities: ["Cardiology", "Dermatology", "ENT", "Paediatrics"],
-    departments: [
-      {
-        id: "cardiology",
-        name: "Cardiology",
-        doctors: [
-          {
-            id: "doc_fortis_card_01",
-            name: "Dr. Rahul Menon",
-            qualification: "MD Cardiology",
-            experience: 15,
-            availableDays: ["Monday", "Tuesday", "Thursday"],
-            slots: {
-              "Monday": ["09:00 AM", "11:00 AM", "02:00 PM"],
-              "Tuesday": ["10:00 AM", "12:30 PM", "03:30 PM"],
-              "Thursday": ["08:30 AM", "11:30 AM", "04:00 PM"]
-            }
-          },
-          {
-            id: "doc_fortis_card_02",
-            name: "Dr. Priya Nair",
-            qualification: "MD, DM Cardiology",
-            experience: 11,
-            availableDays: ["Wednesday", "Friday", "Saturday"],
-            slots: {
-              "Wednesday": ["09:30 AM", "12:00 PM", "03:00 PM"],
-              "Friday": ["09:00 AM", "11:30 AM", "02:30 PM"],
-              "Saturday": ["10:00 AM", "12:00 PM"]
+              "Monday": ["09:00 AM", "10:30 AM", "12:00 PM", "02:00 PM"],
+              "Tuesday": ["09:00 AM", "10:30 AM", "12:00 PM", "02:00 PM"],
+              "Wednesday": ["09:00 AM", "10:30 AM", "12:00 PM", "02:00 PM"],
+              "Thursday": ["09:00 AM", "10:30 AM", "12:00 PM", "02:00 PM"],
+              "Friday": ["09:00 AM", "10:30 AM", "12:00 PM", "02:00 PM"],
+              "Saturday": ["09:00 AM", "11:00 AM", "12:30 PM"]
             }
           }
         ]
       },
       {
-        id: "dermatology",
-        name: "Dermatology",
+        id: "general-medicine",
+        name: "General Medicine",
         doctors: [
           {
-            id: "doc_fortis_derm_01",
-            name: "Dr. Sneha Kulkarni",
-            qualification: "MD Dermatology",
-            experience: 10,
-            availableDays: ["Monday", "Wednesday", "Friday"],
-            slots: {
-              "Monday": ["10:00 AM", "01:00 PM", "03:30 PM"],
-              "Wednesday": ["09:30 AM", "11:30 AM", "02:30 PM"],
-              "Friday": ["10:00 AM", "12:30 PM", "04:00 PM"]
-            }
-          },
-          {
-            id: "doc_fortis_derm_02",
-            name: "Dr. Rhea Kapoor",
-            qualification: "DNB Dermatology",
-            experience: 7,
-            availableDays: ["Tuesday", "Thursday", "Saturday"],
-            slots: {
-              "Tuesday": ["09:00 AM", "11:30 AM", "02:00 PM"],
-              "Thursday": ["10:30 AM", "01:00 PM", "03:30 PM"],
-              "Saturday": ["09:00 AM", "11:00 AM"]
-            }
-          }
-        ]
-      },
-      {
-        id: "ent",
-        name: "ENT",
-        doctors: [
-          {
-            id: "doc_fortis_ent_01",
-            name: "Dr. Karthik Iyer",
-            qualification: "MS ENT",
-            experience: 13,
-            availableDays: ["Monday", "Tuesday", "Thursday", "Friday"],
-            slots: {
-              "Monday": ["09:00 AM", "11:00 AM", "03:00 PM"],
-              "Tuesday": ["09:30 AM", "12:00 PM", "02:30 PM"],
-              "Thursday": ["10:00 AM", "01:00 PM", "04:00 PM"],
-              "Friday": ["08:30 AM", "11:30 AM", "02:00 PM"]
-            }
-          },
-          {
-            id: "doc_fortis_ent_02",
-            name: "Dr. Harish Babu",
-            qualification: "MS ENT",
-            experience: 9,
-            availableDays: ["Wednesday", "Saturday"],
-            slots: {
-              "Wednesday": ["10:00 AM", "01:00 PM", "03:30 PM"],
-              "Saturday": ["09:30 AM", "11:30 AM"]
-            }
-          }
-        ]
-      },
-      {
-        id: "paediatrics",
-        name: "Paediatrics",
-        doctors: [
-          {
-            id: "doc_fortis_paed_01",
-            name: "Dr. Aditi Deshmukh",
-            qualification: "MD Paediatrics",
-            experience: 14,
+            id: "DOC-AP01-002",
+            name: "Dr. Harini Reddy",
+            qualification: "MBBS, MD",
+            experience: 12,
+            consultationFee: 800,
             availableDays: ["Monday", "Wednesday", "Friday", "Saturday"],
             slots: {
-              "Monday": ["08:30 AM", "10:30 AM", "01:30 PM"],
-              "Wednesday": ["09:00 AM", "11:30 AM", "02:30 PM"],
-              "Friday": ["09:30 AM", "12:00 PM", "03:30 PM"],
-              "Saturday": ["09:00 AM", "11:00 AM"]
-            }
-          },
-          {
-            id: "doc_fortis_paed_02",
-            name: "Dr. Varun Nair",
-            qualification: "MD Paediatrics",
-            experience: 8,
-            availableDays: ["Tuesday", "Thursday", "Friday"],
-            slots: {
-              "Tuesday": ["10:00 AM", "01:00 PM", "04:00 PM"],
-              "Thursday": ["09:00 AM", "11:30 AM", "03:00 PM"],
-              "Friday": ["02:00 PM", "04:30 PM"]
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: "manipal",
-    name: "Manipal Hospital",
-    city: "Hyderabad",
-    pincode: "500081",
-    address: "Mindspace Road, Gachibowli, Hyderabad, Telangana",
-    phone: "+91 40 4344 5555",
-    emergencyAvailable: true,
-    verificationStatus: "verified",
-    availableBeds: 40,
-    totalBeds: 300,
-    specialities: ["Neurology", "Orthopaedics", "General Medicine", "Gynaecology"],
-    departments: [
-      {
-        id: "neurology",
-        name: "Neurology",
-        doctors: [
-          {
-            id: "doc_manipal_neuro_01",
-            name: "Dr. Ananya Gupta",
-            qualification: "MD Neurology",
-            experience: 12,
-            availableDays: ["Monday", "Wednesday", "Friday"],
-            slots: {
-              "Monday": ["09:00 AM", "11:30 AM", "02:30 PM"],
-              "Wednesday": ["10:00 AM", "12:30 PM", "03:30 PM"],
-              "Friday": ["09:30 AM", "01:00 PM", "04:00 PM"]
-            }
-          },
-          {
-            id: "doc_manipal_neuro_02",
-            name: "Dr. Karthik Iyer",
-            qualification: "MD Neurology",
-            experience: 15,
-            availableDays: ["Tuesday", "Thursday", "Saturday"],
-            slots: {
-              "Tuesday": ["08:30 AM", "11:00 AM", "02:00 PM"],
-              "Thursday": ["09:00 AM", "12:00 PM", "03:00 PM"],
-              "Saturday": ["09:30 AM", "11:30 AM"]
+              "Monday": ["10:00 AM", "11:30 AM", "03:00 PM"],
+              "Wednesday": ["10:00 AM", "11:30 AM", "03:00 PM"],
+              "Friday": ["10:00 AM", "11:30 AM", "03:00 PM"],
+              "Saturday": ["10:00 AM", "12:00 PM"]
             }
           }
         ]
@@ -324,361 +63,56 @@ window.MOCK_HOSPITALS = [
         name: "Orthopaedics",
         doctors: [
           {
-            id: "doc_manipal_ortho_01",
-            name: "Dr. Rohit Verma",
-            qualification: "MS Orthopaedics",
-            experience: 14,
-            availableDays: ["Monday", "Tuesday", "Thursday"],
-            slots: {
-              "Monday": ["09:30 AM", "12:00 PM", "03:00 PM"],
-              "Tuesday": ["09:00 AM", "11:30 AM", "02:30 PM"],
-              "Thursday": ["10:00 AM", "01:00 PM", "04:00 PM"]
-            }
-          },
-          {
-            id: "doc_manipal_ortho_02",
-            name: "Dr. Sandeep Reddy",
-            qualification: "MS Orthopaedics",
+            id: "U006",
+            name: "Dr. Vikram Patel",
+            qualification: "MBBS, MS (Ortho)",
             experience: 11,
-            availableDays: ["Wednesday", "Friday", "Saturday"],
+            consultationFee: 850,
+            availableDays: ["Monday", "Tuesday", "Thursday", "Friday"],
             slots: {
-              "Wednesday": ["08:30 AM", "11:00 AM", "02:00 PM"],
-              "Friday": ["09:00 AM", "12:00 PM", "03:30 PM"],
-              "Saturday": ["10:00 AM", "12:00 PM"]
+              "Monday": ["09:30 AM", "11:00 AM", "02:00 PM"],
+              "Tuesday": ["09:30 AM", "11:00 AM", "02:00 PM"],
+              "Thursday": ["09:30 AM", "11:00 AM", "02:00 PM"],
+              "Friday": ["09:30 AM", "11:00 AM", "02:00 PM"]
             }
           }
         ]
       },
       {
-        id: "general_medicine",
-        name: "General Medicine",
+        id: "neurology",
+        name: "Neurology",
         doctors: [
           {
-            id: "doc_manipal_gen_01",
-            name: "Dr. Lakshmi Narayanan",
-            qualification: "MD Medicine",
-            experience: 18,
+            id: "U009",
+            name: "Dr. Sarah Smith",
+            qualification: "MBBS, DM (Neuro)",
+            experience: 15,
+            consultationFee: 1000,
             availableDays: ["Monday", "Wednesday", "Thursday", "Friday"],
             slots: {
-              "Monday": ["08:30 AM", "10:30 AM", "01:30 PM"],
-              "Wednesday": ["09:00 AM", "11:30 AM", "02:30 PM"],
-              "Thursday": ["09:30 AM", "12:00 PM", "03:30 PM"],
-              "Friday": ["08:30 AM", "11:00 AM", "02:00 PM"]
-            }
-          },
-          {
-            id: "doc_manipal_gen_02",
-            name: "Dr. Neha Agarwal",
-            qualification: "MD General Medicine",
-            experience: 9,
-            availableDays: ["Tuesday", "Friday", "Saturday"],
-            slots: {
-              "Tuesday": ["10:00 AM", "01:00 PM", "04:00 PM"],
-              "Friday": ["02:30 PM", "05:00 PM"],
-              "Saturday": ["09:00 AM", "11:30 AM"]
-            }
-          }
-        ]
-      },
-      {
-        id: "gynaecology",
-        name: "Gynaecology",
-        doctors: [
-          {
-            id: "doc_manipal_gyn_01",
-            name: "Dr. Anjali Menon",
-            qualification: "MS OBG",
-            experience: 16,
-            availableDays: ["Monday", "Tuesday", "Wednesday", "Friday"],
-            slots: {
-              "Monday": ["09:00 AM", "11:30 AM", "02:00 PM"],
-              "Tuesday": ["09:30 AM", "12:00 PM", "03:00 PM"],
-              "Wednesday": ["10:00 AM", "01:00 PM", "03:30 PM"],
-              "Friday": ["09:00 AM", "11:30 AM", "02:30 PM"]
-            }
-          },
-          {
-            id: "doc_manipal_gyn_02",
-            name: "Dr. Nandini Rao",
-            qualification: "MD Gynaecology",
-            experience: 10,
-            availableDays: ["Thursday", "Saturday"],
-            slots: {
-              "Thursday": ["09:00 AM", "12:00 PM", "03:30 PM"],
-              "Saturday": ["09:30 AM", "11:30 AM"]
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: "aster",
-    name: "Aster Hospital",
-    city: "Kochi",
-    pincode: "682027",
-    address: "Aster Medcity, Kuttisarakadavu, Cheranalloor, Kochi, Kerala",
-    phone: "+91 484 6699 999",
-    emergencyAvailable: true,
-    verificationStatus: "verified",
-    availableBeds: 22,
-    totalBeds: 180,
-    specialities: ["Cardiology", "Gastroenterology", "Paediatrics", "ENT"],
-    departments: [
-      {
-        id: "cardiology",
-        name: "Cardiology",
-        doctors: [
-          {
-            id: "doc_aster_card_01",
-            name: "Dr. Aditya Rao",
-            qualification: "DM Cardiology",
-            experience: 13,
-            availableDays: ["Monday", "Wednesday", "Friday"],
-            slots: {
-              "Monday": ["09:00 AM", "11:30 AM", "02:30 PM"],
-              "Wednesday": ["10:00 AM", "12:30 PM", "03:30 PM"],
-              "Friday": ["09:30 AM", "01:00 PM", "04:00 PM"]
-            }
-          },
-          {
-            id: "doc_aster_card_02",
-            name: "Dr. Meera Iyer",
-            qualification: "MD Cardiology",
-            experience: 9,
-            availableDays: ["Tuesday", "Thursday", "Saturday"],
-            slots: {
-              "Tuesday": ["08:30 AM", "11:00 AM", "02:00 PM"],
-              "Thursday": ["09:00 AM", "12:00 PM", "03:00 PM"],
-              "Saturday": ["09:30 AM", "11:30 AM"]
-            }
-          }
-        ]
-      },
-      {
-        id: "gastroenterology",
-        name: "Gastroenterology",
-        doctors: [
-          {
-            id: "doc_aster_gastro_01",
-            name: "Dr. Aditya Rao",
-            qualification: "DM Gastroenterology",
-            experience: 15,
-            availableDays: ["Monday", "Tuesday", "Thursday"],
-            slots: {
-              "Monday": ["10:00 AM", "01:00 PM", "04:00 PM"],
-              "Tuesday": ["09:30 AM", "12:00 PM", "03:00 PM"],
-              "Thursday": ["09:00 AM", "11:30 AM", "02:30 PM"]
-            }
-          },
-          {
-            id: "doc_aster_gastro_02",
-            name: "Dr. Nandini Rao",
-            qualification: "MD Gastro",
-            experience: 11,
-            availableDays: ["Wednesday", "Friday", "Saturday"],
-            slots: {
-              "Wednesday": ["09:00 AM", "11:30 AM", "02:00 PM"],
-              "Friday": ["10:00 AM", "12:30 PM", "03:30 PM"],
-              "Saturday": ["09:00 AM", "11:00 AM"]
-            }
-          }
-        ]
-      },
-      {
-        id: "paediatrics",
-        name: "Paediatrics",
-        doctors: [
-          {
-            id: "doc_aster_paed_01",
-            name: "Dr. Anjali Menon",
-            qualification: "MD Paediatrics",
-            experience: 14,
-            availableDays: ["Monday", "Wednesday", "Saturday"],
-            slots: {
-              "Monday": ["08:30 AM", "11:00 AM", "02:00 PM"],
-              "Wednesday": ["09:30 AM", "12:00 PM", "03:00 PM"],
-              "Saturday": ["09:00 AM", "11:30 AM"]
-            }
-          },
-          {
-            id: "doc_aster_paed_02",
-            name: "Dr. Aditi Deshmukh",
-            qualification: "MD Paediatrics",
-            experience: 10,
-            availableDays: ["Tuesday", "Thursday", "Friday"],
-            slots: {
-              "Tuesday": ["09:00 AM", "11:30 AM", "02:30 PM"],
-              "Thursday": ["10:00 AM", "01:00 PM", "04:00 PM"],
+              "Monday": ["08:30 AM", "11:00 AM", "02:30 PM"],
+              "Wednesday": ["08:30 AM", "11:00 AM", "02:30 PM"],
+              "Thursday": ["08:30 AM", "11:00 AM", "02:30 PM"],
               "Friday": ["08:30 AM", "11:00 AM", "02:30 PM"]
             }
           }
         ]
       },
       {
-        id: "ent",
-        name: "ENT",
+        id: "paediatrics",
+        name: "Paediatrics",
         doctors: [
           {
-            id: "doc_aster_ent_01",
-            name: "Dr. Rohit Verma",
-            qualification: "MS ENT",
-            experience: 12,
-            availableDays: ["Monday", "Tuesday", "Thursday"],
-            slots: {
-              "Monday": ["09:00 AM", "11:30 AM", "02:30 PM"],
-              "Tuesday": ["10:00 AM", "12:30 PM", "03:30 PM"],
-              "Thursday": ["09:30 AM", "12:00 PM", "03:00 PM"]
-            }
-          },
-          {
-            id: "doc_aster_ent_02",
-            name: "Dr. Rhea Kapoor",
-            qualification: "MS ENT",
-            experience: 8,
-            availableDays: ["Wednesday", "Friday", "Saturday"],
-            slots: {
-              "Wednesday": ["09:00 AM", "11:30 AM", "02:00 PM"],
-              "Friday": ["09:30 AM", "12:00 PM", "03:30 PM"],
-              "Saturday": ["09:00 AM", "11:00 AM"]
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: "HSP001",
-    name: "Sri Venkateswara Multi Speciality Hospital",
-    city: "Tirupati",
-    pincode: "517501",
-    address: "Alipiri Road, Tirupati, Andhra Pradesh",
-    phone: "0877-2233445",
-    emergencyAvailable: true,
-    verificationStatus: "verified",
-    availableBeds: 24,
-    totalBeds: 120,
-    specialities: ["Cardiology", "Neurology", "Orthopaedics", "General Medicine", "Dermatology", "Emergency Medicine"],
-    departments: [
-      {
-        id: "cardiology",
-        name: "Cardiology",
-        doctors: [
-          {
-            id: "doc_hsp1_card_01",
-            name: "Dr. Rajesh Sharma",
-            qualification: "MD, DM Cardiology",
-            experience: 16,
-            availableDays: ["Monday", "Wednesday", "Friday"],
-            slots: {
-              "Monday": ["09:00 AM", "10:30 AM", "12:00 PM", "03:00 PM"],
-              "Wednesday": ["09:30 AM", "11:00 AM", "02:30 PM"],
-              "Friday": ["09:00 AM", "12:00 PM", "04:00 PM"]
-            }
-          },
-          {
-            id: "doc_hsp1_card_02",
-            name: "Dr. Sunita Rao",
-            qualification: "MD Cardiology",
-            experience: 10,
+            id: "DOC-AP01-005",
+            name: "Dr. Rajesh Rao",
+            qualification: "MBBS, DCH, MD",
+            experience: 9,
+            consultationFee: 700,
             availableDays: ["Tuesday", "Thursday", "Saturday"],
             slots: {
-              "Tuesday": ["10:00 AM", "11:30 AM", "02:00 PM"],
-              "Thursday": ["09:30 AM", "01:00 PM", "03:30 PM"],
-              "Saturday": ["09:00 AM", "11:00 AM"]
-            }
-          }
-        ]
-      },
-      {
-        id: "neurology",
-        name: "Neurology",
-        doctors: [
-          {
-            id: "doc_hsp1_neuro_01",
-            name: "Dr. Sanjay Gupta",
-            qualification: "MD, DM Neurology",
-            experience: 14,
-            availableDays: ["Monday", "Tuesday", "Thursday"],
-            slots: {
-              "Monday": ["10:00 AM", "11:30 AM", "02:30 PM"],
-              "Tuesday": ["09:30 AM", "12:00 PM", "03:00 PM"],
-              "Thursday": ["10:00 AM", "01:00 PM", "04:00 PM"]
-            }
-          },
-          {
-            id: "doc_hsp1_neuro_02",
-            name: "Dr. Priya Patel",
-            qualification: "MD Neurology",
-            experience: 9,
-            availableDays: ["Wednesday", "Friday", "Saturday"],
-            slots: {
-              "Wednesday": ["09:00 AM", "11:30 AM", "02:00 PM"],
-              "Friday": ["10:00 AM", "12:30 PM", "03:30 PM"],
+              "Tuesday": ["10:00 AM", "12:00 PM", "03:30 PM"],
+              "Thursday": ["10:00 AM", "12:00 PM", "03:30 PM"],
               "Saturday": ["09:30 AM", "11:30 AM"]
-            }
-          }
-        ]
-      },
-      {
-        id: "orthopaedics",
-        name: "Orthopaedics",
-        doctors: [
-          {
-            id: "doc_hsp1_ortho_01",
-            name: "Dr. Vikram Patel",
-            qualification: "MS Orthopaedics",
-            experience: 18,
-            availableDays: ["Monday", "Wednesday", "Friday", "Saturday"],
-            slots: {
-              "Monday": ["09:30 AM", "11:00 AM", "04:00 PM"],
-              "Wednesday": ["08:30 AM", "11:30 AM", "02:30 PM"],
-              "Friday": ["09:00 AM", "12:00 PM", "03:30 PM"],
-              "Saturday": ["10:00 AM", "12:00 PM"]
-            }
-          },
-          {
-            id: "doc_hsp1_ortho_02",
-            name: "Dr. Alok Verma",
-            qualification: "MS Orthopaedics",
-            experience: 11,
-            availableDays: ["Tuesday", "Thursday"],
-            slots: {
-              "Tuesday": ["09:00 AM", "11:30 AM", "02:00 PM"],
-              "Thursday": ["10:00 AM", "01:00 PM", "04:00 PM"]
-            }
-          }
-        ]
-      },
-      {
-        id: "general_medicine",
-        name: "General Medicine",
-        doctors: [
-          {
-            id: "doc_hsp1_gen_01",
-            name: "Dr. Anjali Desai",
-            qualification: "MD Medicine",
-            experience: 15,
-            availableDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-            slots: {
-              "Monday": ["08:30 AM", "10:00 AM", "01:00 PM", "05:00 PM"],
-              "Tuesday": ["09:00 AM", "11:00 AM", "02:00 PM"],
-              "Wednesday": ["08:30 AM", "10:30 AM", "01:30 PM"],
-              "Thursday": ["09:00 AM", "11:30 AM", "03:00 PM"],
-              "Friday": ["08:30 AM", "11:00 AM", "02:30 PM"],
-              "Saturday": ["09:00 AM", "11:00 AM"]
-            }
-          },
-          {
-            id: "doc_hsp1_gen_02",
-            name: "Dr. Arjun Mehta",
-            qualification: "MD Medicine",
-            experience: 12,
-            availableDays: ["Monday", "Wednesday", "Friday"],
-            slots: {
-              "Monday": ["10:30 AM", "02:00 PM", "04:30 PM"],
-              "Wednesday": ["09:30 AM", "01:00 PM", "03:30 PM"],
-              "Friday": ["10:00 AM", "02:30 PM", "05:00 PM"]
             }
           }
         ]
@@ -688,27 +122,16 @@ window.MOCK_HOSPITALS = [
         name: "Dermatology",
         doctors: [
           {
-            id: "doc_hsp1_derm_01",
-            name: "Dr. Pooja Chawla",
-            qualification: "MD Dermatology",
+            id: "U007",
+            name: "Dr. Anjali Desai",
+            qualification: "MBBS, MD (Derm)",
             experience: 8,
-            availableDays: ["Tuesday", "Thursday", "Saturday"],
-            slots: {
-              "Tuesday": ["11:00 AM", "01:30 PM", "03:30 PM"],
-              "Thursday": ["10:00 AM", "01:00 PM", "04:00 PM"],
-              "Saturday": ["09:30 AM", "11:30 AM"]
-            }
-          },
-          {
-            id: "doc_hsp1_derm_02",
-            name: "Dr. Rohit Kapoor",
-            qualification: "DNB Dermatology",
-            experience: 10,
+            consultationFee: 750,
             availableDays: ["Monday", "Wednesday", "Friday"],
             slots: {
               "Monday": ["09:00 AM", "11:30 AM", "02:00 PM"],
-              "Wednesday": ["10:00 AM", "12:30 PM", "03:30 PM"],
-              "Friday": ["09:30 AM", "12:00 PM", "03:00 PM"]
+              "Wednesday": ["09:00 AM", "11:30 AM", "02:00 PM"],
+              "Friday": ["09:00 AM", "11:30 AM", "02:00 PM"]
             }
           }
         ]
@@ -716,44 +139,86 @@ window.MOCK_HOSPITALS = [
     ]
   },
   {
-    id: "H001",
-    name: "NexCare AIIMS Super Speciality Hospital",
-    city: "Tirupati",
-    pincode: "517501",
-    address: "Renigunta Road, Near Central Bus Stand, Tirupati, Andhra Pradesh",
-    phone: "+91 877 2255000",
+    id: "H002",
+    name: "Coastal Care Hospital",
+    city: "Nellore",
+    pincode: "524001",
+    address: "45 Trunk Road, Dargamitta, Nellore, Andhra Pradesh",
+    phone: "+91 861 2345678",
     emergencyAvailable: true,
     verificationStatus: "verified",
-    availableBeds: 40,
-    totalBeds: 250,
-    specialities: ["Cardiology", "Neurology", "General Medicine", "Orthopaedics", "Paediatrics"],
+    availableBeds: 25,
+    totalBeds: 80,
+    specialities: ["Cardiology", "General Medicine", "Orthopaedics", "Paediatrics", "ENT", "Gynaecology"],
     departments: [
       {
         id: "cardiology",
         name: "Cardiology",
         doctors: [
           {
-            id: "doc_h001_card_01",
-            name: "Dr. Rajesh Sharma",
-            qualification: "MD, DM Cardiology",
-            experience: 16,
+            id: "DOC-AP02-001",
+            name: "Dr. Srinivas Varma",
+            qualification: "MBBS, MD, DM",
+            experience: 13,
+            consultationFee: 800,
             availableDays: ["Monday", "Wednesday", "Friday"],
             slots: {
-              "Monday": ["09:00 AM", "10:30 AM", "12:00 PM", "03:00 PM"],
-              "Wednesday": ["09:30 AM", "11:00 AM", "02:30 PM"],
-              "Friday": ["09:00 AM", "12:00 PM", "04:00 PM"]
+              "Monday": ["09:00 AM", "11:00 AM", "02:00 PM"],
+              "Wednesday": ["09:00 AM", "11:00 AM", "02:00 PM"],
+              "Friday": ["09:00 AM", "11:00 AM", "02:00 PM"]
             }
-          },
+          }
+        ]
+      },
+      {
+        id: "general-medicine",
+        name: "General Medicine",
+        doctors: [
           {
-            id: "doc_h001_card_02",
-            name: "Dr. Sunita Rao",
-            qualification: "MD Cardiology",
+            id: "DOC-AP02-002",
+            name: "Dr. Swati Naidu",
+            qualification: "MBBS, MD",
             experience: 10,
+            consultationFee: 700,
             availableDays: ["Tuesday", "Thursday", "Saturday"],
             slots: {
-              "Tuesday": ["10:00 AM", "11:30 AM", "02:00 PM"],
-              "Thursday": ["09:30 AM", "01:00 PM", "03:30 PM"],
-              "Saturday": ["09:00 AM", "11:00 AM"]
+              "Tuesday": ["10:00 AM", "12:00 PM", "03:00 PM"],
+              "Thursday": ["10:00 AM", "12:00 PM", "03:00 PM"],
+              "Saturday": ["10:00 AM", "01:00 PM"]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "H003",
+    name: "Namma Health Multispeciality",
+    city: "Bengaluru",
+    pincode: "560001",
+    address: "77 MG Road, Indiranagar, Bengaluru, Karnataka",
+    phone: "+91 80 41238900",
+    emergencyAvailable: true,
+    verificationStatus: "verified",
+    availableBeds: 48,
+    totalBeds: 160,
+    specialities: ["Cardiology", "Neurology", "Orthopaedics", "General Medicine", "General Surgery", "Dermatology"],
+    departments: [
+      {
+        id: "cardiology",
+        name: "Cardiology",
+        doctors: [
+          {
+            id: "DOC-KA01-001",
+            name: "Dr. Ananya Hegde",
+            qualification: "MBBS, MD, DM",
+            experience: 16,
+            consultationFee: 1100,
+            availableDays: ["Monday", "Wednesday", "Friday"],
+            slots: {
+              "Monday": ["09:30 AM", "11:30 AM", "02:30 PM"],
+              "Wednesday": ["09:30 AM", "11:30 AM", "02:30 PM"],
+              "Friday": ["09:30 AM", "11:30 AM", "02:30 PM"]
             }
           }
         ]
@@ -763,48 +228,186 @@ window.MOCK_HOSPITALS = [
         name: "Neurology",
         doctors: [
           {
-            id: "doc_h001_neuro_01",
-            name: "Dr. Sanjay Gupta",
-            qualification: "MD, DM Neurology",
-            experience: 14,
-            availableDays: ["Monday", "Tuesday", "Thursday"],
+            id: "DOC-KA01-002",
+            name: "Dr. Suresh Joshi",
+            qualification: "MBBS, DM (Neuro)",
+            experience: 18,
+            consultationFee: 1200,
+            availableDays: ["Tuesday", "Thursday", "Saturday"],
             slots: {
-              "Monday": ["10:00 AM", "11:30 AM", "02:30 PM"],
-              "Tuesday": ["09:30 AM", "12:00 PM", "03:00 PM"],
-              "Thursday": ["10:00 AM", "01:00 PM", "04:00 PM"]
-            }
-          },
-          {
-            id: "doc_h001_neuro_02",
-            name: "Dr. Priya Patel",
-            qualification: "MD Neurology",
-            experience: 9,
-            availableDays: ["Wednesday", "Friday", "Saturday"],
-            slots: {
-              "Wednesday": ["09:00 AM", "11:30 AM", "02:00 PM"],
-              "Friday": ["10:00 AM", "12:30 PM", "03:30 PM"],
-              "Saturday": ["09:30 AM", "11:30 AM"]
+              "Tuesday": ["10:00 AM", "01:00 PM", "04:00 PM"],
+              "Thursday": ["10:00 AM", "01:00 PM", "04:00 PM"],
+              "Saturday": ["09:00 AM", "12:00 PM"]
             }
           }
         ]
-      },
+      }
+    ]
+  },
+  {
+    id: "H004",
+    name: "Cauvery City Hospital",
+    city: "Mysuru",
+    pincode: "570001",
+    address: "12 Sayyaji Rao Road, Mysuru, Karnataka",
+    phone: "+91 821 2511223",
+    emergencyAvailable: true,
+    verificationStatus: "verified",
+    availableBeds: 22,
+    totalBeds: 95,
+    specialities: ["Cardiology", "Paediatrics", "Orthopaedics", "ENT", "General Medicine", "Gynaecology"],
+    departments: [
       {
-        id: "general_medicine",
-        name: "General Medicine",
+        id: "cardiology",
+        name: "Cardiology",
         doctors: [
           {
-            id: "doc_h001_gen_01",
-            name: "Dr. Anjali Desai",
-            qualification: "MD Medicine",
-            experience: 15,
-            availableDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            id: "DOC-KA02-001",
+            name: "Dr. Gautham Nambiar",
+            qualification: "MBBS, MD, DNB",
+            experience: 12,
+            consultationFee: 850,
+            availableDays: ["Monday", "Thursday", "Saturday"],
             slots: {
-              "Monday": ["08:30 AM", "10:00 AM", "01:00 PM", "05:00 PM"],
-              "Tuesday": ["09:00 AM", "11:00 AM", "02:00 PM"],
-              "Wednesday": ["08:30 AM", "10:30 AM", "01:30 PM"],
-              "Thursday": ["09:00 AM", "11:30 AM", "03:00 PM"],
-              "Friday": ["08:30 AM", "11:00 AM", "02:30 PM"],
-              "Saturday": ["09:00 AM", "11:00 AM"]
+              "Monday": ["09:00 AM", "11:00 AM", "02:00 PM"],
+              "Thursday": ["09:00 AM", "11:00 AM", "02:00 PM"],
+              "Saturday": ["10:00 AM", "01:00 PM"]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "H005",
+    name: "Sahyadri Care Hospital",
+    city: "Pune",
+    pincode: "411004",
+    address: "34 Karve Road, Deccan Gymkhana, Pune, Maharashtra",
+    phone: "+91 20 25438800",
+    emergencyAvailable: true,
+    verificationStatus: "verified",
+    availableBeds: 42,
+    totalBeds: 140,
+    specialities: ["Cardiology", "Neurology", "Orthopaedics", "Paediatrics", "Emergency Medicine", "Dermatology"],
+    departments: [
+      {
+        id: "cardiology",
+        name: "Cardiology",
+        doctors: [
+          {
+            id: "DOC-MH01-001",
+            name: "Dr. Tarun Kulkarni",
+            qualification: "MBBS, MD, DM",
+            experience: 15,
+            consultationFee: 1000,
+            availableDays: ["Monday", "Wednesday", "Friday"],
+            slots: {
+              "Monday": ["09:00 AM", "11:00 AM", "03:00 PM"],
+              "Wednesday": ["09:00 AM", "11:00 AM", "03:00 PM"],
+              "Friday": ["09:00 AM", "11:00 AM", "03:00 PM"]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "H006",
+    name: "Deccan Multispeciality Centre",
+    city: "Nashik",
+    pincode: "422002",
+    address: "89 College Road, Nashik, Maharashtra",
+    phone: "+91 253 2314455",
+    emergencyAvailable: true,
+    verificationStatus: "verified",
+    availableBeds: 33,
+    totalBeds: 110,
+    specialities: ["Cardiology", "General Medicine", "Orthopaedics", "Paediatrics", "ENT", "Gynaecology"],
+    departments: [
+      {
+        id: "cardiology",
+        name: "Cardiology",
+        doctors: [
+          {
+            id: "DOC-MH02-001",
+            name: "Dr. Deepa Chawla",
+            qualification: "MBBS, MD",
+            experience: 11,
+            consultationFee: 800,
+            availableDays: ["Tuesday", "Thursday", "Saturday"],
+            slots: {
+              "Tuesday": ["10:00 AM", "12:00 PM", "03:00 PM"],
+              "Thursday": ["10:00 AM", "12:00 PM", "03:00 PM"],
+              "Saturday": ["09:30 AM", "12:30 PM"]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "H007",
+    name: "Chennai Lifeline Hospital",
+    city: "Chennai",
+    pincode: "600006",
+    address: "15 Anna Salai, Thousand Lights, Chennai, Tamil Nadu",
+    phone: "+91 44 28290011",
+    emergencyAvailable: true,
+    verificationStatus: "verified",
+    availableBeds: 45,
+    totalBeds: 150,
+    specialities: ["Cardiology", "Neurology", "General Medicine", "Orthopaedics", "Gynaecology", "Dermatology"],
+    departments: [
+      {
+        id: "cardiology",
+        name: "Cardiology",
+        doctors: [
+          {
+            id: "DOC-TN01-001",
+            name: "Dr. V. Ramanathan",
+            qualification: "MBBS, MS, MCh",
+            experience: 17,
+            consultationFee: 1100,
+            availableDays: ["Monday", "Wednesday", "Friday"],
+            slots: {
+              "Monday": ["09:00 AM", "11:00 AM", "02:30 PM"],
+              "Wednesday": ["09:00 AM", "11:00 AM", "02:30 PM"],
+              "Friday": ["09:00 AM", "11:00 AM", "02:30 PM"]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "H008",
+    name: "Kaveri Medical Centre",
+    city: "Vellore",
+    pincode: "632004",
+    address: "22 Arcot Road, Vellore, Tamil Nadu",
+    phone: "+91 416 2223344",
+    emergencyAvailable: true,
+    verificationStatus: "verified",
+    availableBeds: 30,
+    totalBeds: 100,
+    specialities: ["Cardiology", "General Medicine", "Orthopaedics", "Paediatrics", "General Surgery", "ENT"],
+    departments: [
+      {
+        id: "cardiology",
+        name: "Cardiology",
+        doctors: [
+          {
+            id: "DOC-TN02-001",
+            name: "Dr. T. Venugopal",
+            qualification: "MBBS, MD, DM",
+            experience: 12,
+            consultationFee: 850,
+            availableDays: ["Tuesday", "Thursday", "Saturday"],
+            slots: {
+              "Tuesday": ["09:30 AM", "11:30 AM", "02:00 PM"],
+              "Thursday": ["09:30 AM", "11:30 AM", "02:00 PM"],
+              "Saturday": ["09:00 AM", "12:00 PM"]
             }
           }
         ]
@@ -812,86 +415,3 @@ window.MOCK_HOSPITALS = [
     ]
   }
 ];
-
-// Helper Functions for Data Resolution & Filtering
-
-window.getHospitalById = function(hId) {
-  if (!hId || !Array.isArray(window.MOCK_HOSPITALS)) return null;
-  const target = String(hId).trim().toLowerCase();
-  return window.MOCK_HOSPITALS.find(h => 
-    String(h.id || '').trim().toLowerCase() === target ||
-    String(h.name || '').trim().toLowerCase() === target
-  ) || window.MOCK_HOSPITALS[0];
-};
-
-window.getDepartmentsForHospital = function(hId) {
-  const hosp = window.getHospitalById(hId);
-  if (!hosp) return [];
-  if (Array.isArray(hosp.departments) && hosp.departments.length > 0) {
-    return hosp.departments.map(d => ({
-      id: d.id || String(d.name).toLowerCase().replace(/\s+/g, '_'),
-      name: d.name
-    }));
-  }
-  if (Array.isArray(hosp.specialities)) {
-    return hosp.specialities.map(s => ({
-      id: String(s).toLowerCase().replace(/\s+/g, '_'),
-      name: s
-    }));
-  }
-  return [];
-};
-
-window.getAvailableDoctorsForDate = function(hId, deptIdOrName, dateVal) {
-  const hosp = window.getHospitalById(hId);
-  if (!hosp) return [];
-
-  const normDept = String(deptIdOrName || '').trim().toLowerCase();
-  let deptObj = Array.isArray(hosp.departments)
-    ? hosp.departments.find(d => 
-        (d.id && d.id.toLowerCase() === normDept) || 
-        (d.name && d.name.toLowerCase() === normDept) ||
-        (d.id && normDept.includes(d.id.toLowerCase()))
-      )
-    : null;
-
-  let doctorList = deptObj ? deptObj.doctors : null;
-
-  if (!doctorList && Array.isArray(hosp.departments) && hosp.departments.length > 0) {
-    doctorList = hosp.departments[0].doctors;
-  }
-
-  if (!doctorList || doctorList.length === 0) return [];
-
-  // Filter by date's weekday name if dateVal provided
-  if (dateVal) {
-    const dObj = new Date(dateVal);
-    if (!isNaN(dObj.getTime())) {
-      const weekday = dObj.toLocaleDateString("en-US", { weekday: "long" });
-      return doctorList.filter(doc => Array.isArray(doc.availableDays) && doc.availableDays.includes(weekday));
-    }
-  }
-
-  return doctorList;
-};
-
-window.getSlotsForDoctor = function(hId, deptIdOrName, docIdOrName, dateVal) {
-  const availableDocs = window.getAvailableDoctorsForDate(hId, deptIdOrName, dateVal);
-  if (!availableDocs || availableDocs.length === 0) return [];
-
-  const normDoc = String(docIdOrName || '').trim().toLowerCase();
-  const doc = availableDocs.find(d => 
-    (d.id && d.id.toLowerCase() === normDoc) || 
-    (d.name && d.name.toLowerCase() === normDoc)
-  ) || availableDocs[0];
-
-  if (!doc) return [];
-
-  const dObj = new Date(dateVal);
-  const weekday = !isNaN(dObj.getTime()) ? dObj.toLocaleDateString("en-US", { weekday: "long" }) : "Monday";
-
-  if (doc.slots && doc.slots[weekday]) {
-    return doc.slots[weekday];
-  }
-  return ["09:00 AM", "10:30 AM", "12:00 PM", "02:30 PM", "04:00 PM"];
-};

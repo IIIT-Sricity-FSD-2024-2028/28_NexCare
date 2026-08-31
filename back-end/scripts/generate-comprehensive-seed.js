@@ -536,6 +536,7 @@ let appointments = [];
 let leaves = [];
 let schedules = [];
 let billing = [];
+let ambulances = [];
 
 // 1. Superuser
 users.push({
@@ -911,6 +912,47 @@ hospitalsData.forEach((h, hIdx) => {
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z'
   });
+  // Add Ambulance Fleet for hospital
+  const ambRegs = [
+    ['AP 03 AB 4821', 'AP 03 AB 4822', 'AP 03 AB 4823'],
+    ['AP 26 CD 1042', 'AP 26 CD 1043'],
+    ['KA 01 MN 7534', 'KA 01 MN 7535', 'KA 01 MN 7536', 'KA 01 MN 7537'],
+    ['KA 09 PQ 3021', 'KA 09 PQ 3022'],
+    ['MH 12 QR 2846', 'MH 12 QR 2847', 'MH 12 QR 2848'],
+    ['MH 15 ST 9102', 'MH 15 ST 9103'],
+    ['TN 10 XY 6182', 'TN 10 XY 6183', 'TN 10 XY 6184', 'TN 10 XY 6185'],
+    ['TN 23 ZW 4410', 'TN 23 ZW 4411']
+  ];
+  const ambDrivers = [
+    ['Ramesh Naidu', 'Suresh Kumar', 'K. Venkatesh'],
+    ['Venu Gopal', 'Sailesh Raju'],
+    ['Pradeep Shetty', 'Manjunath Gowda', 'Kiran Bhat', 'Siddharth Murthy'],
+    ['Basavaraj Rai', 'Girish Ursu'],
+    ['Vijay Patil', 'Sachin Pawar', 'Ajinkya Shinde'],
+    ['Ganesh Borse', 'Vikas Jadhav'],
+    ['Manikandan R', 'S. Vijay', 'R. Karthik', 'M. Saravanan'],
+    ['A. Sathish', 'T. Loganathan']
+  ];
+
+  const hRegs = ambRegs[hIdx] || ['AP 03 AB 9999'];
+  const hDrv = ambDrivers[hIdx] || ['Emergency Driver'];
+
+  hRegs.forEach((vNum, vIdx) => {
+    const ambId = `AMB-${h.id}-${String(vIdx + 1).padStart(2, '0')}`;
+    ambulances.push({
+      id: ambId,
+      vehicleNumber: vNum,
+      type: vIdx === 0 ? 'Advanced Life Support (ALS)' : 'Basic Life Support (BLS)',
+      driverName: hDrv[vIdx % hDrv.length],
+      driverPhone: `+91 98480 ${hIdx + 1}${vIdx + 1}00${vIdx}`,
+      status: vIdx === 0 ? 'Available' : 'Available',
+      hospitalId: h.id,
+      hospitalName: h.name,
+      assignedTo: ambStaff[vIdx % ambStaff.length]?.id || 'U003',
+      createdAt: '2026-08-25T10:00:00Z',
+      updatedAt: '2026-08-25T10:00:00Z'
+    });
+  });
 });
 
 // Write to back-end/data JSON files
@@ -930,6 +972,7 @@ writeDataFile('appointments.json', appointments);
 writeDataFile('leaves.json', leaves);
 writeDataFile('schedules.json', schedules);
 writeDataFile('billing.json', billing);
+writeDataFile('ambulance.json', ambulances);
 
 console.log('\n========================================================');
 console.log('COMPREHENSIVE INDIANISED DATASET GENERATED SUCCESSFULLY!');
