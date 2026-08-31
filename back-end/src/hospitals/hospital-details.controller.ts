@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/interfaces/api-response.interface';
 import { UsersService } from '../users/users.service';
@@ -12,13 +12,14 @@ import { ResponseUtil } from '../common/utils/response.util';
  * Hospital-scoped read endpoints for the Regional Officer details tabs.
  * Kept separate from HospitalsController so other members' hospital files stay untouched.
  */
+@ApiTags('Hospital Details')
+@ApiBearerAuth('JWT-auth')
 @Roles(
   UserRole.SUPERUSER,
   UserRole.REGIONAL_MANAGER,
   UserRole.HOSPITAL_MANAGER,
   UserRole.ADMINISTRATIVE_STAFF,
 )
-@ApiTags('Hospitals')
 @Controller('hospitals')
 export class HospitalDetailsController {
   constructor(
@@ -26,15 +27,13 @@ export class HospitalDetailsController {
     private readonly bedsService: BedsService,
     private readonly inventoryService: InventoryService,
     private readonly ambulanceService: AmbulanceService,
-  ) {}
+  ) { }
 
-  
-  @ApiOperation({ summary: 'Get doctors' })
-  @ApiResponse({ status: 200, description: 'Success' })
-@Get(':id/doctors')
+  @Get(':id/doctors')
+  @ApiOperation({ summary: 'Get doctors for a hospital' })
+  @ApiResponse({ status: 200, description: 'Doctors retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  @ApiResponse({ status: 200, description: 'Success' })
   async getDoctors(@Param('id') hospitalId: string) {
     const result = await this.usersService.findAll(UserRole.DOCTOR);
     const doctors = (result.data || []).filter(
@@ -43,13 +42,11 @@ export class HospitalDetailsController {
     return ResponseUtil.success('Doctors retrieved successfully', doctors);
   }
 
-  
-  @ApiOperation({ summary: 'Get beds' })
-  @ApiResponse({ status: 200, description: 'Success' })
-@Get(':id/beds')
+  @Get(':id/beds')
+  @ApiOperation({ summary: 'Get beds for a hospital' })
+  @ApiResponse({ status: 200, description: 'Beds retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  @ApiResponse({ status: 200, description: 'Success' })
   async getBeds(@Param('id') hospitalId: string) {
     const result = await this.bedsService.findAll();
     const beds = (result.data || []).filter(
@@ -58,13 +55,11 @@ export class HospitalDetailsController {
     return ResponseUtil.success('Beds retrieved successfully', beds);
   }
 
-  
-  @ApiOperation({ summary: 'Get inventory' })
-  @ApiResponse({ status: 200, description: 'Success' })
-@Get(':id/inventory')
+  @Get(':id/inventory')
+  @ApiOperation({ summary: 'Get inventory for a hospital' })
+  @ApiResponse({ status: 200, description: 'Inventory retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  @ApiResponse({ status: 200, description: 'Success' })
   async getInventory(@Param('id') hospitalId: string) {
     const result = await this.inventoryService.findAll();
     const items = (result.data || []).filter(
@@ -73,13 +68,11 @@ export class HospitalDetailsController {
     return ResponseUtil.success('Inventory retrieved successfully', items);
   }
 
-  
-  @ApiOperation({ summary: 'Get ambulances' })
-  @ApiResponse({ status: 200, description: 'Success' })
-@Get(':id/ambulances')
+  @Get(':id/ambulances')
+  @ApiOperation({ summary: 'Get ambulances for a hospital' })
+  @ApiResponse({ status: 200, description: 'Ambulance records retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  @ApiResponse({ status: 200, description: 'Success' })
   async getAmbulances(@Param('id') hospitalId: string) {
     const result = await this.ambulanceService.findAll();
     const requests = (result.data || []).filter(

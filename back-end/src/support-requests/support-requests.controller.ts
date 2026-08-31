@@ -5,7 +5,8 @@ import { CreateSupportRequestDto, UpdateSupportRequestDto } from './interfaces/s
 import { UserRole } from '../common/interfaces/api-response.interface';
 import { Roles } from '../common/decorators/roles.decorator';
 
-@ApiTags('Support requests')
+@ApiTags('Support Requests')
+@ApiBearerAuth('JWT-auth')
 @Controller('support-requests')
 export class SupportRequestsController {
   constructor(private readonly supportRequestsService: SupportRequestsService) {}

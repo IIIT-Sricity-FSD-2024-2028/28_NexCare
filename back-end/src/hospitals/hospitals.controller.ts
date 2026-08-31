@@ -11,6 +11,7 @@ import { HospitalQueryInterceptor } from './interceptors/hospital-query.intercep
 import { ResponseUtil } from '../common/utils/response.util';
 
 @ApiTags('Hospitals')
+@ApiBearerAuth('JWT-auth')
 @Controller('hospitals')
 export class HospitalsController {
   constructor(

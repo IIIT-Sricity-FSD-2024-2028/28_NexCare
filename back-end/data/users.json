@@ -5,7 +5,7 @@
     "email": "superuser@nexcare.com",
     "role": "superuser",
     "status": "Active",
-    "password": "Password123"
+    "password": "scrypt$ab16f3658aac9c049e4133c2f2230a88$c6d6198783fba9e4a13d2ce5760ef95c76095880224741a3d0a65e5a47dc53c07097cab022993dad005879f242e5ab8d375f08b88caf77e61f3b50da049d7358"
   },
   {
     "id": "RM001",
@@ -13,7 +13,7 @@
     "email": "regional@nexcare.com",
     "role": "regional_manager",
     "status": "Active",
-    "password": "scrypt$18af4cb74fac58531c94d58aa10d8282$088779f9a837045bbb20f65f7ac5a92d98a4db8d5006ff91adfebcfce78a9982536a7322b4cbfdbd4db66ae06a4b7eb64bb8d30a00f9f2920eb567b270506802",
+    "password": "Password123",
     "regionId": "REG-AP-SOUTH",
     "regionName": "Andhra Pradesh South",
     "areas": [
@@ -27,7 +27,7 @@
     "email": "kavya.menon@nexcare.in",
     "role": "regional_manager",
     "status": "Active",
-    "password": "scrypt$0f2e93d3ee4b8b178cbb8883b7e1d20f$c5c764e5f8e395f03e1ec936a838c4581d8c6cb6d6e6c362908c3feb0e8ecfaffcea34d90836d2ce96087ac8f422be603de85734489ebb90e7d232c0fb5e0df0",
+    "password": "Password123",
     "regionId": "REG-KA-SOUTH",
     "regionName": "Karnataka South",
     "areas": [
@@ -69,7 +69,7 @@
     "email": "hospitalmanager@nexcare.com",
     "role": "hospital_manager",
     "status": "Active",
-    "password": "scrypt$abae4b4790f720bb7e2ef40d0c52cb89$0ada4ca3ab6628a4e3e2c3545daef82fdcefc3b3b592229b924583ead0f58a2ac8c1317128e9b648b0b845c62b0a5c5fffb2f4355412d5e6da0b1c11030f7e07",
+    "password": "scrypt$a0ef4c9640a23ef6531330c6c378d20c$c89b3f1b70836fc860b27d3b64a92e22c20d9e962ab3cce099c9032714076d59c249bda5d0c40edd359bdc5abe5c11b57e8c9b9e555d7b6ef3988bfe1a9f22f1",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
@@ -87,7 +87,7 @@
     "experienceYears": 14,
     "qualification": "MBBS, MD, DM",
     "status": "Active",
-    "password": "scrypt$d3ab2dad7a6a61982a1cfb1deee01fe1$4f4a22bb60a6106411030d6f25f13df5da553c72e60e675f7410d253bf049609c6d15fedbe44173f8e9f1d2d1f28ac3383e8e598c51a44e19afc87644a8215a8",
+    "password": "Password123",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
@@ -327,7 +327,7 @@
     "email": "admin@nexcare.com",
     "role": "administrative_staff",
     "status": "Active",
-    "password": "scrypt$f688d69609db296dbbd1245ee8deaacc$99b61c48d59876c64acfe6324c9483955ee41fc607a7ea38d713c1f1a43489120deff834b7c89c4a063c362cdc14fc0abfb7bc2c83bc8f03a0430c61d2837fba",
+    "password": "Password123",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
@@ -421,7 +421,7 @@
     "email": "patient@gmail.com",
     "role": "patient",
     "status": "Active",
-    "password": "scrypt$4864b4d08e457f74f5339f32f8ec5f39$4dfa8782805776abad3afecc88fa4a2baa8ff646903e69259422c858d3d3781e9d44b9838e50227187323efb8674d9a00c6b753428111f4700a8118f36d88315",
+    "password": "scrypt$21a59582d0e85c13f8265de7bfd4c074$c5be8d0e495e6b7ad31a7e502e4d2066679fda6fa5f83a89002aa0d4b2748080706fddd2bd3c7d1f2e94e077229191049ca93be970bbaa0c970835ec5eb3a226",
     "patientId": "P001",
     "hospitalId": "H001",
     "regionId": "REG-AP-SOUTH"

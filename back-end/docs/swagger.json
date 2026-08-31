@@ -1472,35 +1472,57 @@
     "/api/hospitals": {
       "get": {
         "operationId": "HospitalsController_findAll",
+        "summary": "Find hospitals with filtering",
         "parameters": [
           {
             "name": "status",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Filter by verification status",
             "schema": {
+              "enum": [
+                "pending_verification",
+                "pending_verification",
+                "verified",
+                "rejected"
+              ],
               "type": "string"
             }
           },
           {
             "name": "speciality",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Filter by speciality",
             "schema": {
+              "example": "Cardiology",
               "type": "string"
             }
           },
           {
             "name": "city",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Filter by city",
             "schema": {
+              "example": "Tirupati",
               "type": "string"
             }
           },
           {
             "name": "pincode",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Filter by pincode",
+            "schema": {
+              "example": "517501",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-query-timestamp",
+            "in": "header",
+            "description": "Timestamp of the query normalization",
             "schema": {
               "type": "string"
             }
@@ -1508,20 +1530,31 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "List of hospitals"
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/nearby": {
       "get": {
         "operationId": "HospitalsController_findNearby",
+        "summary": "Find nearby hospitals",
         "parameters": [
           {
             "name": "city",
             "required": true,
             "in": "query",
+            "description": "City name",
             "schema": {
+              "example": "Tirupati",
               "type": "string"
             }
           },
@@ -1529,7 +1562,9 @@
             "name": "state",
             "required": true,
             "in": "query",
+            "description": "State name",
             "schema": {
+              "example": "Andhra Pradesh",
               "type": "string"
             }
           },
@@ -1537,6 +1572,16 @@
             "name": "pincode",
             "required": true,
             "in": "query",
+            "description": "Pincode",
+            "schema": {
+              "example": "517501",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-query-timestamp",
+            "in": "header",
+            "description": "Timestamp of the query normalization",
             "schema": {
               "type": "string"
             }
@@ -1544,9 +1589,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "List of nearby hospitals"
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/review-queue": {
@@ -1557,7 +1610,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}": {
@@ -1577,10 +1638,19 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       },
       "put": {
         "operationId": "HospitalsController_update",
+        "summary": "Update hospital by ID",
         "parameters": [
           {
             "name": "id",
@@ -1593,9 +1663,29 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Hospital updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - User not assigned to this hospital"
+          },
+          "404": {
+            "description": "Hospital not found"
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          },
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/register": {
@@ -1606,7 +1696,15 @@
           "201": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/subscription": {
@@ -1626,7 +1724,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/renew-subscription": {
@@ -1646,7 +1752,15 @@
           "201": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/payment-history": {
@@ -1666,7 +1780,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/verify": {
@@ -1686,7 +1808,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/reject": {
@@ -1706,7 +1836,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/regional-review": {
@@ -1726,7 +1864,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/assign-manager": {
@@ -1746,7 +1892,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/approve": {
@@ -1766,7 +1920,15 @@
           "201": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/regional/my-hospitals": {
@@ -1777,7 +1939,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/regional/pending-verifications": {
@@ -1788,7 +1958,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/regional/overview": {
@@ -1799,7 +1977,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/regional/performance-alerts": {
@@ -1810,7 +1996,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/regional/comparison": {
@@ -1830,7 +2024,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/verify-detailed": {
@@ -1850,7 +2052,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/reject-detailed": {
@@ -1870,7 +2080,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/verification-history": {
@@ -1890,7 +2108,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/performance": {
@@ -1910,7 +2136,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/regional/dashboard": {
@@ -1921,7 +2155,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospitals"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/doctors": {
@@ -1941,7 +2183,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospital Details"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/beds": {
@@ -1961,7 +2211,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospital Details"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/inventory": {
@@ -1981,7 +2239,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospital Details"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/hospitals/{id}/ambulances": {
@@ -2001,7 +2267,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Hospital Details"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/beds": {
@@ -2066,6 +2340,12 @@
           },
           "400": {
             "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -2250,6 +2530,12 @@
         "responses": {
           "200": {
             "description": "Bed updated successfully"
+          },
+          "400": {
+            "description": "Bad Request - typically due to illegal bed status transition from BedStatusChangeMiddleware (e.g. maintenance to occupied)."
+          },
+          "404": {
+            "description": "Bed not found"
           }
         },
         "tags": [
@@ -2287,6 +2573,12 @@
         "responses": {
           "200": {
             "description": "Bed updated successfully"
+          },
+          "400": {
+            "description": "Bad Request - typically due to illegal bed status transition from BedStatusChangeMiddleware."
+          },
+          "404": {
+            "description": "Bed not found"
           }
         },
         "tags": [
@@ -2329,7 +2621,7 @@
     "/api/beds/{id}/allocate": {
       "patch": {
         "operationId": "BedsController_allocate",
-        "summary": "Allocate a bed to a patient",
+        "summary": "Allocate a bed to a patient (status becomes OCCUPIED)",
         "parameters": [
           {
             "name": "id",
@@ -2353,6 +2645,12 @@
         "responses": {
           "200": {
             "description": "Bed allocated successfully"
+          },
+          "400": {
+            "description": "Bad Request - illegal transition if bed is not AVAILABLE or CRITICAL (e.g., MAINTENANCE -> OCCUPIED is rejected)."
+          },
+          "404": {
+            "description": "Bed not found"
           }
         },
         "tags": [
@@ -2368,7 +2666,7 @@
     "/api/beds/{id}/release": {
       "patch": {
         "operationId": "BedsController_release",
-        "summary": "Release a bed from a patient",
+        "summary": "Release a bed from a patient (status becomes AVAILABLE)",
         "parameters": [
           {
             "name": "id",
@@ -2382,6 +2680,12 @@
         "responses": {
           "200": {
             "description": "Bed released successfully"
+          },
+          "400": {
+            "description": "Bad Request - invalid if bed is already AVAILABLE or MAINTENANCE."
+          },
+          "404": {
+            "description": "Bed not found"
           }
         },
         "tags": [
@@ -2397,7 +2701,7 @@
     "/api/beds/{id}/status": {
       "patch": {
         "operationId": "BedsController_updateStatus",
-        "summary": "Update bed status",
+        "summary": "Update bed status (must follow valid state machine transitions)",
         "parameters": [
           {
             "name": "id",
@@ -2411,6 +2715,12 @@
         "responses": {
           "200": {
             "description": "Bed status updated successfully"
+          },
+          "400": {
+            "description": "Bad Request - illegal transition, e.g., OCCUPIED -> MAINTENANCE without releasing first."
+          },
+          "404": {
+            "description": "Bed not found"
           }
         },
         "tags": [
@@ -3152,7 +3462,7 @@
     "/api/ambulance": {
       "get": {
         "operationId": "AmbulanceController_findAll",
-        "summary": "Get all ambulance requests (patients: only their own)",
+        "summary": "Get all ambulance requests (patients: only their own, staff: only their hospital)",
         "parameters": [
           {
             "name": "patientId",
@@ -3183,6 +3493,9 @@
         "responses": {
           "200": {
             "description": "List of ambulance requests"
+          },
+          "403": {
+            "description": "Forbidden - User not assigned to any hospital"
           }
         },
         "tags": [
@@ -3263,6 +3576,9 @@
         "responses": {
           "200": {
             "description": "Patient requests retrieved"
+          },
+          "403": {
+            "description": "Forbidden - Patient attempting to access another patient records, or staff accessing wrong hospital"
           }
         },
         "tags": [
@@ -3341,6 +3657,9 @@
         "responses": {
           "200": {
             "description": "Request details retrieved"
+          },
+          "403": {
+            "description": "Forbidden - Unauthorized cross-hospital or cross-patient access"
           }
         },
         "tags": [
@@ -3471,6 +3790,9 @@
         "responses": {
           "200": {
             "description": "Ambulance request cancelled successfully"
+          },
+          "400": {
+            "description": "Bad Request - Cannot cancel a completed request or one in transit"
           }
         },
         "tags": [
@@ -3539,6 +3861,9 @@
         "responses": {
           "200": {
             "description": "Request completed successfully"
+          },
+          "400": {
+            "description": "Bad Request - Request must be in an active state (e.g. dispatched)"
           }
         },
         "tags": [
@@ -3568,6 +3893,9 @@
         "responses": {
           "200": {
             "description": "Status updated successfully"
+          },
+          "400": {
+            "description": "Bad Request - Invalid status transition"
           }
         },
         "tags": [
@@ -5292,7 +5620,15 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Support Requests"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       },
       "post": {
         "operationId": "SupportRequestsController_create",
@@ -5301,7 +5637,15 @@
           "201": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Support Requests"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/support-requests/{id}": {
@@ -5321,13 +5665,22 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Support Requests"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
       }
     },
     "/api/uploads": {
       "post": {
         "operationId": "UploadsController_upload",
         "summary": "Upload a document and attach it to a record",
+        "description": "Allowed types: JPEG, PNG, GIF, PDF, TXT, DOC, DOCX. Max size: 5MB.",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -5375,7 +5728,7 @@
             "description": "Missing file, unsupported type, or not multipart"
           },
           "413": {
-            "description": "File exceeds the size limit"
+            "description": "Payload Too Large - File exceeds the 5MB size limit"
           }
         },
         "tags": [
@@ -6567,7 +6920,7 @@
         "properties": {
           "email": {
             "type": "string",
-            "example": "admin@nexcare.com",
+            "example": "superuser@nexcare.com",
             "description": "User email address"
           },
           "password": {
