@@ -5,8 +5,8 @@
  * what NexCare *charges*, and to whom. There are three payers, deliberately kept
  * separate because they buy different things:
  *
- *  1. HOSPITALS buy the platform itself (see SubscriptionPlan in
- *     revenue.interface.ts) — a per-site SaaS licence.
+ *  1. HOSPITALS buy the platform itself — a per-site SaaS licence, tiered by
+ *     bed capacity at signup with annual MAP reconciliation for upgrades.
  *  2. DOCTORS buy visibility and booking volume — a per-practitioner listing
  *     plan. A doctor on the free tier still earns NexCare money, because the
  *     free tier carries the highest per-booking commission. That is the whole
@@ -19,6 +19,77 @@
  * Rates that apply to everybody (booking fee, ambulance dispatch fee, gateway
  * fee) live in PlatformFeeConfig, which the Admin can reprice at runtime.
  */
+
+// ── Hospital Subscription Tiers (Bed-Based) ──────────────────────────────────
+//
+// Tier assignment is based on bed capacity at signup (simple, verifiable).
+// An annual reconciliation job checks actual MAP (Monthly Active Patients)
+// and flags hospitals that have grown past their tier for an upgrade prompt.
+// This gives simplicity now with a growth path to usage-based tiers in v2.
+
+export type HospitalTierId = 'CLINIC' | 'COMMUNITY' | 'REGIONAL' | 'ENTERPRISE';
+
+/**
+ * A hospital subscription tier — what NexCare charges a hospital for the
+ * platform licence, based on bed capacity.
+ */
+export interface HospitalSubscriptionTier {
+  id: HospitalTierId;
+  name: string;
+  tagline: string;
+  /** Minimum bed count (inclusive) for this tier. */
+  minBeds: number;
+  /** Maximum bed count (inclusive). null = no upper limit (ENTERPRISE). */
+  maxBeds: number | null;
+  /** Annual subscription fee in rupees. */
+  annualFeeRupees: number;
+  /**
+   * Share of what this hospital collects that NexCare takes, as a fraction.
+   * Larger hospitals negotiate a lower rate — mirrors real B2B SaaS economics.
+   */
+  hospitalCommissionRate: number;
+  /** Maximum staff accounts included before per-seat charges apply. */
+  includedStaffSeats: number;
+  /** Maximum doctor registrations included in the tier. */
+  includedDoctorSeats: number;
+  features: string[];
+  status: 'active' | 'retired';
+  currency: string;
+}
+
+/**
+ * The subscription contract for a specific hospital.
+ * Created/updated when a hospital registers or renews.
+ */
+export interface HospitalSubscriptionContract {
+  id: string;
+  hospitalId: string;
+  tierId: HospitalTierId;
+  /**
+   * The basis used to assign the tier — 'beds' for initial signup.
+   * Future: 'map' for usage-based tiers after annual reconciliation.
+   */
+  tierBasis: 'beds' | 'map' | 'negotiated';
+  /** Bed count recorded at contract creation — the basis for tier assignment. */
+  bedsAtSignup: number;
+  /** Commission rate locked in at contract creation (may differ from tier default if negotiated). */
+  commissionRate: number;
+  billingCycle: 'annual' | 'monthly';
+  annualFeeRupees: number;
+  contractStartDate: string;
+  contractEndDate: string;
+  /**
+   * MAP measured during last reconciliation run.
+   * Populated by the billing-reconciliation job, not at signup.
+   */
+  lastMeasuredMAP?: number;
+  lastReconciliationDate?: string;
+  /** Set by reconciliation if the hospital has grown past its contracted tier. */
+  upgradeRecommendedTierId?: HospitalTierId;
+  status: 'active' | 'suspended' | 'expired' | 'cancelled';
+  createdAt: string;
+  updatedAt: string;
+}
 
 /** A listing tier a doctor can be placed on. */
 export interface DoctorPlan {
