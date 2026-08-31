@@ -7,6 +7,8 @@ import { ArrayUtil } from '../common/utils/array.util';
 import { DataSanitizer } from '../common/utils/sanitizer.util';
 import { User, CreateUserRequest, UpdateUserRequest, UserStats, RMWorkload, RMSuggestion } from './interfaces/user.interface';
 import { UserRole, UserStatus, VerificationStatus } from '../common/interfaces/api-response.interface';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType, NotificationEntityType } from '../notifications/interfaces/notification.interface';
 
 /**
  * Users Service
@@ -15,9 +17,11 @@ import { UserRole, UserStatus, VerificationStatus } from '../common/interfaces/a
  */
 @Injectable()
 export class UsersService {
+  constructor(private readonly notificationsService?: NotificationsService) {}
+
   // In-memory mock users database (aligned with frontend db.js)
-private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
-private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals.json');
+  private readonly usersFilePath = path.join(process.cwd(), 'data', 'users.json');
+  private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals.json');
 
   private get users(): User[] {
     try {
@@ -211,6 +215,20 @@ private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals
       const currentUsers = this.users;
       currentUsers.push(newUser);
       this.users = currentUsers;
+
+      // Emit staff registration notification
+      if (this.notificationsService) {
+        this.notificationsService.create({
+          recipientUserId: newUser.id,
+          recipientRole: newUser.role,
+          hospitalId: newUser.hospitalId,
+          type: NotificationType.SUCCESS,
+          title: 'Account Created',
+          message: `Your NexCare staff account (${newUser.employeeId || newUser.id}) has been created for ${newUser.hospitalName || newUser.hospitalId}.`,
+          entityType: NotificationEntityType.STAFF,
+          entityId: newUser.id,
+        });
+      }
 
       // Remove password from response using utility
       const userWithoutPassword = DataSanitizer.removePassword(newUser);

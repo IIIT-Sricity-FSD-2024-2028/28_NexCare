@@ -19,16 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let navLinks = '';
 
     let displayRoleName = 'User';
-    if (role === 'superuser') displayRoleName = 'Superuser';
-    else if (role === 'regional_manager') displayRoleName = 'Regional Officer';
-    else if (role === 'hospital_manager') displayRoleName = 'Hospital Manager';
-    else if (role === 'administrative_staff') displayRoleName = 'Administrative Staff';
+    if (role === 'superuser' || role === 'super_user') displayRoleName = 'Super User';
+    else if (role === 'regional_manager' || role === 'regional_officer') displayRoleName = 'Regional Officer';
+    else if (role === 'hospital_manager' || role === 'hospital_admin') displayRoleName = 'Hospital Manager';
+    else if (role === 'administrative_staff' || role === 'admin_staff') displayRoleName = 'Administrative Staff';
     else if (role === 'patient') displayRoleName = 'Patient';
-    else if (role === 'ambulance') displayRoleName = 'Ambulance Staff';
-    else if (role === 'hospital_manager') displayRoleName = 'Hospital Manager';
+    else if (role === 'ambulance' || role === 'ambulance_staff') displayRoleName = 'Ambulance Staff';
     else if (role === 'doctor') displayRoleName = 'Doctor';
 
-    if (role === 'superuser') {
+    if (role === 'superuser' || role === 'super_user') {
         navLinks = `
             <a href="../superuser/dashboard.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -67,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Reports & Analytics
             </a>
         `;
-    } else if (role === 'hospital_manager') {
+    } else if (role === 'hospital_manager' || role === 'hospital_admin') {
         navLinks = `
             <a href="../hospital_manager/dashboard.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -94,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Admin Supervision
             </a>
         `;
-    } else if (role === 'regional_manager') {
+    } else if (role === 'regional_manager' || role === 'regional_officer') {
         navLinks = `
             <a href="../regional-officer/dashboard.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -129,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 My Profile
             </a>
         `;
-    } else if (role === 'administrative_staff') {
+    } else if (role === 'administrative_staff' || role === 'admin_staff') {
         navLinks = `
             <a href="../administrative_staff/dashboard.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -138,6 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="../administrative_staff/bed-allocation.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4"/><path d="M2 13v6"/><path d="M22 13v6"/><path d="M2 19h20"/><path d="M2 13h20"/></svg>
                 Bed Allocation
+            </a>
+            <a href="../administrative_staff/staff_scheduling.html" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Staff Scheduling
             </a>
             <a href="../administrative_staff/leave-requests.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M9 16h6"/></svg>
@@ -179,15 +182,23 @@ document.addEventListener('DOMContentLoaded', () => {
         navLinks = `
             <a href="../patient/dashboard.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                My Profile
+                My Dashboard
             </a>
             <a href="../patient/appointments/appointments.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 Appointments
             </a>
+            <a href="../patient/hospital-search.html" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Find Hospitals
+            </a>
             <a href="../patient/ambulance.html" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10H6"/><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>
                 Request Ambulance
+            </a>
+            <a href="../patient/billing.html" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Billing & Invoices
             </a>
         `;
     }
@@ -220,7 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Task 4: Staff Profile Hospital ID Badge ---
-    // Extract user details from JWT (copied from dashboard logic)
     function decodeJWT(token) {
         try {
             const parts = token.split('.');
@@ -235,15 +245,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (token) {
         const payload = decodeJWT(token);
         if (payload && payload.hospitalId) {
-            // Find the topbar user element
             const userEl = document.querySelector('.topbar .user');
             if (userEl) {
-                // Update text to real name if available
                 if (payload.name) {
                     userEl.childNodes[0].textContent = payload.name + ' ';
                 }
                 
-                // Add the badge
                 const badge = document.createElement('span');
                 badge.style.display = 'inline-block';
                 badge.style.marginLeft = '8px';
@@ -258,7 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 userEl.appendChild(badge);
 
-                // Fetch real name
                 if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
                     window.NexCareAPI.Hospitals.getById(payload.hospitalId)
                         .then(res => {
@@ -274,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // --- Task 5: Notifications Dropdown ---
+        // --- Notifications Dropdown Connected to Real API ---
         const topbar = document.querySelector('.topbar');
         if (topbar && !document.querySelector('.notification-bell')) {
             const bellWrap = document.createElement('div');
@@ -283,71 +289,144 @@ document.addEventListener('DOMContentLoaded', () => {
             bellWrap.style.cursor = 'pointer';
             bellWrap.style.marginLeft = 'auto';
             bellWrap.style.marginRight = '20px';
+            bellWrap.style.display = 'flex';
+            bellWrap.style.alignItems = 'center';
             
             bellWrap.innerHTML = `
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-                <div class="notif-dot" style="position:absolute; top:-2px; right:-2px; width:8px; height:8px; background:red; border-radius:50%; display:none;"></div>
-                <div class="notif-dropdown" style="position:absolute; top:30px; right:0; width:300px; background:#fff; border:1px solid #e5e7eb; border-radius:8px; box-shadow:0 4px 6px rgba(0,0,0,0.1); display:none; z-index:100; max-height:400px; overflow-y:auto;">
-                    <div style="padding:12px; border-bottom:1px solid #e5e7eb; font-weight:600; font-size:14px;">Recent Activity</div>
-                    <div class="notif-list" style="padding:8px;"></div>
+                <div style="position:relative; display:inline-flex; padding:6px; border-radius:8px; background:#f8fafc; border:1px solid #e2e8f0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="notif-badge" style="position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:10px; font-weight:700; padding:1px 5px; border-radius:10px; min-width:14px; text-align:center; display:none;">0</span>
+                </div>
+                <div class="notif-dropdown" style="position:absolute; top:42px; right:0; width:340px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); display:none; z-index:1000; max-height:460px; overflow:hidden; font-family:inherit;">
+                    <div style="padding:12px 16px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between; background:#fafafa;">
+                        <span style="font-weight:700; font-size:14px; color:#0f172a;">Notifications</span>
+                        <button type="button" class="mark-all-read-btn" style="background:none; border:none; color:#2563eb; font-size:12px; font-weight:600; cursor:pointer; padding:2px 6px;">Mark all read</button>
+                    </div>
+                    <div class="notif-list" style="padding:4px; max-height:380px; overflow-y:auto;">
+                        <div style="font-size:12px; color:#64748b; text-align:center; padding:20px;">Loading notifications...</div>
+                    </div>
                 </div>
             `;
             
             topbar.insertBefore(bellWrap, topbar.firstChild);
-            
+
+            // Fetch live unread count
+            async function refreshUnreadBadge() {
+                try {
+                    let unread = 0;
+                    if (window.NexCareAPI && window.NexCareAPI.Notifications) {
+                        const resp = await window.NexCareAPI.Notifications.getUnreadCount();
+                        if (resp && resp.data) unread = resp.data.unreadCount || 0;
+                    }
+                    const badge = bellWrap.querySelector('.notif-badge');
+                    if (badge) {
+                        badge.textContent = unread > 99 ? '99+' : unread;
+                        badge.style.display = unread > 0 ? 'inline-block' : 'none';
+                    }
+                } catch (e) {
+                    console.warn('Failed to refresh unread notification badge:', e);
+                }
+            }
+
+            refreshUnreadBadge();
+
             let isOpen = false;
             bellWrap.addEventListener('click', async (e) => {
+                // If clicked mark-all-read button
+                if (e.target.closest('.mark-all-read-btn')) {
+                    e.stopPropagation();
+                    if (window.NexCareAPI && window.NexCareAPI.Notifications) {
+                        await window.NexCareAPI.Notifications.markAllAsRead();
+                        await refreshUnreadBadge();
+                        loadNotificationsList();
+                    }
+                    return;
+                }
+
+                // If clicked notification item
+                const notifItem = e.target.closest('.notif-item');
+                if (notifItem) {
+                    const notifId = notifItem.dataset.id;
+                    if (notifId && window.NexCareAPI && window.NexCareAPI.Notifications) {
+                        await window.NexCareAPI.Notifications.markAsRead(notifId);
+                        notifItem.style.background = '#ffffff';
+                        const dot = notifItem.querySelector('.unread-dot');
+                        if (dot) dot.style.display = 'none';
+                        await refreshUnreadBadge();
+                    }
+                    return;
+                }
+
                 const dropdown = bellWrap.querySelector('.notif-dropdown');
-                const dot = bellWrap.querySelector('.notif-dot');
                 isOpen = !isOpen;
                 dropdown.style.display = isOpen ? 'block' : 'none';
-                dot.style.display = 'none'; // mark as read
-                
+
                 if (isOpen) {
-                    const list = dropdown.querySelector('.notif-list');
-                    list.innerHTML = '<div style="font-size:12px; color:#6b7280; text-align:center; padding:10px;">Loading...</div>';
-                    
-                    try {
-                        let res;
-                        if (window.NexCareAPI && window.NexCareAPI.get) {
-                            res = await window.NexCareAPI.get('/system-activity');
-                        } else {
-                            const response = await fetch(`http://${window.location.hostname || 'localhost'}:3001/api/system-activity`);
-                            res = await response.json();
-                        }
-                        
-                        if (res && res.data) {
-                            let logs = res.data;
-                            if (payload.hospitalId) {
-                                // Filter logs for this specific hospital
-                                logs = logs.filter(l => !l.hospitalId || l.hospitalId === payload.hospitalId);
-                            }
-                            
-                            if (logs.length === 0) {
-                                list.innerHTML = '<div style="font-size:12px; color:#6b7280; text-align:center; padding:10px;">No recent notifications</div>';
-                            } else {
-                                list.innerHTML = logs.slice(0, 10).map(l => `
-                                    <div style="padding:8px; border-bottom:1px solid #f3f4f6; font-size:12px;">
-                                        <div style="font-weight:600; color:#111827;">${l.action}</div>
-                                        <div style="color:#4b5563;">${l.details}</div>
-                                        <div style="color:#9ca3af; font-size:10px; margin-top:4px;">${new Date(l.timestamp).toLocaleString()}</div>
-                                    </div>
-                                `).join('');
-                            }
-                        }
-                    } catch (err) {
-                        list.innerHTML = '<div style="font-size:12px; color:#dc2626; text-align:center; padding:10px;">Failed to load notifications</div>';
-                    }
+                    loadNotificationsList();
                 }
             });
-            
-            // Randomly simulate an unread notification on page load just to show it works
-            if (Math.random() > 0.3) {
-                bellWrap.querySelector('.notif-dot').style.display = 'block';
+
+            async function loadNotificationsList() {
+                const list = bellWrap.querySelector('.notif-list');
+                list.innerHTML = '<div style="font-size:12px; color:#64748b; text-align:center; padding:20px;">Loading notifications...</div>';
+
+                try {
+                    let items = [];
+                    if (window.NexCareAPI && window.NexCareAPI.Notifications) {
+                        const res = await window.NexCareAPI.Notifications.getAll();
+                        if (res && res.data) items = res.data;
+                    }
+
+                    if (items.length === 0) {
+                        list.innerHTML = '<div style="font-size:13px; color:#94a3b8; text-align:center; padding:30px 16px;">🔔 No notifications</div>';
+                        return;
+                    }
+
+                    list.innerHTML = items.slice(0, 15).map(n => {
+                        const timeAgo = getTimeAgo(n.createdAt);
+                        const isUnread = !n.read;
+                        const bg = isUnread ? '#f8fafc' : '#ffffff';
+                        const border = isUnread ? 'border-left: 3px solid #2563eb;' : 'border-left: 3px solid transparent;';
+                        return `
+                            <div class="notif-item" data-id="${escapeHtml(n.id)}" style="padding:10px 14px; border-bottom:1px solid #f1f5f9; background:${bg}; ${border} cursor:pointer; transition:background 0.15s ease;">
+                                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:6px;">
+                                    <div style="font-weight:600; font-size:13px; color:#0f172a;">${escapeHtml(n.title)}</div>
+                                    ${isUnread ? '<span class="unread-dot" style="width:7px; height:7px; background:#2563eb; border-radius:50%; margin-top:4px; flex-shrink:0;"></span>' : ''}
+                                </div>
+                                <div style="color:#475569; font-size:12px; margin-top:3px; line-height:1.35;">${escapeHtml(n.message)}</div>
+                                <div style="color:#94a3b8; font-size:10px; margin-top:5px;">${timeAgo}</div>
+                            </div>
+                        `;
+                    }).join('');
+                } catch (err) {
+                    list.innerHTML = '<div style="font-size:12px; color:#ef4444; text-align:center; padding:20px;">Failed to load notifications</div>';
+                }
             }
+
+            function getTimeAgo(dateStr) {
+                if (!dateStr) return '';
+                const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
+                if (diff < 60) return 'Just now';
+                if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+                if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+                return `${Math.floor(diff / 86400)}d ago`;
+            }
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+            }
+
+            // Close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!bellWrap.contains(e.target)) {
+                    isOpen = false;
+                    bellWrap.querySelector('.notif-dropdown').style.display = 'none';
+                }
+            });
         }
     }
 });

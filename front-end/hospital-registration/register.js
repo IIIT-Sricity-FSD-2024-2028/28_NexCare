@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await window.NexCareAPI.Hospitals.register(hospitalData);
 
                 if (response.success) {
-                    successAlert.textContent = 'Registration successful! Your hospital is now pending verification. A regional manager will review your application.';
+                    successAlert.textContent = 'Registration successful! Your hospital is now pending verification. A regional officer will review your application.';
                     successAlert.classList.remove('hidden');
                     registerForm.reset();
                 } else {

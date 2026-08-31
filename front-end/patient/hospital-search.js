@@ -258,9 +258,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 contentWrap.appendChild(specWrap);
             }
 
-            // Beds info
-            const bedsAvail = typeof h.availableBeds === 'number' ? h.availableBeds : (h.icuBeds || 0);
-            const bedsTotal = typeof h.totalBeds === 'number' ? h.totalBeds : 0;
+            // Beds info dynamically derived from shared backend beds store
+            let bedsTotal = typeof h.totalBeds === 'number' ? h.totalBeds : 0;
+            let bedsAvail = typeof h.availableBeds === 'number' ? h.availableBeds : (h.icuBeds || 0);
+            if (window._dynamicBeds && window._dynamicBeds.length > 0) {
+                const hospBeds = window._dynamicBeds.filter(b => b.hospitalId === h.id);
+                if (hospBeds.length > 0) {
+                    bedsTotal = hospBeds.length;
+                    bedsAvail = hospBeds.filter(b => b.status === 'Available').length;
+                }
+            }
             const bedsEl = document.createElement('p');
             bedsEl.style.margin = '0 0 6px 0';
             bedsEl.style.fontSize = '13px';

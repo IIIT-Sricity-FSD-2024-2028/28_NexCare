@@ -21,6 +21,7 @@ import { UploadsModule } from './uploads/uploads.module';
 import { RevenueModule } from './revenue/revenue.module';
 import { HierarchyModule } from './hierarchy/hierarchy.module';
 import { PaymentsModule } from './payments/payments.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { LoggingModule } from './common/logging/logging.module';
 import { AuthGuard } from './common/guards/auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -68,6 +69,7 @@ import { RequestLoggerMiddleware, SecurityMiddleware, CsrfMiddleware } from './l
     RevenueModule,
     HierarchyModule,
     PaymentsModule,
+    NotificationsModule,
   ],
   providers: [
     // AuthGuard runs first — validates the JWT and populates request.user

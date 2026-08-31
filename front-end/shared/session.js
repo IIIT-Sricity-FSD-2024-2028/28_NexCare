@@ -18,14 +18,17 @@ function redirectByRole(role) {
     // avoids the 301 slash-stripping redirect that breaks relative asset paths.
     switch (role) {
         case "superuser":
+        case "super_user":
             window.location.href = "/superuser/dashboard.html";
             break;
 
         case "regional_manager":
+        case "regional_officer":
             window.location.href = "/regional-officer/dashboard.html";
             break;
 
         case "administrative_staff":
+        case "admin_staff":
             window.location.href = "/administrative_staff/dashboard.html";
             break;
 
@@ -34,11 +37,13 @@ function redirectByRole(role) {
             break;
 
         case "ambulance":
+        case "ambulance_staff":
             // ambulance uses index.html, trailing slash avoids 301 redirect
             window.location.href = "/ambulance/";
             break;
 
         case "hospital_manager":
+        case "hospital_admin":
             window.location.href = "/hospital_manager/dashboard.html";
             break;
 

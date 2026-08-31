@@ -13,6 +13,8 @@ import { LeavesService } from '../leaves/leaves.service';
 import { UsersService } from '../users/users.service';
 import { SchedulesService } from '../schedules/schedules.service';
 import { BillingService } from '../billing/billing.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType, NotificationEntityType } from '../notifications/interfaces/notification.interface';
 import { Leave } from '../leaves/interfaces/leave.interface';
 
 /**
@@ -30,6 +32,7 @@ export class AppointmentsService {
     private readonly usersService: UsersService,
     private readonly schedulesService: SchedulesService,
     private readonly billingService: BillingService,
+    private readonly notificationsService?: NotificationsService,
   ) {}
 
   /** Resolve a patient's display name, falling back to a placeholder. */
@@ -302,6 +305,57 @@ export class AppointmentsService {
       appointments.push(newAppointment);
       this.saveAppointments(appointments);
 
+      // Emit notifications
+      if (this.notificationsService) {
+        if (newAppointment.referredByDoctorId) {
+          // Referral notification to Patient
+          this.notificationsService.create({
+            recipientUserId: newAppointment.patientId,
+            recipientRole: 'patient',
+            hospitalId: newAppointment.hospitalId,
+            type: NotificationType.INFO,
+            title: 'Doctor Referral Assigned',
+            message: `You have been referred to ${newAppointment.doctor} (${newAppointment.department}) on ${newAppointment.dateLabel}.`,
+            entityType: NotificationEntityType.REFERRAL,
+            entityId: newAppointment.id,
+          });
+          // Referral notification to Referred Doctor
+          this.notificationsService.create({
+            recipientUserId: newAppointment.doctorId,
+            recipientRole: 'doctor',
+            hospitalId: newAppointment.hospitalId,
+            type: NotificationType.ACTION_REQUIRED,
+            title: 'New Patient Referral',
+            message: `Patient ${newAppointment.patientName} has been referred to you for ${newAppointment.dateLabel}.`,
+            entityType: NotificationEntityType.REFERRAL,
+            entityId: newAppointment.id,
+          });
+        } else {
+          // Standard booking notification to Patient
+          this.notificationsService.create({
+            recipientUserId: newAppointment.patientId,
+            recipientRole: 'patient',
+            hospitalId: newAppointment.hospitalId,
+            type: NotificationType.SUCCESS,
+            title: 'Appointment Booked',
+            message: `Appointment confirmed with ${newAppointment.doctor} on ${newAppointment.dateLabel} at ${newAppointment.timeLabel}.`,
+            entityType: NotificationEntityType.APPOINTMENT,
+            entityId: newAppointment.id,
+          });
+          // Standard booking notification to Doctor
+          this.notificationsService.create({
+            recipientUserId: newAppointment.doctorId,
+            recipientRole: 'doctor',
+            hospitalId: newAppointment.hospitalId,
+            type: NotificationType.INFO,
+            title: 'New Appointment Booked',
+            message: `New appointment booked by ${newAppointment.patientName} on ${newAppointment.dateLabel} at ${newAppointment.timeLabel}.`,
+            entityType: NotificationEntityType.APPOINTMENT,
+            entityId: newAppointment.id,
+          });
+        }
+      }
+
       // Log activity
       this.systemService.createActivity({
         userId: newAppointment.patientId,
@@ -360,6 +414,45 @@ export class AppointmentsService {
           department: deptName,
           date: updatedAppointment.dateLabel
         });
+
+        if (this.notificationsService) {
+          this.notificationsService.create({
+            recipientUserId: updatedAppointment.patientId,
+            recipientRole: 'patient',
+            hospitalId: updatedAppointment.hospitalId,
+            type: NotificationType.SUCCESS,
+            title: 'Consultation Completed',
+            message: `Consultation with ${doctorName} is completed. Charge of ₹${fee} has been added to your bill.`,
+            entityType: NotificationEntityType.BILLING,
+            entityId: updatedAppointment.id,
+          });
+        }
+      }
+
+      // If cancelled, notify both parties
+      if (updateData.status === AppointmentStatus.CANCELLED) {
+        if (this.notificationsService) {
+          this.notificationsService.create({
+            recipientUserId: updatedAppointment.patientId,
+            recipientRole: 'patient',
+            hospitalId: updatedAppointment.hospitalId,
+            type: NotificationType.WARNING,
+            title: 'Appointment Cancelled',
+            message: `Appointment with ${updatedAppointment.doctor} on ${updatedAppointment.dateLabel} has been cancelled.`,
+            entityType: NotificationEntityType.APPOINTMENT,
+            entityId: updatedAppointment.id,
+          });
+          this.notificationsService.create({
+            recipientUserId: updatedAppointment.doctorId,
+            recipientRole: 'doctor',
+            hospitalId: updatedAppointment.hospitalId,
+            type: NotificationType.WARNING,
+            title: 'Appointment Cancelled',
+            message: `Appointment with ${updatedAppointment.patientName} on ${updatedAppointment.dateLabel} was cancelled.`,
+            entityType: NotificationEntityType.APPOINTMENT,
+            entityId: updatedAppointment.id,
+          });
+        }
       }
 
       // Log activity

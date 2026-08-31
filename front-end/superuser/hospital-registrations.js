@@ -185,7 +185,7 @@ async function loadHospitals(searchTerm = '') {
             const optionFor = r => `<option value="${r.regionalManagerId}" ${h.assignedManagerId === r.regionalManagerId ? 'selected' : ''}>${escapeHtml(loadLabel(r))}</option>`;
 
             let roSelect = `<select class="form-control" style="padding: 4px; font-size: 12px; max-width: 150px; text-overflow: ellipsis;" onchange="assignRegionalOfficer('${h.id}', this.value)" ${h.verificationStatus !== 'pending_verification' ? 'disabled' : ''}>
-                <option value="">${ranked.length ? '-- Assign regional manager --' : '-- No regional managers configured --'}</option>
+                <option value="">${ranked.length ? '-- Assign regional officer --' : '-- No regional officers configured --'}</option>
                 ${covering.length ? `<optgroup label="Covers ${escapeHtml(h.city || 'this area')}">${covering.map(optionFor).join('')}</optgroup>` : ''}
                 ${others.length ? `<optgroup label="Other areas">${others.map(optionFor).join('')}</optgroup>` : ''}
             </select>`;
@@ -210,7 +210,7 @@ async function loadHospitals(searchTerm = '') {
                 } else if (h.assignedManagerId) {
                     actions = '<span style="font-size:12px;color:#6A7282;">Regional review pending</span>';
                 } else {
-                    actions = '<span style="font-size:12px;color:#6A7282;">Assign a regional manager</span>';
+                    actions = '<span style="font-size:12px;color:#6A7282;">Assign a regional officer</span>';
                 }
             }
 

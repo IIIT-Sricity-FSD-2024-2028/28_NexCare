@@ -6,6 +6,8 @@ import { IdGenerator } from '../common/utils/id-generator.util';
 import { ArrayUtil } from '../common/utils/array.util';
 import { Inventory, CreateInventoryRequest, UpdateInventoryRequest, RestockRequest, InventoryStats, InventoryAudit } from './interfaces/inventory.interface';
 import { InventoryStatus } from '../common/interfaces/api-response.interface';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType, NotificationEntityType } from '../notifications/interfaces/notification.interface';
 
 
 /**
@@ -18,7 +20,7 @@ export class InventoryService {
   private readonly inventoryFilePath = path.join(process.cwd(), 'data', 'inventory.json');
   private inventory: Inventory[] = [];
 
-  constructor() {
+  constructor(private readonly notificationsService?: NotificationsService) {
     this.inventory = this.loadInventory();
   }
 
@@ -827,6 +829,19 @@ export class InventoryService {
       reqs.unshift(newReq);
       this.saveRequirements(reqs);
 
+      // Notify Hospital Manager of new inventory purchase request
+      if (this.notificationsService) {
+        this.notificationsService.create({
+          recipientRole: 'hospital_manager',
+          hospitalId: newReq.hospitalId,
+          type: NotificationType.ACTION_REQUIRED,
+          title: 'Inventory Purchase Request',
+          message: `New purchase request for ${newReq.itemName} (${newReq.requestedQuantity} ${newReq.unit}) submitted by ${(newReq as any).requestedByName || newReq.requestedBy || 'Staff'}.`,
+          entityType: NotificationEntityType.INVENTORY,
+          entityId: newReq.id,
+        });
+      }
+
       return ResponseUtil.created('Inventory requirement submitted successfully', newReq);
     } catch (error) {
       return ResponseUtil.serverError('Failed to create inventory requirement');
@@ -856,6 +871,19 @@ export class InventoryService {
 
       this.saveRequirements(reqs);
 
+      // Notify Administrative Staff
+      if (this.notificationsService) {
+        this.notificationsService.create({
+          recipientRole: 'administrative_staff',
+          hospitalId: reqs[idx].hospitalId,
+          type: NotificationType.SUCCESS,
+          title: 'Inventory Purchase Approved',
+          message: `Purchase request for ${reqs[idx].itemName} (${reqs[idx].requestedQuantity} ${reqs[idx].unit}) has been approved.`,
+          entityType: NotificationEntityType.INVENTORY,
+          entityId: reqs[idx].id,
+        });
+      }
+
       return ResponseUtil.success('Inventory requirement approved successfully', reqs[idx]);
     } catch (error) {
       return ResponseUtil.serverError('Failed to approve inventory requirement');
@@ -884,6 +912,19 @@ export class InventoryService {
       };
 
       this.saveRequirements(reqs);
+
+      // Notify Administrative Staff
+      if (this.notificationsService) {
+        this.notificationsService.create({
+          recipientRole: 'administrative_staff',
+          hospitalId: reqs[idx].hospitalId,
+          type: NotificationType.WARNING,
+          title: 'Inventory Purchase Rejected',
+          message: `Purchase request for ${reqs[idx].itemName} was rejected. Reason: ${reqs[idx].rejectionReason}`,
+          entityType: NotificationEntityType.INVENTORY,
+          entityId: reqs[idx].id,
+        });
+      }
 
       return ResponseUtil.success('Inventory requirement rejected successfully', reqs[idx]);
     } catch (error) {

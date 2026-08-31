@@ -8,11 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update header
         document.getElementById('userNameDisplay').textContent = user.name || 'Regional Officer';
-        document.getElementById('userRoleDisplay').textContent = 'Regional Manager';
+        document.getElementById('userRoleDisplay').textContent = 'Regional Officer';
         document.getElementById('userAvatar').textContent = (user.name || 'RO').substring(0, 2).toUpperCase();
         
         // Update profile page
-        document.getElementById('profileName').textContent = user.name || 'My Profile';
+        document.getElementById('profileName').textContent = user.name || 'Regional Officer';
+        document.getElementById('profileEmail').textContent = user.email || 'regional@nexcare.in';
         
         // Build profile fields with better fallback logic
         const regionValue = user.regionName || user.regionId || 

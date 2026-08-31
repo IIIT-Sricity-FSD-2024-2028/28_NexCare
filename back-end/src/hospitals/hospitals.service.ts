@@ -5,9 +5,13 @@ import { Hospital, CreateHospitalDto, UpdateHospitalDto, HospitalPaymentRecord }
 import { VerificationStatus } from '../common/interfaces/api-response.interface';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType, NotificationEntityType } from '../notifications/interfaces/notification.interface';
 
 @Injectable()
 export class HospitalsService {
+  constructor(private readonly notificationsService?: NotificationsService) {}
+
   private readonly hospitalsFilePath = path.join(process.cwd(), 'data', 'hospitals.json');
 
   private get hospitals(): Hospital[] {
@@ -144,6 +148,26 @@ export class HospitalsService {
       const all = this.hospitals;
       all.push(newHospital);
       this.hospitals = all;
+
+      // Notify Super User and Regional Officer of new hospital registration
+      if (this.notificationsService) {
+        this.notificationsService.create({
+          recipientRole: 'superuser',
+          type: NotificationType.INFO,
+          title: 'Hospital Registration Submitted',
+          message: `${newHospital.name} submitted registration for verification (${newHospital.city || ''}, ${newHospital.state || ''}).`,
+          entityType: NotificationEntityType.HOSPITAL,
+          entityId: newHospital.id,
+        });
+        this.notificationsService.create({
+          recipientRole: 'regional_manager',
+          type: NotificationType.INFO,
+          title: 'New Hospital Verification Pending',
+          message: `${newHospital.name} in your region is pending verification review.`,
+          entityType: NotificationEntityType.HOSPITAL,
+          entityId: newHospital.id,
+        });
+      }
 
       return ResponseUtil.created('Hospital registered successfully', newHospital);
     } catch (error) {
@@ -418,6 +442,27 @@ export class HospitalsService {
       };
 
       this.hospitals = all;
+
+      // Notify Hospital Manager and Super User of subscription renewal
+      if (this.notificationsService) {
+        this.notificationsService.create({
+          recipientRole: 'hospital_manager',
+          hospitalId: hospital.id,
+          type: NotificationType.SUCCESS,
+          title: 'Subscription Renewed',
+          message: `Registration subscription successfully renewed for 12 months (valid until ${newExpiryStr}).`,
+          entityType: NotificationEntityType.SUBSCRIPTION,
+          entityId: txnId,
+        });
+        this.notificationsService.create({
+          recipientRole: 'superuser',
+          type: NotificationType.SUCCESS,
+          title: 'Hospital Subscription Renewed',
+          message: `${hospital.name} renewed their annual subscription (₹${amount.toLocaleString('en-IN')}).`,
+          entityType: NotificationEntityType.SUBSCRIPTION,
+          entityId: txnId,
+        });
+      }
 
       return ResponseUtil.success('Hospital registration renewed successfully', {
         hospitalId: hospital.id,

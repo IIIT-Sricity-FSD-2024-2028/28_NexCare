@@ -1099,6 +1099,24 @@ const HierarchyAPI = {
     }
 };
 
+const NotificationsAPI = {
+    async getAll() {
+        return await api.get('/notifications');
+    },
+    async getUnreadCount() {
+        return await api.get('/notifications/unread-count');
+    },
+    async markAsRead(id) {
+        return await api.patch(`/notifications/${encodeURIComponent(id)}/read`);
+    },
+    async markAllAsRead() {
+        return await api.patch('/notifications/read-all');
+    },
+    async create(data) {
+        return await api.post('/notifications', data);
+    }
+};
+
 // Export all APIs as global window object for easy access
 /**
  * Build an in-app link that survives however the frontend is being served.
@@ -1156,6 +1174,7 @@ window.NexCareAPI = {
     Schedules: SchedulesAPI,
     Payments: PaymentsAPI,
     Hierarchy: HierarchyAPI,
+    Notifications: NotificationsAPI,
     System: SystemAPI
 };
 

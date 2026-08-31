@@ -6,6 +6,8 @@ import { IdGenerator } from '../common/utils/id-generator.util';
 import { Leave, CreateLeaveDto, UpdateLeaveDto, LeaveCalendarView } from './interfaces/leave.interface';
 import { LeaveStatus } from '../common/interfaces/api-response.interface';
 import { AppointmentsService } from '../appointments/appointments.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType, NotificationEntityType } from '../notifications/interfaces/notification.interface';
 
 /**
  * Leaves Service
@@ -17,6 +19,7 @@ export class LeavesService {
   constructor(
     @Inject(forwardRef(() => AppointmentsService))
     private readonly appointmentsService: AppointmentsService,
+    private readonly notificationsService?: NotificationsService,
   ) {}
 
   private readonly leavesFilePath = path.join(process.cwd(), 'data', 'leaves.json');
@@ -162,6 +165,19 @@ export class LeavesService {
     this.leaves.push(newLeave);
     this.saveLeaves(this.leaves);
 
+    // Notify Hospital Manager of new leave request
+    if (this.notificationsService) {
+      this.notificationsService.create({
+        recipientRole: 'hospital_manager',
+        hospitalId: newLeave.hospitalId,
+        type: NotificationType.ACTION_REQUIRED,
+        title: 'New Leave Request',
+        message: `New leave request from ${newLeave.doctorName || 'Doctor'} (${newLeave.startDate} to ${newLeave.endDate}).`,
+        entityType: NotificationEntityType.LEAVE,
+        entityId: newLeave.id,
+      });
+    }
+
     return ResponseUtil.success('Leave request submitted successfully', newLeave);
   }
 
@@ -194,6 +210,34 @@ export class LeavesService {
     };
 
     this.saveLeaves(this.leaves);
+
+    // Notify Doctor of decision
+    if (this.notificationsService) {
+      const leaveDoc = this.leaves[index];
+      if (isApproved) {
+        this.notificationsService.create({
+          recipientUserId: leaveDoc.doctorId,
+          recipientRole: 'doctor',
+          hospitalId: leaveDoc.hospitalId,
+          type: NotificationType.SUCCESS,
+          title: 'Leave Request Approved',
+          message: `Your leave request (${leaveDoc.startDate} to ${leaveDoc.endDate}) has been approved.`,
+          entityType: NotificationEntityType.LEAVE,
+          entityId: leaveDoc.id,
+        });
+      } else if (isRejected) {
+        this.notificationsService.create({
+          recipientUserId: leaveDoc.doctorId,
+          recipientRole: 'doctor',
+          hospitalId: leaveDoc.hospitalId,
+          type: NotificationType.WARNING,
+          title: 'Leave Request Rejected',
+          message: `Your leave request (${leaveDoc.startDate} to ${leaveDoc.endDate}) was rejected.${leaveDoc.rejectionReason ? ' Reason: ' + leaveDoc.rejectionReason : ''}`,
+          entityType: NotificationEntityType.LEAVE,
+          entityId: leaveDoc.id,
+        });
+      }
+    }
 
     if (updateLeaveDto.status === LeaveStatus.APPROVED) {
       await this.appointmentsService.handleDoctorLeaveApproved(this.leaves[index]);

@@ -220,22 +220,110 @@
     "dueDate": "7 June, 2026",
     "status": "Pending",
     "currency": "₹",
-    "subtotal": 100,
+    "subtotal": 10000,
     "cgstRate": 0.09,
     "sgstRate": 0.09,
-    "cgstAmount": 9,
-    "sgstAmount": 9,
-    "total": 118,
+    "cgstAmount": 900,
+    "sgstAmount": 900,
+    "total": 11800,
     "items": [
       {
         "description": "Specialist Consultation",
         "department": "General Medicine",
         "amount": 100
+      },
+      {
+        "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGLJD194R0A",
+        "date": "December 17, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGLKGHQ5NNT",
+        "date": "November 7, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGLLYSB6H7P",
+        "date": "November 5, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Vikram Patel (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGLLYTV6O1U",
+        "date": "November 7, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Vikram Patel (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGLMKXG7HIP",
+        "date": "November 19, 2026"
+      },
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency Transport",
+        "amount": 500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-MTGLLYV36VYF",
+        "date": "August 31, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Vikram Patel (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGLO6BI8DGZ",
+        "date": "December 5, 2026"
+      },
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency Transport",
+        "amount": 500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-MTGLO6CM8KY5",
+        "date": "August 31, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGLP1ZS9FWI",
+        "date": "December 22, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Vikram Patel (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGLP21B9M4U",
+        "date": "December 24, 2026"
+      },
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency Transport",
+        "amount": 500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-MTGLP22Z9TVX",
+        "date": "August 31, 2026"
       }
     ],
     "payments": [],
     "createdAt": "2026-05-05T20:20:23.781Z",
-    "updatedAt": "2026-05-05T20:20:23.781Z",
+    "updatedAt": "2026-08-31T02:09:57.757Z",
     "hospitalId": "H001"
   },
   {

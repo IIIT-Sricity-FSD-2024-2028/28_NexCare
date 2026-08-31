@@ -9,6 +9,8 @@ import { SystemService } from '../system/system.service';
 import { PatientsService } from '../patients/patients.service';
 import { BillingService } from '../billing/billing.service';
 import { FIXED_AMBULANCE_FEE } from '../common/constants/app.constants';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType, NotificationEntityType } from '../notifications/interfaces/notification.interface';
 
 /**
  * Ambulance Service
@@ -21,6 +23,7 @@ export class AmbulanceService {
     private readonly systemService: SystemService,
     private readonly patientsService: PatientsService,
     private readonly billingService: BillingService,
+    private readonly notificationsService?: NotificationsService,
   ) {}
 
   private readonly store = new FileStore<AmbulanceRequest>('ambulance.json', () => AmbulanceService.seed());
@@ -136,6 +139,19 @@ export class AmbulanceService {
       requests.push(newRequest);
       this.store.save(requests);
 
+      // Notify Ambulance Crew
+      if (this.notificationsService) {
+        this.notificationsService.create({
+          recipientRole: 'ambulance',
+          hospitalId: newRequest.hospitalId,
+          type: NotificationType.ALERT,
+          title: 'Emergency Ambulance Request',
+          message: `New pickup requested for ${newRequest.patientName} at ${newRequest.pickupLocation}.`,
+          entityType: NotificationEntityType.AMBULANCE,
+          entityId: newRequest.id,
+        });
+      }
+
       this.systemService.createActivity({
         userId: requestData.patientId,
         action: 'Create',
@@ -172,6 +188,30 @@ export class AmbulanceService {
         });
       }
 
+      // Notify Patient on status changes
+      if (this.notificationsService && updatedRequest.patientId) {
+        let msg = `Your ambulance request status is now: ${updatedRequest.status}.`;
+        let notifType = NotificationType.INFO;
+        if (isCompleted) {
+          msg = `Ambulance transport completed. Flat fee of ₹${FIXED_AMBULANCE_FEE} has been added to your bill.`;
+          notifType = NotificationType.SUCCESS;
+        } else if (updateData.status === AmbulanceStatus.DISPATCHED) {
+          msg = `An ambulance has been dispatched to your pickup location (${updatedRequest.pickupLocation}).`;
+          notifType = NotificationType.INFO;
+        }
+
+        this.notificationsService.create({
+          recipientUserId: updatedRequest.patientId,
+          recipientRole: 'patient',
+          hospitalId: updatedRequest.hospitalId,
+          type: notifType,
+          title: isCompleted ? 'Ambulance Transport Completed' : 'Ambulance Status Updated',
+          message: msg,
+          entityType: NotificationEntityType.AMBULANCE,
+          entityId: updatedRequest.id,
+        });
+      }
+
       this.systemService.createActivity({
         userId: updatedRequest.assignedTo || 'System',
         action: isCompleted ? 'Complete' : 'Update',
@@ -190,16 +230,6 @@ export class AmbulanceService {
 
   /**
    * Cancel a request — a SOFT cancel that keeps the record.
-   *
-   * The portals label this "Cancel" but it used to call DELETE, which spliced
-   * the row out of the store entirely. Three things were wrong with that:
-   * a cancelled dispatch left no audit trail at all; `AmbulanceStatus.CANCELLED`
-   * existed in the enum and in getStats() but nothing ever wrote it, so that
-   * counter was permanently zero; and the duplicate-request check deliberately
-   * skips cancelled requests, which only means anything if they still exist.
-   *
-   * Once a patient has been picked up the trip runs to completion — cancelling
-   * someone already in the vehicle is not a real operation.
    */
   async cancel(id: string, cancelledBy?: string, reason?: string) {
     try {
@@ -231,6 +261,19 @@ export class AmbulanceService {
       requests[requestIndex].cancellationReason = reason || '';
       requests[requestIndex].updatedAt = new Date().toISOString();
       this.store.save(requests);
+
+      if (this.notificationsService && request.patientId) {
+        this.notificationsService.create({
+          recipientUserId: request.patientId,
+          recipientRole: 'patient',
+          hospitalId: request.hospitalId,
+          type: NotificationType.WARNING,
+          title: 'Ambulance Request Cancelled',
+          message: `Your ambulance request ${id} was cancelled.${reason ? ' Reason: ' + reason : ''}`,
+          entityType: NotificationEntityType.AMBULANCE,
+          entityId: request.id,
+        });
+      }
 
       this.systemService.createActivity({
         userId: cancelledBy || 'System',
