@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ResponseUtil } from '../common/utils/response.util';
 import { TenantScopedRepository } from '../common/utils/tenant-scoped.repository';
 import { PricingService } from './pricing.service';
-import { BillStatus } from '../billing/interfaces/billing.interface';
+import { BillStatus } from '../common/interfaces/api-response.interface';
 
 @Injectable()
 export class HealthScoreService {

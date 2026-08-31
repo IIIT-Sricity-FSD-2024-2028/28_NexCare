@@ -885,8 +885,8 @@
         ]
       },
       "delete": {
-        "operationId": "PatientsController_delete",
-        "summary": "Delete a patient record",
+        "operationId": "PatientsController_remove",
+        "summary": "Delete a patient",
         "parameters": [
           {
             "name": "id",
@@ -900,6 +900,35 @@
         "responses": {
           "200": {
             "description": "Patient deleted successfully"
+          }
+        },
+        "tags": [
+          "Patients"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/patients/{id}/verify-insurance": {
+      "post": {
+        "operationId": "PatientsController_verifyInsurance",
+        "summary": "Mock verify insurance",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
           }
         },
         "tags": [
@@ -3733,8 +3762,8 @@
     },
     "/api/billing/{id}": {
       "get": {
-        "operationId": "BillingController_findById",
-        "summary": "Get bill by ID (patients: own only)",
+        "operationId": "BillingController_findOne",
+        "summary": "Get bill by ID",
         "parameters": [
           {
             "name": "id",
@@ -3747,7 +3776,10 @@
         ],
         "responses": {
           "200": {
-            "description": "Bill details retrieved"
+            "description": "Bill details"
+          },
+          "404": {
+            "description": "Bill not found"
           }
         },
         "tags": [
@@ -3849,6 +3881,35 @@
         "responses": {
           "200": {
             "description": "Bill deleted successfully"
+          }
+        },
+        "tags": [
+          "Billing"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/billing/{id}/pdf": {
+      "get": {
+        "operationId": "BillingController_downloadPdf",
+        "summary": "Download bill as PDF",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
           }
         },
         "tags": [
@@ -5642,6 +5703,35 @@
             "name": "to",
             "required": true,
             "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revenue"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/revenue/health-score/{hospitalId}": {
+      "get": {
+        "operationId": "RevenueController_getHealthScore",
+        "summary": "Internal NexCare health score combining util, revenue, expiry, and no-shows",
+        "parameters": [
+          {
+            "name": "hospitalId",
+            "required": true,
+            "in": "path",
             "schema": {
               "type": "string"
             }
