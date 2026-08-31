@@ -26,7 +26,9 @@ export class HospitalsService {
   private set hospitals(val: Hospital[]) {
     try {
       fs.mkdirSync(path.dirname(this.hospitalsFilePath), { recursive: true });
-      fs.writeFileSync(this.hospitalsFilePath, JSON.stringify(val, null, 2), 'utf-8');
+      const tmpPath = `${this.hospitalsFilePath}.tmp.${Date.now()}`;
+      fs.writeFileSync(tmpPath, JSON.stringify(val, null, 2), 'utf-8');
+      fs.renameSync(tmpPath, this.hospitalsFilePath);
     } catch (err) {
       console.error('Failed to persist hospitals to disk:', err);
     }

@@ -83,6 +83,7 @@ export class BillingController {
   /**
    * Get bill statistics
    */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get billing statistics' })
   @ApiResponse({ status: 200, description: 'Billing statistics retrieved' })
@@ -107,6 +108,7 @@ export class BillingController {
   /**
    * Get overdue bills
    */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
   @Get('overdue')
   @ApiOperation({ summary: 'Get all overdue bills' })
   @ApiResponse({ status: 200, description: 'List of overdue bills' })
@@ -117,6 +119,7 @@ export class BillingController {
   /**
    * Get revenue by date range
    */
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
   @Get('revenue')
   @ApiOperation({ summary: 'Get revenue by date range' })
   @ApiQuery({ name: 'startDate', type: String })

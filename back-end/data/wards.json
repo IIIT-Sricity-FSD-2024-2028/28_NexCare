@@ -1,97 +1,122 @@
 [
   {
-    "id": "W-001-01",
+    "id": "W-H001-0",
     "name": "Emergency",
     "hospitalId": "H001"
   },
   {
-    "id": "W-001-02",
+    "id": "W-H001-1",
     "name": "General",
     "hospitalId": "H001"
   },
   {
-    "id": "W-001-03",
+    "id": "W-H001-2",
     "name": "ICU",
     "hospitalId": "H001"
   },
   {
-    "id": "W-001-04",
-    "name": "Maternity",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "W-001-05",
-    "name": "Paediatrics",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "W-001-06",
-    "name": "Orthopaedics",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "W-001-07",
-    "name": "Cardiology",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "W-002-01",
+    "id": "W-H002-0",
     "name": "Emergency",
     "hospitalId": "H002"
   },
   {
-    "id": "W-002-02",
+    "id": "W-H002-1",
     "name": "General",
     "hospitalId": "H002"
   },
   {
-    "id": "W-002-03",
+    "id": "W-H002-2",
     "name": "ICU",
     "hospitalId": "H002"
   },
   {
-    "id": "W-002-04",
-    "name": "Maternity",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "W-002-05",
-    "name": "Paediatrics",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "W-002-06",
-    "name": "Dermatology",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "W-003-01",
+    "id": "W-H003-0",
     "name": "Emergency",
     "hospitalId": "H003"
   },
   {
-    "id": "W-003-02",
+    "id": "W-H003-1",
     "name": "General",
     "hospitalId": "H003"
   },
   {
-    "id": "W-003-03",
+    "id": "W-H003-2",
     "name": "ICU",
     "hospitalId": "H003"
   },
   {
-    "id": "W-003-04",
-    "name": "Orthopaedics",
-    "hospitalId": "H003"
+    "id": "W-H004-0",
+    "name": "Emergency",
+    "hospitalId": "H004"
   },
   {
-    "id": "W-003-05",
-    "name": "Neurology",
-    "hospitalId": "H003"
+    "id": "W-H004-1",
+    "name": "General",
+    "hospitalId": "H004"
   },
   {
-    "id": "W-003-06",
-    "name": "Cardiology",
-    "hospitalId": "H003"
+    "id": "W-H004-2",
+    "name": "ICU",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "W-H005-0",
+    "name": "Emergency",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "W-H005-1",
+    "name": "General",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "W-H005-2",
+    "name": "ICU",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "W-H006-0",
+    "name": "Emergency",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "W-H006-1",
+    "name": "General",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "W-H006-2",
+    "name": "ICU",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "W-H007-0",
+    "name": "Emergency",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "W-H007-1",
+    "name": "General",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "W-H007-2",
+    "name": "ICU",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "W-H008-0",
+    "name": "Emergency",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "W-H008-1",
+    "name": "General",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "W-H008-2",
+    "name": "ICU",
+    "hospitalId": "H008"
   }
 ]

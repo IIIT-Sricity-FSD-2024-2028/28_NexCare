@@ -41,11 +41,13 @@ export class BillingService {
     }
   }
 
-  /** Persist bills to disk */
+  /** Persist bills to disk atomically */
   private saveBills(bills: Bill[]): void {
     try {
       fs.mkdirSync(path.dirname(this.billsFilePath), { recursive: true });
-      fs.writeFileSync(this.billsFilePath, JSON.stringify(bills, null, 2), 'utf-8');
+      const tmpPath = `${this.billsFilePath}.tmp.${Date.now()}`;
+      fs.writeFileSync(tmpPath, JSON.stringify(bills, null, 2), 'utf-8');
+      fs.renameSync(tmpPath, this.billsFilePath);
     } catch (err) {
       console.error('Failed to persist bills:', err);
     }
@@ -446,6 +448,9 @@ export class BillingService {
       const remainingAmount = bill.total - totalPaid;
 
       // Validate payment amount
+      if (paymentData.amount <= 0) {
+        return ResponseUtil.error('Payment amount must be greater than zero');
+      }
       if (paymentData.amount > remainingAmount) {
         return ResponseUtil.error(`Payment amount exceeds remaining balance of ₹${remainingAmount}`);
       }

@@ -2178,5 +2178,15 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-31T02:11:18.305Z"
+  },
+  {
+    "id": "ACT-MTGMY27D1NL",
+    "timestamp": "2026-08-31T02:44:57.385Z",
+    "userId": "U009",
+    "action": "Login",
+    "details": "User Dr. Sarah Smith logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T02:44:57.385Z"
   }
 ]

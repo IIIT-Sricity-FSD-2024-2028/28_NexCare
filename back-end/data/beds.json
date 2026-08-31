@@ -1,843 +1,2802 @@
 [
   {
-    "id": "E1",
-    "ward": "Emergency",
-    "status": "occupied",
-    "patient": "Ramesh Kumar",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "E2",
-    "ward": "Emergency",
-    "status": "occupied",
-    "patient": "Sita Devi",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "E3",
+    "id": "B-H001-1",
     "ward": "Emergency",
     "status": "available",
     "patient": "",
     "hospitalId": "H001"
   },
   {
-    "id": "E4",
+    "id": "B-H001-2",
     "ward": "Emergency",
     "status": "occupied",
-    "patient": "Arun Prasad",
+    "patient": "Random Patient 2",
     "hospitalId": "H001"
   },
   {
-    "id": "G1",
-    "ward": "General",
-    "status": "critical",
-    "patient": "Suresh Kumar",
-    "hospitalId": "H001",
-    "updatedAt": "2026-08-30T18:16:13.224Z"
-  },
-  {
-    "id": "G2",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Joseph Thomas",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "G3",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Lalitha Rao",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "G4",
-    "ward": "General",
-    "status": "maintenance",
-    "patient": "",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "G5",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Vikram Singh",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "G6",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Nandini Shetty",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "G7",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Imran Khan",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "G8",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Geetha Menon",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "G9",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Prakash Jain",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "G10",
-    "ward": "General",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "I1",
-    "ward": "ICU",
-    "status": "occupied",
-    "patient": "Sunita Yadav",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "I2",
-    "ward": "ICU",
-    "status": "occupied",
-    "patient": "Ramesh Kumar",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "I3",
-    "ward": "ICU",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "I4",
-    "ward": "ICU",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "M1",
-    "ward": "Maternity",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "M2",
-    "ward": "Maternity",
-    "status": "occupied",
-    "patient": "Sita Devi",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "M3",
-    "ward": "Maternity",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "M4",
-    "ward": "Maternity",
-    "status": "occupied",
-    "patient": "Arun Prasad",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "P1",
-    "ward": "Paediatrics",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "P2",
-    "ward": "Paediatrics",
-    "status": "occupied",
-    "patient": "Fatima Begum",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "P3",
-    "ward": "Paediatrics",
-    "status": "occupied",
-    "patient": "Joseph Thomas",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "P4",
-    "ward": "Paediatrics",
-    "status": "occupied",
-    "patient": "Lalitha Rao",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "C1",
-    "ward": "Cardiology",
-    "status": "occupied",
-    "patient": "Vikram Singh",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "C2",
-    "ward": "Cardiology",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "C3",
-    "ward": "Cardiology",
-    "status": "occupied",
-    "patient": "Nandini Shetty",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "C4",
-    "ward": "Cardiology",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "002-E1",
+    "id": "B-H001-3",
     "ward": "Emergency",
     "status": "available",
     "patient": "",
-    "hospitalId": "H002"
+    "hospitalId": "H001"
   },
   {
-    "id": "002-E2",
+    "id": "B-H001-4",
     "ward": "Emergency",
     "status": "occupied",
-    "patient": "Imran Khan",
-    "hospitalId": "H002"
+    "patient": "Random Patient 4",
+    "hospitalId": "H001"
   },
   {
-    "id": "002-E3",
-    "ward": "Emergency",
-    "status": "critical",
-    "patient": "Geetha Menon",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-G1",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Prakash Jain",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-G2",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Sunita Yadav",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-G3",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Ramesh Kumar",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-G4",
-    "ward": "General",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-G5",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Sita Devi",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-G6",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Arun Prasad",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-G7",
-    "ward": "General",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-G8",
-    "ward": "General",
-    "status": "maintenance",
-    "patient": "",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-I1",
-    "ward": "ICU",
-    "status": "occupied",
-    "patient": "Fatima Begum",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-I2",
-    "ward": "ICU",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-I3",
-    "ward": "ICU",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-M1",
-    "ward": "Maternity",
-    "status": "occupied",
-    "patient": "Joseph Thomas",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-M2",
-    "ward": "Maternity",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-M3",
-    "ward": "Maternity",
-    "status": "critical",
-    "patient": "Lalitha Rao",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-M4",
-    "ward": "Maternity",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-P1",
-    "ward": "Paediatrics",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-P2",
-    "ward": "Paediatrics",
-    "status": "occupied",
-    "patient": "Vikram Singh",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-P3",
-    "ward": "Paediatrics",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "002-P4",
-    "ward": "Paediatrics",
-    "status": "occupied",
-    "patient": "Nandini Shetty",
-    "hospitalId": "H002"
-  },
-  {
-    "id": "003-E1",
+    "id": "B-H001-5",
     "ward": "Emergency",
     "status": "occupied",
-    "patient": "Imran Khan",
-    "hospitalId": "H003"
+    "patient": "Random Patient 5",
+    "hospitalId": "H001"
   },
   {
-    "id": "003-E2",
+    "id": "B-H001-6",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 6",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-7",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 7",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-8",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 8",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-9",
     "ward": "Emergency",
     "status": "available",
     "patient": "",
-    "hospitalId": "H003"
+    "hospitalId": "H001"
   },
   {
-    "id": "003-E3",
+    "id": "B-H001-10",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-11",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-12",
     "ward": "Emergency",
     "status": "occupied",
-    "patient": "Geetha Menon",
-    "hospitalId": "H003"
+    "patient": "Random Patient 12",
+    "hospitalId": "H001"
   },
   {
-    "id": "003-E4",
+    "id": "B-H001-13",
     "ward": "Emergency",
-    "status": "maintenance",
+    "status": "available",
     "patient": "",
-    "hospitalId": "H003"
+    "hospitalId": "H001"
   },
   {
-    "id": "003-G1",
+    "id": "B-H001-14",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 14",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-15",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 15",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-16",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 16",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-17",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-18",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 18",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-19",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-20",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 20",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-21",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-22",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-23",
     "ward": "General",
     "status": "occupied",
-    "patient": "Prakash Jain",
-    "hospitalId": "H003"
+    "patient": "Random Patient 23",
+    "hospitalId": "H001"
   },
   {
-    "id": "003-G2",
+    "id": "B-H001-24",
     "ward": "General",
     "status": "available",
     "patient": "",
-    "hospitalId": "H003"
+    "hospitalId": "H001"
   },
   {
-    "id": "003-G3",
+    "id": "B-H001-25",
     "ward": "General",
     "status": "available",
     "patient": "",
-    "hospitalId": "H003"
+    "hospitalId": "H001"
   },
   {
-    "id": "003-G4",
-    "ward": "General",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H003"
-  },
-  {
-    "id": "003-G5",
-    "ward": "General",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H003"
-  },
-  {
-    "id": "003-G6",
+    "id": "B-H001-26",
     "ward": "General",
     "status": "occupied",
-    "patient": "Sunita Yadav",
-    "hospitalId": "H003"
+    "patient": "Random Patient 26",
+    "hospitalId": "H001"
   },
   {
-    "id": "003-G7",
+    "id": "B-H001-27",
     "ward": "General",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H003"
-  },
-  {
-    "id": "003-G8",
-    "ward": "General",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H003"
-  },
-  {
-    "id": "003-I1",
-    "ward": "ICU",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H003"
-  },
-  {
-    "id": "003-I2",
-    "ward": "ICU",
-    "status": "maintenance",
-    "patient": "",
-    "hospitalId": "H003"
-  },
-  {
-    "id": "003-I3",
-    "ward": "ICU",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H003"
-  },
-  {
-    "id": "003-I4",
-    "ward": "ICU",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H003"
-  },
-  {
-    "id": "003-O1",
-    "ward": "Orthopaedics",
-    "status": "maintenance",
-    "patient": "",
-    "hospitalId": "H003"
-  },
-  {
-    "id": "003-O2",
-    "ward": "Orthopaedics",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H003"
-  },
-  {
-    "id": "003-O3",
-    "ward": "Orthopaedics",
     "status": "occupied",
-    "patient": "Ramesh Kumar",
+    "patient": "Random Patient 27",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-28",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 28",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-29",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-30",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 30",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-31",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-32",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-33",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 33",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-34",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-35",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-36",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-37",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-38",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 38",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-39",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-40",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 40",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-41",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 41",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-42",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-43",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 43",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-44",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-45",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-46",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 46",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-47",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 47",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-48",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 48",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-49",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 49",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H001-50",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H001"
+  },
+  {
+    "id": "B-H002-51",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-52",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-53",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-54",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-55",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-56",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-57",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 57",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-58",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-59",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 59",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-60",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-61",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-62",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 62",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-63",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 63",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-64",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 64",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-65",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-66",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-67",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-68",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-69",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 69",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-70",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 70",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-71",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-72",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-73",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-74",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 74",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-75",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-76",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-77",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-78",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 78",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-79",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 79",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-80",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 80",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-81",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 81",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-82",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-83",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 83",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-84",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 84",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-85",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-86",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 86",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-87",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-88",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-89",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 89",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-90",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 90",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-91",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-92",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 92",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-93",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-94",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 94",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-95",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-96",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-97",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-98",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 98",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-99",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 99",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H002-100",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 100",
+    "hospitalId": "H002"
+  },
+  {
+    "id": "B-H003-101",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 101",
     "hospitalId": "H003"
   },
   {
-    "id": "003-O4",
-    "ward": "Orthopaedics",
+    "id": "B-H003-102",
+    "ward": "Emergency",
     "status": "available",
     "patient": "",
     "hospitalId": "H003"
   },
   {
-    "id": "003-N1",
-    "ward": "Neurology",
+    "id": "B-H003-103",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 103",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-104",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 104",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-105",
+    "ward": "Emergency",
     "status": "available",
     "patient": "",
     "hospitalId": "H003"
   },
   {
-    "id": "003-N2",
-    "ward": "Neurology",
+    "id": "B-H003-106",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 106",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-107",
+    "ward": "Emergency",
     "status": "available",
     "patient": "",
     "hospitalId": "H003"
   },
   {
-    "id": "003-N3",
-    "ward": "Neurology",
+    "id": "B-H003-108",
+    "ward": "Emergency",
     "status": "available",
     "patient": "",
     "hospitalId": "H003"
   },
   {
-    "id": "004-E1",
+    "id": "B-H003-109",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 109",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-110",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 110",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-111",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 111",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-112",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-113",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-114",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-115",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-116",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-117",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-118",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-119",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-120",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 120",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-121",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-122",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 122",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-123",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 123",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-124",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-125",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-126",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-127",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-128",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-129",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-130",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-131",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-132",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 132",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-133",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-134",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 134",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-135",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 135",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-136",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 136",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-137",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 137",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-138",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 138",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-139",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-140",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-141",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-142",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 142",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-143",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-144",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 144",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-145",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-146",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-147",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-148",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 148",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-149",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 149",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H003-150",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H003"
+  },
+  {
+    "id": "B-H004-151",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 151",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-152",
     "ward": "Emergency",
     "status": "available",
     "patient": "",
     "hospitalId": "H004"
   },
   {
-    "id": "004-E2",
-    "ward": "Emergency",
-    "status": "occupied",
-    "patient": "Sunitha Reddy",
-    "hospitalId": "H004"
-  },
-  {
-    "id": "004-G1",
-    "ward": "General",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H004"
-  },
-  {
-    "id": "004-G2",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "Krishna Murthy",
-    "hospitalId": "H004"
-  },
-  {
-    "id": "004-G3",
-    "ward": "General",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H004"
-  },
-  {
-    "id": "004-P1",
-    "ward": "Paediatrics",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H004"
-  },
-  {
-    "id": "004-P2",
-    "ward": "Paediatrics",
-    "status": "occupied",
-    "patient": "Baby Lakshmi",
-    "hospitalId": "H004"
-  },
-  {
-    "id": "005-E1",
+    "id": "B-H004-153",
     "ward": "Emergency",
     "status": "available",
     "patient": "",
-    "hospitalId": "H005"
+    "hospitalId": "H004"
   },
   {
-    "id": "005-E2",
-    "ward": "Emergency",
-    "status": "occupied",
-    "patient": "Ravi Kumar",
-    "hospitalId": "H005"
-  },
-  {
-    "id": "005-E3",
+    "id": "B-H004-154",
     "ward": "Emergency",
     "status": "available",
     "patient": "",
-    "hospitalId": "H005"
+    "hospitalId": "H004"
   },
   {
-    "id": "005-G1",
+    "id": "B-H004-155",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 155",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-156",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 156",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-157",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 157",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-158",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 158",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-159",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 159",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-160",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-161",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 161",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-162",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-163",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-164",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-165",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-166",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-167",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-168",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-169",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 169",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-170",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-171",
     "ward": "General",
     "status": "occupied",
-    "patient": "Sunita Devi",
-    "hospitalId": "H005"
+    "patient": "Random Patient 171",
+    "hospitalId": "H004"
   },
   {
-    "id": "005-G2",
+    "id": "B-H004-172",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 172",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-173",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 173",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-174",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 174",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-175",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 175",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-176",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 176",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-177",
     "ward": "General",
     "status": "available",
     "patient": "",
-    "hospitalId": "H005"
+    "hospitalId": "H004"
   },
   {
-    "id": "005-I1",
+    "id": "B-H004-178",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 178",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-179",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-180",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-181",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-182",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-183",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-184",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 184",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-185",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 185",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-186",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-187",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 187",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-188",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 188",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-189",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 189",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-190",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 190",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-191",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-192",
     "ward": "ICU",
     "status": "occupied",
-    "patient": "Critical Patient 1",
+    "patient": "Random Patient 192",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-193",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-194",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 194",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-195",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-196",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-197",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 197",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-198",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-199",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 199",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H004-200",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 200",
+    "hospitalId": "H004"
+  },
+  {
+    "id": "B-H005-201",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
     "hospitalId": "H005"
   },
   {
-    "id": "005-I2",
+    "id": "B-H005-202",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-203",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 203",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-204",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 204",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-205",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 205",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-206",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 206",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-207",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-208",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 208",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-209",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-210",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 210",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-211",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-212",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-213",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-214",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 214",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-215",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 215",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-216",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 216",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-217",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-218",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-219",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 219",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-220",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 220",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-221",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 221",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-222",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 222",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-223",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-224",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-225",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 225",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-226",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 226",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-227",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 227",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-228",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-229",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-230",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 230",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-231",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-232",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 232",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-233",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 233",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-234",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 234",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-235",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-236",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 236",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-237",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-238",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 238",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-239",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 239",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-240",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 240",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-241",
     "ward": "ICU",
     "status": "available",
     "patient": "",
     "hospitalId": "H005"
   },
   {
-    "id": "005-C1",
-    "ward": "Cardiology",
+    "id": "B-H005-242",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 242",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-243",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 243",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-244",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 244",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-245",
+    "ward": "ICU",
     "status": "available",
     "patient": "",
     "hospitalId": "H005"
   },
   {
-    "id": "005-N1",
-    "ward": "Neurology",
+    "id": "B-H005-246",
+    "ward": "ICU",
     "status": "occupied",
-    "patient": "Stroke Patient",
+    "patient": "Random Patient 246",
     "hospitalId": "H005"
   },
   {
-    "id": "006-G1",
+    "id": "B-H005-247",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 247",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-248",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-249",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 249",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H005-250",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H005"
+  },
+  {
+    "id": "B-H006-251",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 251",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-252",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 252",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-253",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 253",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-254",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-255",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 255",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-256",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-257",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 257",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-258",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 258",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-259",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-260",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-261",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 261",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-262",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-263",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-264",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-265",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-266",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-267",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 267",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-268",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 268",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-269",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 269",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-270",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 270",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-271",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 271",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-272",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 272",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-273",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 273",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-274",
     "ward": "General",
     "status": "available",
     "patient": "",
     "hospitalId": "H006"
   },
   {
-    "id": "006-G2",
+    "id": "B-H006-275",
     "ward": "General",
     "status": "occupied",
-    "patient": "Pregnant Woman 1",
+    "patient": "Random Patient 275",
     "hospitalId": "H006"
   },
   {
-    "id": "006-G3",
+    "id": "B-H006-276",
     "ward": "General",
     "status": "available",
     "patient": "",
     "hospitalId": "H006"
   },
   {
-    "id": "006-P1",
-    "ward": "Paediatrics",
+    "id": "B-H006-277",
+    "ward": "General",
     "status": "occupied",
-    "patient": "Child Patient 1",
+    "patient": "Random Patient 277",
     "hospitalId": "H006"
   },
   {
-    "id": "006-P2",
-    "ward": "Paediatrics",
+    "id": "B-H006-278",
+    "ward": "General",
     "status": "available",
     "patient": "",
     "hospitalId": "H006"
   },
   {
-    "id": "006-I1",
+    "id": "B-H006-279",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 279",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-280",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-281",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 281",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-282",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 282",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-283",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 283",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-284",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-285",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 285",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-286",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-287",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 287",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-288",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 288",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-289",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 289",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-290",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-291",
     "ward": "ICU",
     "status": "available",
     "patient": "",
     "hospitalId": "H006"
   },
   {
-    "id": "007-O1",
-    "ward": "Orthopaedics",
+    "id": "B-H006-292",
+    "ward": "ICU",
     "status": "occupied",
-    "patient": "Fracture Patient 1",
+    "patient": "Random Patient 292",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-293",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-294",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 294",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-295",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 295",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-296",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-297",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-298",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 298",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-299",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 299",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H006-300",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H006"
+  },
+  {
+    "id": "B-H007-301",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
     "hospitalId": "H007"
   },
   {
-    "id": "007-O2",
-    "ward": "Orthopaedics",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H007"
-  },
-  {
-    "id": "007-E1",
-    "ward": "Emergency",
-    "status": "occupied",
-    "patient": "Trauma Patient 1",
-    "hospitalId": "H007"
-  },
-  {
-    "id": "007-E2",
+    "id": "B-H007-302",
     "ward": "Emergency",
     "status": "available",
     "patient": "",
     "hospitalId": "H007"
   },
   {
-    "id": "007-P1",
-    "ward": "Physiotherapy",
+    "id": "B-H007-303",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 303",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-304",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 304",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-305",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 305",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-306",
+    "ward": "Emergency",
     "status": "available",
     "patient": "",
     "hospitalId": "H007"
   },
   {
-    "id": "008-C1",
-    "ward": "Cardiology",
+    "id": "B-H007-307",
+    "ward": "Emergency",
     "status": "occupied",
-    "patient": "Heart Patient 1",
-    "hospitalId": "H008"
+    "patient": "Random Patient 307",
+    "hospitalId": "H007"
   },
   {
-    "id": "008-C2",
-    "ward": "Cardiology",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H008"
-  },
-  {
-    "id": "008-I1",
-    "ward": "ICU",
-    "status": "critical",
-    "patient": "Critical Heart Patient",
-    "hospitalId": "H008"
-  },
-  {
-    "id": "008-I2",
-    "ward": "ICU",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H008"
-  },
-  {
-    "id": "008-G1",
-    "ward": "General",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H008"
-  },
-  {
-    "id": "009-G1",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "General Patient 1",
-    "hospitalId": "H009"
-  },
-  {
-    "id": "009-G2",
-    "ward": "General",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H009"
-  },
-  {
-    "id": "009-G3",
-    "ward": "General",
-    "status": "occupied",
-    "patient": "General Patient 2",
-    "hospitalId": "H009"
-  },
-  {
-    "id": "009-E1",
+    "id": "B-H007-308",
     "ward": "Emergency",
     "status": "available",
     "patient": "",
-    "hospitalId": "H009"
+    "hospitalId": "H007"
   },
   {
-    "id": "009-I1",
+    "id": "B-H007-309",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-310",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-311",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-312",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 312",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-313",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-314",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-315",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 315",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-316",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-317",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-318",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 318",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-319",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-320",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-321",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 321",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-322",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 322",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-323",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 323",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-324",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 324",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-325",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-326",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 326",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-327",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 327",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-328",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-329",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 329",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-330",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-331",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 331",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-332",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 332",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-333",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 333",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-334",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 334",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-335",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 335",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-336",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 336",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-337",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-338",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 338",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-339",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 339",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-340",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 340",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-341",
     "ward": "ICU",
     "status": "occupied",
-    "patient": "ICU Patient 1",
-    "hospitalId": "H009"
+    "patient": "Random Patient 341",
+    "hospitalId": "H007"
   },
   {
-    "id": "010-G1",
+    "id": "B-H007-342",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 342",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-343",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-344",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-345",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 345",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-346",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-347",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-348",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 348",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-349",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H007-350",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 350",
+    "hospitalId": "H007"
+  },
+  {
+    "id": "B-H008-351",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-352",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 352",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-353",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-354",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-355",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 355",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-356",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-357",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 357",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-358",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 358",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-359",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 359",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-360",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-361",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-362",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-363",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-364",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-365",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 365",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-366",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 366",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-367",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 367",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-368",
+    "ward": "Emergency",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-369",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 369",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-370",
+    "ward": "Emergency",
+    "status": "occupied",
+    "patient": "Random Patient 370",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-371",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 371",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-372",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 372",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-373",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 373",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-374",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 374",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-375",
     "ward": "General",
     "status": "available",
     "patient": "",
-    "hospitalId": "H010"
+    "hospitalId": "H008"
   },
   {
-    "id": "010-G2",
+    "id": "B-H008-376",
     "ward": "General",
     "status": "occupied",
-    "patient": "Community Patient 1",
-    "hospitalId": "H010"
+    "patient": "Random Patient 376",
+    "hospitalId": "H008"
   },
   {
-    "id": "011-N1",
-    "ward": "Neurology",
+    "id": "B-H008-377",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-378",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-379",
+    "ward": "General",
     "status": "occupied",
-    "patient": "Neuro Patient 1",
-    "hospitalId": "H011"
+    "patient": "Random Patient 379",
+    "hospitalId": "H008"
   },
   {
-    "id": "011-N2",
-    "ward": "Neurology",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H011"
-  },
-  {
-    "id": "011-P1",
-    "ward": "Physiotherapy",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H011"
-  },
-  {
-    "id": "012-D1",
-    "ward": "Dermatology",
-    "status": "available",
-    "patient": "",
-    "hospitalId": "H012"
-  },
-  {
-    "id": "012-C1",
-    "ward": "Cardiology",
+    "id": "B-H008-380",
+    "ward": "General",
     "status": "occupied",
-    "patient": "Cardio Patient 1",
-    "hospitalId": "H012"
+    "patient": "Random Patient 380",
+    "hospitalId": "H008"
   },
   {
-    "id": "012-N1",
-    "ward": "Neurology",
+    "id": "B-H008-381",
+    "ward": "General",
     "status": "available",
     "patient": "",
-    "hospitalId": "H012"
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-382",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 382",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-383",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-384",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 384",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-385",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-386",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 386",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-387",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-388",
+    "ward": "General",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-389",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 389",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-390",
+    "ward": "General",
+    "status": "occupied",
+    "patient": "Random Patient 390",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-391",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 391",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-392",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-393",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 393",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-394",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 394",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-395",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-396",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 396",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-397",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 397",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-398",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 398",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-399",
+    "ward": "ICU",
+    "status": "available",
+    "patient": "",
+    "hospitalId": "H008"
+  },
+  {
+    "id": "B-H008-400",
+    "ward": "ICU",
+    "status": "occupied",
+    "patient": "Random Patient 400",
+    "hospitalId": "H008"
   }
 ]

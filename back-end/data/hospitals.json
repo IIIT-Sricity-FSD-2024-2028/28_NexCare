@@ -1,1274 +1,202 @@
 [
   {
     "id": "H001",
-    "name": "NexCare AIIMS Super Speciality Hospital",
-    "registrationNumber": "AP-MED-517501",
-    "type": "Super Speciality",
-    "ownershipType": "Public-Private Partnership",
-    "address": "Renigunta Road, Near Central Bus Stand",
-    "city": "Tirupati",
-    "state": "Andhra Pradesh",
-    "pincode": "517501",
-    "phone": "+91 877 2255000",
-    "email": "contact.tirupati@nexcare.in",
-    "website": "www.nexcare.in/tirupati",
-    "totalBeds": 250,
-    "icuBeds": 40,
+    "name": "NexCare Delhi General Hospital",
+    "registrationNumber": "REG-DEL-H001",
+    "type": "General",
+    "ownershipType": "Private",
+    "address": "10 Main Road",
+    "city": "Delhi",
+    "state": "North State",
+    "pincode": "1000000",
+    "phone": "+91 99999000000",
+    "email": "contact@h001.nexcare.com",
+    "totalBeds": 100,
+    "icuBeds": 20,
     "specialities": [
       "Cardiology",
-      "Neurology",
-      "General Medicine",
       "Orthopaedics",
-      "Paediatrics"
+      "General Medicine"
     ],
     "emergency24x7": true,
     "ambulanceService": true,
-    "adminName": "Dr. Ramesh Babu",
-    "adminEmail": "hospitalmanager@nexcare.com",
-    "adminPhone": "+91 98480 12345",
     "verificationStatus": "verified",
-    "assignedManagerId": "M001",
-    "regionId": "R001",
-    "regionName": "Andhra Pradesh South",
-    "subscriptionStartDate": "2026-09-01",
-    "subscriptionExpiryDate": "2029-08-31",
-    "lastPaymentDate": "2026-08-30T10:44:07.637Z",
-    "amountPaid": 150000,
-    "paymentStatus": "ACTIVE",
-    "renewalStatus": "UP_TO_DATE",
-    "transactionId": "TXN-NEX-647637-1131",
-    "paymentHistory": [
-      {
-        "id": "PAYMTFOMFDH8B8",
-        "date": "2026-08-30T10:44:07.637Z",
-        "amount": 50000,
-        "paymentType": "UPI (admin.aiims@icici)",
-        "transactionId": "TXN-NEX-647637-1131",
-        "previousExpiry": "2028-08-31",
-        "newExpiry": "2029-08-31",
-        "status": "PAID"
-      },
-      {
-        "id": "PAYMTFO8WLG39F",
-        "date": "2026-08-30T10:33:36.772Z",
-        "amount": 50000,
-        "paymentType": "UPI (admin.aiims@icici)",
-        "transactionId": "TXN-NEX-016772-7746",
-        "previousExpiry": "2027-08-31",
-        "newExpiry": "2028-08-31",
-        "status": "PAID"
-      },
-      {
-        "id": "PAY-1001",
-        "date": "2026-08-25T10:00:00.000Z",
-        "amount": 50000,
-        "paymentType": "Card (Corporate Visa)",
-        "transactionId": "TXN-NEX-20260825-9921",
-        "previousExpiry": "2026-08-31",
-        "newExpiry": "2027-08-31",
-        "status": "PAID"
-      },
-      {
-        "id": "PAY-1000",
-        "date": "2025-08-20T14:30:00.000Z",
-        "amount": 45000,
-        "paymentType": "Net Banking (SBI)",
-        "transactionId": "TXN-NEX-20250820-4102",
-        "previousExpiry": "2025-08-31",
-        "newExpiry": "2026-08-31",
-        "status": "PAID"
-      }
-    ],
-    "createdAt": "2023-01-01T00:00:00.000Z",
-    "updatedAt": "2026-08-30T10:44:07.637Z",
-    "availability": {
-      "Cardiology": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
-        "slots": [
-          "09:00 AM",
-          "10:30 AM",
-          "12:00 PM",
-          "03:00 PM"
-        ]
-      },
-      "Neurology": {
-        "days": [
-          1,
-          3,
-          5
-        ],
-        "slots": [
-          "10:00 AM",
-          "11:30 AM",
-          "02:30 PM"
-        ]
-      },
-      "General Medicine": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "08:30 AM",
-          "10:00 AM",
-          "01:00 PM",
-          "05:00 PM"
-        ]
-      },
-      "Orthopaedics": {
-        "days": [
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "09:30 AM",
-          "11:00 AM",
-          "04:00 PM"
-        ]
-      },
-      "Paediatrics": {
-        "days": [
-          1,
-          3,
-          5
-        ],
-        "slots": [
-          "11:00 AM",
-          "01:30 PM",
-          "03:30 PM"
-        ]
-      }
-    },
-    "availableBeds": 62,
-    "occupiedBeds": 188,
-    "latitude": 13.6288,
-    "longitude": 79.4192,
-    "emergencyAvailable": true,
-    "establishedYear": 2005,
-    "accreditation": "NABH",
-    "departmentsCount": 12,
-    "ambulanceCount": 6,
-    "operationTheatres": 8,
-    "contactPersonDesignation": "Medical Superintendent",
-    "regionalReviewStatus": "cleared"
+    "assignedManagerId": "RM001",
+    "regionName": "North"
   },
   {
     "id": "H002",
-    "name": "Apollo Health City",
-    "registrationNumber": "AP-MED-517502",
-    "type": "Multi-Speciality",
+    "name": "NexCare Delhi Speciality Hospital",
+    "registrationNumber": "REG-DEL-H002",
+    "type": "Super Speciality",
     "ownershipType": "Private",
-    "address": "Bairagipatteda, Chittoor Road",
-    "city": "Tirupati",
-    "state": "Andhra Pradesh",
-    "pincode": "517502",
-    "phone": "+91 877 2288999",
-    "email": "info@apollohealth.in",
-    "website": "www.apollohealth.in",
-    "totalBeds": 180,
-    "icuBeds": 25,
-    "specialities": [
-      "General Medicine",
-      "Dermatology",
-      "Paediatrics",
-      "Gynaecology",
-      "Cardiology",
-      "Neurology",
-      "Orthopaedics"
-    ],
-    "emergency24x7": true,
-    "ambulanceService": true,
-    "adminName": "Kavitha Sharma",
-    "adminEmail": "kavitha@nexcare.com",
-    "adminPhone": "+91 94400 54321",
-    "verificationStatus": "verified",
-    "assignedManagerId": "M001",
-    "regionId": "R001",
-    "regionName": "Andhra Pradesh South",
-    "subscriptionStartDate": "2025-09-25",
-    "subscriptionExpiryDate": "2026-09-25",
-    "lastPaymentDate": "2025-09-20T11:00:00.000Z",
-    "amountPaid": 50000,
-    "paymentStatus": "DUE_SOON",
-    "renewalStatus": "PENDING_RENEWAL",
-    "transactionId": "TXN-NEX-20250920-7714",
-    "paymentHistory": [
-      {
-        "id": "PAY-2001",
-        "date": "2025-09-20T11:00:00.000Z",
-        "amount": 50000,
-        "paymentType": "UPI (apollo@icici)",
-        "transactionId": "TXN-NEX-20250920-7714",
-        "previousExpiry": "2025-09-25",
-        "newExpiry": "2026-09-25",
-        "status": "PAID"
-      }
-    ],
-    "createdAt": "2024-03-15T10:00:00.000Z",
-    "updatedAt": "2026-08-26T00:00:00.000Z",
-    "availability": {
-      "Cardiology": {
-        "days": [
-          1,
-          3,
-          5
-        ],
-        "slots": [
-          "09:45 AM",
-          "11:15 AM",
-          "03:15 PM"
-        ]
-      },
-      "Neurology": {
-        "days": [
-          2,
-          4,
-          6
-        ],
-        "slots": [
-          "10:15 AM",
-          "12:15 PM",
-          "04:15 PM"
-        ]
-      },
-      "Orthopaedics": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
-        "slots": [
-          "08:45 AM",
-          "01:45 PM",
-          "05:15 PM"
-        ]
-      },
-      "General Medicine": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "09:00 AM",
-          "12:00 PM",
-          "03:00 PM"
-        ]
-      },
-      "Dermatology": {
-        "days": [
-          1,
-          4,
-          6
-        ],
-        "slots": [
-          "11:00 AM",
-          "02:00 PM"
-        ]
-      },
-      "Paediatrics": {
-        "days": [
-          1,
-          3,
-          5
-        ],
-        "slots": [
-          "10:00 AM",
-          "02:00 PM"
-        ]
-      },
-      "Gynaecology": {
-        "days": [
-          2,
-          4,
-          6
-        ],
-        "slots": [
-          "09:00 AM",
-          "01:00 PM"
-        ]
-      }
-    },
-    "availableBeds": 41,
-    "occupiedBeds": 139,
-    "latitude": 13.6357,
-    "longitude": 79.4103,
-    "emergencyAvailable": true,
-    "establishedYear": 2012,
-    "accreditation": "NABH",
-    "departmentsCount": 9,
-    "ambulanceCount": 4,
-    "operationTheatres": 5,
-    "contactPersonDesignation": "Hospital Administrator",
-    "regionalReviewStatus": "cleared"
-  },
-  {
-    "id": "H003",
-    "name": "Fortis Care Hospital",
-    "registrationNumber": "TN-MED-600001",
-    "type": "General Hospital",
-    "ownershipType": "Private",
-    "address": "Anna Salai, Guindy",
-    "city": "Chennai",
-    "state": "Tamil Nadu",
-    "pincode": "600001",
-    "phone": "+91 44 24331111",
-    "email": "chennai@fortiscare.in",
-    "website": "www.fortiscare.in",
-    "totalBeds": 200,
+    "address": "11 Main Road",
+    "city": "Delhi",
+    "state": "North State",
+    "pincode": "1000001",
+    "phone": "+91 99999000001",
+    "email": "contact@h002.nexcare.com",
+    "totalBeds": 150,
     "icuBeds": 30,
     "specialities": [
       "Cardiology",
-      "Neurology",
       "Orthopaedics",
-      "General Medicine",
-      "Emergency Medicine"
+      "General Medicine"
     ],
     "emergency24x7": true,
     "ambulanceService": true,
-    "adminName": "Suresh Kumar",
-    "adminEmail": "suresh@nexcare.com",
-    "adminPhone": "+91 98400 98765",
     "verificationStatus": "verified",
-    "assignedManagerId": "M003",
-    "regionId": "R002",
-    "regionName": "Telangana Central",
-    "subscriptionStartDate": "2025-08-15",
-    "subscriptionExpiryDate": "2026-08-15",
-    "lastPaymentDate": "2025-08-10T12:00:00.000Z",
-    "amountPaid": 50000,
-    "paymentStatus": "EXPIRED",
-    "renewalStatus": "OVERDUE",
-    "transactionId": "TXN-NEX-20250810-3301",
-    "paymentHistory": [
-      {
-        "id": "PAY-3001",
-        "date": "2025-08-10T12:00:00.000Z",
-        "amount": 50000,
-        "paymentType": "Net Banking (HDFC)",
-        "transactionId": "TXN-NEX-20250810-3301",
-        "previousExpiry": "2025-08-15",
-        "newExpiry": "2026-08-15",
-        "status": "PAID"
-      }
+    "assignedManagerId": "RM001",
+    "regionName": "North"
+  },
+  {
+    "id": "H003",
+    "name": "NexCare Chennai General Hospital",
+    "registrationNumber": "REG-CHE-H003",
+    "type": "General",
+    "ownershipType": "Private",
+    "address": "10 Main Road",
+    "city": "Chennai",
+    "state": "South State",
+    "pincode": "1000010",
+    "phone": "+91 99999000010",
+    "email": "contact@h003.nexcare.com",
+    "totalBeds": 100,
+    "icuBeds": 20,
+    "specialities": [
+      "Cardiology",
+      "Orthopaedics",
+      "General Medicine"
     ],
-    "createdAt": "2024-05-10T08:30:00.000Z",
-    "updatedAt": "2026-08-26T00:00:00.000Z",
-    "availability": {
-      "Cardiology": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
-        "slots": [
-          "08:45 AM",
-          "10:15 AM",
-          "01:15 PM",
-          "04:15 PM"
-        ]
-      },
-      "Neurology": {
-        "days": [
-          1,
-          3,
-          5
-        ],
-        "slots": [
-          "09:45 AM",
-          "12:15 PM",
-          "03:45 PM"
-        ]
-      },
-      "Orthopaedics": {
-        "days": [
-          2,
-          4,
-          6
-        ],
-        "slots": [
-          "09:00 AM",
-          "11:00 AM",
-          "02:00 PM"
-        ]
-      },
-      "General Medicine": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "08:00 AM",
-          "10:00 AM",
-          "12:00 PM",
-          "05:00 PM"
-        ]
-      },
-      "Emergency Medicine": {
-        "days": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "06:00 AM",
-          "10:00 AM",
-          "02:00 PM",
-          "06:00 PM"
-        ]
-      }
-    },
-    "availableBeds": 55,
-    "occupiedBeds": 145,
-    "latitude": 13.0067,
-    "longitude": 80.2206,
-    "emergencyAvailable": true,
-    "establishedYear": 2009,
-    "accreditation": "NABH, ISO 9001:2015",
-    "departmentsCount": 10,
-    "ambulanceCount": 5,
-    "operationTheatres": 6,
-    "contactPersonDesignation": "General Manager - Operations",
-    "regionalReviewStatus": "cleared"
+    "emergency24x7": true,
+    "ambulanceService": true,
+    "verificationStatus": "verified",
+    "assignedManagerId": "RM002",
+    "regionName": "South"
   },
   {
     "id": "H004",
-    "name": "Sri Venkateswara Care Center",
-    "registrationNumber": "AP-MED-517501-P",
-    "type": "General Hospital",
-    "ownershipType": "Trust",
-    "address": "Alipiri Bypass Road",
-    "city": "Tirupati",
-    "state": "Andhra Pradesh",
-    "pincode": "517501",
-    "phone": "+91 877 2266777",
-    "email": "svcare@gmail.com",
-    "website": "www.svcare.org",
-    "totalBeds": 90,
-    "icuBeds": 10,
+    "name": "NexCare Chennai Speciality Hospital",
+    "registrationNumber": "REG-CHE-H004",
+    "type": "Super Speciality",
+    "ownershipType": "Private",
+    "address": "11 Main Road",
+    "city": "Chennai",
+    "state": "South State",
+    "pincode": "1000011",
+    "phone": "+91 99999000011",
+    "email": "contact@h004.nexcare.com",
+    "totalBeds": 150,
+    "icuBeds": 30,
     "specialities": [
-      "General Medicine",
-      "Paediatrics"
+      "Cardiology",
+      "Orthopaedics",
+      "General Medicine"
     ],
-    "emergency24x7": false,
+    "emergency24x7": true,
     "ambulanceService": true,
-    "adminName": "Narayana Swamy",
-    "adminEmail": "narayana@nexcare.com",
-    "adminPhone": "+91 97010 33445",
     "verificationStatus": "verified",
-    "createdAt": "2026-08-20T14:20:00.000Z",
-    "updatedAt": "2026-08-27T14:10:25.865Z",
-    "availability": {
-      "General Medicine": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "09:00 AM",
-          "11:00 AM",
-          "02:00 PM",
-          "04:00 PM"
-        ]
-      },
-      "Paediatrics": {
-        "days": [
-          1,
-          3,
-          5
-        ],
-        "slots": [
-          "09:30 AM",
-          "11:30 AM",
-          "03:30 PM"
-        ]
-      }
-    },
-    "assignedManagerId": "M001",
-    "regionalReviewStatus": "cleared"
+    "assignedManagerId": "RM002",
+    "regionName": "South"
   },
   {
     "id": "H005",
-    "name": "Sri Venkateswara Multi Speciality Hospital",
-    "registrationNumber": "AP-MED-517501-H005",
-    "type": "Multi Speciality",
+    "name": "NexCare Kolkata General Hospital",
+    "registrationNumber": "REG-KOL-H005",
+    "type": "General",
     "ownershipType": "Private",
-    "address": "Alipiri Road, Tirupati, Andhra Pradesh",
-    "city": "tirupati",
-    "state": "Andhra Pradesh",
-    "pincode": "517501",
-    "phone": "0877-2233445",
-    "email": "hsp001@nexcare.in",
-    "availableBeds": 24,
-    "totalBeds": 120,
-    "icuBeds": 15,
+    "address": "10 Main Road",
+    "city": "Kolkata",
+    "state": "East State",
+    "pincode": "1000020",
+    "phone": "+91 99999000020",
+    "email": "contact@h005.nexcare.com",
+    "totalBeds": 100,
+    "icuBeds": 20,
     "specialities": [
       "Cardiology",
-      "Neurology",
       "Orthopaedics",
-      "General Medicine",
-      "Dermatology",
-      "Emergency Medicine"
+      "General Medicine"
     ],
     "emergency24x7": true,
-    "emergencyAvailable": true,
     "ambulanceService": true,
-    "adminName": "Dr. S. K. Reddy",
-    "adminEmail": "skreddy@nexcare.com",
-    "adminPhone": "0877-2233445",
     "verificationStatus": "verified",
-    "latitude": 13.65,
-    "longitude": 79.42,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z",
-    "availability": {
-      "Cardiology": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
-        "slots": [
-          "09:00 AM",
-          "10:30 AM",
-          "12:00 PM",
-          "03:00 PM"
-        ]
-      },
-      "Neurology": {
-        "days": [
-          1,
-          3,
-          5
-        ],
-        "slots": [
-          "10:00 AM",
-          "11:30 AM",
-          "02:30 PM"
-        ]
-      },
-      "Orthopaedics": {
-        "days": [
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "09:30 AM",
-          "11:00 AM",
-          "04:00 PM"
-        ]
-      },
-      "General Medicine": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "08:30 AM",
-          "10:00 AM",
-          "01:00 PM",
-          "05:00 PM"
-        ]
-      },
-      "Dermatology": {
-        "days": [
-          2,
-          4,
-          6
-        ],
-        "slots": [
-          "11:00 AM",
-          "01:30 PM",
-          "03:30 PM"
-        ]
-      },
-      "Emergency Medicine": {
-        "days": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "08:00 AM",
-          "12:00 PM",
-          "04:00 PM",
-          "08:00 PM"
-        ]
-      }
-    },
-    "assignedManagerId": "M001",
-    "regionalReviewStatus": "cleared"
+    "assignedManagerId": "RM003",
+    "regionName": "East"
   },
   {
     "id": "H006",
-    "name": "Padmavathi Women and Children Hospital",
-    "registrationNumber": "AP-MED-517501-H006",
-    "type": "Specialty Hospital",
+    "name": "NexCare Kolkata Speciality Hospital",
+    "registrationNumber": "REG-KOL-H006",
+    "type": "Super Speciality",
     "ownershipType": "Private",
-    "address": "MR Palli Road, Tirupati, Andhra Pradesh",
-    "city": "tirupati",
-    "state": "Andhra Pradesh",
-    "pincode": "517501",
-    "phone": "0877-2256789",
-    "email": "hsp002@nexcare.in",
-    "availableBeds": 13,
-    "totalBeds": 75,
-    "icuBeds": 10,
+    "address": "11 Main Road",
+    "city": "Kolkata",
+    "state": "East State",
+    "pincode": "1000021",
+    "phone": "+91 99999000021",
+    "email": "contact@h006.nexcare.com",
+    "totalBeds": 150,
+    "icuBeds": 30,
     "specialities": [
-      "Gynaecology",
-      "Paediatrics",
+      "Cardiology",
+      "Orthopaedics",
       "General Medicine"
     ],
     "emergency24x7": true,
-    "emergencyAvailable": true,
     "ambulanceService": true,
-    "adminName": "Dr. P. Lakshmi",
-    "adminEmail": "plakshmi@nexcare.com",
-    "adminPhone": "0877-2256789",
     "verificationStatus": "verified",
-    "latitude": 13.6288,
-    "longitude": 79.4192,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z",
-    "availability": {
-      "Gynaecology": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "09:30 AM",
-          "11:30 AM",
-          "02:30 PM",
-          "04:00 PM"
-        ]
-      },
-      "Paediatrics": {
-        "days": [
-          1,
-          2,
-          3,
-          5,
-          6
-        ],
-        "slots": [
-          "08:30 AM",
-          "10:00 AM",
-          "12:30 PM",
-          "03:00 PM"
-        ]
-      },
-      "General Medicine": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
-        "slots": [
-          "10:00 AM",
-          "01:00 PM",
-          "05:00 PM"
-        ]
-      }
-    },
-    "assignedManagerId": "M001",
-    "regionalReviewStatus": "cleared"
+    "assignedManagerId": "RM003",
+    "regionName": "East"
   },
   {
     "id": "H007",
-    "name": "Tirumala Orthopaedic and Trauma Centre",
-    "registrationNumber": "AP-MED-517502-H007",
-    "type": "Trauma Center",
+    "name": "NexCare Mumbai General Hospital",
+    "registrationNumber": "REG-MUM-H007",
+    "type": "General",
     "ownershipType": "Private",
-    "address": "Renigunta Road, Tirupati, Andhra Pradesh",
-    "city": "tirupati",
-    "state": "Andhra Pradesh",
-    "pincode": "517502",
-    "phone": "0877-2278901",
-    "email": "hsp003@nexcare.in",
-    "availableBeds": 8,
-    "totalBeds": 45,
-    "icuBeds": 6,
-    "specialities": [
-      "Orthopaedics",
-      "Emergency Medicine",
-      "Physiotherapy"
-    ],
-    "emergency24x7": true,
-    "emergencyAvailable": true,
-    "ambulanceService": true,
-    "adminName": "Dr. T. Rao",
-    "adminEmail": "trao@nexcare.com",
-    "adminPhone": "0877-2278901",
-    "verificationStatus": "verified",
-    "latitude": 13.6355,
-    "longitude": 79.4471,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z",
-    "availability": {
-      "Orthopaedics": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "08:30 AM",
-          "10:30 AM",
-          "01:30 PM",
-          "04:30 PM"
-        ]
-      },
-      "Emergency Medicine": {
-        "days": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "06:00 AM",
-          "12:00 PM",
-          "06:00 PM"
-        ]
-      },
-      "Physiotherapy": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
-        "slots": [
-          "09:00 AM",
-          "11:00 AM",
-          "03:00 PM",
-          "05:00 PM"
-        ]
-      }
-    },
-    "assignedManagerId": "M001",
-    "regionalReviewStatus": "cleared"
-  },
-  {
-    "id": "H008",
-    "name": "Rayalaseema Heart Institute",
-    "registrationNumber": "AP-MED-517501-H008",
-    "type": "Super Speciality",
-    "ownershipType": "Private",
-    "address": "Air Bypass Road, Tirupati, Andhra Pradesh",
-    "city": "tirupati",
-    "state": "Andhra Pradesh",
-    "pincode": "517501",
-    "phone": "0877-2290123",
-    "email": "hsp004@nexcare.in",
-    "availableBeds": 6,
-    "totalBeds": 60,
-    "icuBeds": 12,
+    "address": "10 Main Road",
+    "city": "Mumbai",
+    "state": "West State",
+    "pincode": "1000030",
+    "phone": "+91 99999000030",
+    "email": "contact@h007.nexcare.com",
+    "totalBeds": 100,
+    "icuBeds": 20,
     "specialities": [
       "Cardiology",
-      "Cardiothoracic Surgery",
+      "Orthopaedics",
       "General Medicine"
     ],
     "emergency24x7": true,
-    "emergencyAvailable": true,
     "ambulanceService": true,
-    "adminName": "Dr. R. Mohan",
-    "adminEmail": "rmohan@nexcare.com",
-    "adminPhone": "0877-2290123",
     "verificationStatus": "verified",
-    "latitude": 13.6211,
-    "longitude": 79.4098,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z",
-    "availability": {
-      "Cardiology": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "08:00 AM",
-          "09:30 AM",
-          "11:00 AM",
-          "02:00 PM"
-        ]
-      },
-      "Cardiothoracic Surgery": {
-        "days": [
-          1,
-          3,
-          5
-        ],
-        "slots": [
-          "10:00 AM",
-          "12:30 PM"
-        ]
-      },
-      "General Medicine": {
-        "days": [
-          2,
-          4,
-          6
-        ],
-        "slots": [
-          "09:00 AM",
-          "11:30 AM",
-          "04:00 PM"
-        ]
-      }
-    },
-    "assignedManagerId": "M001",
-    "regionalReviewStatus": "cleared"
+    "assignedManagerId": "RM004",
+    "regionName": "West"
   },
   {
-    "id": "H009",
-    "name": "Chittoor District General Hospital",
-    "registrationNumber": "AP-MED-517001-H009",
-    "type": "General Hospital",
-    "ownershipType": "Government",
-    "address": "Government Hospital Road, Chittoor, Andhra Pradesh",
-    "city": "chittoor",
-    "state": "Andhra Pradesh",
-    "pincode": "517001",
-    "phone": "08572-241234",
-    "email": "hsp005@nexcare.in",
-    "availableBeds": 31,
+    "id": "H008",
+    "name": "NexCare Mumbai Speciality Hospital",
+    "registrationNumber": "REG-MUM-H008",
+    "type": "Super Speciality",
+    "ownershipType": "Private",
+    "address": "11 Main Road",
+    "city": "Mumbai",
+    "state": "West State",
+    "pincode": "1000031",
+    "phone": "+91 99999000031",
+    "email": "contact@h008.nexcare.com",
     "totalBeds": 150,
-    "icuBeds": 20,
+    "icuBeds": 30,
     "specialities": [
-      "General Medicine",
-      "Dermatology",
-      "Paediatrics",
-      "Orthopaedics",
-      "Emergency Medicine"
-    ],
-    "emergency24x7": true,
-    "emergencyAvailable": true,
-    "ambulanceService": true,
-    "adminName": "Dr. C. V. Naidu",
-    "adminEmail": "cvnaidu@nexcare.com",
-    "adminPhone": "08572-241234",
-    "verificationStatus": "verified",
-    "latitude": 13.2172,
-    "longitude": 79.1003,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z",
-    "availability": {
-      "General Medicine": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "09:00 AM",
-          "11:00 AM",
-          "02:00 PM",
-          "04:00 PM"
-        ]
-      },
-      "Dermatology": {
-        "days": [
-          2,
-          4
-        ],
-        "slots": [
-          "10:00 AM",
-          "12:30 PM"
-        ]
-      },
-      "Paediatrics": {
-        "days": [
-          1,
-          3,
-          5
-        ],
-        "slots": [
-          "09:30 AM",
-          "11:30 AM",
-          "03:30 PM"
-        ]
-      },
-      "Orthopaedics": {
-        "days": [
-          2,
-          4,
-          6
-        ],
-        "slots": [
-          "08:30 AM",
-          "01:00 PM",
-          "04:30 PM"
-        ]
-      },
-      "Emergency Medicine": {
-        "days": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "07:00 AM",
-          "01:00 PM",
-          "07:00 PM"
-        ]
-      }
-    },
-    "assignedManagerId": "M002",
-    "regionalReviewStatus": "cleared"
-  },
-  {
-    "id": "H010",
-    "name": "Renigunta Community Hospital",
-    "registrationNumber": "AP-MED-517520-H010",
-    "type": "Community Hospital",
-    "ownershipType": "Trust",
-    "address": "Station Road, Renigunta, Andhra Pradesh",
-    "city": "renigunta",
-    "state": "Andhra Pradesh",
-    "pincode": "517520",
-    "phone": "0877-2543210",
-    "email": "hsp006@nexcare.in",
-    "availableBeds": 17,
-    "totalBeds": 50,
-    "icuBeds": 5,
-    "specialities": [
-      "General Medicine",
-      "Paediatrics",
-      "Emergency Medicine"
-    ],
-    "emergency24x7": true,
-    "emergencyAvailable": true,
-    "ambulanceService": true,
-    "adminName": "Dr. R. K. Prasad",
-    "adminEmail": "hospitalmanager@nexcare.com",
-    "adminPhone": "0877-2543210",
-    "verificationStatus": "verified",
-    "latitude": 13.6365,
-    "longitude": 79.5035,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z",
-    "availability": {
-      "General Medicine": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "09:00 AM",
-          "11:00 AM",
-          "01:00 PM",
-          "04:30 PM"
-        ]
-      },
-      "Paediatrics": {
-        "days": [
-          1,
-          2,
-          3,
-          5,
-          6
-        ],
-        "slots": [
-          "08:30 AM",
-          "10:30 AM",
-          "02:00 PM"
-        ]
-      },
-      "Emergency Medicine": {
-        "days": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "07:00 AM",
-          "01:00 PM",
-          "07:00 PM"
-        ]
-      }
-    },
-    "assignedManagerId": "M001",
-    "regionalReviewStatus": "cleared"
-  },
-  {
-    "id": "H011",
-    "name": "Nellore Neuro Care Centre",
-    "registrationNumber": "AP-MED-524001-H011",
-    "type": "Specialty Center",
-    "ownershipType": "Private",
-    "address": "Magunta Layout, Nellore, Andhra Pradesh",
-    "city": "nellore",
-    "state": "Andhra Pradesh",
-    "pincode": "524001",
-    "phone": "0861-2324567",
-    "email": "hsp007@nexcare.in",
-    "availableBeds": 9,
-    "totalBeds": 55,
-    "icuBeds": 8,
-    "specialities": [
-      "Neurology",
-      "Neurosurgery",
-      "Physiotherapy"
-    ],
-    "emergency24x7": false,
-    "emergencyAvailable": false,
-    "ambulanceService": false,
-    "adminName": "Dr. N. Sekhar",
-    "adminEmail": "admin.hsp007@nexcare.in",
-    "adminPhone": "0861-2324567",
-    "verificationStatus": "verified",
-    "latitude": 14.4426,
-    "longitude": 79.9865,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z",
-    "availability": {
-      "Neurology": {
-        "days": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "slots": [
-          "10:00 AM",
-          "12:00 PM",
-          "03:00 PM"
-        ]
-      },
-      "Neurosurgery": {
-        "days": [
-          2,
-          4
-        ],
-        "slots": [
-          "09:30 AM",
-          "11:30 AM",
-          "02:30 PM"
-        ]
-      },
-      "Physiotherapy": {
-        "days": [
-          1,
-          3,
-          5
-        ],
-        "slots": [
-          "10:30 AM",
-          "01:00 PM",
-          "04:00 PM"
-        ]
-      }
-    },
-    "assignedManagerId": "M002",
-    "regionalReviewStatus": "cleared"
-  },
-  {
-    "id": "H012",
-    "name": "Apollo Specialty Clinic Tirupati",
-    "registrationNumber": "AP-MED-517507-H012",
-    "type": "Specialty Clinic",
-    "ownershipType": "Private",
-    "address": "Mangalam Road, Tirupati, Andhra Pradesh",
-    "city": "tirupati",
-    "state": "Andhra Pradesh",
-    "pincode": "517507",
-    "phone": "0877-2314567",
-    "email": "hsp008@nexcare.in",
-    "availableBeds": 4,
-    "totalBeds": 30,
-    "icuBeds": 2,
-    "specialities": [
-      "Dermatology",
       "Cardiology",
-      "Neurology"
+      "Orthopaedics",
+      "General Medicine"
     ],
-    "emergency24x7": false,
-    "emergencyAvailable": false,
-    "ambulanceService": false,
-    "adminName": "Dr. A. Verma",
-    "adminEmail": "admin.hsp008@nexcare.in",
-    "adminPhone": "0877-2314567",
-    "verificationStatus": "verified",
-    "latitude": 13.6692,
-    "longitude": 79.4458,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z",
-    "availability": {
-      "Dermatology": {
-        "days": [
-          1,
-          3,
-          6
-        ],
-        "slots": [
-          "10:00 AM",
-          "12:00 PM",
-          "03:00 PM"
-        ]
-      },
-      "Cardiology": {
-        "days": [
-          2,
-          5
-        ],
-        "slots": [
-          "09:30 AM",
-          "11:30 AM",
-          "02:30 PM"
-        ]
-      },
-      "Neurology": {
-        "days": [
-          4,
-          6
-        ],
-        "slots": [
-          "10:30 AM",
-          "01:00 PM",
-          "04:00 PM"
-        ]
-      }
-    },
-    "assignedManagerId": "M001",
-    "regionalReviewStatus": "cleared"
-  },
-  {
-    "name": "Rainbow Hospitals",
-    "registrationNumber": "AP-MAC-12345",
-    "type": "Multi-Speciality",
-    "ownershipType": "Private",
-    "address": "Beside park",
-    "city": "Renigunta",
-    "state": "Andhra Pradesh",
-    "pincode": "511152",
-    "phone": "9898292921",
-    "email": "abcd@gmail.com",
-    "totalBeds": 120,
-    "icuBeds": 18,
     "emergency24x7": true,
     "ambulanceService": true,
-    "adminName": "Deekshitha",
-    "adminEmail": "abcde@gmail.com",
-    "adminPhone": "8182930381",
-    "specialities": [
-      "General"
-    ],
-    "id": "H013",
     "verificationStatus": "verified",
-    "regionalReviewStatus": "cleared",
-    "createdAt": "2026-08-30T19:15:02.825Z",
-    "updatedAt": "2026-08-30T22:02:15.975Z",
-    "assignedManagerId": "M001",
-    "regionalReviewedAt": "2026-08-30T19:26:24.045Z"
-  },
-  {
-    "name": "Health Hospitals",
-    "registrationNumber": "AP-MAC-12347",
-    "type": "Super-Speciality",
-    "ownershipType": "Private",
-    "address": "Beside park",
-    "city": "Chittoor",
-    "state": "Andhra Pradesh",
-    "pincode": "568373",
-    "phone": "9898292921",
-    "email": "abcd@gmail.com",
-    "totalBeds": 100,
-    "icuBeds": 29,
-    "emergency24x7": true,
-    "ambulanceService": true,
-    "adminName": "Poorna Sri",
-    "adminEmail": "abvds@gmail.com",
-    "adminPhone": "929292921",
-    "specialities": [
-      "General"
-    ],
-    "id": "H014",
-    "verificationStatus": "verified",
-    "regionalReviewStatus": "cleared",
-    "createdAt": "2026-08-30T21:47:02.274Z",
-    "updatedAt": "2026-08-30T22:05:54.772Z",
-    "assignedManagerId": "M002",
-    "regionalReviewedAt": "2026-08-30T21:50:35.163Z"
+    "assignedManagerId": "RM004",
+    "regionName": "West"
   }
 ]
