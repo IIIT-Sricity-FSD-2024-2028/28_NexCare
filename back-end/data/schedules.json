@@ -42,12 +42,6 @@
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
-      },
-      {
-        "department": "Emergency Medicine",
-        "shift": "24x7 Shift",
-        "startTime": "00:00",
-        "endTime": "23:59"
       }
     ],
     "notes": "Published hospital-wide OPD roster",
@@ -85,28 +79,22 @@
         "endTime": "16:00"
       },
       {
-        "department": "Neurology",
-        "shift": "Morning (08:00 - 16:00)",
-        "startTime": "08:00",
-        "endTime": "16:00"
-      },
-      {
         "department": "Paediatrics",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
       },
       {
-        "department": "Dermatology",
+        "department": "ENT",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
       },
       {
-        "department": "Emergency Medicine",
-        "shift": "24x7 Shift",
-        "startTime": "00:00",
-        "endTime": "23:59"
+        "department": "Gynaecology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
       }
     ],
     "notes": "Published hospital-wide OPD roster",
@@ -132,7 +120,7 @@
         "endTime": "16:00"
       },
       {
-        "department": "General Medicine",
+        "department": "Neurology",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
@@ -144,13 +132,13 @@
         "endTime": "16:00"
       },
       {
-        "department": "Neurology",
+        "department": "General Medicine",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
       },
       {
-        "department": "Paediatrics",
+        "department": "General Surgery",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
@@ -160,12 +148,6 @@
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
-      },
-      {
-        "department": "Emergency Medicine",
-        "shift": "24x7 Shift",
-        "startTime": "00:00",
-        "endTime": "23:59"
       }
     ],
     "notes": "Published hospital-wide OPD roster",
@@ -191,7 +173,7 @@
         "endTime": "16:00"
       },
       {
-        "department": "General Medicine",
+        "department": "Paediatrics",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
@@ -203,28 +185,22 @@
         "endTime": "16:00"
       },
       {
-        "department": "Neurology",
+        "department": "ENT",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
       },
       {
-        "department": "Paediatrics",
+        "department": "General Medicine",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
       },
       {
-        "department": "Dermatology",
+        "department": "Gynaecology",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
-      },
-      {
-        "department": "Emergency Medicine",
-        "shift": "24x7 Shift",
-        "startTime": "00:00",
-        "endTime": "23:59"
       }
     ],
     "notes": "Published hospital-wide OPD roster",
@@ -250,7 +226,7 @@
         "endTime": "16:00"
       },
       {
-        "department": "General Medicine",
+        "department": "Neurology",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
@@ -262,19 +238,7 @@
         "endTime": "16:00"
       },
       {
-        "department": "Neurology",
-        "shift": "Morning (08:00 - 16:00)",
-        "startTime": "08:00",
-        "endTime": "16:00"
-      },
-      {
         "department": "Paediatrics",
-        "shift": "Morning (08:00 - 16:00)",
-        "startTime": "08:00",
-        "endTime": "16:00"
-      },
-      {
-        "department": "Dermatology",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
@@ -284,6 +248,12 @@
         "shift": "24x7 Shift",
         "startTime": "00:00",
         "endTime": "23:59"
+      },
+      {
+        "department": "Dermatology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
       }
     ],
     "notes": "Published hospital-wide OPD roster",
@@ -321,28 +291,22 @@
         "endTime": "16:00"
       },
       {
-        "department": "Neurology",
-        "shift": "Morning (08:00 - 16:00)",
-        "startTime": "08:00",
-        "endTime": "16:00"
-      },
-      {
         "department": "Paediatrics",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
       },
       {
-        "department": "Dermatology",
+        "department": "ENT",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
       },
       {
-        "department": "Emergency Medicine",
-        "shift": "24x7 Shift",
-        "startTime": "00:00",
-        "endTime": "23:59"
+        "department": "Gynaecology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
       }
     ],
     "notes": "Published hospital-wide OPD roster",
@@ -368,6 +332,12 @@
         "endTime": "16:00"
       },
       {
+        "department": "Neurology",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      },
+      {
         "department": "General Medicine",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
@@ -380,13 +350,7 @@
         "endTime": "16:00"
       },
       {
-        "department": "Neurology",
-        "shift": "Morning (08:00 - 16:00)",
-        "startTime": "08:00",
-        "endTime": "16:00"
-      },
-      {
-        "department": "Paediatrics",
+        "department": "Gynaecology",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
@@ -396,12 +360,6 @@
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
-      },
-      {
-        "department": "Emergency Medicine",
-        "shift": "24x7 Shift",
-        "startTime": "00:00",
-        "endTime": "23:59"
       }
     ],
     "notes": "Published hospital-wide OPD roster",
@@ -439,28 +397,22 @@
         "endTime": "16:00"
       },
       {
-        "department": "Neurology",
-        "shift": "Morning (08:00 - 16:00)",
-        "startTime": "08:00",
-        "endTime": "16:00"
-      },
-      {
         "department": "Paediatrics",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
       },
       {
-        "department": "Dermatology",
+        "department": "General Surgery",
         "shift": "Morning (08:00 - 16:00)",
         "startTime": "08:00",
         "endTime": "16:00"
       },
       {
-        "department": "Emergency Medicine",
-        "shift": "24x7 Shift",
-        "startTime": "00:00",
-        "endTime": "23:59"
+        "department": "ENT",
+        "shift": "Morning (08:00 - 16:00)",
+        "startTime": "08:00",
+        "endTime": "16:00"
       }
     ],
     "notes": "Published hospital-wide OPD roster",

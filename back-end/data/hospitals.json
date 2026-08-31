@@ -43,7 +43,22 @@
     "verificationStatus": "verified",
     "subscriptionStatus": "ACTIVE",
     "subscriptionPlan": "ENTERPRISE",
-    "subscriptionExpiryDate": "2027-12-31"
+    "subscriptionStartDate": "2026-01-01",
+    "subscriptionExpiryDate": "2026-12-31",
+    "lastPaymentDate": "2026-01-15T10:00:00Z",
+    "amountPaid": 150000,
+    "paymentHistory": [
+      {
+        "id": "PAY-SEED-H001",
+        "date": "2026-01-15T10:00:00Z",
+        "amount": 150000,
+        "paymentType": "Bank Transfer",
+        "transactionId": "NXC-SEED-H001-2026",
+        "previousExpiry": "2025-12-31",
+        "newExpiry": "2026-12-31",
+        "status": "PAID"
+      }
+    ]
   },
   {
     "id": "H002",
@@ -71,17 +86,17 @@
       "Cardiology",
       "General Medicine",
       "Orthopaedics",
-      "Neurology",
       "Paediatrics",
-      "Dermatology"
+      "ENT",
+      "Gynaecology"
     ],
     "departments": [
       "Cardiology",
       "General Medicine",
       "Orthopaedics",
-      "Neurology",
       "Paediatrics",
-      "Dermatology"
+      "ENT",
+      "Gynaecology"
     ],
     "emergency24x7": true,
     "ambulanceCount": 4,
@@ -89,7 +104,22 @@
     "verificationStatus": "verified",
     "subscriptionStatus": "ACTIVE",
     "subscriptionPlan": "PREMIUM",
-    "subscriptionExpiryDate": "2027-12-31"
+    "subscriptionStartDate": "2026-01-01",
+    "subscriptionExpiryDate": "2026-12-31",
+    "lastPaymentDate": "2026-01-15T10:00:00Z",
+    "amountPaid": 90000,
+    "paymentHistory": [
+      {
+        "id": "PAY-SEED-H002",
+        "date": "2026-01-15T10:00:00Z",
+        "amount": 90000,
+        "paymentType": "UPI",
+        "transactionId": "NXC-SEED-H002-2026",
+        "previousExpiry": "2025-12-31",
+        "newExpiry": "2026-12-31",
+        "status": "PAID"
+      }
+    ]
   },
   {
     "id": "H003",
@@ -115,18 +145,18 @@
     "icuBeds": 20,
     "specialities": [
       "Cardiology",
-      "General Medicine",
-      "Orthopaedics",
       "Neurology",
-      "Paediatrics",
+      "Orthopaedics",
+      "General Medicine",
+      "General Surgery",
       "Dermatology"
     ],
     "departments": [
       "Cardiology",
-      "General Medicine",
-      "Orthopaedics",
       "Neurology",
-      "Paediatrics",
+      "Orthopaedics",
+      "General Medicine",
+      "General Surgery",
       "Dermatology"
     ],
     "emergency24x7": true,
@@ -135,7 +165,22 @@
     "verificationStatus": "verified",
     "subscriptionStatus": "ACTIVE",
     "subscriptionPlan": "ENTERPRISE",
-    "subscriptionExpiryDate": "2027-12-31"
+    "subscriptionStartDate": "2026-01-01",
+    "subscriptionExpiryDate": "2026-12-31",
+    "lastPaymentDate": "2026-01-15T10:00:00Z",
+    "amountPaid": 150000,
+    "paymentHistory": [
+      {
+        "id": "PAY-SEED-H003",
+        "date": "2026-01-15T10:00:00Z",
+        "amount": 150000,
+        "paymentType": "Bank Transfer",
+        "transactionId": "NXC-SEED-H003-2026",
+        "previousExpiry": "2025-12-31",
+        "newExpiry": "2026-12-31",
+        "status": "PAID"
+      }
+    ]
   },
   {
     "id": "H004",
@@ -161,19 +206,19 @@
     "icuBeds": 10,
     "specialities": [
       "Cardiology",
-      "General Medicine",
-      "Orthopaedics",
-      "Neurology",
       "Paediatrics",
-      "Dermatology"
+      "Orthopaedics",
+      "ENT",
+      "General Medicine",
+      "Gynaecology"
     ],
     "departments": [
       "Cardiology",
-      "General Medicine",
-      "Orthopaedics",
-      "Neurology",
       "Paediatrics",
-      "Dermatology"
+      "Orthopaedics",
+      "ENT",
+      "General Medicine",
+      "Gynaecology"
     ],
     "emergency24x7": true,
     "ambulanceCount": 3,
@@ -181,7 +226,22 @@
     "verificationStatus": "verified",
     "subscriptionStatus": "ACTIVE",
     "subscriptionPlan": "PREMIUM",
-    "subscriptionExpiryDate": "2027-12-31"
+    "subscriptionStartDate": "2026-01-01",
+    "subscriptionExpiryDate": "2026-12-31",
+    "lastPaymentDate": "2026-01-15T10:00:00Z",
+    "amountPaid": 90000,
+    "paymentHistory": [
+      {
+        "id": "PAY-SEED-H004",
+        "date": "2026-01-15T10:00:00Z",
+        "amount": 90000,
+        "paymentType": "UPI",
+        "transactionId": "NXC-SEED-H004-2026",
+        "previousExpiry": "2025-12-31",
+        "newExpiry": "2026-12-31",
+        "status": "PAID"
+      }
+    ]
   },
   {
     "id": "H005",
@@ -207,18 +267,18 @@
     "icuBeds": 18,
     "specialities": [
       "Cardiology",
-      "General Medicine",
-      "Orthopaedics",
       "Neurology",
+      "Orthopaedics",
       "Paediatrics",
+      "Emergency Medicine",
       "Dermatology"
     ],
     "departments": [
       "Cardiology",
-      "General Medicine",
-      "Orthopaedics",
       "Neurology",
+      "Orthopaedics",
       "Paediatrics",
+      "Emergency Medicine",
       "Dermatology"
     ],
     "emergency24x7": true,
@@ -227,7 +287,22 @@
     "verificationStatus": "verified",
     "subscriptionStatus": "ACTIVE",
     "subscriptionPlan": "ENTERPRISE",
-    "subscriptionExpiryDate": "2027-12-31"
+    "subscriptionStartDate": "2026-01-01",
+    "subscriptionExpiryDate": "2026-12-31",
+    "lastPaymentDate": "2026-01-15T10:00:00Z",
+    "amountPaid": 150000,
+    "paymentHistory": [
+      {
+        "id": "PAY-SEED-H005",
+        "date": "2026-01-15T10:00:00Z",
+        "amount": 150000,
+        "paymentType": "Bank Transfer",
+        "transactionId": "NXC-SEED-H005-2026",
+        "previousExpiry": "2025-12-31",
+        "newExpiry": "2026-12-31",
+        "status": "PAID"
+      }
+    ]
   },
   {
     "id": "H006",
@@ -255,17 +330,17 @@
       "Cardiology",
       "General Medicine",
       "Orthopaedics",
-      "Neurology",
       "Paediatrics",
-      "Dermatology"
+      "ENT",
+      "Gynaecology"
     ],
     "departments": [
       "Cardiology",
       "General Medicine",
       "Orthopaedics",
-      "Neurology",
       "Paediatrics",
-      "Dermatology"
+      "ENT",
+      "Gynaecology"
     ],
     "emergency24x7": true,
     "ambulanceCount": 5,
@@ -273,7 +348,22 @@
     "verificationStatus": "verified",
     "subscriptionStatus": "ACTIVE",
     "subscriptionPlan": "PREMIUM",
-    "subscriptionExpiryDate": "2027-12-31"
+    "subscriptionStartDate": "2026-01-01",
+    "subscriptionExpiryDate": "2026-12-31",
+    "lastPaymentDate": "2026-01-15T10:00:00Z",
+    "amountPaid": 90000,
+    "paymentHistory": [
+      {
+        "id": "PAY-SEED-H006",
+        "date": "2026-01-15T10:00:00Z",
+        "amount": 90000,
+        "paymentType": "UPI",
+        "transactionId": "NXC-SEED-H006-2026",
+        "previousExpiry": "2025-12-31",
+        "newExpiry": "2026-12-31",
+        "status": "PAID"
+      }
+    ]
   },
   {
     "id": "H007",
@@ -285,7 +375,7 @@
     "address": "15 Anna Salai, Thousand Lights, Chennai",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "pincode": "600006",
+    "pincode": "600001",
     "phone": "+91 44 28290011",
     "email": "contact.lifeline@nexcare.in",
     "regionId": "REG-TN-NORTH",
@@ -299,18 +389,18 @@
     "icuBeds": 20,
     "specialities": [
       "Cardiology",
+      "Neurology",
       "General Medicine",
       "Orthopaedics",
-      "Neurology",
-      "Paediatrics",
+      "Gynaecology",
       "Dermatology"
     ],
     "departments": [
       "Cardiology",
+      "Neurology",
       "General Medicine",
       "Orthopaedics",
-      "Neurology",
-      "Paediatrics",
+      "Gynaecology",
       "Dermatology"
     ],
     "emergency24x7": true,
@@ -319,7 +409,22 @@
     "verificationStatus": "verified",
     "subscriptionStatus": "ACTIVE",
     "subscriptionPlan": "ENTERPRISE",
-    "subscriptionExpiryDate": "2027-12-31"
+    "subscriptionStartDate": "2026-01-01",
+    "subscriptionExpiryDate": "2026-12-31",
+    "lastPaymentDate": "2026-01-15T10:00:00Z",
+    "amountPaid": 150000,
+    "paymentHistory": [
+      {
+        "id": "PAY-SEED-H007",
+        "date": "2026-01-15T10:00:00Z",
+        "amount": 150000,
+        "paymentType": "Bank Transfer",
+        "transactionId": "NXC-SEED-H007-2026",
+        "previousExpiry": "2025-12-31",
+        "newExpiry": "2026-12-31",
+        "status": "PAID"
+      }
+    ]
   },
   {
     "id": "H008",
@@ -347,17 +452,17 @@
       "Cardiology",
       "General Medicine",
       "Orthopaedics",
-      "Neurology",
       "Paediatrics",
-      "Dermatology"
+      "General Surgery",
+      "ENT"
     ],
     "departments": [
       "Cardiology",
       "General Medicine",
       "Orthopaedics",
-      "Neurology",
       "Paediatrics",
-      "Dermatology"
+      "General Surgery",
+      "ENT"
     ],
     "emergency24x7": true,
     "ambulanceCount": 4,
@@ -365,6 +470,21 @@
     "verificationStatus": "verified",
     "subscriptionStatus": "ACTIVE",
     "subscriptionPlan": "PREMIUM",
-    "subscriptionExpiryDate": "2027-12-31"
+    "subscriptionStartDate": "2026-01-01",
+    "subscriptionExpiryDate": "2026-12-31",
+    "lastPaymentDate": "2026-01-15T10:00:00Z",
+    "amountPaid": 90000,
+    "paymentHistory": [
+      {
+        "id": "PAY-SEED-H008",
+        "date": "2026-01-15T10:00:00Z",
+        "amount": 90000,
+        "paymentType": "UPI",
+        "transactionId": "NXC-SEED-H008-2026",
+        "previousExpiry": "2025-12-31",
+        "newExpiry": "2026-12-31",
+        "status": "PAID"
+      }
+    ]
   }
 ]

@@ -14,14 +14,14 @@
      GET /hospitals       public
      GET /users/doctors   patient-allowed, carries dept + hospitalId
 
-   The one thing it still invents is availability. The backend has no
-   availability model — a doctor has no roster, only leave — so weekdays and
-   slots come from a deterministic template seeded off the doctor's id. That is
-   display only: the server is still the authority and refuses past dates,
-   duplicate bookings, slot clashes and doctors on approved leave.
+   Availability is read from each doctor's shared weekly schedule. The booking
+   wizard therefore presents the same roster used by staff scheduling and the
+   doctor portal; the server remains the authority for leave, past dates and
+   slot clashes.
 
-   If the API is unreachable the original mock array is left exactly as it was,
-   so the wizard still works with the backend down.
+   If the API is unreachable the catalogue is cleared and the page reports that
+   live hospital data is unavailable. Booking must never create a disconnected
+   local-only appointment.
    ───────────────────────────────────────────────────────────────────────────── */
 
 /** Set once hydration has finished, so callers can await it more than once. */
@@ -43,8 +43,26 @@ function directoryHash(value) {
     return h;
 }
 
-/** Three working days and their slots, deterministic per doctor. */
-function rosterFor(doctorId) {
+/** Convert a persisted doctor roster into the booking widget's shape. */
+function rosterFor(doctor) {
+    const saved = doctor && doctor.schedule;
+    if (saved && typeof saved === 'object') {
+        const availableDays = [];
+        const slots = {};
+        for (const day of WEEKDAYS) {
+            const entry = saved[day.toLowerCase()];
+            if (!entry || !entry.start || !entry.end) continue;
+            availableDays.push(day);
+            slots[day] = [entry.start, entry.end].map(value => {
+                const [hour, minute] = String(value).split(':').map(Number);
+                const suffix = hour >= 12 ? 'PM' : 'AM';
+                return `${String(hour % 12 || 12).padStart(2, '0')}:${String(minute).padStart(2, '0')} ${suffix}`;
+            });
+        }
+        if (availableDays.length) return { availableDays, slots };
+    }
+
+    const doctorId = doctor?.id || doctor;
     const h = directoryHash(doctorId);
     const days = [
         WEEKDAYS[h % WEEKDAYS.length],
@@ -68,7 +86,10 @@ function slugify(value) {
  * mock array, false when it fell back.
  */
 async function hydrateDoctorDirectory() {
-    if (!window.NexCareAPI) return false;
+    if (!window.NexCareAPI) {
+        window.MOCK_HOSPITALS = [];
+        return false;
+    }
 
     try {
         const [hospitalRes, doctorRes] = await Promise.all([
@@ -121,7 +142,7 @@ async function hydrateDoctorDirectory() {
                         qualification: doc.qualification || doc.dept || '',
                         experience: doc.experience || null,
                         consultationFee: doc.consultationFee || null,
-                        ...rosterFor(doc.id),
+                        ...rosterFor(doc),
                     })),
                 })),
             }));
@@ -131,7 +152,8 @@ async function hydrateDoctorDirectory() {
         console.info(`[NexCare] Booking catalogue hydrated: ${built.length} hospitals, ${doctors.length} doctors.`);
         return true;
     } catch (err) {
-        console.warn('[NexCare] Falling back to the offline booking catalogue:', err.message);
+        console.error('[NexCare] Live doctor directory could not be loaded:', err.message);
+        window.MOCK_HOSPITALS = [];
         return false;
     }
 }

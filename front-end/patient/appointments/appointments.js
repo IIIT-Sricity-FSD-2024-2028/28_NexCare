@@ -27,14 +27,14 @@ function getDepartmentsForHospital(hospitalIdOrName) {
     if (!hospitalIdOrName) return [];
     const list = window.MOCK_HOSPITALS || [];
     const hosp = list.find(h => h.id === hospitalIdOrName || h.name === hospitalIdOrName);
-    if (!hosp) return ['Cardiology', 'General Medicine', 'Orthopaedics', 'Neurology', 'Paediatrics', 'Dermatology'];
+    if (!hosp) return [];
     if (Array.isArray(hosp.departments) && hosp.departments.length > 0) {
         return hosp.departments.map(d => typeof d === 'string' ? d : (d.name || d.id));
     }
     if (Array.isArray(hosp.specialities) && hosp.specialities.length > 0) {
         return hosp.specialities;
     }
-    return ['Cardiology', 'General Medicine', 'Orthopaedics', 'Neurology', 'Paediatrics', 'Dermatology'];
+    return [];
 }
 window.getDepartmentsForHospital = getDepartmentsForHospital;
 
@@ -261,6 +261,13 @@ async function renderStep0(container) {
     resultsGrid.style.marginTop = '20px';
 
     const hospitals = Array.isArray(window.MOCK_HOSPITALS) ? window.MOCK_HOSPITALS : [];
+
+    if (!hospitals.length) {
+        const unavailable = document.createElement('p');
+        unavailable.style.cssText = 'padding:16px;color:#B91C1C;text-align:center;grid-column:1 / -1;';
+        unavailable.textContent = 'Unable to load hospitals and doctor availability. Please check the connection and try again.';
+        resultsGrid.appendChild(unavailable);
+    }
 
     hospitals.forEach(h => {
         const isSelected = bookingData.hospital && (bookingData.hospital.id === h.id || bookingData.hospital.name === h.name);
@@ -812,7 +819,7 @@ function renderStep3(container) {
             }
 
             const apptPayload = {
-                hospitalId: hosp ? hosp.id : 'apollo',
+                hospitalId: hosp ? hosp.id : undefined,
                 hospitalName: hospName,
                 department: bookingData.department,
                 doctorId: bookingData.doctorId || '',
@@ -820,8 +827,7 @@ function renderStep3(container) {
                 fee: bookingData.fee || undefined,
                 dateLabel: bookingData.date,
                 timeLabel: bookingData.time,
-                patientName: 'Patient',
-                status: 'Confirmed'
+                patientName: 'Patient'
             };
 
             const store = getStore();
@@ -830,12 +836,16 @@ function renderStep3(container) {
                 result = await store.createAppointment(apptPayload);
             }
 
-            bookingData.lastToken = (result && result.token) ? result.token : ('APT-' + Math.floor(100000 + Math.random() * 900000));
+            if (!result || !result.id) {
+                throw new Error('The hospital did not create an appointment record.');
+            }
+
+            bookingData.lastToken = result.token || result.id;
             currentStep = 4;
             renderConfirmation(container);
         } catch (err) {
             console.error('Error confirming appointment:', err);
-            alert('Failed to confirm appointment. Please try again.');
+            alert(err?.message || 'Failed to confirm appointment. Please try again.');
             confirmBtn.disabled = false;
             confirmBtn.textContent = 'Confirm Appointment';
         }

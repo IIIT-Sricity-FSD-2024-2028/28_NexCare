@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const pinVal = (pincodeInput.value || '').trim();
 
         let hospitalsList = [];
-        let isMock = false;
 
         try {
             let res = null;
@@ -66,58 +65,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error((res && res.message) || "Failed to retrieve hospitals from API");
             }
             
-            // Try to fetch beds and doctors dynamically
-            if (window.NexCareAPI) {
-                try {
-                    const [bedsRes, docsRes] = await Promise.all([
-                        window.NexCareAPI.get('/beds'),
-                        window.NexCareAPI.get('/users?role=doctor')
-                    ]);
-                    window._dynamicBeds = bedsRes?.data || [];
-                    window._dynamicDoctors = docsRes?.data || [];
-                } catch (e) {
-                    console.warn("Could not fetch real bed/doctor data", e);
-                }
-            }
+            // Hospital directory responses already contain live aggregate bed
+            // capacity and specialities. Individual bed allocations remain a
+            // private staff-only resource.
         } catch (err) {
-            console.warn("Backend unavailable or returned error for search, using client-side mock fallback:", err);
-            isMock = true;
-
-            // Client-side fallback filtering on window.MOCK_HOSPITALS
-            const allMock = Array.isArray(window.MOCK_HOSPITALS) ? window.MOCK_HOSPITALS : [];
-            
-            hospitalsList = allMock.filter(h => {
-                // Speciality filter (case-insensitive trim)
-                if (specVal) {
-                    const targetSpec = specVal.toLowerCase();
-                    const specs = Array.isArray(h.specialities) ? h.specialities : (Array.isArray(h.specialties) ? h.specialties : []);
-                    const hasMatch = specs.some(s => String(s || '').trim().toLowerCase() === targetSpec);
-                    if (!hasMatch) return false;
-                }
-
-                // City filter (case-insensitive trim)
-                if (cityVal) {
-                    const targetCity = cityVal.toLowerCase();
-                    const hCity = String(h.city || '').trim().toLowerCase();
-                    if (!hCity.includes(targetCity)) return false;
-                }
-
-                // Pincode filter (normalized string equality)
-                if (pinVal) {
-                    const targetPin = pinVal.toLowerCase();
-                    const hPin = String(h.pincode || '').trim().toLowerCase();
-                    if (!hPin.includes(targetPin)) return false;
-                }
-
-                return true;
-            });
+            console.error("Backend unavailable or returned error for hospital search:", err);
+            hospitalsList = [];
+            statusContainer.textContent = 'Unable to load hospital data. Please check the connection and try again.';
+            statusContainer.style.color = '#B91C1C';
         }
 
-        clearStatusState();
-
-        if (isMock) {
-            showDemoBadge();
-        }
+        if (hospitalsList.length) clearStatusState();
 
         if (!Array.isArray(hospitalsList) || hospitalsList.length === 0) {
             showEmptyState();
@@ -258,16 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 contentWrap.appendChild(specWrap);
             }
 
-            // Beds info dynamically derived from shared backend beds store
+            // Aggregate bed capacity is calculated by the backend directory.
             let bedsTotal = typeof h.totalBeds === 'number' ? h.totalBeds : 0;
             let bedsAvail = typeof h.availableBeds === 'number' ? h.availableBeds : (h.icuBeds || 0);
-            if (window._dynamicBeds && window._dynamicBeds.length > 0) {
-                const hospBeds = window._dynamicBeds.filter(b => b.hospitalId === h.id);
-                if (hospBeds.length > 0) {
-                    bedsTotal = hospBeds.length;
-                    bedsAvail = hospBeds.filter(b => b.status === 'Available').length;
-                }
-            }
             const bedsEl = document.createElement('p');
             bedsEl.style.margin = '0 0 6px 0';
             bedsEl.style.fontSize = '13px';

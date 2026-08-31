@@ -84,6 +84,11 @@ export class AppointmentsController {
     // A patient can only book for themselves.
     if (this.isPatient(req)) {
       dto.patientId = req.user.patientId;
+      // Patients choose any verified hospital/doctor in the network, but they
+      // cannot self-confirm a booking or manufacture a clinician referral.
+      delete dto.status;
+      delete dto.referredByDoctorId;
+      delete dto.parentAppointmentId;
     }
     // If booked by a doctor as a referral, track the referring doctor
     if (req.user?.role === UserRole.DOCTOR && !dto.referredByDoctorId) {

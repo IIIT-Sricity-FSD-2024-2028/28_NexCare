@@ -2,6 +2,8 @@ function escapeHtml(str) {
     return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
+let activePatientContext = {};
+
 document.addEventListener("DOMContentLoaded", async () => {
     await loadUserInfo();
     loadNearbyHospitals();
@@ -147,8 +149,12 @@ async function loadUserInfo() {
         console.warn('Could not fetch latest patient profile:', e);
     }
 
+    activePatientContext = { ...user, ...(patientProfile || {}) };
+
     // ── Populate name ──────────────────────────────────────────────────────
-    const displayName = (patientProfile && patientProfile.fullName) ? patientProfile.fullName : (user.name || user.email.split('@')[0]);
+    const displayName = (patientProfile && (patientProfile.fullName || patientProfile.name))
+        ? (patientProfile.fullName || patientProfile.name)
+        : (user.name || user.email.split('@')[0]);
     const firstName   = displayName.split(' ')[0];
 
     const nameNode = document.querySelector('.profile-name');
@@ -166,7 +172,7 @@ async function loadUserInfo() {
 
     // ── Populate Patient ID ────────────────────────────────────────────────
     const idNode = document.querySelector('.profile-id');
-    const patientIdentifier = patientProfile.patientId || patientProfile.patientIdDisplay || patientProfile.id;
+    const patientIdentifier = patientProfile?.patientId || patientProfile?.patientIdDisplay || patientProfile?.id || patientId;
     if (idNode && patientIdentifier) idNode.textContent = `Patient ID: ${patientIdentifier}`;
 }
 
@@ -358,14 +364,14 @@ async function loadNearbyHospitals() {
     if (!grid) return;
 
     let hospitalsList = [];
-    let isMock = false;
-    const patientPincode = "517501";
-    const patientCity = "Tirupati";
+    const patientPincode = String(activePatientContext.pincode || '').trim();
+    const patientCity = String(activePatientContext.city || '').trim();
+    const patientState = String(activePatientContext.state || '').trim();
 
     try {
         let res = null;
         if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
-            res = await window.NexCareAPI.Hospitals.getNearby(patientCity, undefined, patientPincode);
+            res = await window.NexCareAPI.Hospitals.getNearby(patientCity, patientState, patientPincode);
             if (!res || !res.success) {
                 res = await window.NexCareAPI.Hospitals.getAll();
             }
@@ -388,19 +394,17 @@ async function loadNearbyHospitals() {
             throw new Error("No hospital data returned from API");
         }
     } catch (err) {
-        console.warn("Backend unavailable or returned error for hospitals, falling back to mock data:", err);
-        isMock = true;
-        hospitalsList = Array.isArray(window.MOCK_HOSPITALS) ? window.MOCK_HOSPITALS : [];
+        console.error("Backend unavailable or returned error for hospitals:", err);
+        hospitalsList = [];
     }
 
-    // Update location / demo badge in UI
+    // Location ranks the directory; it never removes cross-city/state options.
     const locationBadge = document.getElementById('patientLocationBadge');
     if (locationBadge) {
-        if (isMock) {
-            locationBadge.innerHTML = `Location: Tirupati (517501) <span style="background:#FEF3C7; color:#92400E; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:600; margin-left:6px;">Demo data</span>`;
-        } else {
-            locationBadge.textContent = `Location: Tirupati (517501)`;
-        }
+        const location = [patientCity, patientState, patientPincode].filter(Boolean).join(' • ');
+        locationBadge.textContent = location
+            ? `All hospitals • nearest to ${location}`
+            : 'All verified NexCare hospitals';
     }
 
     if (!Array.isArray(hospitalsList) || hospitalsList.length === 0) {
@@ -412,12 +416,14 @@ async function loadNearbyHospitals() {
     const verifiedHospitals = hospitalsList.filter(h => !h.verificationStatus || h.verificationStatus === 'verified');
     const displayList = verifiedHospitals.length > 0 ? verifiedHospitals : hospitalsList;
 
-    // Proximity sorting
-    const samePin = displayList.filter(h => String(h.pincode || '').trim() === patientPincode);
-    const sameCity = displayList.filter(h => String(h.city || '').trim().toLowerCase() === patientCity.toLowerCase() && String(h.pincode || '').trim() !== patientPincode);
-    const otherHospitals = displayList.filter(h => String(h.city || '').trim().toLowerCase() !== patientCity.toLowerCase());
-
-    const sortedHospitals = [...samePin, ...sameCity, ...otherHospitals];
+    const proximityScore = h => {
+        let score = 0;
+        if (patientPincode && String(h.pincode || '').trim() === patientPincode) score += 3;
+        if (patientCity && String(h.city || '').trim().toLowerCase() === patientCity.toLowerCase()) score += 2;
+        if (patientState && String(h.state || '').trim().toLowerCase() === patientState.toLowerCase()) score += 1;
+        return score;
+    };
+    const sortedHospitals = [...displayList].sort((a, b) => proximityScore(b) - proximityScore(a));
 
     if (sortedHospitals.length === 0) {
         grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 24px; color: #6A7282;">No hospitals match the selected location.</div>`;
@@ -432,9 +438,10 @@ async function loadNearbyHospitals() {
         const fullAddr = `${addressStr}${cityStr}${pinStr ? ` - ${pinStr}` : ''}`;
         
         let proximityTag = '';
-        if (pinStr === patientPincode) proximityTag = '<span style="background:#DCFCE7; color:#15803D; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600;">Same PIN (517501)</span>';
-        else if (cityStr.toLowerCase() === patientCity.toLowerCase()) proximityTag = '<span style="background:#EFF6FF; color:#1D4ED8; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600;">In Your City</span>';
-        else proximityTag = '<span style="background:#F3F4F6; color:#4B5563; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:500;">Nearby City</span>';
+        if (patientPincode && pinStr === patientPincode) proximityTag = `<span style="background:#DCFCE7; color:#15803D; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600;">Same PIN (${escapeHtml(patientPincode)})</span>`;
+        else if (patientCity && cityStr.toLowerCase() === patientCity.toLowerCase()) proximityTag = '<span style="background:#EFF6FF; color:#1D4ED8; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600;">In Your City</span>';
+        else if (patientState && String(h.state || '').trim().toLowerCase() === patientState.toLowerCase()) proximityTag = '<span style="background:#F5F3FF; color:#6D28D9; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600;">In Your State</span>';
+        else proximityTag = '<span style="background:#F3F4F6; color:#4B5563; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:500;">NexCare Network</span>';
 
         const bedsAvail = typeof h.availableBeds === 'number' ? h.availableBeds : (h.icuBeds || 0);
         const bedsTotal = typeof h.totalBeds === 'number' ? h.totalBeds : 0;

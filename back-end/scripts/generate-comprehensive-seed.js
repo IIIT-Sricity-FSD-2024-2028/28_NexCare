@@ -15,7 +15,7 @@ const regionsData = [
     id: 'REG-AP-SOUTH',
     rmId: 'RM001',
     name: 'Anirudh Reddy',
-    email: 'anirudh.reddy@nexcare.in',
+    email: 'regional@nexcare.com',
     regionName: 'Andhra Pradesh South',
     cities: ['Tirupati', 'Nellore']
   },
@@ -64,7 +64,7 @@ const hospitalsData = [
     availableBeds: 36,
     managerId: 'HM-AP01',
     managerName: 'Priya Reddy',
-    managerEmail: 'priya.reddy@nexcare.in',
+    managerEmail: 'hospitalmanager@nexcare.com',
     wards: [
       { name: 'General Ward', capacity: 45, occupied: 32 },
       { name: 'ICU', capacity: 12, occupied: 9 },
@@ -223,7 +223,7 @@ const hospitalsData = [
     name: 'Chennai Lifeline Hospital',
     city: 'Chennai',
     state: 'Tamil Nadu',
-    pincode: '600006',
+    pincode: '600001',
     address: '15 Anna Salai, Thousand Lights, Chennai',
     phone: '+91 44 28290011',
     email: 'contact.lifeline@nexcare.in',
@@ -409,7 +409,7 @@ const adminStaffData = [
 const patientData = [
   // H001 (Tirupati)
   [
-    { name: 'John Anderson', age: 34, gender: 'Male', city: 'Tirupati', phone: '+91 98480 11223', email: 'patient@gmail.com', pid: 'P001', userId: 'U004', bloodGroup: 'O+' },
+    { name: 'Raghav Rao', age: 34, gender: 'Male', city: 'Tirupati', phone: '+91 98480 11223', email: 'patient@gmail.com', pid: 'P001', userId: 'U004', bloodGroup: 'O+' },
     { name: 'Sravani Reddy', age: 27, gender: 'Female', city: 'Tirupati', phone: '+91 98480 22334', email: 'sravani.reddy@example.in', pid: 'P002', userId: 'PAT-LOGIN-H1-2', bloodGroup: 'A+' },
     { name: 'Venkat Rao', age: 48, gender: 'Male', city: 'Tirupati', phone: '+91 98480 33445', email: 'venkat.rao@example.in', pid: 'P003', userId: 'PAT-LOGIN-H1-3', bloodGroup: 'B+' },
     { name: 'Kavitha Naidu', age: 42, gender: 'Female', city: 'Tirupati', phone: '+91 98480 44556', email: 'kavitha.n@example.in', pid: 'P004', bloodGroup: 'AB+' },
@@ -541,7 +541,7 @@ let ambulances = [];
 // 1. Superuser
 users.push({
   id: 'U001',
-  name: 'Super Admin',
+  name: 'NexCare Platform Office',
   email: 'superuser@nexcare.com',
   role: 'superuser',
   status: 'Active',
@@ -561,19 +561,6 @@ regionsData.forEach((reg) => {
     regionName: reg.regionName,
     areas: reg.cities
   });
-});
-
-// Add canonical legacy fallback alias for Regional Officer 1
-users.push({
-  id: 'RM000',
-  name: 'Anirudh Reddy (Alias)',
-  email: 'regional@nexcare.com',
-  role: 'regional_manager',
-  status: 'Active',
-  password: 'Password123',
-  regionId: 'REG-AP-SOUTH',
-  regionName: 'Andhra Pradesh South',
-  areas: ['Tirupati', 'Nellore']
 });
 
 // 3. Hospitals & Managers & Staff & Doctors & Patients
@@ -601,15 +588,28 @@ hospitalsData.forEach((h, hIdx) => {
     occupiedBeds: h.occupiedBeds,
     availableBeds: h.availableBeds,
     icuBeds: h.wards.find(w => w.name === 'ICU')?.capacity || 10,
-    specialities: ['Cardiology', 'General Medicine', 'Orthopaedics', 'Neurology', 'Paediatrics', 'Dermatology'],
-    departments: ['Cardiology', 'General Medicine', 'Orthopaedics', 'Neurology', 'Paediatrics', 'Dermatology'],
+    specialities: indianDoctorNames[hIdx].map(doc => doc.dept),
+    departments: indianDoctorNames[hIdx].map(doc => doc.dept),
     emergency24x7: true,
     ambulanceCount: 3 + (hIdx % 3),
     ambulanceService: true,
     verificationStatus: 'verified',
     subscriptionStatus: 'ACTIVE',
     subscriptionPlan: hIdx % 2 === 0 ? 'ENTERPRISE' : 'PREMIUM',
-    subscriptionExpiryDate: '2027-12-31'
+    subscriptionStartDate: '2026-01-01',
+    subscriptionExpiryDate: '2026-12-31',
+    lastPaymentDate: '2026-01-15T10:00:00Z',
+    amountPaid: hIdx % 2 === 0 ? 150000 : 90000,
+    paymentHistory: [{
+      id: `PAY-SEED-${h.id}`,
+      date: '2026-01-15T10:00:00Z',
+      amount: hIdx % 2 === 0 ? 150000 : 90000,
+      paymentType: hIdx % 2 === 0 ? 'Bank Transfer' : 'UPI',
+      transactionId: `NXC-SEED-${h.id}-2026`,
+      previousExpiry: '2025-12-31',
+      newExpiry: '2026-12-31',
+      status: 'PAID'
+    }]
   });
 
   // Add Hospital Manager
@@ -626,25 +626,24 @@ hospitalsData.forEach((h, hIdx) => {
     employeeId: `HM-${h.id}-001`
   });
 
-  // Alias for H001 Hospital Manager
-  if (h.id === 'H001') {
-    users.push({
-      id: 'HM001',
-      name: 'Priya Reddy (Alias)',
-      email: 'hospitalmanager@nexcare.com',
-      role: 'hospital_manager',
-      status: 'Active',
-      password: 'Password123',
-      hospitalId: 'H001',
-      hospitalName: h.name,
-      regionId: 'REG-AP-SOUTH',
-      employeeId: 'HM-H001-001'
-    });
-  }
-
   // Add Doctors (6 per hospital)
   const doctorsList = indianDoctorNames[hIdx];
   doctorsList.forEach((doc, dIdx) => {
+    const shiftStarts = ['08:00', '09:00', '10:00', '11:00', '12:00', '09:30'];
+    const workingDays = [
+      ['monday', 'tuesday', 'thursday', 'friday', 'saturday'],
+      ['monday', 'wednesday', 'friday', 'saturday'],
+      ['tuesday', 'wednesday', 'thursday', 'saturday'],
+      ['monday', 'tuesday', 'friday'],
+      ['wednesday', 'thursday', 'friday', 'saturday'],
+      ['monday', 'tuesday', 'wednesday', 'thursday'],
+    ][dIdx % 6];
+    const doctorSchedule = Object.fromEntries(
+      ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+        .map(day => [day, workingDays.includes(day)
+          ? { start: shiftStarts[dIdx % shiftStarts.length], end: day === 'saturday' ? '13:00' : '17:00' }
+          : null]),
+    );
     users.push({
       id: doc.id,
       name: doc.name,
@@ -664,15 +663,7 @@ hospitalsData.forEach((h, hIdx) => {
       employeeId: `DOC-${h.id}-${String(dIdx + 1).padStart(3, '0')}`,
       medicalRegNumber: `MCI-${h.id}-${100 + dIdx}`,
       consultationTiming: '09:00 AM - 05:00 PM',
-      schedule: {
-        monday: { start: '09:00', end: '17:00' },
-        tuesday: { start: '09:00', end: '17:00' },
-        wednesday: { start: '09:00', end: '17:00' },
-        thursday: { start: '09:00', end: '17:00' },
-        friday: { start: '09:00', end: '17:00' },
-        saturday: { start: '09:00', end: '13:00' },
-        sunday: null
-      }
+      schedule: doctorSchedule
     });
 
     // Doctor Leave Request for 1 doctor per hospital
@@ -694,7 +685,9 @@ hospitalsData.forEach((h, hIdx) => {
     }
   });
 
-  // Add Administrative Staff (4 per hospital)
+  // Add Administrative Staff. Every hospital receives five members so its
+  // front desk, billing, inventory, admissions and scheduling functions are
+  // independently staffed and can be scoped from the same user directory.
   const adminList = adminStaffData[hIdx];
   adminList.forEach((adm, aIdx) => {
     users.push({
@@ -711,6 +704,32 @@ hospitalsData.forEach((h, hIdx) => {
       responsibility: adm.dept,
       employeeId: `ADM-${h.id}-${String(aIdx + 1).padStart(3, '0')}`
     });
+  });
+
+  const operationsCoordinators = [
+    { name: 'Naveen Reddy', dept: 'Patient Relations', email: 'naveen.reddy@nexcare.in' },
+    { name: 'Keerthana Devi', dept: 'Admissions Coordination', email: 'keerthana.devi@nexcare.in' },
+    { name: 'Ritu Malhotra', dept: 'Quality & Records', email: 'ritu.malhotra@nexcare.in' },
+    { name: 'Anusha Shetty', dept: 'Patient Relations', email: 'anusha.shetty@nexcare.in' },
+    { name: 'Tejas Kulkarni', dept: 'Quality & Records', email: 'tejas.kulkarni@nexcare.in' },
+    { name: 'Madhura Joshi', dept: 'Admissions Coordination', email: 'madhura.joshi@nexcare.in' },
+    { name: 'S. Nivetha', dept: 'Quality & Records', email: 's.nivetha@nexcare.in' },
+    { name: 'Aravind Kumar', dept: 'Patient Relations', email: 'aravind.kumar@nexcare.in' },
+  ];
+  const coordinator = operationsCoordinators[hIdx];
+  users.push({
+    id: `ADM-${h.id}-05`,
+    name: coordinator.name,
+    email: coordinator.email,
+    role: 'administrative_staff',
+    status: 'Active',
+    password: 'Password123',
+    hospitalId: h.id,
+    hospitalName: h.name,
+    regionId: h.regionId,
+    dept: coordinator.dept,
+    responsibility: coordinator.dept,
+    employeeId: `ADM-${h.id}-005`
   });
 
   // Add Ambulance Staff (2 per hospital)
@@ -896,15 +915,12 @@ hospitalsData.forEach((h, hIdx) => {
     regionId: h.regionId,
     validFrom: '2026-01-01',
     validTo: '2027-12-31',
-    slots: [
-      { department: 'Cardiology', shift: 'Morning (08:00 - 16:00)', startTime: '08:00', endTime: '16:00' },
-      { department: 'General Medicine', shift: 'Morning (08:00 - 16:00)', startTime: '08:00', endTime: '16:00' },
-      { department: 'Orthopaedics', shift: 'Morning (08:00 - 16:00)', startTime: '08:00', endTime: '16:00' },
-      { department: 'Neurology', shift: 'Morning (08:00 - 16:00)', startTime: '08:00', endTime: '16:00' },
-      { department: 'Paediatrics', shift: 'Morning (08:00 - 16:00)', startTime: '08:00', endTime: '16:00' },
-      { department: 'Dermatology', shift: 'Morning (08:00 - 16:00)', startTime: '08:00', endTime: '16:00' },
-      { department: 'Emergency Medicine', shift: '24x7 Shift', startTime: '00:00', endTime: '23:59' }
-    ],
+    slots: [...new Set(doctorsList.map(doc => doc.dept))].map(department => ({
+      department,
+      shift: department === 'Emergency Medicine' ? '24x7 Shift' : 'Morning (08:00 - 16:00)',
+      startTime: department === 'Emergency Medicine' ? '00:00' : '08:00',
+      endTime: department === 'Emergency Medicine' ? '23:59' : '16:00'
+    })),
     notes: 'Published hospital-wide OPD roster',
     status: 'approved',
     submittedBy: h.managerId,

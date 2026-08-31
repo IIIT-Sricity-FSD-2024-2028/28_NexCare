@@ -10,6 +10,7 @@ import { UserRole, UserStatus } from '../common/interfaces/api-response.interfac
 import { SystemService } from '../system/system.service';
 import { PatientsService } from '../patients/patients.service';
 import { PricingService } from '../revenue/pricing.service';
+import { DEFAULT_STAFF_PASSWORD } from '../common/constants/app.constants';
 
 /**
  * Roles that exist purely as directory records. They can be created and
@@ -555,8 +556,7 @@ export class AuthService {
         return ResponseUtil.error('New password must be different from current password');
       }
 
-      const defaultPassword = process.env.DEFAULT_STAFF_PASSWORD || 'NexCare@123';
-      if (data.newPassword === defaultPassword) {
+      if (data.newPassword === DEFAULT_STAFF_PASSWORD) {
         return ResponseUtil.error('New password cannot be the default staff password (NexCare@123)');
       }
 

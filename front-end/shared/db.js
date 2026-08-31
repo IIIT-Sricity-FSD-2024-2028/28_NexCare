@@ -417,77 +417,33 @@ window.NexCareStore = {
     
     async createAppointment(data) {
         const patientId = NexCareDB.getActivePatientScope();
-        const patient = await this.getActivePatient();
-        
-        // Slot conflict guard: prevent booking already booked active slots
-        const existingAppts = NexCareDB.getTable('appointments') || [];
-        const normDoc = String(data.doctor || '').toLowerCase().replace(/^dr\.\s*/i, '').trim();
-        const normDate = String(data.dateLabel || '').trim();
-        const normTime = String(data.timeLabel || '').trim();
-        
-        const conflict = existingAppts.find(a => {
-            if (a.status === 'Cancelled') return false;
-            const aDoc = String(a.doctor || a.doctorName || '').toLowerCase().replace(/^dr\.\s*/i, '').trim();
-            const aDate = String(a.dateLabel || a.date || '').trim();
-            const aTime = String(a.timeLabel || a.time || '').trim();
-            return (aDoc === normDoc || aDoc.includes(normDoc) || normDoc.includes(aDoc)) &&
-                   (aDate === normDate || aDate.includes(normDate) || normDate.includes(aDate)) &&
-                   (aTime === normTime);
-        });
 
-        if (conflict) {
-            throw new Error(`The slot "${data.timeLabel}" on ${data.dateLabel} with ${data.doctor} is already booked.`);
+        if (!isAPIAvailable()) {
+            throw new Error('The NexCare server is unavailable. Your appointment was not created.');
         }
-        
-        if (isAPIAvailable()) {
-            try {
-                // White-list fields for backend DTO validation
-                const payload = {
-                    patientId,
-                    // hospitalId is what per-hospital revenue reporting keys on;
-                    // the name is kept alongside it purely for display.
-                    hospitalId: data.hospitalId || undefined,
-                    hospitalName: data.hospitalName || "NexCare AIIMS Super Speciality Hospital",
-                    department: data.department,
-                    doctor: data.doctor || "Dr. Sarah Smith",
-                    // The doctor's user id. Without it the appointment reaches no
-                    // doctor's portal and earns no consultation commission — the
-                    // backend can only fall back to matching on the name.
-                    doctorId: data.doctorId || undefined,
-                    dateLabel: data.dateLabel,
-                    timeLabel: data.timeLabel,
-                    reason: data.reason || "",
-                    fee: data.fee || 100
-                };
-                const result = await window.NexCareAPI.Appointments.create(payload);
-                if (result.success) {
-                    await NexCareDB.logActivity('Create', 'Appointments', `Booked appointment (${result.data.id}) for ${data.department} with ${data.doctor} on ${data.dateLabel} at ${data.timeLabel}.`);
-                    return result.data;
-                }
-            } catch (error) {
-                console.warn('Create appointment API failed, using fallback:', error.message);
-            }
-        }
-        
-        // Fallback to localStorage
-        const appt = NexCareDB.addRow('appointments', {
-            id: NexCareDB.generateId("APT"),
+
+        // The backend is the single source of truth for slot conflicts and the
+        // doctor/hospital relationship. Never create a disconnected local-only
+        // booking that staff at the selected hospital cannot see.
+        const payload = {
             patientId,
-            patientName: patient?.fullName || 'Self',
-            hospitalName: data.hospitalName || "NexCare AIIMS Super Speciality Hospital",
+            hospitalId: data.hospitalId || undefined,
+            hospitalName: data.hospitalName || undefined,
             department: data.department,
-            doctor: data.doctor || "Dr. Sarah Smith",
-            doctorId: data.doctorId || null,
+            doctor: data.doctor || undefined,
+            doctorId: data.doctorId || undefined,
             dateLabel: data.dateLabel,
             timeLabel: data.timeLabel,
-            token: data.token || NexCareDB.generateId("TKN"),
-            fee: data.fee || 100,
-            status: data.status || "Confirmed",
             reason: data.reason || "",
-            createdAt: new Date().toISOString()
-        });
-        NexCareDB.logActivity('Create', 'Appointments', `Booked appointment (${appt.id}) for ${appt.department} with ${appt.doctor} on ${appt.dateLabel} at ${appt.timeLabel}.`);
-        return appt;
+            fee: data.fee || undefined
+        };
+        const result = await window.NexCareAPI.Appointments.create(payload);
+        if (!result || !result.success || !result.data) {
+            throw new Error(result?.message || 'The hospital could not accept this appointment.');
+        }
+
+        await NexCareDB.logActivity('Create', 'Appointments', `Booked appointment (${result.data.id}) for ${data.department} with ${data.doctor} on ${data.dateLabel} at ${data.timeLabel}.`);
+        return result.data;
     },
     
     async updateAppointment(id, patch) {

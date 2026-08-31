@@ -56,4 +56,57 @@ describe('HospitalsService - Filtering', () => {
       expect(specs).toContain('cardiology');
     });
   });
+
+  it('should return every verified hospital for nearby discovery while ranking local matches first', async () => {
+    const hospitals = [
+      {
+        id: 'H001',
+        name: 'Local Hospital',
+        city: 'Chennai',
+        state: 'Tamil Nadu',
+        pincode: '600001',
+        verificationStatus: 'verified',
+      },
+      {
+        id: 'H002',
+        name: 'Cross-state Hospital',
+        city: 'Bengaluru',
+        state: 'Karnataka',
+        pincode: '560001',
+        verificationStatus: 'verified',
+      },
+      {
+        id: 'H003',
+        name: 'Same-state Hospital',
+        city: 'Vellore',
+        state: 'Tamil Nadu',
+        pincode: '632004',
+        verificationStatus: 'verified',
+      },
+      {
+        id: 'H004',
+        name: 'Unverified Hospital',
+        city: 'Chennai',
+        state: 'Tamil Nadu',
+        pincode: '600001',
+        verificationStatus: 'pending_verification',
+      },
+    ];
+
+    Object.defineProperty(service as any, 'hospitals', {
+      configurable: true,
+      get: () => hospitals,
+    });
+
+    const res = await service.findNearby('Chennai', 'Tamil Nadu', '600001');
+    const result = res.data as any[];
+
+    expect(res.success).toBe(true);
+    expect(result.map(hospital => hospital.id)).toEqual(
+      expect.arrayContaining(['H001', 'H002', 'H003']),
+    );
+    expect(result).toHaveLength(3);
+    expect(result[0].id).toBe('H001');
+    expect(result.some(hospital => hospital.id === 'H004')).toBe(false);
+  });
 });

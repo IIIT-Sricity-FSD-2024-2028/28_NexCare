@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Hospital, CreateHospitalDto, UpdateHospitalDto, HospitalPaymentRecord } from './interfaces/hospital.interface';
-import { VerificationStatus } from '../common/interfaces/api-response.interface';
+import { UserRole, UserStatus, VerificationStatus } from '../common/interfaces/api-response.interface';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -41,7 +41,7 @@ export class HospitalsService {
     pincode?: string
   ) {
     try {
-      let result = this.hospitals;
+      let result = this.getDirectoryHospitals();
       if (status) {
         result = result.filter(h => h.verificationStatus === status);
       }
@@ -112,7 +112,7 @@ export class HospitalsService {
 
   async findById(id: string) {
     try {
-      const hospital = this.hospitals.find(h => h.id === id);
+      const hospital = this.getDirectoryHospitals().find(h => h.id === id);
       if (!hospital) {
         return ResponseUtil.notFound('Hospital', id);
       }
@@ -250,7 +250,7 @@ export class HospitalsService {
   }
   async findNearby(city?: string, state?: string, pincode?: string) {
     try {
-      const verified = this.hospitals.filter(
+      const verified = this.getDirectoryHospitals().filter(
         (h) => !h.verificationStatus || h.verificationStatus === VerificationStatus.VERIFIED,
       );
 
@@ -263,18 +263,9 @@ export class HospitalsService {
         return s;
       };
 
-      const hasLocation = !!(pincode || city || state);
-
-      // When a location is supplied, actually narrow to hospitals that share
-      // at least the state/city/pincode. If nothing matches locally, fall back
-      // to the full verified list so the patient still sees options.
-      let result = verified;
-      if (hasLocation) {
-        const local = verified.filter(h => score(h) > 0);
-        result = local.length > 0 ? local : verified;
-      }
-
-      result.sort((a, b) => score(b) - score(a));
+      // Patients belong to the NexCare network, not to one hospital. Location
+      // only changes the order: every verified hospital remains selectable.
+      const result = [...verified].sort((a, b) => score(b) - score(a));
 
       return ResponseUtil.success('Nearby hospitals retrieved successfully', result);
     } catch (error) {
@@ -538,6 +529,49 @@ export class HospitalsService {
     }
   }
 
+  /**
+   * Public hospital-directory values are calculated from the shared stores so
+   * every patient sees current capacity and the doctors actually working at
+   * each hospital. Only aggregate bed counts are returned; patient allocations
+   * on individual bed records remain private to hospital staff.
+   */
+  private getDirectoryHospitals(): Hospital[] {
+    const beds = this.loadDataFile<any>('beds.json');
+    const users = this.loadDataFile<any>('users.json');
+
+    return this.hospitals.map(hospital => {
+      const hospitalBeds = beds.filter(bed => bed.hospitalId === hospital.id);
+      const doctors = users.filter(user =>
+        user.role === UserRole.DOCTOR &&
+        user.hospitalId === hospital.id &&
+        user.status !== UserStatus.INACTIVE,
+      );
+      const liveSpecialities = Array.from(new Set(
+        doctors
+          .map(doctor => doctor.dept || doctor.specialization)
+          .filter((value): value is string => typeof value === 'string' && value.trim().length > 0),
+      ));
+
+      const hasLiveBeds = hospitalBeds.length > 0;
+      const availableBeds = hasLiveBeds
+        ? hospitalBeds.filter(bed => String(bed.status || '').toLowerCase() === 'available').length
+        : hospital.availableBeds;
+      const occupiedBeds = hasLiveBeds
+        ? hospitalBeds.filter(bed => String(bed.status || '').toLowerCase() === 'occupied').length
+        : hospital.occupiedBeds;
+
+      return {
+        ...hospital,
+        totalBeds: hasLiveBeds ? hospitalBeds.length : hospital.totalBeds,
+        availableBeds,
+        occupiedBeds,
+        specialities: liveSpecialities.length > 0 ? liveSpecialities : (hospital.specialities || []),
+        departments: liveSpecialities.length > 0 ? liveSpecialities : (hospital.specialities || []),
+        doctorCount: doctors.length,
+      } as Hospital;
+    });
+  }
+
   getHospitalsForManager(managerId: string): Hospital[] {
     const users = this.loadDataFile<any>('users.json');
     const user = users.find(u => u.id === managerId || u.email === managerId);
@@ -558,15 +592,20 @@ export class HospitalsService {
     beds: any[];
     inventory: any[];
     users: any[];
+    patients: any[];
+    leaves: any[];
     feedback: any[];
     appointments: any[];
   }) {
     const hid = hospital.id;
-    const totalBeds = hospital.totalBeds || 0;
-    const availableBeds = hospital.availableBeds ?? context.beds.filter(
-      b => b.hospitalId === hid && String(b.status || '').toLowerCase() === 'available',
+    const hospitalBeds = context.beds.filter(b => b.hospitalId === hid);
+    const totalBeds = hospitalBeds.length;
+    const availableBeds = hospitalBeds.filter(
+      b => String(b.status || '').toLowerCase() === 'available',
     ).length;
-    const occupiedBeds = totalBeds > 0 ? totalBeds - availableBeds : 0;
+    const occupiedBeds = hospitalBeds.filter(
+      b => String(b.status || '').toLowerCase() === 'occupied',
+    ).length;
     const bedOccupancyRate = totalBeds > 0
       ? Math.round((occupiedBeds / totalBeds) * 100)
       : 0;
@@ -592,9 +631,12 @@ export class HospitalsService {
       ? Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10
       : (hospital.performanceMetrics?.patientSatisfactionScore ?? 0);
 
-    const lowStockItems = context.inventory.filter(
-      i => i.hospitalId === hid && this.isLowStock(i),
-    ).length;
+    const lowStockItems = context.inventory.filter(i => {
+      if (i.hospitalId !== hid) return false;
+      const quantity = Number(i.quantity ?? i.currentQuantity ?? 0);
+      const minimum = Number(i.minimumQuantity ?? i.reorderLevel ?? 0);
+      return quantity === 0 || (minimum > 0 && quantity < minimum);
+    }).length;
 
     const openComplaints = hospitalFeedback.filter(
       f => !['resolved', 'closed'].includes(String(f.status || '').toLowerCase()),
@@ -612,6 +654,17 @@ export class HospitalsService {
       icuBeds: hospital.icuBeds,
       bedOccupancyRate,
       doctorCount: hospitalDoctors.length,
+      administrativeStaffCount: context.users.filter(
+        u => u.role === 'administrative_staff' && u.hospitalId === hid,
+      ).length,
+      hospitalManagerCount: context.users.filter(
+        u => u.role === 'hospital_manager' && u.hospitalId === hid,
+      ).length,
+      patientCount: context.patients.filter(p => p.hospitalId === hid).length,
+      appointmentCount: hospitalAppointments.length,
+      pendingLeaveCount: context.leaves.filter(
+        leave => leave.hospitalId === hid && String(leave.status || '').toLowerCase() === 'pending',
+      ).length,
       appointmentCompletionRate,
       patientSatisfactionScore,
       lowStockItems,
@@ -630,6 +683,8 @@ export class HospitalsService {
         beds: this.loadDataFile<any>('beds.json'),
         inventory: this.loadDataFile<any>('inventory.json'),
         users: this.loadDataFile<any>('users.json'),
+        patients: this.loadDataFile<any>('patients.json'),
+        leaves: this.loadDataFile<any>('leaves.json'),
         feedback: this.loadDataFile<any>('feedback.json'),
         appointments: this.loadDataFile<any>('appointments.json'),
       };
@@ -638,6 +693,11 @@ export class HospitalsService {
       const totalBeds = hospitalSummaries.reduce((s, h) => s + h.totalBeds, 0);
       const availableBeds = hospitalSummaries.reduce((s, h) => s + h.availableBeds, 0);
       const totalDoctors = hospitalSummaries.reduce((s, h) => s + h.doctorCount, 0);
+      const totalAdministrativeStaff = hospitalSummaries.reduce((s, h) => s + h.administrativeStaffCount, 0);
+      const totalHospitalManagers = hospitalSummaries.reduce((s, h) => s + h.hospitalManagerCount, 0);
+      const totalPatients = hospitalSummaries.reduce((s, h) => s + h.patientCount, 0);
+      const totalAppointments = hospitalSummaries.reduce((s, h) => s + h.appointmentCount, 0);
+      const pendingLeaves = hospitalSummaries.reduce((s, h) => s + h.pendingLeaveCount, 0);
       const lowStockItems = hospitalSummaries.reduce((s, h) => s + h.lowStockItems, 0);
       const openComplaints = hospitalSummaries.reduce((s, h) => s + h.openComplaints, 0);
       const avgOccupancy = hospitalSummaries.length > 0
@@ -655,12 +715,19 @@ export class HospitalsService {
 
       // Revenue calculations for regional officer dashboard
       const now = new Date();
-      const totalRegionalRevenue = myHospitals.reduce((acc, h) => {
-        const fee = h.amountPaid || (h.subscriptionPlan === 'ENTERPRISE' ? 120000 : 50000);
-        return acc + fee;
-      }, 0);
-      const revenueThisMonth = Math.round(totalRegionalRevenue * 0.12);
-      const revenueThisYear = totalRegionalRevenue;
+      const subscriptionPayments = myHospitals.flatMap(h =>
+        (h.paymentHistory || []).filter((payment: any) => String(payment.status).toUpperCase() === 'PAID')
+          .map((payment: any) => ({ ...payment, hospitalId: h.id })),
+      );
+      const totalRegionalRevenue = subscriptionPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+      const currentMonth = now.toISOString().slice(0, 7);
+      const currentYear = now.getUTCFullYear();
+      const revenueThisMonth = subscriptionPayments
+        .filter(payment => String(payment.date || '').slice(0, 7) === currentMonth)
+        .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+      const revenueThisYear = subscriptionPayments
+        .filter(payment => new Date(payment.date).getUTCFullYear() === currentYear)
+        .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
       const activePaidHospitals = myHospitals.filter(h => (h.subscriptionStatus || 'ACTIVE') === 'ACTIVE').length;
       const pendingRenewals = myHospitals.filter(h => h.subscriptionStatus === 'PENDING_RENEWAL' || h.renewalStatus === 'PENDING').length;
       const expiredSubscriptions = myHospitals.filter(h => h.subscriptionStatus === 'EXPIRED').length;
@@ -675,9 +742,10 @@ export class HospitalsService {
         hospitalId: h.id,
         hospitalName: h.name,
         subscriptionPlan: h.subscriptionPlan || 'PREMIUM',
-        lastPaymentDate: h.lastPaymentDate || '2026-01-01',
-        amountPaid: h.amountPaid || (h.subscriptionPlan === 'ENTERPRISE' ? 120000 : 50000),
-        subscriptionExpiryDate: h.subscriptionExpiryDate || '2027-12-31',
+        lastPaymentDate: h.paymentHistory?.[0]?.date || h.lastPaymentDate || null,
+        amountPaid: (h.paymentHistory || []).filter((payment: any) => String(payment.status).toUpperCase() === 'PAID')
+          .reduce((sum: number, payment: any) => sum + Number(payment.amount || 0), 0),
+        subscriptionExpiryDate: h.subscriptionExpiryDate || null,
         status: h.subscriptionStatus || 'ACTIVE'
       }));
 
@@ -690,7 +758,12 @@ export class HospitalsService {
           availableBeds,
           averageOccupancy: avgOccupancy,
           totalDoctors,
+          totalAdministrativeStaff,
+          totalHospitalManagers,
+          totalPatients,
+          totalAppointments,
           lowStockItems,
+          pendingLeaves,
           openComplaints,
           averageSatisfaction: avgSatisfaction,
           // Subscription & Regional Revenue metrics
@@ -717,6 +790,8 @@ export class HospitalsService {
         beds: this.loadDataFile<any>('beds.json'),
         inventory: this.loadDataFile<any>('inventory.json'),
         users: this.loadDataFile<any>('users.json'),
+        patients: this.loadDataFile<any>('patients.json'),
+        leaves: this.loadDataFile<any>('leaves.json'),
         feedback: this.loadDataFile<any>('feedback.json'),
         appointments: this.loadDataFile<any>('appointments.json'),
       };
@@ -843,6 +918,8 @@ export class HospitalsService {
         beds: this.loadDataFile<any>('beds.json'),
         inventory: this.loadDataFile<any>('inventory.json'),
         users: this.loadDataFile<any>('users.json'),
+        patients: this.loadDataFile<any>('patients.json'),
+        leaves: this.loadDataFile<any>('leaves.json'),
         feedback: this.loadDataFile<any>('feedback.json'),
         appointments: this.loadDataFile<any>('appointments.json'),
       };

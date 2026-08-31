@@ -1,19 +1,19 @@
 [
   {
     "id": "U001",
-    "name": "Super Admin",
+    "name": "NexCare Platform Office",
     "email": "superuser@nexcare.com",
     "role": "superuser",
     "status": "Active",
-    "password": "scrypt$b475696c973af5d401c0c8ac7b224983$02fe9154669797c7e56217d287447fde832b6fa9929d7d66b87a2c0b8e8edd85742d2ff6b3f7192ed534f6d7004377d786cbcfe29ce6d3b47931fded815259f9"
+    "password": "Password123"
   },
   {
     "id": "RM001",
     "name": "Anirudh Reddy",
-    "email": "anirudh.reddy@nexcare.in",
+    "email": "regional@nexcare.com",
     "role": "regional_manager",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$18af4cb74fac58531c94d58aa10d8282$088779f9a837045bbb20f65f7ac5a92d98a4db8d5006ff91adfebcfce78a9982536a7322b4cbfdbd4db66ae06a4b7eb64bb8d30a00f9f2920eb567b270506802",
     "regionId": "REG-AP-SOUTH",
     "regionName": "Andhra Pradesh South",
     "areas": [
@@ -27,7 +27,7 @@
     "email": "kavya.menon@nexcare.in",
     "role": "regional_manager",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$0f2e93d3ee4b8b178cbb8883b7e1d20f$c5c764e5f8e395f03e1ec936a838c4581d8c6cb6d6e6c362908c3feb0e8ecfaffcea34d90836d2ce96087ac8f422be603de85734489ebb90e7d232c0fb5e0df0",
     "regionId": "REG-KA-SOUTH",
     "regionName": "Karnataka South",
     "areas": [
@@ -64,38 +64,12 @@
     ]
   },
   {
-    "id": "RM000",
-    "name": "Anirudh Reddy (Alias)",
-    "email": "regional@nexcare.com",
-    "role": "regional_manager",
-    "status": "Active",
-    "password": "scrypt$be10ee6473adc4ff1477168cf24a0ed5$75e7d985331c26d0e5c9bc19bd861950d9d881317cd821e404b1a64bd3477b52eb3b54b7bcf25f65cc18dd579fac1bbb9a7450f3f76b8b46124735d507ed90f0",
-    "regionId": "REG-AP-SOUTH",
-    "regionName": "Andhra Pradesh South",
-    "areas": [
-      "Tirupati",
-      "Nellore"
-    ]
-  },
-  {
     "id": "HM-AP01",
     "name": "Priya Reddy",
-    "email": "priya.reddy@nexcare.in",
-    "role": "hospital_manager",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H001",
-    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
-    "regionId": "REG-AP-SOUTH",
-    "employeeId": "HM-H001-001"
-  },
-  {
-    "id": "HM001",
-    "name": "Priya Reddy (Alias)",
     "email": "hospitalmanager@nexcare.com",
     "role": "hospital_manager",
     "status": "Active",
-    "password": "scrypt$79f436e981fe8b5f2c73f3822661530b$adf41cf0da0b4c2da59a2e1002d93307d3c14be6d6521ad3972d656174d4c1e29de8c58430c71d351003abedf8ba8728916c57d5e38a061fc162684a345e929a",
+    "password": "scrypt$abae4b4790f720bb7e2ef40d0c52cb89$0ada4ca3ab6628a4e3e2c3545daef82fdcefc3b3b592229b924583ead0f58a2ac8c1317128e9b648b0b845c62b0a5c5fffb2f4355412d5e6da0b1c11030f7e07",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
@@ -112,8 +86,8 @@
     "consultationFee": 900,
     "experienceYears": 14,
     "qualification": "MBBS, MD, DM",
-    "status": "On Leave",
-    "password": "scrypt$335c535d83dc6ddf221b6996292d5560$a27208d0c4d34c406695826d217572a33a29279a789e3908207848376ada1f10b370c6e483c98141ee7fe1a863b56131e165649129e59289a63e1aabf6fa0c9b",
+    "status": "Active",
+    "password": "scrypt$d3ab2dad7a6a61982a1cfb1deee01fe1$4f4a22bb60a6106411030d6f25f13df5da553c72e60e675f7410d253bf049609c6d15fedbe44173f8e9f1d2d1f28ac3383e8e598c51a44e19afc87644a8215a8",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
@@ -122,32 +96,28 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
       "thursday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "13:00"
       },
       "sunday": null
-    },
-    "updatedAt": "2026-08-31T04:51:42.849Z"
+    }
   },
   {
     "id": "DOC-AP01-002",
@@ -173,18 +143,12 @@
         "start": "09:00",
         "end": "17:00"
       },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "tuesday": null,
       "wednesday": {
         "start": "09:00",
         "end": "17:00"
       },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "thursday": null,
       "friday": {
         "start": "09:00",
         "end": "17:00"
@@ -216,28 +180,22 @@
     "medicalRegNumber": "MCI-H001-102",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
       "tuesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "friday": null,
       "saturday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "13:00"
       },
       "sunday": null
@@ -264,29 +222,20 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
+      "thursday": null,
       "friday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "saturday": null,
       "sunday": null
     }
   },
@@ -310,28 +259,22 @@
     "medicalRegNumber": "MCI-H001-104",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
+      "tuesday": null,
       "wednesday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "13:00"
       },
       "sunday": null
@@ -358,29 +301,23 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "friday": null,
+      "saturday": null,
       "sunday": null
     }
   },
@@ -390,7 +327,7 @@
     "email": "admin@nexcare.com",
     "role": "administrative_staff",
     "status": "Active",
-    "password": "scrypt$f69a7f536d15ea3e7258593f666e8902$9a96c708edcb439a4504432a29a970bd1fb791ee3840bab0d840a8091250d56fb64e35f4b9f679ce7adb58e019b0a858b098a56aa3c7f450113198cb959df051",
+    "password": "scrypt$f688d69609db296dbbd1245ee8deaacc$99b61c48d59876c64acfe6324c9483955ee41fc607a7ea38d713c1f1a43489120deff834b7c89c4a063c362cdc14fc0abfb7bc2c83bc8f03a0430c61d2837fba",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
@@ -441,12 +378,26 @@
     "employeeId": "ADM-H001-004"
   },
   {
+    "id": "ADM-H001-05",
+    "name": "Naveen Reddy",
+    "email": "naveen.reddy@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "dept": "Patient Relations",
+    "responsibility": "Patient Relations",
+    "employeeId": "ADM-H001-005"
+  },
+  {
     "id": "U003",
     "name": "Tirupati Crew Alpha",
     "email": "ambulance@nexcare.com",
     "role": "ambulance",
     "status": "Active",
-    "password": "scrypt$a6072de6f1eb2102b16fdb1ee3d2f3bc$1937c0ec4ff950c2f514e9a9e0948f0fd889550d357d551d691285d1abf1424a65296d33708c89cf61fb09f5b0f39f11a151e53295bebaf8cf873d8554ad75fc",
+    "password": "Password123",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
@@ -466,11 +417,11 @@
   },
   {
     "id": "U004",
-    "name": "John Anderson",
+    "name": "Raghav Rao",
     "email": "patient@gmail.com",
     "role": "patient",
     "status": "Active",
-    "password": "scrypt$4141ab4a5345e7530e55ae227aebfdee$6524119be8e1f4b90b8efa5b0ab918e39096f10f6c45cf0670b7bb3aeb7065725878bc9bd3e1911061f8ece649ef9ad84539eeb8834b50d162be5eff98696b2c",
+    "password": "scrypt$4864b4d08e457f74f5339f32f8ec5f39$4dfa8782805776abad3afecc88fa4a2baa8ff646903e69259422c858d3d3781e9d44b9838e50227187323efb8674d9a00c6b753428111f4700a8118f36d88315",
     "patientId": "P001",
     "hospitalId": "H001",
     "regionId": "REG-AP-SOUTH"
@@ -530,27 +481,24 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
       "thursday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "13:00"
       },
       "sunday": null
@@ -580,18 +528,12 @@
         "start": "09:00",
         "end": "17:00"
       },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "tuesday": null,
       "wednesday": {
         "start": "09:00",
         "end": "17:00"
       },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "thursday": null,
       "friday": {
         "start": "09:00",
         "end": "17:00"
@@ -623,28 +565,22 @@
     "medicalRegNumber": "MCI-H002-102",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
       "tuesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "friday": null,
       "saturday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "13:00"
       },
       "sunday": null
@@ -671,29 +607,20 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
+      "thursday": null,
       "friday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "saturday": null,
       "sunday": null
     }
   },
@@ -717,28 +644,22 @@
     "medicalRegNumber": "MCI-H002-104",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
+      "tuesday": null,
       "wednesday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "13:00"
       },
       "sunday": null
@@ -765,29 +686,23 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "friday": null,
+      "saturday": null,
       "sunday": null
     }
   },
@@ -846,6 +761,20 @@
     "dept": "Scheduling",
     "responsibility": "Scheduling",
     "employeeId": "ADM-H002-004"
+  },
+  {
+    "id": "ADM-H002-05",
+    "name": "Keerthana Devi",
+    "email": "keerthana.devi@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "dept": "Admissions Coordination",
+    "responsibility": "Admissions Coordination",
+    "employeeId": "ADM-H002-005"
   },
   {
     "id": "AMB-H002-01",
@@ -937,27 +866,24 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
       "thursday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "13:00"
       },
       "sunday": null
@@ -987,18 +913,12 @@
         "start": "09:00",
         "end": "17:00"
       },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "tuesday": null,
       "wednesday": {
         "start": "09:00",
         "end": "17:00"
       },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "thursday": null,
       "friday": {
         "start": "09:00",
         "end": "17:00"
@@ -1030,28 +950,22 @@
     "medicalRegNumber": "MCI-H003-102",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
       "tuesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "friday": null,
       "saturday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "13:00"
       },
       "sunday": null
@@ -1078,29 +992,20 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
+      "thursday": null,
       "friday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "saturday": null,
       "sunday": null
     }
   },
@@ -1124,28 +1029,22 @@
     "medicalRegNumber": "MCI-H003-104",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
+      "tuesday": null,
       "wednesday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "13:00"
       },
       "sunday": null
@@ -1172,29 +1071,23 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "friday": null,
+      "saturday": null,
       "sunday": null
     }
   },
@@ -1253,6 +1146,20 @@
     "dept": "Admissions & Beds",
     "responsibility": "Admissions & Beds",
     "employeeId": "ADM-H003-004"
+  },
+  {
+    "id": "ADM-H003-05",
+    "name": "Ritu Malhotra",
+    "email": "ritu.malhotra@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "dept": "Quality & Records",
+    "responsibility": "Quality & Records",
+    "employeeId": "ADM-H003-005"
   },
   {
     "id": "AMB-H003-01",
@@ -1344,27 +1251,24 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
       "thursday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "13:00"
       },
       "sunday": null
@@ -1394,18 +1298,12 @@
         "start": "09:00",
         "end": "17:00"
       },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "tuesday": null,
       "wednesday": {
         "start": "09:00",
         "end": "17:00"
       },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "thursday": null,
       "friday": {
         "start": "09:00",
         "end": "17:00"
@@ -1437,28 +1335,22 @@
     "medicalRegNumber": "MCI-H004-102",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
       "tuesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "friday": null,
       "saturday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "13:00"
       },
       "sunday": null
@@ -1485,29 +1377,20 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
+      "thursday": null,
       "friday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "saturday": null,
       "sunday": null
     }
   },
@@ -1531,28 +1414,22 @@
     "medicalRegNumber": "MCI-H004-104",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
+      "tuesday": null,
       "wednesday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "13:00"
       },
       "sunday": null
@@ -1579,29 +1456,23 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "friday": null,
+      "saturday": null,
       "sunday": null
     }
   },
@@ -1660,6 +1531,20 @@
     "dept": "Scheduling",
     "responsibility": "Scheduling",
     "employeeId": "ADM-H004-004"
+  },
+  {
+    "id": "ADM-H004-05",
+    "name": "Anusha Shetty",
+    "email": "anusha.shetty@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "dept": "Patient Relations",
+    "responsibility": "Patient Relations",
+    "employeeId": "ADM-H004-005"
   },
   {
     "id": "AMB-H004-01",
@@ -1751,27 +1636,24 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
       "thursday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "13:00"
       },
       "sunday": null
@@ -1801,18 +1683,12 @@
         "start": "09:00",
         "end": "17:00"
       },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "tuesday": null,
       "wednesday": {
         "start": "09:00",
         "end": "17:00"
       },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "thursday": null,
       "friday": {
         "start": "09:00",
         "end": "17:00"
@@ -1844,28 +1720,22 @@
     "medicalRegNumber": "MCI-H005-102",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
       "tuesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "friday": null,
       "saturday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "13:00"
       },
       "sunday": null
@@ -1892,29 +1762,20 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
+      "thursday": null,
       "friday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "saturday": null,
       "sunday": null
     }
   },
@@ -1938,28 +1799,22 @@
     "medicalRegNumber": "MCI-H005-104",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
+      "tuesday": null,
       "wednesday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "13:00"
       },
       "sunday": null
@@ -1986,29 +1841,23 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "friday": null,
+      "saturday": null,
       "sunday": null
     }
   },
@@ -2067,6 +1916,20 @@
     "dept": "Patient Experience",
     "responsibility": "Patient Experience",
     "employeeId": "ADM-H005-004"
+  },
+  {
+    "id": "ADM-H005-05",
+    "name": "Tejas Kulkarni",
+    "email": "tejas.kulkarni@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "dept": "Quality & Records",
+    "responsibility": "Quality & Records",
+    "employeeId": "ADM-H005-005"
   },
   {
     "id": "AMB-H005-01",
@@ -2158,27 +2021,24 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
       "thursday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "13:00"
       },
       "sunday": null
@@ -2208,18 +2068,12 @@
         "start": "09:00",
         "end": "17:00"
       },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "tuesday": null,
       "wednesday": {
         "start": "09:00",
         "end": "17:00"
       },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "thursday": null,
       "friday": {
         "start": "09:00",
         "end": "17:00"
@@ -2251,28 +2105,22 @@
     "medicalRegNumber": "MCI-H006-102",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
       "tuesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "friday": null,
       "saturday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "13:00"
       },
       "sunday": null
@@ -2299,29 +2147,20 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
+      "thursday": null,
       "friday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "saturday": null,
       "sunday": null
     }
   },
@@ -2345,28 +2184,22 @@
     "medicalRegNumber": "MCI-H006-104",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
+      "tuesday": null,
       "wednesday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "13:00"
       },
       "sunday": null
@@ -2393,29 +2226,23 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "friday": null,
+      "saturday": null,
       "sunday": null
     }
   },
@@ -2474,6 +2301,20 @@
     "dept": "Admissions",
     "responsibility": "Admissions",
     "employeeId": "ADM-H006-004"
+  },
+  {
+    "id": "ADM-H006-05",
+    "name": "Madhura Joshi",
+    "email": "madhura.joshi@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "dept": "Admissions Coordination",
+    "responsibility": "Admissions Coordination",
+    "employeeId": "ADM-H006-005"
   },
   {
     "id": "AMB-H006-01",
@@ -2565,27 +2406,24 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
       "thursday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "13:00"
       },
       "sunday": null
@@ -2615,18 +2453,12 @@
         "start": "09:00",
         "end": "17:00"
       },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "tuesday": null,
       "wednesday": {
         "start": "09:00",
         "end": "17:00"
       },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "thursday": null,
       "friday": {
         "start": "09:00",
         "end": "17:00"
@@ -2658,28 +2490,22 @@
     "medicalRegNumber": "MCI-H007-102",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
       "tuesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "friday": null,
       "saturday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "13:00"
       },
       "sunday": null
@@ -2706,29 +2532,20 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
+      "thursday": null,
       "friday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "saturday": null,
       "sunday": null
     }
   },
@@ -2752,28 +2569,22 @@
     "medicalRegNumber": "MCI-H007-104",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
+      "tuesday": null,
       "wednesday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "13:00"
       },
       "sunday": null
@@ -2800,29 +2611,23 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "friday": null,
+      "saturday": null,
       "sunday": null
     }
   },
@@ -2881,6 +2686,20 @@
     "dept": "Scheduling",
     "responsibility": "Scheduling",
     "employeeId": "ADM-H007-004"
+  },
+  {
+    "id": "ADM-H007-05",
+    "name": "S. Nivetha",
+    "email": "s.nivetha@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "dept": "Quality & Records",
+    "responsibility": "Quality & Records",
+    "employeeId": "ADM-H007-005"
   },
   {
     "id": "AMB-H007-01",
@@ -2972,27 +2791,24 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
       "thursday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "08:00",
         "end": "13:00"
       },
       "sunday": null
@@ -3022,18 +2838,12 @@
         "start": "09:00",
         "end": "17:00"
       },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "tuesday": null,
       "wednesday": {
         "start": "09:00",
         "end": "17:00"
       },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "thursday": null,
       "friday": {
         "start": "09:00",
         "end": "17:00"
@@ -3065,28 +2875,22 @@
     "medicalRegNumber": "MCI-H008-102",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
       "tuesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "friday": null,
       "saturday": {
-        "start": "09:00",
+        "start": "10:00",
         "end": "13:00"
       },
       "sunday": null
@@ -3113,29 +2917,20 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "wednesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "thursday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "wednesday": null,
+      "thursday": null,
       "friday": {
-        "start": "09:00",
+        "start": "11:00",
         "end": "17:00"
       },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "saturday": null,
       "sunday": null
     }
   },
@@ -3159,28 +2954,22 @@
     "medicalRegNumber": "MCI-H008-104",
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
+      "monday": null,
+      "tuesday": null,
       "wednesday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "friday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "17:00"
       },
       "saturday": {
-        "start": "09:00",
+        "start": "12:00",
         "end": "13:00"
       },
       "sunday": null
@@ -3207,29 +2996,23 @@
     "consultationTiming": "09:00 AM - 05:00 PM",
     "schedule": {
       "monday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "tuesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "wednesday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
       "thursday": {
-        "start": "09:00",
+        "start": "09:30",
         "end": "17:00"
       },
-      "friday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "saturday": {
-        "start": "09:00",
-        "end": "13:00"
-      },
+      "friday": null,
+      "saturday": null,
       "sunday": null
     }
   },
@@ -3290,6 +3073,20 @@
     "employeeId": "ADM-H008-004"
   },
   {
+    "id": "ADM-H008-05",
+    "name": "Aravind Kumar",
+    "email": "aravind.kumar@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "dept": "Patient Relations",
+    "responsibility": "Patient Relations",
+    "employeeId": "ADM-H008-005"
+  },
+  {
     "id": "AMB-H008-01",
     "name": "Vellore Crew Alpha",
     "email": "ambulance.h0081@nexcare.in",
@@ -3345,41 +3142,5 @@
     "patientId": "P059",
     "hospitalId": "H008",
     "regionId": "REG-TN-NORTH"
-  },
-  {
-    "id": "UMTGR8SMX5HEL",
-    "name": "Dr. Test Audit",
-    "email": "test_doc_1788151516650@nexcare.in",
-    "role": "doctor",
-    "status": "Active",
-    "password": "scrypt$bb6ecab0853a6fae59dc52eb66bcf242$b19731c596713a0a3c812a24e446bf849caf3a9314297df2fce762655c0c768af28bb9a164a7e56977e1ef201a7a7b531419385964f13d5676af6afc925914bb",
-    "mustChangePassword": false,
-    "employeeId": "DOC-H001-007",
-    "dept": "Cardiology",
-    "joiningDate": "2026-08-31",
-    "employmentType": "Full-time",
-    "hospitalId": "H001",
-    "regionId": "R001",
-    "specialization": "Cardiology",
-    "createdAt": "2026-08-31T04:45:16.665Z",
-    "updatedAt": "2026-08-31T04:45:16.665Z"
-  },
-  {
-    "id": "UMTGRH26B9BU",
-    "name": "Dr. Test Audit",
-    "email": "test_doc_1788151902258@nexcare.in",
-    "role": "doctor",
-    "status": "Active",
-    "password": "scrypt$f34bcfb0518c13ed70c385e978af5428$caa57b653762dcd190f42855589420e95082730c5eeda43476be342bbd124b896540d3a569adfae409906b1c7a9414f602019bfc9a19f0524632fdb69ae2fbcc",
-    "mustChangePassword": false,
-    "employeeId": "DOC-H001-008",
-    "dept": "Cardiology",
-    "joiningDate": "2026-08-31",
-    "employmentType": "Full-time",
-    "hospitalId": "H001",
-    "regionId": "R001",
-    "specialization": "Cardiology",
-    "createdAt": "2026-08-31T04:51:42.276Z",
-    "updatedAt": "2026-08-31T04:51:42.276Z"
   }
 ]

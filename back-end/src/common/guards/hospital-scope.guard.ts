@@ -12,6 +12,8 @@ import { UserRole } from '../interfaces/api-response.interface';
  * Enforces hospital-level scoping:
  * - Superuser: Platform-wide access across all hospitals.
  * - Regional Officer: Access across hospitals assigned in their region.
+ * - Patient: May select any verified hospital; private records remain
+ *   patient-owned through ResourceOwnershipGuard/controller checks.
  * - Hospital Manager / Staff: Access strictly restricted to their assigned hospitalId.
  * - Any cross-hospital attempt throws 403 Forbidden.
  */
@@ -24,6 +26,12 @@ export class HospitalScopeGuard implements CanActivate {
 
     // Superuser has global access
     if (user.role === UserRole.SUPERUSER) {
+      return true;
+    }
+
+    // A home/registration hospital on a patient profile is reporting metadata,
+    // not a tenancy boundary. Patients may discover and book across the network.
+    if (user.role === UserRole.PATIENT) {
       return true;
     }
 

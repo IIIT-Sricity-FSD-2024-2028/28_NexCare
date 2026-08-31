@@ -118,10 +118,14 @@ export class UsersController {
   async create(@Req() req: any, @Body() createUserDto: CreateUserDto) {
     const caller = req.user;
 
+    if (![UserRole.SUPERUSER, UserRole.HOSPITAL_MANAGER].includes(caller?.role)) {
+      throw new ForbiddenException('Only a Super User or Hospital Manager can register staff accounts.');
+    }
+
     if (caller?.role === UserRole.HOSPITAL_MANAGER) {
       // Disallow creating Superuser, Regional Officer, or another Hospital Manager
-      const forbiddenRoles = [UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER];
-      if (forbiddenRoles.includes(createUserDto.role)) {
+      const permittedRoles = [UserRole.DOCTOR, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE];
+      if (!permittedRoles.includes(createUserDto.role)) {
         throw new ForbiddenException(
           'Hospital Managers are not permitted to create Super Users, Regional Officers, or other Hospital Managers.',
         );

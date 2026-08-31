@@ -9,6 +9,7 @@ import { User, CreateUserRequest, UpdateUserRequest, UserStats, RMWorkload, RMSu
 import { UserRole, UserStatus, VerificationStatus } from '../common/interfaces/api-response.interface';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType, NotificationEntityType } from '../notifications/interfaces/notification.interface';
+import { DEFAULT_STAFF_PASSWORD } from '../common/constants/app.constants';
 
 /**
  * Users Service
@@ -161,15 +162,15 @@ export class UsersService {
       const newUserId = IdGenerator.generateUserId();
 
       // Default temporary password
-      const tempPassword = userData.password || 'NexCare@123';
+      const tempPassword = userData.password || DEFAULT_STAFF_PASSWORD;
       const mustChangePassword = userData.mustChangePassword !== undefined ? userData.mustChangePassword : true;
 
       // Determine region ID if not provided
       let regionId = userData.regionId;
-      if (!regionId) {
-        if (userData.hospitalId === 'H003') regionId = 'R002';
-        else regionId = 'R001';
-      }
+      const assignedHospital = userData.hospitalId
+        ? this.hospitals.find(h => h.id === userData.hospitalId)
+        : undefined;
+      if (!regionId) regionId = assignedHospital?.regionId;
 
       // Create new user
       const newUser: User = {
@@ -190,7 +191,7 @@ export class UsersService {
         joiningDate: userData.joiningDate || new Date().toISOString().split('T')[0],
         employmentType: userData.employmentType || 'Full-time',
         hospitalId: userData.hospitalId,
-        hospitalName: userData.hospitalName,
+        hospitalName: userData.hospitalName || assignedHospital?.name,
         regionId: regionId,
         specialization: userData.specialization,
         medicalRegNumber: userData.medicalRegNumber,
