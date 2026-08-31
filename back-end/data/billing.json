@@ -8,12 +8,12 @@
     "dueDate": "2026-09-08",
     "status": "Pending",
     "currency": "₹",
-    "subtotal": 3500,
+    "subtotal": 6100,
     "cgstRate": 0.09,
     "sgstRate": 0.09,
-    "cgstAmount": 315,
-    "sgstAmount": 315,
-    "total": 4130,
+    "cgstAmount": 549,
+    "sgstAmount": 549,
+    "total": 7198,
     "items": [
       {
         "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
@@ -45,10 +45,34 @@
         "type": "AMBULANCE",
         "referenceId": "AMB-MTGR8T5W66I7",
         "date": "August 31, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGRH2SRKTT",
+        "date": "December 23, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Vikram Patel (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGRH2X4RF6",
+        "date": "December 25, 2026"
+      },
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency Transport",
+        "amount": 500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-MTGRH30DYHF",
+        "date": "August 31, 2026"
       }
     ],
     "createdAt": "2026-08-25T11:00:00Z",
-    "updatedAt": "2026-08-31T04:45:17.400Z"
+    "updatedAt": "2026-08-31T04:51:43.456Z"
   },
   {
     "id": "BILL-H001-005",

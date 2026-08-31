@@ -51,6 +51,8 @@ export interface Hospital {
   regionalReviewedAt?: string;
   regionalReviewNotes?: string;
   // Subscription fields
+  subscriptionStatus?: string;
+  subscriptionPlan?: string;
   subscriptionStartDate?: string;
   subscriptionExpiryDate?: string;
   lastPaymentDate?: string;

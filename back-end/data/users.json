@@ -147,7 +147,7 @@
       },
       "sunday": null
     },
-    "updatedAt": "2026-08-31T04:45:17.109Z"
+    "updatedAt": "2026-08-31T04:51:42.849Z"
   },
   {
     "id": "DOC-AP01-002",
@@ -3363,5 +3363,23 @@
     "specialization": "Cardiology",
     "createdAt": "2026-08-31T04:45:16.665Z",
     "updatedAt": "2026-08-31T04:45:16.665Z"
+  },
+  {
+    "id": "UMTGRH26B9BU",
+    "name": "Dr. Test Audit",
+    "email": "test_doc_1788151902258@nexcare.in",
+    "role": "doctor",
+    "status": "Active",
+    "password": "scrypt$f34bcfb0518c13ed70c385e978af5428$caa57b653762dcd190f42855589420e95082730c5eeda43476be342bbd124b896540d3a569adfae409906b1c7a9414f602019bfc9a19f0524632fdb69ae2fbcc",
+    "mustChangePassword": false,
+    "employeeId": "DOC-H001-008",
+    "dept": "Cardiology",
+    "joiningDate": "2026-08-31",
+    "employmentType": "Full-time",
+    "hospitalId": "H001",
+    "regionId": "R001",
+    "specialization": "Cardiology",
+    "createdAt": "2026-08-31T04:51:42.276Z",
+    "updatedAt": "2026-08-31T04:51:42.276Z"
   }
 ]

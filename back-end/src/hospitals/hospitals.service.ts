@@ -706,12 +706,6 @@ export class HospitalsService {
         hospitalRevenueList
       });
     } catch (error) {
-          openComplaints,
-          averageSatisfaction: avgSatisfaction,
-        },
-        hospitals: hospitalSummaries,
-      });
-    } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve regional overview');
     }
   }
