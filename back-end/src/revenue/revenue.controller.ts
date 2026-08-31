@@ -2,6 +2,7 @@ import { Controller, Get, Patch, Param, Query, Body, Req, ForbiddenException, Ba
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { RevenueService } from './revenue.service';
 import { PricingService } from './pricing.service';
+import { HealthScoreService } from './health-score.service';
 import { HospitalsService } from '../hospitals/hospitals.service';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/interfaces/api-response.interface';
@@ -25,8 +26,10 @@ export class RevenueController {
   constructor(
     private readonly revenueService: RevenueService,
     private readonly pricingService: PricingService,
+    private readonly healthScoreService: HealthScoreService,
     private readonly hospitalsService: HospitalsService,
   ) {}
+
 
   // ── Platform revenue — Admin only (inherits the class-level @Roles) ───────
 
@@ -99,6 +102,18 @@ export class RevenueController {
     const ids = await this.hospitalIdsFor(req.user);
     return this.revenueService.compareHospitals(ids, from, to);
   }
+
+  @Roles(UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER)
+  @Get('health-score/:hospitalId')
+  @ApiOperation({ summary: 'Internal NexCare health score combining util, revenue, expiry, and no-shows' })
+  async getHealthScore(
+    @Req() req: any,
+    @Param('hospitalId') hospitalId: string,
+  ) {
+    await this.assertMayReadHospital(req.user, hospitalId);
+    return this.healthScoreService.getHospitalHealthScore(hospitalId);
+  }
+
 
   // ── Multi-stream roll-up and pricing controls — Admin only ───────────────
 

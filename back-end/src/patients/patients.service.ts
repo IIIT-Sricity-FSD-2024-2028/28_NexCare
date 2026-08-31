@@ -406,4 +406,34 @@ export class PatientsService {
       return ResponseUtil.serverError('Failed to retrieve patients by age range');
     }
   }
+
+  /**
+   * Mock verify insurance details
+   */
+  async verifyInsurance(id: string, insuranceData: any) {
+    try {
+      const patients = this.loadPatients();
+      const patientIndex = patients.findIndex(p => p.id === id);
+
+      if (patientIndex === -1) {
+        return ResponseUtil.notFound('Patient', id);
+      }
+
+      patients[patientIndex] = {
+        ...patients[patientIndex],
+        insurance: {
+          ...insuranceData,
+          verificationStatus: 'mock_verified',
+          verifiedAt: new Date().toISOString(),
+        },
+        updatedAt: new Date().toISOString()
+      };
+
+      this.savePatients(patients);
+
+      return ResponseUtil.updated('Insurance details submitted (MOCK VERIFIED)', patients[patientIndex]);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to verify insurance');
+    }
+  }
 }

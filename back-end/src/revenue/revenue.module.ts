@@ -3,6 +3,7 @@ import { RevenueController } from './revenue.controller';
 import { RevenueService } from './revenue.service';
 import { PricingModule } from './pricing.module';
 import { HospitalsModule } from '../hospitals/hospitals.module';
+import { HealthScoreService } from './health-score.service';
 
 /**
  * Revenue Module
@@ -17,7 +18,7 @@ import { HospitalsModule } from '../hospitals/hospitals.module';
 @Module({
   imports: [forwardRef(() => HospitalsModule), PricingModule],
   controllers: [RevenueController],
-  providers: [RevenueService],
-  exports: [RevenueService],
+  providers: [RevenueService, HealthScoreService],
+  exports: [RevenueService, HealthScoreService],
 })
 export class RevenueModule {}

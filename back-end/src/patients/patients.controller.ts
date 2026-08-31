@@ -169,13 +169,23 @@ export class PatientsController {
    * Delete patient
    */
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a patient record' })
+  @ApiOperation({ summary: 'Delete a patient' })
   @ApiResponse({ status: 200, description: 'Patient deleted successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
-  async delete(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.patientsService.delete(id);
+  }
+
+  /**
+   * Mock verify insurance
+   */
+  @Post(':id/verify-insurance')
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
+  @ApiOperation({ summary: 'Mock verify insurance' })
+  async verifyInsurance(@Param('id') id: string, @Body() insuranceData: any) {
+    return this.patientsService.verifyInsurance(id, insuranceData);
   }
 
   /**

@@ -253,6 +253,7 @@ async function viewPatient(patientId) {
     
     document.getElementById('piTitle').textContent = 'Patient Information';
     document.getElementById('piDemographics').innerHTML = '<div>Loading...</div>';
+    document.getElementById('piInsurance').innerHTML = '<div>Loading...</div>';
     document.getElementById('piHistoryBody').innerHTML = '<tr><td colspan="3" class="empty">Loading...</td></tr>';
     modal.style.display = 'flex';
 
@@ -271,8 +272,33 @@ async function viewPatient(patientId) {
                     <div><strong>Age:</strong> ${esc(p.age || 'N/A')}</div>
                     <div><strong>Blood Group:</strong> ${esc(p.bloodGroup || 'N/A')}</div>
                 `;
+
+                if (p.insurance) {
+                    const ins = p.insurance;
+                    let flagHtml = '';
+                    if (ins.verificationStatus === 'mock_verified') {
+                        flagHtml = `<div style="display:inline-block; padding:4px 8px; background:#FEF3C7; color:#D97706; border-radius:4px; font-size:11px; font-weight:700; margin-left:8px;">⚠️ MOCK / PENDING REAL VERIFICATION</div>`;
+                    }
+                    document.getElementById('piInsurance').innerHTML = `
+                        <div style="display:flex; align-items:center; margin-bottom:8px;">
+                            <strong>Status:</strong> 
+                            <span style="margin-left:4px;">${esc(ins.verificationStatus || 'Unknown')}</span>
+                            ${flagHtml}
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <div><strong>Provider:</strong> ${esc(ins.provider || 'N/A')}</div>
+                            <div><strong>Policy #:</strong> ${esc(ins.policyNumber || 'N/A')}</div>
+                            <div><strong>Group #:</strong> ${esc(ins.groupNumber || 'N/A')}</div>
+                            <div><strong>Verified At:</strong> ${ins.verifiedAt ? new Date(ins.verifiedAt).toLocaleString() : 'N/A'}</div>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('piInsurance').innerHTML = '<div>No insurance details on file.</div>';
+                }
+
             } else {
                 document.getElementById('piDemographics').innerHTML = '<div>Could not load patient details.</div>';
+                document.getElementById('piInsurance').innerHTML = '<div>Could not load patient details.</div>';
             }
         }
 

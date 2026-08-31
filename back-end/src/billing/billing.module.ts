@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BillingController } from './billing.controller';
 import { BillingService } from './billing.service';
+import { BillPdfService } from './bill-pdf.service';
 import { SystemModule } from '../system/system.module';
 
 /**
@@ -11,7 +12,7 @@ import { SystemModule } from '../system/system.module';
 @Module({
   imports: [SystemModule],
   controllers: [BillingController],
-  providers: [BillingService],
+  providers: [BillingService, BillPdfService],
   exports: [BillingService],
 })
 export class BillingModule {}

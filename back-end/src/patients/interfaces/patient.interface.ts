@@ -2,6 +2,14 @@
  * Patient Entity Interface
  * Represents a patient in the NexCare system
  */
+export interface InsuranceDetails {
+  provider: string;
+  policyNumber: string;
+  groupNumber?: string;
+  verifiedAt?: string;
+  verificationStatus?: 'mock_verified' | 'pending' | 'real_verified';
+}
+
 export interface Patient {
   id: string;
   patientId?: string;
@@ -17,6 +25,7 @@ export interface Patient {
   city?: string;
   state?: string;
   pincode?: string;
+  insurance?: InsuranceDetails;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -39,6 +48,7 @@ export interface CreatePatientRequest {
   city?: string;
   state?: string;
   pincode?: string;
+  insurance?: InsuranceDetails;
 }
 
 /**

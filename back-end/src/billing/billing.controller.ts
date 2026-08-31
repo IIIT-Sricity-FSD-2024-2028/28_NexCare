@@ -20,6 +20,10 @@ import { UpdateBillDto } from './dto/update-bill.dto';
 import { ProcessPaymentDto } from './dto/process-payment.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole, BillStatus } from '../common/interfaces/api-response.interface';
+import { BillPdfService } from './bill-pdf.service';
+import { Res } from '@nestjs/common';
+import { Response } from 'express';
+import { ResourceOwnershipGuard } from '../common/guards/resource-ownership.guard';
 
 /**
  * Billing Controller
@@ -33,7 +37,10 @@ import { UserRole, BillStatus } from '../common/interfaces/api-response.interfac
 @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
 @Controller('billing')
 export class BillingController {
-  constructor(private readonly billingService: BillingService) {}
+  constructor(
+    private readonly billingService: BillingService,
+    private readonly billPdfService: BillPdfService,
+  ) {}
 
   private isPatient(req: any): boolean {
     return req?.user?.role === UserRole.PATIENT;
@@ -146,7 +153,7 @@ export class BillingController {
   }
 
   /**
-   * Get bill by ID
+   * Get a specific bill by ID
    */
   @Get(':id')
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
@@ -154,9 +161,37 @@ export class BillingController {
   @ApiResponse({ status: 200, description: 'Bill details retrieved' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  async findById(@Req() req: any, @Param('id') id: string) {
+  @ApiResponse({ status: 404, description: 'Bill not found' })
+  async findOne(@Req() req: any, @Param('id') id: string) {
     await this.assertOwnsBill(req, id);
     return this.billingService.findById(id);
+  }
+
+  /**
+   * Download a specific bill as PDF
+   */
+  @Get(':id/pdf')
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Download bill as PDF' })
+  async downloadPdf(@Req() req: any, @Param('id') id: string, @Res() res: Response) {
+    await this.assertOwnsBill(req, id);
+    const response: any = await this.billingService.findById(id);
+    if (!response?.data) {
+      throw new ForbiddenException('Bill not found');
+    }
+    
+    // Resource Ownership enforcement (cross-tenant check for staff)
+    ResourceOwnershipGuard.assertSameHospital(req.user, response.data, 'Bill');
+
+    const pdfBuffer = await this.billPdfService.generatePdf(response.data);
+    
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="bill-${id}.pdf"`,
+      'Content-Length': pdfBuffer.length,
+    });
+    
+    res.end(pdfBuffer);
   }
 
   /**
