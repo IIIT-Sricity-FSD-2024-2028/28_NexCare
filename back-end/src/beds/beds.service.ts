@@ -28,9 +28,38 @@ export class BedsService {
     ];
   }
 
+  /**
+   * Load beds, normalising records that do not already match the Bed interface.
+   *
+   * The seeded dataset writes the canonical `ward`/`patient`/lowercase-status
+   * shape, but records persisted by earlier builds carry uppercase statuses
+   * ('OCCUPIED') and the wardName/wardId/patientId field names instead. Without
+   * this every status comparison in the service below silently evaluates false,
+   * which disabled allocation, release, the ward rollups and every statistic.
+   */
+  private load(): Bed[] {
+    return this.store.load().map(bed => BedsService.normalise(bed));
+  }
+
+  /** Map one raw record onto the Bed interface. Pure — no I/O. */
+  private static normalise(bed: Bed): Bed {
+    const ward = bed.ward ?? bed.wardName ?? bed.wardId ?? '';
+    const patient = bed.patient ?? bed.patientId ?? '';
+    const status = BedsService.normaliseStatus(bed.status);
+    if (bed.ward === ward && bed.patient === patient && bed.status === status) return bed;
+    return { ...bed, ward, patient, status };
+  }
+
+  /** Coerce a stored status onto the BedStatus enum; unknown values read as available. */
+  private static normaliseStatus(status: unknown): BedStatus {
+    const value = String(status ?? '').toLowerCase();
+    const match = Object.values(BedStatus).find(s => s === value);
+    return match ?? BedStatus.AVAILABLE;
+  }
+
   async findAll(ward?: string, status?: BedStatus, hospitalId?: string) {
     try {
-      let filteredBeds = [...this.store.load()];
+      let filteredBeds = [...this.load()];
       if (hospitalId) filteredBeds = filteredBeds.filter(bed => bed.hospitalId === hospitalId);
       if (ward) filteredBeds = filteredBeds.filter(bed => bed.ward === ward);
       if (status) filteredBeds = filteredBeds.filter(bed => bed.status === status);
@@ -42,7 +71,7 @@ export class BedsService {
 
   async findById(id: string) {
     try {
-      const bed = ArrayUtil.findById(this.store.load(), id);
+      const bed = ArrayUtil.findById(this.load(), id);
       if (!bed) return ResponseUtil.notFound('Bed', id);
       return ResponseUtil.success('Bed retrieved successfully', bed);
     } catch (error) {
@@ -58,12 +87,12 @@ export class BedsService {
    * @returns The bed, or undefined when no such bed exists
    */
   getBedById(id: string): Bed | undefined {
-    return this.store.load().find(b => b.id === id);
+    return this.load().find(b => b.id === id);
   }
 
   async create(bedData: CreateBedRequest & { hospitalId?: string }) {
     try {
-      const beds = this.store.load();
+      const beds = this.load();
       if (beds.find(b => b.id === bedData.id)) {
         return ResponseUtil.error('Bed ID already exists');
       }
@@ -94,7 +123,7 @@ export class BedsService {
 
   async update(id: string, updateData: UpdateBedRequest) {
     try {
-      const beds = this.store.load();
+      const beds = this.load();
       const bedIndex = beds.findIndex(b => b.id === id);
       if (bedIndex === -1) return ResponseUtil.notFound('Bed', id);
 
@@ -113,7 +142,12 @@ export class BedsService {
         return ResponseUtil.error('Available bed cannot have assigned patient');
       }
 
-      const updatedBed = { ...beds[bedIndex], ...updateData, updatedAt: new Date().toISOString() };
+      const updatedBed: Bed = { ...beds[bedIndex], ...updateData, updatedAt: new Date().toISOString() };
+      // The occupant is identified by name through this endpoint; drop a stale
+      // patientId rather than leaving it contradicting the new occupant.
+      if (updateData.patient !== undefined && updateData.patient !== beds[bedIndex].patient) {
+        updatedBed.patientId = null;
+      }
       beds[bedIndex] = updatedBed;
       this.store.save(beds);
       return ResponseUtil.updated('Bed', updatedBed);
@@ -124,7 +158,7 @@ export class BedsService {
 
   async delete(id: string) {
     try {
-      const beds = this.store.load();
+      const beds = this.load();
       const bedIndex = beds.findIndex(b => b.id === id);
       if (bedIndex === -1) return ResponseUtil.notFound('Bed', id);
 
@@ -143,7 +177,7 @@ export class BedsService {
 
   async allocate(id: string, patient: string) {
     try {
-      const beds = this.store.load();
+      const beds = this.load();
       const bedIndex = beds.findIndex(b => b.id === id);
       if (bedIndex === -1) return ResponseUtil.notFound('Bed', id);
 
@@ -169,7 +203,7 @@ export class BedsService {
 
   async release(id: string) {
     try {
-      const beds = this.store.load();
+      const beds = this.load();
       const bedIndex = beds.findIndex(b => b.id === id);
       if (bedIndex === -1) return ResponseUtil.notFound('Bed', id);
 
@@ -182,6 +216,9 @@ export class BedsService {
 
       beds[bedIndex].status = BedStatus.AVAILABLE;
       beds[bedIndex].patient = '';
+      // Clear the seeded occupant link too, or the freed bed keeps pointing at
+      // the discharged patient.
+      beds[bedIndex].patientId = null;
       beds[bedIndex].updatedAt = new Date().toISOString();
       this.store.save(beds);
       return ResponseUtil.success('Bed released successfully', beds[bedIndex]);
@@ -192,7 +229,7 @@ export class BedsService {
 
   async getStats(hospitalId?: string) {
     try {
-      let beds = this.store.load();
+      let beds = this.load();
       if (hospitalId) beds = beds.filter(b => b.hospitalId === hospitalId);
 
       const totalBeds = beds.length;
@@ -223,7 +260,7 @@ export class BedsService {
 
   async findByWard(ward: string) {
     try {
-      const beds = this.store.load().filter(b => b.ward === ward);
+      const beds = this.load().filter(b => b.ward === ward);
       return ResponseUtil.success(`Beds in ${ward} ward retrieved successfully`, beds);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve ward beds');
@@ -232,7 +269,7 @@ export class BedsService {
 
   async getAvailableBeds() {
     try {
-      const availableBeds = this.store.load().filter(b => b.status === BedStatus.AVAILABLE);
+      const availableBeds = this.load().filter(b => b.status === BedStatus.AVAILABLE);
       return ResponseUtil.success('Available beds retrieved successfully', availableBeds);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve available beds');
@@ -241,7 +278,7 @@ export class BedsService {
 
   async findByPatient(patient: string) {
     try {
-      const beds = this.store.load().filter(b => b.patient === patient);
+      const beds = this.load().filter(b => b.patient === patient);
       return ResponseUtil.success(`Beds allocated to ${patient} retrieved successfully`, beds);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve patient bed allocation');
@@ -250,7 +287,7 @@ export class BedsService {
 
   async updateStatus(id: string, status: BedStatus) {
     try {
-      const beds = this.store.load();
+      const beds = this.load();
       const bedIndex = beds.findIndex(b => b.id === id);
       if (bedIndex === -1) return ResponseUtil.notFound('Bed', id);
 
@@ -273,7 +310,7 @@ export class BedsService {
 
   async getOccupancyByWard() {
     try {
-      const beds = this.store.load();
+      const beds = this.load();
       const wards = [...new Set(beds.map(b => b.ward))];
       const occupancyData: Record<string, { total: number; occupied: number; available: number; occupancyRate: number }> = {};
 

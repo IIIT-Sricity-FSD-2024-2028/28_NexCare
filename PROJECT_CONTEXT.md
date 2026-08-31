@@ -1101,6 +1101,164 @@ loaded by 0 pages — still dead, left in place deliberately).
 
 ## 14. Cleanup log and remaining traps
 
+### Done on 2026-08-31 (fourth pass — the `main` bug audit)
+
+Worked from `NexCare_Main_Bug_Audit_2026-08-31.md`, which audited the 19 commits
+`b203c14..74ea0c9`. `main` did not compile (48 errors) and did not boot. All 13
+audited defects are fixed, plus one the audit missed. Build clean, 10 unit
+suites / 55 tests pass, E2E 7/7.
+
+**Build and boot (N1, P1).** `ApiResponse` was used but never imported in six
+controllers — payments, schedules, hierarchy, wards, equipment, departments.
+Decorators evaluate at module load, so this was a startup `ReferenceError`, not
+just a type error. `pdfkit` had landed in `package.json` without anyone being
+told; `npm install` in `back-end/` is required after pulling.
+
+**`npm run test:e2e` no longer destroys the data directory (P7).** It reseeds,
+which overwrites all 11 files in `back-end/data/`. `test/global-setup.js` now
+snapshots the directory to `back-end/.e2e-data-backup/` and
+`test/global-teardown.js` restores it. A snapshot left behind by an interrupted
+run is restored, not overwritten, on the next run.
+
+**The seed now agrees with the type system (N2, N3, N4).**
+`scripts/generate-comprehensive-seed.js` mirrors the `BedStatus`,
+`AppointmentStatus`, `BillStatus` and `AmbulanceStatus` enums and asserts the
+mirrors against the actual `.ts` source before writing anything. It also
+validates every generated record. **A drift now fails the seed loudly** — that
+single missing check was the root cause behind six of the audited defects.
+
+Specifically: bed statuses were `OCCUPIED`/`AVAILABLE` against a lowercase enum,
+so *every* bed allocation and discharge failed and every bed statistic read 0;
+beds carried `wardId`/`wardName`/`patientId` where the `Bed` interface declares
+`ward`/`patient`, so ward rollups all counted under `"undefined"` and the
+duplicate-allocation guard was dead; appointments used `BOOKED` (not an enum
+member) and uppercase variants, so cancelled slots blocked rebooking. Bed IDs
+also had a double hyphen (`BED-H001--01-001`) from `wardId.slice(-3)`.
+
+`beds.service.ts` additionally normalises on read, so records persisted by older
+builds still work — fixing the seed alone would have left them broken.
+
+**Not in the audit: `data/ambulance.json` held the wrong entity.** It is the
+`AmbulanceRequest` collection, but the seed filled it with 22 *vehicle* records
+— no `patientId`, no `pickupLocation`, and status `Available`, which is not an
+`AmbulanceStatus`. Patient ambulance history, the dispatch queue and every
+ambulance statistic read empty. It now seeds real requests, with the fleet
+details (`vehicleNumber`, `driverName`) riding on the dispatched ones, which is
+what the dispatch DTOs already expected.
+
+**Silently-wrong financial output (P2, P3, P4).** `health-score.service.ts` read
+`bills.json` (the file is `billing.json`), `b.date` (bills carry `visitDate`)
+and `a.date` (appointments carry `dateLabel`) — `new Date(undefined)` is an
+Invalid Date that fails every comparison, so revenue and the 30-day windows were
+permanently empty and every hospital ate the low-utilisation penalty forever.
+`bill-pdf.service.ts` printed "Date: Invalid Date" and recomputed the subtotal
+from a non-existent `bill.tax`, silently dropping GST from a document headed
+"Tax Invoice"; it now reads the bill's own `subtotal` and itemises CGST/SGST.
+
+**Two-layer doctor scheduling now exists from outside the process (P5).**
+`DoctorScheduleService` was 330 lines, registered, and injected by nothing, with
+zero routes. `doctor-schedules.controller.ts` exposes blocks, exceptions,
+computed slots and capacity-checked booking under `/api/doctor-schedules`.
+
+**The E2E suite can now fail (P6).** Two of its assertions were
+`expect([200, 400, 403, 404]).toContain(res.status)` — true whether the guard
+enforced, was permissive, or was absent. The bed test now drives a bed into
+maintenance itself and asserts the illegal transition is rejected *and* that the
+legal one is accepted; the ambulance test asserts a patient can read their own
+request and is 403'd on someone else's. A blanket allow or a blanket deny now
+fails one of each pair.
+
+**The offline booking catalogue is generated, not hand-written (N5).**
+`front-end/shared/mock-hospitals.js` had drifted to 15 doctors against the
+backend's 48, leaving seven of eight hospitals with one department holding one
+doctor. `back-end/scripts/generate-mock-hospitals.js` regenerates it from
+`data/hospitals.json` + `data/users.json` — **re-run it after any reseed.**
+Because every id in it is now a real record, `doctor-directory.js` falls back to
+it again instead of blanking the wizard when the API is unreachable;
+`window.doctorDirectoryLive` says which of the two is on screen. *This reverses
+a deliberate choice made in `26f0b21` — the reasoning there was that the mock
+listed hospitals and doctors that did not exist, which is no longer true.*
+
+**Bill IDs (D1).** `generateBillId` matched only `BILL-0088`, so against the
+reseed's `BILL-H001-001` nothing parsed and every new bill was `BILL-0001`. It
+now parses and emits both schemes, hospital-scoped when the hospital is known.
+
+**Swagger (S1–S5).** `docs/swagger.json` is no longer rewritten on every boot —
+that churn hit four of the nineteen commits. Regenerate deliberately with
+`npm run swagger:generate`. `main.ts` and `generate-swagger.ts` each carried
+their own copy of the `DocumentBuilder`, which is how 14 in-use tags ended up
+declared in neither; both now call `buildSwaggerConfig()` in
+`src/swagger.config.ts` — **add a tag there when adding a controller.**
+`HospitalDetailsController` is back under the `Hospitals` tag (it shares the
+`hospitals` base path). The dead `x-user-role` API-key scheme is gone — the role
+travels in the JWT. `GET /api/billing/:id/pdf` declares `application/pdf`, and
+`POST /api/patients/:id/verify-insurance` has a real DTO, so `ValidationPipe`
+no longer skips it.
+
+### Middleware ↔ Swagger sync (the graded deliverable)
+
+The audit only covered the six missing `ApiResponse` imports. The wider question
+— does the Swagger document describe what the middleware actually does — it did
+not ask, and the answer was no. Measured against the `.forRoutes(...)` wiring:
+
+| Middleware | Applied to | Was documented on |
+|---|---|---|
+| `SecurityMiddleware` (429) | every route | 62 of 235 operations |
+| `SecurityMiddleware` (413) | every route | 1 of 235 |
+| `CsrfMiddleware` (403 + `x-csrf-token`) | every write | 0 of 100 writes |
+| `RequestLoggerMiddleware` (`x-request-id`) | every route | nowhere |
+| `AmbulanceAccessMiddleware` (403) | 10 routes | 3 of 10 |
+| `HospitalAccessMiddleware` (403) | 10 routes | 5 of 10 |
+| `BedStatusChangeMiddleware` (400) | 5 routes | 5 of 5 ✓ |
+| `FileUploadMiddleware` (413) | `POST /uploads` | 1 of 1 ✓ |
+
+`x-query-timestamp` was also declared with `@ApiHeader`, which renders it as a
+**request** input — it is a **response** header set by `HospitalQueryInterceptor`.
+Swagger UI was showing an input box for a header the client must never send.
+
+**How it is fixed.** The global chain is folded into every operation by
+`applyMiddlewareContract()` in `src/swagger.config.ts`, called from both
+`main.ts` and `generate-swagger.ts`. Hand-decorating 235 operations is what
+produced the build break in the first place, so the contract is applied once,
+programmatically, from the middleware's **own exported constants** —
+`GENERAL_LIMIT`, `AUTH_LIMIT`, `WINDOW_MS`, `MAX_BODY_BYTES`,
+`MAX_UPLOAD_BYTES`, `CSRF_EXEMPT_ROUTES`, now exported from
+`lodger.middleware.ts`. **The docs cannot claim a limit the middleware does not
+enforce, because there is only one copy of each number.** Route-level middleware
+keeps `@ApiResponse` on the routes it guards, where a reader will see it.
+
+Now: 429 and 413 on 236/236 operations, `x-csrf-token` on 97/100 writes (the
+three exempt ones are exactly `CSRF_EXEMPT_ROUTES`), middleware headers on every
+response, and `x-query-timestamp` declared as a response header.
+
+**Section 5 of `test/middleware-swagger.e2e-spec.ts` now machine-checks this.**
+It builds the document the app really serves and asserts it against the
+middleware wiring — including that the documented rate limits are the live
+constants, and that the headers it promises are actually on a live response.
+It caught two bugs in `applyMiddlewareContract` while being written (it assumed
+the `/api` prefix, which the E2E app does not set). Suite is 13 tests, was 5.
+
+### The no-show status — the judgement call, now decided
+
+`noShowRate` drives up to a 30-point penalty in the hospital health score, but
+compared against a `'no_show'` string that `AppointmentStatus` never defined, so
+the component was dead and **every hospital's score was systematically too
+high**. Removing it would have discarded a signal the team deliberately built,
+so it is now real: `AppointmentStatus.NO_SHOW = 'No Show'`, set through
+`PATCH /api/appointments/:id/no-show` (staff and doctors, never the patient).
+
+A no-show records attendance, not anything clinical, so it sits inside the §1
+non-clinical rule. It is distinct from `CANCELLED`: no consultation fee is
+raised, and — like cancelled and completed — it releases the slot, so it is in
+the duplicate-booking guard, the slot-conflict guard and the reconciliation
+skip-lists. It is counted in `getStats()` and `getDoctorStats()`.
+
+Note the seed's mirrored enum had to be updated alongside it, and the seed's
+validation gate is what would have caught it otherwise — that check earns its
+keep the first time the enum changes.
+
+
+
 ### Done on 2026-08-30 (third pass — merging with the team)
 
 **Merged `origin/main` three times** as teammates kept pushing. Conflicts were

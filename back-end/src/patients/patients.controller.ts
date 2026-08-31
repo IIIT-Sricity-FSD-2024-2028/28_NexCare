@@ -17,6 +17,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@ne
 import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
+import { VerifyInsuranceDto } from './dto/verify-insurance.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/interfaces/api-response.interface';
 
@@ -183,8 +184,18 @@ export class PatientsController {
    */
   @Post(':id/verify-insurance')
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
-  @ApiOperation({ summary: 'Mock verify insurance' })
-  async verifyInsurance(@Param('id') id: string, @Body() insuranceData: any) {
+  @ApiOperation({
+    summary: 'Record and mock-verify a patient insurance policy',
+    description:
+      'Stores the declared policy against the patient and stamps it mock_verified. ' +
+      'No insurer is contacted — this is a mock verification.',
+  })
+  @ApiResponse({ status: 200, description: 'Insurance details submitted (mock verified)' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Patient not found' })
+  async verifyInsurance(@Param('id') id: string, @Body() insuranceData: VerifyInsuranceDto) {
     return this.patientsService.verifyInsurance(id, insuranceData);
   }
 

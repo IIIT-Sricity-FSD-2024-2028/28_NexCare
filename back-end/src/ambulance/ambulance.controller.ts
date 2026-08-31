@@ -86,6 +86,7 @@ export class AmbulanceController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT, UserRole.HOSPITAL_MANAGER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Create an ambulance request' })
+  @ApiResponse({ status: 403, description: 'Forbidden — AmbulanceAccessMiddleware: no hospital assignment, or the request belongs to another hospital' })
   @ApiResponse({ status: 200, description: 'Request creation result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
   async create(@Req() req: any, @Body() createRequestDto: CreateAmbulanceRequestDto) {
@@ -116,6 +117,7 @@ export class AmbulanceController {
    */
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get ambulance statistics' })
+  @ApiResponse({ status: 403, description: 'Forbidden — AmbulanceAccessMiddleware: no hospital assignment, or the request belongs to another hospital' })
   @ApiResponse({ status: 200, description: 'Ambulance statistics retrieved' })
   async getStats(@Req() req: any) {
     return this.ambulanceService.getStats(this.scopeHospitalId(req));
@@ -141,6 +143,7 @@ export class AmbulanceController {
    */
   @Get('active')
   @ApiOperation({ summary: 'Get all active ambulance requests' })
+  @ApiResponse({ status: 403, description: 'Forbidden — AmbulanceAccessMiddleware: no hospital assignment, or the request belongs to another hospital' })
   @ApiResponse({ status: 200, description: 'Active requests retrieved' })
   async getActiveRequests(@Req() req: any) {
     return this.ambulanceService.getActiveRequests(this.scopeHospitalId(req));
@@ -151,6 +154,7 @@ export class AmbulanceController {
    */
   @Get('assigned/:assignedTo')
   @ApiOperation({ summary: 'Get ambulance requests by assigned staff' })
+  @ApiResponse({ status: 403, description: 'Forbidden — AmbulanceAccessMiddleware: no hospital assignment, or the request belongs to another hospital' })
   @ApiResponse({ status: 200, description: 'Staff assigned requests retrieved' })
   async findByAssignedStaff(@Param('assignedTo') assignedTo: string, @Req() req: any) {
     return this.ambulanceService.findByAssignedStaff(assignedTo, this.scopeHospitalId(req));
@@ -174,6 +178,7 @@ export class AmbulanceController {
    */
   @Put(':id')
   @ApiOperation({ summary: 'Update an ambulance request' })
+  @ApiResponse({ status: 403, description: 'Forbidden — AmbulanceAccessMiddleware: no hospital assignment, or the request belongs to another hospital' })
   @ApiResponse({ status: 200, description: 'Request updated successfully' })
   async update(@Param('id') id: string, @Body() updateRequestDto: UpdateAmbulanceRequestDto) {
     return this.ambulanceService.update(id, updateRequestDto as any);
@@ -184,6 +189,7 @@ export class AmbulanceController {
    */
   @Patch(':id')
   @ApiOperation({ summary: 'Partially update an ambulance request' })
+  @ApiResponse({ status: 403, description: 'Forbidden — AmbulanceAccessMiddleware: no hospital assignment, or the request belongs to another hospital' })
   @ApiResponse({ status: 200, description: 'Request updated successfully' })
   async patchUpdate(@Param('id') id: string, @Body() updateRequestDto: UpdateAmbulanceRequestDto) {
     return this.ambulanceService.update(id, updateRequestDto as any);
@@ -209,6 +215,7 @@ export class AmbulanceController {
   @Delete(':id')
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
   @ApiOperation({ summary: 'Delete/cancel an ambulance request (patients: own only)' })
+  @ApiResponse({ status: 403, description: 'Forbidden — AmbulanceAccessMiddleware: no hospital assignment, or the request belongs to another hospital' })
   @ApiResponse({ status: 200, description: 'Request deleted successfully' })
   async delete(@Req() req: any, @Param('id') id: string) {
     await this.assertOwnsRequest(req, id);

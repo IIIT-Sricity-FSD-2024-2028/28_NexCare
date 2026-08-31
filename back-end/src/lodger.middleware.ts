@@ -16,6 +16,19 @@ import * as multer from 'multer';
 import * as path from 'path';
 import * as fs from 'fs';
 
+// Exported so swagger.config.ts can document the exact limits this middleware
+// enforces. The docs and the middleware must never be able to disagree — a
+// Swagger document that describes different behaviour from the middleware is
+// the class of defect this whole surface is meant to prevent.
+export const GENERAL_LIMIT = Number(process.env.RATE_LIMIT_GENERAL) || 300;
+export const AUTH_LIMIT = Number(process.env.RATE_LIMIT_AUTH) || 20;
+export const WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS) || 60_000;
+export const AUTH_PATHS = ['/api/auth/login', '/api/auth/register'];
+export const MAX_BODY_BYTES = Number(process.env.MAX_BODY_BYTES) || 1024 * 1024;
+
+/** Pre-session routes CsrfMiddleware never challenges (no session exists yet). */
+export const CSRF_EXEMPT_ROUTES = ['/auth/login', '/auth/register', '/auth/register-staff'];
+
 // Re-export feature-specific middlewares to preserve clean module boundaries
 // Note: These exports are conditional - they will only work if the modules exist
 try {
@@ -89,11 +102,7 @@ export class CsrfMiddleware implements NestMiddleware {
   private readonly tokenExpiration = Number(process.env.CSRF_TOKEN_EXPIRATION) || 86400000; // 24 hours default
 
   /** Routes that cannot be challenged because no session exists yet. */
-  private static readonly PRE_SESSION_ROUTES = [
-    '/auth/login',
-    '/auth/register',
-    '/auth/register-staff',
-  ];
+  private static readonly PRE_SESSION_ROUTES = CSRF_EXEMPT_ROUTES;
 
   use(req: Request, res: Response, next: NextFunction): void {
     // Safe methods are never challenged. They also carry the token back, which
@@ -356,10 +365,6 @@ export { RequestLoggerMiddleware as LodgerMiddleware };
 // 2. SECURITY MIDDLEWARE
 // ============================================================================
 
-const GENERAL_LIMIT = Number(process.env.RATE_LIMIT_GENERAL) || 300;
-const AUTH_LIMIT = Number(process.env.RATE_LIMIT_AUTH) || 20;
-const WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS) || 60_000;
-const AUTH_PATHS = ['/api/auth/login', '/api/auth/register'];
 
 /**
  * Security Middleware (application-level — applied to every route)
@@ -374,7 +379,7 @@ export class SecurityMiddleware implements NestMiddleware {
   }) : null;
 
   private readonly hits = new Map<string, number[]>();
-  private readonly maxBodyBytes = Number(process.env.MAX_BODY_BYTES) || 1024 * 1024;
+  private readonly maxBodyBytes = MAX_BODY_BYTES;
   private readonly disabled = process.env.RATE_LIMIT_DISABLED === 'true';
 
   constructor() {

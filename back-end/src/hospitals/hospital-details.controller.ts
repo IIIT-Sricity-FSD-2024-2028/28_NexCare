@@ -12,7 +12,7 @@ import { ResponseUtil } from '../common/utils/response.util';
  * Hospital-scoped read endpoints for the Regional Officer details tabs.
  * Kept separate from HospitalsController so other members' hospital files stay untouched.
  */
-@ApiTags('Hospital Details')
+@ApiTags('Hospitals')
 @ApiBearerAuth('JWT-auth')
 @Roles(
   UserRole.SUPERUSER,

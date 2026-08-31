@@ -301,6 +301,28 @@ export class AppointmentsController {
   }
 
   /**
+   * Mark an appointment as a no-show
+   */
+  @Patch(':id/no-show')
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER, UserRole.DOCTOR)
+  @ApiOperation({
+    summary: 'Mark an appointment as a no-show',
+    description:
+      'The patient did not attend and did not cancel. No consultation fee is raised and the slot ' +
+      'is released for rebooking. Feeds the no-show rate in the hospital health score. ' +
+      'Patients cannot set this on themselves.',
+  })
+  @ApiResponse({ status: 200, description: 'Appointment marked as a no-show' })
+  @ApiResponse({ status: 400, description: 'Appointment is already completed or cancelled' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Appointment not found' })
+  async markNoShow(@Req() req: any, @Param('id') id: string) {
+    await this.assertDoctorOwnsAppointment(req, id);
+    return this.appointmentsService.markNoShow(id);
+  }
+
+  /**
    * Cancel appointment
    */
   @Patch(':id/cancel')

@@ -154,9 +154,9 @@ export class BillingService {
     try {
       const bills = this.loadBills();
 
-      // Generate new bill ID
+      // Generate new bill ID in the same scheme as the hospital's existing bills
       const existingIds = bills.map(b => b.id);
-      const newBillId = IdGenerator.generateBillId(existingIds);
+      const newBillId = IdGenerator.generateBillId(existingIds, billData.hospitalId);
 
       // Calculate totals
       const subtotal = this.round2(billData.items.reduce((sum, item) => sum + item.amount, 0));
@@ -210,7 +210,7 @@ export class BillingService {
    * Find an existing pending/unpaid bill for the patient, or create a fresh one if none exists.
    * Paid bills are never modified.
    */
-  getOrCreatePendingBill(patientId: string, visitDate?: string): Bill {
+  getOrCreatePendingBill(patientId: string, visitDate?: string, hospitalId?: string): Bill {
     const bills = this.loadBills();
     let pendingBill = bills.find(
       b => b.patientId === patientId && b.status !== BillStatus.PAID
@@ -224,8 +224,14 @@ export class BillingService {
       const dDate = due.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
 
       const existingIds = bills.map(b => b.id);
+      // Callers that post a charge do not carry the hospital, so fall back to
+      // the hospital on the patient's earlier bills; only a patient with no
+      // billing history at all lands on the flat BILL-NNNN scheme.
+      const billHospitalId =
+        hospitalId ?? bills.find(b => b.patientId === patientId && b.hospitalId)?.hospitalId;
       pendingBill = {
-        id: IdGenerator.generateBillId(existingIds),
+        id: IdGenerator.generateBillId(existingIds, billHospitalId),
+        hospitalId: billHospitalId,
         patientId,
         visitDate: vDate,
         dueDate: dDate,

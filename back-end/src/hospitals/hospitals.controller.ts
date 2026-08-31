@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Patch, Body, Param, Query, UseInterceptors, Req, ForbiddenException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiHeader } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { HospitalsService } from './hospitals.service';
 import { UsersService } from '../users/users.service';
 import { CreateHospitalDto, UpdateHospitalDto, RenewSubscriptionDto } from './interfaces/hospital.interface';
@@ -27,8 +27,20 @@ export class HospitalsController {
   @ApiQuery({ name: 'speciality', required: false, type: String, description: 'Filter by speciality', example: 'Cardiology' })
   @ApiQuery({ name: 'city', required: false, type: String, description: 'Filter by city', example: 'Tirupati' })
   @ApiQuery({ name: 'pincode', required: false, type: String, description: 'Filter by pincode', example: '517501' })
-  @ApiHeader({ name: 'x-query-timestamp', description: 'Timestamp of the query normalization' })
-  @ApiResponse({ status: 200, description: 'List of hospitals' })
+  // x-query-timestamp is a RESPONSE header set by HospitalQueryInterceptor, not
+  // something the caller sends. It was declared with @ApiHeader, which renders
+  // it as a request input in Swagger UI — the opposite of what the interceptor
+  // does. Declared on the response instead.
+  @ApiResponse({
+    status: 200,
+    description: 'List of hospitals',
+    headers: {
+      'x-query-timestamp': {
+        description: 'When HospitalQueryInterceptor normalised the query (ISO 8601).',
+        schema: { type: 'string', format: 'date-time' },
+      },
+    },
+  })
   async findAll(
     @Query('status') status?: VerificationStatus,
     @Query('speciality') speciality?: string,
@@ -45,8 +57,20 @@ export class HospitalsController {
   @ApiQuery({ name: 'city', required: true, type: String, description: 'City name', example: 'Tirupati' })
   @ApiQuery({ name: 'state', required: true, type: String, description: 'State name', example: 'Andhra Pradesh' })
   @ApiQuery({ name: 'pincode', required: true, type: String, description: 'Pincode', example: '517501' })
-  @ApiHeader({ name: 'x-query-timestamp', description: 'Timestamp of the query normalization' })
-  @ApiResponse({ status: 200, description: 'List of nearby hospitals' })
+  // x-query-timestamp is a RESPONSE header set by HospitalQueryInterceptor, not
+  // something the caller sends. It was declared with @ApiHeader, which renders
+  // it as a request input in Swagger UI — the opposite of what the interceptor
+  // does. Declared on the response instead.
+  @ApiResponse({
+    status: 200,
+    description: 'List of nearby hospitals',
+    headers: {
+      'x-query-timestamp': {
+        description: 'When HospitalQueryInterceptor normalised the query (ISO 8601).',
+        schema: { type: 'string', format: 'date-time' },
+      },
+    },
+  })
   async findNearby(
     @Query('city') city: string,
     @Query('state') state: string,
@@ -67,6 +91,11 @@ export class HospitalsController {
   }
 
   @Public()
+  @ApiOperation({ summary: 'Get one hospital by ID' })
+  @ApiResponse({ status: 200, description: 'Hospital retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden — HospitalAccessMiddleware: you are not assigned to this hospital' })
+  @ApiResponse({ status: 404, description: 'Hospital not found' })
   @Get(':id')
   async findById(@Param('id') id: string) {
     return this.hospitalsService.findById(id);
@@ -130,6 +159,14 @@ export class HospitalsController {
   }
 
   @Roles(UserRole.SUPERUSER)
+  @ApiOperation({
+    summary: 'Give a hospital registration final approval',
+    description: 'Requires an assigned manager and a cleared regional review first.',
+  })
+  @ApiResponse({ status: 200, description: 'Approval result (check success field)' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden — HospitalAccessMiddleware: you are not assigned to this hospital' })
+  @ApiResponse({ status: 404, description: 'Hospital not found' })
   @Patch(':id/verify')
   async verify(@Param('id') id: string) {
     const hospital: any = (await this.hospitalsService.findById(id)).data;
@@ -141,6 +178,11 @@ export class HospitalsController {
   }
 
   @Roles(UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER)
+  @ApiOperation({ summary: 'Reject a hospital registration (regional managers record a regional rejection)' })
+  @ApiResponse({ status: 200, description: 'Rejection recorded' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden — HospitalAccessMiddleware: you are not assigned to this hospital' })
+  @ApiResponse({ status: 404, description: 'Hospital not found' })
   @Patch(':id/reject')
   async reject(@Param('id') id: string, @Req() req: any, @Body('notes') notes?: string) {
     if (req.user?.role === UserRole.REGIONAL_MANAGER) {
@@ -150,6 +192,11 @@ export class HospitalsController {
   }
 
   @Roles(UserRole.REGIONAL_MANAGER)
+  @ApiOperation({ summary: 'Record the regional officer review decision (cleared or rejected)' })
+  @ApiResponse({ status: 200, description: 'Review recorded (check success field)' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden — HospitalAccessMiddleware: you are not assigned to this hospital' })
+  @ApiResponse({ status: 404, description: 'Hospital not found' })
   @Patch(':id/regional-review')
   async regionalReview(
     @Param('id') id: string,
@@ -164,6 +211,14 @@ export class HospitalsController {
   }
 
   @Roles(UserRole.SUPERUSER)
+  @ApiOperation({
+    summary: 'Assign a regional manager to a hospital',
+    description: 'The manager must be active and cover the hospital city in their areas.',
+  })
+  @ApiResponse({ status: 200, description: 'Assignment result (check success field)' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden — HospitalAccessMiddleware: you are not assigned to this hospital' })
+  @ApiResponse({ status: 404, description: 'Hospital not found' })
   @Patch(':id/assign-manager')
   async assignManager(@Param('id') id: string, @Body('managerId') managerId: string) {
     const [hospitalResult, managerResult]: any = await Promise.all([

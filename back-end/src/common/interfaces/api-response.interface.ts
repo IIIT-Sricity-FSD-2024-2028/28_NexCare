@@ -72,7 +72,14 @@ export enum AppointmentStatus {
   PENDING = 'Pending',
   CONFIRMED = 'Confirmed',
   COMPLETED = 'Completed',
-  CANCELLED = 'Cancelled'
+  CANCELLED = 'Cancelled',
+  /**
+   * The patient did not attend a booked slot. Distinct from CANCELLED, which
+   * the patient or staff chose; a no-show is unannounced and is the signal the
+   * hospital health score penalises. Administrative only — it records
+   * attendance, not anything clinical.
+   */
+  NO_SHOW = 'No Show'
 }
 
 /**

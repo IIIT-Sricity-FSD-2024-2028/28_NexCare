@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param, Query, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { PaymentsService } from './payments.service';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/interfaces/api-response.interface';

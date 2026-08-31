@@ -73,6 +73,7 @@ export interface AppointmentStats {
   confirmed: number;
   completed: number;
   cancelled: number;
+  noShow: number;
   today: number;
   byDepartment: Record<string, number>;
   revenue: number;

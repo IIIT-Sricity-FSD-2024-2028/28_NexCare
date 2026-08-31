@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, BadRequestException } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
+import { applyMiddlewareContract, buildSwaggerConfig } from './swagger.config';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { errorHandlerMiddleware, notFoundMiddleware, fileRotator } from './lodger.middleware';
@@ -137,60 +138,15 @@ async function bootstrap() {
   fileRotator.start(60000); // Check every minute
 
   // ─── Swagger Documentation ────────────────────────────────────────────────
-  const config = new DocumentBuilder()
-    .setTitle('NexCare Hospital Management API')
-    .setDescription(
-      'Complete REST API for the NexCare Hospital Administrative Operations Platform. ' +
-      'Features role-based access control (RBAC), JWT authentication, and comprehensive ' +
-      'modules for patients, appointments, billing, beds, ambulance, inventory, feedback, and system management.',
-    )
-    .setVersion('1.0.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        description: 'Enter your JWT token',
-      },
-      'JWT-auth',
-    )
-    .addApiKey(
-      {
-        type: 'apiKey',
-        in: 'header',
-        name: 'x-user-role',
-        description: 'User role for RBAC (superuser, administrative_staff, patient, ambulance, regional_manager, hospital_manager)',
-      },
-      'x-user-role',
-    )
-    .addServer(
-      process.env.API_URL || `http://localhost:${process.env.PORT || 3001}`,
-      'Local Server',
-    )
-    .addTag('Auth', 'Authentication & session management')
-    .addTag('Users', 'User account management (Admin)')
-    .addTag('Patients', 'Patient records & profiles')
-    .addTag('Appointments', 'Appointment scheduling & tracking')
-    .addTag('Billing', 'Financial operations & bill management')
-    .addTag('Beds', 'Bed allocation & ward management')
-    .addTag('Ambulance', 'Emergency services & ambulance requests')
-    .addTag('Inventory', 'Supply chain & inventory tracking')
-    .addTag('Feedback', 'Communication & feedback system')
-    .addTag('System', 'Audit logs & system configuration')
-    .build();
+  const config = buildSwaggerConfig();
 
-  const document = SwaggerModule.createDocument(app, config);
-  
-  // ============================================
-  // SAVE SWAGGER JSON TO FILE
-  // ============================================
-  const docsDir = path.join(process.cwd(), 'docs');
-  if (!fs.existsSync(docsDir)) {
-    fs.mkdirSync(docsDir);
-  }
-  const swaggerPath = path.join(docsDir, 'swagger.json');
-  fs.writeFileSync(swaggerPath, JSON.stringify(document, null, 2));
-  console.log(`✅ Swagger JSON saved to: ${swaggerPath}`);
+  // Fold the global middleware contract into every operation — see swagger.config.ts.
+  const document = applyMiddlewareContract(SwaggerModule.createDocument(app, config));
+
+  // docs/swagger.json is NOT written here. It is a tracked file, and rewriting
+  // it on every boot made it churn in four of the last nineteen commits and
+  // guaranteed a conflict whenever two people ran the app. Regenerate it
+  // deliberately instead:  npm run swagger:generate
 
   SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {

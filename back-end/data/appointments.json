@@ -16,7 +16,7 @@
     "timeLabel": "10:00 AM",
     "fee": 900,
     "consultationFee": 900,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -36,7 +36,7 @@
     "timeLabel": "11:00 AM",
     "fee": 800,
     "consultationFee": 800,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -56,7 +56,7 @@
     "timeLabel": "12:00 AM",
     "fee": 850,
     "consultationFee": 850,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -76,7 +76,7 @@
     "timeLabel": "13:00 AM",
     "fee": 1000,
     "consultationFee": 1000,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -96,7 +96,7 @@
     "timeLabel": "10:00 AM",
     "fee": 700,
     "consultationFee": 700,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -116,7 +116,7 @@
     "timeLabel": "11:00 AM",
     "fee": 750,
     "consultationFee": 750,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -136,7 +136,7 @@
     "timeLabel": "12:00 AM",
     "fee": 900,
     "consultationFee": 900,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -156,7 +156,7 @@
     "timeLabel": "13:00 AM",
     "fee": 800,
     "consultationFee": 800,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -176,7 +176,7 @@
     "timeLabel": "10:00 AM",
     "fee": 800,
     "consultationFee": 800,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -196,7 +196,7 @@
     "timeLabel": "11:00 AM",
     "fee": 700,
     "consultationFee": 700,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -216,7 +216,7 @@
     "timeLabel": "12:00 AM",
     "fee": 850,
     "consultationFee": 850,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -236,7 +236,7 @@
     "timeLabel": "13:00 AM",
     "fee": 650,
     "consultationFee": 650,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -256,7 +256,7 @@
     "timeLabel": "10:00 AM",
     "fee": 750,
     "consultationFee": 750,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -276,7 +276,7 @@
     "timeLabel": "11:00 AM",
     "fee": 900,
     "consultationFee": 900,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -296,7 +296,7 @@
     "timeLabel": "12:00 AM",
     "fee": 800,
     "consultationFee": 800,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -316,7 +316,7 @@
     "timeLabel": "13:00 AM",
     "fee": 700,
     "consultationFee": 700,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -336,7 +336,7 @@
     "timeLabel": "10:00 AM",
     "fee": 1100,
     "consultationFee": 1100,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -356,7 +356,7 @@
     "timeLabel": "11:00 AM",
     "fee": 1200,
     "consultationFee": 1200,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -376,7 +376,7 @@
     "timeLabel": "12:00 AM",
     "fee": 1000,
     "consultationFee": 1000,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -396,7 +396,7 @@
     "timeLabel": "13:00 AM",
     "fee": 850,
     "consultationFee": 850,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -416,7 +416,7 @@
     "timeLabel": "10:00 AM",
     "fee": 950,
     "consultationFee": 950,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -436,7 +436,7 @@
     "timeLabel": "11:00 AM",
     "fee": 800,
     "consultationFee": 800,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -456,7 +456,7 @@
     "timeLabel": "12:00 AM",
     "fee": 1100,
     "consultationFee": 1100,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -476,7 +476,7 @@
     "timeLabel": "13:00 AM",
     "fee": 1200,
     "consultationFee": 1200,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -496,7 +496,7 @@
     "timeLabel": "10:00 AM",
     "fee": 850,
     "consultationFee": 850,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -516,7 +516,7 @@
     "timeLabel": "11:00 AM",
     "fee": 750,
     "consultationFee": 750,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -536,7 +536,7 @@
     "timeLabel": "12:00 AM",
     "fee": 800,
     "consultationFee": 800,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -556,7 +556,7 @@
     "timeLabel": "13:00 AM",
     "fee": 700,
     "consultationFee": 700,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -576,7 +576,7 @@
     "timeLabel": "10:00 AM",
     "fee": 700,
     "consultationFee": 700,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -596,7 +596,7 @@
     "timeLabel": "11:00 AM",
     "fee": 850,
     "consultationFee": 850,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -616,7 +616,7 @@
     "timeLabel": "12:00 AM",
     "fee": 850,
     "consultationFee": 850,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -636,7 +636,7 @@
     "timeLabel": "13:00 AM",
     "fee": 750,
     "consultationFee": 750,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -656,7 +656,7 @@
     "timeLabel": "10:00 AM",
     "fee": 1000,
     "consultationFee": 1000,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -676,7 +676,7 @@
     "timeLabel": "11:00 AM",
     "fee": 1100,
     "consultationFee": 1100,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -696,7 +696,7 @@
     "timeLabel": "12:00 AM",
     "fee": 900,
     "consultationFee": 900,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -716,7 +716,7 @@
     "timeLabel": "13:00 AM",
     "fee": 750,
     "consultationFee": 750,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -736,7 +736,7 @@
     "timeLabel": "10:00 AM",
     "fee": 850,
     "consultationFee": 850,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -756,7 +756,7 @@
     "timeLabel": "11:00 AM",
     "fee": 750,
     "consultationFee": 750,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -776,7 +776,7 @@
     "timeLabel": "12:00 AM",
     "fee": 1000,
     "consultationFee": 1000,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -796,7 +796,7 @@
     "timeLabel": "13:00 AM",
     "fee": 1100,
     "consultationFee": 1100,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -816,7 +816,7 @@
     "timeLabel": "10:00 AM",
     "fee": 800,
     "consultationFee": 800,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -836,7 +836,7 @@
     "timeLabel": "11:00 AM",
     "fee": 700,
     "consultationFee": 700,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -856,7 +856,7 @@
     "timeLabel": "12:00 AM",
     "fee": 800,
     "consultationFee": 800,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -876,7 +876,7 @@
     "timeLabel": "13:00 AM",
     "fee": 700,
     "consultationFee": 700,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -896,7 +896,7 @@
     "timeLabel": "10:00 AM",
     "fee": 750,
     "consultationFee": 750,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -916,7 +916,7 @@
     "timeLabel": "11:00 AM",
     "fee": 850,
     "consultationFee": 850,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -936,7 +936,7 @@
     "timeLabel": "12:00 AM",
     "fee": 800,
     "consultationFee": 800,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -956,7 +956,7 @@
     "timeLabel": "13:00 AM",
     "fee": 700,
     "consultationFee": 700,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -976,7 +976,7 @@
     "timeLabel": "10:00 AM",
     "fee": 1100,
     "consultationFee": 1100,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -996,7 +996,7 @@
     "timeLabel": "11:00 AM",
     "fee": 1200,
     "consultationFee": 1200,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1016,7 +1016,7 @@
     "timeLabel": "12:00 AM",
     "fee": 900,
     "consultationFee": 900,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1036,7 +1036,7 @@
     "timeLabel": "13:00 AM",
     "fee": 1000,
     "consultationFee": 1000,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1056,7 +1056,7 @@
     "timeLabel": "10:00 AM",
     "fee": 950,
     "consultationFee": 950,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1076,7 +1076,7 @@
     "timeLabel": "11:00 AM",
     "fee": 850,
     "consultationFee": 850,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1096,7 +1096,7 @@
     "timeLabel": "12:00 AM",
     "fee": 1100,
     "consultationFee": 1100,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1116,7 +1116,7 @@
     "timeLabel": "13:00 AM",
     "fee": 1200,
     "consultationFee": 1200,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1136,7 +1136,7 @@
     "timeLabel": "10:00 AM",
     "fee": 850,
     "consultationFee": 850,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1156,7 +1156,7 @@
     "timeLabel": "11:00 AM",
     "fee": 750,
     "consultationFee": 750,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1176,7 +1176,7 @@
     "timeLabel": "12:00 AM",
     "fee": 800,
     "consultationFee": 800,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1196,7 +1196,7 @@
     "timeLabel": "13:00 AM",
     "fee": 700,
     "consultationFee": 700,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1216,7 +1216,7 @@
     "timeLabel": "10:00 AM",
     "fee": 850,
     "consultationFee": 850,
-    "status": "COMPLETED",
+    "status": "Completed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1236,7 +1236,7 @@
     "timeLabel": "11:00 AM",
     "fee": 700,
     "consultationFee": 700,
-    "status": "CONFIRMED",
+    "status": "Confirmed",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1256,7 +1256,7 @@
     "timeLabel": "12:00 AM",
     "fee": 850,
     "consultationFee": 850,
-    "status": "BOOKED",
+    "status": "Pending",
     "createdAt": "2026-08-25T10:00:00Z"
   },
   {
@@ -1276,7 +1276,7 @@
     "timeLabel": "13:00 AM",
     "fee": 750,
     "consultationFee": 750,
-    "status": "CANCELLED",
+    "status": "Cancelled",
     "createdAt": "2026-08-25T10:00:00Z"
   }
 ]

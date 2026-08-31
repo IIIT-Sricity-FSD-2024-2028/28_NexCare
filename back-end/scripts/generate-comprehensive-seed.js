@@ -1,6 +1,43 @@
 const fs = require('fs');
 const path = require('path');
 
+// Status values MUST match the TypeScript enums in
+// src/common/interfaces/api-response.interface.ts. They are mirrored here (this
+// script is plain JS and cannot import the .ts enums) and asserted at the bottom
+// of this file, so a drift between the two fails the seed instead of silently
+// producing records that no backend comparison will ever match.
+const BedStatus = {
+  AVAILABLE: 'available',
+  OCCUPIED: 'occupied',
+  CRITICAL: 'critical',
+  MAINTENANCE: 'maintenance'
+};
+
+const AppointmentStatus = {
+  PENDING: 'Pending',
+  CONFIRMED: 'Confirmed',
+  COMPLETED: 'Completed',
+  CANCELLED: 'Cancelled',
+  NO_SHOW: 'No Show'
+};
+
+const AmbulanceStatus = {
+  PENDING: 'Pending',
+  DISPATCHED: 'Dispatched',
+  EN_ROUTE: 'En Route',
+  PICKED_UP: 'Picked Up',
+  AT_HOSPITAL: 'At Hospital',
+  COMPLETED: 'Completed',
+  CANCELLED: 'Cancelled'
+};
+
+const BillStatus = {
+  PENDING: 'Pending',
+  PAID: 'Paid',
+  OVERDUE: 'Overdue',
+  CANCELLED: 'Cancelled'
+};
+
 const DATA_DIR = path.join(__dirname, '..', 'data');
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -768,16 +805,23 @@ hospitalsData.forEach((h, hIdx) => {
 
     for (let b = 1; b <= w.capacity; b++) {
       const isOccupied = b <= w.occupied;
-      const bedId = `BED-${h.id}-${wardId.slice(-3)}-${String(b).padStart(3, '0')}`;
+      const bedId = `BED-${h.id}-${String(wIdx + 1).padStart(2, '0')}-${String(b).padStart(3, '0')}`;
+      // Occupied beds are filled from this hospital's own patient roster so the
+      // patientId resolves against patients.json instead of a made-up ID.
+      const occupant = isOccupied ? patientData[hIdx][(b - 1) % patientData[hIdx].length] : null;
       beds.push({
         id: bedId,
         bedNumber: `${w.name.substring(0, 2).toUpperCase()}-${String(b).padStart(3, '0')}`,
         hospitalId: h.id,
+        // `ward` and `patient` are the fields the Bed interface and beds.service
+        // read; wardId/wardName/patientId are the richer fields the portals use.
+        ward: w.name,
         wardId: wardId,
         wardName: w.name,
         type: w.name === 'ICU' ? 'ICU' : w.name === 'CCU' ? 'CCU' : 'Standard',
-        status: isOccupied ? 'OCCUPIED' : 'AVAILABLE',
-        patientId: isOccupied ? `PAT-${h.id}-${String((b % 8) + 1).padStart(3, '0')}` : null,
+        status: isOccupied ? BedStatus.OCCUPIED : BedStatus.AVAILABLE,
+        patient: occupant ? occupant.name : '',
+        patientId: occupant ? occupant.pid : null,
         dailyRate: w.name === 'ICU' ? 5000 : w.name === 'CCU' ? 4000 : 1500
       });
       bedCounter++;
@@ -840,7 +884,7 @@ hospitalsData.forEach((h, hIdx) => {
       timeLabel: `${10 + (pIdx % 4)}:00 AM`,
       fee: assignedDoc.fee,
       consultationFee: assignedDoc.fee,
-      status: pIdx % 4 === 0 ? 'COMPLETED' : pIdx % 4 === 1 ? 'CONFIRMED' : pIdx % 4 === 2 ? 'BOOKED' : 'CANCELLED',
+      status: pIdx % 4 === 0 ? AppointmentStatus.COMPLETED : pIdx % 4 === 1 ? AppointmentStatus.CONFIRMED : pIdx % 4 === 2 ? AppointmentStatus.PENDING : AppointmentStatus.CANCELLED,
       createdAt: '2026-08-25T10:00:00Z'
     });
 
@@ -853,7 +897,7 @@ hospitalsData.forEach((h, hIdx) => {
         hospitalName: h.name,
         visitDate: '2026-08-25',
         dueDate: '2026-09-08',
-        status: 'Pending',
+        status: BillStatus.PENDING,
         currency: '₹',
         subtotal: assignedDoc.fee,
         cgstRate: 0.09,
@@ -954,23 +998,141 @@ hospitalsData.forEach((h, hIdx) => {
   const hRegs = ambRegs[hIdx] || ['AP 03 AB 9999'];
   const hDrv = ambDrivers[hIdx] || ['Emergency Driver'];
 
+  // data/ambulance.json is the AmbulanceRequest collection — see
+  // FileStore<AmbulanceRequest>('ambulance.json') in ambulance.service.ts.
+  // It previously received vehicle records instead: no patientId, no
+  // pickupLocation, and status 'Available', which is not an AmbulanceStatus.
+  // Every request-shaped read (patient history, dispatch queue, stats) came
+  // back empty. The fleet details now ride along on the request they served,
+  // which is what vehicleNumber/driverName are for on the dispatch DTOs.
+  const requestStatuses = [
+    AmbulanceStatus.COMPLETED,
+    AmbulanceStatus.EN_ROUTE,
+    AmbulanceStatus.PENDING,
+    AmbulanceStatus.DISPATCHED
+  ];
+
   hRegs.forEach((vNum, vIdx) => {
     const ambId = `AMB-${h.id}-${String(vIdx + 1).padStart(2, '0')}`;
+    const requester = patientData[hIdx][vIdx % patientData[hIdx].length];
+    const status = requestStatuses[vIdx % requestStatuses.length];
+    const dispatched = status !== AmbulanceStatus.PENDING;
+
     ambulances.push({
       id: ambId,
-      vehicleNumber: vNum,
-      type: vIdx === 0 ? 'Advanced Life Support (ALS)' : 'Basic Life Support (BLS)',
-      driverName: hDrv[vIdx % hDrv.length],
-      driverPhone: `+91 98480 ${hIdx + 1}${vIdx + 1}00${vIdx}`,
-      status: vIdx === 0 ? 'Available' : 'Available',
+      patientId: requester.pid,
+      patientName: requester.name,
+      pickupLocation: `${200 + vIdx} Main Road, ${requester.city}`,
+      contact: requester.phone,
+      notes: vIdx === 0 ? 'Advanced Life Support required' : 'Routine patient transfer',
+      status,
       hospitalId: h.id,
       hospitalName: h.name,
       assignedTo: ambStaff[vIdx % ambStaff.length]?.id || 'U003',
+      // Fleet details, populated once a vehicle has actually been dispatched.
+      vehicleNumber: dispatched ? vNum : undefined,
+      type: vIdx === 0 ? 'Advanced Life Support (ALS)' : 'Basic Life Support (BLS)',
+      driverName: dispatched ? hDrv[vIdx % hDrv.length] : undefined,
+      driverPhone: dispatched ? `+91 98480 ${hIdx + 1}${vIdx + 1}00${vIdx}` : undefined,
+      completedDate: status === AmbulanceStatus.COMPLETED ? '2026-08-25' : undefined,
+      completedTime: status === AmbulanceStatus.COMPLETED ? '11:45 AM' : undefined,
       createdAt: '2026-08-25T10:00:00Z',
       updatedAt: '2026-08-25T10:00:00Z'
     });
   });
 });
+
+// ---------------------------------------------------------
+// Validation gate
+//
+// Six of the defects in the 2026-08-31 audit came from this script being
+// written independently of the TypeScript enums and interfaces, with nothing
+// checking its output against them. This gate closes that loop: it re-reads the
+// enums out of the .ts source, confirms the mirrored constants above still
+// agree with them, and validates every generated record before anything is
+// written. A drift now fails the seed loudly instead of producing records that
+// no backend comparison will ever match.
+// ---------------------------------------------------------
+
+function parseTsEnum(source, enumName) {
+  const block = new RegExp(`export enum ${enumName} \\{([^}]*)\\}`).exec(source);
+  if (!block) throw new Error(`Could not find "export enum ${enumName}" in api-response.interface.ts`);
+  const members = {};
+  for (const line of block[1].split('\n')) {
+    const m = /^\s*([A-Z0-9_]+)\s*=\s*'([^']*)'/.exec(line);
+    if (m) members[m[1]] = m[2];
+  }
+  return members;
+}
+
+function assertMirrorsTsEnum(enumName, mirrored, tsSource) {
+  const actual = parseTsEnum(tsSource, enumName);
+  const expected = JSON.stringify(actual, Object.keys(actual).sort());
+  const got = JSON.stringify(mirrored, Object.keys(actual).sort());
+  if (expected !== got) {
+    throw new Error(
+      `Seed is out of sync with ${enumName} in src/common/interfaces/api-response.interface.ts.\n` +
+      `  TypeScript enum: ${JSON.stringify(actual)}\n` +
+      `  Mirrored here:   ${JSON.stringify(mirrored)}\n` +
+      `Update the mirrored constant at the top of this script.`
+    );
+  }
+}
+
+function validateSeed() {
+  const tsSource = fs.readFileSync(
+    path.join(__dirname, '..', 'src', 'common', 'interfaces', 'api-response.interface.ts'),
+    'utf8'
+  );
+
+  assertMirrorsTsEnum('BedStatus', BedStatus, tsSource);
+  assertMirrorsTsEnum('AppointmentStatus', AppointmentStatus, tsSource);
+  assertMirrorsTsEnum('BillStatus', BillStatus, tsSource);
+  assertMirrorsTsEnum('AmbulanceStatus', AmbulanceStatus, tsSource);
+
+  const errors = [];
+  const check = (collection, label, requiredFields, statusEnum) => {
+    const allowed = Object.values(statusEnum);
+    collection.forEach((record) => {
+      requiredFields.forEach((field) => {
+        if (record[field] === undefined) {
+          errors.push(`${label} ${record.id}: missing required field "${field}"`);
+        }
+      });
+      if (!allowed.includes(record.status)) {
+        errors.push(`${label} ${record.id}: status "${record.status}" is not one of ${allowed.join(', ')}`);
+      }
+    });
+  };
+
+  // Field lists mirror the declared interfaces: Bed (src/beds/interfaces/bed.interface.ts)
+  // requires id/ward/status, and beds.service.ts reads `patient` for its
+  // allocation guards.
+  check(beds, 'Bed', ['id', 'ward', 'patient', 'hospitalId'], BedStatus);
+  check(appointments, 'Appointment', ['id', 'patientId', 'doctorId', 'dateLabel', 'hospitalId'], AppointmentStatus);
+  check(billing, 'Bill', ['id', 'patientId', 'hospitalId', 'visitDate', 'subtotal', 'total'], BillStatus);
+  check(ambulances, 'AmbulanceRequest', ['id', 'patientId', 'patientName', 'pickupLocation', 'contact', 'hospitalId', 'createdAt'], AmbulanceStatus);
+
+  const badBedIds = beds.filter((b) => b.id.includes('--')).map((b) => b.id);
+  if (badBedIds.length) {
+    errors.push(`${badBedIds.length} bed IDs contain a double hyphen, e.g. ${badBedIds[0]}`);
+  }
+
+  if (errors.length) {
+    const shown = errors.slice(0, 20).join('\n  ');
+    throw new Error(
+      `Seed validation failed with ${errors.length} problem(s); nothing was written.\n  ${shown}` +
+      (errors.length > 20 ? `\n  ...and ${errors.length - 20} more` : '')
+    );
+  }
+
+  console.log(
+    `Seed validation passed: ${beds.length} beds, ${appointments.length} appointments, ` +
+    `${billing.length} bills, ${ambulances.length} ambulance requests match the TypeScript enums and interfaces.`
+  );
+}
+
+validateSeed();
 
 // Write to back-end/data JSON files
 function writeDataFile(filename, data) {

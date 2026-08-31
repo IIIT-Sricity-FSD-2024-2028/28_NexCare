@@ -12,6 +12,17 @@ export interface Bed {
   hospitalId?: string;
   createdAt?: string;
   updatedAt?: string;
+
+  // Descriptive fields carried by the seeded dataset and rendered by the
+  // portals. The service reads `ward`/`patient` above; these are the richer
+  // values behind them, and BedsService.load() derives `ward`/`patient` from
+  // wardName/wardId/patientId when a record predates that convention.
+  bedNumber?: string;
+  wardId?: string;
+  wardName?: string;
+  type?: string;
+  patientId?: string | null;
+  dailyRate?: number;
 }
 
 /**

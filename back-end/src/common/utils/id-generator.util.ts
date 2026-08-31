@@ -63,20 +63,40 @@ export class IdGenerator {
    * Generate bill ID with sequential pattern (BILL-0001, BILL-0002, etc.)
    * @param existingIds - Array of existing bill IDs to avoid conflicts
    */
-  static generateBillId(existingIds: string[] = []): string {
-    const numericIds = existingIds
-      .map(id => {
-        // Match BILL-0088, BILL-101, etc.
-        const match = id.match(/^BILL-(?:0*)?(\d+)$/);
-        return match ? parseInt(match[1], 10) : 0;
-      })
-      .filter(num => num > 0);
+  static generateBillId(existingIds: string[] = [], hospitalId?: string): string {
+    // Two ID schemes live in billing.json:
+    //   flat          BILL-0088       — produced by this generator
+    //   per-hospital  BILL-H001-001   — produced by the comprehensive seed
+    // Matching only the flat form meant that against seeded data nothing ever
+    // parsed, the max was always 0, and every bill came out as BILL-0001.
+    // Parse the scheme the caller is actually working in, and emit the same one.
+    if (hospitalId) {
+      const prefix = `BILL-${hospitalId}-`;
+      const next = this.maxSequence(existingIds, id =>
+        id.startsWith(prefix) ? id.slice(prefix.length) : null,
+      ) + 1;
+      return `${prefix}${next.toString().padStart(3, '0')}`;
+    }
 
-    const maxId = numericIds.length > 0 ? Math.max(...numericIds) : 0;
-    const nextId = maxId + 1;
-    
+    const next = this.maxSequence(existingIds, id => {
+      const match = /^BILL-(\d+)$/.exec(id);
+      return match ? match[1] : null;
+    }) + 1;
     // Pad to 4 digits to match existing format like BILL-0088
-    return `BILL-${nextId.toString().padStart(4, '0')}`;
+    return `BILL-${next.toString().padStart(4, '0')}`;
+  }
+
+  /**
+   * Highest numeric suffix among IDs the extractor recognises, or 0 when none
+   * match. `extract` returns the digits of an ID, or null if it belongs to a
+   * different scheme.
+   */
+  private static maxSequence(ids: string[], extract: (id: string) => string | null): number {
+    const numbers = ids
+      .map(id => extract(id))
+      .map(digits => (digits === null ? NaN : parseInt(digits, 10)))
+      .filter(num => Number.isFinite(num) && num > 0);
+    return numbers.length > 0 ? Math.max(...numbers) : 0;
   }
 
   /**

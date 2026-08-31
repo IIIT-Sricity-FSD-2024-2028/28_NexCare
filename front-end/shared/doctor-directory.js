@@ -19,9 +19,12 @@
    doctor portal; the server remains the authority for leave, past dates and
    slot clashes.
 
-   If the API is unreachable the catalogue is cleared and the page reports that
-   live hospital data is unavailable. Booking must never create a disconnected
-   local-only appointment.
+   If the API is unreachable the catalogue in `shared/mock-hospitals.js` stands.
+   That file is no longer hand-written: it is generated from the same backend
+   data by `back-end/scripts/generate-mock-hospitals.js`, so every hospital id
+   and doctor id in it is a real record and a booking made off it resolves on
+   the server once connectivity returns. `window.doctorDirectoryLive` records
+   which of the two the page is showing.
    ───────────────────────────────────────────────────────────────────────────── */
 
 /** Set once hydration has finished, so callers can await it more than once. */
@@ -86,8 +89,9 @@ function slugify(value) {
  * mock array, false when it fell back.
  */
 async function hydrateDoctorDirectory() {
+    window.doctorDirectoryLive = false;
     if (!window.NexCareAPI) {
-        window.MOCK_HOSPITALS = [];
+        console.warn('[NexCare] API client unavailable — using the generated offline catalogue.');
         return false;
     }
 
@@ -140,7 +144,9 @@ async function hydrateDoctorDirectory() {
                         id: doc.id,
                         name: doc.name,
                         qualification: doc.qualification || doc.dept || '',
-                        experience: doc.experience || null,
+                        // Doctor records store experienceYears; `experience` is
+                        // only present on older records.
+                        experience: doc.experience ?? doc.experienceYears ?? null,
                         consultationFee: doc.consultationFee || null,
                         ...rosterFor(doc),
                     })),
@@ -149,11 +155,12 @@ async function hydrateDoctorDirectory() {
 
         if (!built.length) return false;
         window.MOCK_HOSPITALS = built;
+        window.doctorDirectoryLive = true;
         console.info(`[NexCare] Booking catalogue hydrated: ${built.length} hospitals, ${doctors.length} doctors.`);
         return true;
     } catch (err) {
-        console.error('[NexCare] Live doctor directory could not be loaded:', err.message);
-        window.MOCK_HOSPITALS = [];
+        // Keep the generated offline catalogue rather than blanking the wizard.
+        console.error('[NexCare] Live doctor directory could not be loaded, falling back to the offline catalogue:', err.message);
         return false;
     }
 }

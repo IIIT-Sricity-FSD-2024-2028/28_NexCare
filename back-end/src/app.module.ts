@@ -39,11 +39,19 @@ import { RequestLoggerMiddleware, SecurityMiddleware, CsrfMiddleware } from './l
  * request, before the guards:
  *   SecurityMiddleware      — security headers, rate limiting, payload limits
  *   RequestLoggerMiddleware — request id + access/error logging to file
- 
+ *   CsrfMiddleware          — CSRF challenge on unauthenticated writes
  *
  * Router-level middleware lives with the feature it belongs to:
- *   BedStatusChangeMiddleware — beds module, status-changing routes
- *   FileUploadMiddleware      — uploads module, POST /uploads
+ *   BedStatusChangeMiddleware  — beds module, status-changing routes
+ *   AmbulanceAccessMiddleware  — ambulance module, hospital scoping
+ *   HospitalAccessMiddleware   — hospitals module, per-hospital assignment
+ *   FileUploadMiddleware       — uploads module, POST /uploads
+ *
+ * Every one of these is reflected in the Swagger document: the global chain is
+ * folded into all operations by applyMiddlewareContract() in swagger.config.ts,
+ * and the router-level ones declare their rejection codes with @ApiResponse on
+ * the routes they guard. test/middleware-swagger.e2e-spec.ts section 5 checks
+ * that the document and the wiring still agree.
  */
 @Module({
   imports: [

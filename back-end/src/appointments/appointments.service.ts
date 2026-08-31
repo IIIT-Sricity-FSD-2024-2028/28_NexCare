@@ -268,7 +268,8 @@ export class AppointmentsService {
         apt.dateLabel === appointmentData.dateLabel &&
         apt.timeLabel === appointmentData.timeLabel &&
         apt.status !== AppointmentStatus.CANCELLED &&
-        apt.status !== AppointmentStatus.COMPLETED
+        apt.status !== AppointmentStatus.COMPLETED &&
+        apt.status !== AppointmentStatus.NO_SHOW
       );
       if (duplicate) {
         return ResponseUtil.error('Appointment already exists for this patient with this doctor at the same time');
@@ -280,7 +281,8 @@ export class AppointmentsService {
         apt.dateLabel === appointmentData.dateLabel &&
         apt.timeLabel === appointmentData.timeLabel &&
         apt.status !== AppointmentStatus.CANCELLED &&
-        apt.status !== AppointmentStatus.COMPLETED
+        apt.status !== AppointmentStatus.COMPLETED &&
+        apt.status !== AppointmentStatus.NO_SHOW
       );
       if (timeConflict) {
         return ResponseUtil.error('Time slot already booked for this doctor');
@@ -656,6 +658,55 @@ export class AppointmentsService {
   }
 
   /**
+   * Mark an appointment as a no-show.
+   *
+   * Distinct from cancel(): the patient never turned up and never told anyone.
+   * No consultation fee is billed — complete() is what raises the charge — and
+   * the slot is released for rebooking like any other closed appointment.
+   * The hospital health score reads this status as its no-show rate.
+   *
+   * @param id Appointment ID
+   * @returns Updated appointment data
+   */
+  async markNoShow(id: string) {
+    try {
+      const appointments = this.loadAppointments();
+      const appointmentIndex = appointments.findIndex(a => a.id === id);
+
+      if (appointmentIndex === -1) {
+        return ResponseUtil.notFound('Appointment', id);
+      }
+
+      const current = appointments[appointmentIndex];
+      if (current.status === AppointmentStatus.COMPLETED) {
+        return ResponseUtil.error('A completed appointment cannot be marked as a no-show');
+      }
+      if (current.status === AppointmentStatus.CANCELLED) {
+        return ResponseUtil.error('A cancelled appointment cannot be marked as a no-show');
+      }
+
+      appointments[appointmentIndex].status = AppointmentStatus.NO_SHOW;
+      appointments[appointmentIndex].updatedAt = new Date().toISOString();
+
+      this.saveAppointments(appointments);
+
+      const updatedAppointment = appointments[appointmentIndex];
+
+      this.systemService.createActivity({
+        userId: updatedAppointment.patientId,
+        action: 'No Show',
+        details: `Appointment ${id} marked as a no-show for ${updatedAppointment.patientName}`,
+        module: 'Appointments',
+        severity: 'WARNING'
+      });
+
+      return ResponseUtil.updated('Appointment marked as a no-show', updatedAppointment);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to mark appointment as a no-show');
+    }
+  }
+
+  /**
    * Cancel appointment
    * @param id Appointment ID
    * @returns Updated appointment data
@@ -704,6 +755,7 @@ export class AppointmentsService {
       const confirmedAppointments = appointments.filter(a => a.status === AppointmentStatus.CONFIRMED).length;
       const completedAppointments = appointments.filter(a => a.status === AppointmentStatus.COMPLETED).length;
       const cancelledAppointments = appointments.filter(a => a.status === AppointmentStatus.CANCELLED).length;
+      const noShowAppointments = appointments.filter(a => a.status === AppointmentStatus.NO_SHOW).length;
       
       // Today's appointments (format-tolerant date comparison)
       const todayAppointments = appointments.filter(a => this.isToday(a.dateLabel)).length;
@@ -729,6 +781,7 @@ export class AppointmentsService {
         confirmed: confirmedAppointments,
         completed: completedAppointments,
         cancelled: cancelledAppointments,
+        noShow: noShowAppointments,
         today: todayAppointments,
         byDepartment,
         revenue
@@ -817,7 +870,11 @@ export class AppointmentsService {
       let changed = false;
 
       for (const apt of appointments) {
-        if (apt.status === AppointmentStatus.CANCELLED || apt.status === AppointmentStatus.COMPLETED) {
+        if (
+          apt.status === AppointmentStatus.CANCELLED ||
+          apt.status === AppointmentStatus.COMPLETED ||
+          apt.status === AppointmentStatus.NO_SHOW
+        ) {
           continue;
         }
         if (!this.sameDoctor(apt.doctor, leave.doctorName)) continue;
@@ -843,6 +900,7 @@ export class AppointmentsService {
               other.id !== apt.id &&
               other.status !== AppointmentStatus.CANCELLED &&
               other.status !== AppointmentStatus.COMPLETED &&
+              other.status !== AppointmentStatus.NO_SHOW &&
               this.sameDoctor(other.doctor, doc.name) &&
               other.dateLabel === apt.dateLabel &&
               other.timeLabel === apt.timeLabel,
@@ -963,6 +1021,7 @@ export class AppointmentsService {
         confirmed: mine.filter(a => is(a, AppointmentStatus.CONFIRMED)).length,
         completed: mine.filter(a => is(a, AppointmentStatus.COMPLETED)).length,
         cancelled: mine.filter(a => is(a, AppointmentStatus.CANCELLED)).length,
+        noShow: mine.filter(a => is(a, AppointmentStatus.NO_SHOW)).length,
         today: mine.filter(a => a.dateLabel === today).length,
         uniquePatients: new Set(mine.map(a => a.patientId)).size,
       });

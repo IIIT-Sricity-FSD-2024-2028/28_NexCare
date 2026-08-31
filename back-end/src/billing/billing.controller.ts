@@ -13,7 +13,7 @@ import {
   HttpCode,
   HttpStatus
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiProduces } from '@nestjs/swagger';
 import { BillingService } from './billing.service';
 import { CreateBillDto } from './dto/create-bill.dto';
 import { UpdateBillDto } from './dto/update-bill.dto';
@@ -172,7 +172,16 @@ export class BillingController {
    */
   @Get(':id/pdf')
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
-  @ApiOperation({ summary: 'Download bill as PDF' })
+  @ApiOperation({ summary: 'Download bill as a PDF tax invoice (patients: own only)' })
+  @ApiProduces('application/pdf')
+  @ApiResponse({
+    status: 200,
+    description: 'The rendered tax invoice',
+    content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden — bill belongs to another patient or hospital' })
+  @ApiResponse({ status: 404, description: 'Bill not found' })
   async downloadPdf(@Req() req: any, @Param('id') id: string, @Res() res: Response) {
     await this.assertOwnsBill(req, id);
     const response: any = await this.billingService.findById(id);
