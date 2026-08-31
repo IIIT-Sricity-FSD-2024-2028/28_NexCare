@@ -85,7 +85,11 @@ export class PatientsService {
 
       // Apply status filter
       if (status) {
-        filteredPatients = filteredPatients.filter(patient => patient.status === status);
+        const sLower = status.toLowerCase();
+        filteredPatients = filteredPatients.filter(patient => {
+          const patientStatus = patient.status || 'Active'; // JSON doesn't always have status
+          return patientStatus.toLowerCase() === sLower;
+        });
       }
 
       return ResponseUtil.success('Patients retrieved successfully', filteredPatients);

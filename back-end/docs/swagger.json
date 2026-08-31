@@ -533,6 +533,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -951,6 +954,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -1347,6 +1353,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -1688,6 +1697,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -3414,6 +3426,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -3795,6 +3810,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -4837,6 +4855,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -5025,6 +5046,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -5203,6 +5227,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -5452,6 +5479,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -5632,6 +5662,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -6038,6 +6071,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -7251,6 +7287,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -7439,6 +7478,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -7617,6 +7659,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -7797,6 +7842,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -9284,6 +9332,9 @@
           },
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -9426,6 +9477,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -9688,6 +9742,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -10010,6 +10067,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -10219,6 +10279,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -10428,6 +10491,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -10638,6 +10704,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -10788,6 +10857,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -11462,6 +11534,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -11612,6 +11687,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -12959,6 +13037,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -13827,6 +13908,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -14044,6 +14128,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -14193,6 +14280,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -14412,6 +14502,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -14621,6 +14714,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -14830,6 +14926,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -15202,6 +15301,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -15567,6 +15669,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -15918,6 +16023,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -16098,6 +16206,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -16278,6 +16389,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -16458,6 +16572,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -16638,6 +16755,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -16818,6 +16938,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -18347,6 +18470,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -18535,6 +18661,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -18713,6 +18842,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -18903,6 +19035,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -19083,6 +19218,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -19422,6 +19560,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -20273,6 +20414,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -20432,6 +20576,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -20581,6 +20728,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -20761,6 +20911,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -20922,6 +21075,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -21102,6 +21258,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -21282,6 +21441,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -21676,6 +21838,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -22738,6 +22903,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -22926,6 +23094,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -23104,6 +23275,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -23502,6 +23676,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -23905,6 +24082,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -25288,6 +25468,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -25476,6 +25659,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -25654,6 +25840,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -25834,6 +26023,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -26014,6 +26206,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -26253,6 +26448,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -26433,6 +26631,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -26853,6 +27054,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -27418,6 +27622,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -27625,6 +27832,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -27974,6 +28184,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -28154,6 +28367,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -28332,6 +28548,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -28702,6 +28921,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -28911,6 +29133,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -29281,6 +29506,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -29490,6 +29718,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -29908,6 +30139,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -30309,6 +30543,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -31859,6 +32096,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -32047,6 +32287,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -32225,6 +32468,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -32405,6 +32651,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -33262,6 +33511,9 @@
           },
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -33445,6 +33697,9 @@
           },
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -33656,6 +33911,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       },
@@ -34181,6 +34439,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -36046,6 +36307,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -36226,6 +36490,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -36406,6 +36673,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -37574,6 +37844,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -37754,6 +38027,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -38273,6 +38549,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -38941,6 +39220,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -39131,6 +39413,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -39651,6 +39936,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNotificationDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success",
@@ -39804,6 +40099,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -40146,6 +40444,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -40318,6 +40619,9 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "x-csrf-token": []
           }
         ]
       }
@@ -40436,6 +40740,12 @@
         "bearerFormat": "JWT",
         "type": "http",
         "description": "Enter your JWT token"
+      },
+      "x-csrf-token": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-csrf-token",
+        "description": "CSRF token required for state-changing operations"
       }
     },
     "schemas": {
@@ -41881,6 +42191,85 @@
           "expiryMonth",
           "expiryYear",
           "cvv"
+        ]
+      },
+      "CreateNotificationDto": {
+        "type": "object",
+        "properties": {
+          "recipientUserId": {
+            "type": "string",
+            "description": "ID of the specific user to notify"
+          },
+          "recipientRole": {
+            "type": "string",
+            "enum": [
+              "patient",
+              "administrative_staff",
+              "superuser",
+              "ambulance",
+              "regional_manager",
+              "hospital_manager",
+              "doctor",
+              "nurse"
+            ],
+            "description": "Role of users to notify (e.g. all doctors)"
+          },
+          "hospitalId": {
+            "type": "string",
+            "description": "Notify users in a specific hospital"
+          },
+          "regionId": {
+            "type": "string",
+            "description": "Notify users in a specific region"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "INFO",
+              "SUCCESS",
+              "WARNING",
+              "ALERT",
+              "ACTION_REQUIRED"
+            ],
+            "description": "Type/Severity of the notification"
+          },
+          "title": {
+            "type": "string",
+            "description": "Short title for the notification",
+            "example": "New Shift Assigned"
+          },
+          "message": {
+            "type": "string",
+            "description": "Full message body",
+            "example": "You have been assigned a new shift starting tomorrow."
+          },
+          "entityType": {
+            "type": "string",
+            "enum": [
+              "STAFF",
+              "LEAVE",
+              "INVENTORY",
+              "APPOINTMENT",
+              "REFERRAL",
+              "AMBULANCE",
+              "HOSPITAL",
+              "BILLING",
+              "SUBSCRIPTION"
+            ],
+            "description": "Type of entity this relates to"
+          },
+          "entityId": {
+            "type": "string",
+            "description": "ID of the related entity"
+          },
+          "actionUrl": {
+            "type": "string",
+            "description": "URL to navigate to when clicked"
+          }
+        },
+        "required": [
+          "title",
+          "message"
         ]
       }
     }

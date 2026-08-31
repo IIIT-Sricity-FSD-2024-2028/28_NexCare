@@ -4408,5 +4408,65 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-31T06:56:03.087Z"
+  },
+  {
+    "id": "ACT-MTGWXD541VY",
+    "timestamp": "2026-08-31T07:24:21.065Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T07:24:21.065Z"
+  },
+  {
+    "id": "ACT-MTGX66W317O",
+    "timestamp": "2026-08-31T07:31:12.867Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T07:31:12.867Z"
+  },
+  {
+    "id": "ACT-MTGXQB87147",
+    "timestamp": "2026-08-31T07:46:51.607Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T07:46:51.607Z"
+  },
+  {
+    "id": "ACT-MTGXSOAR23O",
+    "timestamp": "2026-08-31T07:48:41.859Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T07:48:41.859Z"
+  },
+  {
+    "id": "ACT-MTGYG2FM5XN",
+    "timestamp": "2026-08-31T08:06:53.266Z",
+    "userId": "P008",
+    "action": "Create",
+    "details": "Ambulance request AMB-MTGYG2EU3F0 created for Master Aarav",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T08:06:53.266Z"
+  },
+  {
+    "id": "ACT-MTGYRQBC99T",
+    "timestamp": "2026-08-31T08:15:57.432Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T08:15:57.432Z"
   }
 ]

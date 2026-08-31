@@ -145,14 +145,14 @@ export class AppointmentsService {
         filteredAppointments = filteredAppointments.filter(apt => apt.patientId === patientId);
       }
 
-      // Apply status filter
       if (status) {
-        filteredAppointments = filteredAppointments.filter(apt => apt.status === status);
+        const sLower = status.toLowerCase();
+        filteredAppointments = filteredAppointments.filter(app => app.status && app.status.toLowerCase() === sLower);
       }
-
-      // Apply department filter
+      
       if (department) {
-        filteredAppointments = filteredAppointments.filter(apt => apt.department === department);
+        const dLower = department.toLowerCase();
+        filteredAppointments = filteredAppointments.filter(app => app.department && app.department.toLowerCase() === dLower);
       }
 
       return ResponseUtil.success('Appointments retrieved successfully', filteredAppointments);

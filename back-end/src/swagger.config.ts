@@ -38,10 +38,21 @@ export function buildSwaggerConfig() {
       },
       'JWT-auth',
     )
-    // NOTE: there is deliberately no x-user-role apiKey scheme here. One was
-    // declared but referenced by zero operations — the role is carried inside
-    // the JWT, so a second scheme only implied an authentication path that does
-    // not exist.
+    // From origin/main (05192a5): the dead x-user-role scheme was replaced with
+    // a CSRF one, so Swagger UI offers somewhere to paste the token. Kept — but
+    // NOT via .addSecurityRequirements('x-csrf-token'), which made it a global
+    // requirement on every operation including GETs. CsrfMiddleware challenges
+    // only unauthenticated state-changing requests, so applyMiddlewareContract()
+    // attaches this scheme to exactly those operations instead.
+    .addApiKey(
+      {
+        type: 'apiKey',
+        in: 'header',
+        name: 'x-csrf-token',
+        description: 'CSRF token required for state-changing operations',
+      },
+      'x-csrf-token',
+    )
     .addServer(
       process.env.API_URL || `http://localhost:${process.env.PORT || 3001}`,
       'Local Server',
@@ -147,12 +158,16 @@ export function applyMiddlewareContract(document: OpenAPIObject): OpenAPIObject 
 
       // CsrfMiddleware — challenges unauthenticated state-changing requests.
       if (stateChanging.includes(method) && !CSRF_EXEMPT_ROUTES.some(r => path.endsWith(unprefixed(r)))) {
-        operation.parameters = operation.parameters || [];
-        const alreadyDeclared = operation.parameters.some(
+        // Copy, never push: Nest hands every operation in a controller the same
+        // parameters/security array instance when the decorator sits on the
+        // class, so mutating one leaks the entry onto all of them — including
+        // the GETs, which CsrfMiddleware never challenges.
+        const parameters = [...(operation.parameters || [])];
+        const alreadyDeclared = parameters.some(
           (p: any) => p?.in === 'header' && p?.name === 'x-csrf-token',
         );
         if (!alreadyDeclared) {
-          operation.parameters.push({
+          parameters.push({
             name: 'x-csrf-token',
             in: 'header',
             required: false,
@@ -164,9 +179,19 @@ export function applyMiddlewareContract(document: OpenAPIObject): OpenAPIObject 
             schema: { type: 'string' },
           });
         }
+        operation.parameters = parameters;
         operation.responses['403'] ??= {
           description: 'CSRF token missing or invalid on an unauthenticated state-changing request.',
         };
+
+        // Bearer OR CSRF — which is exactly the middleware's rule: a write that
+        // carries an Authorization header is structurally immune and is waved
+        // through, otherwise the x-csrf-token header is required.
+        const security = [...(operation.security || [])];
+        if (!security.some((req: any) => 'x-csrf-token' in req)) {
+          security.push({ 'x-csrf-token': [] });
+        }
+        operation.security = security;
       }
 
       // Applied last, so responses added above are covered too.
