@@ -63,10 +63,11 @@ export class AmbulanceController {
    */
   @Get()
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER)
-  @ApiOperation({ summary: 'Get all ambulance requests (patients: only their own)' })
+  @ApiOperation({ summary: 'Get all ambulance requests (patients: only their own, staff: only their hospital)' })
   @ApiQuery({ name: 'patientId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: AmbulanceStatus })
   @ApiResponse({ status: 200, description: 'List of ambulance requests' })
+  @ApiResponse({ status: 403, description: 'Forbidden - User not assigned to any hospital' })
   async findAll(
     @Req() req: any,
     @Query('patientId') patientId?: string,
@@ -127,6 +128,7 @@ export class AmbulanceController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT)
   @ApiOperation({ summary: 'Get ambulance requests by patient ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Patient requests retrieved' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Patient attempting to access another patient records, or staff accessing wrong hospital' })
   async findByPatient(@Req() req: any, @Param('patientId') patientId: string) {
     if (this.isPatient(req) && patientId !== req.user.patientId) {
       throw new ForbiddenException('You can only view your own ambulance requests.');
@@ -161,6 +163,7 @@ export class AmbulanceController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT)
   @ApiOperation({ summary: 'Get ambulance request by ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Request details retrieved' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Unauthorized cross-hospital or cross-patient access' })
   async findById(@Req() req: any, @Param('id') id: string) {
     await this.assertOwnsRequest(req, id);
     return this.ambulanceService.findById(id);
@@ -197,6 +200,7 @@ export class AmbulanceController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT)
   @ApiOperation({ summary: 'Cancel an ambulance request (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Ambulance request cancelled successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request - Cannot cancel a completed request or one in transit' })
   async cancel(@Req() req: any, @Param('id') id: string, @Body() body: { reason?: string } = {}) {
     await this.assertOwnsRequest(req, id);
     return this.ambulanceService.cancel(id, req.user?.id, body?.reason);
@@ -228,6 +232,7 @@ export class AmbulanceController {
   @Patch(':id/complete')
   @ApiOperation({ summary: 'Mark an ambulance request as completed' })
   @ApiResponse({ status: 200, description: 'Request completed successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request - Request must be in an active state (e.g. dispatched)' })
   async complete(@Param('id') id: string) {
     return this.ambulanceService.complete(id);
   }
@@ -238,6 +243,7 @@ export class AmbulanceController {
   @Patch(':id/status')
   @ApiOperation({ summary: 'Update ambulance request status' })
   @ApiResponse({ status: 200, description: 'Status updated successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request - Invalid status transition' })
   async updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.ambulanceService.updateStatus(id, status as any);
   }

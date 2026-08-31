@@ -7,7 +7,7 @@ import { ApiProperty } from '@nestjs/swagger';
  * Transfers login credentials between client and server
  */
 export class LoginDto {
-  @ApiProperty({ example: 'admin@nexcare.com', description: 'User email address' })
+  @ApiProperty({ example: 'superuser@nexcare.com', description: 'User email address' })
   @IsEmail({}, { message: 'Please provide a valid email address' })
   @IsNotEmpty({ message: 'Email is required' })
   email: string;

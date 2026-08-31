@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Put, Patch, Body, Param, Query, UseInterceptors, Req, ForbiddenException } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiHeader } from '@nestjs/swagger';
 import { HospitalsService } from './hospitals.service';
 import { UsersService } from '../users/users.service';
 import { CreateHospitalDto, UpdateHospitalDto, RenewSubscriptionDto } from './interfaces/hospital.interface';
@@ -9,6 +10,7 @@ import { Public } from '../common/decorators/public.decorator';
 import { HospitalQueryInterceptor } from './interceptors/hospital-query.interceptor';
 import { ResponseUtil } from '../common/utils/response.util';
 
+@ApiTags('Hospitals')
 @Controller('hospitals')
 export class HospitalsController {
   constructor(
@@ -19,6 +21,13 @@ export class HospitalsController {
   @Public()
   @UseInterceptors(HospitalQueryInterceptor)
   @Get()
+  @ApiOperation({ summary: 'Find hospitals with filtering' })
+  @ApiQuery({ name: 'status', required: false, enum: VerificationStatus, description: 'Filter by verification status', example: 'verified' })
+  @ApiQuery({ name: 'speciality', required: false, type: String, description: 'Filter by speciality', example: 'Cardiology' })
+  @ApiQuery({ name: 'city', required: false, type: String, description: 'Filter by city', example: 'Tirupati' })
+  @ApiQuery({ name: 'pincode', required: false, type: String, description: 'Filter by pincode', example: '517501' })
+  @ApiHeader({ name: 'x-query-timestamp', description: 'Timestamp of the query normalization' })
+  @ApiResponse({ status: 200, description: 'List of hospitals' })
   async findAll(
     @Query('status') status?: VerificationStatus,
     @Query('speciality') speciality?: string,
@@ -31,6 +40,12 @@ export class HospitalsController {
   @Public()
   @UseInterceptors(HospitalQueryInterceptor)
   @Get('nearby')
+  @ApiOperation({ summary: 'Find nearby hospitals' })
+  @ApiQuery({ name: 'city', required: true, type: String, description: 'City name', example: 'Tirupati' })
+  @ApiQuery({ name: 'state', required: true, type: String, description: 'State name', example: 'Andhra Pradesh' })
+  @ApiQuery({ name: 'pincode', required: true, type: String, description: 'Pincode', example: '517501' })
+  @ApiHeader({ name: 'x-query-timestamp', description: 'Timestamp of the query normalization' })
+  @ApiResponse({ status: 200, description: 'List of nearby hospitals' })
   async findNearby(
     @Query('city') city: string,
     @Query('state') state: string,
@@ -64,6 +79,12 @@ export class HospitalsController {
 
   @Roles(UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER)
   @Put(':id')
+  @ApiOperation({ summary: 'Update hospital by ID' })
+  @ApiBearerAuth('JWT-auth')
+  @ApiResponse({ status: 200, description: 'Hospital updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - User not assigned to this hospital' })
+  @ApiResponse({ status: 404, description: 'Hospital not found' })
   async update(@Param('id') id: string, @Req() req: any, @Body() data: UpdateHospitalDto) {
     if (req.user?.role === UserRole.HOSPITAL_MANAGER && req.user.hospitalId && req.user.hospitalId !== id) {
       throw new ForbiddenException('Cross-hospital access denied. You can only update your assigned hospital.');

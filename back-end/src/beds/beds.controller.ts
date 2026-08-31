@@ -60,6 +60,8 @@ export class BedsController {
   @ApiOperation({ summary: 'Create a new bed record' })
   @ApiResponse({ status: 200, description: 'Bed creation result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async create(@Req() req: any, @Body() createBedDto: CreateBedDto) {
     const hospitalId = this.scopeHospitalId(req) || (createBedDto as any).hospitalId;
     return this.bedsService.create({ ...(createBedDto as any), hospitalId });
@@ -131,6 +133,8 @@ export class BedsController {
   @Put(':id')
   @ApiOperation({ summary: 'Update bed details' })
   @ApiResponse({ status: 200, description: 'Bed updated successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request - typically due to illegal bed status transition from BedStatusChangeMiddleware (e.g. maintenance to occupied).' })
+  @ApiResponse({ status: 404, description: 'Bed not found' })
   async update(@Param('id') id: string, @Body() updateBedDto: UpdateBedDto) {
     return this.bedsService.update(id, updateBedDto as any);
   }
@@ -141,6 +145,8 @@ export class BedsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Partially update bed details' })
   @ApiResponse({ status: 200, description: 'Bed updated successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request - typically due to illegal bed status transition from BedStatusChangeMiddleware.' })
+  @ApiResponse({ status: 404, description: 'Bed not found' })
   async patchUpdate(@Param('id') id: string, @Body() updateBedDto: UpdateBedDto) {
     return this.bedsService.update(id, updateBedDto as any);
   }
@@ -159,8 +165,10 @@ export class BedsController {
    * Allocate bed to patient
    */
   @Patch(':id/allocate')
-  @ApiOperation({ summary: 'Allocate a bed to a patient' })
+  @ApiOperation({ summary: 'Allocate a bed to a patient (status becomes OCCUPIED)' })
   @ApiResponse({ status: 200, description: 'Bed allocated successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request - illegal transition if bed is not AVAILABLE or CRITICAL (e.g., MAINTENANCE -> OCCUPIED is rejected).' })
+  @ApiResponse({ status: 404, description: 'Bed not found' })
   async allocate(@Param('id') id: string, @Body() allocateBedDto: AllocateBedDto) {
     return this.bedsService.allocate(id, allocateBedDto.patientId);
   }
@@ -169,8 +177,10 @@ export class BedsController {
    * Release bed from patient
    */
   @Patch(':id/release')
-  @ApiOperation({ summary: 'Release a bed from a patient' })
+  @ApiOperation({ summary: 'Release a bed from a patient (status becomes AVAILABLE)' })
   @ApiResponse({ status: 200, description: 'Bed released successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request - invalid if bed is already AVAILABLE or MAINTENANCE.' })
+  @ApiResponse({ status: 404, description: 'Bed not found' })
   async release(@Param('id') id: string) {
     return this.bedsService.release(id);
   }
@@ -179,8 +189,10 @@ export class BedsController {
    * Update bed status
    */
   @Patch(':id/status')
-  @ApiOperation({ summary: 'Update bed status' })
+  @ApiOperation({ summary: 'Update bed status (must follow valid state machine transitions)' })
   @ApiResponse({ status: 200, description: 'Bed status updated successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request - illegal transition, e.g., OCCUPIED -> MAINTENANCE without releasing first.' })
+  @ApiResponse({ status: 404, description: 'Bed not found' })
   async updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.bedsService.updateStatus(id, status as any);
   }

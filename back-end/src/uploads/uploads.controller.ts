@@ -47,7 +47,7 @@ export class UploadsController {
    */
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Upload a document and attach it to a record' })
+  @ApiOperation({ summary: 'Upload a document and attach it to a record', description: 'Allowed types: JPEG, PNG, GIF, PDF, TXT, DOC, DOCX. Max size: 5MB.' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -63,7 +63,7 @@ export class UploadsController {
   })
   @ApiResponse({ status: 201, description: 'File uploaded successfully' })
   @ApiResponse({ status: 400, description: 'Missing file, unsupported type, or not multipart' })
-  @ApiResponse({ status: 413, description: 'File exceeds the size limit' })
+  @ApiResponse({ status: 413, description: 'Payload Too Large - File exceeds the 5MB size limit' })
   async upload(
     @UploadedFile() file: any,
     @Body() body: { entityType?: string; entityId?: string; description?: string },
