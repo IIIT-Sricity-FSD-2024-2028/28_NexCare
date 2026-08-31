@@ -29,6 +29,14 @@
       "Paediatrics",
       "Dermatology"
     ],
+    "departments": [
+      "Cardiology",
+      "General Medicine",
+      "Orthopaedics",
+      "Neurology",
+      "Paediatrics",
+      "Dermatology"
+    ],
     "emergency24x7": true,
     "ambulanceCount": 3,
     "ambulanceService": true,
@@ -60,6 +68,14 @@
     "availableBeds": 25,
     "icuBeds": 8,
     "specialities": [
+      "Cardiology",
+      "General Medicine",
+      "Orthopaedics",
+      "Neurology",
+      "Paediatrics",
+      "Dermatology"
+    ],
+    "departments": [
       "Cardiology",
       "General Medicine",
       "Orthopaedics",
@@ -105,6 +121,14 @@
       "Paediatrics",
       "Dermatology"
     ],
+    "departments": [
+      "Cardiology",
+      "General Medicine",
+      "Orthopaedics",
+      "Neurology",
+      "Paediatrics",
+      "Dermatology"
+    ],
     "emergency24x7": true,
     "ambulanceCount": 5,
     "ambulanceService": true,
@@ -136,6 +160,14 @@
     "availableBeds": 22,
     "icuBeds": 10,
     "specialities": [
+      "Cardiology",
+      "General Medicine",
+      "Orthopaedics",
+      "Neurology",
+      "Paediatrics",
+      "Dermatology"
+    ],
+    "departments": [
       "Cardiology",
       "General Medicine",
       "Orthopaedics",
@@ -181,6 +213,14 @@
       "Paediatrics",
       "Dermatology"
     ],
+    "departments": [
+      "Cardiology",
+      "General Medicine",
+      "Orthopaedics",
+      "Neurology",
+      "Paediatrics",
+      "Dermatology"
+    ],
     "emergency24x7": true,
     "ambulanceCount": 4,
     "ambulanceService": true,
@@ -212,6 +252,14 @@
     "availableBeds": 33,
     "icuBeds": 14,
     "specialities": [
+      "Cardiology",
+      "General Medicine",
+      "Orthopaedics",
+      "Neurology",
+      "Paediatrics",
+      "Dermatology"
+    ],
+    "departments": [
       "Cardiology",
       "General Medicine",
       "Orthopaedics",
@@ -257,6 +305,14 @@
       "Paediatrics",
       "Dermatology"
     ],
+    "departments": [
+      "Cardiology",
+      "General Medicine",
+      "Orthopaedics",
+      "Neurology",
+      "Paediatrics",
+      "Dermatology"
+    ],
     "emergency24x7": true,
     "ambulanceCount": 3,
     "ambulanceService": true,
@@ -288,6 +344,14 @@
     "availableBeds": 30,
     "icuBeds": 12,
     "specialities": [
+      "Cardiology",
+      "General Medicine",
+      "Orthopaedics",
+      "Neurology",
+      "Paediatrics",
+      "Dermatology"
+    ],
+    "departments": [
       "Cardiology",
       "General Medicine",
       "Orthopaedics",

@@ -5,7 +5,7 @@
     "email": "superuser@nexcare.com",
     "role": "superuser",
     "status": "Active",
-    "password": "scrypt$220bc8027eb4df056f5e500dd6316602$d529b298d56a8e5d1999dd6d43b88c19cdd2b69bacfc74383d3a181752fbfa0a6df8d80111de3991c2e424bfc5858b78912b76876bc2288c896a00abe4c8a015"
+    "password": "scrypt$b475696c973af5d401c0c8ac7b224983$02fe9154669797c7e56217d287447fde832b6fa9929d7d66b87a2c0b8e8edd85742d2ff6b3f7192ed534f6d7004377d786cbcfe29ce6d3b47931fded815259f9"
   },
   {
     "id": "RM001",
@@ -69,7 +69,7 @@
     "email": "regional@nexcare.com",
     "role": "regional_manager",
     "status": "Active",
-    "password": "scrypt$e6db07909b887cac21ac463357bd8b58$12d706e639d850ce7446f3c78d744e765949ae540fd20bb9f257113d992b973d9fa3c6a5519ca75b64c2d4f12efacd18434b2b66fcf5cb7869da9ec995e9d936",
+    "password": "scrypt$be10ee6473adc4ff1477168cf24a0ed5$75e7d985331c26d0e5c9bc19bd861950d9d881317cd821e404b1a64bd3477b52eb3b54b7bcf25f65cc18dd579fac1bbb9a7450f3f76b8b46124735d507ed90f0",
     "regionId": "REG-AP-SOUTH",
     "regionName": "Andhra Pradesh South",
     "areas": [
@@ -95,7 +95,7 @@
     "email": "hospitalmanager@nexcare.com",
     "role": "hospital_manager",
     "status": "Active",
-    "password": "scrypt$c3288776921b1c2469525963c874014f$f6262f2b73220ba80a702bf2914d877a1a82633e70bfb9dcb87980bb1e739e560942e5906f920feb9cd4fd98e2fc0409fd922383bf0a3bd68712e92750123bea",
+    "password": "scrypt$79f436e981fe8b5f2c73f3822661530b$adf41cf0da0b4c2da59a2e1002d93307d3c14be6d6521ad3972d656174d4c1e29de8c58430c71d351003abedf8ba8728916c57d5e38a061fc162684a345e929a",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
@@ -113,7 +113,7 @@
     "experienceYears": 14,
     "qualification": "MBBS, MD, DM",
     "status": "On Leave",
-    "password": "scrypt$b241ebcb051822c1f6eee4798373ac4a$23d0775423539595b75bdf0ab4ae10932162e5fd1afd7e0b0f6ea1e69290b2666a7705aa73a765c9e40dc80eec109796d5908c358b7f1343d5e81680ab79a24d",
+    "password": "scrypt$335c535d83dc6ddf221b6996292d5560$a27208d0c4d34c406695826d217572a33a29279a789e3908207848376ada1f10b370c6e483c98141ee7fe1a863b56131e165649129e59289a63e1aabf6fa0c9b",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
@@ -147,7 +147,7 @@
       },
       "sunday": null
     },
-    "updatedAt": "2026-08-31T04:15:48.214Z"
+    "updatedAt": "2026-08-31T04:45:17.109Z"
   },
   {
     "id": "DOC-AP01-002",
@@ -390,7 +390,7 @@
     "email": "admin@nexcare.com",
     "role": "administrative_staff",
     "status": "Active",
-    "password": "scrypt$9116e976663f3e6c63da74c1cabc82ae$d0d2ad50d03c864f7565ffb9249557c43f9457ea14a1b96b617348cfcc1d1cbe9f690195c0b33fcae41b5e8db0769eada96760039def0c243646c65b0b8c6989",
+    "password": "scrypt$f69a7f536d15ea3e7258593f666e8902$9a96c708edcb439a4504432a29a970bd1fb791ee3840bab0d840a8091250d56fb64e35f4b9f679ce7adb58e019b0a858b098a56aa3c7f450113198cb959df051",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
@@ -446,7 +446,7 @@
     "email": "ambulance@nexcare.com",
     "role": "ambulance",
     "status": "Active",
-    "password": "scrypt$0d962b9698350777610342680e179c7c$60b39654393f22467cc7c85d83eac6ecbac724c11a0b79be830848129e74c9c86d55084d4f3f1508e2d7c3e72809402298d21708f0bc7158174d8bba58e5ec64",
+    "password": "scrypt$a6072de6f1eb2102b16fdb1ee3d2f3bc$1937c0ec4ff950c2f514e9a9e0948f0fd889550d357d551d691285d1abf1424a65296d33708c89cf61fb09f5b0f39f11a151e53295bebaf8cf873d8554ad75fc",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
@@ -470,7 +470,7 @@
     "email": "patient@gmail.com",
     "role": "patient",
     "status": "Active",
-    "password": "scrypt$02d71aafa8c2850089c7f8ccf29e3b6c$f8ef9b19679e30d0511b7b91690b9682180887edb78743f00d9b8c393428521767e7335385f441949af4ae5e89a73881e7ed66badaee32a2bfb9b08945d6abaa",
+    "password": "scrypt$4141ab4a5345e7530e55ae227aebfdee$6524119be8e1f4b90b8efa5b0ab918e39096f10f6c45cf0670b7bb3aeb7065725878bc9bd3e1911061f8ece649ef9ad84539eeb8834b50d162be5eff98696b2c",
     "patientId": "P001",
     "hospitalId": "H001",
     "regionId": "REG-AP-SOUTH"
@@ -3347,12 +3347,12 @@
     "regionId": "REG-TN-NORTH"
   },
   {
-    "id": "UMTGQ6VSQ29YH",
+    "id": "UMTGR8SMX5HEL",
     "name": "Dr. Test Audit",
-    "email": "test_doc_1788149747817@nexcare.in",
+    "email": "test_doc_1788151516650@nexcare.in",
     "role": "doctor",
     "status": "Active",
-    "password": "scrypt$46a0da444e42197e8c06a19e445558ab$521d207631069ab7eb87f8115718bdbd81cb3cb7b15987d888a47018e782e9ec9a725dcd90f72d697ccfab685f990d570981b97199eb0d47b060b1349215c040",
+    "password": "scrypt$bb6ecab0853a6fae59dc52eb66bcf242$b19731c596713a0a3c812a24e446bf849caf3a9314297df2fce762655c0c768af28bb9a164a7e56977e1ef201a7a7b531419385964f13d5676af6afc925914bb",
     "mustChangePassword": false,
     "employeeId": "DOC-H001-007",
     "dept": "Cardiology",
@@ -3361,7 +3361,7 @@
     "hospitalId": "H001",
     "regionId": "R001",
     "specialization": "Cardiology",
-    "createdAt": "2026-08-31T04:15:47.834Z",
-    "updatedAt": "2026-08-31T04:15:47.834Z"
+    "createdAt": "2026-08-31T04:45:16.665Z",
+    "updatedAt": "2026-08-31T04:45:16.665Z"
   }
 ]

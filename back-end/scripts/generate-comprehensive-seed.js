@@ -602,6 +602,7 @@ hospitalsData.forEach((h, hIdx) => {
     availableBeds: h.availableBeds,
     icuBeds: h.wards.find(w => w.name === 'ICU')?.capacity || 10,
     specialities: ['Cardiology', 'General Medicine', 'Orthopaedics', 'Neurology', 'Paediatrics', 'Dermatology'],
+    departments: ['Cardiology', 'General Medicine', 'Orthopaedics', 'Neurology', 'Paediatrics', 'Dermatology'],
     emergency24x7: true,
     ambulanceCount: 3 + (hIdx % 3),
     ambulanceService: true,

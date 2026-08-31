@@ -3378,5 +3378,655 @@
     "module": "Ambulance",
     "severity": "SUCCESS",
     "createdAt": "2026-08-31T04:15:48.468Z"
+  },
+  {
+    "id": "ACT-MTGQAIS334KP",
+    "timestamp": "2026-08-31T04:18:37.587Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Super Admin logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:37.587Z"
+  },
+  {
+    "id": "ACT-MTGQAIZP35X8",
+    "timestamp": "2026-08-31T04:18:37.861Z",
+    "userId": "RM000",
+    "action": "Login",
+    "details": "User Anirudh Reddy (Alias) logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:37.861Z"
+  },
+  {
+    "id": "ACT-MTGQAJ7G36JL",
+    "timestamp": "2026-08-31T04:18:38.140Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Priya Reddy (Alias) logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:38.140Z"
+  },
+  {
+    "id": "ACT-MTGQAJFA37X9",
+    "timestamp": "2026-08-31T04:18:38.422Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:38.422Z"
+  },
+  {
+    "id": "ACT-MTGQAJMM388C",
+    "timestamp": "2026-08-31T04:18:38.686Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:38.686Z"
+  },
+  {
+    "id": "ACT-MTGQAJUB39II",
+    "timestamp": "2026-08-31T04:18:38.963Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Tirupati Crew Alpha logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:38.963Z"
+  },
+  {
+    "id": "ACT-MTGQAK223AM4",
+    "timestamp": "2026-08-31T04:18:39.242Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:39.242Z"
+  },
+  {
+    "id": "ACT-MTGQAK6J3E28",
+    "timestamp": "2026-08-31T04:18:39.403Z",
+    "userId": "UMTGQAK4O3CVE",
+    "action": "Login",
+    "details": "User Dr. Test Audit logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:39.403Z"
+  },
+  {
+    "id": "ACT-MTGQAK9G3F91",
+    "timestamp": "2026-08-31T04:18:39.508Z",
+    "userId": "UMTGQAK4O3CVE",
+    "action": "PasswordChange",
+    "details": "Password changed for user Dr. Test Audit",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:39.508Z"
+  },
+  {
+    "id": "ACT-MTGQAKB53GNM",
+    "timestamp": "2026-08-31T04:18:39.569Z",
+    "userId": "UMTGQAK4O3CVE",
+    "action": "Login",
+    "details": "User Dr. Test Audit logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:39.569Z"
+  },
+  {
+    "id": "ACT-MTGQAKES3R71",
+    "timestamp": "2026-08-31T04:18:39.700Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P001 with Dr. Sunita Sharma",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:39.700Z"
+  },
+  {
+    "id": "ACT-MTGQAKFA3SQ6",
+    "timestamp": "2026-08-31T04:18:39.718Z",
+    "userId": "P001",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Sunita Sharma (Cardiology): ₹900) to pending bill BILL-H001-001. New total: ₹5192",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:39.718Z"
+  },
+  {
+    "id": "ACT-MTGQAKFE3T3Y",
+    "timestamp": "2026-08-31T04:18:39.722Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTGQAKEG3NUG marked as completed for Patient P001",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-31T04:18:39.722Z"
+  },
+  {
+    "id": "ACT-MTGQAKG63YF6",
+    "timestamp": "2026-08-31T04:18:39.750Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P001 with Dr. Vikram Patel",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:39.750Z"
+  },
+  {
+    "id": "ACT-MTGQAKGM3ZKV",
+    "timestamp": "2026-08-31T04:18:39.766Z",
+    "userId": "P001",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Vikram Patel (Neurology): ₹1200) to pending bill BILL-H001-001. New total: ₹6608",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:39.766Z"
+  },
+  {
+    "id": "ACT-MTGQAKGR40DS",
+    "timestamp": "2026-08-31T04:18:39.771Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTGQAKFV3UMK marked as completed for Patient P001",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-31T04:18:39.771Z"
+  },
+  {
+    "id": "ACT-MTGQAKHA4346",
+    "timestamp": "2026-08-31T04:18:39.790Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "Ambulance request AMB-MTGQAKH341E9 created for Patient P001",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:39.790Z"
+  },
+  {
+    "id": "ACT-MTGQAKHL44H5",
+    "timestamp": "2026-08-31T04:18:39.801Z",
+    "userId": "U003",
+    "action": "Dispatch",
+    "details": "Ambulance request AMB-MTGQAKH341E9 dispatched to staff U007 for Patient P001",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:39.801Z"
+  },
+  {
+    "id": "ACT-MTGQAKI745NF",
+    "timestamp": "2026-08-31T04:18:39.823Z",
+    "userId": "P001",
+    "action": "Update",
+    "details": "Appended AMBULANCE charge (Ambulance Transport: ₹500) to pending bill BILL-H001-001. New total: ₹7198",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:18:39.823Z"
+  },
+  {
+    "id": "ACT-MTGQAKIB462C",
+    "timestamp": "2026-08-31T04:18:39.827Z",
+    "userId": "U007",
+    "action": "Complete",
+    "details": "Ambulance transport AMB-MTGQAKH341E9 completed for Patient P001",
+    "module": "Ambulance",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-31T04:18:39.827Z"
+  },
+  {
+    "id": "ACT-MTGQCACO478Y",
+    "timestamp": "2026-08-31T04:19:59.976Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:19:59.976Z"
+  },
+  {
+    "id": "ACT-MTGQEHYQ48UA",
+    "timestamp": "2026-08-31T04:21:43.154Z",
+    "userId": "RM001",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:21:43.154Z"
+  },
+  {
+    "id": "ACT-MTGQFU6D49PH",
+    "timestamp": "2026-08-31T04:22:45.637Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:22:45.637Z"
+  },
+  {
+    "id": "ACT-MTGQHQIW4A0H",
+    "timestamp": "2026-08-31T04:24:14.216Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:24:14.216Z"
+  },
+  {
+    "id": "ACT-MTGQIHGT4B5N",
+    "timestamp": "2026-08-31T04:24:49.133Z",
+    "userId": "U005",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:24:49.133Z"
+  },
+  {
+    "id": "ACT-MTGQK9EN4CYC",
+    "timestamp": "2026-08-31T04:26:11.999Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:26:11.999Z"
+  },
+  {
+    "id": "ACT-MTGQTE8H4DQU",
+    "timestamp": "2026-08-31T04:33:18.161Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:33:18.161Z"
+  },
+  {
+    "id": "ACT-MTGQW1HQ4EWP",
+    "timestamp": "2026-08-31T04:35:21.614Z",
+    "userId": "RM001",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:35:21.614Z"
+  },
+  {
+    "id": "ACT-MTGQXGVV4FXW",
+    "timestamp": "2026-08-31T04:36:28.219Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:36:28.219Z"
+  },
+  {
+    "id": "ACT-MTGQZBYS4GFZ",
+    "timestamp": "2026-08-31T04:37:55.156Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:37:55.156Z"
+  },
+  {
+    "id": "ACT-MTGR087W4HN1",
+    "timestamp": "2026-08-31T04:38:36.956Z",
+    "userId": "U005",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:38:36.956Z"
+  },
+  {
+    "id": "ACT-MTGR1VIF4IKN",
+    "timestamp": "2026-08-31T04:39:53.799Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:39:53.799Z"
+  },
+  {
+    "id": "ACT-MTGR75TQ4J7A",
+    "timestamp": "2026-08-31T04:44:00.446Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Super Admin logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:44:00.446Z"
+  },
+  {
+    "id": "ACT-MTGR762X4K7D",
+    "timestamp": "2026-08-31T04:44:00.777Z",
+    "userId": "RM000",
+    "action": "Login",
+    "details": "User Anirudh Reddy (Alias) logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:44:00.777Z"
+  },
+  {
+    "id": "ACT-MTGR76C74LHX",
+    "timestamp": "2026-08-31T04:44:01.111Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Priya Reddy (Alias) logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:44:01.111Z"
+  },
+  {
+    "id": "ACT-MTGR76LT4MHV",
+    "timestamp": "2026-08-31T04:44:01.457Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:44:01.457Z"
+  },
+  {
+    "id": "ACT-MTGR76U34NNW",
+    "timestamp": "2026-08-31T04:44:01.755Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:44:01.755Z"
+  },
+  {
+    "id": "ACT-MTGR772V4OTV",
+    "timestamp": "2026-08-31T04:44:02.071Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Tirupati Crew Alpha logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:44:02.071Z"
+  },
+  {
+    "id": "ACT-MTGR77C24PVD",
+    "timestamp": "2026-08-31T04:44:02.402Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:44:02.402Z"
+  },
+  {
+    "id": "ACT-MTGR77IZ4TKJ",
+    "timestamp": "2026-08-31T04:44:02.651Z",
+    "userId": "UMTGR77F94RF1",
+    "action": "Login",
+    "details": "User Dr. Test Audit logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:44:02.651Z"
+  },
+  {
+    "id": "ACT-MTGR77RB4UJT",
+    "timestamp": "2026-08-31T04:44:02.951Z",
+    "userId": "UMTGR77F94RF1",
+    "action": "PasswordChange",
+    "details": "Password changed for user Dr. Test Audit",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:44:02.951Z"
+  },
+  {
+    "id": "ACT-MTGR77W24VNB",
+    "timestamp": "2026-08-31T04:44:03.122Z",
+    "userId": "UMTGR77F94RF1",
+    "action": "Login",
+    "details": "User Dr. Test Audit logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:44:03.122Z"
+  },
+  {
+    "id": "ACT-MTGR781I566Q",
+    "timestamp": "2026-08-31T04:44:03.318Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P001 with Dr. Sunita Sharma",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:44:03.318Z"
+  },
+  {
+    "id": "ACT-MTGR782P57Z7",
+    "timestamp": "2026-08-31T04:44:03.361Z",
+    "userId": "P001",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Sunita Sharma (Cardiology): ₹900) to pending bill BILL-H001-001. New total: ₹8260",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:44:03.361Z"
+  },
+  {
+    "id": "ACT-MTGR7830583Z",
+    "timestamp": "2026-08-31T04:44:03.372Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTGR780W52KU marked as completed for Patient P001",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-31T04:44:03.372Z"
+  },
+  {
+    "id": "ACT-MTGR8R215950",
+    "timestamp": "2026-08-31T04:45:14.617Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Super Admin logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:14.617Z"
+  },
+  {
+    "id": "ACT-MTGR8RCR5ALG",
+    "timestamp": "2026-08-31T04:45:15.003Z",
+    "userId": "RM000",
+    "action": "Login",
+    "details": "User Anirudh Reddy (Alias) logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:15.003Z"
+  },
+  {
+    "id": "ACT-MTGR8RLS5BTY",
+    "timestamp": "2026-08-31T04:45:15.328Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Priya Reddy (Alias) logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:15.328Z"
+  },
+  {
+    "id": "ACT-MTGR8RV25CMQ",
+    "timestamp": "2026-08-31T04:45:15.662Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:15.662Z"
+  },
+  {
+    "id": "ACT-MTGR8S2Q5DY9",
+    "timestamp": "2026-08-31T04:45:15.938Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:15.938Z"
+  },
+  {
+    "id": "ACT-MTGR8SB85E73",
+    "timestamp": "2026-08-31T04:45:16.244Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Tirupati Crew Alpha logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:16.244Z"
+  },
+  {
+    "id": "ACT-MTGR8SK25FG8",
+    "timestamp": "2026-08-31T04:45:16.562Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:16.562Z"
+  },
+  {
+    "id": "ACT-MTGR8SQ05JOS",
+    "timestamp": "2026-08-31T04:45:16.776Z",
+    "userId": "UMTGR8SMX5HEL",
+    "action": "Login",
+    "details": "User Dr. Test Audit logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:16.776Z"
+  },
+  {
+    "id": "ACT-MTGR8SUU5KP2",
+    "timestamp": "2026-08-31T04:45:16.950Z",
+    "userId": "UMTGR8SMX5HEL",
+    "action": "PasswordChange",
+    "details": "Password changed for user Dr. Test Audit",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:16.950Z"
+  },
+  {
+    "id": "ACT-MTGR8SXK5L74",
+    "timestamp": "2026-08-31T04:45:17.048Z",
+    "userId": "UMTGR8SMX5HEL",
+    "action": "Login",
+    "details": "User Dr. Test Audit logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:17.048Z"
+  },
+  {
+    "id": "ACT-MTGR8T245W9Z",
+    "timestamp": "2026-08-31T04:45:17.212Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P001 with Dr. Sunita Sharma",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:17.212Z"
+  },
+  {
+    "id": "ACT-MTGR8T2W5XV5",
+    "timestamp": "2026-08-31T04:45:17.240Z",
+    "userId": "P001",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Sunita Sharma (Cardiology): ₹900) to pending bill BILL-H001-001. New total: ₹2124",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:17.240Z"
+  },
+  {
+    "id": "ACT-MTGR8T335Y9I",
+    "timestamp": "2026-08-31T04:45:17.248Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTGR8T1P5SE7 marked as completed for Patient P001",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-31T04:45:17.248Z"
+  },
+  {
+    "id": "ACT-MTGR8T3X63UM",
+    "timestamp": "2026-08-31T04:45:17.277Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P001 with Dr. Vikram Patel",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:17.277Z"
+  },
+  {
+    "id": "ACT-MTGR8T4X64SD",
+    "timestamp": "2026-08-31T04:45:17.313Z",
+    "userId": "P001",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Vikram Patel (Neurology): ₹1200) to pending bill BILL-H001-001. New total: ₹3540",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:17.313Z"
+  },
+  {
+    "id": "ACT-MTGR8T5465IH",
+    "timestamp": "2026-08-31T04:45:17.320Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTGR8T3I5ZCU marked as completed for Patient P001",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-31T04:45:17.320Z"
+  },
+  {
+    "id": "ACT-MTGR8T6B6881",
+    "timestamp": "2026-08-31T04:45:17.363Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "Ambulance request AMB-MTGR8T5W66I7 created for Patient P001",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:17.363Z"
+  },
+  {
+    "id": "ACT-MTGR8T6V69OR",
+    "timestamp": "2026-08-31T04:45:17.383Z",
+    "userId": "U003",
+    "action": "Dispatch",
+    "details": "Ambulance request AMB-MTGR8T5W66I7 dispatched to staff U007 for Patient P001",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:17.383Z"
+  },
+  {
+    "id": "ACT-MTGR8T7L6AS1",
+    "timestamp": "2026-08-31T04:45:17.409Z",
+    "userId": "P001",
+    "action": "Update",
+    "details": "Appended AMBULANCE charge (Ambulance Transport: ₹500) to pending bill BILL-H001-001. New total: ₹4130",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T04:45:17.409Z"
+  },
+  {
+    "id": "ACT-MTGR8T7S6BID",
+    "timestamp": "2026-08-31T04:45:17.416Z",
+    "userId": "U007",
+    "action": "Complete",
+    "details": "Ambulance transport AMB-MTGR8T5W66I7 completed for Patient P001",
+    "module": "Ambulance",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-31T04:45:17.416Z"
   }
 ]

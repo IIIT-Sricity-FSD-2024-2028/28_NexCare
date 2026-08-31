@@ -23,6 +23,21 @@ function escapeHtml(str) {
     return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
+function getDepartmentsForHospital(hospitalIdOrName) {
+    if (!hospitalIdOrName) return [];
+    const list = window.MOCK_HOSPITALS || [];
+    const hosp = list.find(h => h.id === hospitalIdOrName || h.name === hospitalIdOrName);
+    if (!hosp) return ['Cardiology', 'General Medicine', 'Orthopaedics', 'Neurology', 'Paediatrics', 'Dermatology'];
+    if (Array.isArray(hosp.departments) && hosp.departments.length > 0) {
+        return hosp.departments.map(d => typeof d === 'string' ? d : (d.name || d.id));
+    }
+    if (Array.isArray(hosp.specialities) && hosp.specialities.length > 0) {
+        return hosp.specialities;
+    }
+    return ['Cardiology', 'General Medicine', 'Orthopaedics', 'Neurology', 'Paediatrics', 'Dermatology'];
+}
+window.getDepartmentsForHospital = getDepartmentsForHospital;
+
 // ── Slot Conflict & Booked Slots Detection ───────────────────────────────────
 async function getBookedSlotsForDoctor(hospitalId, doctorName, dateStr) {
     if (!doctorName || !dateStr) return new Set();
@@ -293,7 +308,7 @@ async function renderStep0(container) {
 function renderStep1(container) {
     const hosp = bookingData.hospital;
     const hospName = hosp ? hosp.name : 'Hospital';
-    const depts = hosp ? window.getDepartmentsForHospital(hosp.id || hosp.name) : [];
+    const depts = hosp ? (typeof getDepartmentsForHospital === 'function' ? getDepartmentsForHospital(hosp.id || hosp.name) : (hosp.specialities || ['Cardiology', 'General Medicine'])) : [];
 
     container.replaceChildren();
 
