@@ -1,5 +1,35 @@
 [
   {
+    "id": "NOTIFMTGYHZGL8QF",
+    "type": "INFO",
+    "createdAt": "2026-08-31T08:08:22.725Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGYHLZR72M",
+    "type": "INFO",
+    "createdAt": "2026-08-31T08:08:05.271Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGYHC5C6VJ",
+    "type": "INFO",
+    "createdAt": "2026-08-31T08:07:52.512Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTGYG2F946H",
+    "recipientRole": "ambulance",
+    "hospitalId": "H001",
+    "type": "ALERT",
+    "title": "Emergency Ambulance Request",
+    "message": "New pickup requested for Master Aarav at 123 Main Street, Downtown.",
+    "entityType": "AMBULANCE",
+    "entityId": "AMB-MTGYG2EU3F0",
+    "createdAt": "2026-08-31T08:06:53.254Z",
+    "read": false
+  },
+  {
     "id": "NOTIFMTGRH30OZUC",
     "recipientRole": "ambulance",
     "hospitalId": "H001",

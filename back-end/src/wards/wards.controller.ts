@@ -1,6 +1,6 @@
 import { Controller, Get, Req, Query } from '@nestjs/common';
 import { WardsService } from './wards.service';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/interfaces/api-response.interface';
 

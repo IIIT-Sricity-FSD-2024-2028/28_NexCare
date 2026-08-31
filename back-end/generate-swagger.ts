@@ -31,11 +31,12 @@ async function bootstrap() {
       {
         type: 'apiKey',
         in: 'header',
-        name: 'x-user-role',
-        description: 'User role for RBAC (superuser, administrative_staff, patient, ambulance, regional_manager, hospital_manager)',
+        name: 'x-csrf-token',
+        description: 'CSRF token required for state-changing operations',
       },
-      'x-user-role',
+      'x-csrf-token',
     )
+    .addSecurityRequirements('x-csrf-token')
     .addServer(
       process.env.API_URL || `http://localhost:${process.env.PORT || 3001}`,
       'Local Server',

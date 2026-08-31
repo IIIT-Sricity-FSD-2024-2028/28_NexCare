@@ -219,6 +219,12 @@
         "responses": {
           "200": {
             "description": "List of audit logs"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -250,6 +256,15 @@
           },
           "400": {
             "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -279,6 +294,12 @@
         "responses": {
           "200": {
             "description": "List of system settings"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -297,6 +318,15 @@
         "responses": {
           "200": {
             "description": "Settings updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -326,6 +356,12 @@
         "responses": {
           "200": {
             "description": "System setting retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -346,6 +382,12 @@
         "responses": {
           "200": {
             "description": "System statistics retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -383,6 +425,12 @@
         "responses": {
           "200": {
             "description": "Activities retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -412,6 +460,12 @@
         "responses": {
           "200": {
             "description": "User activities retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -441,6 +495,12 @@
         "responses": {
           "200": {
             "description": "Recent activities retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -470,6 +530,12 @@
         "responses": {
           "200": {
             "description": "Category settings retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -499,6 +565,12 @@
         "responses": {
           "200": {
             "description": "Search results"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -528,6 +600,12 @@
         "responses": {
           "200": {
             "description": "Activity details retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -557,6 +635,12 @@
         "responses": {
           "200": {
             "description": "Setting details retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -594,6 +678,15 @@
         "responses": {
           "200": {
             "description": "Setting updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -624,6 +717,12 @@
         "responses": {
           "200": {
             "description": "List of patients"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -655,6 +754,15 @@
           },
           "400": {
             "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -675,6 +783,12 @@
         "responses": {
           "200": {
             "description": "Patient statistics retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -704,6 +818,12 @@
         "responses": {
           "200": {
             "description": "Search results"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -733,6 +853,12 @@
         "responses": {
           "200": {
             "description": "List of patients matching blood group"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -770,6 +896,12 @@
         "responses": {
           "200": {
             "description": "List of patients in age range"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -799,6 +931,12 @@
         "responses": {
           "200": {
             "description": "Patient details (check success field for not-found)"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -836,6 +974,15 @@
         "responses": {
           "200": {
             "description": "Patient updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -873,6 +1020,15 @@
         "responses": {
           "200": {
             "description": "Patient updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -900,6 +1056,15 @@
         "responses": {
           "200": {
             "description": "Patient deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -958,6 +1123,15 @@
         "responses": {
           "200": {
             "description": "Patient status updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -1013,6 +1187,12 @@
         "responses": {
           "200": {
             "description": "List of users"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -1045,8 +1225,14 @@
           "400": {
             "description": "Validation error"
           },
+          "401": {
+            "description": "Unauthorized"
+          },
           "403": {
             "description": "Forbidden - role or hospital scope violation"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -1075,7 +1261,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -1113,6 +1305,12 @@
         "responses": {
           "200": {
             "description": "Doctors retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -1133,6 +1331,12 @@
         "responses": {
           "200": {
             "description": "User statistics retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -1162,6 +1366,12 @@
         "responses": {
           "200": {
             "description": "Users retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -1191,6 +1401,12 @@
         "responses": {
           "200": {
             "description": "Search results"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -1220,6 +1436,12 @@
         "responses": {
           "200": {
             "description": "User retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -1257,6 +1479,15 @@
         "responses": {
           "200": {
             "description": "User update result"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -1294,6 +1525,15 @@
         "responses": {
           "200": {
             "description": "User update result"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -1321,6 +1561,15 @@
         "responses": {
           "200": {
             "description": "User deletion result"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -1350,6 +1599,15 @@
         "responses": {
           "200": {
             "description": "Status update result"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -1379,6 +1637,12 @@
         "responses": {
           "200": {
             "description": "Regional managers retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -1408,6 +1672,12 @@
         "responses": {
           "200": {
             "description": "RM workload retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -1437,6 +1707,12 @@
         "responses": {
           "200": {
             "description": "RM suggestions retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -1457,6 +1733,12 @@
         "responses": {
           "200": {
             "description": "All RM workloads retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -2169,6 +2451,7 @@
     "/api/hospitals/{id}/doctors": {
       "get": {
         "operationId": "HospitalDetailsController_getDoctors",
+        "summary": "Get doctors for a hospital",
         "parameters": [
           {
             "name": "id",
@@ -2181,7 +2464,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Doctors retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -2197,6 +2486,7 @@
     "/api/hospitals/{id}/beds": {
       "get": {
         "operationId": "HospitalDetailsController_getBeds",
+        "summary": "Get beds for a hospital",
         "parameters": [
           {
             "name": "id",
@@ -2209,7 +2499,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Beds retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -2225,6 +2521,7 @@
     "/api/hospitals/{id}/inventory": {
       "get": {
         "operationId": "HospitalDetailsController_getInventory",
+        "summary": "Get inventory for a hospital",
         "parameters": [
           {
             "name": "id",
@@ -2237,7 +2534,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Inventory retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -2253,6 +2556,7 @@
     "/api/hospitals/{id}/ambulances": {
       "get": {
         "operationId": "HospitalDetailsController_getAmbulances",
+        "summary": "Get ambulances for a hospital",
         "parameters": [
           {
             "name": "id",
@@ -2265,7 +2569,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Ambulance records retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -2771,6 +3081,12 @@
         "responses": {
           "200": {
             "description": "List of inventory items"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -2799,6 +3115,15 @@
         "responses": {
           "200": {
             "description": "Item creation result"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -2852,6 +3177,12 @@
         "responses": {
           "200": {
             "description": "List of inventory requirements"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -2870,6 +3201,15 @@
         "responses": {
           "200": {
             "description": "Inventory requirement created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -2899,6 +3239,12 @@
         "responses": {
           "200": {
             "description": "Inventory requirement retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -2928,6 +3274,15 @@
         "responses": {
           "200": {
             "description": "Requirement approved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -2957,6 +3312,15 @@
         "responses": {
           "200": {
             "description": "Requirement rejected"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -2986,6 +3350,15 @@
         "responses": {
           "200": {
             "description": "Purchase initiated"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -3015,6 +3388,15 @@
         "responses": {
           "200": {
             "description": "Requirement marked as purchased"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -3044,6 +3426,15 @@
         "responses": {
           "200": {
             "description": "Requirement restocked"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -3073,6 +3464,15 @@
         "responses": {
           "200": {
             "description": "Requirement fulfilled"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -3093,6 +3493,12 @@
         "responses": {
           "200": {
             "description": "Inventory statistics retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -3113,6 +3519,12 @@
         "responses": {
           "200": {
             "description": "List of low stock items"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -3133,6 +3545,12 @@
         "responses": {
           "200": {
             "description": "List of out of stock items"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -3162,6 +3580,12 @@
         "responses": {
           "200": {
             "description": "List of items in category"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -3191,6 +3615,12 @@
         "responses": {
           "200": {
             "description": "List of items at location"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -3220,6 +3650,12 @@
         "responses": {
           "200": {
             "description": "Search results"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -3249,6 +3685,12 @@
         "responses": {
           "200": {
             "description": "Audit trail retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -3278,6 +3720,12 @@
         "responses": {
           "200": {
             "description": "Item details retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -3315,6 +3763,15 @@
         "responses": {
           "200": {
             "description": "Item updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -3352,6 +3809,15 @@
         "responses": {
           "200": {
             "description": "Item updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -3379,6 +3845,15 @@
         "responses": {
           "200": {
             "description": "Item deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -3418,6 +3893,15 @@
         "responses": {
           "200": {
             "description": "Item restocked successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -3447,6 +3931,15 @@
         "responses": {
           "200": {
             "description": "Item consumed successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -3939,6 +4432,12 @@
         "responses": {
           "200": {
             "description": "List of bills"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -3970,6 +4469,15 @@
           },
           "400": {
             "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -3990,6 +4498,12 @@
         "responses": {
           "200": {
             "description": "Billing statistics retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4019,6 +4533,12 @@
         "responses": {
           "200": {
             "description": "List of patient bills"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4039,6 +4559,12 @@
         "responses": {
           "200": {
             "description": "List of overdue bills"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4076,6 +4602,12 @@
         "responses": {
           "200": {
             "description": "Revenue statistics retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4091,7 +4623,7 @@
     "/api/billing/{id}": {
       "get": {
         "operationId": "BillingController_findOne",
-        "summary": "Get bill by ID",
+        "summary": "Get bill by ID (patients: own only)",
         "parameters": [
           {
             "name": "id",
@@ -4104,7 +4636,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Bill details"
+            "description": "Bill details retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           },
           "404": {
             "description": "Bill not found"
@@ -4145,6 +4683,15 @@
         "responses": {
           "200": {
             "description": "Bill updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4182,6 +4729,15 @@
         "responses": {
           "200": {
             "description": "Bill updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4209,6 +4765,15 @@
         "responses": {
           "200": {
             "description": "Bill deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4277,6 +4842,15 @@
         "responses": {
           "200": {
             "description": "Payment processed successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4328,6 +4902,12 @@
         "responses": {
           "200": {
             "description": "List of appointments"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4359,6 +4939,15 @@
           },
           "400": {
             "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4379,6 +4968,12 @@
         "responses": {
           "200": {
             "description": "Appointment statistics retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4408,6 +5003,12 @@
         "responses": {
           "200": {
             "description": "List of patient appointments"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4453,6 +5054,12 @@
         "responses": {
           "200": {
             "description": "List of the doctor’s appointments"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4481,7 +5088,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4511,6 +5124,12 @@
         "responses": {
           "200": {
             "description": "List of department appointments"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4531,6 +5150,12 @@
         "responses": {
           "200": {
             "description": "List of appointments for today"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4560,6 +5185,12 @@
         "responses": {
           "200": {
             "description": "Appointment details"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4597,6 +5228,15 @@
         "responses": {
           "200": {
             "description": "Appointment updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4634,6 +5274,15 @@
         "responses": {
           "200": {
             "description": "Appointment updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4661,6 +5310,15 @@
         "responses": {
           "200": {
             "description": "Appointment deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4690,6 +5348,15 @@
         "responses": {
           "200": {
             "description": "Appointment confirmed successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4719,6 +5386,15 @@
         "responses": {
           "200": {
             "description": "Appointment completed successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4748,6 +5424,15 @@
         "responses": {
           "200": {
             "description": "Appointment cancelled successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4798,6 +5483,12 @@
         "responses": {
           "200": {
             "description": "List of leaves"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4820,8 +5511,17 @@
           "400": {
             "description": "Validation error"
           },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
           "409": {
             "description": "Conflict - overlapping approved leave"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4867,6 +5567,12 @@
         "responses": {
           "200": {
             "description": "Calendar view of approved leaves"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4896,6 +5602,12 @@
         "responses": {
           "200": {
             "description": "Leave details"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -4924,11 +5636,17 @@
           "200": {
             "description": "Leave status updated successfully"
           },
+          "401": {
+            "description": "Unauthorized"
+          },
           "403": {
             "description": "Forbidden - insufficient permissions"
           },
           "404": {
             "description": "Leave not found"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4957,8 +5675,17 @@
           "200": {
             "description": "Leave deleted successfully"
           },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
           "404": {
             "description": "Leave not found"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -4995,7 +5722,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5012,8 +5745,17 @@
         "summary": "Submit a hospital-wide schedule for manager approval",
         "parameters": [],
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -5042,7 +5784,16 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -5069,7 +5820,16 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -5120,6 +5880,12 @@
         "responses": {
           "200": {
             "description": "List of feedback"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5151,6 +5917,15 @@
           },
           "400": {
             "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -5200,7 +5975,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5221,6 +6002,12 @@
         "responses": {
           "200": {
             "description": "Feedback statistics retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5250,6 +6037,12 @@
         "responses": {
           "200": {
             "description": "Patient feedback retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5279,6 +6072,12 @@
         "responses": {
           "200": {
             "description": "Feedback retrieved by category"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5308,6 +6107,12 @@
         "responses": {
           "200": {
             "description": "Feedback retrieved by rating"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5328,6 +6133,12 @@
         "responses": {
           "200": {
             "description": "Unresolved feedback retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5348,6 +6159,12 @@
         "responses": {
           "200": {
             "description": "High priority feedback retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5377,6 +6194,12 @@
         "responses": {
           "200": {
             "description": "Feedback details retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5414,6 +6237,15 @@
         "responses": {
           "200": {
             "description": "Feedback updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -5451,6 +6283,15 @@
         "responses": {
           "200": {
             "description": "Feedback updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -5478,6 +6319,15 @@
         "responses": {
           "200": {
             "description": "Feedback deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -5507,6 +6357,15 @@
         "responses": {
           "200": {
             "description": "Feedback status updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -5534,7 +6393,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5562,7 +6427,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5590,7 +6461,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5606,6 +6483,7 @@
     "/api/support-requests": {
       "get": {
         "operationId": "SupportRequestsController_findAll",
+        "summary": "Find all",
         "parameters": [
           {
             "name": "hospitalId",
@@ -5618,7 +6496,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5627,21 +6511,37 @@
         "security": [
           {
             "JWT-auth": []
+          },
+          {
+            "JWT-auth": []
           }
         ]
       },
       "post": {
         "operationId": "SupportRequestsController_create",
+        "summary": "Create",
         "parameters": [],
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - CSRF token missing or invalid"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
           "Support Requests"
         ],
         "security": [
+          {
+            "JWT-auth": []
+          },
           {
             "JWT-auth": []
           }
@@ -5651,6 +6551,7 @@
     "/api/support-requests/{id}": {
       "put": {
         "operationId": "SupportRequestsController_update",
+        "summary": "Update",
         "parameters": [
           {
             "name": "id",
@@ -5663,13 +6564,25 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - CSRF token missing or invalid"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
           "Support Requests"
         ],
         "security": [
+          {
+            "JWT-auth": []
+          },
           {
             "JWT-auth": []
           }
@@ -5896,6 +6809,12 @@
         "responses": {
           "200": {
             "description": "Recent log entries"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5916,6 +6835,12 @@
         "responses": {
           "200": {
             "description": "Log files on disk"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5953,6 +6878,12 @@
         "responses": {
           "200": {
             "description": "Platform revenue overview"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -5981,7 +6912,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6026,7 +6963,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6063,7 +7006,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6129,7 +7078,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6166,7 +7121,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6186,7 +7147,13 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6204,7 +7171,16 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -6233,7 +7209,16 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -6262,7 +7247,16 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -6291,7 +7285,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6311,7 +7311,13 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6331,7 +7337,13 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6351,7 +7363,13 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6388,7 +7406,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6408,7 +7432,13 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6426,7 +7456,16 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -6455,7 +7494,16 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -6500,7 +7548,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6520,7 +7574,13 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6538,7 +7598,16 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -6558,7 +7627,13 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6578,7 +7653,13 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6598,7 +7679,13 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6627,8 +7714,17 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -6666,8 +7762,17 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -6687,7 +7792,13 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6724,7 +7835,13 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6745,6 +7862,12 @@
         "responses": {
           "200": {
             "description": "List of notifications"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6760,9 +7883,28 @@
         "operationId": "NotificationsController_create",
         "summary": "Create a notification",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNotificationDto"
+              }
+            }
+          }
+        },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -6782,7 +7924,13 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "tags": [
@@ -6811,7 +7959,16 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -6831,7 +7988,16 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded"
           }
         },
         "tags": [
@@ -6907,11 +8073,11 @@
         "type": "http",
         "description": "Enter your JWT token"
       },
-      "x-user-role": {
+      "x-csrf-token": {
         "type": "apiKey",
         "in": "header",
-        "name": "x-user-role",
-        "description": "User role for RBAC (superuser, administrative_staff, patient, ambulance, regional_manager, hospital_manager)"
+        "name": "x-csrf-token",
+        "description": "CSRF token required for state-changing operations"
       }
     },
     "schemas": {
@@ -8323,7 +9489,91 @@
           "expiryYear",
           "cvv"
         ]
+      },
+      "CreateNotificationDto": {
+        "type": "object",
+        "properties": {
+          "recipientUserId": {
+            "type": "string",
+            "description": "ID of the specific user to notify"
+          },
+          "recipientRole": {
+            "type": "string",
+            "enum": [
+              "patient",
+              "administrative_staff",
+              "superuser",
+              "ambulance",
+              "regional_manager",
+              "hospital_manager",
+              "doctor",
+              "nurse"
+            ],
+            "description": "Role of users to notify (e.g. all doctors)"
+          },
+          "hospitalId": {
+            "type": "string",
+            "description": "Notify users in a specific hospital"
+          },
+          "regionId": {
+            "type": "string",
+            "description": "Notify users in a specific region"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "INFO",
+              "SUCCESS",
+              "WARNING",
+              "ALERT",
+              "ACTION_REQUIRED"
+            ],
+            "description": "Type/Severity of the notification"
+          },
+          "title": {
+            "type": "string",
+            "description": "Short title for the notification",
+            "example": "New Shift Assigned"
+          },
+          "message": {
+            "type": "string",
+            "description": "Full message body",
+            "example": "You have been assigned a new shift starting tomorrow."
+          },
+          "entityType": {
+            "type": "string",
+            "enum": [
+              "STAFF",
+              "LEAVE",
+              "INVENTORY",
+              "APPOINTMENT",
+              "REFERRAL",
+              "AMBULANCE",
+              "HOSPITAL",
+              "BILLING",
+              "SUBSCRIPTION"
+            ],
+            "description": "Type of entity this relates to"
+          },
+          "entityId": {
+            "type": "string",
+            "description": "ID of the related entity"
+          },
+          "actionUrl": {
+            "type": "string",
+            "description": "URL to navigate to when clicked"
+          }
+        },
+        "required": [
+          "title",
+          "message"
+        ]
       }
     }
-  }
+  },
+  "security": [
+    {
+      "x-csrf-token": []
+    }
+  ]
 }

@@ -32,8 +32,18 @@ export class BedsService {
     try {
       let filteredBeds = [...this.store.load()];
       if (hospitalId) filteredBeds = filteredBeds.filter(bed => bed.hospitalId === hospitalId);
-      if (ward) filteredBeds = filteredBeds.filter(bed => bed.ward === ward);
-      if (status) filteredBeds = filteredBeds.filter(bed => bed.status === status);
+      if (ward) {
+        const wLower = ward.toLowerCase();
+        filteredBeds = filteredBeds.filter(bed => 
+          (bed.ward && bed.ward.toLowerCase() === wLower) || 
+          ((bed as any).wardId && (bed as any).wardId.toLowerCase() === wLower) || 
+          ((bed as any).wardName && (bed as any).wardName.toLowerCase() === wLower)
+        );
+      }
+      if (status) {
+        const sLower = status.toLowerCase();
+        filteredBeds = filteredBeds.filter(bed => bed.status && bed.status.toLowerCase() === sLower);
+      }
       return ResponseUtil.success('Beds retrieved successfully', filteredBeds);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve beds');

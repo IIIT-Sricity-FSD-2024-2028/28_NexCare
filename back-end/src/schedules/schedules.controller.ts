@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags, ApiResponse } from '@nestjs/swagger';
 import { SchedulesService } from './schedules.service';
 import { CreateHospitalScheduleDto, UpdateHospitalScheduleDto } from './interfaces/schedule.interface';
 import { Roles } from '../common/decorators/roles.decorator';

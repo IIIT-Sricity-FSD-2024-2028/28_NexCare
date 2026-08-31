@@ -63,7 +63,18 @@ async function bootstrap() {
   app.enableCors({
     origin: corsOrigin,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: '*',
+    allowedHeaders: [
+      'Content-Type', 
+      'Authorization', 
+      'x-csrf-token', 
+      'Accept', 
+      'x-request-id', 
+      'x-query-timestamp', 
+      'x-user-role', 
+      'Origin', 
+      'X-Requested-With', 
+      'Cache-Control'
+    ],
     exposedHeaders: ['x-query-timestamp', 'Authorization', 'x-request-id', 'x-ratelimit-remaining', 'x-csrf-token'],
     credentials: true,
   });
@@ -158,11 +169,12 @@ async function bootstrap() {
       {
         type: 'apiKey',
         in: 'header',
-        name: 'x-user-role',
-        description: 'User role for RBAC (superuser, administrative_staff, patient, ambulance, regional_manager, hospital_manager)',
+        name: 'x-csrf-token',
+        description: 'CSRF token required for state-changing operations',
       },
-      'x-user-role',
+      'x-csrf-token',
     )
+    .addSecurityRequirements('x-csrf-token')
     .addServer(
       process.env.API_URL || `http://localhost:${process.env.PORT || 3001}`,
       'Local Server',
