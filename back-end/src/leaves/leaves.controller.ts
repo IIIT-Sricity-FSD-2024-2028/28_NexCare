@@ -42,6 +42,8 @@ export class LeavesController {
   @ApiQuery({ name: 'hospitalId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: LeaveStatus })
   @ApiResponse({ status: 200, description: 'List of leaves' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findAll(
     @Req() req: any,
     @Query('doctorId') doctorId?: string,
@@ -72,6 +74,8 @@ export class LeavesController {
   @ApiQuery({ name: 'startDate', required: false })
   @ApiQuery({ name: 'endDate', required: false })
   @ApiResponse({ status: 200, description: 'Calendar view of approved leaves' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getCalendarView(
     @Req() req: any,
     @Query('hospitalId') hospitalId?: string,
@@ -94,6 +98,8 @@ export class LeavesController {
   @Get(':id')
   @ApiOperation({ summary: 'Get leave by ID' })
   @ApiResponse({ status: 200, description: 'Leave details' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findById(@Param('id') id: string) {
     return this.leavesService.findById(id);
   }
@@ -109,6 +115,9 @@ export class LeavesController {
   @ApiResponse({ status: 200, description: 'Leave request submitted successfully' })
   @ApiResponse({ status: 409, description: 'Conflict - overlapping approved leave' })
   @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async create(@Req() req: any, @Body() createLeaveDto: CreateLeaveDto) {
     const user = req.user;
     // Auto-bind hospital if user is hospital manager or admin staff
@@ -128,6 +137,8 @@ export class LeavesController {
   @ApiResponse({ status: 200, description: 'Leave status updated successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Leave not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async update(
     @Req() req: any,
     @Param('id') id: string,
@@ -156,6 +167,9 @@ export class LeavesController {
   @ApiOperation({ summary: 'Delete a leave request' })
   @ApiResponse({ status: 200, description: 'Leave deleted successfully' })
   @ApiResponse({ status: 404, description: 'Leave not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async delete(@Param('id') id: string) {
     return this.leavesService.delete(id);
   }

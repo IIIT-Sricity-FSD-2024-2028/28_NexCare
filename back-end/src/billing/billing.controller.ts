@@ -57,6 +57,8 @@ export class BillingController {
   @ApiQuery({ name: 'patientId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: BillStatus })
   @ApiResponse({ status: 200, description: 'List of bills' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findAll(
     @Req() req: any,
     @Query('patientId') patientId?: string,
@@ -76,6 +78,9 @@ export class BillingController {
   @ApiOperation({ summary: 'Create a new bill' })
   @ApiResponse({ status: 200, description: 'Bill creation result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async create(@Body() createBillDto: CreateBillDto) {
     return this.billingService.create(createBillDto as any);
   }
@@ -87,6 +92,8 @@ export class BillingController {
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get billing statistics' })
   @ApiResponse({ status: 200, description: 'Billing statistics retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getStats() {
     return this.billingService.getStats();
   }
@@ -98,6 +105,8 @@ export class BillingController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Get bills by patient ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'List of patient bills' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findByPatient(@Req() req: any, @Param('patientId') patientId: string) {
     if (this.isPatient(req) && patientId !== req.user.patientId) {
       throw new ForbiddenException('You can only view your own bills.');
@@ -112,6 +121,8 @@ export class BillingController {
   @Get('overdue')
   @ApiOperation({ summary: 'Get all overdue bills' })
   @ApiResponse({ status: 200, description: 'List of overdue bills' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getOverdueBills() {
     return this.billingService.getOverdueBills();
   }
@@ -125,6 +136,8 @@ export class BillingController {
   @ApiQuery({ name: 'startDate', type: String })
   @ApiQuery({ name: 'endDate', type: String })
   @ApiResponse({ status: 200, description: 'Revenue statistics retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getRevenueByDateRange(
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string
@@ -139,6 +152,8 @@ export class BillingController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Get bill by ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Bill details retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findById(@Req() req: any, @Param('id') id: string) {
     await this.assertOwnsBill(req, id);
     return this.billingService.findById(id);
@@ -150,6 +165,9 @@ export class BillingController {
   @Put(':id')
   @ApiOperation({ summary: 'Update bill details' })
   @ApiResponse({ status: 200, description: 'Bill updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async update(@Param('id') id: string, @Body() updateBillDto: UpdateBillDto) {
     return this.billingService.update(id, updateBillDto as any);
   }
@@ -160,6 +178,9 @@ export class BillingController {
   @Patch(':id')
   @ApiOperation({ summary: 'Partially update bill details' })
   @ApiResponse({ status: 200, description: 'Bill updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async patchUpdate(@Param('id') id: string, @Body() updateBillDto: UpdateBillDto) {
     return this.billingService.update(id, updateBillDto as any);
   }
@@ -170,6 +191,9 @@ export class BillingController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a bill' })
   @ApiResponse({ status: 200, description: 'Bill deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async delete(@Param('id') id: string) {
     return this.billingService.delete(id);
   }
@@ -181,6 +205,9 @@ export class BillingController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Process payment for a bill (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Payment processed successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async processPayment(
     @Req() req: any,
     @Param('id') id: string,

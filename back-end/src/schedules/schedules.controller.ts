@@ -22,6 +22,9 @@ export class SchedulesController {
   @ApiOperation({ summary: 'List hospital-wide schedules' })
   @ApiQuery({ name: 'hospitalId', required: false })
   @ApiQuery({ name: 'status', required: false })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 200, description: 'Success' })
   findAll(
     @Req() req: any,
     @Query('hospitalId') hospitalId?: string,
@@ -44,6 +47,10 @@ export class SchedulesController {
   @Post()
   @Roles(UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER, UserRole.SUPERUSER)
   @ApiOperation({ summary: 'Submit a hospital-wide schedule for manager approval' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
+  @ApiResponse({ status: 200, description: 'Success' })
   create(@Req() req: any, @Body() dto: CreateHospitalScheduleDto) {
     if (!dto.hospitalId) dto.hospitalId = req.user?.hospitalId;
     dto.submittedBy = req.user?.sub || req.user?.id || dto.submittedBy;
@@ -53,6 +60,10 @@ export class SchedulesController {
   @Patch(':id')
   @Roles(UserRole.HOSPITAL_MANAGER, UserRole.SUPERUSER)
   @ApiOperation({ summary: 'Approve or reject a hospital-wide schedule' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
+  @ApiResponse({ status: 200, description: 'Success' })
   update(@Req() req: any, @Param('id') id: string, @Body() dto: UpdateHospitalScheduleDto) {
     dto.approvedBy = req.user?.sub || req.user?.id || dto.approvedBy;
     return this.schedulesService.update(id, dto);
@@ -61,6 +72,10 @@ export class SchedulesController {
   @Delete(':id')
   @Roles(UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER, UserRole.SUPERUSER)
   @ApiOperation({ summary: 'Delete a hospital-wide schedule' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
+  @ApiResponse({ status: 200, description: 'Success' })
   remove(@Req() req: any, @Param('id') id: string) {
     const scopedHospital = req.user?.role === UserRole.SUPERUSER ? undefined : req.user?.hospitalId;
     return this.schedulesService.remove(id, scopedHospital);

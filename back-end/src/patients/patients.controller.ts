@@ -50,6 +50,8 @@ export class PatientsController {
   @ApiOperation({ summary: 'Get all patients' })
   @ApiQuery({ name: 'status', required: false, description: 'Filter by patient status' })
   @ApiResponse({ status: 200, description: 'List of patients' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findAll(@Query('status') status?: string) {
     return this.patientsService.findAll(status);
   }
@@ -62,6 +64,9 @@ export class PatientsController {
   @ApiOperation({ summary: 'Create a new patient record' })
   @ApiResponse({ status: 200, description: 'Patient creation result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async create(@Body() createPatientDto: CreatePatientDto) {
     return this.patientsService.create(createPatientDto as any);
   }
@@ -72,6 +77,8 @@ export class PatientsController {
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get patient statistics' })
   @ApiResponse({ status: 200, description: 'Patient statistics retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getStats() {
     return this.patientsService.getStats();
   }
@@ -82,6 +89,8 @@ export class PatientsController {
   @Get('search/:query')
   @ApiOperation({ summary: 'Search patients by name, email, or phone' })
   @ApiResponse({ status: 200, description: 'Search results' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async search(@Param('query') query: string) {
     return this.patientsService.search(query);
   }
@@ -92,6 +101,8 @@ export class PatientsController {
   @Get('blood-group/:bloodGroup')
   @ApiOperation({ summary: 'Get patients by blood group' })
   @ApiResponse({ status: 200, description: 'List of patients matching blood group' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findByBloodGroup(@Param('bloodGroup') bloodGroup: string) {
     return this.patientsService.findByBloodGroup(bloodGroup);
   }
@@ -104,6 +115,8 @@ export class PatientsController {
   @ApiQuery({ name: 'minAge', type: Number })
   @ApiQuery({ name: 'maxAge', type: Number })
   @ApiResponse({ status: 200, description: 'List of patients in age range' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findByAgeRange(@Query('minAge') minAge: number, @Query('maxAge') maxAge: number) {
     return this.patientsService.findByAgeRange(minAge, maxAge);
   }
@@ -115,6 +128,8 @@ export class PatientsController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Get patient by ID (patients: own record only)' })
   @ApiResponse({ status: 200, description: 'Patient details (check success field for not-found)' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findById(@Req() req: any, @Param('id') id: string) {
     this.assertOwnRecord(req, id);
     return this.patientsService.findById(id);
@@ -127,6 +142,9 @@ export class PatientsController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Update patient details (patients: own record only)' })
   @ApiResponse({ status: 200, description: 'Patient updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async update(@Req() req: any, @Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {
     this.assertOwnRecord(req, id);
     return this.patientsService.update(id, updatePatientDto as any);
@@ -139,6 +157,9 @@ export class PatientsController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Partially update patient details (patients: own record only)' })
   @ApiResponse({ status: 200, description: 'Patient updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async patchUpdate(@Req() req: any, @Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {
     this.assertOwnRecord(req, id);
     return this.patientsService.update(id, updatePatientDto as any);
@@ -150,6 +171,9 @@ export class PatientsController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a patient record' })
   @ApiResponse({ status: 200, description: 'Patient deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async delete(@Param('id') id: string) {
     return this.patientsService.delete(id);
   }
@@ -160,6 +184,9 @@ export class PatientsController {
   @Patch(':id/status')
   @ApiOperation({ summary: 'Update patient status' })
   @ApiResponse({ status: 200, description: 'Patient status updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.patientsService.updateStatus(id, status);
   }

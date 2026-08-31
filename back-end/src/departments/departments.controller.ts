@@ -13,6 +13,9 @@ export class DepartmentsController {
   constructor(private readonly departmentsService: DepartmentsService) {}
 
   @Get()
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 200, description: 'Success' })
   async findAll(@Req() req: any, @Query('hospitalId') hospitalId?: string) {
     const user = req.user;
     const targetHospitalId = user.role === UserRole.SUPERUSER ? hospitalId : user.hospitalId;

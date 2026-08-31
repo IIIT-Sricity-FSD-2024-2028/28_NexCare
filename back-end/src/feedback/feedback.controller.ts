@@ -53,6 +53,8 @@ export class FeedbackController {
   @ApiQuery({ name: 'status', required: false, enum: FeedbackStatus })
   @ApiQuery({ name: 'category', required: false })
   @ApiResponse({ status: 200, description: 'List of feedback' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findAll(
     @Req() req: any,
     @Query('patientId') patientId?: string,
@@ -74,6 +76,9 @@ export class FeedbackController {
   @ApiOperation({ summary: 'Submit new feedback' })
   @ApiResponse({ status: 200, description: 'Feedback submission result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async create(@Req() req: any, @Body() createFeedbackDto: CreateFeedbackDto) {
     const dto: any = { ...createFeedbackDto };
     if (this.isPatient(req)) {
@@ -91,6 +96,9 @@ export class FeedbackController {
   @ApiQuery({ name: 'status', required: false, enum: FeedbackStatus })
   @ApiQuery({ name: 'category', required: false })
   @ApiQuery({ name: 'hospitalId', required: false })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 200, description: 'Success' })
   async findRegional(
     @Req() req: any,
     @Query('status') status?: string,
@@ -114,6 +122,8 @@ export class FeedbackController {
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get feedback statistics' })
   @ApiResponse({ status: 200, description: 'Feedback statistics retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getStats() {
     return this.feedbackService.getStats();
   }
@@ -125,6 +135,8 @@ export class FeedbackController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Get feedback by patient ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Patient feedback retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findByPatient(@Req() req: any, @Param('patientId') patientId: string) {
     if (this.isPatient(req) && patientId !== req.user.patientId) {
       throw new ForbiddenException('You can only view your own feedback.');
@@ -138,6 +150,8 @@ export class FeedbackController {
   @Get('category/:category')
   @ApiOperation({ summary: 'Get feedback by category' })
   @ApiResponse({ status: 200, description: 'Feedback retrieved by category' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findByCategory(@Param('category') category: string) {
     return this.feedbackService.findByCategory(category);
   }
@@ -148,6 +162,8 @@ export class FeedbackController {
   @Get('rating/:rating')
   @ApiOperation({ summary: 'Get feedback by rating (1-5)' })
   @ApiResponse({ status: 200, description: 'Feedback retrieved by rating' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findByRating(@Param('rating') rating: number) {
     return this.feedbackService.findByRating(rating);
   }
@@ -158,6 +174,8 @@ export class FeedbackController {
   @Get('unresolved')
   @ApiOperation({ summary: 'Get all unresolved feedback' })
   @ApiResponse({ status: 200, description: 'Unresolved feedback retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getUnresolvedFeedback() {
     return this.feedbackService.getUnresolvedFeedback();
   }
@@ -168,6 +186,8 @@ export class FeedbackController {
   @Get('high-priority')
   @ApiOperation({ summary: 'Get high priority feedback (low ratings)' })
   @ApiResponse({ status: 200, description: 'High priority feedback retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getHighPriorityFeedback() {
     return this.feedbackService.getHighPriorityFeedback();
   }
@@ -178,6 +198,8 @@ export class FeedbackController {
   @Get(':id')
   @ApiOperation({ summary: 'Get feedback by ID' })
   @ApiResponse({ status: 200, description: 'Feedback details retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findById(@Param('id') id: string) {
     return this.feedbackService.findById(id);
   }
@@ -188,6 +210,9 @@ export class FeedbackController {
   @Put(':id')
   @ApiOperation({ summary: 'Update feedback details' })
   @ApiResponse({ status: 200, description: 'Feedback updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async update(@Param('id') id: string, @Body() updateFeedbackDto: UpdateFeedbackDto) {
     return this.feedbackService.update(id, updateFeedbackDto as any);
   }
@@ -198,6 +223,9 @@ export class FeedbackController {
   @Patch(':id')
   @ApiOperation({ summary: 'Partially update feedback details' })
   @ApiResponse({ status: 200, description: 'Feedback updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async patchUpdate(@Param('id') id: string, @Body() updateFeedbackDto: UpdateFeedbackDto) {
     return this.feedbackService.update(id, updateFeedbackDto as any);
   }
@@ -208,6 +236,9 @@ export class FeedbackController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete feedback' })
   @ApiResponse({ status: 200, description: 'Feedback deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async delete(@Param('id') id: string) {
     return this.feedbackService.delete(id);
   }
@@ -219,6 +250,9 @@ export class FeedbackController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER)
   @ApiOperation({ summary: 'Update feedback status' })
   @ApiResponse({ status: 200, description: 'Feedback status updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.feedbackService.updateStatus(id, status as any);
   }

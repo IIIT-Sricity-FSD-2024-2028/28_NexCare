@@ -57,6 +57,8 @@ export class AppointmentsController {
   @ApiQuery({ name: 'status', required: false, enum: AppointmentStatus })
   @ApiQuery({ name: 'department', required: false })
   @ApiResponse({ status: 200, description: 'List of appointments' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findAll(
     @Req() req: any,
     @Query('patientId') patientId?: string,
@@ -79,6 +81,9 @@ export class AppointmentsController {
   @ApiOperation({ summary: 'Book a new appointment or doctor referral' })
   @ApiResponse({ status: 200, description: 'Appointment booking result (check success field)' })
   @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async create(@Req() req: any, @Body() createAppointmentDto: CreateAppointmentDto) {
     const dto: any = { ...createAppointmentDto };
     // A patient can only book for themselves.
@@ -103,6 +108,8 @@ export class AppointmentsController {
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get appointment statistics' })
   @ApiResponse({ status: 200, description: 'Appointment statistics retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getStats() {
     return this.appointmentsService.getStats();
   }
@@ -114,6 +121,8 @@ export class AppointmentsController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Get appointments by patient ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'List of patient appointments' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findByPatient(@Req() req: any, @Param('patientId') patientId: string) {
     if (this.isPatient(req) && patientId !== req.user.patientId) {
       throw new ForbiddenException('You can only view your own appointments.');
@@ -137,6 +146,8 @@ export class AppointmentsController {
   )
   @ApiOperation({ summary: "Get a doctor's appointments (doctors: own only, pass 'me')" })
   @ApiResponse({ status: 200, description: 'List of the doctor’s appointments' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findByDoctor(
     @Req() req: any,
     @Param('doctorId') doctorId: string,
@@ -158,6 +169,9 @@ export class AppointmentsController {
     UserRole.DOCTOR,
   )
   @ApiOperation({ summary: "Headline counts for a doctor's dashboard" })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 200, description: 'Success' })
   async doctorStats(@Req() req: any, @Param('doctorId') doctorId: string) {
     return this.appointmentsService.getDoctorStats(this.resolveDoctorId(req, doctorId));
   }
@@ -187,6 +201,8 @@ export class AppointmentsController {
   @Get('department/:department')
   @ApiOperation({ summary: 'Get appointments by department' })
   @ApiResponse({ status: 200, description: 'List of department appointments' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findByDepartment(@Param('department') department: string) {
     return this.appointmentsService.findByDepartment(department);
   }
@@ -197,6 +213,8 @@ export class AppointmentsController {
   @Get('today')
   @ApiOperation({ summary: "Get today's appointments" })
   @ApiResponse({ status: 200, description: 'List of appointments for today' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getTodayAppointments() {
     return this.appointmentsService.getTodayAppointments();
   }
@@ -208,6 +226,8 @@ export class AppointmentsController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Get appointment by ID (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Appointment details' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findById(@Req() req: any, @Param('id') id: string) {
     await this.assertOwnsAppointment(req, id);
     return this.appointmentsService.findById(id);
@@ -219,6 +239,9 @@ export class AppointmentsController {
   @Put(':id')
   @ApiOperation({ summary: 'Update appointment details' })
   @ApiResponse({ status: 200, description: 'Appointment updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async update(@Param('id') id: string, @Body() updateAppointmentDto: UpdateAppointmentDto) {
     return this.appointmentsService.update(id, updateAppointmentDto as any);
   }
@@ -229,6 +252,9 @@ export class AppointmentsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Partially update appointment details' })
   @ApiResponse({ status: 200, description: 'Appointment updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async patchUpdate(@Param('id') id: string, @Body() updateAppointmentDto: UpdateAppointmentDto) {
     return this.appointmentsService.update(id, updateAppointmentDto as any);
   }
@@ -239,6 +265,9 @@ export class AppointmentsController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an appointment' })
   @ApiResponse({ status: 200, description: 'Appointment deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async delete(@Param('id') id: string) {
     return this.appointmentsService.delete(id);
   }
@@ -249,6 +278,9 @@ export class AppointmentsController {
   @Patch(':id/confirm')
   @ApiOperation({ summary: 'Confirm an appointment' })
   @ApiResponse({ status: 200, description: 'Appointment confirmed successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async confirm(@Req() req: any, @Param('id') id: string) {
     await this.assertDoctorOwnsAppointment(req, id);
     return this.appointmentsService.confirm(id);
@@ -260,6 +292,9 @@ export class AppointmentsController {
   @Patch(':id/complete')
   @ApiOperation({ summary: 'Mark an appointment as completed' })
   @ApiResponse({ status: 200, description: 'Appointment completed successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async complete(@Req() req: any, @Param('id') id: string) {
     await this.assertDoctorOwnsAppointment(req, id);
     return this.appointmentsService.complete(id);
@@ -272,6 +307,9 @@ export class AppointmentsController {
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
   @ApiOperation({ summary: 'Cancel an appointment (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Appointment cancelled successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async cancel(@Req() req: any, @Param('id') id: string) {
     await this.assertOwnsAppointment(req, id);
     return this.appointmentsService.cancel(id);

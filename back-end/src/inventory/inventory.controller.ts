@@ -44,6 +44,8 @@ export class InventoryController {
   @ApiQuery({ name: 'status', required: false, enum: InventoryStatus })
   @ApiQuery({ name: 'location', required: false })
   @ApiResponse({ status: 200, description: 'List of inventory items' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findAll(
     @Query('category') category?: string,
     @Query('status') status?: string,
@@ -66,6 +68,8 @@ export class InventoryController {
   @ApiQuery({ name: 'priority', required: false })
   @ApiQuery({ name: 'department', required: false })
   @ApiResponse({ status: 200, description: 'List of inventory requirements' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getRequirements(
     @Req() req: any,
     @Query('hospitalId') hospitalId?: string,
@@ -94,6 +98,8 @@ export class InventoryController {
   @Get('requirements/:id')
   @ApiOperation({ summary: 'Get single inventory requirement by ID' })
   @ApiResponse({ status: 200, description: 'Inventory requirement retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getRequirementById(@Req() req: any, @Param('id') id: string) {
     const caller = req.user;
     const res: any = await this.inventoryService.findRequirementById(id);
@@ -114,6 +120,9 @@ export class InventoryController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Submit an inventory requirement request' })
   @ApiResponse({ status: 200, description: 'Inventory requirement created' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async createRequirement(@Req() req: any, @Body() data: CreateInventoryRequirementDto) {
     const caller = req.user;
     if ((caller?.role === UserRole.HOSPITAL_MANAGER || caller?.role === UserRole.ADMINISTRATIVE_STAFF) && caller.hospitalId) {
@@ -133,6 +142,9 @@ export class InventoryController {
   @Patch('requirements/:id/approve')
   @ApiOperation({ summary: 'Approve an inventory requirement' })
   @ApiResponse({ status: 200, description: 'Requirement approved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async approveRequirement(@Req() req: any, @Param('id') id: string, @Body() body?: DecideInventoryRequirementDto) {
     const caller = req.user;
     if (caller?.role === UserRole.HOSPITAL_MANAGER) {
@@ -153,6 +165,9 @@ export class InventoryController {
   @Patch('requirements/:id/reject')
   @ApiOperation({ summary: 'Reject an inventory requirement with reason' })
   @ApiResponse({ status: 200, description: 'Requirement rejected' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async rejectRequirement(@Req() req: any, @Param('id') id: string, @Body() body: DecideInventoryRequirementDto) {
     const caller = req.user;
     if (caller?.role === UserRole.HOSPITAL_MANAGER) {
@@ -178,6 +193,9 @@ export class InventoryController {
   @Patch('requirements/:id/start-purchase')
   @ApiOperation({ summary: 'Initiate purchasing for an approved requirement' })
   @ApiResponse({ status: 200, description: 'Purchase initiated' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async startPurchase(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     const caller = req.user;
     return this.inventoryService.startPurchase(id, body, caller?.id || 'U002', caller?.name || 'Administrative Staff');
@@ -190,6 +208,9 @@ export class InventoryController {
   @Patch('requirements/:id/mark-purchased')
   @ApiOperation({ summary: 'Mark inventory requirement as purchased' })
   @ApiResponse({ status: 200, description: 'Requirement marked as purchased' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async markPurchased(@Req() req: any, @Param('id') id: string) {
     const caller = req.user;
     return this.inventoryService.markPurchased(id, caller?.id || 'U002', caller?.name || 'Administrative Staff');
@@ -202,6 +223,9 @@ export class InventoryController {
   @Patch('requirements/:id/mark-restocked')
   @ApiOperation({ summary: 'Mark inventory requirement as restocked and increase stock' })
   @ApiResponse({ status: 200, description: 'Requirement restocked' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async markRestocked(@Req() req: any, @Param('id') id: string) {
     const caller = req.user;
     return this.inventoryService.markRestocked(id, caller?.id || 'U002', caller?.name || 'Administrative Staff');
@@ -214,6 +238,9 @@ export class InventoryController {
   @Patch('requirements/:id/fulfill')
   @ApiOperation({ summary: 'Mark requirement fulfilled and restock stock' })
   @ApiResponse({ status: 200, description: 'Requirement fulfilled' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async fulfillRequirement(@Req() req: any, @Param('id') id: string) {
     const caller = req.user;
     return this.inventoryService.markRestocked(id, caller?.id || 'SYSTEM', caller?.name || 'Administrative Staff');
@@ -231,6 +258,9 @@ export class InventoryController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Create a new inventory item' })
   @ApiResponse({ status: 200, description: 'Item creation result' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async create(@Body() createInventoryDto: CreateInventoryDto) {
     return this.inventoryService.create(createInventoryDto as any);
   }
@@ -241,6 +271,8 @@ export class InventoryController {
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get inventory statistics' })
   @ApiResponse({ status: 200, description: 'Inventory statistics retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getStats() {
     return this.inventoryService.getStats();
   }
@@ -251,6 +283,8 @@ export class InventoryController {
   @Get('low-stock')
   @ApiOperation({ summary: 'Get all low stock items' })
   @ApiResponse({ status: 200, description: 'List of low stock items' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getLowStockItems() {
     return this.inventoryService.getLowStockItems();
   }
@@ -261,6 +295,8 @@ export class InventoryController {
   @Get('out-of-stock')
   @ApiOperation({ summary: 'Get all out of stock items' })
   @ApiResponse({ status: 200, description: 'List of out of stock items' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getOutOfStockItems() {
     return this.inventoryService.getOutOfStockItems();
   }
@@ -271,6 +307,8 @@ export class InventoryController {
   @Get('category/:category')
   @ApiOperation({ summary: 'Get items by category' })
   @ApiResponse({ status: 200, description: 'List of items in category' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findByCategory(@Param('category') category: string) {
     return this.inventoryService.findByCategory(category);
   }
@@ -281,6 +319,8 @@ export class InventoryController {
   @Get('location/:location')
   @ApiOperation({ summary: 'Get items by location' })
   @ApiResponse({ status: 200, description: 'List of items at location' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findByLocation(@Param('location') location: string) {
     return this.inventoryService.findByLocation(location);
   }
@@ -291,6 +331,8 @@ export class InventoryController {
   @Get('search/:query')
   @ApiOperation({ summary: 'Search inventory items' })
   @ApiResponse({ status: 200, description: 'Search results' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async search(@Param('query') query: string) {
     return this.inventoryService.search(query);
   }
@@ -301,6 +343,8 @@ export class InventoryController {
   @Get('audit/:itemId')
   @ApiOperation({ summary: 'Get inventory audit trail for an item' })
   @ApiResponse({ status: 200, description: 'Audit trail retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getAuditTrail(@Param('itemId') itemId: string) {
     return this.inventoryService.getAuditTrail(itemId);
   }
@@ -311,6 +355,8 @@ export class InventoryController {
   @Get(':id')
   @ApiOperation({ summary: 'Get inventory item by ID' })
   @ApiResponse({ status: 200, description: 'Item details retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findById(@Param('id') id: string) {
     return this.inventoryService.findById(id);
   }
@@ -322,6 +368,9 @@ export class InventoryController {
   @Put(':id')
   @ApiOperation({ summary: 'Update an inventory item' })
   @ApiResponse({ status: 200, description: 'Item updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async update(@Param('id') id: string, @Body() updateInventoryDto: UpdateInventoryDto) {
     return this.inventoryService.update(id, updateInventoryDto as any);
   }
@@ -333,6 +382,9 @@ export class InventoryController {
   @Patch(':id')
   @ApiOperation({ summary: 'Partially update an inventory item' })
   @ApiResponse({ status: 200, description: 'Item updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async patchUpdate(@Param('id') id: string, @Body() updateInventoryDto: UpdateInventoryDto) {
     return this.inventoryService.update(id, updateInventoryDto as any);
   }
@@ -344,6 +396,9 @@ export class InventoryController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an inventory item' })
   @ApiResponse({ status: 200, description: 'Item deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async delete(@Param('id') id: string) {
     return this.inventoryService.delete(id);
   }
@@ -356,6 +411,9 @@ export class InventoryController {
   @UseInterceptors(InventoryAuditInterceptor)
   @ApiOperation({ summary: 'Restock an inventory item' })
   @ApiResponse({ status: 200, description: 'Item restocked successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async restock(@Param('id') id: string, @Body() restockDto: RestockInventoryDto) {
     return this.inventoryService.restock(id, restockDto);
   }
@@ -368,6 +426,9 @@ export class InventoryController {
   @UseInterceptors(InventoryAuditInterceptor)
   @ApiOperation({ summary: 'Consume/use an inventory item' })
   @ApiResponse({ status: 200, description: 'Item consumed successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async useItem(@Param('id') id: string, @Body() body: any) {
     const quantity = typeof body === 'number' ? body : Number(body?.quantity);
     return this.inventoryService.useItem(id, quantity, body?.notes);

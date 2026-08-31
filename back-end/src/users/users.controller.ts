@@ -49,6 +49,8 @@ export class UsersController {
   @ApiQuery({ name: 'status', required: false })
   @ApiQuery({ name: 'hospitalId', required: false })
   @ApiResponse({ status: 200, description: 'List of users' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findAll(
     @Req() req: any,
     @Query('role') role?: string,
@@ -115,6 +117,8 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'User creation result' })
   @ApiResponse({ status: 400, description: 'Validation error' })
   @ApiResponse({ status: 403, description: 'Forbidden - role or hospital scope violation' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async create(@Req() req: any, @Body() createUserDto: CreateUserDto) {
     const caller = req.user;
 
@@ -150,6 +154,9 @@ export class UsersController {
   @Get('preview-email')
   @ApiOperation({ summary: 'Preview auto-generated unique staff email' })
   @ApiQuery({ name: 'name', required: true })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 200, description: 'Success' })
   previewEmail(@Query('name') name: string) {
     const email = this.usersService.generateStaffEmail(name || '');
     return { success: true, data: { email } };
@@ -164,6 +171,8 @@ export class UsersController {
   @ApiQuery({ name: 'dept', required: false })
   @ApiQuery({ name: 'hospitalId', required: false })
   @ApiResponse({ status: 200, description: 'Doctors retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findDoctors(@Req() req: any, @Query('dept') dept?: string, @Query('hospitalId') hospitalId?: string) {
     const caller = req.user;
     const targetHospitalId = (caller?.role === UserRole.HOSPITAL_MANAGER) ? caller.hospitalId : hospitalId;
@@ -184,6 +193,8 @@ export class UsersController {
   @Get('stats/overview')
   @ApiOperation({ summary: 'Get user statistics' })
   @ApiResponse({ status: 200, description: 'User statistics retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getStats() {
     return this.usersService.getStats();
   }
@@ -194,6 +205,8 @@ export class UsersController {
   @Get('role/:role')
   @ApiOperation({ summary: 'Get users by role' })
   @ApiResponse({ status: 200, description: 'Users retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findByRole(@Param('role') role: string) {
     return this.usersService.findByRole(role as any);
   }
@@ -204,6 +217,8 @@ export class UsersController {
   @Get('search/:query')
   @ApiOperation({ summary: 'Search users' })
   @ApiResponse({ status: 200, description: 'Search results' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async search(@Param('query') query: string) {
     return this.usersService.search(query);
   }
@@ -214,6 +229,8 @@ export class UsersController {
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({ status: 200, description: 'User retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async findById(@Req() req: any, @Param('id') id: string) {
     const caller = req.user;
     const userRes: any = await this.usersService.findById(id);
@@ -232,6 +249,9 @@ export class UsersController {
   @Put(':id')
   @ApiOperation({ summary: 'Update user' })
   @ApiResponse({ status: 200, description: 'User update result' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async update(@Req() req: any, @Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     await this.validateHospitalManagerAccess(req.user, id, updateUserDto);
     return this.usersService.update(id, updateUserDto as any);
@@ -243,6 +263,9 @@ export class UsersController {
   @Patch(':id')
   @ApiOperation({ summary: 'Partial update user' })
   @ApiResponse({ status: 200, description: 'User update result' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async patchUpdate(@Req() req: any, @Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     await this.validateHospitalManagerAccess(req.user, id, updateUserDto);
     return this.usersService.update(id, updateUserDto as any);
@@ -254,6 +277,9 @@ export class UsersController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete user' })
   @ApiResponse({ status: 200, description: 'User deletion result' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async delete(@Req() req: any, @Param('id') id: string) {
     await this.validateHospitalManagerAccess(req.user, id);
     return this.usersService.delete(id);
@@ -265,6 +291,9 @@ export class UsersController {
   @Patch(':id/status')
   @ApiOperation({ summary: 'Update user status' })
   @ApiResponse({ status: 200, description: 'Status update result' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   async updateStatus(@Req() req: any, @Param('id') id: string, @Body('status') status: string) {
     await this.validateHospitalManagerAccess(req.user, id);
     return this.usersService.updateStatus(id, status as any);
@@ -297,6 +326,8 @@ export class UsersController {
   @Roles(UserRole.SUPERUSER)
   @ApiOperation({ summary: 'Get regional managers by city' })
   @ApiResponse({ status: 200, description: 'Regional managers retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getRegionalManagersByCity(@Param('city') city: string) {
     return this.usersService.getRegionalManagersByCity(city);
   }
@@ -309,6 +340,8 @@ export class UsersController {
   @Roles(UserRole.SUPERUSER)
   @ApiOperation({ summary: 'Get regional manager workload' })
   @ApiResponse({ status: 200, description: 'RM workload retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getRMWorkload(@Param('id') id: string) {
     return this.usersService.getRMWorkload(id);
   }
@@ -321,6 +354,8 @@ export class UsersController {
   @Roles(UserRole.SUPERUSER)
   @ApiOperation({ summary: 'Suggest regional manager for hospital by city' })
   @ApiResponse({ status: 200, description: 'RM suggestions retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async suggestRMForHospital(@Param('city') city: string) {
     return this.usersService.suggestRMForHospital(city);
   }
@@ -333,6 +368,8 @@ export class UsersController {
   @Roles(UserRole.SUPERUSER)
   @ApiOperation({ summary: 'Get all regional managers with workload' })
   @ApiResponse({ status: 200, description: 'All RM workloads retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getAllRMWorkloads() {
     return this.usersService.getAllRMWorkloads();
   }

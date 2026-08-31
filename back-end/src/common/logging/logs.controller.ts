@@ -25,6 +25,8 @@ export class LogsController {
   @ApiQuery({ name: 'stream', required: false, enum: STREAMS })
   @ApiQuery({ name: 'limit', required: false, example: 100 })
   @ApiResponse({ status: 200, description: 'Recent log entries' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async read(@Query('stream') stream = 'access', @Query('limit') limit = '100') {
     if (!STREAMS.includes(stream as LogStream)) {
       return ResponseUtil.error(`Unknown log stream "${stream}". Valid streams: ${STREAMS.join(', ')}.`);
@@ -42,6 +44,8 @@ export class LogsController {
   @Get('files')
   @ApiOperation({ summary: 'List log files with sizes' })
   @ApiResponse({ status: 200, description: 'Log files on disk' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async files() {
     return ResponseUtil.success('Log files retrieved successfully', fileLogger.listFiles());
   }

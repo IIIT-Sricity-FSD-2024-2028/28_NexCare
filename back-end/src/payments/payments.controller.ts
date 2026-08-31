@@ -20,18 +20,29 @@ export class PaymentsController {
 
   @Get('test-cards')
   @ApiOperation({ summary: 'Cards the simulated gateway recognises, and what each one does' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 200, description: 'Success' })
   async testCards() {
     return this.paymentsService.testCards();
   }
 
   @Post('intent')
   @ApiOperation({ summary: 'Start paying a bill — the amount is taken from the bill' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
+  @ApiResponse({ status: 200, description: 'Success' })
   async createIntent(@Req() req: any, @Body() body: CreateIntentDto) {
     return this.paymentsService.createIntent(body.billId, this.patientKey(req.user));
   }
 
   @Post(':intentId/confirm')
   @ApiOperation({ summary: 'Confirm a payment with card details (simulated)' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
+  @ApiResponse({ status: 200, description: 'Success' })
   async confirmIntent(
     @Req() req: any,
     @Param('intentId') intentId: string,
@@ -52,6 +63,9 @@ export class PaymentsController {
 
   @Get()
   @ApiOperation({ summary: 'Payment attempts (patients: own only)' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 200, description: 'Success' })
   async findIntents(@Req() req: any) {
     return this.paymentsService.findIntents(this.patientKey(req.user));
   }
@@ -61,6 +75,9 @@ export class PaymentsController {
   @ApiOperation({ summary: 'The platform earnings ledger — every fee NexCare has taken' })
   @ApiQuery({ name: 'stream', required: false })
   @ApiQuery({ name: 'hospitalId', required: false })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 200, description: 'Success' })
   async findLedger(@Query('stream') stream?: string, @Query('hospitalId') hospitalId?: string) {
     return this.paymentsService.findLedger(stream, hospitalId);
   }

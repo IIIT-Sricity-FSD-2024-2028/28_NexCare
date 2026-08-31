@@ -25,6 +25,9 @@ export class HierarchyController {
 
   @Get()
   @ApiOperation({ summary: 'The organisational subtree rooted at the caller’s own node' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 200, description: 'Success' })
   async myHierarchy(@Req() req: any) {
     return this.hierarchyService.getMyHierarchy(req.user);
   }
@@ -45,6 +48,9 @@ export class HierarchyController {
   )
   @Get('scope')
   @ApiOperation({ summary: 'What the caller is allowed to see, and how much of it there is' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 200, description: 'Success' })
   async myScope(@Req() req: any) {
     return this.hierarchyService.getMyScope(req.user);
   }
