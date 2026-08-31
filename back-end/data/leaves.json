@@ -329,5 +329,43 @@
     "approvedBy": "HM001",
     "approvedByName": "Srinivas Rao",
     "approvedAt": "2026-08-31T02:09:57.495Z"
+  },
+  {
+    "id": "LMTGNO6OLGD5",
+    "doctorId": "U005",
+    "doctorName": "Dr. Sunita Sharma",
+    "hospitalId": "H001",
+    "startDate": "2031-07-10",
+    "endDate": "2031-07-15",
+    "type": "CASUAL",
+    "reason": "Family event audit test",
+    "daysCount": 6,
+    "requestedAt": "2026-08-31",
+    "status": "approved",
+    "createdAt": "2026-08-31T03:05:16.245Z",
+    "updatedAt": "2026-08-31T03:05:16.261Z",
+    "comment": "Approved for audit",
+    "approvedBy": "HM001",
+    "approvedByName": "Dr. Suresh Verma",
+    "approvedAt": "2026-08-31T03:05:16.261Z"
+  },
+  {
+    "id": "LMTGNPFGX1KCD",
+    "doctorId": "U005",
+    "doctorName": "Dr. Sunita Sharma",
+    "hospitalId": "H001",
+    "startDate": "2032-03-10",
+    "endDate": "2032-03-15",
+    "type": "CASUAL",
+    "reason": "Family event audit test",
+    "daysCount": 6,
+    "requestedAt": "2026-08-31",
+    "status": "approved",
+    "createdAt": "2026-08-31T03:06:14.289Z",
+    "updatedAt": "2026-08-31T03:06:14.304Z",
+    "comment": "Approved for audit",
+    "approvedBy": "HM001",
+    "approvedByName": "Dr. Suresh Verma",
+    "approvedAt": "2026-08-31T03:06:14.304Z"
   }
 ]

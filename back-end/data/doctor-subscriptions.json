@@ -326,5 +326,77 @@
     "hospitalId": "H008",
     "planId": "DOC-FREE",
     "status": "active"
+  },
+  {
+    "id": "DSUB-U006",
+    "doctorId": "U006",
+    "doctorName": "Dr. Vikram Patel",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-31T03:02:54.664Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-U009",
+    "doctorId": "U009",
+    "doctorName": "Dr. Sarah Smith",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-31T03:02:54.667Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-U007",
+    "doctorId": "U007",
+    "doctorName": "Dr. Anjali Desai",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-31T03:02:54.669Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-U005",
+    "doctorId": "U005",
+    "doctorName": "Dr. Sunita Sharma",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-31T03:05:16.621Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-UMTGNO6HEBDD",
+    "doctorId": "UMTGNO6HEBDD",
+    "doctorName": "Dr. Test Audit",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-31T03:05:16.623Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
+  },
+  {
+    "id": "DSUB-UMTGNPFAE1FUC",
+    "doctorId": "UMTGNPFAE1FUC",
+    "doctorName": "Dr. Test Audit",
+    "hospitalId": "H001",
+    "planId": "DOC-FREE",
+    "status": "active",
+    "consultationFee": 500,
+    "startedAt": "2026-08-31T03:06:14.623Z",
+    "renewsOn": "2026-08-31T18:30:00.000Z",
+    "notes": "Auto-enrolled on the free listing tier."
   }
 ]

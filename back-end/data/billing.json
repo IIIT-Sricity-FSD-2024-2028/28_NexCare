@@ -682,5 +682,72 @@
         "amount": 900
       }
     ]
+  },
+  {
+    "id": "BILL-0037",
+    "patientId": "P001",
+    "visitDate": "December 11, 2026",
+    "dueDate": "September 14, 2026",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 5200,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 468,
+    "sgstAmount": 468,
+    "total": 6136,
+    "items": [
+      {
+        "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGNO6S6MBP",
+        "date": "December 11, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Vikram Patel (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGNO6TTUUV",
+        "date": "December 13, 2026"
+      },
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency Transport",
+        "amount": 500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-MTGNO6VI116P",
+        "date": "August 31, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGNPFK01Q1O",
+        "date": "December 24, 2026"
+      },
+      {
+        "description": "Consultation — Dr. Vikram Patel (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGNPFLA1XM1",
+        "date": "December 26, 2026"
+      },
+      {
+        "description": "Ambulance Transport",
+        "department": "Emergency Transport",
+        "amount": 500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-MTGNPFMY24GG",
+        "date": "August 31, 2026"
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-08-31T03:05:16.405Z",
+    "updatedAt": "2026-08-31T03:06:14.533Z"
   }
 ]
