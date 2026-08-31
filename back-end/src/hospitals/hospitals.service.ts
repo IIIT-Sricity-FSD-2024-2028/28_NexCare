@@ -539,7 +539,13 @@ export class HospitalsService {
   }
 
   getHospitalsForManager(managerId: string): Hospital[] {
-    return this.hospitals.filter(h => h.assignedManagerId === managerId);
+    const users = this.loadDataFile<any>('users.json');
+    const user = users.find(u => u.id === managerId || u.email === managerId);
+    return this.hospitals.filter(h =>
+      h.assignedManagerId === managerId ||
+      (user && user.regionId && h.regionId === user.regionId) ||
+      (user && user.areas && Array.isArray(user.areas) && user.areas.some(a => String(h.city || '').toLowerCase().includes(String(a).toLowerCase())))
+    );
   }
 
   private isLowStock(item: any): boolean {

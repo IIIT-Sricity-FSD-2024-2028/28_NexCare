@@ -2658,5 +2658,405 @@
     "module": "Ambulance",
     "severity": "SUCCESS",
     "createdAt": "2026-08-31T03:06:14.539Z"
+  },
+  {
+    "id": "ACT-MTGOQUWH1PO",
+    "timestamp": "2026-08-31T03:35:20.561Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:35:20.561Z"
+  },
+  {
+    "id": "ACT-MTGOSJKS2SS",
+    "timestamp": "2026-08-31T03:36:39.196Z",
+    "userId": "PL01",
+    "action": "Login",
+    "details": "User Ravi Kumar logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:36:39.196Z"
+  },
+  {
+    "id": "ACT-MTGPD1VE1P4",
+    "timestamp": "2026-08-31T03:52:36.026Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:36.026Z"
+  },
+  {
+    "id": "ACT-MTGPD1Y32WK",
+    "timestamp": "2026-08-31T03:52:36.123Z",
+    "userId": "RM002",
+    "action": "Login",
+    "details": "User Kavya Menon logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:36.123Z"
+  },
+  {
+    "id": "ACT-MTGPD20X398",
+    "timestamp": "2026-08-31T03:52:36.225Z",
+    "userId": "RM003",
+    "action": "Login",
+    "details": "User Rohan Deshmukh logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:36.225Z"
+  },
+  {
+    "id": "ACT-MTGPD23U4SZ",
+    "timestamp": "2026-08-31T03:52:36.330Z",
+    "userId": "RM004",
+    "action": "Login",
+    "details": "User Nandini Iyer logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:36.330Z"
+  },
+  {
+    "id": "ACT-MTGPD26D5SN",
+    "timestamp": "2026-08-31T03:52:36.421Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:36.421Z"
+  },
+  {
+    "id": "ACT-MTGPD2846C8",
+    "timestamp": "2026-08-31T03:52:36.484Z",
+    "userId": "HM-AP02",
+    "action": "Login",
+    "details": "User Arjun Varma logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:36.484Z"
+  },
+  {
+    "id": "ACT-MTGPD2A57KP",
+    "timestamp": "2026-08-31T03:52:36.557Z",
+    "userId": "HM-KA01",
+    "action": "Login",
+    "details": "User Sneha Rao logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:36.557Z"
+  },
+  {
+    "id": "ACT-MTGPD2CA835",
+    "timestamp": "2026-08-31T03:52:36.634Z",
+    "userId": "HM-KA02",
+    "action": "Login",
+    "details": "User Karthik Shetty logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:36.634Z"
+  },
+  {
+    "id": "ACT-MTGPD2EC935",
+    "timestamp": "2026-08-31T03:52:36.708Z",
+    "userId": "HM-MH01",
+    "action": "Login",
+    "details": "User Neha Kulkarni logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:36.708Z"
+  },
+  {
+    "id": "ACT-MTGPD2G3AKR",
+    "timestamp": "2026-08-31T03:52:36.771Z",
+    "userId": "HM-MH02",
+    "action": "Login",
+    "details": "User Aditya Patil logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:36.771Z"
+  },
+  {
+    "id": "ACT-MTGPD2IDBHF",
+    "timestamp": "2026-08-31T03:52:36.853Z",
+    "userId": "HM-TN01",
+    "action": "Login",
+    "details": "User Meera Krishnan logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:36.853Z"
+  },
+  {
+    "id": "ACT-MTGPD2K5CRH",
+    "timestamp": "2026-08-31T03:52:36.917Z",
+    "userId": "HM-TN02",
+    "action": "Login",
+    "details": "User Vignesh Raman logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:36.917Z"
+  },
+  {
+    "id": "ACT-MTGPD6UND2U",
+    "timestamp": "2026-08-31T03:52:42.479Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Super Admin logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:42.479Z"
+  },
+  {
+    "id": "ACT-MTGPD71ZEXR",
+    "timestamp": "2026-08-31T03:52:42.743Z",
+    "userId": "RM000",
+    "action": "Login",
+    "details": "User Anirudh Reddy (Alias) logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:42.743Z"
+  },
+  {
+    "id": "ACT-MTGPD79QFCR",
+    "timestamp": "2026-08-31T03:52:43.022Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Priya Reddy (Alias) logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:43.022Z"
+  },
+  {
+    "id": "ACT-MTGPD7JYJ3U",
+    "timestamp": "2026-08-31T03:52:43.390Z",
+    "userId": "UMTGPD7IDHVO",
+    "action": "Login",
+    "details": "User Dr. Test Audit logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:43.390Z"
+  },
+  {
+    "id": "ACT-MTGPD7MYK22",
+    "timestamp": "2026-08-31T03:52:43.498Z",
+    "userId": "UMTGPD7IDHVO",
+    "action": "PasswordChange",
+    "details": "Password changed for user Dr. Test Audit",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:43.498Z"
+  },
+  {
+    "id": "ACT-MTGPD7OWLS4",
+    "timestamp": "2026-08-31T03:52:43.568Z",
+    "userId": "UMTGPD7IDHVO",
+    "action": "Login",
+    "details": "User Dr. Test Audit logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:52:43.568Z"
+  },
+  {
+    "id": "ACT-MTGPDRSTMX8",
+    "timestamp": "2026-08-31T03:53:09.629Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User Super Admin logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:53:09.630Z"
+  },
+  {
+    "id": "ACT-MTGPDS0NNZJ",
+    "timestamp": "2026-08-31T03:53:09.911Z",
+    "userId": "RM000",
+    "action": "Login",
+    "details": "User Anirudh Reddy (Alias) logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:53:09.911Z"
+  },
+  {
+    "id": "ACT-MTGPEUUPOQI",
+    "timestamp": "2026-08-31T03:54:00.241Z",
+    "userId": "HM001",
+    "action": "Login",
+    "details": "User Priya Reddy (Alias) logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:00.241Z"
+  },
+  {
+    "id": "ACT-MTGPEV2PPCM",
+    "timestamp": "2026-08-31T03:54:00.529Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:00.529Z"
+  },
+  {
+    "id": "ACT-MTGPEVAOQ0D",
+    "timestamp": "2026-08-31T03:54:00.816Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:00.816Z"
+  },
+  {
+    "id": "ACT-MTGPEVIPR5T",
+    "timestamp": "2026-08-31T03:54:01.105Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Tirupati Crew Alpha logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:01.105Z"
+  },
+  {
+    "id": "ACT-MTGPEVQDSM4",
+    "timestamp": "2026-08-31T03:54:01.381Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User John Anderson logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:01.381Z"
+  },
+  {
+    "id": "ACT-MTGPEVU5W8R",
+    "timestamp": "2026-08-31T03:54:01.517Z",
+    "userId": "UMTGPEVSGUZU",
+    "action": "Login",
+    "details": "User Dr. Test Audit logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:01.517Z"
+  },
+  {
+    "id": "ACT-MTGPEVX3XW0",
+    "timestamp": "2026-08-31T03:54:01.623Z",
+    "userId": "UMTGPEVSGUZU",
+    "action": "PasswordChange",
+    "details": "Password changed for user Dr. Test Audit",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:01.623Z"
+  },
+  {
+    "id": "ACT-MTGPEVZ5Y3Y",
+    "timestamp": "2026-08-31T03:54:01.697Z",
+    "userId": "UMTGPEVSGUZU",
+    "action": "Login",
+    "details": "User Dr. Test Audit logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:01.697Z"
+  },
+  {
+    "id": "ACT-MTGPEW2P19Q0",
+    "timestamp": "2026-08-31T03:54:01.825Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P001 with Dr. Sunita Sharma",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:01.825Z"
+  },
+  {
+    "id": "ACT-MTGPEW3I1A6E",
+    "timestamp": "2026-08-31T03:54:01.854Z",
+    "userId": "P001",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Sunita Sharma (Cardiology): ₹900) to pending bill BILL-H001-001. New total: ₹2124",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:01.854Z"
+  },
+  {
+    "id": "ACT-MTGPEW3L1B7Y",
+    "timestamp": "2026-08-31T03:54:01.857Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTGPEW2G15ZU marked as completed for Patient P001",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-31T03:54:01.857Z"
+  },
+  {
+    "id": "ACT-MTGPEW4E1G9M",
+    "timestamp": "2026-08-31T03:54:01.886Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "New appointment scheduled for Patient P001 with Dr. Vikram Patel",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:01.886Z"
+  },
+  {
+    "id": "ACT-MTGPEW531HGZ",
+    "timestamp": "2026-08-31T03:54:01.911Z",
+    "userId": "P001",
+    "action": "Update",
+    "details": "Appended CONSULTATION charge (Consultation — Dr. Vikram Patel (Neurology): ₹1200) to pending bill BILL-H001-001. New total: ₹3540",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:01.911Z"
+  },
+  {
+    "id": "ACT-MTGPEW571I1D",
+    "timestamp": "2026-08-31T03:54:01.915Z",
+    "userId": "Admin",
+    "action": "Complete",
+    "details": "Appointment APT-MTGPEW441CIP marked as completed for Patient P001",
+    "module": "Appointments",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-31T03:54:01.915Z"
+  },
+  {
+    "id": "ACT-MTGPEW5Z1LUK",
+    "timestamp": "2026-08-31T03:54:01.943Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "Ambulance request AMB-MTGPEW5S1J46 created for Patient P001",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:01.943Z"
+  },
+  {
+    "id": "ACT-MTGPEW6A1MXN",
+    "timestamp": "2026-08-31T03:54:01.954Z",
+    "userId": "U003",
+    "action": "Dispatch",
+    "details": "Ambulance request AMB-MTGPEW5S1J46 dispatched to staff U007 for Patient P001",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:01.954Z"
+  },
+  {
+    "id": "ACT-MTGPEW6T1NK4",
+    "timestamp": "2026-08-31T03:54:01.973Z",
+    "userId": "P001",
+    "action": "Update",
+    "details": "Appended AMBULANCE charge (Ambulance Transport: ₹500) to pending bill BILL-H001-001. New total: ₹4130",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T03:54:01.973Z"
+  },
+  {
+    "id": "ACT-MTGPEW6X1O73",
+    "timestamp": "2026-08-31T03:54:01.977Z",
+    "userId": "U007",
+    "action": "Complete",
+    "details": "Ambulance transport AMB-MTGPEW5S1J46 completed for Patient P001",
+    "module": "Ambulance",
+    "severity": "SUCCESS",
+    "createdAt": "2026-08-31T03:54:01.977Z"
   }
 ]

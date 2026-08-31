@@ -1,122 +1,434 @@
 [
   {
-    "id": "W-H001-0",
-    "name": "Emergency",
-    "hospitalId": "H001"
+    "id": "WARD-H001-01",
+    "hospitalId": "H001",
+    "name": "General Ward",
+    "capacity": 45,
+    "occupied": 32,
+    "available": 13,
+    "department": "General"
   },
   {
-    "id": "W-H001-1",
-    "name": "General",
-    "hospitalId": "H001"
-  },
-  {
-    "id": "W-H001-2",
+    "id": "WARD-H001-02",
+    "hospitalId": "H001",
     "name": "ICU",
-    "hospitalId": "H001"
+    "capacity": 12,
+    "occupied": 9,
+    "available": 3,
+    "department": "ICU"
   },
   {
-    "id": "W-H002-0",
-    "name": "Emergency",
-    "hospitalId": "H002"
+    "id": "WARD-H001-03",
+    "hospitalId": "H001",
+    "name": "CCU",
+    "capacity": 8,
+    "occupied": 6,
+    "available": 2,
+    "department": "CCU"
   },
   {
-    "id": "W-H002-1",
-    "name": "General",
-    "hospitalId": "H002"
+    "id": "WARD-H001-04",
+    "hospitalId": "H001",
+    "name": "Emergency Ward",
+    "capacity": 15,
+    "occupied": 10,
+    "available": 5,
+    "department": "Emergency"
   },
   {
-    "id": "W-H002-2",
+    "id": "WARD-H001-05",
+    "hospitalId": "H001",
+    "name": "Paediatric Ward",
+    "capacity": 20,
+    "occupied": 14,
+    "available": 6,
+    "department": "Paediatric"
+  },
+  {
+    "id": "WARD-H001-06",
+    "hospitalId": "H001",
+    "name": "Maternity Ward",
+    "capacity": 20,
+    "occupied": 13,
+    "available": 7,
+    "department": "Maternity"
+  },
+  {
+    "id": "WARD-H002-01",
+    "hospitalId": "H002",
+    "name": "General Ward",
+    "capacity": 35,
+    "occupied": 24,
+    "available": 11,
+    "department": "General"
+  },
+  {
+    "id": "WARD-H002-02",
+    "hospitalId": "H002",
     "name": "ICU",
-    "hospitalId": "H002"
+    "capacity": 8,
+    "occupied": 6,
+    "available": 2,
+    "department": "ICU"
   },
   {
-    "id": "W-H003-0",
-    "name": "Emergency",
-    "hospitalId": "H003"
+    "id": "WARD-H002-03",
+    "hospitalId": "H002",
+    "name": "CCU",
+    "capacity": 5,
+    "occupied": 3,
+    "available": 2,
+    "department": "CCU"
   },
   {
-    "id": "W-H003-1",
-    "name": "General",
-    "hospitalId": "H003"
+    "id": "WARD-H002-04",
+    "hospitalId": "H002",
+    "name": "Emergency Ward",
+    "capacity": 12,
+    "occupied": 8,
+    "available": 4,
+    "department": "Emergency"
   },
   {
-    "id": "W-H003-2",
+    "id": "WARD-H002-05",
+    "hospitalId": "H002",
+    "name": "Paediatric Ward",
+    "capacity": 10,
+    "occupied": 7,
+    "available": 3,
+    "department": "Paediatric"
+  },
+  {
+    "id": "WARD-H002-06",
+    "hospitalId": "H002",
+    "name": "Maternity Ward",
+    "capacity": 10,
+    "occupied": 7,
+    "available": 3,
+    "department": "Maternity"
+  },
+  {
+    "id": "WARD-H003-01",
+    "hospitalId": "H003",
+    "name": "General Ward",
+    "capacity": 60,
+    "occupied": 42,
+    "available": 18,
+    "department": "General"
+  },
+  {
+    "id": "WARD-H003-02",
+    "hospitalId": "H003",
     "name": "ICU",
-    "hospitalId": "H003"
+    "capacity": 20,
+    "occupied": 15,
+    "available": 5,
+    "department": "ICU"
   },
   {
-    "id": "W-H004-0",
-    "name": "Emergency",
-    "hospitalId": "H004"
+    "id": "WARD-H003-03",
+    "hospitalId": "H003",
+    "name": "CCU",
+    "capacity": 10,
+    "occupied": 7,
+    "available": 3,
+    "department": "CCU"
   },
   {
-    "id": "W-H004-1",
-    "name": "General",
-    "hospitalId": "H004"
+    "id": "WARD-H003-04",
+    "hospitalId": "H003",
+    "name": "Emergency Ward",
+    "capacity": 20,
+    "occupied": 14,
+    "available": 6,
+    "department": "Emergency"
   },
   {
-    "id": "W-H004-2",
+    "id": "WARD-H003-05",
+    "hospitalId": "H003",
+    "name": "Paediatric Ward",
+    "capacity": 25,
+    "occupied": 17,
+    "available": 8,
+    "department": "Paediatric"
+  },
+  {
+    "id": "WARD-H003-06",
+    "hospitalId": "H003",
+    "name": "Maternity Ward",
+    "capacity": 25,
+    "occupied": 17,
+    "available": 8,
+    "department": "Maternity"
+  },
+  {
+    "id": "WARD-H004-01",
+    "hospitalId": "H004",
+    "name": "General Ward",
+    "capacity": 40,
+    "occupied": 31,
+    "available": 9,
+    "department": "General"
+  },
+  {
+    "id": "WARD-H004-02",
+    "hospitalId": "H004",
     "name": "ICU",
-    "hospitalId": "H004"
+    "capacity": 10,
+    "occupied": 8,
+    "available": 2,
+    "department": "ICU"
   },
   {
-    "id": "W-H005-0",
-    "name": "Emergency",
-    "hospitalId": "H005"
+    "id": "WARD-H004-03",
+    "hospitalId": "H004",
+    "name": "CCU",
+    "capacity": 5,
+    "occupied": 4,
+    "available": 1,
+    "department": "CCU"
   },
   {
-    "id": "W-H005-1",
-    "name": "General",
-    "hospitalId": "H005"
+    "id": "WARD-H004-04",
+    "hospitalId": "H004",
+    "name": "Emergency Ward",
+    "capacity": 15,
+    "occupied": 11,
+    "available": 4,
+    "department": "Emergency"
   },
   {
-    "id": "W-H005-2",
+    "id": "WARD-H004-05",
+    "hospitalId": "H004",
+    "name": "Paediatric Ward",
+    "capacity": 12,
+    "occupied": 9,
+    "available": 3,
+    "department": "Paediatric"
+  },
+  {
+    "id": "WARD-H004-06",
+    "hospitalId": "H004",
+    "name": "Maternity Ward",
+    "capacity": 13,
+    "occupied": 10,
+    "available": 3,
+    "department": "Maternity"
+  },
+  {
+    "id": "WARD-H005-01",
+    "hospitalId": "H005",
+    "name": "General Ward",
+    "capacity": 50,
+    "occupied": 35,
+    "available": 15,
+    "department": "General"
+  },
+  {
+    "id": "WARD-H005-02",
+    "hospitalId": "H005",
     "name": "ICU",
-    "hospitalId": "H005"
+    "capacity": 18,
+    "occupied": 13,
+    "available": 5,
+    "department": "ICU"
   },
   {
-    "id": "W-H006-0",
-    "name": "Emergency",
-    "hospitalId": "H006"
+    "id": "WARD-H005-03",
+    "hospitalId": "H005",
+    "name": "CCU",
+    "capacity": 10,
+    "occupied": 7,
+    "available": 3,
+    "department": "CCU"
   },
   {
-    "id": "W-H006-1",
-    "name": "General",
-    "hospitalId": "H006"
+    "id": "WARD-H005-04",
+    "hospitalId": "H005",
+    "name": "Emergency Ward",
+    "capacity": 18,
+    "occupied": 12,
+    "available": 6,
+    "department": "Emergency"
   },
   {
-    "id": "W-H006-2",
+    "id": "WARD-H005-05",
+    "hospitalId": "H005",
+    "name": "Paediatric Ward",
+    "capacity": 22,
+    "occupied": 15,
+    "available": 7,
+    "department": "Paediatric"
+  },
+  {
+    "id": "WARD-H005-06",
+    "hospitalId": "H005",
+    "name": "Maternity Ward",
+    "capacity": 22,
+    "occupied": 16,
+    "available": 6,
+    "department": "Maternity"
+  },
+  {
+    "id": "WARD-H006-01",
+    "hospitalId": "H006",
+    "name": "General Ward",
+    "capacity": 42,
+    "occupied": 29,
+    "available": 13,
+    "department": "General"
+  },
+  {
+    "id": "WARD-H006-02",
+    "hospitalId": "H006",
     "name": "ICU",
-    "hospitalId": "H006"
+    "capacity": 14,
+    "occupied": 10,
+    "available": 4,
+    "department": "ICU"
   },
   {
-    "id": "W-H007-0",
-    "name": "Emergency",
-    "hospitalId": "H007"
+    "id": "WARD-H006-03",
+    "hospitalId": "H006",
+    "name": "CCU",
+    "capacity": 8,
+    "occupied": 5,
+    "available": 3,
+    "department": "CCU"
   },
   {
-    "id": "W-H007-1",
-    "name": "General",
-    "hospitalId": "H007"
+    "id": "WARD-H006-04",
+    "hospitalId": "H006",
+    "name": "Emergency Ward",
+    "capacity": 16,
+    "occupied": 11,
+    "available": 5,
+    "department": "Emergency"
   },
   {
-    "id": "W-H007-2",
+    "id": "WARD-H006-05",
+    "hospitalId": "H006",
+    "name": "Paediatric Ward",
+    "capacity": 15,
+    "occupied": 11,
+    "available": 4,
+    "department": "Paediatric"
+  },
+  {
+    "id": "WARD-H006-06",
+    "hospitalId": "H006",
+    "name": "Maternity Ward",
+    "capacity": 15,
+    "occupied": 11,
+    "available": 4,
+    "department": "Maternity"
+  },
+  {
+    "id": "WARD-H007-01",
+    "hospitalId": "H007",
+    "name": "General Ward",
+    "capacity": 55,
+    "occupied": 38,
+    "available": 17,
+    "department": "General"
+  },
+  {
+    "id": "WARD-H007-02",
+    "hospitalId": "H007",
     "name": "ICU",
-    "hospitalId": "H007"
+    "capacity": 20,
+    "occupied": 14,
+    "available": 6,
+    "department": "ICU"
   },
   {
-    "id": "W-H008-0",
-    "name": "Emergency",
-    "hospitalId": "H008"
+    "id": "WARD-H007-03",
+    "hospitalId": "H007",
+    "name": "CCU",
+    "capacity": 10,
+    "occupied": 7,
+    "available": 3,
+    "department": "CCU"
   },
   {
-    "id": "W-H008-1",
-    "name": "General",
-    "hospitalId": "H008"
+    "id": "WARD-H007-04",
+    "hospitalId": "H007",
+    "name": "Emergency Ward",
+    "capacity": 20,
+    "occupied": 14,
+    "available": 6,
+    "department": "Emergency"
   },
   {
-    "id": "W-H008-2",
+    "id": "WARD-H007-05",
+    "hospitalId": "H007",
+    "name": "Paediatric Ward",
+    "capacity": 22,
+    "occupied": 15,
+    "available": 7,
+    "department": "Paediatric"
+  },
+  {
+    "id": "WARD-H007-06",
+    "hospitalId": "H007",
+    "name": "Maternity Ward",
+    "capacity": 23,
+    "occupied": 17,
+    "available": 6,
+    "department": "Maternity"
+  },
+  {
+    "id": "WARD-H008-01",
+    "hospitalId": "H008",
+    "name": "General Ward",
+    "capacity": 40,
+    "occupied": 28,
+    "available": 12,
+    "department": "General"
+  },
+  {
+    "id": "WARD-H008-02",
+    "hospitalId": "H008",
     "name": "ICU",
-    "hospitalId": "H008"
+    "capacity": 12,
+    "occupied": 8,
+    "available": 4,
+    "department": "ICU"
+  },
+  {
+    "id": "WARD-H008-03",
+    "hospitalId": "H008",
+    "name": "CCU",
+    "capacity": 8,
+    "occupied": 5,
+    "available": 3,
+    "department": "CCU"
+  },
+  {
+    "id": "WARD-H008-04",
+    "hospitalId": "H008",
+    "name": "Emergency Ward",
+    "capacity": 15,
+    "occupied": 10,
+    "available": 5,
+    "department": "Emergency"
+  },
+  {
+    "id": "WARD-H008-05",
+    "hospitalId": "H008",
+    "name": "Paediatric Ward",
+    "capacity": 12,
+    "occupied": 9,
+    "available": 3,
+    "department": "Paediatric"
+  },
+  {
+    "id": "WARD-H008-06",
+    "hospitalId": "H008",
+    "name": "Maternity Ward",
+    "capacity": 13,
+    "occupied": 10,
+    "available": 3,
+    "department": "Maternity"
   }
 ]

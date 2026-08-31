@@ -34,6 +34,8 @@ export interface Hospital {
   adminPhone: string;
   verificationStatus: VerificationStatus;
   assignedManagerId?: string;
+  regionId?: string;
+  code?: string;
   availableBeds?: number;
   occupiedBeds?: number;
   verificationComments?: string; // Comments from regional manager

@@ -1,708 +1,33 @@
 [
   {
-    "id": "BILL-1",
-    "patientId": "P004",
-    "hospitalId": "H001",
-    "status": "PAID",
-    "total": 800,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Neurology",
-        "amount": 800
-      }
-    ],
-    "payments": [
-      {
-        "amount": 800
-      }
-    ]
-  },
-  {
-    "id": "BILL-2",
-    "patientId": "P005",
-    "hospitalId": "H001",
-    "status": "PAID",
-    "total": 900,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Paediatrics",
-        "amount": 900
-      }
-    ],
-    "payments": [
-      {
-        "amount": 900
-      }
-    ]
-  },
-  {
-    "id": "BILL-3",
-    "patientId": "P007",
-    "hospitalId": "H001",
-    "status": "PAID",
-    "total": 600,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Orthopaedics",
-        "amount": 600
-      }
-    ],
-    "payments": [
-      {
-        "amount": 600
-      }
-    ]
-  },
-  {
-    "id": "BILL-4",
-    "patientId": "P008",
-    "hospitalId": "H001",
-    "status": "PAID",
-    "total": 700,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "General Medicine",
-        "amount": 700
-      }
-    ],
-    "payments": [
-      {
-        "amount": 700
-      }
-    ]
-  },
-  {
-    "id": "BILL-5",
-    "patientId": "P009",
-    "hospitalId": "H002",
-    "status": "PAID",
-    "total": 500,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Cardiology",
-        "amount": 500
-      }
-    ],
-    "payments": [
-      {
-        "amount": 500
-      }
-    ]
-  },
-  {
-    "id": "BILL-6",
-    "patientId": "P010",
-    "hospitalId": "H002",
-    "status": "PAID",
-    "total": 600,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Orthopaedics",
-        "amount": 600
-      }
-    ],
-    "payments": [
-      {
-        "amount": 600
-      }
-    ]
-  },
-  {
-    "id": "BILL-7",
-    "patientId": "P011",
-    "hospitalId": "H002",
-    "status": "PAID",
-    "total": 700,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "General Medicine",
-        "amount": 700
-      }
-    ],
-    "payments": [
-      {
-        "amount": 700
-      }
-    ]
-  },
-  {
-    "id": "BILL-8",
-    "patientId": "P015",
-    "hospitalId": "H002",
-    "status": "PAID",
-    "total": 600,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Orthopaedics",
-        "amount": 600
-      }
-    ],
-    "payments": [
-      {
-        "amount": 600
-      }
-    ]
-  },
-  {
-    "id": "BILL-9",
-    "patientId": "P016",
-    "hospitalId": "H002",
-    "status": "PAID",
-    "total": 700,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "General Medicine",
-        "amount": 700
-      }
-    ],
-    "payments": [
-      {
-        "amount": 700
-      }
-    ]
-  },
-  {
-    "id": "BILL-10",
-    "patientId": "P018",
-    "hospitalId": "H002",
-    "status": "PAID",
-    "total": 900,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Paediatrics",
-        "amount": 900
-      }
-    ],
-    "payments": [
-      {
-        "amount": 900
-      }
-    ]
-  },
-  {
-    "id": "BILL-11",
-    "patientId": "P019",
-    "hospitalId": "H003",
-    "status": "PAID",
-    "total": 500,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Cardiology",
-        "amount": 500
-      }
-    ],
-    "payments": [
-      {
-        "amount": 500
-      }
-    ]
-  },
-  {
-    "id": "BILL-12",
-    "patientId": "P021",
-    "hospitalId": "H003",
-    "status": "PAID",
-    "total": 700,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "General Medicine",
-        "amount": 700
-      }
-    ],
-    "payments": [
-      {
-        "amount": 700
-      }
-    ]
-  },
-  {
-    "id": "BILL-13",
-    "patientId": "P022",
-    "hospitalId": "H003",
-    "status": "PAID",
-    "total": 800,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Neurology",
-        "amount": 800
-      }
-    ],
-    "payments": [
-      {
-        "amount": 800
-      }
-    ]
-  },
-  {
-    "id": "BILL-14",
-    "patientId": "P025",
-    "hospitalId": "H003",
-    "status": "PAID",
-    "total": 600,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Orthopaedics",
-        "amount": 600
-      }
-    ],
-    "payments": [
-      {
-        "amount": 600
-      }
-    ]
-  },
-  {
-    "id": "BILL-15",
-    "patientId": "P026",
-    "hospitalId": "H003",
-    "status": "PAID",
-    "total": 700,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "General Medicine",
-        "amount": 700
-      }
-    ],
-    "payments": [
-      {
-        "amount": 700
-      }
-    ]
-  },
-  {
-    "id": "BILL-16",
-    "patientId": "P028",
-    "hospitalId": "H003",
-    "status": "PAID",
-    "total": 900,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Paediatrics",
-        "amount": 900
-      }
-    ],
-    "payments": [
-      {
-        "amount": 900
-      }
-    ]
-  },
-  {
-    "id": "BILL-17",
-    "patientId": "P029",
-    "hospitalId": "H004",
-    "status": "PAID",
-    "total": 500,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Cardiology",
-        "amount": 500
-      }
-    ],
-    "payments": [
-      {
-        "amount": 500
-      }
-    ]
-  },
-  {
-    "id": "BILL-18",
-    "patientId": "P031",
-    "hospitalId": "H004",
-    "status": "PAID",
-    "total": 700,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "General Medicine",
-        "amount": 700
-      }
-    ],
-    "payments": [
-      {
-        "amount": 700
-      }
-    ]
-  },
-  {
-    "id": "BILL-19",
-    "patientId": "P033",
-    "hospitalId": "H004",
-    "status": "PAID",
-    "total": 900,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Paediatrics",
-        "amount": 900
-      }
-    ],
-    "payments": [
-      {
-        "amount": 900
-      }
-    ]
-  },
-  {
-    "id": "BILL-20",
-    "patientId": "P034",
-    "hospitalId": "H004",
-    "status": "PAID",
-    "total": 500,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Cardiology",
-        "amount": 500
-      }
-    ],
-    "payments": [
-      {
-        "amount": 500
-      }
-    ]
-  },
-  {
-    "id": "BILL-21",
-    "patientId": "P036",
-    "hospitalId": "H005",
-    "status": "PAID",
-    "total": 600,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Orthopaedics",
-        "amount": 600
-      }
-    ],
-    "payments": [
-      {
-        "amount": 600
-      }
-    ]
-  },
-  {
-    "id": "BILL-22",
-    "patientId": "P040",
-    "hospitalId": "H005",
-    "status": "PAID",
-    "total": 1000,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Dermatology",
-        "amount": 1000
-      }
-    ],
-    "payments": [
-      {
-        "amount": 1000
-      }
-    ]
-  },
-  {
-    "id": "BILL-23",
-    "patientId": "P041",
-    "hospitalId": "H005",
-    "status": "PAID",
-    "total": 500,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Cardiology",
-        "amount": 500
-      }
-    ],
-    "payments": [
-      {
-        "amount": 500
-      }
-    ]
-  },
-  {
-    "id": "BILL-24",
-    "patientId": "P042",
-    "hospitalId": "H005",
-    "status": "PAID",
-    "total": 600,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Orthopaedics",
-        "amount": 600
-      }
-    ],
-    "payments": [
-      {
-        "amount": 600
-      }
-    ]
-  },
-  {
-    "id": "BILL-25",
-    "patientId": "P044",
-    "hospitalId": "H006",
-    "status": "PAID",
-    "total": 600,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Orthopaedics",
-        "amount": 600
-      }
-    ],
-    "payments": [
-      {
-        "amount": 600
-      }
-    ]
-  },
-  {
-    "id": "BILL-26",
-    "patientId": "P045",
-    "hospitalId": "H006",
-    "status": "PAID",
-    "total": 700,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "General Medicine",
-        "amount": 700
-      }
-    ],
-    "payments": [
-      {
-        "amount": 700
-      }
-    ]
-  },
-  {
-    "id": "BILL-27",
-    "patientId": "P048",
-    "hospitalId": "H006",
-    "status": "PAID",
-    "total": 500,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Cardiology",
-        "amount": 500
-      }
-    ],
-    "payments": [
-      {
-        "amount": 500
-      }
-    ]
-  },
-  {
-    "id": "BILL-28",
-    "patientId": "P050",
-    "hospitalId": "H007",
-    "status": "PAID",
-    "total": 500,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Cardiology",
-        "amount": 500
-      }
-    ],
-    "payments": [
-      {
-        "amount": 500
-      }
-    ]
-  },
-  {
-    "id": "BILL-29",
-    "patientId": "P051",
-    "hospitalId": "H007",
-    "status": "PAID",
-    "total": 600,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Orthopaedics",
-        "amount": 600
-      }
-    ],
-    "payments": [
-      {
-        "amount": 600
-      }
-    ]
-  },
-  {
-    "id": "BILL-30",
-    "patientId": "P052",
-    "hospitalId": "H007",
-    "status": "PAID",
-    "total": 700,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "General Medicine",
-        "amount": 700
-      }
-    ],
-    "payments": [
-      {
-        "amount": 700
-      }
-    ]
-  },
-  {
-    "id": "BILL-31",
-    "patientId": "P054",
-    "hospitalId": "H007",
-    "status": "PAID",
-    "total": 900,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Paediatrics",
-        "amount": 900
-      }
-    ],
-    "payments": [
-      {
-        "amount": 900
-      }
-    ]
-  },
-  {
-    "id": "BILL-32",
-    "patientId": "P056",
-    "hospitalId": "H007",
-    "status": "PAID",
-    "total": 600,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Orthopaedics",
-        "amount": 600
-      }
-    ],
-    "payments": [
-      {
-        "amount": 600
-      }
-    ]
-  },
-  {
-    "id": "BILL-33",
-    "patientId": "P057",
-    "hospitalId": "H007",
-    "status": "PAID",
-    "total": 700,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "General Medicine",
-        "amount": 700
-      }
-    ],
-    "payments": [
-      {
-        "amount": 700
-      }
-    ]
-  },
-  {
-    "id": "BILL-34",
-    "patientId": "P059",
-    "hospitalId": "H008",
-    "status": "PAID",
-    "total": 500,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Cardiology",
-        "amount": 500
-      }
-    ],
-    "payments": [
-      {
-        "amount": 500
-      }
-    ]
-  },
-  {
-    "id": "BILL-35",
-    "patientId": "P062",
-    "hospitalId": "H008",
-    "status": "PAID",
-    "total": 800,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Neurology",
-        "amount": 800
-      }
-    ],
-    "payments": [
-      {
-        "amount": 800
-      }
-    ]
-  },
-  {
-    "id": "BILL-36",
-    "patientId": "P063",
-    "hospitalId": "H008",
-    "status": "PAID",
-    "total": 900,
-    "items": [
-      {
-        "description": "Consultation",
-        "department": "Paediatrics",
-        "amount": 900
-      }
-    ],
-    "payments": [
-      {
-        "amount": 900
-      }
-    ]
-  },
-  {
-    "id": "BILL-0037",
+    "id": "BILL-H001-001",
     "patientId": "P001",
-    "visitDate": "December 11, 2026",
-    "dueDate": "September 14, 2026",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
     "status": "Pending",
     "currency": "₹",
-    "subtotal": 5200,
+    "subtotal": 3500,
     "cgstRate": 0.09,
     "sgstRate": 0.09,
-    "cgstAmount": 468,
-    "sgstAmount": 468,
-    "total": 6136,
+    "cgstAmount": 315,
+    "sgstAmount": 315,
+    "total": 4130,
     "items": [
       {
         "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
         "department": "Cardiology",
         "amount": 900,
         "type": "CONSULTATION",
-        "referenceId": "APT-MTGNO6S6MBP",
+        "referenceId": "APT-H001-001"
+      },
+      {
+        "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTGPEW2G15ZU",
         "date": "December 11, 2026"
       },
       {
@@ -710,7 +35,7 @@
         "department": "Neurology",
         "amount": 1200,
         "type": "CONSULTATION",
-        "referenceId": "APT-MTGNO6TTUUV",
+        "referenceId": "APT-MTGPEW441CIP",
         "date": "December 13, 2026"
       },
       {
@@ -718,36 +43,401 @@
         "department": "Emergency Transport",
         "amount": 500,
         "type": "AMBULANCE",
-        "referenceId": "AMB-MTGNO6VI116P",
-        "date": "August 31, 2026"
-      },
-      {
-        "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
-        "department": "Cardiology",
-        "amount": 900,
-        "type": "CONSULTATION",
-        "referenceId": "APT-MTGNPFK01Q1O",
-        "date": "December 24, 2026"
-      },
-      {
-        "description": "Consultation — Dr. Vikram Patel (Neurology)",
-        "department": "Neurology",
-        "amount": 1200,
-        "type": "CONSULTATION",
-        "referenceId": "APT-MTGNPFLA1XM1",
-        "date": "December 26, 2026"
-      },
-      {
-        "description": "Ambulance Transport",
-        "department": "Emergency Transport",
-        "amount": 500,
-        "type": "AMBULANCE",
-        "referenceId": "AMB-MTGNPFMY24GG",
+        "referenceId": "AMB-MTGPEW5S1J46",
         "date": "August 31, 2026"
       }
     ],
-    "payments": [],
-    "createdAt": "2026-08-31T03:05:16.405Z",
-    "updatedAt": "2026-08-31T03:06:14.533Z"
+    "createdAt": "2026-08-25T11:00:00Z",
+    "updatedAt": "2026-08-31T03:54:01.970Z"
+  },
+  {
+    "id": "BILL-H001-005",
+    "patientId": "P005",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 700,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 63,
+    "sgstAmount": 63,
+    "total": 826,
+    "items": [
+      {
+        "description": "Consultation — Dr. Rajesh Rao (Paediatrics)",
+        "department": "Paediatrics",
+        "amount": 700,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H001-005"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H002-001",
+    "patientId": "P009",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Srinivas Varma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H002-001"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H002-005",
+    "patientId": "P013",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 750,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 67.5,
+    "sgstAmount": 67.5,
+    "total": 885,
+    "items": [
+      {
+        "description": "Consultation — Dr. Madhav Raju (ENT)",
+        "department": "ENT",
+        "amount": 750,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H002-005"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H003-001",
+    "patientId": "P017",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 1100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 99,
+    "sgstAmount": 99,
+    "total": 1298,
+    "items": [
+      {
+        "description": "Consultation — Dr. Ananya Hegde (Cardiology)",
+        "department": "Cardiology",
+        "amount": 1100,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H003-001"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H003-005",
+    "patientId": "P021",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 950,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 85.5,
+    "sgstAmount": 85.5,
+    "total": 1121,
+    "items": [
+      {
+        "description": "Consultation — Dr. Kiran Shetty (General Surgery)",
+        "department": "General Surgery",
+        "amount": 950,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H003-005"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H004-001",
+    "patientId": "P025",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. Gautham Nambiar (Cardiology)",
+        "department": "Cardiology",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H004-001"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H004-005",
+    "patientId": "P029",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 700,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 63,
+    "sgstAmount": 63,
+    "total": 826,
+    "items": [
+      {
+        "description": "Consultation — Dr. Mahesh Bhat (General Medicine)",
+        "department": "General Medicine",
+        "amount": 700,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H004-005"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H005-001",
+    "patientId": "P033",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 1000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 90,
+    "sgstAmount": 90,
+    "total": 1180,
+    "items": [
+      {
+        "description": "Consultation — Dr. Tarun Kulkarni (Cardiology)",
+        "department": "Cardiology",
+        "amount": 1000,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H005-001"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H005-005",
+    "patientId": "P037",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. Nitin Gadkari (Emergency Medicine)",
+        "department": "Emergency Medicine",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H005-005"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H006-001",
+    "patientId": "P041",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Deepa Chawla (Cardiology)",
+        "department": "Cardiology",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H006-001"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H006-005",
+    "patientId": "P045",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 750,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 67.5,
+    "sgstAmount": 67.5,
+    "total": 885,
+    "items": [
+      {
+        "description": "Consultation — Dr. Rahul Sonawane (ENT)",
+        "department": "ENT",
+        "amount": 750,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H006-005"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H007-001",
+    "patientId": "P049",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 1100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 99,
+    "sgstAmount": 99,
+    "total": 1298,
+    "items": [
+      {
+        "description": "Consultation — Dr. V. Ramanathan (Cardiology)",
+        "department": "Cardiology",
+        "amount": 1100,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H007-001"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H007-005",
+    "patientId": "P053",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 950,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 85.5,
+    "sgstAmount": 85.5,
+    "total": 1121,
+    "items": [
+      {
+        "description": "Consultation — Dr. M. Chitra (Gynaecology)",
+        "department": "Gynaecology",
+        "amount": 950,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H007-005"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H008-001",
+    "patientId": "P057",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. T. Venugopal (Cardiology)",
+        "department": "Cardiology",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H008-001"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
+  },
+  {
+    "id": "BILL-H008-005",
+    "patientId": "P061",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "visitDate": "2026-08-25",
+    "dueDate": "2026-09-08",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. G. Loganathan (General Surgery)",
+        "department": "General Surgery",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H008-005"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00Z"
   }
 ]

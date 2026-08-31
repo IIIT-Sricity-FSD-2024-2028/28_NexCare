@@ -5,1339 +5,101 @@
     "email": "superuser@nexcare.com",
     "role": "superuser",
     "status": "Active",
-    "password": "scrypt$ae7048b60b8f7431aafb41481316d54b$4ae91d85bb9c4fa83149c3972a90abf9fe4898344d2319e1b292f557463909e94863bca5cc0f4f7636a28b445d374bb4ae1dad689786977ea773f7eec1cecb6d"
-  },
-  {
-    "id": "PL01",
-    "name": "Ravi Kumar",
-    "email": "patient1@gmail.com",
-    "password": "Password123",
-    "patientId": "P01",
-    "role": "patient",
-    "status": "Active"
-  },
-  {
-    "id": "PL02",
-    "name": "Priya Sharma",
-    "email": "patient2@gmail.com",
-    "password": "Password123",
-    "patientId": "P02",
-    "role": "patient",
-    "status": "Active"
-  },
-  {
-    "id": "PL03",
-    "name": "Amit Singh",
-    "email": "patient3@gmail.com",
-    "password": "Password123",
-    "patientId": "P03",
-    "role": "patient",
-    "status": "Active"
+    "password": "scrypt$553c88051b7a304c69966632a97ead7f$0e4d129a1582f8b9adba5ed5f15dccf2172895b8c8517c4ef61b874026b49ee2ef3b86500f18652e8e540b8872c6cfe22d7a7ac2ad1370f4a84c84002a349dd9"
   },
   {
     "id": "RM001",
-    "name": "North Manager",
-    "email": "rm_north@nexcare.com",
+    "name": "Anirudh Reddy",
+    "email": "anirudh.reddy@nexcare.in",
     "role": "regional_manager",
     "status": "Active",
     "password": "Password123",
+    "regionId": "REG-AP-SOUTH",
+    "regionName": "Andhra Pradesh South",
     "areas": [
-      "Delhi"
+      "Tirupati",
+      "Nellore"
     ]
-  },
-  {
-    "id": "HM_H001",
-    "name": "Manager H001",
-    "email": "hm_h001@nexcare.com",
-    "role": "hospital_manager",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H001",
-    "hospitalName": "NexCare Delhi"
-  },
-  {
-    "id": "ADM_1",
-    "name": "Admin Staff 1",
-    "email": "admin1@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H001",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_2",
-    "name": "Admin Staff 2",
-    "email": "admin2@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H001",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_3",
-    "name": "Admin Staff 3",
-    "email": "admin3@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H001",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "DOC_1",
-    "name": "Dr. Doctor 1",
-    "email": "doc1@nexcare.com",
-    "role": "doctor",
-    "dept": "Cardiology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H001",
-    "consultationFee": 500,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_2",
-    "name": "Dr. Doctor 2",
-    "email": "doc2@nexcare.com",
-    "role": "doctor",
-    "dept": "Orthopaedics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H001",
-    "consultationFee": 600,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_3",
-    "name": "Dr. Doctor 3",
-    "email": "doc3@nexcare.com",
-    "role": "doctor",
-    "dept": "General Medicine",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H001",
-    "consultationFee": 700,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_4",
-    "name": "Dr. Doctor 4",
-    "email": "doc4@nexcare.com",
-    "role": "doctor",
-    "dept": "Neurology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H001",
-    "consultationFee": 800,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_5",
-    "name": "Dr. Doctor 5",
-    "email": "doc5@nexcare.com",
-    "role": "doctor",
-    "dept": "Paediatrics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H001",
-    "consultationFee": 900,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "HM_H002",
-    "name": "Manager H002",
-    "email": "hm_h002@nexcare.com",
-    "role": "hospital_manager",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H002",
-    "hospitalName": "NexCare Delhi"
-  },
-  {
-    "id": "ADM_4",
-    "name": "Admin Staff 4",
-    "email": "admin4@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H002",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_5",
-    "name": "Admin Staff 5",
-    "email": "admin5@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H002",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_6",
-    "name": "Admin Staff 6",
-    "email": "admin6@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H002",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_7",
-    "name": "Admin Staff 7",
-    "email": "admin7@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H002",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "DOC_6",
-    "name": "Dr. Doctor 6",
-    "email": "doc6@nexcare.com",
-    "role": "doctor",
-    "dept": "Cardiology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H002",
-    "consultationFee": 500,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_7",
-    "name": "Dr. Doctor 7",
-    "email": "doc7@nexcare.com",
-    "role": "doctor",
-    "dept": "Orthopaedics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H002",
-    "consultationFee": 600,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_8",
-    "name": "Dr. Doctor 8",
-    "email": "doc8@nexcare.com",
-    "role": "doctor",
-    "dept": "General Medicine",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H002",
-    "consultationFee": 700,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_9",
-    "name": "Dr. Doctor 9",
-    "email": "doc9@nexcare.com",
-    "role": "doctor",
-    "dept": "Neurology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H002",
-    "consultationFee": 800,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_10",
-    "name": "Dr. Doctor 10",
-    "email": "doc10@nexcare.com",
-    "role": "doctor",
-    "dept": "Paediatrics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H002",
-    "consultationFee": 900,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
   },
   {
     "id": "RM002",
-    "name": "South Manager",
-    "email": "rm_south@nexcare.com",
+    "name": "Kavya Menon",
+    "email": "kavya.menon@nexcare.in",
     "role": "regional_manager",
     "status": "Active",
     "password": "Password123",
+    "regionId": "REG-KA-SOUTH",
+    "regionName": "Karnataka South",
     "areas": [
-      "Chennai"
+      "Bengaluru",
+      "Mysuru"
     ]
-  },
-  {
-    "id": "HM_H003",
-    "name": "Manager H003",
-    "email": "hm_h003@nexcare.com",
-    "role": "hospital_manager",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H003",
-    "hospitalName": "NexCare Chennai"
-  },
-  {
-    "id": "ADM_8",
-    "name": "Admin Staff 8",
-    "email": "admin8@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H003",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_9",
-    "name": "Admin Staff 9",
-    "email": "admin9@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H003",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_10",
-    "name": "Admin Staff 10",
-    "email": "admin10@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H003",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_11",
-    "name": "Admin Staff 11",
-    "email": "admin11@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H003",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "DOC_11",
-    "name": "Dr. Doctor 11",
-    "email": "doc11@nexcare.com",
-    "role": "doctor",
-    "dept": "Cardiology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H003",
-    "consultationFee": 500,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_12",
-    "name": "Dr. Doctor 12",
-    "email": "doc12@nexcare.com",
-    "role": "doctor",
-    "dept": "Orthopaedics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H003",
-    "consultationFee": 600,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_13",
-    "name": "Dr. Doctor 13",
-    "email": "doc13@nexcare.com",
-    "role": "doctor",
-    "dept": "General Medicine",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H003",
-    "consultationFee": 700,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_14",
-    "name": "Dr. Doctor 14",
-    "email": "doc14@nexcare.com",
-    "role": "doctor",
-    "dept": "Neurology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H003",
-    "consultationFee": 800,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_15",
-    "name": "Dr. Doctor 15",
-    "email": "doc15@nexcare.com",
-    "role": "doctor",
-    "dept": "Paediatrics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H003",
-    "consultationFee": 900,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "HM_H004",
-    "name": "Manager H004",
-    "email": "hm_h004@nexcare.com",
-    "role": "hospital_manager",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H004",
-    "hospitalName": "NexCare Chennai"
-  },
-  {
-    "id": "ADM_12",
-    "name": "Admin Staff 12",
-    "email": "admin12@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H004",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_13",
-    "name": "Admin Staff 13",
-    "email": "admin13@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H004",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_14",
-    "name": "Admin Staff 14",
-    "email": "admin14@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H004",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_15",
-    "name": "Admin Staff 15",
-    "email": "admin15@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H004",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "DOC_16",
-    "name": "Dr. Doctor 16",
-    "email": "doc16@nexcare.com",
-    "role": "doctor",
-    "dept": "Cardiology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H004",
-    "consultationFee": 500,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_17",
-    "name": "Dr. Doctor 17",
-    "email": "doc17@nexcare.com",
-    "role": "doctor",
-    "dept": "Orthopaedics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H004",
-    "consultationFee": 600,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_18",
-    "name": "Dr. Doctor 18",
-    "email": "doc18@nexcare.com",
-    "role": "doctor",
-    "dept": "General Medicine",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H004",
-    "consultationFee": 700,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_19",
-    "name": "Dr. Doctor 19",
-    "email": "doc19@nexcare.com",
-    "role": "doctor",
-    "dept": "Neurology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H004",
-    "consultationFee": 800,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_20",
-    "name": "Dr. Doctor 20",
-    "email": "doc20@nexcare.com",
-    "role": "doctor",
-    "dept": "Paediatrics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H004",
-    "consultationFee": 900,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
   },
   {
     "id": "RM003",
-    "name": "East Manager",
-    "email": "rm_east@nexcare.com",
+    "name": "Rohan Deshmukh",
+    "email": "rohan.deshmukh@nexcare.in",
     "role": "regional_manager",
     "status": "Active",
     "password": "Password123",
+    "regionId": "REG-MH-CENTRAL",
+    "regionName": "Maharashtra Central",
     "areas": [
-      "Kolkata"
+      "Pune",
+      "Nashik"
     ]
-  },
-  {
-    "id": "HM_H005",
-    "name": "Manager H005",
-    "email": "hm_h005@nexcare.com",
-    "role": "hospital_manager",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H005",
-    "hospitalName": "NexCare Kolkata"
-  },
-  {
-    "id": "ADM_16",
-    "name": "Admin Staff 16",
-    "email": "admin16@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H005",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_17",
-    "name": "Admin Staff 17",
-    "email": "admin17@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H005",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_18",
-    "name": "Admin Staff 18",
-    "email": "admin18@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H005",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "DOC_21",
-    "name": "Dr. Doctor 21",
-    "email": "doc21@nexcare.com",
-    "role": "doctor",
-    "dept": "Cardiology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H005",
-    "consultationFee": 500,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_22",
-    "name": "Dr. Doctor 22",
-    "email": "doc22@nexcare.com",
-    "role": "doctor",
-    "dept": "Orthopaedics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H005",
-    "consultationFee": 600,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_23",
-    "name": "Dr. Doctor 23",
-    "email": "doc23@nexcare.com",
-    "role": "doctor",
-    "dept": "General Medicine",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H005",
-    "consultationFee": 700,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_24",
-    "name": "Dr. Doctor 24",
-    "email": "doc24@nexcare.com",
-    "role": "doctor",
-    "dept": "Neurology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H005",
-    "consultationFee": 800,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_25",
-    "name": "Dr. Doctor 25",
-    "email": "doc25@nexcare.com",
-    "role": "doctor",
-    "dept": "Paediatrics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H005",
-    "consultationFee": 900,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_26",
-    "name": "Dr. Doctor 26",
-    "email": "doc26@nexcare.com",
-    "role": "doctor",
-    "dept": "Dermatology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H005",
-    "consultationFee": 1000,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "HM_H006",
-    "name": "Manager H006",
-    "email": "hm_h006@nexcare.com",
-    "role": "hospital_manager",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H006",
-    "hospitalName": "NexCare Kolkata"
-  },
-  {
-    "id": "ADM_19",
-    "name": "Admin Staff 19",
-    "email": "admin19@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H006",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_20",
-    "name": "Admin Staff 20",
-    "email": "admin20@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H006",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_21",
-    "name": "Admin Staff 21",
-    "email": "admin21@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H006",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_22",
-    "name": "Admin Staff 22",
-    "email": "admin22@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H006",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "DOC_27",
-    "name": "Dr. Doctor 27",
-    "email": "doc27@nexcare.com",
-    "role": "doctor",
-    "dept": "Cardiology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H006",
-    "consultationFee": 500,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_28",
-    "name": "Dr. Doctor 28",
-    "email": "doc28@nexcare.com",
-    "role": "doctor",
-    "dept": "Orthopaedics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H006",
-    "consultationFee": 600,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_29",
-    "name": "Dr. Doctor 29",
-    "email": "doc29@nexcare.com",
-    "role": "doctor",
-    "dept": "General Medicine",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H006",
-    "consultationFee": 700,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_30",
-    "name": "Dr. Doctor 30",
-    "email": "doc30@nexcare.com",
-    "role": "doctor",
-    "dept": "Neurology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H006",
-    "consultationFee": 800,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_31",
-    "name": "Dr. Doctor 31",
-    "email": "doc31@nexcare.com",
-    "role": "doctor",
-    "dept": "Paediatrics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H006",
-    "consultationFee": 900,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
   },
   {
     "id": "RM004",
-    "name": "West Manager",
-    "email": "rm_west@nexcare.com",
+    "name": "Nandini Iyer",
+    "email": "nandini.iyer@nexcare.in",
     "role": "regional_manager",
     "status": "Active",
     "password": "Password123",
+    "regionId": "REG-TN-NORTH",
+    "regionName": "Tamil Nadu North",
     "areas": [
-      "Mumbai"
+      "Chennai",
+      "Vellore"
     ]
   },
   {
-    "id": "HM_H007",
-    "name": "Manager H007",
-    "email": "hm_h007@nexcare.com",
-    "role": "hospital_manager",
+    "id": "RM000",
+    "name": "Anirudh Reddy (Alias)",
+    "email": "regional@nexcare.com",
+    "role": "regional_manager",
     "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H007",
-    "hospitalName": "NexCare Mumbai"
+    "password": "scrypt$148fdc8e0d47c912026ef8d639e99983$92c7736db4b8f2505d67de2bfaf93dc5a3363aa60ee3bf94cb397a94a0075efbd4e53f5fd89776f4f2a5a44dee23ff122ea921a4055122e43eea55f24691d941",
+    "regionId": "REG-AP-SOUTH",
+    "regionName": "Andhra Pradesh South",
+    "areas": [
+      "Tirupati",
+      "Nellore"
+    ]
   },
   {
-    "id": "ADM_23",
-    "name": "Admin Staff 23",
-    "email": "admin23@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H007",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_24",
-    "name": "Admin Staff 24",
-    "email": "admin24@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H007",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_25",
-    "name": "Admin Staff 25",
-    "email": "admin25@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H007",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_26",
-    "name": "Admin Staff 26",
-    "email": "admin26@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H007",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "DOC_32",
-    "name": "Dr. Doctor 32",
-    "email": "doc32@nexcare.com",
-    "role": "doctor",
-    "dept": "Cardiology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H007",
-    "consultationFee": 500,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_33",
-    "name": "Dr. Doctor 33",
-    "email": "doc33@nexcare.com",
-    "role": "doctor",
-    "dept": "Orthopaedics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H007",
-    "consultationFee": 600,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_34",
-    "name": "Dr. Doctor 34",
-    "email": "doc34@nexcare.com",
-    "role": "doctor",
-    "dept": "General Medicine",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H007",
-    "consultationFee": 700,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_35",
-    "name": "Dr. Doctor 35",
-    "email": "doc35@nexcare.com",
-    "role": "doctor",
-    "dept": "Neurology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H007",
-    "consultationFee": 800,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_36",
-    "name": "Dr. Doctor 36",
-    "email": "doc36@nexcare.com",
-    "role": "doctor",
-    "dept": "Paediatrics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H007",
-    "consultationFee": 900,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "HM_H008",
-    "name": "Manager H008",
-    "email": "hm_h008@nexcare.com",
-    "role": "hospital_manager",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H008",
-    "hospitalName": "NexCare Mumbai"
-  },
-  {
-    "id": "ADM_27",
-    "name": "Admin Staff 27",
-    "email": "admin27@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H008",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_28",
-    "name": "Admin Staff 28",
-    "email": "admin28@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H008",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "ADM_29",
-    "name": "Admin Staff 29",
-    "email": "admin29@nexcare.com",
-    "role": "administrative_staff",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H008",
-    "dept": "Front Desk"
-  },
-  {
-    "id": "DOC_37",
-    "name": "Dr. Doctor 37",
-    "email": "doc37@nexcare.com",
-    "role": "doctor",
-    "dept": "Cardiology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H008",
-    "consultationFee": 500,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_38",
-    "name": "Dr. Doctor 38",
-    "email": "doc38@nexcare.com",
-    "role": "doctor",
-    "dept": "Orthopaedics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H008",
-    "consultationFee": 600,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_39",
-    "name": "Dr. Doctor 39",
-    "email": "doc39@nexcare.com",
-    "role": "doctor",
-    "dept": "General Medicine",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H008",
-    "consultationFee": 700,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_40",
-    "name": "Dr. Doctor 40",
-    "email": "doc40@nexcare.com",
-    "role": "doctor",
-    "dept": "Neurology",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H008",
-    "consultationFee": 800,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "DOC_41",
-    "name": "Dr. Doctor 41",
-    "email": "doc41@nexcare.com",
-    "role": "doctor",
-    "dept": "Paediatrics",
-    "status": "Active",
-    "password": "Password123",
-    "hospitalId": "H008",
-    "consultationFee": 900,
-    "schedule": {
-      "monday": {
-        "start": "09:00",
-        "end": "17:00"
-      },
-      "tuesday": {
-        "start": "09:00",
-        "end": "17:00"
-      }
-    }
-  },
-  {
-    "id": "U002",
+    "id": "HM-AP01",
     "name": "Priya Reddy",
-    "email": "admin@nexcare.com",
-    "role": "administrative_staff",
+    "email": "priya.reddy@nexcare.in",
+    "role": "hospital_manager",
     "status": "Active",
-    "password": "scrypt$2ff94fe57dc8c6ca9c99852f9e73141a$9e704c6dba684e7b6d64cc26829c8d569af84ec66ea5fd0ff8c16d0684221bf857c0feaef78777b3e32f5636dcfb6c7470e2c00af7bdf4c1ca2cc69847fd3d4c",
+    "password": "Password123",
     "hospitalId": "H001",
-    "hospitalName": "NexCare AIIMS Super Speciality Hospital",
-    "dept": "Front Desk"
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "HM-H001-001"
   },
   {
-    "id": "U003",
-    "name": "Alex Martinez",
-    "email": "ambulance@nexcare.com",
-    "role": "ambulance",
+    "id": "HM001",
+    "name": "Priya Reddy (Alias)",
+    "email": "hospitalmanager@nexcare.com",
+    "role": "hospital_manager",
     "status": "Active",
-    "password": "scrypt$123deb9339003ca1982cac1902dc366d$3f039299d9e3c3b8649ffdd4f1e9fc0114ccf6499ddad6ad82ca48adc0cbe281bcb7acc91a5a3729b6d0a63e51e86abcd8051645c407ac338623d365b62c6c44",
+    "password": "scrypt$6d66500454492be3c696c23a832c9918$bf0f598508dfa39e122c745bfa2cd11fb9e50cc47cff8a7e25d52d21de5630989e16eee295a94a8737f807a56d625a1abd8ac3abdef97346920af1048380c0f5",
     "hospitalId": "H001",
-    "hospitalName": "NexCare AIIMS Super Speciality Hospital"
-  },
-  {
-    "id": "U004",
-    "name": "John Anderson",
-    "email": "patient@gmail.com",
-    "role": "patient",
-    "status": "Active",
-    "password": "scrypt$24ecde641fda550055c3662c8345f64c$a8227c8f7f90d70f96fc1fa275070361127a2eba6b91ad557a173d1d431b2b191226f1c985a03770112cc227633cf546f91bb8bbfbb1ee30806139c855d5f548",
-    "patientId": "P001"
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "HM-H001-001"
   },
   {
     "id": "U005",
@@ -1345,70 +107,3261 @@
     "email": "sunita@nexcare.com",
     "role": "doctor",
     "dept": "Cardiology",
-    "status": "On Leave",
-    "password": "scrypt$2ea1c35f62b57f949d0d164b35c01a6c$563729036d572d9c6bb18e6ce38918ac81d9788e555c745d109070507883a958678498bc9c43d3576c7b06d430b852aa5d3c373e41b56e0bd57bc079f6d10c6d",
-    "hospitalId": "H001",
-    "hospitalName": "NexCare AIIMS Super Speciality Hospital",
+    "department": "Cardiology",
+    "specialization": "Interventional Cardiology",
     "consultationFee": 900,
-    "updatedAt": "2026-08-31T03:06:14.309Z"
+    "experienceYears": 14,
+    "qualification": "MBBS, MD, DM",
+    "status": "On Leave",
+    "password": "scrypt$c66b87b87b54f9eb058edcefa5a7a7e5$d0ee3dcba8783c9665e8d9e2d28095247be5e2ec153fffa70124404cf5e83b57a2eaa703bb0686d4b69c17539490191a49873ce1c982e57144b9fba192872adc",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "DOC-H001-001",
+    "medicalRegNumber": "MCI-H001-100",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    },
+    "updatedAt": "2026-08-31T03:54:01.726Z"
   },
   {
-    "id": "HM001",
-    "name": "Dr. Suresh Verma",
-    "email": "hospitalmanager@nexcare.com",
+    "id": "DOC-AP01-002",
+    "name": "Dr. Harini Reddy",
+    "email": "harini.reddy@nexcare.in",
+    "role": "doctor",
+    "dept": "General Medicine",
+    "department": "General Medicine",
+    "specialization": "Internal Medicine",
+    "consultationFee": 800,
+    "experienceYears": 12,
+    "qualification": "MBBS, MD",
+    "status": "On Leave",
+    "password": "Password123",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "DOC-H001-002",
+    "medicalRegNumber": "MCI-H001-101",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "U006",
+    "name": "Dr. Vikram Patel",
+    "email": "vikram@nexcare.in",
+    "role": "doctor",
+    "dept": "Orthopaedics",
+    "department": "Orthopaedics",
+    "specialization": "Joint Replacement",
+    "consultationFee": 850,
+    "experienceYears": 11,
+    "qualification": "MBBS, MS (Ortho)",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "DOC-H001-003",
+    "medicalRegNumber": "MCI-H001-102",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "U009",
+    "name": "Dr. Sarah Smith",
+    "email": "sarah.smith@nexcare.com",
+    "role": "doctor",
+    "dept": "Neurology",
+    "department": "Neurology",
+    "specialization": "Stroke & Neuromuscular",
+    "consultationFee": 1000,
+    "experienceYears": 15,
+    "qualification": "MBBS, DM (Neuro)",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "DOC-H001-004",
+    "medicalRegNumber": "MCI-H001-103",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-AP01-005",
+    "name": "Dr. Rajesh Rao",
+    "email": "rajesh.rao@nexcare.in",
+    "role": "doctor",
+    "dept": "Paediatrics",
+    "department": "Paediatrics",
+    "specialization": "Child Care & Neonatology",
+    "consultationFee": 700,
+    "experienceYears": 9,
+    "qualification": "MBBS, DCH, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "DOC-H001-005",
+    "medicalRegNumber": "MCI-H001-104",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "U007",
+    "name": "Dr. Anjali Desai",
+    "email": "anjali@nexcare.in",
+    "role": "doctor",
+    "dept": "Dermatology",
+    "department": "Dermatology",
+    "specialization": "Cosmetic Dermatology",
+    "consultationFee": 750,
+    "experienceYears": 8,
+    "qualification": "MBBS, MD (Derm)",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "DOC-H001-006",
+    "medicalRegNumber": "MCI-H001-105",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "U002",
+    "name": "Lakshmi Naidu",
+    "email": "admin@nexcare.com",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "scrypt$58bd0cd1862e0a051bfe65f80fdd8c43$d7fd0ea4ec6c39dc36f85945c7515898d2a194ed065711af935b72422851047293eae550fe61544ce334425554e644aba3b093e3ec53ce604163d2ebd329dc13",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "dept": "Front Desk / Patient Registration",
+    "responsibility": "Front Desk / Patient Registration",
+    "employeeId": "ADM-H001-001"
+  },
+  {
+    "id": "ADM-AP01-02",
+    "name": "Suresh Babu",
+    "email": "suresh.babu@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "dept": "Inventory / Procurement",
+    "responsibility": "Inventory / Procurement",
+    "employeeId": "ADM-H001-002"
+  },
+  {
+    "id": "ADM-AP01-03",
+    "name": "Divya Reddy",
+    "email": "divya.reddy@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "dept": "Billing / Appointments",
+    "responsibility": "Billing / Appointments",
+    "employeeId": "ADM-H001-003"
+  },
+  {
+    "id": "ADM-AP01-04",
+    "name": "Kiran Kumar",
+    "email": "kiran.kumar@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "dept": "Bed Allocation & Admissions",
+    "responsibility": "Bed Allocation & Admissions",
+    "employeeId": "ADM-H001-004"
+  },
+  {
+    "id": "U003",
+    "name": "Tirupati Crew Alpha",
+    "email": "ambulance@nexcare.com",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "scrypt$60f46420ef38098582d7f26e922607fa$62ebd65b1aa5b5ebe7b63dc04e164b7b8b3fe4770709842dd0153687a552e0c0867118a421e94c0c84d3d5537b5c07f4256c1be7eca838ee5934359a8b2f9d72",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "AMB-EMP-U003"
+  },
+  {
+    "id": "AMB-H001-02",
+    "name": "Tirupati Crew Bravo",
+    "email": "ambulance.h0012@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H001-02"
+  },
+  {
+    "id": "U004",
+    "name": "John Anderson",
+    "email": "patient@gmail.com",
+    "role": "patient",
+    "status": "Active",
+    "password": "scrypt$2cc2fd6eb482de23aa2b2b7d941ec254$bf032f8bec9935cbe45e976986b2042d8efa598ce0820d299cf2d20a6c8d5b7dd682b3658819924558122de9183fca24456a1d809070cebb19932b9ae01b588e",
+    "patientId": "P001",
+    "hospitalId": "H001",
+    "regionId": "REG-AP-SOUTH"
+  },
+  {
+    "id": "PAT-LOGIN-H1-2",
+    "name": "Sravani Reddy",
+    "email": "sravani.reddy@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P002",
+    "hospitalId": "H001",
+    "regionId": "REG-AP-SOUTH"
+  },
+  {
+    "id": "PAT-LOGIN-H1-3",
+    "name": "Venkat Rao",
+    "email": "venkat.rao@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P003",
+    "hospitalId": "H001",
+    "regionId": "REG-AP-SOUTH"
+  },
+  {
+    "id": "HM-AP02",
+    "name": "Arjun Varma",
+    "email": "arjun.varma@nexcare.in",
     "role": "hospital_manager",
     "status": "Active",
-    "password": "scrypt$997d0c5f2519ccd85e106cf3fd121a37$f000aebe1dfbe27ec9c9c3dc81eec5b65d41f6388db3155d92e31e3e1f37775a8d6932f539642efda34c9cef8c2cb93fcb6e22f710d771495c3b52add97e9f44",
-    "hospitalId": "H001",
-    "hospitalName": "NexCare AIIMS Super Speciality Hospital"
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "HM-H002-001"
   },
   {
-    "id": "RM000",
-    "name": "Kavita Rao",
-    "email": "regional@nexcare.com",
-    "role": "regional_manager",
+    "id": "DOC-AP02-001",
+    "name": "Dr. Srinivas Varma",
+    "email": "srinivas.varma@nexcare.in",
+    "role": "doctor",
+    "dept": "Cardiology",
+    "department": "Cardiology",
+    "specialization": "Clinical Cardiology",
+    "consultationFee": 800,
+    "experienceYears": 13,
+    "qualification": "MBBS, MD, DM",
     "status": "Active",
-    "password": "scrypt$8922839de1c298b2cee3980698bab77d$6d46bc0cf2f8d72614c65b0b28a44a6ccd98f658cc40503767751555dde45db5b561faab6302dd80e80c84614cab7fa3a7ffe0142863f8fd70cacb9a4a12a45f",
-    "regionId": "R001",
-    "areas": [
-      "Andhra Pradesh",
-      "Telangana"
-    ]
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "DOC-H002-001",
+    "medicalRegNumber": "MCI-H002-100",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
   },
   {
-    "id": "UMTGNO6HEBDD",
+    "id": "DOC-AP02-002",
+    "name": "Dr. Swati Naidu",
+    "email": "swati.naidu@nexcare.in",
+    "role": "doctor",
+    "dept": "General Medicine",
+    "department": "General Medicine",
+    "specialization": "Diabetology",
+    "consultationFee": 700,
+    "experienceYears": 10,
+    "qualification": "MBBS, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "DOC-H002-002",
+    "medicalRegNumber": "MCI-H002-101",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-AP02-003",
+    "name": "Dr. Arvind Swamy",
+    "email": "arvind.swamy@nexcare.in",
+    "role": "doctor",
+    "dept": "Orthopaedics",
+    "department": "Orthopaedics",
+    "specialization": "Trauma & Arthroscopy",
+    "consultationFee": 850,
+    "experienceYears": 12,
+    "qualification": "MBBS, MS (Ortho)",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "DOC-H002-003",
+    "medicalRegNumber": "MCI-H002-102",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-AP02-004",
+    "name": "Dr. Bhavana Prasad",
+    "email": "bhavana.prasad@nexcare.in",
+    "role": "doctor",
+    "dept": "Paediatrics",
+    "department": "Paediatrics",
+    "specialization": "Pediatric Care",
+    "consultationFee": 650,
+    "experienceYears": 7,
+    "qualification": "MBBS, DCH",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "DOC-H002-004",
+    "medicalRegNumber": "MCI-H002-103",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-AP02-005",
+    "name": "Dr. Madhav Raju",
+    "email": "madhav.raju@nexcare.in",
+    "role": "doctor",
+    "dept": "ENT",
+    "department": "ENT",
+    "specialization": "Otology & Endoscopic Sinus",
+    "consultationFee": 750,
+    "experienceYears": 11,
+    "qualification": "MBBS, MS (ENT)",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "DOC-H002-005",
+    "medicalRegNumber": "MCI-H002-104",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-AP02-006",
+    "name": "Dr. Leela Kothari",
+    "email": "leela.kothari@nexcare.in",
+    "role": "doctor",
+    "dept": "Gynaecology",
+    "department": "Gynaecology",
+    "specialization": "Obstetrics & High Risk",
+    "consultationFee": 900,
+    "experienceYears": 15,
+    "qualification": "MBBS, MS (OBG)",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "DOC-H002-006",
+    "medicalRegNumber": "MCI-H002-105",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "ADM-AP02-01",
+    "name": "Ramesh Verma",
+    "email": "ramesh.verma@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "dept": "Front Desk",
+    "responsibility": "Front Desk",
+    "employeeId": "ADM-H002-001"
+  },
+  {
+    "id": "ADM-AP02-02",
+    "name": "Latha Raju",
+    "email": "latha.raju@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "dept": "Billing",
+    "responsibility": "Billing",
+    "employeeId": "ADM-H002-002"
+  },
+  {
+    "id": "ADM-AP02-03",
+    "name": "Venu Gopal",
+    "email": "venu.gopal@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "dept": "Inventory",
+    "responsibility": "Inventory",
+    "employeeId": "ADM-H002-003"
+  },
+  {
+    "id": "ADM-AP02-04",
+    "name": "Kavitha Swamy",
+    "email": "kavitha.swamy@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "dept": "Scheduling",
+    "responsibility": "Scheduling",
+    "employeeId": "ADM-H002-004"
+  },
+  {
+    "id": "AMB-H002-01",
+    "name": "Nellore Crew Alpha",
+    "email": "ambulance.h0021@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H002-01"
+  },
+  {
+    "id": "AMB-H002-02",
+    "name": "Nellore Crew Bravo",
+    "email": "ambulance.h0022@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H002-02"
+  },
+  {
+    "id": "PAT-LOGIN-H2-1",
+    "name": "Karthik Varma",
+    "email": "karthik.v@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P009",
+    "hospitalId": "H002",
+    "regionId": "REG-AP-SOUTH"
+  },
+  {
+    "id": "PAT-LOGIN-H2-2",
+    "name": "Gayathri Devi",
+    "email": "gayathri.d@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P010",
+    "hospitalId": "H002",
+    "regionId": "REG-AP-SOUTH"
+  },
+  {
+    "id": "PAT-LOGIN-H2-3",
+    "name": "Rahul Verma",
+    "email": "rahul.v@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P011",
+    "hospitalId": "H002",
+    "regionId": "REG-AP-SOUTH"
+  },
+  {
+    "id": "HM-KA01",
+    "name": "Sneha Rao",
+    "email": "sneha.rao@nexcare.in",
+    "role": "hospital_manager",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "HM-H003-001"
+  },
+  {
+    "id": "DOC-KA01-001",
+    "name": "Dr. Ananya Hegde",
+    "email": "ananya.hegde@nexcare.in",
+    "role": "doctor",
+    "dept": "Cardiology",
+    "department": "Cardiology",
+    "specialization": "Electrophysiology",
+    "consultationFee": 1100,
+    "experienceYears": 16,
+    "qualification": "MBBS, MD, DM",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "DOC-H003-001",
+    "medicalRegNumber": "MCI-H003-100",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-KA01-002",
+    "name": "Dr. Suresh Joshi",
+    "email": "suresh.joshi@nexcare.in",
+    "role": "doctor",
+    "dept": "Neurology",
+    "department": "Neurology",
+    "specialization": "Epilepsy & Movement",
+    "consultationFee": 1200,
+    "experienceYears": 18,
+    "qualification": "MBBS, DM (Neuro)",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "DOC-H003-002",
+    "medicalRegNumber": "MCI-H003-101",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-KA01-003",
+    "name": "Dr. Pradeep Gowda",
+    "email": "pradeep.gowda@nexcare.in",
+    "role": "doctor",
+    "dept": "Orthopaedics",
+    "department": "Orthopaedics",
+    "specialization": "Spine Surgery",
+    "consultationFee": 1000,
+    "experienceYears": 14,
+    "qualification": "MBBS, MS, MCh",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "DOC-H003-003",
+    "medicalRegNumber": "MCI-H003-102",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-KA01-004",
+    "name": "Dr. Maya Kulkarni",
+    "email": "maya.kulkarni@nexcare.in",
+    "role": "doctor",
+    "dept": "General Medicine",
+    "department": "General Medicine",
+    "specialization": "Critical Care",
+    "consultationFee": 850,
+    "experienceYears": 10,
+    "qualification": "MBBS, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "DOC-H003-004",
+    "medicalRegNumber": "MCI-H003-103",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-KA01-005",
+    "name": "Dr. Kiran Shetty",
+    "email": "kiran.shetty@nexcare.in",
+    "role": "doctor",
+    "dept": "General Surgery",
+    "department": "General Surgery",
+    "specialization": "Laparoscopic Surgery",
+    "consultationFee": 950,
+    "experienceYears": 13,
+    "qualification": "MBBS, MS (Gen Surg)",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "DOC-H003-005",
+    "medicalRegNumber": "MCI-H003-104",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-KA01-006",
+    "name": "Dr. Divya Ramesh",
+    "email": "divya.ramesh@nexcare.in",
+    "role": "doctor",
+    "dept": "Dermatology",
+    "department": "Dermatology",
+    "specialization": "Dermatosurgery",
+    "consultationFee": 800,
+    "experienceYears": 9,
+    "qualification": "MBBS, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "DOC-H003-006",
+    "medicalRegNumber": "MCI-H003-105",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "ADM-KA01-01",
+    "name": "Nikhil Rao",
+    "email": "nikhil.rao@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "dept": "Front Desk",
+    "responsibility": "Front Desk",
+    "employeeId": "ADM-H003-001"
+  },
+  {
+    "id": "ADM-KA01-02",
+    "name": "Deepika Gowda",
+    "email": "deepika.gowda@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "dept": "Billing & TPA",
+    "responsibility": "Billing & TPA",
+    "employeeId": "ADM-H003-002"
+  },
+  {
+    "id": "ADM-KA01-03",
+    "name": "Prashanth Bhat",
+    "email": "prashanth.bhat@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "dept": "Inventory & Supplies",
+    "responsibility": "Inventory & Supplies",
+    "employeeId": "ADM-H003-003"
+  },
+  {
+    "id": "ADM-KA01-04",
+    "name": "Vidya Murthy",
+    "email": "vidya.murthy@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "dept": "Admissions & Beds",
+    "responsibility": "Admissions & Beds",
+    "employeeId": "ADM-H003-004"
+  },
+  {
+    "id": "AMB-H003-01",
+    "name": "Bengaluru Crew Alpha",
+    "email": "ambulance.h0031@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H003-01"
+  },
+  {
+    "id": "AMB-H003-02",
+    "name": "Bengaluru Crew Bravo",
+    "email": "ambulance.h0032@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H003-02"
+  },
+  {
+    "id": "PAT-LOGIN-H3-1",
+    "name": "Manoj Prasad",
+    "email": "manoj.prasad@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P017",
+    "hospitalId": "H003",
+    "regionId": "REG-KA-SOUTH"
+  },
+  {
+    "id": "PAT-LOGIN-H3-2",
+    "name": "Pooja Hegde",
+    "email": "pooja.h@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P018",
+    "hospitalId": "H003",
+    "regionId": "REG-KA-SOUTH"
+  },
+  {
+    "id": "PAT-LOGIN-H3-3",
+    "name": "Varun Gowda",
+    "email": "varun.gowda@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P019",
+    "hospitalId": "H003",
+    "regionId": "REG-KA-SOUTH"
+  },
+  {
+    "id": "HM-KA02",
+    "name": "Karthik Shetty",
+    "email": "karthik.shetty@nexcare.in",
+    "role": "hospital_manager",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "HM-H004-001"
+  },
+  {
+    "id": "DOC-KA02-001",
+    "name": "Dr. Gautham Nambiar",
+    "email": "gautham.nambiar@nexcare.in",
+    "role": "doctor",
+    "dept": "Cardiology",
+    "department": "Cardiology",
+    "specialization": "Non-Invasive Cardiology",
+    "consultationFee": 850,
+    "experienceYears": 12,
+    "qualification": "MBBS, MD, DNB",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "DOC-H004-001",
+    "medicalRegNumber": "MCI-H004-100",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-KA02-002",
+    "name": "Dr. Radhika Ursu",
+    "email": "radhika.ursu@nexcare.in",
+    "role": "doctor",
+    "dept": "Paediatrics",
+    "department": "Paediatrics",
+    "specialization": "Neonatal ICU",
+    "consultationFee": 750,
+    "experienceYears": 9,
+    "qualification": "MBBS, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "DOC-H004-002",
+    "medicalRegNumber": "MCI-H004-101",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-KA02-003",
+    "name": "Dr. Chetan Kumar",
+    "email": "chetan.kumar@nexcare.in",
+    "role": "doctor",
+    "dept": "Orthopaedics",
+    "department": "Orthopaedics",
+    "specialization": "Sports Injury",
+    "consultationFee": 800,
+    "experienceYears": 11,
+    "qualification": "MBBS, MS",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "DOC-H004-003",
+    "medicalRegNumber": "MCI-H004-102",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-KA02-004",
+    "name": "Dr. Preeti Shenoy",
+    "email": "preeti.shenoy@nexcare.in",
+    "role": "doctor",
+    "dept": "ENT",
+    "department": "ENT",
+    "specialization": "Rhinology",
+    "consultationFee": 700,
+    "experienceYears": 8,
+    "qualification": "MBBS, DLO, MS",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "DOC-H004-004",
+    "medicalRegNumber": "MCI-H004-103",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-KA02-005",
+    "name": "Dr. Mahesh Bhat",
+    "email": "mahesh.bhat@nexcare.in",
+    "role": "doctor",
+    "dept": "General Medicine",
+    "department": "General Medicine",
+    "specialization": "Internal Medicine",
+    "consultationFee": 700,
+    "experienceYears": 10,
+    "qualification": "MBBS, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "DOC-H004-005",
+    "medicalRegNumber": "MCI-H004-104",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-KA02-006",
+    "name": "Dr. Shalini Rai",
+    "email": "shalini.rai@nexcare.in",
+    "role": "doctor",
+    "dept": "Gynaecology",
+    "department": "Gynaecology",
+    "specialization": "Reproductive Health",
+    "consultationFee": 850,
+    "experienceYears": 13,
+    "qualification": "MBBS, DGO, MS",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "DOC-H004-006",
+    "medicalRegNumber": "MCI-H004-105",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "ADM-KA02-01",
+    "name": "Shruti Ursu",
+    "email": "shruti.ursu@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "dept": "Front Desk",
+    "responsibility": "Front Desk",
+    "employeeId": "ADM-H004-001"
+  },
+  {
+    "id": "ADM-KA02-02",
+    "name": "Manjunath Hegde",
+    "email": "manjunath.hegde@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "dept": "Billing",
+    "responsibility": "Billing",
+    "employeeId": "ADM-H004-002"
+  },
+  {
+    "id": "ADM-KA02-03",
+    "name": "Sowmya Rai",
+    "email": "sowmya.rai@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "dept": "Inventory",
+    "responsibility": "Inventory",
+    "employeeId": "ADM-H004-003"
+  },
+  {
+    "id": "ADM-KA02-04",
+    "name": "Ganesh Shetty",
+    "email": "ganesh.shetty@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "dept": "Scheduling",
+    "responsibility": "Scheduling",
+    "employeeId": "ADM-H004-004"
+  },
+  {
+    "id": "AMB-H004-01",
+    "name": "Mysuru Crew Alpha",
+    "email": "ambulance.h0041@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H004-01"
+  },
+  {
+    "id": "AMB-H004-02",
+    "name": "Mysuru Crew Bravo",
+    "email": "ambulance.h0042@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H004-02"
+  },
+  {
+    "id": "PAT-LOGIN-H4-1",
+    "name": "Basavaraj Ursu",
+    "email": "basavaraj.u@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P025",
+    "hospitalId": "H004",
+    "regionId": "REG-KA-SOUTH"
+  },
+  {
+    "id": "PAT-LOGIN-H4-2",
+    "name": "Divya Shetty",
+    "email": "divya.s@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P026",
+    "hospitalId": "H004",
+    "regionId": "REG-KA-SOUTH"
+  },
+  {
+    "id": "PAT-LOGIN-H4-3",
+    "name": "Chetan Rai",
+    "email": "chetan.r@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P027",
+    "hospitalId": "H004",
+    "regionId": "REG-KA-SOUTH"
+  },
+  {
+    "id": "HM-MH01",
+    "name": "Neha Kulkarni",
+    "email": "neha.kulkarni@nexcare.in",
+    "role": "hospital_manager",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "HM-H005-001"
+  },
+  {
+    "id": "DOC-MH01-001",
+    "name": "Dr. Tarun Kulkarni",
+    "email": "tarun.kulkarni@nexcare.in",
+    "role": "doctor",
+    "dept": "Cardiology",
+    "department": "Cardiology",
+    "specialization": "Interventional Cardiology",
+    "consultationFee": 1000,
+    "experienceYears": 15,
+    "qualification": "MBBS, MD, DM",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "DOC-H005-001",
+    "medicalRegNumber": "MCI-H005-100",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-MH01-002",
+    "name": "Dr. Meenakshi Sundaram",
+    "email": "meenakshi.sundaram@nexcare.in",
+    "role": "doctor",
+    "dept": "Neurology",
+    "department": "Neurology",
+    "specialization": "Cognitive Neurology",
+    "consultationFee": 1100,
+    "experienceYears": 16,
+    "qualification": "MBBS, DM",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "DOC-H005-002",
+    "medicalRegNumber": "MCI-H005-101",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-MH01-003",
+    "name": "Dr. Sachin Shinde",
+    "email": "sachin.shinde@nexcare.in",
+    "role": "doctor",
+    "dept": "Orthopaedics",
+    "department": "Orthopaedics",
+    "specialization": "Joint Replacement",
+    "consultationFee": 900,
+    "experienceYears": 12,
+    "qualification": "MBBS, MS",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "DOC-H005-003",
+    "medicalRegNumber": "MCI-H005-102",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-MH01-004",
+    "name": "Dr. Pooja Deshmukh",
+    "email": "pooja.deshmukh@nexcare.in",
+    "role": "doctor",
+    "dept": "Paediatrics",
+    "department": "Paediatrics",
+    "specialization": "General Paediatrics",
+    "consultationFee": 750,
+    "experienceYears": 9,
+    "qualification": "MBBS, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "DOC-H005-004",
+    "medicalRegNumber": "MCI-H005-103",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-MH01-005",
+    "name": "Dr. Nitin Gadkari",
+    "email": "nitin.gadkari@nexcare.in",
+    "role": "doctor",
+    "dept": "Emergency Medicine",
+    "department": "Emergency Medicine",
+    "specialization": "Trauma Emergency",
+    "consultationFee": 850,
+    "experienceYears": 10,
+    "qualification": "MBBS, MEM",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "DOC-H005-005",
+    "medicalRegNumber": "MCI-H005-104",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-MH01-006",
+    "name": "Dr. Rekha Pawar",
+    "email": "rekha.pawar@nexcare.in",
+    "role": "doctor",
+    "dept": "Dermatology",
+    "department": "Dermatology",
+    "specialization": "General Dermatology",
+    "consultationFee": 750,
+    "experienceYears": 8,
+    "qualification": "MBBS, DVD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "DOC-H005-006",
+    "medicalRegNumber": "MCI-H005-105",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "ADM-MH01-01",
+    "name": "Amit Shinde",
+    "email": "amit.shinde@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "dept": "Front Desk",
+    "responsibility": "Front Desk",
+    "employeeId": "ADM-H005-001"
+  },
+  {
+    "id": "ADM-MH01-02",
+    "name": "Pooja Kadam",
+    "email": "pooja.kadam@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "dept": "Billing & Cashless",
+    "responsibility": "Billing & Cashless",
+    "employeeId": "ADM-H005-002"
+  },
+  {
+    "id": "ADM-MH01-03",
+    "name": "Rohan More",
+    "email": "rohan.more@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "dept": "Inventory",
+    "responsibility": "Inventory",
+    "employeeId": "ADM-H005-003"
+  },
+  {
+    "id": "ADM-MH01-04",
+    "name": "Snehal Joshi",
+    "email": "snehal.joshi@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "dept": "Patient Experience",
+    "responsibility": "Patient Experience",
+    "employeeId": "ADM-H005-004"
+  },
+  {
+    "id": "AMB-H005-01",
+    "name": "Pune Crew Alpha",
+    "email": "ambulance.h0051@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "AMB-EMP-AMB-H005-01"
+  },
+  {
+    "id": "AMB-H005-02",
+    "name": "Pune Crew Bravo",
+    "email": "ambulance.h0052@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "AMB-EMP-AMB-H005-02"
+  },
+  {
+    "id": "PAT-LOGIN-H5-1",
+    "name": "Rohan Joshi",
+    "email": "rohan.j@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P033",
+    "hospitalId": "H005",
+    "regionId": "REG-MH-CENTRAL"
+  },
+  {
+    "id": "PAT-LOGIN-H5-2",
+    "name": "Swati Kulkarni",
+    "email": "swati.k@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P034",
+    "hospitalId": "H005",
+    "regionId": "REG-MH-CENTRAL"
+  },
+  {
+    "id": "PAT-LOGIN-H5-3",
+    "name": "Ajinkya Shinde",
+    "email": "ajinkya.s@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P035",
+    "hospitalId": "H005",
+    "regionId": "REG-MH-CENTRAL"
+  },
+  {
+    "id": "HM-MH02",
+    "name": "Aditya Patil",
+    "email": "aditya.patil@nexcare.in",
+    "role": "hospital_manager",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "HM-H006-001"
+  },
+  {
+    "id": "DOC-MH02-001",
+    "name": "Dr. Deepa Chawla",
+    "email": "deepa.chawla@nexcare.in",
+    "role": "doctor",
+    "dept": "Cardiology",
+    "department": "Cardiology",
+    "specialization": "Preventive Cardiology",
+    "consultationFee": 800,
+    "experienceYears": 11,
+    "qualification": "MBBS, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "DOC-H006-001",
+    "medicalRegNumber": "MCI-H006-100",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-MH02-002",
+    "name": "Dr. Amitav Ghosh",
+    "email": "amitav.ghosh@nexcare.in",
+    "role": "doctor",
+    "dept": "General Medicine",
+    "department": "General Medicine",
+    "specialization": "General Health",
+    "consultationFee": 700,
+    "experienceYears": 10,
+    "qualification": "MBBS, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "DOC-H006-002",
+    "medicalRegNumber": "MCI-H006-101",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-MH02-003",
+    "name": "Dr. Sanjay Borse",
+    "email": "sanjay.borse@nexcare.in",
+    "role": "doctor",
+    "dept": "Orthopaedics",
+    "department": "Orthopaedics",
+    "specialization": "Fracture & Trauma",
+    "consultationFee": 800,
+    "experienceYears": 12,
+    "qualification": "MBBS, MS",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "DOC-H006-003",
+    "medicalRegNumber": "MCI-H006-102",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-MH02-004",
+    "name": "Dr. Sunita Jadhav",
+    "email": "sunita.jadhav@nexcare.in",
+    "role": "doctor",
+    "dept": "Paediatrics",
+    "department": "Paediatrics",
+    "specialization": "Child Development",
+    "consultationFee": 700,
+    "experienceYears": 8,
+    "qualification": "MBBS, DCH",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "DOC-H006-004",
+    "medicalRegNumber": "MCI-H006-103",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-MH02-005",
+    "name": "Dr. Rahul Sonawane",
+    "email": "rahul.sonawane@nexcare.in",
+    "role": "doctor",
+    "dept": "ENT",
+    "department": "ENT",
+    "specialization": "Throat & Head Neck",
+    "consultationFee": 750,
+    "experienceYears": 9,
+    "qualification": "MBBS, MS",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "DOC-H006-005",
+    "medicalRegNumber": "MCI-H006-104",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-MH02-006",
+    "name": "Dr. Smita Wagh",
+    "email": "smita.wagh@nexcare.in",
+    "role": "doctor",
+    "dept": "Gynaecology",
+    "department": "Gynaecology",
+    "specialization": "Maternal Care",
+    "consultationFee": 850,
+    "experienceYears": 14,
+    "qualification": "MBBS, MS",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "DOC-H006-006",
+    "medicalRegNumber": "MCI-H006-105",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "ADM-MH02-01",
+    "name": "Vikas Pawar",
+    "email": "vikas.pawar@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "dept": "Front Desk",
+    "responsibility": "Front Desk",
+    "employeeId": "ADM-H006-001"
+  },
+  {
+    "id": "ADM-MH02-02",
+    "name": "Anagha Deshpande",
+    "email": "anagha.deshpande@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "dept": "Billing",
+    "responsibility": "Billing",
+    "employeeId": "ADM-H006-002"
+  },
+  {
+    "id": "ADM-MH02-03",
+    "name": "Sujay Patil",
+    "email": "sujay.patil@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "dept": "Inventory",
+    "responsibility": "Inventory",
+    "employeeId": "ADM-H006-003"
+  },
+  {
+    "id": "ADM-MH02-04",
+    "name": "Mansi Borse",
+    "email": "mansi.borse@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "dept": "Admissions",
+    "responsibility": "Admissions",
+    "employeeId": "ADM-H006-004"
+  },
+  {
+    "id": "AMB-H006-01",
+    "name": "Nashik Crew Alpha",
+    "email": "ambulance.h0061@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "AMB-EMP-AMB-H006-01"
+  },
+  {
+    "id": "AMB-H006-02",
+    "name": "Nashik Crew Bravo",
+    "email": "ambulance.h0062@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "AMB-EMP-AMB-H006-02"
+  },
+  {
+    "id": "PAT-LOGIN-H6-1",
+    "name": "Sanjay Borse",
+    "email": "sanjay.b@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P041",
+    "hospitalId": "H006",
+    "regionId": "REG-MH-CENTRAL"
+  },
+  {
+    "id": "PAT-LOGIN-H6-2",
+    "name": "Pallavi Sonawane",
+    "email": "pallavi.s@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P042",
+    "hospitalId": "H006",
+    "regionId": "REG-MH-CENTRAL"
+  },
+  {
+    "id": "PAT-LOGIN-H6-3",
+    "name": "Ganesh Jadhav",
+    "email": "ganesh.j@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P043",
+    "hospitalId": "H006",
+    "regionId": "REG-MH-CENTRAL"
+  },
+  {
+    "id": "HM-TN01",
+    "name": "Meera Krishnan",
+    "email": "meera.krishnan@nexcare.in",
+    "role": "hospital_manager",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "HM-H007-001"
+  },
+  {
+    "id": "DOC-TN01-001",
+    "name": "Dr. V. Ramanathan",
+    "email": "v.ramanathan@nexcare.in",
+    "role": "doctor",
+    "dept": "Cardiology",
+    "department": "Cardiology",
+    "specialization": "Cardiac Surgery & Interventions",
+    "consultationFee": 1100,
+    "experienceYears": 17,
+    "qualification": "MBBS, MS, MCh",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "DOC-H007-001",
+    "medicalRegNumber": "MCI-H007-100",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-TN01-002",
+    "name": "Dr. S. Jayaraman",
+    "email": "s.jayaraman@nexcare.in",
+    "role": "doctor",
+    "dept": "Neurology",
+    "department": "Neurology",
+    "specialization": "Neurovascular Surgery",
+    "consultationFee": 1200,
+    "experienceYears": 19,
+    "qualification": "MBBS, MCh (Neuro)",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "DOC-H007-002",
+    "medicalRegNumber": "MCI-H007-101",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-TN01-003",
+    "name": "Dr. K. Ananthi",
+    "email": "k.ananthi@nexcare.in",
+    "role": "doctor",
+    "dept": "General Medicine",
+    "department": "General Medicine",
+    "specialization": "Rheumatology & Autoimmune",
+    "consultationFee": 900,
+    "experienceYears": 13,
+    "qualification": "MBBS, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "DOC-H007-003",
+    "medicalRegNumber": "MCI-H007-102",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-TN01-004",
+    "name": "Dr. R. Karthik",
+    "email": "r.karthik@nexcare.in",
+    "role": "doctor",
+    "dept": "Orthopaedics",
+    "department": "Orthopaedics",
+    "specialization": "Knee & Shoulder Surgery",
+    "consultationFee": 1000,
+    "experienceYears": 15,
+    "qualification": "MBBS, MS",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "DOC-H007-004",
+    "medicalRegNumber": "MCI-H007-103",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-TN01-005",
+    "name": "Dr. M. Chitra",
+    "email": "m.chitra@nexcare.in",
+    "role": "doctor",
+    "dept": "Gynaecology",
+    "department": "Gynaecology",
+    "specialization": "Laparoscopic Gynaecology",
+    "consultationFee": 950,
+    "experienceYears": 14,
+    "qualification": "MBBS, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "DOC-H007-005",
+    "medicalRegNumber": "MCI-H007-104",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-TN01-006",
+    "name": "Dr. P. Sundar",
+    "email": "p.sundar@nexcare.in",
+    "role": "doctor",
+    "dept": "Dermatology",
+    "department": "Dermatology",
+    "specialization": "Trichology & Aesthetics",
+    "consultationFee": 850,
+    "experienceYears": 10,
+    "qualification": "MBBS, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "DOC-H007-006",
+    "medicalRegNumber": "MCI-H007-105",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "ADM-TN01-01",
+    "name": "S. Vijay",
+    "email": "s.vijay@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "dept": "Front Desk",
+    "responsibility": "Front Desk",
+    "employeeId": "ADM-H007-001"
+  },
+  {
+    "id": "ADM-TN01-02",
+    "name": "R. Priyadarshini",
+    "email": "r.priyadarshini@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "dept": "Billing",
+    "responsibility": "Billing",
+    "employeeId": "ADM-H007-002"
+  },
+  {
+    "id": "ADM-TN01-03",
+    "name": "M. Saravanan",
+    "email": "m.saravanan@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "dept": "Inventory",
+    "responsibility": "Inventory",
+    "employeeId": "ADM-H007-003"
+  },
+  {
+    "id": "ADM-TN01-04",
+    "name": "K. Nithya",
+    "email": "k.nithya@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "dept": "Scheduling",
+    "responsibility": "Scheduling",
+    "employeeId": "ADM-H007-004"
+  },
+  {
+    "id": "AMB-H007-01",
+    "name": "Chennai Crew Alpha",
+    "email": "ambulance.h0071@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "AMB-EMP-AMB-H007-01"
+  },
+  {
+    "id": "AMB-H007-02",
+    "name": "Chennai Crew Bravo",
+    "email": "ambulance.h0072@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "AMB-EMP-AMB-H007-02"
+  },
+  {
+    "id": "PAT-LOGIN-H7-1",
+    "name": "S. Karthikeyan",
+    "email": "s.karthik@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P049",
+    "hospitalId": "H007",
+    "regionId": "REG-TN-NORTH"
+  },
+  {
+    "id": "PAT-LOGIN-H7-2",
+    "name": "R. Vijayalakshmi",
+    "email": "r.vijaya@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P050",
+    "hospitalId": "H007",
+    "regionId": "REG-TN-NORTH"
+  },
+  {
+    "id": "PAT-LOGIN-H7-3",
+    "name": "M. Saravanan",
+    "email": "m.saravana@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P051",
+    "hospitalId": "H007",
+    "regionId": "REG-TN-NORTH"
+  },
+  {
+    "id": "HM-TN02",
+    "name": "Vignesh Raman",
+    "email": "vignesh.raman@nexcare.in",
+    "role": "hospital_manager",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "HM-H008-001"
+  },
+  {
+    "id": "DOC-TN02-001",
+    "name": "Dr. T. Venugopal",
+    "email": "t.venugopal@nexcare.in",
+    "role": "doctor",
+    "dept": "Cardiology",
+    "department": "Cardiology",
+    "specialization": "Clinical & Invasive Cardiology",
+    "consultationFee": 850,
+    "experienceYears": 12,
+    "qualification": "MBBS, MD, DM",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "DOC-H008-001",
+    "medicalRegNumber": "MCI-H008-100",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-TN02-002",
+    "name": "Dr. N. Gayathri",
+    "email": "n.gayathri@nexcare.in",
+    "role": "doctor",
+    "dept": "General Medicine",
+    "department": "General Medicine",
+    "specialization": "Infectious Diseases",
+    "consultationFee": 750,
+    "experienceYears": 10,
+    "qualification": "MBBS, MD",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "DOC-H008-002",
+    "medicalRegNumber": "MCI-H008-101",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-TN02-003",
+    "name": "Dr. S. Balaji",
+    "email": "s.balaji@nexcare.in",
+    "role": "doctor",
+    "dept": "Orthopaedics",
+    "department": "Orthopaedics",
+    "specialization": "Pediatric Orthopaedics",
+    "consultationFee": 800,
+    "experienceYears": 11,
+    "qualification": "MBBS, MS",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "DOC-H008-003",
+    "medicalRegNumber": "MCI-H008-102",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-TN02-004",
+    "name": "Dr. U. Malathi",
+    "email": "u.malathi@nexcare.in",
+    "role": "doctor",
+    "dept": "Paediatrics",
+    "department": "Paediatrics",
+    "specialization": "Adolescent Medicine",
+    "consultationFee": 700,
+    "experienceYears": 8,
+    "qualification": "MBBS, DCH",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "DOC-H008-004",
+    "medicalRegNumber": "MCI-H008-103",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-TN02-005",
+    "name": "Dr. G. Loganathan",
+    "email": "g.loganathan@nexcare.in",
+    "role": "doctor",
+    "dept": "General Surgery",
+    "department": "General Surgery",
+    "specialization": "Hernia & Gastro Surgery",
+    "consultationFee": 850,
+    "experienceYears": 13,
+    "qualification": "MBBS, MS",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "DOC-H008-005",
+    "medicalRegNumber": "MCI-H008-104",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "DOC-TN02-006",
+    "name": "Dr. E. Soundarya",
+    "email": "e.soundarya@nexcare.in",
+    "role": "doctor",
+    "dept": "ENT",
+    "department": "ENT",
+    "specialization": "Laryngology",
+    "consultationFee": 700,
+    "experienceYears": 9,
+    "qualification": "MBBS, MS",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "DOC-H008-006",
+    "medicalRegNumber": "MCI-H008-105",
+    "consultationTiming": "09:00 AM - 05:00 PM",
+    "schedule": {
+      "monday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "tuesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "wednesday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "thursday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "friday": {
+        "start": "09:00",
+        "end": "17:00"
+      },
+      "saturday": {
+        "start": "09:00",
+        "end": "13:00"
+      },
+      "sunday": null
+    }
+  },
+  {
+    "id": "ADM-TN02-01",
+    "name": "A. Dinesh",
+    "email": "a.dinesh@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "dept": "Front Desk",
+    "responsibility": "Front Desk",
+    "employeeId": "ADM-H008-001"
+  },
+  {
+    "id": "ADM-TN02-02",
+    "name": "P. Revathi",
+    "email": "p.revathi@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "dept": "Billing",
+    "responsibility": "Billing",
+    "employeeId": "ADM-H008-002"
+  },
+  {
+    "id": "ADM-TN02-03",
+    "name": "T. Sathish",
+    "email": "t.sathish@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "dept": "Inventory",
+    "responsibility": "Inventory",
+    "employeeId": "ADM-H008-003"
+  },
+  {
+    "id": "ADM-TN02-04",
+    "name": "V. Keerthana",
+    "email": "v.keerthana@nexcare.in",
+    "role": "administrative_staff",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "dept": "Patient Helpdesk",
+    "responsibility": "Patient Helpdesk",
+    "employeeId": "ADM-H008-004"
+  },
+  {
+    "id": "AMB-H008-01",
+    "name": "Vellore Crew Alpha",
+    "email": "ambulance.h0081@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "AMB-EMP-AMB-H008-01"
+  },
+  {
+    "id": "AMB-H008-02",
+    "name": "Vellore Crew Bravo",
+    "email": "ambulance.h0082@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "AMB-EMP-AMB-H008-02"
+  },
+  {
+    "id": "PAT-LOGIN-H8-1",
+    "name": "A. Sathish",
+    "email": "a.sathish@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P057",
+    "hospitalId": "H008",
+    "regionId": "REG-TN-NORTH"
+  },
+  {
+    "id": "PAT-LOGIN-H8-2",
+    "name": "V. Sangeetha",
+    "email": "v.sangeetha@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P058",
+    "hospitalId": "H008",
+    "regionId": "REG-TN-NORTH"
+  },
+  {
+    "id": "PAT-LOGIN-H8-3",
+    "name": "E. Srinivasan",
+    "email": "e.srini@example.in",
+    "role": "patient",
+    "status": "Active",
+    "password": "Password123",
+    "patientId": "P059",
+    "hospitalId": "H008",
+    "regionId": "REG-TN-NORTH"
+  },
+  {
+    "id": "UMTGPEVSGUZU",
     "name": "Dr. Test Audit",
-    "email": "test_doc_1788145515970@nexcare.in",
+    "email": "test_doc_1788148441440@nexcare.in",
     "role": "doctor",
     "status": "Active",
-    "password": "scrypt$04717bd223b27586b8a4571b1d87a182$716cafaa45bb50f42293cee160299a8d4cd6df35a8dc886356fd391046706d13e5512d3853f01922c2da9ad568548e365e6b247bc8f127e172a10f1fdc6102d4",
+    "password": "scrypt$034a74f55de6d3a09366c68193df9e85$69890dab37ac2fd05512ed75fce3f3eec9e60d37b5337c1ff6156fa32ad64200761e24a61b41f56b1b5833bb764738ef25b8d76a46bc9649e5e6302ad8e0f2b9",
     "mustChangePassword": false,
-    "employeeId": "DOC-H001-010",
+    "employeeId": "DOC-H001-007",
     "dept": "Cardiology",
     "joiningDate": "2026-08-31",
     "employmentType": "Full-time",
     "hospitalId": "H001",
     "regionId": "R001",
     "specialization": "Cardiology",
-    "createdAt": "2026-08-31T03:05:15.986Z",
-    "updatedAt": "2026-08-31T03:05:15.986Z"
-  },
-  {
-    "id": "UMTGNPFAE1FUC",
-    "name": "Dr. Test Audit",
-    "email": "test_doc_1788145574039@nexcare.in",
-    "role": "doctor",
-    "status": "Active",
-    "password": "scrypt$e92bfbbd7ea04397c56f844816d430c9$30f72c5c5cf4e80baf0f4724ba1553a4bde8358add13a2a8b88bdcbdfe233a2c2a19968656ba72ebe929573c8b514ba3d5db6534a9d2675eaf34eadabb962eb2",
-    "mustChangePassword": false,
-    "employeeId": "DOC-H001-011",
-    "dept": "Cardiology",
-    "joiningDate": "2026-08-31",
-    "employmentType": "Full-time",
-    "hospitalId": "H001",
-    "regionId": "R001",
-    "specialization": "Cardiology",
-    "createdAt": "2026-08-31T03:06:14.054Z",
-    "updatedAt": "2026-08-31T03:06:14.054Z"
+    "createdAt": "2026-08-31T03:54:01.456Z",
+    "updatedAt": "2026-08-31T03:54:01.456Z"
   }
 ]
