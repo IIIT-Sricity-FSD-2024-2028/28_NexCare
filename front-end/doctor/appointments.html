@@ -69,6 +69,43 @@
         </div>
     </main>
 
+    <!-- Patient Info Modal -->
+    <div id="patientInfoModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+        <div class="panel" style="background:#fff; border-radius:12px; max-width:600px; width:90%; padding:24px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.15); border:1px solid #E2E8F0; max-height: 90vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="margin:0; font-size:18px; font-weight:700; color:#0F172A;" id="piTitle">Patient Information</h3>
+                <button type="button" onclick="document.getElementById('patientInfoModal').style.display='none'" style="background:none; border:none; font-size:22px; cursor:pointer; color:#64748B; line-height:1;">&times;</button>
+            </div>
+            
+            <div style="margin-bottom:20px; padding:16px; background:#F8FAFC; border-radius:8px; border:1px solid #E2E8F0;">
+                <h4 style="margin:0 0 12px 0; font-size:14px; color:#334155; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Demographics & Contact</h4>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px; color:#475569;" id="piDemographics">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div>
+                <h4 style="margin:0 0 12px 0; font-size:14px; color:#334155; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Appointment History</h4>
+                <table class="rev" style="width:100%; text-align:left; border-collapse:collapse;">
+                    <thead>
+                        <tr style="border-bottom:1px solid #E2E8F0; color:#64748B; font-size:12px;">
+                            <th style="padding:8px 4px;">Date</th>
+                            <th style="padding:8px 4px;">Time</th>
+                            <th style="padding:8px 4px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="piHistoryBody" style="font-size:13px; color:#0F172A;">
+                        <tr><td colspan="3" class="empty">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+                <button type="button" class="btn" onclick="document.getElementById('patientInfoModal').style.display='none'">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Refer Patient Modal -->
     <div id="referModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
         <div class="panel" style="background:#fff; border-radius:12px; max-width:480px; width:90%; padding:24px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.15); border:1px solid #E2E8F0;">

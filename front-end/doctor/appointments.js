@@ -60,7 +60,10 @@ function render() {
         <tr>
             <td>${esc(a.dateLabel)}</td>
             <td>${esc(a.timeLabel)}</td>
-            <td><strong>${esc(a.patientName)}</strong><br><span class="muted">${esc(a.patientId)}</span></td>
+            <td>
+                <a href="#" onclick="viewPatient('${esc(a.patientId)}'); return false;" style="color:#2563EB; text-decoration:none;"><strong>${esc(a.patientName)}</strong></a>
+                <br><span class="muted">${esc(a.patientId)}</span>
+            </td>
             <td>${esc(a.department)}</td>
             <td class="muted">${esc(a.reason || '—')}</td>
             <td><span class="pill ${esc(a.status)}">${esc(a.status)}</span></td>
@@ -241,3 +244,60 @@ async function submitReferral(event) {
     }
 }
 
+async function viewPatient(patientId) {
+    if (!patientId) return;
+    
+    // Reset modal state
+    const modal = document.getElementById('patientInfoModal');
+    if (!modal) return;
+    
+    document.getElementById('piTitle').textContent = 'Patient Information';
+    document.getElementById('piDemographics').innerHTML = '<div>Loading...</div>';
+    document.getElementById('piHistoryBody').innerHTML = '<tr><td colspan="3" class="empty">Loading...</td></tr>';
+    modal.style.display = 'flex';
+
+    try {
+        // Fetch patient demographics
+        let patientName = 'Unknown';
+        if (window.NexCareAPI && window.NexCareAPI.Patients) {
+            const res = await window.NexCareAPI.Patients.getById(patientId);
+            if (res.success && res.data) {
+                const p = res.data;
+                patientName = p.fullName || p.name || 'Patient';
+                document.getElementById('piTitle').textContent = patientName;
+                document.getElementById('piDemographics').innerHTML = `
+                    <div><strong>Email:</strong> ${esc(p.email || 'N/A')}</div>
+                    <div><strong>Phone:</strong> ${esc(p.phone || 'N/A')}</div>
+                    <div><strong>Age:</strong> ${esc(p.age || 'N/A')}</div>
+                    <div><strong>Blood Group:</strong> ${esc(p.bloodGroup || 'N/A')}</div>
+                `;
+            } else {
+                document.getElementById('piDemographics').innerHTML = '<div>Could not load patient details.</div>';
+            }
+        }
+
+        // We already have allAppointments loaded for this doctor, so we can filter locally
+        const history = allAppointments
+            .filter(a => a.patientId === patientId)
+            .sort((a, b) => {
+                const dateA = new Date(a.dateLabel + ' ' + a.timeLabel);
+                const dateB = new Date(b.dateLabel + ' ' + b.timeLabel);
+                return isNaN(dateA) || isNaN(dateB) ? 0 : dateB - dateA;
+            });
+            
+        if (history.length === 0) {
+            document.getElementById('piHistoryBody').innerHTML = '<tr><td colspan="3" class="empty">No past records found.</td></tr>';
+        } else {
+            document.getElementById('piHistoryBody').innerHTML = history.map(a => `
+                <tr>
+                    <td style="padding:8px 4px;">${esc(a.dateLabel)}</td>
+                    <td style="padding:8px 4px;">${esc(a.timeLabel)}</td>
+                    <td style="padding:8px 4px;"><span class="pill ${esc(a.status)}">${esc(a.status)}</span></td>
+                </tr>
+            `).join('');
+        }
+    } catch (err) {
+        console.error('Failed to load patient info', err);
+        document.getElementById('piDemographics').innerHTML = '<div style="color:red;">Error loading details.</div>';
+    }
+}
