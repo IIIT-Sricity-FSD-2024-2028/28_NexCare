@@ -4,9 +4,14 @@
 > or after a break. **Read this before changing roles, actors, or naming.**
 >
 > Last full file-by-file sweep: **2026-08-30** (branch `main`, from commit `0c72405`).
-> The 2026-08-30 work — doctors as login actors, the hierarchy/visibility scope, and
-> the eight-stream revenue model — is described in §4, §5B and §5A. The Lab 2 React
-> deliverable was removed from the repo on the same day; see §14.
+> The 2026-08-30 work — doctors as login actors and the hierarchy/visibility scope —
+> is described in §4 and §5B. The Lab 2 React deliverable was removed from the repo
+> on the same day; see §14.
+>
+> **The revenue model was replaced again on 2026-09-01** — hospital subscriptions
+> priced by staff headcount, Care+ for patients, small per-transaction fees, and
+> nothing charged to a doctor. §5A is current; anything elsewhere that still says
+> "commission" or "listing tier" is stale and should be fixed when you find it.
 
 ---
 
@@ -46,12 +51,13 @@ Source of truth for scope: `README.md`, `DomainExpertInteraction.md`, `definitio
 
 ## 2. Where things stand right now
 
-**Branch:** `main`, at `0c72405` before the 2026-08-30 work. That work is uncommitted
-in the working tree — the team commits it themselves.
+**Branch:** `vivian`, merged up to `origin/main` at `7a4cf06`. The 2026-09-01 revenue
+model change is uncommitted in the working tree — the team commits it themselves.
 
-**Backend test suite:** 5 suites, 19 tests, **all passing** (`npx jest` in `back-end/`,
-~4s). Suites: `array.util`, `id-generator.util`, `hospitals.service`,
-`hospital-query.interceptor`, `leave-request.guard`.
+**Backend test suite:** 10 suites, 60 tests, **all passing** (`npx jest` in `back-end/`,
+~7s). Suites: `array.util`, `id-generator.util`, `hospitals.service`,
+`hospital-query.interceptor`, `leave-request.guard`, `appointments.service`,
+`appointments.controller`, `mock-gateway`, `payments.service`, `revenue.service`.
 
 **Backend compiles clean.** It did not before 2026-08-28 — `npm run build` emitted
 3 TypeScript errors (two wrong middleware import paths, one missing enum member).
@@ -59,7 +65,16 @@ Fixed; see §14.
 
 **All seven portals are functional and the authorisation matrix is verified.**
 A 48-check scoping script (logins for every role, then the 403/200 matrix in §5B)
-passes end to end against a running backend.
+passes end to end against a running backend. The revenue routes were re-verified
+against a live backend on 2026-09-01: a 26-check 200/403 matrix across all six
+logged-in roles, plus the write paths and a live card payment.
+
+**Known gap, not caused by the revenue work:** `billing.json` holds 16 bills and
+**all of them are `Pending`**, while the ledger carries 96 backfilled payment rows
+from a larger billing set that is no longer in the repo. So every "collections"
+figure on the dashboards reads ₹0 even though platform revenue is correct. This
+predates the 2026-09-01 change (it is the same on `origin/main` at `05192a5`) and
+needs the billing seed regenerating, not a code fix.
 
 **Recent work (last 5 commits, newest first):**
 
@@ -142,9 +157,10 @@ prescription.
 - A registering doctor's name is normalised to a `Dr. ` prefix
   (`AuthService.doctorDisplayName`), because appointments, leave records and the
   booking wizard all match consultants by name.
-- A new doctor is **auto-enrolled on the free listing tier** the moment the account
-  is created, so they appear in the revenue model from day one rather than only once
-  somebody remembers to place them on a plan.
+- A new doctor used to be auto-enrolled on a free listing tier. **That was removed
+  on 2026-09-01** along with the rest of doctor billing — a doctor is a seat on
+  their hospital's subscription, and `AuthService` no longer touches pricing at
+  all. See §5A.
 
 **Nurses are still directory-only.** `AuthService.login` refuses them with
 `Access Denied: 'nurse' is a directory record, not a NexCare login account.` They
@@ -154,9 +170,9 @@ exist so rosters, leave records and headcount statistics can reference them.
 
 | Page | What it does |
 |---|---|
-| `dashboard.html` | Five KPI tiles (today, awaiting confirmation, completed, patients seen, net earnings), today's schedule with inline Confirm/Complete, and an "up next" list. |
+| `dashboard.html` | Five KPI tiles (today, awaiting confirmation, completed, patients seen, consultation revenue), today's schedule with inline Confirm/Complete, and an "up next" list. |
 | `appointments.html` | The full list, filtered by status tab and a search box. Confirm and Complete only — cancelling is the patient's or the front desk's call. |
-| `earnings.html` | Gross, commission, listing fee, net. A six-month trend. All three tiers priced **at this doctor's own volume**, with a recommendation when another tier is cheaper. Edits the consultation fee. |
+| `earnings.html` | Consultation revenue, consultations completed, the doctor's fee, and a "Deducted by NexCare" tile that reads ₹0 — because it is. A six-month trend. Edits the consultation fee. No tiers: NexCare charges a doctor nothing. |
 | `leaves.html` | Request leave, track it, withdraw a pending one. The hospital manager approves. |
 | `profile.html` | Read-only directory entry plus change-password. |
 
@@ -167,7 +183,7 @@ Doctor radio. `shared/session.js` has `doctor: '/doctor/'` in `rolePathMap` and 
 ### `doctorId` on appointments — the attribution fix
 
 An appointment used to carry only `doctor` (a display name). That is not enough to
-route a booking to a doctor's portal or attribute consultation commission, so
+route a booking to a doctor's portal or attribute the consultation, so
 `doctorId` was added to `CreateAppointmentDto`, the `Appointment` interface, the
 service, and `shared/db.js`'s payload whitelist, and the existing 13 rows were
 backfilled by name.
@@ -324,61 +340,87 @@ neither in the hierarchy nor readable through `/revenue/hospital/H001` (403).
 
 ---
 
-## 5A. The revenue model (rebuilt 2026-08-30)
+## 5A. The revenue model (rebuilt 2026-09-01)
 
-NexCare is a **product**, not one hospital's internal tool. It makes money in seven
-ways from three payers, and the streams must never be conflated.
+NexCare is a **product**, not one hospital's internal tool. It makes money in five
+ways from **two** payers, and the streams must never be conflated.
 
-> **Hospital subscriptions were REMOVED on 2026-08-30**, on the course
-> instructor's direction, and the reasoning is worth keeping. A subscription is
-> *declared*, not *earned*: ₹3.87L of "revenue" existed because
-> `hospital-subscriptions.json` said H001 was on the Enterprise plan. Nothing had
-> happened, nothing could be pointed at, and one edited line changed the number.
-> Everything that remains is triggered by a real event — a payment settled, a
-> consultation completed, a booking made — so every rupee traces to a record
-> somebody created by using the app. Removing it cut modelled revenue from
-> ₹4.27L to ₹38.8K. That is the honest figure.
+> **Doctor billing and the commission on hospital collections were REMOVED on
+> 2026-09-01**, and the reasoning is worth keeping.
 >
-> `subscription-plans.json` and `hospital-subscriptions.json` are deleted, and
-> `GET /revenue/plans` and `/revenue/subscriptions` now 404. **Do not
-> reintroduce them.** Doctor listing tiers and Care+ memberships stay — those are
-> subscriptions people opt into, and they are billed per cycle.
+> The hospital is the customer. Doctors, nurses, administrative staff and
+> ambulance staff are all *its employees*. Charging a doctor a listing fee and a
+> per-consultation commission billed an individual for a tool their employer
+> already pays for — it did not match how the system is actually organised,
+> where every staff member is managed under a hospital.
+>
+> Taking a percentage of what a hospital **collected** was dropped for a
+> different reason: it made NexCare's income swing with the hospital's, which is
+> neither predictable for the hospital nor easy to explain, and it tied a SaaS
+> business's revenue to its customers' turnover rather than to what it provides.
+>
+> What replaced both is **one subscription per hospital, priced by the number of
+> staff accounts it runs**. It is fixed and forecastable for the hospital, simple
+> to explain, and it matches the system we actually built.
+>
+> This reverses the 2026-08-30 removal of hospital subscriptions, deliberately.
+> That removal's objection was that a subscription is *declared*, not *earned* —
+> ₹3.87L of "revenue" existed because a JSON file said so. **The seat count
+> answers it.** The meter is `users.json`: NexCare counts the hospital's staff
+> itself, so the figure moves when somebody is actually hired or removed, not
+> when a line in a config file is edited. `subscription-plans.json` and the
+> bed-based `hospital-subscription-tiers.json` are still gone; the staff-count
+> plans are a different thing and are computed from real records.
+>
+> `doctor-plans.json` and `doctor-subscriptions.json` are deleted, and
+> `GET /revenue/doctor-plans`, `/revenue/doctor-subscriptions` and
+> `PATCH /revenue/doctor/me/subscription` now 404. **Do not reintroduce them.**
 
-### The three payers
+### The two payers
 
 | Payer | Buys | Why they pay |
 |---|---|---|
-| **Hospitals** | The platform itself | A per-site SaaS licence |
-| **Doctors** | Visibility and booking volume | A per-practitioner listing tier |
+| **Hospitals** | The platform itself | A monthly plan priced by staff headcount |
 | **Patients** | Convenience | Per booking, or a membership that waives it |
 
-### The eight streams
+Doctors are **not** a payer. Neither are nurses, administrative staff or
+ambulance staff — they are seats on their hospital's plan.
+
+### The five streams
 
 | # | Key | Payer | Type | Charged on |
 |---|---|---|---|---|
-| 1 | `hospital_commission` | hospital | usage | `hospitalCommissionRate` × what the hospital **collected** |
-| 2 | `payment_gateway_fee` | hospital | usage | `paymentGatewayRate` × every payment taken through the gateway |
-| 4 | `doctor_subscription` | doctor | recurring | Monthly listing fee (the free tier contributes nothing here) |
-| 5 | `doctor_commission` | doctor | usage | Tier commission × consultation fee, **only when the appointment completes** |
-| 6 | `patient_membership` | patient | recurring | Care+ monthly fee |
-| 7 | `patient_booking_fee` | patient | usage | `patientBookingFee` per non-cancelled booking, waived for members |
-| 8 | `ambulance_dispatch_fee` | patient | usage | `ambulanceDispatchFee` per completed dispatch, discounted for members |
+| 1 | `hospital_subscription` | hospital | recurring | Plan monthly fee + seats over the plan's allowance × `extraStaffSeatFee` |
+| 2 | `payment_gateway_fee` | hospital | usage | `paymentGatewayRate` × every bill payment taken through the gateway |
+| 3 | `patient_membership` | patient | recurring | Care+ monthly fee |
+| 4 | `patient_booking_fee` | patient | usage | `patientBookingFee` per non-cancelled booking, waived for members |
+| 5 | `ambulance_dispatch_fee` | patient | usage | `ambulanceDispatchFee` per completed dispatch, discounted for members |
 
-### The doctor ladder is inverted on purpose
+### The hospital plans — priced by staff, not by beds
 
-| Tier | Monthly | Commission | Cap |
+| Plan | Staff accounts | Monthly | Seats included |
 |---|---|---|---|
-| Practice Free | ₹0 | 12% | 25 bookings/month |
-| Practice Verified | ₹999 | 8% | unlimited, verified badge |
-| Practice Featured | ₹2,499 | 5% | unlimited, top of search |
+| `HOSP-STARTER` Starter | 1 – 25 | ₹4,999 | 25 |
+| `HOSP-GROWTH` Growth | 26 – 100 | ₹14,999 | 100 |
+| `HOSP-ENTERPRISE` Enterprise | 101+ | ₹39,999 | unlimited |
 
-**The cheaper the subscription, the higher the take rate.** A busy consultant saves
-money by moving *up*, so the upgrade is voluntary rather than coerced, and NexCare
-earns from every practitioner either way. `doctor/earnings.html` prices all three
-tiers **at that doctor's own volume** and says outright when another tier is cheaper —
-`RevenueService.getDoctorEarnings` computes `recommendedPlanId` and a reason.
+A hospital past its allowance pays `extraStaffSeatFee` (₹250) per extra seat per
+month until it moves up — that keeps the plan honest without an upgrade being
+forced through silently.
 
-### Patient tiers
+**A billable seat** is any user with a `hospitalId` whose role is not `patient`
+and whose status is not `Inactive`. `RevenueService.hospitalBilling()` computes
+every hospital's charge from ONE pass over `users.json`; the naive shape
+re-filters every user per hospital and is O(hospitals × users).
+
+`PricingService.ensureHospitalSubscription` materialises a row on the plan the
+hospital's current headcount puts it on, the same way `ensureDoctorSubscription`
+used to for doctors — a hospital nobody enrolled is not skipped from the model.
+
+All eight seeded hospitals run 14 staff accounts, so all eight are on Starter:
+MRR ₹39,992 from subscriptions, ₹40,987 including Care+, ~81% recurring.
+
+### Patient tiers (unchanged)
 
 | Tier | Monthly | What it does |
 |---|---|---|
@@ -390,29 +432,32 @@ Selecting Pay as you go **is** how a patient cancels — there is no separate ca
 endpoint. `patient/membership.html` shows fees waived against membership paid and is
 honest when the plan is not paying off.
 
-### Hospitals pay only on what they collect
-
-No plan, no base fee, no bed overage. A single platform-wide
-`hospitalCommissionRate` (1.5%) plus the processing fee, both charged when a
-payment actually succeeds. A hospital that collects nothing owes nothing.
-
 ### Cross-cutting rates — `platform-fee-config.json`
 
 Repriced at runtime by the Admin: `patientBookingFee` (₹39),
-`hospitalCommissionRate` (1.5%), `ambulanceDispatchFee` (₹149),
-`paymentGatewayRate` (1.9%), `extraStaffSeatFee` (₹250),
-`notificationCreditFee` (₹0.35). Rates are stored as **fractions** and edited as
-percentages in the UI — `0.019` is 1.9%. `PricingService.updateFeeConfig` refuses a
-negative value and a `paymentGatewayRate` above 1.
+`ambulanceDispatchFee` (₹149), `paymentGatewayRate` (1.9%),
+`extraStaffSeatFee` (₹250), `notificationCreditFee` (₹0.35). Rates are stored as
+**fractions** and edited as percentages in the UI — `0.019` is 1.9%.
+`PricingService.updateFeeConfig` refuses a negative value and a
+`paymentGatewayRate` above 1. **`hospitalCommissionRate` is gone** — do not add
+it back.
+
+### The doctor's consultation fee
+
+It lives on the doctor's **user record** (`users.json`), not on a subscription,
+and the doctor edits it at `PATCH /revenue/doctor/me/consultation-fee`
+(`PricingService.setDoctorConsultationFee`). It is the one price in the system
+NexCare does not set, and NexCare takes no share of it — it is the hospital's
+money.
 
 ### Code layout
 
 | File | Owns |
 |---|---|
-| `revenue/interfaces/revenue.interface.ts` | Hospital plans, subscriptions, the platform/operational roll-ups |
-| `revenue/interfaces/pricing.interface.ts` | Doctor and patient plans, fee config, `RevenueStreamLine`, `DoctorEarnings`, `PatientMembership` |
+| `revenue/interfaces/revenue.interface.ts` | The platform/operational roll-ups and the per-hospital line |
+| `revenue/interfaces/pricing.interface.ts` | Hospital and patient plans, fee config, `RevenueStreamLine`, `DoctorEarnings`, `PatientMembership` |
 | `revenue/pricing.service.ts` | The **catalogue** — what NexCare charges, and to whom. Seeds every store on first read. |
-| `revenue/pricing.module.ts` | Exists so `AuthModule` can use `PricingService` without importing `RevenueModule` (which imports `HospitalsModule`) and closing a cycle. |
+| `revenue/pricing.module.ts` | Exists so `PaymentsModule` can use `PricingService` without importing `RevenueModule` (which imports `HospitalsModule`) and closing a cycle. |
 | `revenue/revenue.service.ts` | The **computation** — what NexCare earned. Reads the catalogue, never writes to it. |
 | `revenue/revenue.controller.ts` | Class-level `@Roles(SUPERUSER)`; every non-Admin route re-declares its own list. |
 
@@ -420,17 +465,27 @@ negative value and a `paymentGatewayRate` above 1.
 
 | Role | Sees | Where |
 |---|---|---|
-| Admin (superuser) | All eight streams, unit economics, per-payer split, every plan and rate, and the controls to change them | `superuser/revenue.html` — five tabs |
-| Regional Officer | Operational revenue across **their assigned hospitals only** | `regional-officer/revenue.html` |
-| Hospital Manager | Their own hospital's collections + what it owes NexCare | Revenue tab in `hospital_manager/dashboard.html` |
+| Admin (superuser) | All five streams, unit economics, per-payer split, every plan and rate, and the controls to change them | `superuser/revenue.html` — five tabs |
+| Regional Officer | Operational revenue across **their assigned hospitals only**; the hospital plan catalogue | `regional-officer/revenue.html` |
+| Hospital Manager | Their own hospital's collections + its subscription, seat count and processing fees | Revenue tab in `hospital_manager/dashboard.html` |
 | Administrative Staff | Their own hospital's revenue (they raise the bills) | `GET /revenue/hospital/:id` |
-| Doctor | Their own earnings, commission, listing fee, and the tier comparison | `doctor/earnings.html` |
+| Doctor | Their own consultation revenue and their fee. **Nothing is deducted.** | `doctor/earnings.html` |
 | Patient | Their own membership and what it saved them. **Never revenue.** | `patient/membership.html` |
 
 Enforced in `revenue.controller.ts`. `assertMayReadHospital` checks the caller
-actually oversees the hospital; `patientKey(user)` maps a login account to its
+actually oversees the hospital, and now also guards
+`PATCH /revenue/hospital-subscriptions/:hospitalId` so a hospital manager can
+move only their own hospital. `patientKey(user)` maps a login account to its
 **patient record id** (`P001`, not `U020`) because appointments and bills are keyed
 that way — otherwise a member's own bookings would never match their waiver.
+
+### The health score follows the same meter
+
+`health-score.service.ts` scored a hospital partly on the days left of an annual
+*contract*. Plans are monthly now, so it reads `renewsOn` from the hospital's
+subscription instead, and `upgradeRecommended` fires when the hospital is over
+its plan's **seat** allowance rather than over 85% bed occupancy — beds were
+never what the plan priced.
 
 ### Revenue and data per regional officer
 
@@ -438,14 +493,17 @@ that way — otherwise a member's own bookings would never match their waiver.
 carrying the business, and is anyone overloaded?"* — for each officer: hospitals,
 pending reviews, workload level, doctors, staff, beds, occupancy, collections,
 outstanding, collection rate, platform revenue, share of platform revenue, and a
-per-hospital drill-down. Hospitals with **no** officer are reported as a
-synthetic `UNASSIGNED` row rather than dropped; an unassigned hospital is a gap
-in the review chain, not missing data.
+per-hospital drill-down. A region's platform revenue is its hospitals'
+subscriptions **plus** their ledger fees — the same two figures the platform
+overview adds up, so the two reports cannot disagree. Hospitals with **no**
+officer are reported as a synthetic `UNASSIGNED` row rather than dropped; an
+unassigned hospital is a gap in the review chain, not missing data.
 
 It is computed from **one read of each file**. Bills, staff and beds are bucketed
 by hospital once up front (`groupBy`), so a hundredth officer costs a map lookup
 rather than another full pass over every bill. Shown as the *Regional officers*
 tab in `superuser/revenue.html`, with a click-to-expand hospital breakdown.
+
 
 ## 5C. Payments and the platform ledger (added 2026-08-30)
 
@@ -493,9 +551,9 @@ report silently restates every payment ever taken as though it had been charged
 2.2%. Recording the fee when it is taken means repricing changes what happens
 **next**, and last month stays what it actually was.
 
-`RevenueService` reads the ledger for `hospital_commission` and
-`payment_gateway_fee` and never writes to it — reporting must not be able to
-change what was earned. `PaymentsModule` deliberately does not import
+`RevenueService` reads the ledger for `payment_gateway_fee` and never writes to
+it — reporting must not be able to change what was earned. `hospital_commission`
+rows were dropped from the ledger on 2026-09-01 with the stream itself. `PaymentsModule` deliberately does not import
 `RevenueModule`; the dependency only runs one way.
 
 The 190 rows covering the seeded bills are marked `origin: 'backfill'`; rows from
@@ -508,8 +566,8 @@ Revenue had **no coverage at all** before this. Now:
 | Suite | Covers |
 |---|---|
 | `mock-gateway.spec.ts` | 14 tests — every approval and decline path, Luhn/CVV/expiry, last-four-only, determinism |
-| `payments.service.spec.ts` | 9 tests — bill settled + both fees recorded, **a decline earns nothing**, idempotent double-click, ownership guards, amount taken from the bill |
-| `revenue.service.spec.ts` | 9 tests — exact rupee figures per stream, ledger rate honoured over the current rate, booking fee waived for Care+, doctor commission only on Completed, and an **end-to-end**: one card payment moves the dashboard by exactly ₹600 |
+| `payments.service.spec.ts` | 9 tests — bill settled + the processing fee recorded (and only that), **a decline earns nothing**, idempotent double-click, ownership guards, amount taken from the bill |
+| `revenue.service.spec.ts` | 13 tests — the five streams and the two payers, plan fee + seat overage, patients and inactive accounts not counted as seats, a hospital's charge unmoved by what it collects, ledger rate honoured over the current rate, booking fee waived for Care+, a doctor's statement with nothing deducted, the manager's itemised charges, and an **end-to-end**: one card payment moves the dashboard by exactly the processing fee |
 
 Both service specs redirect `process.cwd()` to a temp dir **before constructing
 the services**, because `FileStore` resolves its path at construction time.
@@ -519,14 +577,14 @@ Getting that order backwards silently writes to the real seed data.
 
 ### Nothing is stored pre-aggregated
 
-Every figure is derived at read time from `billing.json`, `appointments.json`,
-`ambulance.json` and the six catalogue files, so a total can never drift out of step
-with what actually happened. **A bill counts as revenue only when `status === 'Paid'`**
-— pending bills are outstanding receivables. **A consultation earns commission only
-when the appointment is `Completed`** — a cancelled booking earns nothing.
+Every figure is derived at read time from `users.json`, `billing.json`,
+`appointments.json`, `ambulance.json` and the catalogue files, so a total can never
+drift out of step with what actually happened. **A bill counts as revenue only when
+`status === 'Paid'`** — pending bills are outstanding receivables. **A cancelled
+booking earns no booking fee.**
 
-A doctor with no subscription row is not skipped; `ensureDoctorSubscription`
-materialises one on the free tier on first read.
+A hospital with no subscription row is not skipped; `ensureHospitalSubscription`
+materialises one on the plan its current headcount puts it on, on first read.
 
 ### Seed data was made coherent
 
@@ -892,15 +950,16 @@ Platform routes inherit the class list; everything else re-declares its own.
 | GET | `/revenue/platform/overview`, `/platform/trend`, `/platform/streams` | class |
 | GET | `/revenue/regional-officers` | class — per-officer revenue + operational data |
 | GET · PATCH | `/revenue/fees` | class |
-| PATCH | `/revenue/doctor-plans/:id`, `/patient-plans/:id` | class |
-| GET | `/revenue/doctor-subscriptions`, `/patient-subscriptions` | class |
-| GET | `/revenue/doctor-plans` | + doctor, hospital_manager, administrative_staff |
+| PATCH | `/revenue/hospital-plans/:id`, `/patient-plans/:id` | class |
+| GET | `/revenue/hospital-subscriptions`, `/patient-subscriptions` | class |
+| GET | `/revenue/hospital-plans` | + hospital_manager, regional_manager |
 | GET | `/revenue/patient-plans` | + patient, administrative_staff |
 | GET | `/revenue/hospital/:hospitalId` | superuser, regional_manager, hospital_manager, administrative_staff (+ `assertMayReadHospital`) |
 | GET | `/revenue/my-hospitals/compare` | superuser, regional_manager |
-| GET · PATCH | `/revenue/doctor/me`, `/doctor/me/subscription` | **doctor** (own only, from the token) |
+| GET | `/revenue/doctor/me` | **doctor** (own only, from the token) |
+| PATCH | `/revenue/doctor/me/consultation-fee` | **doctor** (own only, from the token) |
 | GET | `/revenue/doctor/:doctorId` | superuser, hospital_manager, regional_manager |
-| PATCH | `/revenue/doctor-subscriptions/:doctorId` | superuser, hospital_manager, regional_manager |
+| PATCH | `/revenue/hospital-subscriptions/:hospitalId` | superuser, hospital_manager, regional_manager (+ `assertMayReadHospital`) |
 | GET · PATCH | `/revenue/patient/me/membership` | **patient** (own only, keyed on `patientId`) |
 
 Route order matters: `doctor/me` is declared **before** `doctor/:doctorId`.
@@ -973,10 +1032,10 @@ Every service persists through `FileStore<T>`, so **all 25 files survive a resta
 | `wards.json` | 19 | `id, name, hospitalId` |
 | `equipment.json` | 20 | `id, name, type, status, hospitalId` |
 | `uploads.json` | 0 | populated at runtime |
-| `platform-transactions.json` | 192 | **The platform earnings ledger.** One row per fee charged — see §5C |
+| `platform-transactions.json` | 96 | **The platform earnings ledger.** One row per fee charged — see §5C. The 96 `hospital_commission` rows were removed on 2026-09-01 with the stream. |
 | `payment-intents.json` | runtime | Payment attempts, including declines |
-| `doctor-plans.json` | 3 | Practice Free / Verified / Featured — `monthlyFee, commissionRate, monthlyBookingCap` |
-| `doctor-subscriptions.json` | 20 | `doctorId, planId, status, consultationFee` — one per doctor |
+| `hospital-plans.json` | 3 | Starter / Growth / Enterprise — `minUsers, maxUsers, monthlyFee, includedStaffSeats` |
+| `hospital-subscriptions.json` | 8 | `hospitalId, planId, status, staffAtSignup, renewsOn` — one per hospital, materialised on first read |
 | `patient-plans.json` | 3 | Pay as you go / Care+ / Care+ Family |
 | `patient-subscriptions.json` | 5 | `patientId, planId, status, renewsOn` |
 | `platform-fee-config.json` | 1 | Single-row store: booking, ambulance, gateway, seat and notification rates |
@@ -1336,8 +1395,8 @@ that section is now the authority, not the old one.
 **The hierarchy and visibility scope** — new `hierarchy` module, two portal pages,
 three regional officers with `areas` — see §5B.
 
-**The revenue model was rebuilt** from two streams to eight across three payers —
-see §5A.
+**The revenue model was rebuilt** — most recently on 2026-09-01, to five streams
+across two payers, with the hospital subscription priced by staff headcount. See §5A.
 
 **Real bugs found and fixed along the way:**
 
@@ -1355,8 +1414,8 @@ see §5A.
    officer, which is what every reader of that field expects.
 4. **The booking wizard's catalogue was fiction** — four of six hospitals and 26 of
    32 doctors did not exist in the database. See §4, `shared/doctor-directory.js`.
-5. **Appointments had no `doctorId`**, so a booking could not reach a doctor's portal
-   or earn consultation commission. See §4.
+5. **Appointments had no `doctorId`**, so a booking could not reach a doctor's
+   portal or be attributed to a consultant. See §4.
 6. **`hospitals.regionalReviewStatus` was `undefined`** on every verified hospital;
    backfilled to `cleared`, which is what "verified" implies under the two-stage chain.
 
@@ -1488,7 +1547,7 @@ string**. Always build in-app links with `window.pageLink(page, params)` from
 `shared/api.js` instead of hardcoding `.html`.
 
 ### Gotcha: rates are fractions, percentages are a UI concern
-`commissionRate` and `paymentGatewayRate` are stored as fractions — `0.019` is 1.9%.
+`paymentGatewayRate` and `ambulanceDiscount` are stored as fractions — `0.019` is 1.9%.
 `superuser/revenue.js` converts on the way in and out (`FEE_FIELDS` marks which
 fields are `percent`). Sending `1.9` to `PATCH /revenue/fees` would charge 190%;
 `PricingService.updateFeeConfig` rejects a gateway rate above 1 for exactly that reason.

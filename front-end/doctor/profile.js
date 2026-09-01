@@ -22,16 +22,6 @@ async function loadProfile(user) {
         console.warn('Falling back to the cached session:', err.message);
     }
 
-    // The consultation fee lives on the subscription, not the user record — it
-    // is a commercial term, and the revenue model is what owns it.
-    let subscription = null;
-    try {
-        const subRes = await window.NexCareAPI.Revenue.getMyDoctorSubscription();
-        if (subRes.success) subscription = (subRes.data || [])[0] || null;
-    } catch (err) {
-        console.warn('Could not load the listing tier:', err.message);
-    }
-
     setText('profileName', record.name || 'My profile');
     setText('profileSub', `${record.role === 'doctor' ? 'Doctor' : record.role} · ${record.email || ''}`);
 
@@ -42,8 +32,7 @@ async function loadProfile(user) {
         ['Hospital', record.hospitalId || '—'],
         ['Registration no.', record.registrationNo || '—'],
         ['Account status', record.status || '—'],
-        ['Consultation fee', subscription ? money(subscription.consultationFee) : '—'],
-        ['Listing tier', subscription ? subscription.planId : '—'],
+        ['Consultation fee', record.consultationFee != null ? money(record.consultationFee) : '—'],
     ];
 
     setHTML('profileFields', rows.map(([label, value]) => `
@@ -55,8 +44,8 @@ async function loadProfile(user) {
         <div class="field" style="grid-column:1/-1;">
             <p class="muted" style="margin:0;">
                 Specialisation and hospital are set by your hospital's administrator.
-                Your consultation fee and listing tier are yours to change, on the
-                <a href="earnings.html">Earnings &amp; Plan</a> page.
+                Your consultation fee is yours to change, on the
+                <a href="earnings.html">Earnings</a> page.
             </p>
         </div>
     `);

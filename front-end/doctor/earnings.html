@@ -6,26 +6,16 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earnings & Plan | Doctor | NexCare</title>
+    <title>Earnings | Doctor | NexCare</title>
     <link rel="stylesheet" href="../shared/global.css">
     <link rel="stylesheet" href="../shared/nav.css">
     <link rel="stylesheet" href="../shared/portal.css">
-    <style>
-        .plan-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; }
-        .plan-card { border:1px solid #E5E7EB; border-radius:12px; padding:20px; background:#fff; position:relative; }
-        .plan-card.current { border-color:#2563EB; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
-        .plan-card h3 { margin:0 0 2px; font-size:17px; color:#111827; }
-        .plan-card .price { font-size:24px; font-weight:700; color:#2563EB; margin:10px 0 2px; }
-        .plan-card ul { margin:12px 0 0; padding-left:18px; color:#374151; font-size:12px; line-height:1.7; }
-        .plan-card .badge { position:absolute; top:14px; right:14px; }
-        .plan-card .cost { font-size:12px; color:#6B7280; margin-top:10px; padding-top:10px; border-top:1px dashed #E5E7EB; }
-    </style>
 </head>
 <body>
 
     <main class="main-content">
         <header class="header">
-            <span class="header-title">Earnings &amp; Plan</span>
+            <span class="header-title">Earnings</span>
             <div class="header-user">
                 <div class="header-avatar" id="userAvatar">DR</div>
                 <div>
@@ -39,43 +29,41 @@
 
             <div class="page-header">
                 <div>
-                    <h1>Earnings &amp; listing plan</h1>
-                    <p>What you earned through NexCare, what the platform charged, and whether a different tier would cost you less.</p>
+                    <h1>Consultation earnings</h1>
+                    <p>What your completed consultations were worth, and the fee a patient is quoted when they book with you.</p>
                 </div>
             </div>
 
             <div class="note">
-                <strong>How NexCare charges you.</strong> Two parts: a monthly listing fee, and a
-                commission taken from each consultation you actually complete. The cheaper the
-                listing fee, the higher the commission — so a busy practice pays less by moving
-                <em>up</em> a tier, and a quiet one pays less by staying on the free tier. Nothing
-                is charged on an appointment that was cancelled.
+                <strong>NexCare does not charge you anything.</strong> You are a member of hospital
+                staff, and your hospital's subscription — priced by how many staff accounts it runs
+                — already covers your place on the platform. There is no listing fee and no
+                commission on a consultation: every rupee below belongs to your hospital, not to
+                us. Nothing is counted for an appointment that was cancelled.
             </div>
 
             <div class="kpi-grid">
                 <div class="kpi accent">
-                    <p class="label">Gross earnings</p>
+                    <p class="label">Consultation revenue</p>
                     <p class="value" id="kpiGross">—</p>
                     <p class="sub" id="kpiGrossSub">from completed consultations</p>
                 </div>
-                <div class="kpi bad">
-                    <p class="label">Platform commission</p>
-                    <p class="value" id="kpiCommission">—</p>
-                    <p class="sub" id="kpiCommissionSub">—</p>
+                <div class="kpi">
+                    <p class="label">Consultations completed</p>
+                    <p class="value" id="kpiCompleted">—</p>
+                    <p class="sub" id="kpiCompletedSub">—</p>
                 </div>
-                <div class="kpi bad">
-                    <p class="label">Listing fee</p>
-                    <p class="value" id="kpiListing">—</p>
-                    <p class="sub" id="kpiListingSub">—</p>
+                <div class="kpi">
+                    <p class="label">Your consultation fee</p>
+                    <p class="value" id="kpiFee">—</p>
+                    <p class="sub">per booking, set by you</p>
                 </div>
                 <div class="kpi good">
-                    <p class="label">Net to you</p>
-                    <p class="value" id="kpiNet">—</p>
-                    <p class="sub">after everything above</p>
+                    <p class="label">Deducted by NexCare</p>
+                    <p class="value" id="kpiDeducted">—</p>
+                    <p class="sub">no listing fee, no commission</p>
                 </div>
             </div>
-
-            <div id="recommendation"></div>
 
             <div class="panel">
                 <div class="panel-head">
@@ -83,16 +71,6 @@
                     <span class="hint">Last six months</span>
                 </div>
                 <div class="panel-body" id="trendBody">Loading…</div>
-            </div>
-
-            <div class="panel">
-                <div class="panel-head">
-                    <h2>Your listing tier</h2>
-                    <span class="hint">Changes take effect from the next cycle</span>
-                </div>
-                <div class="panel-body">
-                    <div class="plan-grid" id="planGrid">Loading…</div>
-                </div>
             </div>
 
             <div class="panel">
@@ -112,8 +90,8 @@
                         </div>
                     </div>
                     <p class="muted" style="margin-top:12px;">
-                        Commission is a share of this amount, so raising it raises both your net
-                        earnings and what the platform takes.
+                        This is what the patient is quoted at booking and what the hospital bills.
+                        NexCare takes no share of it.
                     </p>
                 </div>
             </div>

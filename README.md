@@ -50,11 +50,13 @@ Ambulance staff are responsible for emergency response and patient transport ope
 
 ### Doctor
 
-Doctors are practitioners listed on the platform. Their portal is administrative, never clinical — NexCare never touches diagnosis, treatment or medical records. A doctor:
+Doctors are members of hospital staff. Their portal is administrative, never clinical — NexCare never touches diagnosis, treatment or medical records. A doctor:
 - Sees the appointments booked with them, and confirms or completes each one
 - Manages their own schedule and requests leave (their hospital manager approves it)
-- Sets their consultation fee and chooses a listing tier
-- Reviews their earnings and what the platform charged them
+- Sets their consultation fee — the one price on the platform NexCare does not set
+- Reviews the consultation revenue they generated for their hospital
+
+NexCare charges a doctor nothing. Their seat is covered by their hospital's subscription.
 
 ---
 
@@ -76,7 +78,7 @@ The admin oversees the overall platform and hospital operations, with responsibi
 - Monitoring operational performance  
 - Reviewing system activity and audit logs  
 - Managing reports and system configurations  
-- Setting platform pricing across all three payer types
+- Setting platform pricing for both payer types — hospital plans and patient memberships
 - Viewing the full organisational hierarchy: every region, hospital and staff account
 
 ---
@@ -99,31 +101,39 @@ This is enforced server-side, not merely displayed: `GET /api/hierarchy` returns
 
 ## 2B. Revenue model — how NexCare makes money
 
-Seven streams, three payers. Nothing is stored pre-aggregated, and **hospital subscriptions were deliberately removed** — a subscription is *declared*, not *earned*, so it cannot be demonstrated or tested. Everything below is triggered by a real event.
+Five streams, two payers: a **hospital subscription priced by staff headcount**, a **patient Care+ subscription**, and small **per-transaction fees** on top. Nothing is stored pre-aggregated.
 
 | # | Stream | Payer | Type | Charged on |
 |---|---|---|---|---|
-| 1 | Commission on collections | Hospital | usage | A share of what the hospital collected through NexCare |
-| 2 | Payment processing | Hospital | usage | A percentage of every payment taken through the gateway |
-| 3 | Doctor listing subscription | Doctor | recurring | Monthly fee for the Verified and Featured tiers |
-| 4 | Commission on consultations | Doctor | usage | A share of each consultation fee, only when the appointment completes |
-| 5 | Care+ membership | Patient | recurring | Monthly membership that waives booking fees |
-| 6 | Booking convenience fee | Patient | usage | Per appointment booked, waived for Care+ members |
-| 7 | Ambulance dispatch fee | Patient | usage | Per completed dispatch, discounted for Care+ members |
+| 1 | Hospital platform subscription | Hospital | recurring | A monthly plan per hospital, priced by how many staff accounts it runs |
+| 2 | Bill payment processing | Hospital | usage | A percentage of every bill payment taken through the gateway |
+| 3 | Care+ membership | Patient | recurring | Monthly membership that waives booking fees |
+| 4 | Booking convenience fee | Patient | usage | Per appointment booked, waived for Care+ members |
+| 5 | Ambulance dispatch fee | Patient | usage | Per completed dispatch, discounted for Care+ members |
 
-**Hospitals pay only on what they collect.** No licence, no base fee, no per-bed charge — a hospital that collects nothing owes nothing.
+**The hospital is the customer, so the hospital is billed once.** Doctors, nurses, administrative staff and ambulance staff are all employees of the hospital. Charging each of them separately for a tool their employer already pays for made no sense, so none of them is charged — their seats are what the hospital's plan is priced on.
 
-**The doctor ladder is inverted on purpose.** Practice Free costs nothing but takes 12% of each consultation; Practice Featured costs ₹2,499/month and takes 5%. A busy consultant saves money by upgrading, so nobody is coerced — and NexCare earns from every practitioner either way. The doctor's own Earnings page computes what each tier would cost *them* at *their* volume and recommends the cheaper one.
+| Plan | Staff accounts | Monthly | Seats included |
+|---|---|---|---|
+| Starter | 1 – 25 | ₹4,999 | 25 |
+| Growth | 26 – 100 | ₹14,999 | 100 |
+| Enterprise | 101+ | ₹39,999 | unlimited |
+
+A hospital that grows past the seats its plan includes pays ₹250 per extra seat per month until it moves up.
+
+**Seats are counted, not declared.** The meter is the hospital's own staff directory, so the figure moves when somebody is actually hired or removed — not when a line in a config file is edited.
+
+**No commission on what a hospital earns.** Taking a percentage of collections made NexCare's income swing with the hospital's, which is neither predictable for them nor easy to explain. A per-seat subscription gives the hospital a fixed, forecastable cost and gives NexCare revenue that tracks the thing it actually provides.
 
 **Patients pay for convenience, never for care.** Hospital bills belong to the hospital and are never counted as platform revenue.
 
-Every rate is repriced at runtime by the Admin at `front-end/superuser/revenue.html`.
+Every rate and plan price is repriced at runtime by the Admin at `front-end/superuser/revenue.html`.
 
 ---
 
 ## 2C. Payments — how the revenue model is actually tested
 
-Because every rupee is now transactional, the payment path *is* the revenue model. NexCare ships a **simulated payment gateway** (`back-end/src/payments/`) that behaves like a processor's test mode: the outcome is chosen by the card number, so approvals and declines can both be demonstrated on demand.
+The subscriptions are billed per cycle, but every per-transaction fee runs through the payment path, so that path is what the usage side of the revenue model rests on. NexCare ships a **simulated payment gateway** (`back-end/src/payments/`) that behaves like a processor's test mode: the outcome is chosen by the card number, so approvals and declines can both be demonstrated on demand.
 
 | Card | Outcome |
 |---|---|
@@ -135,7 +145,7 @@ No real card is accepted, contacted or stored — only the last four digits are 
 
 When a payment is **approved**, the bill is settled and the fees NexCare earned are written to a **platform ledger** (`platform-transactions.json`) with the rate stored on each row. When it is **declined**, the bill stays outstanding and the platform earns nothing. Recording the fee at the moment it is charged means repricing changes what happens next rather than silently restating last month.
 
-Run the suite with `npx jest` in `back-end/` — 8 suites, 51 tests, including an end-to-end that takes one card payment and asserts the dashboard moves by exactly the right amount.
+Run the suite with `npx jest` in `back-end/` — 10 suites, 60 tests, including an end-to-end that takes one card payment and asserts the dashboard moves by exactly the processing fee, and nothing more.
 
 ---
 

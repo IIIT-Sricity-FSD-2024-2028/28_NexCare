@@ -54,16 +54,13 @@ export interface PlatformTransaction {
   id: string;
   stream:
     | 'payment_gateway_fee'
-    | 'hospital_commission'
     | 'patient_booking_fee'
-    | 'ambulance_dispatch_fee'
-    | 'doctor_commission';
+    | 'ambulance_dispatch_fee';
   sourceType: 'bill' | 'appointment' | 'ambulance';
   /** The bill / appointment / dispatch this fee came out of. */
   sourceId: string;
   hospitalId?: string;
   patientId?: string;
-  doctorId?: string;
   /** The amount the fee was charged on. */
   gross: number;
   /** Rate applied as a fraction, or null for a flat per-event fee. */

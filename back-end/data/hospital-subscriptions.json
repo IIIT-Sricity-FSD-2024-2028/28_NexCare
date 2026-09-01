@@ -1,0 +1,98 @@
+[
+  {
+    "id": "HSUB-H001",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "planId": "HOSP-STARTER",
+    "status": "active",
+    "billingCycle": "monthly",
+    "staffAtSignup": 14,
+    "startedAt": "2026-09-01T14:29:51.996Z",
+    "renewsOn": "2026-09-30T18:30:00.000Z",
+    "notes": "Auto-enrolled on Starter at 14 staff accounts."
+  },
+  {
+    "id": "HSUB-H002",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "planId": "HOSP-STARTER",
+    "status": "active",
+    "billingCycle": "monthly",
+    "staffAtSignup": 14,
+    "startedAt": "2026-09-01T14:29:51.997Z",
+    "renewsOn": "2026-09-30T18:30:00.000Z",
+    "notes": "Auto-enrolled on Starter at 14 staff accounts."
+  },
+  {
+    "id": "HSUB-H003",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "planId": "HOSP-STARTER",
+    "status": "active",
+    "billingCycle": "monthly",
+    "staffAtSignup": 14,
+    "startedAt": "2026-09-01T14:29:51.997Z",
+    "renewsOn": "2026-09-30T18:30:00.000Z",
+    "notes": "Auto-enrolled on Starter at 14 staff accounts."
+  },
+  {
+    "id": "HSUB-H004",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "planId": "HOSP-STARTER",
+    "status": "active",
+    "billingCycle": "monthly",
+    "staffAtSignup": 14,
+    "startedAt": "2026-09-01T14:29:51.998Z",
+    "renewsOn": "2026-09-30T18:30:00.000Z",
+    "notes": "Auto-enrolled on Starter at 14 staff accounts."
+  },
+  {
+    "id": "HSUB-H005",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "planId": "HOSP-STARTER",
+    "status": "active",
+    "billingCycle": "monthly",
+    "staffAtSignup": 14,
+    "startedAt": "2026-09-01T14:29:51.998Z",
+    "renewsOn": "2026-09-30T18:30:00.000Z",
+    "notes": "Auto-enrolled on Starter at 14 staff accounts."
+  },
+  {
+    "id": "HSUB-H006",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "planId": "HOSP-STARTER",
+    "status": "active",
+    "billingCycle": "monthly",
+    "staffAtSignup": 14,
+    "startedAt": "2026-09-01T14:29:51.999Z",
+    "renewsOn": "2026-09-30T18:30:00.000Z",
+    "notes": "Auto-enrolled on Starter at 14 staff accounts."
+  },
+  {
+    "id": "HSUB-H007",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "planId": "HOSP-STARTER",
+    "status": "active",
+    "billingCycle": "monthly",
+    "staffAtSignup": 14,
+    "startedAt": "2026-09-01T14:29:51.999Z",
+    "renewsOn": "2026-09-30T18:30:00.000Z",
+    "notes": "Auto-enrolled on Starter at 14 staff accounts."
+  },
+  {
+    "id": "HSUB-H008",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "planId": "HOSP-STARTER",
+    "status": "active",
+    "billingCycle": "monthly",
+    "staffAtSignup": 14,
+    "startedAt": "2026-09-01T14:29:51.999Z",
+    "renewsOn": "2026-09-30T18:30:00.000Z",
+    "notes": "Auto-enrolled on Starter at 14 staff accounts."
+  }
+]

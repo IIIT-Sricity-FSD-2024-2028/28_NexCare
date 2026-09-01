@@ -12,6 +12,8 @@ export class HealthScoreService {
   private readonly billRepo = new TenantScopedRepository<any>('billing.json');
   private readonly appointmentRepo = new TenantScopedRepository<any>('appointments.json');
   private readonly bedRepo = new TenantScopedRepository<any>('beds.json');
+  // The staff directory — the meter the hospital's subscription is priced on.
+  private readonly userRepo = new TenantScopedRepository<any>('users.json');
 
   constructor(private readonly pricingService: PricingService) {}
 
@@ -28,7 +30,8 @@ export class HealthScoreService {
 
   /**
    * Calculate a 0-100 Health Score for a hospital and return internal flags.
-   * This combines bed utilization, billing volume, no-show rate, and contract expiry.
+   * This combines bed utilization, billing volume, no-show rate, subscription
+   * renewal, and how the hospital sits against its plan's seat allowance.
    */
   async getHospitalHealthScore(hospitalId: string) {
     const bills = this.billRepo.findAll(hospitalId);
@@ -71,31 +74,50 @@ export class HealthScoreService {
       noShowRate = (noShows / recentAppointments.length) * 100;
     }
 
-    // 4. Contract Expiration
-    const contracts = this.pricingService.loadHospitalContracts();
-    const contract = contracts.find(c => c.hospitalId === hospitalId && c.status === 'active');
-    
-    let daysToExpiry = 999;
-    if (contract?.contractEndDate) {
-      const end = new Date(contract.contractEndDate);
-      daysToExpiry = Math.max(0, Math.floor((end.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+    // 4. Subscription renewal
+    // Hospital subscriptions are billed monthly now, so the date that matters
+    // is the next renewal rather than the end of an annual contract.
+    const subscription = this.pricingService
+      .loadHospitalSubscriptions()
+      .find(s => s.hospitalId === hospitalId && s.status === 'active');
+
+    let daysToRenewal = 999;
+    if (subscription?.renewsOn) {
+      const renews = new Date(subscription.renewsOn);
+      if (!Number.isNaN(renews.getTime())) {
+        daysToRenewal = Math.max(0, Math.floor((renews.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+      }
     }
+
+    // 5. Seat pressure
+    // The plan is priced by staff accounts, so a hospital sitting above its
+    // allowance is the one that should be moved up a plan. That is a far more
+    // direct upgrade signal than bed occupancy, which the plan never priced.
+    const plan = this.pricingService
+      .loadHospitalPlans()
+      .find(p => p.id === subscription?.planId);
+    const staffSeats = this.userRepo
+      .findAll(hospitalId)
+      .filter(u => u.role !== 'patient' && String(u.status ?? '').toLowerCase() !== 'inactive')
+      .length;
+    const includedSeats = plan?.includedStaffSeats ?? null;
+    const seatsOverAllowance = includedSeats === null ? 0 : Math.max(0, staffSeats - includedSeats);
 
     // Aggregate Score Calculation (Higher is better)
     // Base 100
     // - High no-show rate penalises up to 30 points
-    // - Low bed utilization penalises up to 20 points
-    // - Contract expiring < 30 days penalises 20 points
+    // - Low bed utilization penalises 15 points
+    // - Renewal inside 7 days penalises 20 points
     let score = 100;
     score -= Math.min(30, noShowRate); // No-show penalty
     if (bedUtilization < 30) score -= 15; // Low utilization penalty
-    if (daysToExpiry < 30) score -= 20; // Renewal risk
+    if (daysToRenewal < 7) score -= 20; // Renewal risk
 
     score = Math.max(0, Math.round(score));
 
     // Internal Flags
-    const upgradeRecommended = bedUtilization > 85;
-    const churnRisk = score < 40 || daysToExpiry < 15;
+    const upgradeRecommended = seatsOverAllowance > 0;
+    const churnRisk = score < 40 || !subscription;
 
     return ResponseUtil.success('Hospital health score retrieved', {
       hospitalId,
@@ -104,7 +126,10 @@ export class HealthScoreService {
         bedUtilization: Math.round(bedUtilization),
         recentRevenue,
         noShowRate: Math.round(noShowRate),
-        daysToExpiry,
+        daysToRenewal,
+        staffSeats,
+        includedSeats,
+        seatsOverAllowance,
       },
       flags: {
         upgradeRecommended,

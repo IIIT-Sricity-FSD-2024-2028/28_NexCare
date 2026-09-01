@@ -309,18 +309,22 @@
         <div class="page-body">
 
             <div class="note">
-                <strong>NexCare makes money in eight ways, from three different payers.</strong>
-                Hospitals buy the platform, doctors buy visibility, patients buy convenience.
-                Everything below is derived at read time from the underlying bills, appointments
-                and dispatches — nothing is stored pre-aggregated, so a total can never drift
-                away from what actually happened. What a hospital collects from its own patients
-                is that <em>hospital's</em> revenue and is shown to its manager, not counted here.
+                <strong>NexCare makes money in five ways, from two payers.</strong>
+                Hospitals buy the platform on a subscription priced by how many staff accounts
+                they run; patients buy convenience, per booking or with a Care+ membership. Small
+                per-transaction fees sit on top. Doctors, nurses, administrative and ambulance
+                staff are all hospital employees, so none of them is billed separately &mdash;
+                their seats are what the hospital's plan is priced on. Everything below is derived
+                at read time from the staff directory, the bills, the appointments and the
+                dispatches, so a total can never drift away from what actually happened. What a
+                hospital collects from its own patients is that <em>hospital's</em> revenue and is
+                shown to its manager, not counted here.
             </div>
 
             <div class="tab-container" id="revenueTabs">
                 <button class="tab-btn active" data-tab="streams">All streams</button>
                 <button class="tab-btn" data-tab="hospitals">Hospitals</button>
-                <button class="tab-btn" data-tab="doctors">Doctors</button>
+                <button class="tab-btn" data-tab="plans">Hospital plans</button>
                 <button class="tab-btn" data-tab="patients">Patients</button>
                 <button class="tab-btn" data-tab="regions">Regional officers</button>
                 <button class="tab-btn" data-tab="fees">Pricing controls</button>
@@ -350,9 +354,9 @@
                         <p class="sub" id="sHospitalCount">&nbsp;</p>
                     </div>
                     <div class="kpi">
-                        <p class="label">Revenue per doctor</p>
-                        <p class="value" id="sArpDoctor">&mdash;</p>
-                        <p class="sub" id="sDoctorCount">&nbsp;</p>
+                        <p class="label">Revenue per staff seat</p>
+                        <p class="value" id="sArpSeat">&mdash;</p>
+                        <p class="sub" id="sSeatCount">&nbsp;</p>
                     </div>
                     <div class="kpi">
                         <p class="label">Revenue per patient</p>
@@ -384,7 +388,7 @@
                 <div class="panel">
                     <div class="panel-head">
                         <h2>Revenue by payer</h2>
-                        <span class="hint">Hospitals, doctors and patients as a share of the total</span>
+                        <span class="hint">Hospitals and patients as a share of the total</span>
                     </div>
                     <div class="panel-body" id="payerBody">Loading&hellip;</div>
                 </div>
@@ -393,19 +397,20 @@
             <!-- ── Hospitals (the original view) ──────────────────────────── -->
             <div class="tab-section" id="tab-hospitals">
                 <div class="note">
-                    <strong>Hospitals no longer pay a subscription.</strong> The monthly licence and
-                    the per-bed charge were removed on 2026-08-30. A hospital now pays only on money
-                    it actually collects &mdash; a commission on the payment, plus the processing fee
-                    &mdash; so a hospital that collects nothing owes nothing. Both figures are read
-                    from the platform ledger, recorded at the rate in force when each payment was
-                    taken, which is why repricing today does not restate last month.
+                    <strong>A hospital pays for seats, not for a share of its takings.</strong>
+                    The commission on collections was removed on 2026-09-01: NexCare charges a
+                    monthly plan priced by how many staff accounts the hospital runs, which makes
+                    its cost fixed and forecastable whatever kind of month it has. The only
+                    variable part left is the fee on processing a bill payment, read from the
+                    platform ledger at the rate in force when each payment was taken &mdash; which
+                    is why repricing today does not restate last month.
                 </div>
 
                 <div class="kpi-grid">
                     <div class="kpi accent">
                         <p class="label">Monthly Recurring Revenue</p>
                         <p class="value" id="kpiMrr">&mdash;</p>
-                        <p class="sub" id="kpiMrrSub">doctor tiers + Care+ only</p>
+                        <p class="sub" id="kpiMrrSub">hospital plans + Care+ memberships</p>
                     </div>
                     <div class="kpi">
                         <p class="label">Annual Run Rate</p>
@@ -413,9 +418,9 @@
                         <p class="sub">MRR &times; 12</p>
                     </div>
                     <div class="kpi">
-                        <p class="label">Commission</p>
-                        <p class="value" id="kpiCommission">&mdash;</p>
-                        <p class="sub" id="kpiCommissionSub">on hospital collections</p>
+                        <p class="label">Hospital subscriptions</p>
+                        <p class="value" id="kpiSubscription">&mdash;</p>
+                        <p class="sub" id="kpiSubscriptionSub">&nbsp;</p>
                     </div>
                     <div class="kpi">
                         <p class="label">Payment processing</p>
@@ -423,21 +428,21 @@
                         <p class="sub" id="kpiProcessingSub">&nbsp;</p>
                     </div>
                     <div class="kpi">
-                        <p class="label">Earning hospitals</p>
+                        <p class="label">Paying hospitals</p>
                         <p class="value" id="kpiSubs">&mdash;</p>
                         <p class="sub" id="kpiSubsSub">&nbsp;</p>
                     </div>
                     <div class="kpi">
                         <p class="label">Avg. per earning hospital</p>
                         <p class="value" id="kpiArpa">&mdash;</p>
-                        <p class="sub">commission + processing</p>
+                        <p class="sub">subscription + processing</p>
                     </div>
                 </div>
 
                 <div class="panel">
                     <div class="panel-head">
                         <h2>Revenue trend</h2>
-                        <span class="hint">Transactional lines from the ledger; recurring is the current run rate</span>
+                        <span class="hint">Processing comes from the ledger; subscriptions are the current run rate</span>
                     </div>
                     <div class="panel-body" id="trendBody">Loading&hellip;</div>
                 </div>
@@ -445,7 +450,7 @@
                 <div class="panel">
                     <div class="panel-head">
                         <h2>Revenue by hospital</h2>
-                        <span class="hint">Only hospitals that collected something appear here</span>
+                        <span class="hint">Every hospital on the platform, and what it pays</span>
                     </div>
                     <div class="panel-body flush">
                         <table class="rev">
@@ -453,66 +458,72 @@
                                 <tr>
                                     <th>Hospital</th>
                                     <th>Status</th>
+                                    <th>Plan</th>
                                     <th class="num">Payments</th>
                                     <th class="num">Collections</th>
-                                    <th class="num">Commission</th>
+                                    <th class="num">Subscription</th>
                                     <th class="num">Processing</th>
                                     <th class="num">Platform revenue</th>
                                 </tr>
                             </thead>
                             <tbody id="hospitalTableBody">
-                                <tr><td colspan="7" class="empty">Loading&hellip;</td></tr>
+                                <tr><td colspan="8" class="empty">Loading&hellip;</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <div class="tab-section" id="tab-doctors">
+            <!-- ── Hospital plans ─────────────────────── -->
+            <div class="tab-section" id="tab-plans">
                 <div class="note">
-                    <strong>The ladder is inverted on purpose.</strong> The free tier carries the
-                    highest commission, so a busy doctor saves money by moving <em>up</em> and a
-                    quiet one saves by staying put. Nobody is forced to upgrade, and NexCare earns
-                    from every practitioner either way.
+                    <strong>The hospital is the customer, so the hospital is billed once.</strong>
+                    Doctors, nurses, administrative staff and ambulance staff are all its
+                    employees; charging each of them for a tool their employer already pays for
+                    made no sense, so none of them is charged. The plan is priced by how many
+                    staff accounts the hospital runs &mdash; a number NexCare counts for itself out
+                    of the staff directory, so it moves when somebody is actually hired, not when
+                    a line in a file is edited. A hospital that grows past the seats its plan
+                    includes pays the per-seat rate for the overflow until it moves up.
                 </div>
 
                 <div class="kpi-grid">
                     <div class="kpi accent">
-                        <p class="label">Doctor revenue</p>
-                        <p class="value" id="dTotal">&mdash;</p>
-                        <p class="sub">listing fees + consultation commission</p>
+                        <p class="label">Hospital revenue</p>
+                        <p class="value" id="hTotal">&mdash;</p>
+                        <p class="sub">subscriptions + payment processing</p>
                     </div>
                     <div class="kpi">
-                        <p class="label">Listing fees</p>
-                        <p class="value" id="dRecurring">&mdash;</p>
-                        <p class="sub" id="dRecurringSub">&nbsp;</p>
+                        <p class="label">Subscriptions</p>
+                        <p class="value" id="hSubscription">&mdash;</p>
+                        <p class="sub" id="hSubscriptionSub">&nbsp;</p>
                     </div>
                     <div class="kpi">
-                        <p class="label">Consultation commission</p>
-                        <p class="value" id="dCommission">&mdash;</p>
-                        <p class="sub" id="dCommissionSub">&nbsp;</p>
+                        <p class="label">Payment processing</p>
+                        <p class="value" id="hProcessing">&mdash;</p>
+                        <p class="sub" id="hProcessingSub">&nbsp;</p>
                     </div>
                 </div>
 
                 <div class="panel">
                     <div class="panel-head">
-                        <h2>Listing tiers</h2>
+                        <h2>Subscription plans</h2>
                         <span class="hint">Edit the monthly fee, then Save</span>
                     </div>
-                    <div class="panel-body"><div class="plan-grid" id="doctorPlanGrid">Loading&hellip;</div></div>
+                    <div class="panel-body"><div class="plan-grid" id="hospitalPlanGrid">Loading&hellip;</div></div>
                 </div>
 
                 <div class="panel">
                     <div class="panel-head">
-                        <h2>Doctors on the platform</h2>
-                        <span class="hint" id="doctorCount"></span>
+                        <h2>Hospitals on the platform</h2>
+                        <span class="hint" id="hospitalCount"></span>
                     </div>
                     <div class="panel-body flush">
                         <table class="rev">
                             <thead>
-                                <tr><th>Doctor</th><th>Hospital</th><th>Tier</th><th>Status</th><th class="num">Consultation fee</th></tr>
+                                <tr><th>Hospital</th><th class="num">Staff accounts</th><th>Plan</th><th>Status</th><th class="num">This cycle</th></tr>
                             </thead>
-                            <tbody id="doctorSubBody">
+                            <tbody id="hospitalSubBody">
                                 <tr><td colspan="5" class="empty">Loading&hellip;</td></tr>
                             </tbody>
                         </table>

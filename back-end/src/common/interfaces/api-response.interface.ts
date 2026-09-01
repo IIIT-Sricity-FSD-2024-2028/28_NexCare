@@ -25,7 +25,8 @@ export interface ApiResponse<T = any> {
  *
  *  A doctor's portal is administrative, not clinical: their own schedule,
  *  confirming and completing the appointments booked with them, leave requests,
- *  and their earnings against the platform's listing tiers.
+ *  and the consultation revenue they generated. NexCare charges a doctor
+ *  nothing — their seat is covered by their hospital's subscription.
  *
  *  Directory-only records — no portal, no login (enforced in AuthService.login
  *  and excluded from staff self-registration). They exist so rosters, leave

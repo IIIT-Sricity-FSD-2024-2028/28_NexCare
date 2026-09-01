@@ -741,7 +741,7 @@ export class HospitalsService {
       const hospitalRevenueList = myHospitals.map(h => ({
         hospitalId: h.id,
         hospitalName: h.name,
-        subscriptionPlan: h.subscriptionPlan || 'PREMIUM',
+        subscriptionPlan: h.subscriptionPlan || 'HOSP-STARTER',
         lastPaymentDate: h.paymentHistory?.[0]?.date || h.lastPaymentDate || null,
         amountPaid: (h.paymentHistory || []).filter((payment: any) => String(payment.status).toUpperCase() === 'PAID')
           .reduce((sum: number, payment: any) => sum + Number(payment.amount || 0), 0),

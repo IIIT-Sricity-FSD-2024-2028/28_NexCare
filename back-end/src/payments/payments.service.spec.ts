@@ -42,7 +42,6 @@ describe('PaymentsService', () => {
       JSON.stringify([{
         id: 'FEE-CONFIG', currency: '₹',
         patientBookingFee: 39,
-        hospitalCommissionRate: 0.015,
         ambulanceDispatchFee: 149,
         paymentGatewayRate: 0.019,
         extraStaffSeatFee: 250,
@@ -66,7 +65,7 @@ describe('PaymentsService', () => {
   };
 
   describe('a successful payment', () => {
-    it('settles the bill and records both platform fees', async () => {
+    it('settles the bill and records the processing fee', async () => {
       const res: any = await startAndConfirm(SUCCESS_CARD);
 
       expect(res.success).toBe(true);
@@ -74,12 +73,11 @@ describe('PaymentsService', () => {
       expect(readJson('billing.json')[0].status).toBe('Paid');
 
       const ledger = readJson('platform-transactions.json');
-      expect(ledger).toHaveLength(2);
-
-      // 1.9% processing + 1.5% commission on ₹10,000.
-      const by = (stream: string) => ledger.find((r: any) => r.stream === stream);
-      expect(by('payment_gateway_fee').amount).toBe(190);
-      expect(by('hospital_commission').amount).toBe(150);
+      // The commission on collections went with the 2026-09-01 model change,
+      // so processing is the only fee a settled bill now earns.
+      expect(ledger).toHaveLength(1);
+      expect(ledger[0].stream).toBe('payment_gateway_fee');
+      expect(ledger[0].amount).toBe(190);   // 1.9% of ₹10,000
     });
 
     it('stores the rate on the row, so repricing cannot restate history', async () => {
@@ -125,9 +123,9 @@ describe('PaymentsService', () => {
       expect(second.success).toBe(true);
       expect(second.message).toMatch(/idempotent/i);
 
-      // One payment on the bill, one pair of fees in the ledger.
+      // One payment on the bill, one fee row in the ledger.
       expect(readJson('billing.json')[0].payments).toHaveLength(1);
-      expect(readJson('platform-transactions.json')).toHaveLength(2);
+      expect(readJson('platform-transactions.json')).toHaveLength(1);
     });
 
     it('refuses a second confirmation without an idempotency key', async () => {
@@ -137,7 +135,7 @@ describe('PaymentsService', () => {
 
       expect(second.success).toBe(false);
       expect(second.message).toMatch(/already succeeded/i);
-      expect(readJson('platform-transactions.json')).toHaveLength(2);
+      expect(readJson('platform-transactions.json')).toHaveLength(1);
     });
   });
 

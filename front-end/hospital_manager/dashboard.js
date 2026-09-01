@@ -245,17 +245,28 @@ async function loadRevenue() {
         }
 
         if (platformEl) {
+            // The plan is priced by staff accounts, so the seat count is shown
+            // beside it — it is the meter, and a manager who adds staff should
+            // be able to see why the bill moved.
             const pc = d.platformCharges;
+            const seats = pc && pc.includedSeats === null
+                ? `${pc.staffSeats} staff accounts · unlimited on this plan`
+                : pc ? `${pc.staffSeats} staff accounts · ${pc.includedSeats} included` : '';
             platformEl.innerHTML = pc ? `
-                <p style="font-size:13px;margin-bottom:12px;">Subscription plan: <strong>${pc.planName}</strong></p>
+                <p style="font-size:13px;margin-bottom:4px;">Subscription plan: <strong>${escapeHtml(pc.planName)}</strong></p>
+                <p style="font-size:12px;color:#6B7280;margin-bottom:12px;">${escapeHtml(seats)}</p>
                 <table class="data-table" style="width:100%;">
                     <tbody>
-                        <tr><td>Monthly base fee</td><td style="text-align:right;">${money(pc.baseFee)}</td></tr>
-                        <tr><td>Bed overage</td><td style="text-align:right;">${pc.bedOverageFee ? money(pc.bedOverageFee) : '—'}</td></tr>
-                        <tr><td>Commission on collections</td><td style="text-align:right;">${money(pc.commission)}</td></tr>
+                        <tr><td>Monthly plan fee</td><td style="text-align:right;">${money(pc.baseFee)}</td></tr>
+                        <tr><td>Extra staff seats</td><td style="text-align:right;">${pc.extraSeatFee ? money(pc.extraSeatFee) : '—'}</td></tr>
+                        <tr><td>Bill payment processing</td><td style="text-align:right;">${money(pc.processingFees)}</td></tr>
                         <tr><td style="font-weight:700;">Total this cycle</td><td style="text-align:right;font-weight:700;">${money(pc.total)}</td></tr>
                     </tbody>
-                </table>` : '<p>No active subscription for this hospital.</p>';
+                </table>
+                <p style="font-size:12px;color:#6B7280;margin-top:12px;">
+                    NexCare takes no share of what you collect — your subscription is the same
+                    whatever kind of month you have.
+                </p>` : '<p>No active subscription for this hospital.</p>';
         }
     } catch (err) {
         console.error('Revenue load failed:', err);

@@ -12,11 +12,17 @@ import { UserRole } from '../common/interfaces/api-response.interface';
  *
  * The two streams have deliberately different audiences:
  *
- *  - /revenue/platform/* and /revenue/plans|subscriptions are NexCare's OWN
- *    commercials — superuser only. No hospital sees what the platform earns.
- *  - /revenue/hospital/:id is a hospital's own collections. Its manager, the
- *    regional officer over it, and its administrative staff may read it; each is
- *    checked against the hospital they actually belong to.
+ *  - /revenue/platform/*, /revenue/hospital-plans and /revenue/fees are
+ *    NexCare's OWN commercials — superuser only. No hospital sees what the
+ *    platform earns across every customer.
+ *  - /revenue/hospital/:id is a hospital's own collections, plus what that one
+ *    hospital owes NexCare. Its manager, the regional officer over it, and its
+ *    administrative staff may read it; each is checked against the hospital
+ *    they actually belong to.
+ *
+ * Doctor billing routes were removed on 2026-09-01. Doctors are hospital staff,
+ * not customers: the hospital's staff-count subscription covers their seat, so
+ * there is no listing tier to read and no commission to charge.
  */
 @ApiTags('Revenue')
 @ApiBearerAuth('JWT-auth')
@@ -34,7 +40,7 @@ export class RevenueController {
   // ── Platform revenue — Admin only (inherits the class-level @Roles) ───────
 
   @Get('platform/overview')
-  @ApiOperation({ summary: 'Platform revenue overview — MRR, ARR, commission, per-hospital breakdown' })
+  @ApiOperation({ summary: 'Platform revenue overview — MRR, ARR, subscriptions, per-hospital breakdown' })
   @ApiQuery({ name: 'from', required: false })
   @ApiQuery({ name: 'to', required: false })
   @ApiResponse({ status: 200, description: 'Platform revenue overview' })
@@ -55,9 +61,6 @@ export class RevenueController {
     return this.revenueService.getPlatformTrend(Number.isFinite(n) && n > 0 ? Math.min(n, 24) : 6);
   }
 
-  // Hospital subscription plans were removed on 2026-08-30. What a hospital
-  // pays is now transactional and lives in the platform fee config, so
-  // /revenue/plans and /revenue/subscriptions no longer exist.
 
   // ── Hospital operational revenue — scoped per caller ─────────────────────
 
@@ -105,7 +108,7 @@ export class RevenueController {
 
   @Roles(UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER)
   @Get('health-score/:hospitalId')
-  @ApiOperation({ summary: 'Internal NexCare health score combining util, revenue, expiry, and no-shows' })
+  @ApiOperation({ summary: 'Internal NexCare health score combining bed use, revenue, no-shows, renewal and seat pressure' })
   async getHealthScore(
     @Req() req: any,
     @Param('hospitalId') hospitalId: string,
@@ -119,7 +122,7 @@ export class RevenueController {
 
   @Get('platform/streams')
   @ApiOperation({
-    summary: 'Every revenue stream — hospital licence, doctor listings, patient memberships and per-transaction fees',
+    summary: 'Every revenue stream — hospital subscriptions, patient memberships and per-transaction fees',
   })
   @ApiQuery({ name: 'from', required: false })
   @ApiQuery({ name: 'to', required: false })
@@ -162,14 +165,14 @@ export class RevenueController {
     return this.pricingService.updateFeeConfig(body, req.user?.id);
   }
 
-  @Patch('doctor-plans/:id')
-  @ApiOperation({ summary: 'Reprice a doctor listing tier' })
+  @Patch('hospital-plans/:id')
+  @ApiOperation({ summary: 'Reprice a hospital subscription plan' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   @ApiResponse({ status: 200, description: 'Success' })
-  async updateDoctorPlan(@Param('id') id: string, @Body() body: any) {
-    return this.pricingService.updateDoctorPlan(id, body);
+  async updateHospitalPlan(@Param('id') id: string, @Body() body: any) {
+    return this.pricingService.updateHospitalPlan(id, body);
   }
 
   @Patch('patient-plans/:id')
@@ -182,14 +185,14 @@ export class RevenueController {
     return this.pricingService.updatePatientPlan(id, body);
   }
 
-  @Get('doctor-subscriptions')
-  @ApiOperation({ summary: 'Which listing tier every doctor is on' })
-  @ApiQuery({ name: 'doctorId', required: false })
+  @Get('hospital-subscriptions')
+  @ApiOperation({ summary: 'Which subscription plan every hospital is on' })
+  @ApiQuery({ name: 'hospitalId', required: false })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 200, description: 'Success' })
-  async findDoctorSubscriptions(@Query('doctorId') doctorId?: string) {
-    return this.pricingService.findDoctorSubscriptions(doctorId);
+  async findHospitalSubscriptions(@Query('hospitalId') hospitalId?: string) {
+    return this.pricingService.findHospitalSubscriptions(hospitalId);
   }
 
   @Get('patient-subscriptions')
@@ -203,14 +206,14 @@ export class RevenueController {
 
   // ── Plan catalogues — readable by the people who buy them ────────────────
 
-  @Roles(UserRole.SUPERUSER, UserRole.DOCTOR, UserRole.HOSPITAL_MANAGER, UserRole.ADMINISTRATIVE_STAFF)
-  @Get('doctor-plans')
-  @ApiOperation({ summary: 'The doctor listing tiers on offer' })
+  @Roles(UserRole.SUPERUSER, UserRole.HOSPITAL_MANAGER, UserRole.REGIONAL_MANAGER)
+  @Get('hospital-plans')
+  @ApiOperation({ summary: 'The hospital subscription plans on offer, priced by staff headcount' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 200, description: 'Success' })
-  async findDoctorPlans() {
-    return this.pricingService.findDoctorPlans();
+  async findHospitalPlans() {
+    return this.pricingService.findHospitalPlans();
   }
 
   @Roles(UserRole.SUPERUSER, UserRole.PATIENT, UserRole.ADMINISTRATIVE_STAFF)
@@ -223,11 +226,11 @@ export class RevenueController {
     return this.pricingService.findPatientPlans();
   }
 
-  // ── A doctor's own statement ─────────────────────────────────────────────
+  // ── A doctor's own statement — informational, never a bill ───────────────
 
   @Roles(UserRole.DOCTOR)
   @Get('doctor/me')
-  @ApiOperation({ summary: 'The signed-in doctor’s own earnings and platform charges' })
+  @ApiOperation({ summary: 'The signed-in doctor’s own consultation revenue' })
   @ApiQuery({ name: 'from', required: false })
   @ApiQuery({ name: 'to', required: false })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -241,54 +244,44 @@ export class RevenueController {
     return this.revenueService.getDoctorEarnings(req.user.id, from, to);
   }
 
-  @Roles(UserRole.DOCTOR)
-  @Get('doctor/me/subscription')
-  @ApiOperation({ summary: 'The signed-in doctor’s listing tier' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden' })
-  @ApiResponse({ status: 200, description: 'Success' })
-  async myDoctorSubscription(@Req() req: any) {
-    return this.pricingService.findDoctorSubscriptions(req.user.id);
-  }
-
   /**
-   * A doctor may change their own tier and consultation fee — that is the
-   * self-serve upgrade path. Everything else about the subscription is ours.
+   * A doctor sets their own consultation fee — the one price in the system
+   * NexCare does not set. It is the hospital's money, not the platform's;
+   * nothing is taken out of it.
    */
   @Roles(UserRole.DOCTOR)
-  @Patch('doctor/me/subscription')
-  @ApiOperation({ summary: 'Change your own listing tier or consultation fee' })
+  @Patch('doctor/me/consultation-fee')
+  @ApiOperation({ summary: 'Change your own consultation fee' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   @ApiResponse({ status: 200, description: 'Success' })
-  async updateMyDoctorSubscription(
-    @Req() req: any,
-    @Body() body: { planId?: string; consultationFee?: number },
-  ) {
-    return this.pricingService.updateDoctorSubscription(req.user.id, {
-      planId: body.planId,
-      consultationFee: body.consultationFee,
-    });
+  async updateMyConsultationFee(@Req() req: any, @Body() body: { consultationFee?: number }) {
+    if (typeof body?.consultationFee !== 'number') {
+      throw new BadRequestException('consultationFee is required');
+    }
+    return this.pricingService.setDoctorConsultationFee(req.user.id, body.consultationFee);
   }
 
   @Roles(UserRole.SUPERUSER, UserRole.HOSPITAL_MANAGER, UserRole.REGIONAL_MANAGER)
-  @Patch('doctor-subscriptions/:doctorId')
-  @ApiOperation({ summary: 'Move a doctor onto a different listing tier, or suspend them' })
+  @Patch('hospital-subscriptions/:hospitalId')
+  @ApiOperation({ summary: 'Move a hospital onto a different plan, or suspend it' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   @ApiResponse({ status: 200, description: 'Success' })
-  async updateDoctorSubscription(
-    @Param('doctorId') doctorId: string,
-    @Body() body: { planId?: string; status?: string; consultationFee?: number },
+  async updateHospitalSubscription(
+    @Req() req: any,
+    @Param('hospitalId') hospitalId: string,
+    @Body() body: { planId?: string; status?: string },
   ) {
-    return this.pricingService.updateDoctorSubscription(doctorId, body);
+    await this.assertMayReadHospital(req.user, hospitalId);
+    return this.pricingService.updateHospitalSubscription(hospitalId, body);
   }
 
   @Roles(UserRole.SUPERUSER, UserRole.HOSPITAL_MANAGER, UserRole.REGIONAL_MANAGER)
   @Get('doctor/:doctorId')
-  @ApiOperation({ summary: 'One doctor’s earnings and what the platform took' })
+  @ApiOperation({ summary: 'One doctor’s consultation revenue' })
   @ApiQuery({ name: 'from', required: false })
   @ApiQuery({ name: 'to', required: false })
   @ApiResponse({ status: 401, description: 'Unauthorized' })

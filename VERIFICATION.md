@@ -274,9 +274,10 @@ never an HTML error page or a raw stack trace.
 2. **Appointments** — filter by status tab, search by patient name.
    - Confirm a *Pending* appointment → becomes *Confirmed*.
    - Complete a *Confirmed* one → becomes *Completed*.
-3. **Earnings & Plan** — gross, commission, listing fee, net.
-   - All three tiers are priced **at this doctor's own volume**.
-   - If another tier is cheaper for them, a recommendation banner says so.
+3. **Earnings** — consultation revenue, consultations completed, the doctor's
+   own fee, and a *Deducted by NexCare* tile.
+   - The deducted tile must read **₹0**. NexCare charges a doctor nothing: they
+     are a seat on their hospital's subscription. There is no tier to pick.
    - Change the consultation fee, save, and confirm the figures move.
 4. **Leave** — request leave; it appears as *Pending*. A hospital manager
    approves it in §4.4.
@@ -320,12 +321,17 @@ system logs · feedback.
 1. **Organisation Hierarchy** — the whole tree: platform → regions → hospitals
    → departments → people. Expand a hospital, use the search box.
 2. **Revenue** — six tabs:
-   - *All streams* — seven streams, three payers, shares add to 100%.
-   - *Hospitals* — only hospitals that collected something appear.
-   - *Doctors* — tier ladder; change a tier fee and Save, confirm it recomputes.
+   - *All streams* — five streams, two payers (hospital and patient, never
+     doctor), shares add to 100%.
+   - *Hospitals* — every hospital, its plan, its staff-account count, its
+     subscription and its processing fees.
+   - *Hospital plans* — Starter / Growth / Enterprise, priced by staff
+     headcount; change a plan's monthly fee and Save, confirm it recomputes.
+     Move a hospital to another plan from the table and confirm its charge
+     changes.
    - *Patients* — membership tiers and members.
    - *Regional officers* — revenue and workload per officer; click a row to
-     expand its hospitals.
+     expand its hospitals. The officer totals must sum to the platform total.
    - *Pricing controls* — change the booking fee, Save, and confirm the
      All-streams total moves.
 3. **Hospital registrations** — the regional-officer dropdown is grouped into
@@ -340,35 +346,67 @@ system logs · feedback.
 The point of the model is that **every rupee traces to a record**. Verify that
 rather than trusting the dashboard.
 
-1. Note the total on **Admin → Revenue → All streams**.
-2. As a patient, pay a bill with the success card (§4.1 step 3).
-3. Reload the Admin revenue page.
+### 5.1 The subscription is counted, not declared
 
-**Expected:** the total increased by exactly *(commission rate + processing
-rate) × the bill amount*. With the shipped rates that is 1.5% + 1.9% = 3.4%.
+1. Note the *Hospital platform subscriptions* line on **Admin → Revenue → All
+   streams**, and the staff-account count beside it.
+2. Add a staff member to a hospital (Admin → Manage users), then reload.
+   **Expected:** the seat count rises by one. The amount rises only if that
+   hospital is now over its plan's included seats, in which case it rises by
+   exactly `extraStaffSeatFee` (₹250).
+3. Set that user's status to *Inactive* and reload.
+   **Expected:** the seat count falls again — an inactive account is not a
+   billable seat.
+
+### 5.2 A hospital is not charged on what it earns
+
+1. Note the *Hospital platform subscriptions* amount.
+2. As a patient, pay a bill with the success card (§4.1 step 3).
+3. Reload.
+
+**Expected:** the subscription line is **unchanged**. Only the *Bill payment
+processing* line moves, by exactly `paymentGatewayRate × the bill amount` —
+1.9% with the shipped rates. There is no commission on collections: that was
+removed on 2026-09-01 so a hospital's cost stays fixed and predictable.
 
 4. Check the ledger recorded it:
    ```bash
    SU=$(curl -s -X POST $API/auth/login -H 'Content-Type: application/json' \
      -d '{"email":"superuser@nexcare.com","password":"Password123","role":"superuser"}' \
      | python3 -c "import sys,json;print(json.load(sys.stdin)['data']['token'])")
-   curl -s -H "Authorization: Bearer $SU" "$API/payments/ledger?stream=hospital_commission" \
+   curl -s -H "Authorization: Bearer $SU" "$API/payments/ledger?stream=payment_gateway_fee" \
      | head -c 400
    ```
    **Expected:** the newest row names your bill, with the `rate` stored **on the
-   row**.
+   row**, and it is the **only** row written for that payment.
 
-5. **The history test.** Change `paymentGatewayRate` in *Pricing controls* from
+### 5.3 Nothing is charged to a doctor
+
+1. Complete a consultation as a doctor (§4.2 step 2), then open **Earnings**.
+   **Expected:** consultation revenue rises by the appointment fee, and
+   *Deducted by NexCare* still reads **₹0**.
+2. As the Admin, reload **Revenue → All streams**.
+   **Expected:** no stream has `doctor` as its payer, and the *Revenue by payer*
+   chart shows exactly two bars.
+3. The doctor billing routes are gone. These must 404:
+   ```bash
+   curl -s -o /dev/null -w "doctor-plans: %{http_code}\n" -H "Authorization: Bearer $SU" $API/revenue/doctor-plans
+   curl -s -o /dev/null -w "doctor-subs:  %{http_code}\n" -H "Authorization: Bearer $SU" $API/revenue/doctor-subscriptions
+   ```
+
+### 5.4 Repricing changes the future, not the past
+
+1. **The history test.** Change `paymentGatewayRate` in *Pricing controls* from
    1.9% to 3%. Reload the revenue page.
    **Expected:** past earnings do **not** change. Only new payments are charged
    at the new rate. (A model that recomputes from current rates would silently
    restate every payment ever taken — this one records the rate when charged.)
    Set it back to 1.9% afterwards.
 
-6. **A decline earns nothing.** Pay with `4000 0000 0000 0002`, then reload
+2. **A decline earns nothing.** Pay with `4000 0000 0000 0002`, then reload
    revenue. **Expected:** the total is unchanged and the bill is still unpaid.
 
-7. **Hospital subscriptions are gone.** These must 404:
+3. **The bed-based hospital tiers are gone.** These must 404:
    ```bash
    curl -s -o /dev/null -w "plans: %{http_code}\n" -H "Authorization: Bearer $SU" $API/revenue/plans
    curl -s -o /dev/null -w "subs:  %{http_code}\n" -H "Authorization: Bearer $SU" $API/revenue/subscriptions
