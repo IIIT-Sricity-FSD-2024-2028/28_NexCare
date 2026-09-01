@@ -47,11 +47,12 @@ export class FeedbackController {
    * Get all feedback with optional filtering
    */
   @Get()
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT, UserRole.HOSPITAL_MANAGER)
   @ApiOperation({ summary: 'Get all feedback (patients: only their own)' })
   @ApiQuery({ name: 'patientId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: FeedbackStatus })
   @ApiQuery({ name: 'category', required: false })
+  @ApiQuery({ name: 'hospitalId', required: false })
   @ApiResponse({ status: 200, description: 'List of feedback' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
@@ -59,12 +60,17 @@ export class FeedbackController {
     @Req() req: any,
     @Query('patientId') patientId?: string,
     @Query('status') status?: string,
-    @Query('category') category?: string
+    @Query('category') category?: string,
+    @Query('hospitalId') hospitalId?: string
   ) {
     if (this.isPatient(req)) {
       patientId = req.user.patientId;
     }
-    return this.feedbackService.findAll(patientId, status as any, category);
+    // If Hospital Manager, strictly scope to their hospital
+    if (req?.user?.role === UserRole.HOSPITAL_MANAGER) {
+      hospitalId = req.user.hospitalId;
+    }
+    return this.feedbackService.findAll(patientId, status as any, category, hospitalId);
   }
 
   /**

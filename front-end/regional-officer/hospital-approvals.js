@@ -81,7 +81,7 @@ function render() {
                 ${pending ? `
                     <div style="display:flex; gap:6px;">
                         <button class="btn-sm btn-approve" onclick="decide('${esc(h.id)}','cleared')">Clear for approval</button>
-                        <button class="btn-sm btn-reject" onclick="decide('${esc(h.id)}','reject')">Reject</button>
+                        <button class="btn-sm btn-reject" onclick="decide('${esc(h.id)}','rejected')">Reject</button>
                     </div>
                 ` : `<span class="muted">${esc(h.regionalReviewStatus === 'cleared' ? 'Sent to superuser for final approval' : h.regionalReviewStatus === 'rejected' ? 'Review rejected; awaiting superuser decision' : 'No action needed')}</span>`}
             </td>
@@ -94,7 +94,13 @@ async function decide(hospitalId, action) {
     const name = hospital ? hospital.name : hospitalId;
     const verb = action === 'cleared' ? 'Clear for final approval' : 'Reject';
 
-    if (!confirm(`${verb} the registration for ${name}?`)) return;
+    let notes = '';
+    if (action === 'rejected') {
+        notes = prompt(`Please provide a reason for rejecting ${name}:`);
+        if (notes === null) return; // User cancelled
+    } else {
+        if (!confirm(`${verb} the registration for ${name}?`)) return;
+    }
 
     // Show loading state
     const hideLoading = window.NexCareUI && window.NexCareUI.showLoading 
@@ -102,7 +108,7 @@ async function decide(hospitalId, action) {
         : null;
 
     try {
-        const res = await window.NexCareAPI.Hospitals.regionalReview(hospitalId, action);
+        const res = await window.NexCareAPI.Hospitals.regionalReview(hospitalId, action, notes);
 
         if (hideLoading) hideLoading();
 

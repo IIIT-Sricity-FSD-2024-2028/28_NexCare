@@ -38,11 +38,16 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     <span>Staff Directory</span>
                 </a>
-                <a href="#register-staff" class="nav-item" onclick="switchTab('register-staff', event)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-                    <span>Register Staff</span>
+                <a href="#setup" class="nav-item" onclick="switchTab('setup', event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    <span>Registration & Setup</span>
                 </a>
-                <a href="#inventory-approvals" class="nav-item" onclick="switchTab('inventory-approvals', event)">
+                
+                <a href="#assets" class="nav-item" onclick="switchTab('assets', event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    <span>Infrastructure & Assets</span>
+                </a>
+<a href="#inventory-approvals" class="nav-item" onclick="switchTab('inventory-approvals', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-4-9 4 9 4 9-4z"></path><path d="M3 8v8l9 4 9-4V8"></path><path d="M12 12v8"></path></svg>
                     <span>Inventory Approvals</span>
                     <span class="nav-counter" id="navInventoryBadge" style="display:none;">0</span>
@@ -69,6 +74,12 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                     <span>Support Requests</span>
                 </a>
+                <a href="#feedback" class="nav-item" onclick="switchTab('feedback', event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                    </svg>
+                    <span>Patient Feedback</span>
+                </a>
             </nav>
 
             <div class="sidebar-footer">
@@ -91,9 +102,14 @@
         <main class="main-content">
             <!-- Top Bar -->
             <header class="top-header">
-                <div class="header-title">
-                    <h1 id="pageTitle">Hospital Overview</h1>
-                    <p id="pageSubtitle">Comprehensive oversight of staff, doctor leaves, inventory approvals, and annual subscription.</p>
+                <div style="display:flex; align-items:flex-start; gap:16px;">
+                    <button class="btn-icon" onclick="toggleSidebar()" style="background:transparent; border:none; cursor:pointer; color:var(--text-main); margin-top:4px;" title="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <div class="header-title">
+                        <h1 id="pageTitle">Hospital Overview</h1>
+                        <p id="pageSubtitle">Comprehensive oversight of staff, doctor leaves, inventory approvals, and annual subscription.</p>
+                    </div>
                 </div>
                 <div class="header-actions">
                     <button class="btn-primary" onclick="openStaffModal()">
@@ -107,124 +123,59 @@
             <!-- Subscription Alert Banner Container -->
             <div id="subscriptionAlertBanner" class="alert-banner-container" style="display:none;"></div>
 
-            <!-- Stats Overview Row -->
-            <div class="stats-grid">
-                <div class="stat-card" onclick="switchTab('leaves', event)">
-                    <div class="stat-icon icon-blue">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    </div>
-                    <div class="stat-data">
-                        <span class="stat-value" id="statDoctors">0</span>
-                        <span class="stat-label">Active Doctors</span>
-                        <span class="stat-subtext" id="statPendingLeavesSub">0 pending leave requests</span>
-                    </div>
-                </div>
-
-                <div class="stat-card" onclick="switchTab('supervision', event)">
-                    <div class="stat-icon icon-purple">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
-                    </div>
-                    <div class="stat-data">
-                        <span class="stat-value" id="statAdminStaff">0</span>
-                        <span class="stat-label">Administrative Staff</span>
-                        <span class="stat-subtext">Operations & Front Desk</span>
-                    </div>
-                </div>
-
-                <div class="stat-card" onclick="switchTab('inventory-approvals', event)">
-                    <div class="stat-icon icon-amber">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-4-9 4 9 4 9-4z"></path><path d="M3 8v8l9 4 9-4V8"></path><path d="M12 12v8"></path></svg>
-                    </div>
-                    <div class="stat-data">
-                        <span class="stat-value" id="statPendingInventory">0</span>
-                        <span class="stat-label">Inventory Approvals</span>
-                        <span class="stat-subtext" id="statUrgentInventorySub">0 urgent requisitions</span>
-                    </div>
-                </div>
-
-                <div class="stat-card" onclick="switchTab('subscription', event)">
-                    <div class="stat-icon icon-green" id="statSubIcon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-                    </div>
-                    <div class="stat-data">
-                        <span class="stat-value" id="statSubscriptionDays">--</span>
-                        <span class="stat-label">Days to Renewal</span>
-                        <span class="stat-subtext" id="statSubscriptionStatus">License Active</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon icon-amber">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
-                    </div>
-                    <div class="stat-data">
-                        <span class="stat-value" id="statPendingSchedules">0</span>
-                        <span class="stat-label">Pending Schedules</span>
-                    </div>
-                </div>
-            </div>
-
             <!-- ========================================================= -->
             <!-- TAB 1: OVERVIEW SECTION -->
             <!-- ========================================================= -->
             <section id="overviewTab" class="tab-content active-tab">
-                <div class="grid-2-col">
-                    <!-- Quick Actions Widget -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Hospital Quick Actions</h2>
+                <!-- Stats Overview Row -->
+                <div class="stats-grid">
+                    <div class="stat-card" onclick="switchTab('leaves', event)">
+                        <div class="stat-icon icon-blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                         </div>
-                        <div class="quick-actions-grid">
-                            <button class="quick-action-btn" onclick="openStaffModal()">
-                                <div class="action-btn-icon bg-blue">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
-                                </div>
-                                <div class="action-btn-text">
-                                    <strong>Register Staff</strong>
-                                    <span>Add doctor, admin, or ambulance staff</span>
-                                </div>
-                            </button>
-
-                            <button class="quick-action-btn" onclick="switchTab('leaves', event)">
-                                <div class="action-btn-icon bg-amber">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>
-                                </div>
-                                <div class="action-btn-text">
-                                    <strong>Review Doctor Leaves</strong>
-                                    <span>Approve or reject doctor leave requests</span>
-                                </div>
-                            </button>
-
-                            <button class="quick-action-btn" onclick="switchTab('inventory-approvals', event)">
-                                <div class="action-btn-icon bg-cyan">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-4-9 4 9 4 9-4z"></path><path d="M3 8v8l9 4 9-4V8"></path><path d="M12 12v8"></path></svg>
-                                </div>
-                                <div class="action-btn-text">
-                                    <strong>Inventory Approvals</strong>
-                                    <span>Approve replenishment requisitions</span>
-                                </div>
-                            </button>
-
-                            <button class="quick-action-btn" onclick="switchTab('ambulance', event)">
-                                <div class="action-btn-icon" style="background:#fee2e2; color:#dc2626;">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v7h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M10 10v4"></path><path d="M8 12h4"></path></svg>
-                                </div>
-                                <div class="action-btn-text">
-                                    <strong>Ambulance Fleet Status</strong>
-                                    <span>Monitor live readiness & emergencies</span>
-                                </div>
-                            </button>
-
-                            <button class="quick-action-btn" onclick="openRenewalModal()">
-                                <div class="action-btn-icon bg-green">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-                                </div>
-                                <div class="action-btn-text">
-                                    <strong>Renew License (+12 Mo)</strong>
-                                    <span>Extend annual registration license</span>
-                                </div>
-                            </button>
+                        <div class="stat-data">
+                            <span class="stat-value" id="statDoctors">0</span>
+                            <span class="stat-label">Active Doctors</span>
+                            <span class="stat-subtext" id="statPendingLeavesSub">0 pending leave requests</span>
                         </div>
                     </div>
+
+                    <div class="stat-card" onclick="switchTab('supervision', event)">
+                        <div class="stat-icon icon-purple">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
+                        </div>
+                        <div class="stat-data">
+                            <span class="stat-value" id="statAdminStaff">0</span>
+                            <span class="stat-label">Administrative Staff</span>
+                            <span class="stat-subtext">Operations & Front Desk</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" onclick="switchTab('inventory-approvals', event)">
+                        <div class="stat-icon icon-amber">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-4-9 4 9 4 9-4z"></path><path d="M3 8v8l9 4 9-4V8"></path><path d="M12 12v8"></path></svg>
+                        </div>
+                        <div class="stat-data">
+                            <span class="stat-value" id="statPendingInventory">0</span>
+                            <span class="stat-label">Inventory Approvals</span>
+                            <span class="stat-subtext" id="statUrgentInventorySub">0 urgent requisitions</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" onclick="switchTab('subscription', event)">
+                        <div class="stat-icon icon-green" id="statSubIcon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                        </div>
+                        <div class="stat-data">
+                            <span class="stat-value" id="statSubscriptionDays">--</span>
+                            <span class="stat-label">Days to Renewal</span>
+                            <span class="stat-subtext" id="statSubscriptionStatus">License Active</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-2-col">
+                    <!-- Quick Actions Widget -->
+                    
 
                     <!-- Subscription Quick Summary Card -->
                     <div class="card subscription-summary-card">
@@ -280,51 +231,16 @@
                         </table>
                     </div>
                 </div>
-            </section>
+            
+
+
+</section>
 
             <!-- ========================================================= -->
             <!-- TAB 2: DOCTOR LEAVES SECTION -->
             <!-- ========================================================= -->
             <section id="leavesTab" class="tab-content">
-                <div class="card">
-                    <div class="card-header flex-between">
-                        <div>
-                            <h2>Doctor Leave Requests</h2>
-                            <p class="card-subtitle">Review, approve, or reject doctor leave applications with strict hospital scoping</p>
-                        </div>
-                        <div class="filter-toolbar">
-                            <input type="text" id="leaveSearchInput" placeholder="Search doctor or reason..." class="input-search" oninput="filterLeaves()">
-                            <select id="leaveStatusFilter" onchange="filterLeaves()" class="select-filter">
-                                <option value="ALL">All Statuses</option>
-                                <option value="pending" selected>Pending Only</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
-                            <select id="leaveDeptFilter" onchange="filterLeaves()" class="select-filter">
-                                <option value="ALL">All Departments</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Doctor Name</th>
-                                    <th>Department & Specialization</th>
-                                    <th>Leave Type</th>
-                                    <th>Leave Period</th>
-                                    <th>Days</th>
-                                    <th>Reason</th>
-                                    <th>Status & Audit</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="leavesTableBody">
-                                <tr><td colspan="8" class="loading-cell">Loading doctor leave requests...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                
             </section>
 
             <!-- ========================================================= -->
@@ -415,7 +331,16 @@
             <!-- ========================================================= -->
             <!-- TAB: DEDICATED REGISTER STAFF PAGE SECTION -->
             <!-- ========================================================= -->
-            <section id="registerStaffTab" class="tab-content">
+            
+
+            <!-- ========================================================= -->
+            <!-- TAB 4: INVENTORY APPROVALS SECTION -->
+            <!-- ========================================================= -->
+            
+            <!-- ========================================================= -->
+            <!-- TAB: REGISTRATION & SETUP (Staff, Beds, Inventory) -->
+            <!-- ========================================================= -->
+            <section id="setupTab" class="tab-content" style="display:flex; flex-direction:column; gap:32px;">
                 <div class="card" style="max-width: 960px; margin: 0 auto;">
                     <div class="card-header flex-between">
                         <div>
@@ -627,12 +552,224 @@
                         </div>
                     </form>
                 </div>
+            
+                <div class="grid-2-col">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Register Ward / Add Beds</h2>
+                            <p class="card-subtitle">Onboard new beds for your hospital.</p>
+                        </div>
+                        <div style="padding:24px;">
+                            <form id="newBedForm" onsubmit="handleNewBedSubmit(event)">
+                                <div class="form-group">
+                                    <label>Ward Name</label>
+                                    <select id="bedWard" class="form-control" required>
+                                        <option value="General">General</option>
+                                        <option value="Emergency">Emergency</option>
+                                        <option value="ICU">ICU</option>
+                                        <option value="Pediatrics">Pediatrics</option>
+                                        <option value="Maternity">Maternity</option>
+                                        <option value="Surgery">Surgery</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Bed ID / Number</label>
+                                    <input type="text" id="bedId" class="form-control" placeholder="e.g. ICU-01" required>
+                                </div>
+                                <button type="submit" class="btn-primary" style="width:100%; margin-top:10px;">Register Bed</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Existing Infrastructure</h2>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Bed ID</th>
+                                        <th>Ward</th>
+                                        <th>Status</th>
+                                        <th>Patient ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="infrastructureTableBody">
+                                    <tr><td colspan="4" class="loading-cell">Loading infrastructure...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="card" style="margin-bottom:20px;">
+                    <div class="card-header">
+                        <h2>Add New Inventory Item</h2>
+                        <p class="card-subtitle">Register new stock items into your hospital's catalog.</p>
+                    </div>
+                    <div style="padding:24px;">
+                        <form id="newInventoryForm" onsubmit="handleNewInventorySubmit(event)" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                            <div class="form-group">
+                                <label>Item Name</label>
+                                <input type="text" id="invName" class="form-control" placeholder="e.g. Paracetamol 500mg" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="invCategory" class="form-control" required>
+                                    <option value="Medication">Medication</option>
+                                    <option value="Medical Supplies">Medical Supplies</option>
+                                    <option value="Surgical Equipment">Surgical Equipment</option>
+                                    <option value="Laboratory">Laboratory</option>
+                                    <option value="Office Supplies">Office Supplies</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Initial Quantity</label>
+                                <input type="number" id="invQty" class="form-control" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Minimum Stock Threshold</label>
+                                <input type="number" id="invMin" class="form-control" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Unit</label>
+                                <input type="text" id="invUnit" class="form-control" placeholder="e.g. tablets, boxes, pairs" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Location</label>
+                                <input type="text" id="invLocation" class="form-control" placeholder="e.g. Pharmacy, ER" required>
+                            </div>
+                            <div style="grid-column: 1 / -1; display:flex; justify-content:flex-end;">
+                                <button type="submit" class="btn-primary">Add Item to Catalog</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Current Stock Catalog</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Category</th>
+                                    <th>Location</th>
+                                    <th>Stock Level</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryCatalogTableBody">
+                                <tr><td colspan="5" class="loading-cell">Loading inventory catalog...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            
             </section>
 
-            <!-- ========================================================= -->
-            <!-- TAB 4: INVENTORY APPROVALS SECTION -->
-            <!-- ========================================================= -->
-            <section id="inventoryApprovalsTab" class="tab-content">
+            
+            <!-- TAB: ASSETS & INFRASTRUCTURE -->
+            <section id="assetsTab" class="tab-content" style="display:flex; flex-direction:column; gap:32px;">
+                <div class="card">
+                        <div class="card-header">
+                            <h2>Hospital Quick Actions</h2>
+                        </div>
+                        <div class="quick-actions-grid">
+                            <button class="quick-action-btn" onclick="openStaffModal()">
+                                <div class="action-btn-icon bg-blue">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
+                                </div>
+                                <div class="action-btn-text">
+                                    <strong>Register Staff</strong>
+                                    <span>Add doctor, admin, or ambulance staff</span>
+                                </div>
+                            </button>
+
+                            <button class="quick-action-btn" onclick="switchTab('leaves', event)">
+                                <div class="action-btn-icon bg-amber">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>
+                                </div>
+                                <div class="action-btn-text">
+                                    <strong>Review Doctor Leaves</strong>
+                                    <span>Approve or reject doctor leave requests</span>
+                                </div>
+                            </button>
+
+                            <button class="quick-action-btn" onclick="switchTab('inventory-approvals', event)">
+                                <div class="action-btn-icon bg-cyan">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-4-9 4 9 4 9-4z"></path><path d="M3 8v8l9 4 9-4V8"></path><path d="M12 12v8"></path></svg>
+                                </div>
+                                <div class="action-btn-text">
+                                    <strong>Inventory Approvals</strong>
+                                    <span>Approve replenishment requisitions</span>
+                                </div>
+                            </button>
+
+                            <button class="quick-action-btn" onclick="switchTab('ambulance', event)">
+                                <div class="action-btn-icon" style="background:#fee2e2; color:#dc2626;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v7h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M10 10v4"></path><path d="M8 12h4"></path></svg>
+                                </div>
+                                <div class="action-btn-text">
+                                    <strong>Ambulance Fleet Status</strong>
+                                    <span>Monitor live readiness & emergencies</span>
+                                </div>
+                            </button>
+
+                            <button class="quick-action-btn" onclick="openRenewalModal()">
+                                <div class="action-btn-icon bg-green">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                                </div>
+                                <div class="action-btn-text">
+                                    <strong>Renew License (+12 Mo)</strong>
+                                    <span>Extend annual registration license</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                <div class="card">
+                    <div class="card-header flex-between">
+                        <div>
+                            <h2>Doctor Leave Requests</h2>
+                            <p class="card-subtitle">Review, approve, or reject doctor leave applications with strict hospital scoping</p>
+                        </div>
+                        <div class="filter-toolbar">
+                            <input type="text" id="leaveSearchInput" placeholder="Search doctor or reason..." class="input-search" oninput="filterLeaves()">
+                            <select id="leaveStatusFilter" onchange="filterLeaves()" class="select-filter">
+                                <option value="ALL">All Statuses</option>
+                                <option value="pending" selected>Pending Only</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                            <select id="leaveDeptFilter" onchange="filterLeaves()" class="select-filter">
+                                <option value="ALL">All Departments</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Doctor Name</th>
+                                    <th>Department & Specialization</th>
+                                    <th>Leave Type</th>
+                                    <th>Leave Period</th>
+                                    <th>Days</th>
+                                    <th>Reason</th>
+                                    <th>Status & Audit</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leavesTableBody">
+                                <tr><td colspan="8" class="loading-cell">Loading doctor leave requests...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+<section id="inventoryApprovalsTab" class="tab-content">
                 <div class="card">
                     <div class="card-header flex-between">
                         <div>
@@ -847,7 +984,79 @@
                         </table>
                     </div>
                 </div>
+
+                <div class="card" style="margin-top:20px;">
+                    <div class="card-header">
+                        <h2>What this hospital owes NexCare</h2>
+                    </div>
+                    <div style="padding:20px;" id="revenuePlatformBody">
+                        <p class="loading-cell">Loading…</p>
+                    </div>
+                </div>
             </section>
+
+            <section id="revenueTab" class="tab-content">
+                <div class="stats-grid" id="revenueStats"></div>
+                <div class="card">
+                    <div class="card-header"><h2>Revenue by department</h2></div>
+                    <div style="padding:20px;" id="revenueDeptBody">
+                        <p class="loading-cell">Loading revenue…</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- NEW TAB: PATIENT FEEDBACK & ISSUES -->
+            <!-- ========================================================= -->
+            <section id="feedbackTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header flex-between">
+                        <div>
+                            <h2>Patient Feedback & Issues</h2>
+                            <p class="card-subtitle">Manage patient complaints directly for your hospital.</p>
+                            <p style="color:#d97706; font-size:12px; margin-top:4px; font-weight:600;">
+                                Note: Complaints left "Open" for &gt; 3 days may be escalated to your Regional Officer.
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <select id="hmFeedbackStatusFilter" class="form-control" onchange="hmRenderFeedback()">
+                                <option value="all">All Statuses</option>
+                                <option value="Open">Open</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Resolved">Resolved</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Patient</th>
+                                    <th>Subject / Summary</th>
+                                    <th>Category</th>
+                                    <th>Rating</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hmFeedbackTableBody">
+                                <tr><td colspan="7" class="loading-cell">Loading feedback...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- NEW TAB: HOSPITAL INFRASTRUCTURE (WARDS & BEDS) -->
+            <!-- ========================================================= -->
+            
+
+            <!-- ========================================================= -->
+            <!-- NEW TAB: INVENTORY CATALOG -->
+            <!-- ========================================================= -->
+            
 
             <!-- ========================================================= -->
             <!-- TAB 6: ADMIN STAFF SUPERVISION SECTION -->
@@ -1385,6 +1594,52 @@
     <div id="toastContainer" class="toast-container"></div>
 
     <!-- Scripts -->
+    <!-- New Ambulance Request Modal -->
+    <div id="newAmbulanceModal" class="modal-backdrop" style="display:none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Dispatch Ambulance</h3>
+                <button class="modal-close" onclick="closeNewAmbulanceRequestModal()">&times;</button>
+            </div>
+            <form id="newAmbulanceForm" onsubmit="handleNewAmbulanceSubmit(event)">
+                <div class="modal-body" style="padding:24px;">
+                    <div class="form-group">
+                        <label>Patient Name</label>
+                        <input type="text" id="newAmbPatientName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Phone</label>
+                        <input type="text" id="newAmbContact" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Pickup Location</label>
+                        <textarea id="newAmbPickup" class="form-control" rows="2" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Ambulance Type</label>
+                        <select id="newAmbType" class="form-control" required>
+                            <option value="Basic Life Support (BLS)">Basic Life Support (BLS)</option>
+                            <option value="Advanced Life Support (ALS)">Advanced Life Support (ALS)</option>
+                            <option value="Neonatal Ambulance">Neonatal Ambulance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Vehicle Assignment</label>
+                        <input type="text" id="newAmbVehicle" class="form-control" placeholder="e.g. AP-09-XY-1234 (Optional)">
+                    </div>
+                    <div class="form-group">
+                        <label>Additional Notes / Medical Condition</label>
+                        <textarea id="newAmbNotes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer flex-end">
+                    <button type="button" class="btn-secondary" onclick="closeNewAmbulanceRequestModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Dispatch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../shared/ui-components.js"></script>
     <script src="../shared/session.js"></script>
     <script src="../logo.js"></script>

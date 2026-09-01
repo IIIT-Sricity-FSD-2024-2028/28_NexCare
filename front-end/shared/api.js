@@ -553,8 +553,10 @@ const AmbulanceAPI = {
 
 // Feedback API
 const FeedbackAPI = {
-    async getAll() {
-        return await api.get('/feedback');
+    async getAll(filters = {}) {
+        const query = new URLSearchParams(filters).toString();
+        const endpoint = query ? `/feedback?${query}` : '/feedback';
+        return await api.get(endpoint);
     },
 
     async getById(id) {
@@ -599,6 +601,10 @@ const BedsAPI = {
 
     async getAvailable() {
         return await api.get('/beds/available');
+    },
+
+    async create(bedData) {
+        return await api.post('/beds', bedData);
     },
 
     async allocate(id, allocationData) {
@@ -1194,7 +1200,9 @@ window.NexCareAPI.updateAmbulanceRequest = AmbulanceAPI.updateRequest;
 window.NexCareAPI.getFeedback = FeedbackAPI.getAll;
 window.NexCareAPI.createFeedback = FeedbackAPI.create;
 window.NexCareAPI.getBeds = BedsAPI.getAll;
+window.NexCareAPI.createBed = BedsAPI.create;
 window.NexCareAPI.getInventory = InventoryAPI.getAll;
+window.NexCareAPI.createInventory = InventoryAPI.create;
 window.NexCareAPI.getHospitals = HospitalsAPI.getAll;
 window.NexCareAPI.getSystemActivity = SystemAPI.getActivity;
 

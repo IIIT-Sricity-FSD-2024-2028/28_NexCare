@@ -107,8 +107,22 @@ export class BedsService {
         return ResponseUtil.error('Bed ID already exists');
       }
 
+      const hospitalId = bedData.hospitalId || 'H001';
+
+      // Subscription capacity limit validation
+      const hospitalStore = new FileStore<any>('hospitals.json', () => []);
+      const hospitals = hospitalStore.load();
+      const hospital = hospitals.find(h => h.id === hospitalId);
+      
+      if (hospital && hospital.totalBeds) {
+        const hospitalBedsCount = beds.filter(b => b.hospitalId === hospitalId).length;
+        if (hospitalBedsCount >= hospital.totalBeds) {
+          return ResponseUtil.error(`Subscription limit reached. Your current plan allows a maximum of ${hospital.totalBeds} beds. Please upgrade to add more.`);
+        }
+      }
+
       // Ward capacity limit validation (max 50 beds per ward)
-      const wardBedsCount = beds.filter(b => b.ward === bedData.ward && b.hospitalId === (bedData.hospitalId || 'H001')).length;
+      const wardBedsCount = beds.filter(b => b.ward === bedData.ward && b.hospitalId === hospitalId).length;
       if (wardBedsCount >= 50) {
         return ResponseUtil.error('Ward capacity limit reached (maximum 50 beds per ward)');
       }
@@ -118,7 +132,7 @@ export class BedsService {
         ward: bedData.ward,
         status: BedStatus.AVAILABLE,
         patient: '',
-        hospitalId: bedData.hospitalId || 'H001',
+        hospitalId: hospitalId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

@@ -6,7 +6,7 @@
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "visitDate": "2026-08-25",
     "dueDate": "2026-09-08",
-    "status": "Pending",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 900,
     "cgstRate": 0.09,
@@ -23,7 +23,9 @@
         "referenceId": "APT-H001-001"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-08-25T11:00:00Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-01T18:35:19.146Z"
   },
   {
     "id": "BILL-H001-005",
@@ -32,7 +34,7 @@
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "visitDate": "2026-08-25",
     "dueDate": "2026-09-08",
-    "status": "Pending",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 700,
     "cgstRate": 0.09,
@@ -49,7 +51,9 @@
         "referenceId": "APT-H001-005"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-08-25T11:00:00Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-01T18:35:19.147Z"
   },
   {
     "id": "BILL-H002-001",
@@ -58,7 +62,7 @@
     "hospitalName": "Coastal Care Hospital",
     "visitDate": "2026-08-25",
     "dueDate": "2026-09-08",
-    "status": "Pending",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 800,
     "cgstRate": 0.09,
@@ -75,7 +79,9 @@
         "referenceId": "APT-H002-001"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-08-25T11:00:00Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-01T18:35:19.147Z"
   },
   {
     "id": "BILL-H002-005",
@@ -84,7 +90,7 @@
     "hospitalName": "Coastal Care Hospital",
     "visitDate": "2026-08-25",
     "dueDate": "2026-09-08",
-    "status": "Pending",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 750,
     "cgstRate": 0.09,
@@ -101,7 +107,9 @@
         "referenceId": "APT-H002-005"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-08-25T11:00:00Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-01T18:35:19.147Z"
   },
   {
     "id": "BILL-H003-001",
@@ -110,7 +118,7 @@
     "hospitalName": "Namma Health Multispeciality",
     "visitDate": "2026-08-25",
     "dueDate": "2026-09-08",
-    "status": "Pending",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 1100,
     "cgstRate": 0.09,
@@ -127,7 +135,9 @@
         "referenceId": "APT-H003-001"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-08-25T11:00:00Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-01T18:35:19.147Z"
   },
   {
     "id": "BILL-H003-005",
@@ -136,7 +146,7 @@
     "hospitalName": "Namma Health Multispeciality",
     "visitDate": "2026-08-25",
     "dueDate": "2026-09-08",
-    "status": "Pending",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 950,
     "cgstRate": 0.09,
@@ -153,7 +163,9 @@
         "referenceId": "APT-H003-005"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-08-25T11:00:00Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-01T18:35:19.147Z"
   },
   {
     "id": "BILL-H004-001",
@@ -162,7 +174,7 @@
     "hospitalName": "Cauvery City Hospital",
     "visitDate": "2026-08-25",
     "dueDate": "2026-09-08",
-    "status": "Pending",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 850,
     "cgstRate": 0.09,
@@ -179,7 +191,9 @@
         "referenceId": "APT-H004-001"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-08-25T11:00:00Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-01T18:35:19.147Z"
   },
   {
     "id": "BILL-H004-005",
@@ -292,7 +306,7 @@
     "hospitalName": "Deccan Multispeciality Centre",
     "visitDate": "2026-08-25",
     "dueDate": "2026-09-08",
-    "status": "Pending",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 750,
     "cgstRate": 0.09,
@@ -309,7 +323,9 @@
         "referenceId": "APT-H006-005"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-08-25T11:00:00Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-01T18:35:19.147Z"
   },
   {
     "id": "BILL-H007-001",
@@ -318,7 +334,7 @@
     "hospitalName": "Chennai Lifeline Hospital",
     "visitDate": "2026-08-25",
     "dueDate": "2026-09-08",
-    "status": "Pending",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 1100,
     "cgstRate": 0.09,
@@ -335,7 +351,9 @@
         "referenceId": "APT-H007-001"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-08-25T11:00:00Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-01T18:35:19.147Z"
   },
   {
     "id": "BILL-H007-005",
@@ -344,7 +362,7 @@
     "hospitalName": "Chennai Lifeline Hospital",
     "visitDate": "2026-08-25",
     "dueDate": "2026-09-08",
-    "status": "Pending",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 950,
     "cgstRate": 0.09,
@@ -361,7 +379,9 @@
         "referenceId": "APT-H007-005"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-08-25T11:00:00Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-01T18:35:19.147Z"
   },
   {
     "id": "BILL-H008-001",
@@ -396,7 +416,7 @@
     "hospitalName": "Kaveri Medical Centre",
     "visitDate": "2026-08-25",
     "dueDate": "2026-09-08",
-    "status": "Pending",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 850,
     "cgstRate": 0.09,
@@ -413,6 +433,8 @@
         "referenceId": "APT-H008-005"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-08-25T11:00:00Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-01T18:35:19.147Z"
   }
 ]

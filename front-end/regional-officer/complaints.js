@@ -100,11 +100,10 @@ function render() {
                 <div style="font-size:12px;color:#6A7282;max-width:240px;">${escapeHtml(item.summary)}</div>
             </td>
             <td><span class="badge badge-neutral">${escapeHtml(item.category)}</span></td>
-            <td>${renderStars(item.rating)}</td>
+            <td>${item.rating ? renderStars(item.rating) : '—'}</td>
             <td>${feedbackStatusBadge(item.status)}</td>
             <td>
-                <button type="button" class="btn-link" data-id="${escapeHtml(item.id)}" data-subject="${escapeHtml(item.subject)}" data-status="${escapeHtml(item.status)}"
-                        onclick="openStatusModal(this)">Update</button>
+                <button type="button" class="btn-link" data-id="${escapeHtml(item.id)}" data-subject="${escapeHtml(item.subject)}" data-status="${escapeHtml(item.status)}" onclick="openStatusModal(this)">Update</button>
             </td>
         </tr>
     `).join('');

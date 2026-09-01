@@ -44,10 +44,20 @@
     "subscriptionStatus": "ACTIVE",
     "subscriptionPlan": "HOSP-STARTER",
     "subscriptionStartDate": "2026-01-01",
-    "subscriptionExpiryDate": "2026-12-31",
-    "lastPaymentDate": "2026-08-01T10:00:00Z",
-    "amountPaid": 39992,
+    "subscriptionExpiryDate": "2027-12-31",
+    "lastPaymentDate": "2026-09-01T19:45:24.802Z",
+    "amountPaid": 89992,
     "paymentHistory": [
+      {
+        "id": "PAYMTJ2U88Y18D",
+        "date": "2026-09-01T19:45:24.802Z",
+        "amount": 50000,
+        "paymentType": "UPI (admin.aiims@icici)",
+        "transactionId": "TXN-NEX-924802-5313",
+        "previousExpiry": "2026-12-31",
+        "newExpiry": "2027-12-31",
+        "status": "PAID"
+      },
       {
         "id": "PAY-H001-2026-01",
         "date": "2026-01-01T10:00:00Z",
@@ -128,7 +138,14 @@
         "newExpiry": "2026-12-31",
         "status": "PAID"
       }
-    ]
+    ],
+    "adminName": "Priya Reddy",
+    "adminEmail": "hospitalmanager@nexcare.com",
+    "adminPhone": "+91 9800563077",
+    "paymentStatus": "ACTIVE",
+    "renewalStatus": "UP_TO_DATE",
+    "transactionId": "TXN-NEX-924802-5313",
+    "updatedAt": "2026-09-01T19:45:24.802Z"
   },
   {
     "id": "H002",
@@ -259,7 +276,10 @@
         "newExpiry": "2026-12-31",
         "status": "PAID"
       }
-    ]
+    ],
+    "adminName": "Arjun Varma",
+    "adminEmail": "arjun.varma@nexcare.in",
+    "adminPhone": "+91 9697228680"
   },
   {
     "id": "H003",
@@ -390,7 +410,10 @@
         "newExpiry": "2026-12-31",
         "status": "PAID"
       }
-    ]
+    ],
+    "adminName": "Sneha Rao",
+    "adminEmail": "sneha.rao@nexcare.in",
+    "adminPhone": "+91 9379994739"
   },
   {
     "id": "H004",
@@ -521,7 +544,10 @@
         "newExpiry": "2026-12-31",
         "status": "PAID"
       }
-    ]
+    ],
+    "adminName": "Karthik Shetty",
+    "adminEmail": "karthik.shetty@nexcare.in",
+    "adminPhone": "+91 9647999074"
   },
   {
     "id": "H005",
@@ -652,7 +678,10 @@
         "newExpiry": "2026-12-31",
         "status": "PAID"
       }
-    ]
+    ],
+    "adminName": "Neha Kulkarni",
+    "adminEmail": "neha.kulkarni@nexcare.in",
+    "adminPhone": "+91 9437734715"
   },
   {
     "id": "H006",
@@ -783,7 +812,10 @@
         "newExpiry": "2026-12-31",
         "status": "PAID"
       }
-    ]
+    ],
+    "adminName": "Aditya Patil",
+    "adminEmail": "aditya.patil@nexcare.in",
+    "adminPhone": "+91 9586146439"
   },
   {
     "id": "H007",
@@ -914,7 +946,10 @@
         "newExpiry": "2026-12-31",
         "status": "PAID"
       }
-    ]
+    ],
+    "adminName": "Meera Krishnan",
+    "adminEmail": "meera.krishnan@nexcare.in",
+    "adminPhone": "+91 9664031579"
   },
   {
     "id": "H008",
@@ -1045,6 +1080,37 @@
         "newExpiry": "2026-12-31",
         "status": "PAID"
       }
-    ]
+    ],
+    "adminName": "Vignesh Raman",
+    "adminEmail": "vignesh.raman@nexcare.in",
+    "adminPhone": "+91 9678007514"
+  },
+  {
+    "name": "Rainbow Hospital",
+    "registrationNumber": "AP-MED-42516",
+    "type": "Multi-Speciality",
+    "ownershipType": "Private",
+    "city": "Tirupati",
+    "state": "Andhra Pradesh",
+    "pincode": "514262",
+    "address": "Near Park, Madhura nagar",
+    "phone": "1492802302",
+    "email": "deekshitha@gmail.com",
+    "totalBeds": 100,
+    "icuBeds": 20,
+    "specialities": [
+      "General Medicine",
+      "Emergency"
+    ],
+    "emergency24x7": true,
+    "ambulanceService": true,
+    "id": "H009",
+    "verificationStatus": "pending_verification",
+    "regionalReviewStatus": "rejected",
+    "createdAt": "2026-09-01T18:40:17.344Z",
+    "updatedAt": "2026-09-01T18:47:32.951Z",
+    "assignedManagerId": "RM001",
+    "regionalReviewedAt": "2026-09-01T18:47:32.951Z",
+    "regionalReviewNotes": "its not located at that place"
   }
 ]

@@ -4468,5 +4468,1635 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-08-31T08:15:57.432Z"
+  },
+  {
+    "id": "ACT-MTHH9IK918N",
+    "timestamp": "2026-08-31T16:53:40.282Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T16:53:40.282Z"
+  },
+  {
+    "id": "ACT-MTHHX92N21I",
+    "timestamp": "2026-08-31T17:12:07.727Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-08-31T17:12:07.727Z"
+  },
+  {
+    "id": "ACT-MTIDKKI31D5",
+    "timestamp": "2026-09-01T07:58:03.723Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:03.723Z"
+  },
+  {
+    "id": "ACT-MTIDKKL12UO",
+    "timestamp": "2026-09-01T07:58:03.829Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:03.829Z"
+  },
+  {
+    "id": "ACT-MTIDKKOV3HT",
+    "timestamp": "2026-09-01T07:58:03.967Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:03.967Z"
+  },
+  {
+    "id": "ACT-MTIDKKSE49Q",
+    "timestamp": "2026-09-01T07:58:04.094Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:04.094Z"
+  },
+  {
+    "id": "ACT-MTIDKKVI51J",
+    "timestamp": "2026-09-01T07:58:04.206Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:04.206Z"
+  },
+  {
+    "id": "ACT-MTIDKKYZ6E7",
+    "timestamp": "2026-09-01T07:58:04.331Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:04.331Z"
+  },
+  {
+    "id": "ACT-MTIDKL5C7M6",
+    "timestamp": "2026-09-01T07:58:04.560Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:04.560Z"
+  },
+  {
+    "id": "ACT-MTIDKL858CS",
+    "timestamp": "2026-09-01T07:58:04.661Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:04.661Z"
+  },
+  {
+    "id": "ACT-MTIDKLAX9NE",
+    "timestamp": "2026-09-01T07:58:04.761Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:04.761Z"
+  },
+  {
+    "id": "ACT-MTIDKLFWAKL",
+    "timestamp": "2026-09-01T07:58:04.940Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:04.940Z"
+  },
+  {
+    "id": "ACT-MTIDKLNSB79",
+    "timestamp": "2026-09-01T07:58:05.224Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:05.224Z"
+  },
+  {
+    "id": "ACT-MTIDKLQQCXV",
+    "timestamp": "2026-09-01T07:58:05.330Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:05.330Z"
+  },
+  {
+    "id": "ACT-MTIDKLTDDM8",
+    "timestamp": "2026-09-01T07:58:05.425Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:05.425Z"
+  },
+  {
+    "id": "ACT-MTIDKLW5EWG",
+    "timestamp": "2026-09-01T07:58:05.525Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:05.525Z"
+  },
+  {
+    "id": "ACT-MTIDKLZPFRC",
+    "timestamp": "2026-09-01T07:58:05.653Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:58:05.653Z"
+  },
+  {
+    "id": "ACT-MTIDMA0NGFO",
+    "timestamp": "2026-09-01T07:59:23.447Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:23.447Z"
+  },
+  {
+    "id": "ACT-MTIDMA3FH28",
+    "timestamp": "2026-09-01T07:59:23.547Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:23.547Z"
+  },
+  {
+    "id": "ACT-MTIDMA6EIBC",
+    "timestamp": "2026-09-01T07:59:23.655Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:23.655Z"
+  },
+  {
+    "id": "ACT-MTIDMA9WJ90",
+    "timestamp": "2026-09-01T07:59:23.780Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:23.780Z"
+  },
+  {
+    "id": "ACT-MTIDMACIK93",
+    "timestamp": "2026-09-01T07:59:23.874Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:23.874Z"
+  },
+  {
+    "id": "ACT-MTIDMAFAL68",
+    "timestamp": "2026-09-01T07:59:23.974Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:23.974Z"
+  },
+  {
+    "id": "ACT-MTIDMAL1MCB",
+    "timestamp": "2026-09-01T07:59:24.181Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:24.181Z"
+  },
+  {
+    "id": "ACT-MTIDMANQN1P",
+    "timestamp": "2026-09-01T07:59:24.278Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:24.278Z"
+  },
+  {
+    "id": "ACT-MTIDMAQ7OSO",
+    "timestamp": "2026-09-01T07:59:24.367Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:24.367Z"
+  },
+  {
+    "id": "ACT-MTIDMATJPLY",
+    "timestamp": "2026-09-01T07:59:24.487Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:24.487Z"
+  },
+  {
+    "id": "ACT-MTIDMB0VQ8S",
+    "timestamp": "2026-09-01T07:59:24.751Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:24.751Z"
+  },
+  {
+    "id": "ACT-MTIDMB3PR6M",
+    "timestamp": "2026-09-01T07:59:24.853Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:24.853Z"
+  },
+  {
+    "id": "ACT-MTIDMB7ESBV",
+    "timestamp": "2026-09-01T07:59:24.986Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:24.986Z"
+  },
+  {
+    "id": "ACT-MTIDMBBATBD",
+    "timestamp": "2026-09-01T07:59:25.126Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:25.126Z"
+  },
+  {
+    "id": "ACT-MTIDMBEHUI8",
+    "timestamp": "2026-09-01T07:59:25.241Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T07:59:25.241Z"
+  },
+  {
+    "id": "ACT-MTIDNVYKV30",
+    "timestamp": "2026-09-01T08:00:38.540Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:38.540Z"
+  },
+  {
+    "id": "ACT-MTIDNW06WHX",
+    "timestamp": "2026-09-01T08:00:38.598Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:38.598Z"
+  },
+  {
+    "id": "ACT-MTIDNW1SXPU",
+    "timestamp": "2026-09-01T08:00:38.656Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:38.656Z"
+  },
+  {
+    "id": "ACT-MTIDNW3JYSS",
+    "timestamp": "2026-09-01T08:00:38.719Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:38.719Z"
+  },
+  {
+    "id": "ACT-MTIDNW5BZ16",
+    "timestamp": "2026-09-01T08:00:38.783Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:38.783Z"
+  },
+  {
+    "id": "ACT-MTIDNW7C10AG",
+    "timestamp": "2026-09-01T08:00:38.856Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:38.856Z"
+  },
+  {
+    "id": "ACT-MTIDNWBS11FB",
+    "timestamp": "2026-09-01T08:00:39.016Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:39.016Z"
+  },
+  {
+    "id": "ACT-MTIDNWDI122S",
+    "timestamp": "2026-09-01T08:00:39.078Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:39.078Z"
+  },
+  {
+    "id": "ACT-MTIDNWF813WT",
+    "timestamp": "2026-09-01T08:00:39.140Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:39.140Z"
+  },
+  {
+    "id": "ACT-MTIDNWHD14UJ",
+    "timestamp": "2026-09-01T08:00:39.217Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:39.217Z"
+  },
+  {
+    "id": "ACT-MTIDNWLY15JZ",
+    "timestamp": "2026-09-01T08:00:39.382Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:39.382Z"
+  },
+  {
+    "id": "ACT-MTIDNWNN16RA",
+    "timestamp": "2026-09-01T08:00:39.443Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:39.443Z"
+  },
+  {
+    "id": "ACT-MTIDNWPI176L",
+    "timestamp": "2026-09-01T08:00:39.510Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:39.510Z"
+  },
+  {
+    "id": "ACT-MTIDNWR21875",
+    "timestamp": "2026-09-01T08:00:39.566Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:39.566Z"
+  },
+  {
+    "id": "ACT-MTIDNWSR19J0",
+    "timestamp": "2026-09-01T08:00:39.627Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:00:39.627Z"
+  },
+  {
+    "id": "ACT-MTIEE5TT1ASP",
+    "timestamp": "2026-09-01T08:21:04.385Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:04.385Z"
+  },
+  {
+    "id": "ACT-MTIEE6031BJJ",
+    "timestamp": "2026-09-01T08:21:04.612Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:04.612Z"
+  },
+  {
+    "id": "ACT-MTIEE66U1CHK",
+    "timestamp": "2026-09-01T08:21:04.854Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:04.854Z"
+  },
+  {
+    "id": "ACT-MTIEE6F31DZ0",
+    "timestamp": "2026-09-01T08:21:05.151Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:05.151Z"
+  },
+  {
+    "id": "ACT-MTIEE6OZ1EZP",
+    "timestamp": "2026-09-01T08:21:05.507Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:05.507Z"
+  },
+  {
+    "id": "ACT-MTIEE6YD1F31",
+    "timestamp": "2026-09-01T08:21:05.845Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:05.845Z"
+  },
+  {
+    "id": "ACT-MTIEE7E11GD3",
+    "timestamp": "2026-09-01T08:21:06.409Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:06.409Z"
+  },
+  {
+    "id": "ACT-MTIEE7L41H5N",
+    "timestamp": "2026-09-01T08:21:06.664Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:06.664Z"
+  },
+  {
+    "id": "ACT-MTIEE7R51IR1",
+    "timestamp": "2026-09-01T08:21:06.881Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:06.881Z"
+  },
+  {
+    "id": "ACT-MTIEE7ZT1JGW",
+    "timestamp": "2026-09-01T08:21:07.193Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:07.193Z"
+  },
+  {
+    "id": "ACT-MTIEE89W1KKZ",
+    "timestamp": "2026-09-01T08:21:07.556Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:07.556Z"
+  },
+  {
+    "id": "ACT-MTIEE8K81LYI",
+    "timestamp": "2026-09-01T08:21:07.928Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:07.928Z"
+  },
+  {
+    "id": "ACT-MTIEE8U01MYH",
+    "timestamp": "2026-09-01T08:21:08.280Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:08.280Z"
+  },
+  {
+    "id": "ACT-MTIEE8ZH1N5Q",
+    "timestamp": "2026-09-01T08:21:08.477Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:08.477Z"
+  },
+  {
+    "id": "ACT-MTIEE93F1O7J",
+    "timestamp": "2026-09-01T08:21:08.619Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:21:08.619Z"
+  },
+  {
+    "id": "ACT-MTIEGRF813Q",
+    "timestamp": "2026-09-01T08:23:05.685Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:05.685Z"
+  },
+  {
+    "id": "ACT-MTIEGRK92YF",
+    "timestamp": "2026-09-01T08:23:05.865Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:05.865Z"
+  },
+  {
+    "id": "ACT-MTIEGRRI3T6",
+    "timestamp": "2026-09-01T08:23:06.126Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:06.126Z"
+  },
+  {
+    "id": "ACT-MTIEGRWJ4CF",
+    "timestamp": "2026-09-01T08:23:06.307Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:06.307Z"
+  },
+  {
+    "id": "ACT-MTIEGS4O545",
+    "timestamp": "2026-09-01T08:23:06.600Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:06.600Z"
+  },
+  {
+    "id": "ACT-MTIEGSGD6J5",
+    "timestamp": "2026-09-01T08:23:07.021Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:07.021Z"
+  },
+  {
+    "id": "ACT-MTIEGSRM7GR",
+    "timestamp": "2026-09-01T08:23:07.426Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:07.426Z"
+  },
+  {
+    "id": "ACT-MTIEGSX58TX",
+    "timestamp": "2026-09-01T08:23:07.625Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:07.625Z"
+  },
+  {
+    "id": "ACT-MTIEGT0R9A8",
+    "timestamp": "2026-09-01T08:23:07.756Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:07.756Z"
+  },
+  {
+    "id": "ACT-MTIEGT3YAEX",
+    "timestamp": "2026-09-01T08:23:07.870Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:07.870Z"
+  },
+  {
+    "id": "ACT-MTIEGT9WBAK",
+    "timestamp": "2026-09-01T08:23:08.084Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:08.084Z"
+  },
+  {
+    "id": "ACT-MTIEGTBUCQN",
+    "timestamp": "2026-09-01T08:23:08.154Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:08.154Z"
+  },
+  {
+    "id": "ACT-MTIEGTE2D8O",
+    "timestamp": "2026-09-01T08:23:08.234Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:08.234Z"
+  },
+  {
+    "id": "ACT-MTIEGTFWEGQ",
+    "timestamp": "2026-09-01T08:23:08.300Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:08.300Z"
+  },
+  {
+    "id": "ACT-MTIEGTHVFA3",
+    "timestamp": "2026-09-01T08:23:08.371Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:23:08.371Z"
+  },
+  {
+    "id": "ACT-MTIEJHBV106",
+    "timestamp": "2026-09-01T08:25:12.571Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:12.571Z"
+  },
+  {
+    "id": "ACT-MTIEJHDS22O",
+    "timestamp": "2026-09-01T08:25:12.640Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:12.640Z"
+  },
+  {
+    "id": "ACT-MTIEJHFK37P",
+    "timestamp": "2026-09-01T08:25:12.704Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:12.704Z"
+  },
+  {
+    "id": "ACT-MTIEJHHM44F",
+    "timestamp": "2026-09-01T08:25:12.778Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:12.778Z"
+  },
+  {
+    "id": "ACT-MTIEJHJI5WD",
+    "timestamp": "2026-09-01T08:25:12.846Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:12.846Z"
+  },
+  {
+    "id": "ACT-MTIEJHLU6EY",
+    "timestamp": "2026-09-01T08:25:12.930Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:12.930Z"
+  },
+  {
+    "id": "ACT-MTIEJHQF736",
+    "timestamp": "2026-09-01T08:25:13.095Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:13.095Z"
+  },
+  {
+    "id": "ACT-MTIEJHSB8LT",
+    "timestamp": "2026-09-01T08:25:13.163Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:13.163Z"
+  },
+  {
+    "id": "ACT-MTIEJHTZ91C",
+    "timestamp": "2026-09-01T08:25:13.223Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:13.223Z"
+  },
+  {
+    "id": "ACT-MTIEJHWGAIY",
+    "timestamp": "2026-09-01T08:25:13.312Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:13.312Z"
+  },
+  {
+    "id": "ACT-MTIEJI1DB5X",
+    "timestamp": "2026-09-01T08:25:13.489Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:13.489Z"
+  },
+  {
+    "id": "ACT-MTIEJI3ACFU",
+    "timestamp": "2026-09-01T08:25:13.558Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:13.558Z"
+  },
+  {
+    "id": "ACT-MTIEJI57DYN",
+    "timestamp": "2026-09-01T08:25:13.627Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:13.627Z"
+  },
+  {
+    "id": "ACT-MTIEJI73EIV",
+    "timestamp": "2026-09-01T08:25:13.695Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:13.695Z"
+  },
+  {
+    "id": "ACT-MTIEJI8QFFP",
+    "timestamp": "2026-09-01T08:25:13.754Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:25:13.754Z"
+  },
+  {
+    "id": "ACT-MTIENV7L1C7",
+    "timestamp": "2026-09-01T08:28:37.185Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:37.185Z"
+  },
+  {
+    "id": "ACT-MTIENV9K2S8",
+    "timestamp": "2026-09-01T08:28:37.256Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:37.256Z"
+  },
+  {
+    "id": "ACT-MTIENVBK3XR",
+    "timestamp": "2026-09-01T08:28:37.328Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:37.328Z"
+  },
+  {
+    "id": "ACT-MTIENVD74QT",
+    "timestamp": "2026-09-01T08:28:37.387Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:37.387Z"
+  },
+  {
+    "id": "ACT-MTIENVF554Y",
+    "timestamp": "2026-09-01T08:28:37.457Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:37.457Z"
+  },
+  {
+    "id": "ACT-MTIENVHE6MB",
+    "timestamp": "2026-09-01T08:28:37.538Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:37.538Z"
+  },
+  {
+    "id": "ACT-MTIENWDT7PB",
+    "timestamp": "2026-09-01T08:28:38.705Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:38.705Z"
+  },
+  {
+    "id": "ACT-MTIENWTJ8R6",
+    "timestamp": "2026-09-01T08:28:39.271Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:39.271Z"
+  },
+  {
+    "id": "ACT-MTIENX9C9NB",
+    "timestamp": "2026-09-01T08:28:39.840Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:39.840Z"
+  },
+  {
+    "id": "ACT-MTIENXB4A4R",
+    "timestamp": "2026-09-01T08:28:39.904Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:39.904Z"
+  },
+  {
+    "id": "ACT-MTIENXCXBWF",
+    "timestamp": "2026-09-01T08:28:39.969Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:39.969Z"
+  },
+  {
+    "id": "ACT-MTIENXEVCEG",
+    "timestamp": "2026-09-01T08:28:40.039Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:40.039Z"
+  },
+  {
+    "id": "ACT-MTIENXGKDF6",
+    "timestamp": "2026-09-01T08:28:40.100Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:40.100Z"
+  },
+  {
+    "id": "ACT-MTIENXIIEKW",
+    "timestamp": "2026-09-01T08:28:40.170Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:40.170Z"
+  },
+  {
+    "id": "ACT-MTIENXKBFHC",
+    "timestamp": "2026-09-01T08:28:40.235Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:28:40.235Z"
+  },
+  {
+    "id": "ACT-MTIEQAUPGTB",
+    "timestamp": "2026-09-01T08:30:30.769Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:30.769Z"
+  },
+  {
+    "id": "ACT-MTIEQBAJHXL",
+    "timestamp": "2026-09-01T08:30:31.339Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:31.339Z"
+  },
+  {
+    "id": "ACT-MTIEQBQ9IRJ",
+    "timestamp": "2026-09-01T08:30:31.905Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:31.905Z"
+  },
+  {
+    "id": "ACT-MTIEQC5VJGU",
+    "timestamp": "2026-09-01T08:30:32.467Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:32.467Z"
+  },
+  {
+    "id": "ACT-MTIEQCLQKZ1",
+    "timestamp": "2026-09-01T08:30:33.038Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:33.038Z"
+  },
+  {
+    "id": "ACT-MTIEQDG3LO7",
+    "timestamp": "2026-09-01T08:30:34.131Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:34.131Z"
+  },
+  {
+    "id": "ACT-MTIEQFJDM0K",
+    "timestamp": "2026-09-01T08:30:36.841Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:36.841Z"
+  },
+  {
+    "id": "ACT-MTIEQFZHNYO",
+    "timestamp": "2026-09-01T08:30:37.421Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:37.421Z"
+  },
+  {
+    "id": "ACT-MTIEQGFBOSX",
+    "timestamp": "2026-09-01T08:30:37.991Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:37.991Z"
+  },
+  {
+    "id": "ACT-MTIEQGH5PAQ",
+    "timestamp": "2026-09-01T08:30:38.057Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:38.057Z"
+  },
+  {
+    "id": "ACT-MTIEQGIVQX8",
+    "timestamp": "2026-09-01T08:30:38.119Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:38.119Z"
+  },
+  {
+    "id": "ACT-MTIEQGKJR9L",
+    "timestamp": "2026-09-01T08:30:38.179Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:38.179Z"
+  },
+  {
+    "id": "ACT-MTIEQGMDSVP",
+    "timestamp": "2026-09-01T08:30:38.245Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:38.245Z"
+  },
+  {
+    "id": "ACT-MTIEQGO0TSX",
+    "timestamp": "2026-09-01T08:30:38.304Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:38.304Z"
+  },
+  {
+    "id": "ACT-MTIEQGPKUEF",
+    "timestamp": "2026-09-01T08:30:38.360Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T08:30:38.360Z"
+  },
+  {
+    "id": "ACT-MTINZLVM1MA",
+    "timestamp": "2026-09-01T12:49:41.506Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:41.506Z"
+  },
+  {
+    "id": "ACT-MTINZMCE2UI",
+    "timestamp": "2026-09-01T12:49:42.110Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:42.110Z"
+  },
+  {
+    "id": "ACT-MTINZMTC3M2",
+    "timestamp": "2026-09-01T12:49:42.720Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:42.720Z"
+  },
+  {
+    "id": "ACT-MTINZN9940X",
+    "timestamp": "2026-09-01T12:49:43.293Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:43.293Z"
+  },
+  {
+    "id": "ACT-MTINZNRF5NS",
+    "timestamp": "2026-09-01T12:49:43.947Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:43.947Z"
+  },
+  {
+    "id": "ACT-MTINZOOC614",
+    "timestamp": "2026-09-01T12:49:45.132Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:45.132Z"
+  },
+  {
+    "id": "ACT-MTINZQSI7D0",
+    "timestamp": "2026-09-01T12:49:47.874Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:47.874Z"
+  },
+  {
+    "id": "ACT-MTINZR9F8WV",
+    "timestamp": "2026-09-01T12:49:48.483Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:48.483Z"
+  },
+  {
+    "id": "ACT-MTINZRPX9L0",
+    "timestamp": "2026-09-01T12:49:49.077Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:49.077Z"
+  },
+  {
+    "id": "ACT-MTINZRT2ANH",
+    "timestamp": "2026-09-01T12:49:49.190Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:49.190Z"
+  },
+  {
+    "id": "ACT-MTINZRW3BPC",
+    "timestamp": "2026-09-01T12:49:49.299Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:49.299Z"
+  },
+  {
+    "id": "ACT-MTINZRYNCPP",
+    "timestamp": "2026-09-01T12:49:49.392Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:49.392Z"
+  },
+  {
+    "id": "ACT-MTINZS0QDAR",
+    "timestamp": "2026-09-01T12:49:49.466Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:49.466Z"
+  },
+  {
+    "id": "ACT-MTINZS2LESA",
+    "timestamp": "2026-09-01T12:49:49.533Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:49.533Z"
+  },
+  {
+    "id": "ACT-MTINZS58F0K",
+    "timestamp": "2026-09-01T12:49:49.628Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:49:49.628Z"
+  },
+  {
+    "id": "ACT-MTIO4WJ1GQW",
+    "timestamp": "2026-09-01T12:53:48.589Z",
+    "userId": "U005",
+    "action": "Login",
+    "details": "User Dr. Sunita Sharma logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T12:53:48.589Z"
+  },
+  {
+    "id": "ACT-MTIOF68YHZ3",
+    "timestamp": "2026-09-01T13:01:47.746Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Tirupati Crew Alpha logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T13:01:47.746Z"
+  },
+  {
+    "id": "ACT-MTIOF6C6IFM",
+    "timestamp": "2026-09-01T13:01:47.862Z",
+    "userId": "RM002",
+    "action": "Login",
+    "details": "User Kavya Menon logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T13:01:47.862Z"
+  },
+  {
+    "id": "ACT-MTIXG7ULJ8T",
+    "timestamp": "2026-09-01T17:14:33.021Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:14:33.021Z"
+  },
+  {
+    "id": "ACT-MTIXG7X5KAF",
+    "timestamp": "2026-09-01T17:14:33.113Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:14:33.113Z"
+  },
+  {
+    "id": "ACT-MTIXGTU7LSM",
+    "timestamp": "2026-09-01T17:15:01.519Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:15:01.519Z"
+  },
+  {
+    "id": "ACT-MTIXGTWOM8T",
+    "timestamp": "2026-09-01T17:15:01.608Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:15:01.608Z"
+  },
+  {
+    "id": "ACT-MTIXK56M13B",
+    "timestamp": "2026-09-01T17:17:36.190Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:17:36.190Z"
+  },
+  {
+    "id": "ACT-MTIXK59M2W5",
+    "timestamp": "2026-09-01T17:17:36.298Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:17:36.298Z"
+  },
+  {
+    "id": "ACT-MTIXL40X3AU",
+    "timestamp": "2026-09-01T17:18:21.345Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:18:21.345Z"
+  },
+  {
+    "id": "ACT-MTIXL45K41M",
+    "timestamp": "2026-09-01T17:18:21.512Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:18:21.512Z"
+  },
+  {
+    "id": "ACT-MTIXLUL156B",
+    "timestamp": "2026-09-01T17:18:55.765Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:18:55.765Z"
+  },
+  {
+    "id": "ACT-MTIXLUOR6B7",
+    "timestamp": "2026-09-01T17:18:55.899Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:18:55.899Z"
+  },
+  {
+    "id": "ACT-MTIXM9ZP7ML",
+    "timestamp": "2026-09-01T17:19:15.733Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:19:15.733Z"
+  },
+  {
+    "id": "ACT-MTIXO29Y1FO",
+    "timestamp": "2026-09-01T17:20:39.046Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:20:39.046Z"
+  },
+  {
+    "id": "ACT-MTIY7VL71P1",
+    "timestamp": "2026-09-01T17:36:03.499Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:36:03.499Z"
+  },
+  {
+    "id": "ACT-MTIYDUNL2KX",
+    "timestamp": "2026-09-01T17:40:42.226Z",
+    "userId": "U009",
+    "action": "Login",
+    "details": "User Dr. Sarah Smith logged in successfully as doctor",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:40:42.226Z"
+  },
+  {
+    "id": "ACT-MTIYGOUP54Y",
+    "timestamp": "2026-09-01T17:42:54.673Z",
+    "userId": "U009",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:42:54.673Z"
+  },
+  {
+    "id": "ACT-MTIYH64Z62D",
+    "timestamp": "2026-09-01T17:43:17.075Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:43:17.075Z"
+  },
+  {
+    "id": "ACT-MTIYKRPZ8K3",
+    "timestamp": "2026-09-01T17:46:05.015Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:46:05.015Z"
+  },
+  {
+    "id": "ACT-MTIYLXA3BY3",
+    "timestamp": "2026-09-01T17:46:58.875Z",
+    "userId": "P001",
+    "action": "Create",
+    "details": "Ambulance request AMB-MTIYLX979JH created for Raghav Rao",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:46:58.875Z"
+  },
+  {
+    "id": "ACT-MTIYNB6LCBU",
+    "timestamp": "2026-09-01T17:48:03.549Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Tirupati Crew Alpha logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:48:03.549Z"
+  },
+  {
+    "id": "ACT-MTIYO8ANEGA",
+    "timestamp": "2026-09-01T17:48:46.463Z",
+    "userId": "System",
+    "action": "Update",
+    "details": "Ambulance request AMB-MTIYLX979JH updated to Dispatched",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:48:46.463Z"
+  },
+  {
+    "id": "ACT-MTIYOFYYF4L",
+    "timestamp": "2026-09-01T17:48:56.410Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:48:56.410Z"
+  },
+  {
+    "id": "ACT-MTIYW6JCG9T",
+    "timestamp": "2026-09-01T17:54:57.432Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T17:54:57.432Z"
+  },
+  {
+    "id": "ACT-MTIZ5CWCHG0",
+    "timestamp": "2026-09-01T18:02:05.580Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T18:02:05.580Z"
   }
 ]

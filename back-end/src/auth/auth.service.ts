@@ -305,6 +305,7 @@ export class AuthService {
         id: newUserId,
         name: registerRequest.fullName,
         email: registerRequest.email,
+        phone: registerRequest.phone || '',
         role: UserRole.PATIENT,
         status: UserStatus.ACTIVE,
         password: this.hashPassword(registerRequest.password),

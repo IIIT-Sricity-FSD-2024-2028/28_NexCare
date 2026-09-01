@@ -151,11 +151,9 @@
             try {
                 const res = await window.NexCareAPI.Hospitals.register(data);
                 if (res.success) {
-                    successDiv.innerHTML = '<strong>Registration Submitted Successfully!</strong><br>Your application is now PENDING verification by the Super User. Redirecting to login...';
+                    successDiv.innerHTML = '<strong>Registration Submitted Successfully!</strong><br>Your application is now PENDING verification by the Super User. A Regional Officer will be assigned to review your application.';
                     successDiv.style.display = 'block';
-                    setTimeout(() => {
-                        window.location.href = '../auth/login.html';
-                    }, 3500);
+                    document.getElementById('hospitalRegisterForm').style.display = 'none';
                 } else {
                     errorDiv.textContent = res.message || 'Registration failed.';
                     errorDiv.style.display = 'block';

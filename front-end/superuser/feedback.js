@@ -22,7 +22,15 @@ let feedbackCache = [];
 
 async function loadFeedbacks() {
     try {
-        const resp = await apiGet('/feedback');
+        const [resp, hospResp] = await Promise.all([
+            apiGet('/feedback'),
+            apiGet('/hospitals')
+        ]);
+        const hospMap = {};
+        if (hospResp && hospResp.data) {
+            hospResp.data.forEach(h => hospMap[h.id] = h.name);
+        }
+        
         feedbackCache = (resp.data || []).map(f => ({
             id: f.id,
             date: f.createdAt ? f.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
@@ -30,8 +38,22 @@ async function loadFeedbacks() {
             sender: f.sender || 'Anonymous',
             rating: f.rating || 0,
             subject: f.subject || 'Feedback',
-            comment: f.summary || f.description || ''
+            comment: f.summary || f.description || '',
+            hospitalName: hospMap[f.hospitalId] || f.hospitalId || 'Unknown Hospital'
         }));
+
+        // Populate hospital filter dropdown if empty
+        const filterHosp = document.getElementById('filterHospital');
+        if (filterHosp && filterHosp.options.length <= 1) {
+            const uniqueHospitals = [...new Set(feedbackCache.map(f => f.hospitalName))].sort();
+            uniqueHospitals.forEach(h => {
+                const opt = document.createElement('option');
+                opt.value = h;
+                opt.textContent = h;
+                filterHosp.appendChild(opt);
+            });
+        }
+
         return feedbackCache;
     } catch (err) {
         console.error('Failed to load feedback:', err);
@@ -62,6 +84,7 @@ function renderFeedback(data) {
         <tr>
             <td style="font-weight: 500; color: #111827;">${f.id}</td>
             <td>${f.date}</td>
+            <td>${f.hospitalName}</td>
             <td><span class="badge ${badgeColor}">${f.type}</span></td>
             <td>${f.sender}</td>
             <td>${f.subject}</td>
@@ -122,12 +145,14 @@ async function deleteFeedback(id) {
 async function applyFilters() {
     const term = (document.getElementById('searchTable')?.value || '').toLowerCase();
     const typeVal = document.getElementById('filterType')?.value || 'All';
+    const hospVal = document.getElementById('filterHospital')?.value || 'All';
 
     const all = await loadFeedbacks();
     const filtered = all.filter(f => {
         const matchesTerm = f.sender.toLowerCase().includes(term) || f.subject.toLowerCase().includes(term) || f.id.toLowerCase().includes(term);
         const matchesType = (typeVal === 'All' || f.type === typeVal);
-        return matchesTerm && matchesType;
+        const matchesHosp = (hospVal === 'All' || f.hospitalName === hospVal);
+        return matchesTerm && matchesType && matchesHosp;
     });
 
     renderFeedback(filtered);
@@ -138,9 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const searchInput = document.getElementById('searchTable');
     const filterInput = document.getElementById('filterType');
+    const hospInput = document.getElementById('filterHospital');
 
     if (searchInput) searchInput.addEventListener('input', applyFilters);
     if (filterInput) filterInput.addEventListener('change', applyFilters);
+    if (hospInput) hospInput.addEventListener('change', applyFilters);
 
     window.addEventListener('click', function (event) {
         if (event.target == document.getElementById('viewFeedbackModal')) {

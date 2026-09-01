@@ -112,7 +112,7 @@ function initManagerInfo() {
 function switchTab(tabName, event) {
     if (event) event.preventDefault();
 
-    const tabs = ['overview', 'leaves', 'schedules', 'staff', 'register-staff', 'inventory-approvals', 'ambulance', 'subscription', 'supervision', 'support'];
+    const tabs = ['overview', 'leaves', 'schedules', 'staff', 'setup', 'assets', 'inventory-approvals', 'ambulance', 'subscription', 'supervision', 'support', 'revenue', 'feedback'];
     if (!tabs.includes(tabName)) tabName = 'overview';
 
     // Update active nav links
@@ -130,13 +130,15 @@ function switchTab(tabName, event) {
         leaves: 'leavesTab',
         schedules: 'schedulesTab',
         staff: 'staffTab',
-        'register-staff': 'registerStaffTab',
+        setup: 'setupTab',
+        assets: 'assetsTab',
         'inventory-approvals': 'inventoryApprovalsTab',
         ambulance: 'ambulanceTab',
         subscription: 'subscriptionTab',
         revenue: 'revenueTab',
         supervision: 'supervisionTab',
-        support: 'supportTab'
+        support: 'supportTab',
+        feedback: 'feedbackTab'
     };
 
     const targetTabEl = document.getElementById(tabMap[tabName]);
@@ -147,22 +149,34 @@ function switchTab(tabName, event) {
         leaves: { title: 'Doctor Leave Approvals', subtitle: 'Review, approve, or reject doctor leave applications with strict hospital scoping.' },
         schedules: { title: 'Schedule Approvals', subtitle: 'Approve the hospital-wide roster before it is published to department staff.' },
         staff: { title: 'Hospital Staff Directory', subtitle: 'Manage doctors, administrative staff, and ambulance drivers for this hospital.' },
-        'register-staff': { title: 'Register Hospital Staff', subtitle: 'Onboard new doctors, administrative staff, or ambulance personnel with automatic credentials.' },
+        setup: { title: 'Registration & Setup', subtitle: 'Configure hospital infrastructure, register staff, and manage initial inventory.' },
+        assets: { title: 'Infrastructure & Assets', subtitle: 'View existing wards, beds, and current stock catalog inventory.' },
         'inventory-approvals': { title: 'Inventory Requirements & Approvals', subtitle: 'Approve or reject stock requisition requests raised by administrative staff.' },
         ambulance: { title: 'Ambulance Fleet & Emergency Status', subtitle: 'Live status tracking, fleet readiness, vehicle standby, and emergency dispatch management.' },
         subscription: { title: 'Subscription & License Renewal', subtitle: 'Manage 12-month hospital license, payment history, and instant renewal.' },
-        revenue: { title: 'Revenue & Financial Analytics', subtitle: 'Collections, outstanding bills, and platform charges.' },
+        revenue: { title: 'Revenue & Financial Analytics', subtitle: 'Hospital collections and outstanding bills tracking.' },
         supervision: { title: 'Administrative Staff Supervision', subtitle: 'Assigned responsibilities and front-desk operation tracking.' },
-        support: { title: 'Regional Support Tickets', subtitle: 'Hospital-level issue escalations and compliance tracking.' }
+        support: { title: 'Regional Support Tickets', subtitle: 'Hospital-level issue escalations and compliance tracking.' },
+        feedback: { title: 'Patient Feedback & Issues', subtitle: 'Manage and resolve patient complaints for your hospital.' },
+        setup: { title: 'Registration & Setup', subtitle: 'Configure hospital infrastructure, register staff, and manage initial inventory.' }
     };
 
     if (titles[tabName]) {
-        if (document.getElementById('pageTitle')) document.getElementById('pageTitle').textContent = titles[tabName].title;
-        if (document.getElementById('pageSubtitle')) document.getElementById('pageSubtitle').textContent = titles[tabName].subtitle;
+        const header = document.querySelector('.dashboard-header h1');
+        const desc = document.querySelector('.dashboard-header .header-desc');
+        if (header) header.textContent = titles[tabName].title;
+        if (desc) desc.textContent = titles[tabName].subtitle;
     }
 
-    if (tabName === 'revenue') {
+    if (tabName === 'leaves') {
+        renderLeaves();
+    } else if (tabName === 'supervision') {
+        loadSupervision();
+    } else if (tabName === 'revenue') {
         loadRevenue();
+    } else if (tabName === 'assets') {
+        loadInfrastructure();
+        loadInventoryCatalog();
     }
 
     // Reflect hash in URL without jump
@@ -182,7 +196,11 @@ async function loadAllDashboardData() {
             loadInventoryReqs(),
             loadAmbulanceFleet(),
             loadSubscription(),
-            loadSupport()
+            loadSupport(),
+            loadHmFeedback(),
+            loadRevenue(),
+            loadInfrastructure(),
+            loadInventoryCatalog()
         ]);
     } catch (e) {
         console.error('Error loading dashboard data:', e);
@@ -1902,6 +1920,8 @@ async function handleNewAmbulanceSubmit(e) {
     const pickupLocation = document.getElementById('newAmbPickup').value.trim();
     const type = document.getElementById('newAmbType').value;
     const vehicleNumber = document.getElementById('newAmbVehicle').value;
+    const driverName = document.getElementById('newAmbDriverName')?.value.trim();
+    const driverPhone = document.getElementById('newAmbDriverPhone')?.value.trim();
     const notes = document.getElementById('newAmbNotes').value.trim();
     const hospitalId = managerProfile?.hospitalId || 'H001';
 
@@ -1918,6 +1938,8 @@ async function handleNewAmbulanceSubmit(e) {
             pickupLocation,
             type,
             vehicleNumber,
+            driverName: driverName || undefined,
+            driverPhone: driverPhone || undefined,
             notes: notes || `Emergency ${type} requested by manager`,
             status: 'Dispatched',
             eta: '8 mins',
@@ -1940,4 +1962,205 @@ async function handleNewAmbulanceSubmit(e) {
             btn.textContent = 'Dispatch Ambulance';
         }
     }
+}
+
+// ── Patient Feedback & Issues (Hospital Manager) ────────────────────────────
+let allHmFeedback = [];
+let hmFeedbackEditingId = null;
+
+async function loadHmFeedback() {
+    const hospitalId = getManagerHospitalId();
+    if (!hospitalId) return;
+
+    try {
+        const resp = await window.NexCareAPI.Feedback.getAll({ hospitalId });
+        allHmFeedback = (resp.success && Array.isArray(resp.data)) ? resp.data : [];
+        hmRenderFeedback();
+    } catch (err) {
+        console.error('Failed to load feedback:', err);
+        const tbody = document.getElementById('hmFeedbackTableBody');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="loading-cell" style="color:red;">Error loading feedback.</td></tr>`;
+    }
+}
+
+function hmRenderFeedback() {
+    const tbody = document.getElementById('hmFeedbackTableBody');
+    if (!tbody) return;
+
+    if (allHmFeedback.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="loading-cell">No feedback found.</td></tr>`;
+        return;
+    }
+
+    const filterVal = document.getElementById('hmFeedbackStatusFilter')?.value || 'all';
+    const filtered = allHmFeedback.filter(f => filterVal === 'all' || f.status === filterVal);
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="loading-cell">No feedback matches this filter.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = filtered.map(f => {
+        let statusBadge = f.status === 'Resolved' ? 'active' : (f.status === 'In Progress' ? 'pending' : 'rejected');
+        let ratingStars = '⭐'.repeat(f.rating) + '☆'.repeat(5 - f.rating);
+        let dateStr = f.createdAt ? new Date(f.createdAt).toISOString().split('T')[0] : 'N/A';
+
+        return `
+        <tr>
+            <td>${dateStr}</td>
+            <td style="font-weight:500;">${f.sender || 'Anonymous'}</td>
+            <td>
+                <div style="font-weight:600;">${f.subject || 'N/A'}</div>
+                <div style="font-size:12px; color:#6B7280; margin-top:4px;">${f.summary || f.description || ''}</div>
+            </td>
+            <td>${f.category || 'General'}</td>
+            <td style="color:#F59E0B; font-size:14px;">${ratingStars}</td>
+            <td><span class="badge badge-${statusBadge}">${f.status || 'Open'}</span></td>
+            <td>
+                <button class="btn-secondary" style="padding:4px 10px; font-size:12px;" onclick="openHmFeedbackModal('${f.id}', '${f.status}')">Update Status</button>
+            </td>
+        </tr>
+        `;
+    }).join('');
+}
+
+function openHmFeedbackModal(id, currentStatus) {
+    hmFeedbackEditingId = id;
+    document.getElementById('hmFeedbackCurrentStatus').textContent = currentStatus || 'Open';
+    document.getElementById('hmFeedbackNewStatus').value = currentStatus || 'Open';
+    
+    const modal = document.getElementById('hmFeedbackStatusModal');
+    modal.style.display = 'flex';
+}
+
+function closeHmFeedbackModal() {
+    hmFeedbackEditingId = null;
+    document.getElementById('hmFeedbackStatusModal').style.display = 'none';
+}
+
+async function saveHmFeedbackStatus() {
+    if (!hmFeedbackEditingId) return;
+    const newStatus = document.getElementById('hmFeedbackNewStatus').value;
+    
+    try {
+        const res = await window.NexCareAPI.Feedback.updateStatus(hmFeedbackEditingId, newStatus);
+        if (!res || !res.success) throw new Error('Update failed');
+        
+        // Update local state
+        const idx = allHmFeedback.findIndex(f => f.id === hmFeedbackEditingId);
+        if (idx >= 0) {
+            allHmFeedback[idx].status = newStatus;
+            hmRenderFeedback();
+        }
+        closeHmFeedbackModal();
+    } catch (err) {
+        console.error(err);
+        alert('Could not update status. Please try again.');
+    }
+}
+
+// =========================================================
+// INFRASTRUCTURE (WARDS & BEDS)
+// =========================================================
+async function loadInfrastructure() {
+    const tableBody = document.getElementById('infrastructureTableBody');
+    if (!tableBody) return;
+    try {
+        const resp = await window.NexCareAPI.getBeds();
+        if (resp.success) {
+            const beds = resp.data || [];
+            if (beds.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#6b7280;">No beds registered yet.</td></tr>';
+            } else {
+                tableBody.innerHTML = beds.map(b => `
+                    <tr>
+                        <td><strong>${b.id}</strong></td>
+                        <td>${b.ward}</td>
+                        <td><span class="status-pill status-${(b.status || '').toLowerCase().replace('_', '-')}">${b.status}</span></td>
+                        <td>${b.patient || '-'}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+    } catch (e) {
+        tableBody.innerHTML = '<tr><td colspan="4" class="error-cell">Failed to load infrastructure.</td></tr>';
+    }
+}
+
+async function handleNewBedSubmit(e) {
+    e.preventDefault();
+    const ward = document.getElementById('bedWard').value;
+    const bedId = document.getElementById('bedId').value;
+    try {
+        const resp = await window.NexCareAPI.createBed({ id: bedId, ward });
+        if (resp.success) {
+            NexCareUI.showToast({ message: 'Bed registered successfully!', type: 'success' });
+            document.getElementById('newBedForm').reset();
+            loadInfrastructure();
+        } else {
+            NexCareUI.showToast({ message: resp.message || 'Failed to register bed.', type: 'error' });
+        }
+    } catch (e) {
+        NexCareUI.showToast({ message: 'Network error.', type: 'error' });
+    }
+}
+
+// =========================================================
+// INVENTORY CATALOG
+// =========================================================
+async function loadInventoryCatalog() {
+    const tableBody = document.getElementById('inventoryCatalogTableBody');
+    if (!tableBody) return;
+    try {
+        const resp = await window.NexCareAPI.getInventory();
+        if (resp.success) {
+            const items = resp.data || [];
+            if (items.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#6b7280;">Catalog is empty. Add items above.</td></tr>';
+            } else {
+                tableBody.innerHTML = items.map(item => {
+                    const statusClass = item.quantity <= item.minStock ? 'status-critical' : 'status-active';
+                    return `
+                        <tr>
+                            <td><strong>${item.name}</strong><br><small style="color:#6b7280">${item.id}</small></td>
+                            <td>${item.category}</td>
+                            <td>${item.location}</td>
+                            <td>${item.quantity} ${item.unit} <small style="color:#6b7280;">(Min: ${item.minStock})</small></td>
+                            <td><span class="status-pill ${statusClass}">${item.quantity <= item.minStock ? 'LOW STOCK' : 'IN STOCK'}</span></td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+    } catch (e) {
+        tableBody.innerHTML = '<tr><td colspan="5" class="error-cell">Failed to load inventory.</td></tr>';
+    }
+}
+
+async function handleNewInventorySubmit(e) {
+    e.preventDefault();
+    const payload = {
+        name: document.getElementById('invName').value,
+        category: document.getElementById('invCategory').value,
+        quantity: parseInt(document.getElementById('invQty').value, 10),
+        minStock: parseInt(document.getElementById('invMin').value, 10),
+        unit: document.getElementById('invUnit').value,
+        location: document.getElementById('invLocation').value,
+    };
+    try {
+        const resp = await window.NexCareAPI.createInventory(payload);
+        if (resp.success) {
+            NexCareUI.showToast({ message: 'Item added to catalog!', type: 'success' });
+            document.getElementById('newInventoryForm').reset();
+            loadInventoryCatalog();
+        } else {
+            NexCareUI.showToast({ message: resp.message || 'Failed to add item.', type: 'error' });
+        }
+    } catch (e) {
+        NexCareUI.showToast({ message: 'Network error.', type: 'error' });
+    }
+}
+
+function toggleSidebar() {
+    document.body.classList.toggle('sidebar-collapsed');
 }

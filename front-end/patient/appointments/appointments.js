@@ -253,6 +253,13 @@ async function renderStep0(container) {
     title.textContent = 'Select Hospital';
     card.appendChild(title);
 
+    const searchContainer = document.createElement('div');
+    searchContainer.style.marginBottom = '20px';
+    searchContainer.innerHTML = `
+        <input type="text" id="hospitalSearchInput" class="form-control" placeholder="Search hospitals by name, city, area or specialty..." style="width: 100%; max-width: 500px; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
+    `;
+    card.appendChild(searchContainer);
+
     const resultsGrid = document.createElement('div');
     resultsGrid.className = 'hospital-results-grid';
     resultsGrid.style.display = 'grid';
@@ -262,49 +269,66 @@ async function renderStep0(container) {
 
     const hospitals = Array.isArray(window.MOCK_HOSPITALS) ? window.MOCK_HOSPITALS : [];
 
-    if (!hospitals.length) {
-        const unavailable = document.createElement('p');
-        unavailable.style.cssText = 'padding:16px;color:#B91C1C;text-align:center;grid-column:1 / -1;';
-        unavailable.textContent = 'Unable to load hospitals and doctor availability. Please check the connection and try again.';
-        resultsGrid.appendChild(unavailable);
+    function renderHospitals(hospList) {
+        resultsGrid.innerHTML = '';
+        if (!hospList.length) {
+            const unavailable = document.createElement('p');
+            unavailable.style.cssText = 'padding:16px;color:#6B7280;text-align:center;grid-column:1 / -1;';
+            unavailable.textContent = 'No hospitals match your search criteria.';
+            resultsGrid.appendChild(unavailable);
+            return;
+        }
+
+        hospList.forEach(h => {
+            const isSelected = bookingData.hospital && (bookingData.hospital.id === h.id || bookingData.hospital.name === h.name);
+            const hCard = document.createElement('div');
+            hCard.className = `hospital-card ${isSelected ? 'selected' : ''}`;
+            hCard.style.border = isSelected ? '2px solid #155DFC' : '1px solid #E5E7EB';
+            hCard.style.background = isSelected ? '#EFF6FF' : '#FFFFFF';
+            hCard.style.borderRadius = '12px';
+            hCard.style.padding = '20px';
+            hCard.style.cursor = 'pointer';
+            hCard.style.transition = 'all 0.2s';
+
+            hCard.innerHTML = `
+                <div style="font-size: 24px; margin-bottom: 8px;">🏥</div>
+                <h3 style="font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 4px;">${escapeHtml(h.name)}</h3>
+                <p style="font-size: 13px; color: #6B7280; margin-bottom: 12px;">📍 ${escapeHtml(h.city)} • ${escapeHtml(h.address || '')}</p>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px;">
+                    ${(h.specialities || []).slice(0, 3).map(s => `<span class="badge" style="background:#F3F4F6; color:#374151; font-size:11px;">${escapeHtml(s)}</span>`).join('')}
+                </div>
+                <button class="btn-primary" style="width: 100%; justify-content: center; padding: 8px 12px; font-size: 13px;">
+                    ${isSelected ? 'Selected' : 'Select Hospital'}
+                </button>
+            `;
+
+            hCard.onclick = () => {
+                if (bookingData.hospital !== h) {
+                    bookingData.hospital = h;
+                    bookingData.department = null;
+                    bookingData.date = null;
+                    bookingData.doctor = null;
+                    bookingData.time = null;
+                }
+                currentStep = 1;
+                renderBookingStep();
+            };
+
+            resultsGrid.appendChild(hCard);
+        });
     }
 
-    hospitals.forEach(h => {
-        const isSelected = bookingData.hospital && (bookingData.hospital.id === h.id || bookingData.hospital.name === h.name);
-        const hCard = document.createElement('div');
-        hCard.className = `hospital-card ${isSelected ? 'selected' : ''}`;
-        hCard.style.border = isSelected ? '2px solid #155DFC' : '1px solid #E5E7EB';
-        hCard.style.background = isSelected ? '#EFF6FF' : '#FFFFFF';
-        hCard.style.borderRadius = '12px';
-        hCard.style.padding = '20px';
-        hCard.style.cursor = 'pointer';
-        hCard.style.transition = 'all 0.2s';
+    renderHospitals(hospitals);
 
-        hCard.innerHTML = `
-            <div style="font-size: 24px; margin-bottom: 8px;">🏥</div>
-            <h3 style="font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 4px;">${escapeHtml(h.name)}</h3>
-            <p style="font-size: 13px; color: #6B7280; margin-bottom: 12px;">📍 ${escapeHtml(h.city)} • ${escapeHtml(h.address || '')}</p>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px;">
-                ${(h.specialities || []).slice(0, 3).map(s => `<span class="badge" style="background:#F3F4F6; color:#374151; font-size:11px;">${escapeHtml(s)}</span>`).join('')}
-            </div>
-            <button class="btn-primary" style="width: 100%; justify-content: center; padding: 8px 12px; font-size: 13px;">
-                ${isSelected ? 'Selected' : 'Select Hospital'}
-            </button>
-        `;
-
-        hCard.onclick = () => {
-            if (bookingData.hospital !== h) {
-                bookingData.hospital = h;
-                bookingData.department = null;
-                bookingData.date = null;
-                bookingData.doctor = null;
-                bookingData.time = null;
-            }
-            currentStep = 1;
-            renderBookingStep();
-        };
-
-        resultsGrid.appendChild(hCard);
+    searchContainer.querySelector('input').addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase();
+        const filtered = hospitals.filter(h => 
+            (h.name && h.name.toLowerCase().includes(q)) ||
+            (h.city && h.city.toLowerCase().includes(q)) ||
+            (h.address && h.address.toLowerCase().includes(q)) ||
+            (h.specialities && h.specialities.some(s => s.toLowerCase().includes(q)))
+        );
+        renderHospitals(filtered);
     });
 
     card.appendChild(resultsGrid);
@@ -375,7 +399,7 @@ function renderStep1(container) {
     };
 
     depts.forEach(d => {
-        const specName = d.name;
+        const specName = typeof d === 'string' ? d : (d.name || d);
         const isSelected = bookingData.department === specName;
 
         const btn = document.createElement('button');

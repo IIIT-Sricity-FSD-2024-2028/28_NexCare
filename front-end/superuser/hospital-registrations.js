@@ -203,15 +203,23 @@ async function loadHospitals(searchTerm = '') {
             let actions = '';
             if (h.verificationStatus === 'pending_verification') {
                 if (h.regionalReviewStatus === 'cleared') {
-                    actions = `<button class="btn-icon btn-approve" onclick="verifyHospital('${h.id}')" title="Final approve">Final approve</button>
-                        <button class="btn-icon btn-reject" onclick="rejectHospital('${h.id}')" title="Reject">Reject</button>`;
+                    actions = `<div style="font-size:10px;color:#15803D;margin-bottom:4px;font-weight:600;">RO Cleared</div>
+                               <button class="btn-approve" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;" onclick="verifyHospital('${h.id}')" title="Final approve">Final Approve</button>
+                               <button class="btn-reject" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;margin-top:4px;" onclick="rejectHospital('${h.id}')" title="Reject">Reject</button>`;
                 } else if (h.regionalReviewStatus === 'rejected') {
-                    actions = `<button class="btn-icon btn-reject" onclick="rejectHospital('${h.id}')" title="Reject">Reject</button>`;
-                } else if (h.assignedManagerId) {
-                    actions = '<span style="font-size:12px;color:#6A7282;">Regional review pending</span>';
+                    let reasonText = h.regionalReviewNotes ? `(Reason: ${escapeHtml(h.regionalReviewNotes)})` : '';
+                    actions = `<div style="font-size:10px;color:#DC2626;margin-bottom:4px;font-weight:600;">RO Rejected<br><span style="font-weight:normal;color:#6A7282;">${reasonText}</span></div>
+                               <button class="btn-reject" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;" onclick="rejectHospital('${h.id}')" title="Reject">Final Reject</button>`;
                 } else {
-                    actions = '<span style="font-size:12px;color:#6A7282;">Assign a regional officer</span>';
+                    let statusText = h.assignedManagerId ? 'RO pending' : 'RO not assigned';
+                    actions = `<div style="font-size:10px;color:#6A7282;margin-bottom:4px;font-weight:600;">${statusText}</div>
+                               <button class="btn-approve" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;" onclick="verifyHospital('${h.id}')" title="Direct approve">Direct Approve</button>
+                               <button class="btn-reject" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;margin-top:4px;" onclick="rejectHospital('${h.id}')" title="Reject">Reject</button>`;
                 }
+            } else if (h.verificationStatus === 'verified') {
+                 actions = `<span style="font-size:12px;color:#15803D;font-weight:600;">Approved</span>`;
+            } else if (h.verificationStatus === 'rejected') {
+                 actions = `<span style="font-size:12px;color:#DC2626;font-weight:600;">Rejected</span>`;
             }
 
             return `

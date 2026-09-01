@@ -86,13 +86,18 @@ export class FeedbackService {
   /**
    * Get all feedback with optional filtering
    */
-  async findAll(patientId?: string, status?: FeedbackStatus, category?: string) {
+  async findAll(patientId?: string, status?: FeedbackStatus, category?: string, hospitalId?: string) {
     try {
       let filteredFeedback = [...this.loadFeedback()];
 
       if (patientId) {
         filteredFeedback = filteredFeedback.filter(f => f.patientId === patientId);
       }
+      
+      if (hospitalId) {
+        filteredFeedback = filteredFeedback.filter(f => f.hospitalId === hospitalId);
+      }
+
       if (status) {
         filteredFeedback = filteredFeedback.filter(f => f.status === status);
       }

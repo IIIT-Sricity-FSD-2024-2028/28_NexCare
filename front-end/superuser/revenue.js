@@ -184,9 +184,7 @@ function renderHospitalPlans() {
             <td><strong>${esc(sub.hospitalName)}</strong><br><span class="muted">${esc(sub.hospitalId)}</span></td>
             <td class="num">${seats}</td>
             <td>
-                <select class="plan-select" onchange="changeHospitalPlan('${esc(sub.hospitalId)}', this.value, this)">
-                    ${hospitalPlans.map(p => `<option value="${esc(p.id)}" ${p.id === sub.planId ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}
-                </select>
+                <strong>${esc((hospitalPlans.find(p => p.id === sub.planId) || {}).name || sub.planId)}</strong>
             </td>
             <td><span class="pill ${esc(sub.status)}">${esc(String(sub.status).replace(/_/g, ' '))}</span></td>
             <td class="num">${line ? money(line.subscription) : '—'}</td>

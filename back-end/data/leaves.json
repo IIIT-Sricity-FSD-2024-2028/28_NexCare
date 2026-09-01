@@ -110,5 +110,22 @@
     "reason": "Personal leave",
     "status": "pending",
     "requestedAt": "2026-08-28"
+  },
+  {
+    "id": "LMTIYF6AS3ET",
+    "doctorId": "U009",
+    "doctorName": "Dr. Sarah Smith",
+    "hospitalId": "H001",
+    "startDate": "2026-09-03",
+    "endDate": "2026-09-05",
+    "reason": "Not feeling well",
+    "daysCount": 3,
+    "requestedAt": "2026-09-01",
+    "status": "approved",
+    "createdAt": "2026-09-01T17:41:43.973Z",
+    "updatedAt": "2026-09-01T17:43:33.451Z",
+    "approvedBy": "HM-AP01",
+    "approvedByName": "Priya Reddy",
+    "approvedAt": "2026-09-01T17:43:33.451Z"
   }
 ]

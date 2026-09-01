@@ -94,6 +94,7 @@
 
     <main class="main-content">
         <header class="header">
+            
             <span class="header-title">System Administrator Portal</span>
             <div class="header-user">
                 <div class="header-avatar">SU</div>
@@ -111,6 +112,9 @@
                     <p style="margin: 5px 0 0; color: var(--text-muted); font-size: 14px;">Review system feedback provided by patients and staff.</p>
                 </div>
                 <div class="action-row" style="display:flex; gap:10px;">
+                    <select id="filterHospital" class="form-control" style="width: 200px;">
+                        <option value="All">All Hospitals</option>
+                    </select>
                     <select id="filterType" class="form-control">
                         <option value="All">All Types</option>
                         <option value="Patient">Patients</option>
@@ -126,6 +130,7 @@
                         <tr>
                             <th>Feedback ID</th>
                             <th>Date</th>
+                            <th>Hospital</th>
                             <th>Type</th>
                             <th>Sender</th>
                             <th>Subject</th>
