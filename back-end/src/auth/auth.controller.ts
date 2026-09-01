@@ -23,9 +23,10 @@ export class AuthController {
   /** @route POST /api/auth/login — Public */
   @Public()
   @Post('login')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login' })
-  @ApiResponse({ status: 200, description: 'Login result (check success field)' })
+  @ApiResponse({ status: 200, description: 'Login successful' })
+  @ApiResponse({ status: 401, description: 'Authentication failed' })
+  @ApiResponse({ status: 403, description: 'Access denied' })
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     const result = await this.authService.login(loginDto);
     
@@ -34,15 +35,22 @@ export class AuthController {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     
-    return res.json(result);
+    // Return proper HTTP status code based on success
+    const statusCode = result.success ? HttpStatus.OK : 
+                       (result.message?.includes('not found') ? HttpStatus.UNAUTHORIZED :
+                        result.message?.includes('Incorrect password') ? HttpStatus.UNAUTHORIZED :
+                        result.message?.includes('Access Denied') ? HttpStatus.FORBIDDEN :
+                        result.message?.includes('registered as') ? HttpStatus.FORBIDDEN :
+                        HttpStatus.BAD_REQUEST);
+    
+    return res.status(statusCode).json(result);
   }
 
   /** @route POST /api/auth/register — Public (patient self-registration) */
   @Public()
   @Post('register')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Register a new patient account' })
-  @ApiResponse({ status: 200, description: 'Registration result (check success field)' })
+  @ApiResponse({ status: 201, description: 'Registration successful' })
   @ApiResponse({ status: 400, description: 'Validation error' })
   async register(@Body() registerDto: RegisterDto, @Res() res: Response) {
     const result = await this.authService.register(registerDto);
@@ -52,15 +60,17 @@ export class AuthController {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     
-    return res.json(result);
+    // Return proper HTTP status code based on success
+    const statusCode = result.success ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
+    
+    return res.status(statusCode).json(result);
   }
 
   /** @route POST /api/auth/register-staff — Public (staff self-registration) */
   @Public()
   @Post('register-staff')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Register a new staff account (administrative_staff/ambulance)' })
-  @ApiResponse({ status: 200, description: 'Registration result (check success field)' })
+  @ApiResponse({ status: 201, description: 'Registration successful' })
   @ApiResponse({ status: 400, description: 'Validation error' })
   async registerStaff(@Body() registerStaffDto: RegisterStaffDto, @Res() res: Response) {
     const result = await this.authService.registerStaff(registerStaffDto);
@@ -70,18 +80,26 @@ export class AuthController {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     
-    return res.json(result);
+    // Return proper HTTP status code based on success
+    const statusCode = result.success ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
+    
+    return res.status(statusCode).json(result);
   }
 
   /** @route POST /api/auth/logout/:userId — Any authenticated user */
   @ApiBearerAuth('JWT-auth')
   @Post('logout/:userId')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User logout' })
   @ApiResponse({ status: 200, description: 'Successful logout' })
-  async logout(@Req() req: any, @Param('userId') userId: string) {
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async logout(@Req() req: any, @Res() res: Response, @Param('userId') userId: string) {
     // Only ever act on the authenticated user — ignore a mismatched path param.
-    return this.authService.logout(req.user?.id || userId);
+    const result = await this.authService.logout(req.user?.id || userId);
+    
+    // Return proper HTTP status code based on success
+    const statusCode = result.success ? HttpStatus.OK : HttpStatus.UNAUTHORIZED;
+    
+    return res.status(statusCode).json(result);
   }
 
   /** @route GET /api/auth/current/:userId — Any authenticated user */
@@ -108,15 +126,23 @@ export class AuthController {
   /** @route PATCH /api/auth/change-password — Any authenticated user */
   @ApiBearerAuth('JWT-auth')
   @Patch('change-password')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Change user password' })
   @ApiResponse({ status: 200, description: 'Password changed successfully' })
   @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async changePassword(
     @Req() req: any,
+    @Res() res: Response,
     @Body() body: { currentPassword: string; newPassword: string },
   ) {
     // Bind the change to the authenticated user only — never trust a client id.
-    return this.authService.changePassword({ ...body, userId: req.user?.id });
+    const result = await this.authService.changePassword({ ...body, userId: req.user?.id });
+    
+    // Return proper HTTP status code based on success
+    const statusCode = result.success ? HttpStatus.OK : 
+                       (result.message?.includes('Unauthorized') ? HttpStatus.UNAUTHORIZED :
+                        HttpStatus.BAD_REQUEST);
+    
+    return res.status(statusCode).json(result);
   }
 }

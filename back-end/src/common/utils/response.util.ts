@@ -59,19 +59,25 @@ export class ResponseUtil {
   /**
    * Handle unauthorized access
    * @param message Unauthorized message (optional)
-   * @returns Standardized unauthorized response
+   * @returns Standardized unauthorized response with status code recommendation
    */
   static unauthorized(message: string = 'Unauthorized access'): ApiResponse {
-    return this.error(message);
+    return { 
+      ...this.error(message),
+      httpStatus: 401
+    };
   }
 
   /**
    * Handle forbidden access
    * @param message Forbidden message (optional)
-   * @returns Standardized forbidden response
+   * @returns Standardized forbidden response with status code recommendation
    */
   static forbidden(message: string = 'Forbidden access'): ApiResponse {
-    return this.error(message);
+    return { 
+      ...this.error(message),
+      httpStatus: 403
+    };
   }
 
   /**

@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Put, Patch, Body, Param, Query, UseInterceptors, Req, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Body, Param, Query, UseInterceptors, Req, ForbiddenException, Res, HttpStatus } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { HospitalsService } from './hospitals.service';
 import { UsersService } from '../users/users.service';
@@ -103,8 +104,19 @@ export class HospitalsController {
 
   @Public()
   @Post('register')
-  async register(@Body() data: CreateHospitalDto) {
-    return this.hospitalsService.create(data);
+  @ApiOperation({ summary: 'Register a new hospital' })
+  @ApiResponse({ status: 201, description: 'Hospital registered successfully' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 409, description: 'Hospital with this registration number already exists' })
+  async register(@Body() data: CreateHospitalDto, @Res() res: Response) {
+    const result = await this.hospitalsService.create(data);
+    
+    // Return proper HTTP status code based on success
+    const statusCode = result.success ? HttpStatus.CREATED : 
+                       (result.message?.includes('already exists') ? HttpStatus.CONFLICT :
+                        HttpStatus.BAD_REQUEST);
+    
+    return res.status(statusCode).json(result);
   }
 
   @Roles(UserRole.SUPERUSER, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER)

@@ -7,6 +7,7 @@ export interface ApiResponse<T = any> {
   message: string;
   data?: T;
   timestamp?: string;
+  httpStatus?: number; // Optional HTTP status code for proper error handling
 }
 
 
