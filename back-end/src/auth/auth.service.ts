@@ -9,7 +9,6 @@ import { UserRole, UserStatus } from '../common/interfaces/api-response.interfac
 
 import { SystemService } from '../system/system.service';
 import { PatientsService } from '../patients/patients.service';
-import { PricingService } from '../revenue/pricing.service';
 import { DEFAULT_STAFF_PASSWORD } from '../common/constants/app.constants';
 
 /**
@@ -33,7 +32,6 @@ export class AuthService {
   constructor(
     private readonly systemService: SystemService,
     private readonly patientsService: PatientsService,
-    private readonly pricingService: PricingService,
   ) {}
 
   // ── Paths ────────────────────────────────────────────────────────────────
@@ -432,18 +430,6 @@ export class AuthService {
 
       users.push(newUser);
       this.saveUsers(users);
-
-      // A new doctor is enrolled on the free listing tier immediately, so they
-      // appear in the revenue model from their first day rather than only once
-      // somebody remembers to place them on a plan.
-      if (isDoctor) {
-        this.pricingService.ensureDoctorSubscription({
-          id: newUser.id,
-          name: newUser.name,
-          hospitalId: newUser.hospitalId,
-          consultationFee: newUser.consultationFee,
-        });
-      }
 
       const session: UserSession = {
         id: newUser.id,

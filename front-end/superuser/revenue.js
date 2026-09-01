@@ -1,17 +1,21 @@
 // Superuser — NexCare's own revenue model.
 //
-// The platform has three payers and eight streams. Hospitals buy the platform,
-// doctors buy visibility, patients buy convenience. A hospital's own patient
-// billing is its revenue, not ours, and is shown in that hospital's manager
-// portal instead.
+// The platform has two payers and five streams. Hospitals buy the platform on a
+// subscription priced by how many staff accounts they run; patients buy
+// convenience, per booking or with a Care+ membership. On top sit small
+// per-transaction fees. A hospital's own patient billing is its revenue, not
+// ours, and is shown in that hospital's manager portal instead.
+//
+// Doctors are NOT a payer. They are hospital staff, and the hospital's
+// subscription already covers their seat.
 //
 // One load() fetches everything and each tab renders from that snapshot, so the
 // totals on "All streams" and the per-payer tabs are guaranteed to agree.
 
 let overview = null;
 let streams = null;
-let doctorPlans = [];
-let doctorSubs = [];
+let hospitalPlans = [];
+let hospitalSubs = [];
 let patientPlans = [];
 let patientSubs = [];
 let fees = null;
@@ -42,12 +46,12 @@ async function load() {
     const R = window.NexCareAPI.Revenue;
     try {
         const [overviewRes, trendRes, streamRes,
-               docPlanRes, docSubRes, patPlanRes, patSubRes, feeRes, regionRes] = await Promise.all([
+               hospPlanRes, hospSubRes, patPlanRes, patSubRes, feeRes, regionRes] = await Promise.all([
             R.getPlatformOverview(),
             R.getPlatformTrend(6),
             R.getPlatformStreams(),
-            R.getDoctorPlans(),
-            R.getDoctorSubscriptions(),
+            R.getHospitalPlans(),
+            R.getHospitalSubscriptions(),
             R.getPatientPlans(),
             R.getPatientSubscriptions(),
             R.getFees(),
@@ -60,8 +64,8 @@ async function load() {
 
         overview = overviewRes.data;
         streams = streamRes.success ? streamRes.data : null;
-        doctorPlans = docPlanRes.success ? (docPlanRes.data || []) : [];
-        doctorSubs = docSubRes.success ? (docSubRes.data || []) : [];
+        hospitalPlans = hospPlanRes.success ? (hospPlanRes.data || []) : [];
+        hospitalSubs = hospSubRes.success ? (hospSubRes.data || []) : [];
         patientPlans = patPlanRes.success ? (patPlanRes.data || []) : [];
         patientSubs = patSubRes.success ? (patSubRes.data || []) : [];
         fees = feeRes.success ? feeRes.data : null;
@@ -72,14 +76,14 @@ async function load() {
         renderTrend(trendRes.success ? (trendRes.data || []) : []);
 
         renderStreams();
-        renderDoctors();
+        renderHospitalPlans();
         renderPatients();
         renderFees();
         renderRegions();
     } catch (err) {
         console.error('Revenue load failed:', err);
         document.getElementById('hospitalTableBody').innerHTML =
-            `<tr><td colspan="7" style="text-align:center;padding:24px;color:#DC2626;">
+            `<tr><td colspan="8" style="text-align:center;padding:24px;color:#DC2626;">
                 Could not load revenue data. Check that the backend is running.</td></tr>`;
         document.getElementById('streamBody').innerHTML =
             `<tr><td colspan="6" class="empty" style="color:#DC2626;">
@@ -95,14 +99,14 @@ function renderStreams() {
     const u = s.unitEconomics || {};
 
     setText('sTotal', money(s.totalRevenue));
-    setText('sTotalSub', `${(s.byStream || []).length} streams, 3 payers`);
+    setText('sTotalSub', `${(s.byStream || []).length} streams, 2 payers`);
     setText('sRecurring', money(s.recurringRevenue));
     setText('sRecurringSub', `${u.recurringShare ?? 0}% of total — the stickiness number`);
     setText('sUsage', money(s.usageRevenue));
     setText('sArpHospital', money(u.revenuePerHospital));
     setText('sHospitalCount', `across ${u.hospitals ?? 0} hospitals`);
-    setText('sArpDoctor', money(u.revenuePerDoctor));
-    setText('sDoctorCount', `across ${u.doctors ?? 0} doctors`);
+    setText('sArpSeat', money(u.revenuePerStaffSeat));
+    setText('sSeatCount', `across ${u.staffSeats ?? 0} staff accounts`);
     setText('sArpPatient', money(u.revenuePerPatient));
     setText('sPatientCount', `across ${u.patients ?? 0} patients`);
 
@@ -112,7 +116,7 @@ function renderStreams() {
                 <strong>${esc(line.label)}</strong><br>
                 <span class="muted">${esc(line.basis)}</span>
             </td>
-            <td><span class="pill ${line.payer === 'hospital' ? 'confirmed' : (line.payer === 'doctor' ? 'pending' : 'active')}">${esc(line.payer)}</span></td>
+            <td><span class="pill ${line.payer === 'hospital' ? 'confirmed' : 'active'}">${esc(line.payer)}</span></td>
             <td class="muted">${esc(line.type)}</td>
             <td class="num">${line.units.toLocaleString('en-IN')}<br><span class="muted">${esc(line.unitLabel)}</span></td>
             <td class="num" style="font-weight:700;">${money(line.amount)}</td>
@@ -137,66 +141,74 @@ function stream(key) {
            { amount: 0, units: 0, unitLabel: '' };
 }
 
-// ── Doctors ─────────────────────────────────────────────────────────────────
+// ── Hospital plans ──────────────────────────────────────────────────────────
 
-function renderDoctors() {
-    const listing = stream('doctor_subscription');
-    const commission = stream('doctor_commission');
+function renderHospitalPlans() {
+    const subscription = stream('hospital_subscription');
+    const processing = stream('payment_gateway_fee');
 
-    setText('dTotal', money(listing.amount + commission.amount));
-    setText('dRecurring', money(listing.amount));
-    setText('dRecurringSub', `${listing.units} ${listing.unitLabel}`);
-    setText('dCommission', money(commission.amount));
-    setText('dCommissionSub', `${commission.units} ${commission.unitLabel}`);
+    setText('hTotal', money(subscription.amount + processing.amount));
+    setText('hSubscription', money(subscription.amount));
+    setText('hSubscriptionSub', `${subscription.units} ${subscription.unitLabel}`);
+    setText('hProcessing', money(processing.amount));
+    setText('hProcessingSub', `${processing.units} ${processing.unitLabel}`);
 
-    document.getElementById('doctorPlanGrid').innerHTML = doctorPlans.map(p => {
-        const onPlan = doctorSubs.filter(s => s.planId === p.id).length;
+    document.getElementById('hospitalPlanGrid').innerHTML = hospitalPlans.map(p => {
+        const onPlan = hospitalSubs.filter(sub => sub.planId === p.id && sub.status === 'active').length;
+        const band = p.maxUsers === null
+            ? `${p.minUsers}+ staff accounts`
+            : `${p.minUsers}–${p.maxUsers} staff accounts`;
         return `
         <div class="plan-card">
             <h3>${esc(p.name)}</h3>
             <div class="muted">${esc(p.tagline || '')}</div>
-            <div class="price">₹<input type="number" min="0" step="100" id="dfee-${esc(p.id)}" value="${p.monthlyFee}"
-                 style="width:110px;font-size:22px;font-weight:700;color:#2563EB;border:1px solid #E5E7EB;border-radius:8px;padding:2px 8px;">
+            <div class="price">₹<input type="number" min="0" step="500" id="hfee-${esc(p.id)}" value="${p.monthlyFee}"
+                 style="width:120px;font-size:22px;font-weight:700;color:#2563EB;border:1px solid #E5E7EB;border-radius:8px;padding:2px 8px;">
                  <span style="font-size:13px;color:#6B7280;font-weight:500;">/month</span></div>
-            <div class="muted">${(p.commissionRate * 100).toFixed(0)}% commission ·
-                ${p.monthlyBookingCap ? `${p.monthlyBookingCap} bookings/month` : 'unlimited bookings'}</div>
+            <div class="muted">${esc(band)} ·
+                ${p.includedStaffSeats === null ? 'unlimited seats' : `${p.includedStaffSeats} seats included`}</div>
             <ul>${(p.features || []).map(f => `<li>${esc(f)}</li>`).join('')}</ul>
-            <div class="meta">${onPlan} doctor${onPlan === 1 ? '' : 's'} on this tier</div>
-            <button class="btn primary" style="margin-top:12px;" onclick="saveDoctorPlanFee('${esc(p.id)}')">Save</button>
+            <div class="meta">${onPlan} hospital${onPlan === 1 ? '' : 's'} on this plan</div>
+            <button class="btn primary" style="margin-top:12px;" onclick="saveHospitalPlanFee('${esc(p.id)}')">Save</button>
         </div>`;
-    }).join('') || '<p class="muted">No listing tiers configured.</p>';
+    }).join('') || '<p class="muted">No hospital plans configured.</p>';
 
-    setText('doctorCount', `${doctorSubs.length} enrolled`);
-    document.getElementById('doctorSubBody').innerHTML = doctorSubs.map(s => `
+    setText('hospitalCount', `${hospitalSubs.length} subscribed`);
+    document.getElementById('hospitalSubBody').innerHTML = hospitalSubs.map(sub => {
+        // The per-hospital line carries the live seat count; the subscription
+        // row only remembers the headcount it was assigned on.
+        const line = ((overview && overview.byHospital) || []).find(h => h.hospitalId === sub.hospitalId);
+        const seats = line ? line.staffSeats : sub.staffAtSignup;
+        return `
         <tr>
-            <td><strong>${esc(s.doctorName)}</strong><br><span class="muted">${esc(s.doctorId)}</span></td>
-            <td class="muted">${esc(s.hospitalId || '—')}</td>
+            <td><strong>${esc(sub.hospitalName)}</strong><br><span class="muted">${esc(sub.hospitalId)}</span></td>
+            <td class="num">${seats}</td>
             <td>
-                <select class="plan-select" onchange="changeDoctorPlan('${esc(s.doctorId)}', this.value, this)">
-                    ${doctorPlans.map(p => `<option value="${esc(p.id)}" ${p.id === s.planId ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}
+                <select class="plan-select" onchange="changeHospitalPlan('${esc(sub.hospitalId)}', this.value, this)">
+                    ${hospitalPlans.map(p => `<option value="${esc(p.id)}" ${p.id === sub.planId ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}
                 </select>
             </td>
-            <td><span class="pill ${esc(s.status)}">${esc(String(s.status).replace(/_/g, ' '))}</span></td>
-            <td class="num">${money(s.consultationFee)}</td>
-        </tr>
-    `).join('') || '<tr><td colspan="5" class="empty">No doctors enrolled yet.</td></tr>';
+            <td><span class="pill ${esc(sub.status)}">${esc(String(sub.status).replace(/_/g, ' '))}</span></td>
+            <td class="num">${line ? money(line.subscription) : '—'}</td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="5" class="empty">No hospitals subscribed yet.</td></tr>';
 }
 
-async function saveDoctorPlanFee(planId) {
-    const monthlyFee = Number(document.getElementById(`dfee-${planId}`).value);
+async function saveHospitalPlanFee(planId) {
+    const monthlyFee = Number(document.getElementById(`hfee-${planId}`).value);
     if (!Number.isFinite(monthlyFee) || monthlyFee < 0) {
         notify('Enter a valid monthly fee', 'error');
         return;
     }
-    await apply(() => window.NexCareAPI.Revenue.updateDoctorPlan(planId, { monthlyFee }), 'Listing tier repriced');
+    await apply(() => window.NexCareAPI.Revenue.updateHospitalPlan(planId, { monthlyFee }), 'Hospital plan repriced');
 }
 
-async function changeDoctorPlan(doctorId, planId, selectEl) {
-    const previous = (doctorSubs.find(s => s.doctorId === doctorId) || {}).planId;
+async function changeHospitalPlan(hospitalId, planId, selectEl) {
+    const previous = (hospitalSubs.find(sub => sub.hospitalId === hospitalId) || {}).planId;
     if (planId === previous) return;
     const ok = await apply(
-        () => window.NexCareAPI.Revenue.updateDoctorSubscription(doctorId, { planId }),
-        'Doctor moved to a new tier');
+        () => window.NexCareAPI.Revenue.updateHospitalSubscription(hospitalId, { planId }),
+        'Hospital moved to a new plan');
     if (!ok) selectEl.value = previous;
 }
 
@@ -428,13 +440,13 @@ function shortDate(value) {
 function renderKpis(o) {
     setText('kpiMrr', money(o.mrr));
     setText('kpiArr', money(o.arr));
-    setText('kpiCommission', money(o.commissionRevenue));
+    setText('kpiSubscription', money(o.subscriptionRevenue));
     setText('kpiProcessing', money(o.processingRevenue));
     setText('kpiSubs', o.earningHospitals);
     setText('kpiArpa', money(o.averageRevenuePerHospital));
 
-    setText('kpiMrrSub', 'doctor tiers + Care+ — no hospital licence');
-    setText('kpiCommissionSub', `on ${money(o.gatewayVolume)} collected`);
+    setText('kpiMrrSub', 'hospital plans + Care+ memberships');
+    setText('kpiSubscriptionSub', `independent of the ${money(o.gatewayVolume)} they collected`);
     setText('kpiProcessingSub', `${money(o.outstandingReceivables)} still outstanding`);
     setText('kpiSubsSub', `of ${o.totalHospitals} hospitals on the platform`);
 }
@@ -453,7 +465,7 @@ function renderTrend(trend) {
             <span class="amt">${money(t.total)}</span>
         </div>
         <div class="muted" style="margin:-4px 0 12px 202px;">
-            ${money(t.recurring)} recurring · ${money(t.commission)} commission · ${money(t.processing)} processing
+            ${money(t.recurring)} recurring · ${money(t.subscriptions)} hospital plans · ${money(t.processing)} processing
         </div>
     `).join('');
 }
@@ -462,7 +474,7 @@ function renderHospitals(o) {
     const rows = o.byHospital || [];
     if (!rows.length) {
         setHTML('hospitalTableBody',
-            '<tr><td colspan="7" class="empty">No hospital has collected anything in this period.</td></tr>');
+            '<tr><td colspan="8" class="empty">No hospital is on the platform in this period.</td></tr>');
         return;
     }
 
@@ -470,9 +482,10 @@ function renderHospitals(o) {
         <tr>
             <td><strong>${esc(h.hospitalName)}</strong><br><span class="muted">${esc(h.hospitalId)}</span></td>
             <td><span class="pill ${esc(h.status)}">${esc(String(h.status).replace(/_/g, ' '))}</span></td>
+            <td>${esc(h.planName)}<br><span class="muted">${h.staffSeats} staff</span></td>
             <td class="num">${h.paymentsProcessed}</td>
             <td class="num muted">${money(h.collections)}</td>
-            <td class="num">${money(h.commission)}</td>
+            <td class="num">${money(h.subscription)}</td>
             <td class="num">${money(h.processingFees)}</td>
             <td class="num" style="font-weight:700;">${money(h.platformRevenue)}</td>
         </tr>

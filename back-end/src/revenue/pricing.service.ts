@@ -1,36 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { ResponseUtil } from '../common/utils/response.util';
 import { FileStore } from '../common/utils/file-store.util';
-import { IdGenerator } from '../common/utils/id-generator.util';
 import {
-  DoctorPlan,
-  DoctorSubscription,
+  HospitalPlan,
+  HospitalPlanId,
+  HospitalSubscription,
   PatientPlan,
   PatientSubscription,
   PlatformFeeConfig,
-  HospitalSubscriptionTier,
-  HospitalSubscriptionContract,
-  HospitalTierId,
 } from './interfaces/pricing.interface';
 
 /**
  * Pricing Service
  *
- * Owns the catalogue: what NexCare charges doctors and patients, plus the
- * cross-cutting fees. RevenueService reads from here and never writes to it —
- * pricing changes are an Admin action, not a side effect of a report.
+ * Owns the catalogue: what NexCare charges hospitals and patients, plus the
+ * cross-cutting per-transaction fees. RevenueService reads from here and never
+ * writes to it — pricing changes are an Admin action, not a side effect of a
+ * report.
  *
  * Every store seeds itself on first read, so a fresh checkout has a working
  * price list without a migration step.
  */
 @Injectable()
 export class PricingService {
-  private readonly doctorPlansStore = new FileStore<DoctorPlan>(
-    'doctor-plans.json',
-    () => PricingService.seedDoctorPlans(),
+  private readonly hospitalPlansStore = new FileStore<HospitalPlan>(
+    'hospital-plans.json',
+    () => PricingService.seedHospitalPlans(),
   );
-  private readonly doctorSubsStore = new FileStore<DoctorSubscription>(
-    'doctor-subscriptions.json',
+  private readonly hospitalSubsStore = new FileStore<HospitalSubscription>(
+    'hospital-subscriptions.json',
     () => [],
   );
   private readonly patientPlansStore = new FileStore<PatientPlan>(
@@ -46,167 +44,75 @@ export class PricingService {
     'platform-fee-config.json',
     () => [PricingService.seedFeeConfig()],
   );
-  private readonly hospitalTierStore = new FileStore<HospitalSubscriptionTier>(
-    'hospital-subscription-tiers.json',
-    () => PricingService.seedHospitalTiers(),
-  );
-  private readonly hospitalContractStore = new FileStore<HospitalSubscriptionContract>(
-    'hospital-subscription-contracts.json',
-    () => [],
-  );
+  /**
+   * Read/write view of the user directory. The consultation fee a doctor
+   * charges lives on their user record, and a doctor may edit their own — it is
+   * the one price in the system NexCare does not set.
+   */
+  private readonly usersStore = new FileStore<any>('users.json', () => []);
 
   // ── Seeds ─────────────────────────────────────────────────────────────────
 
   /**
-   * Hospital subscription tiers, pegged to bed capacity.
-   * Small/mid/large/enterprise — commission rate decreases as the hospital grows.
+   * Hospital plans, priced by the number of staff accounts the hospital runs.
+   *
+   * The hospital is the customer: doctors, nurses, administrative staff and
+   * ambulance staff are all its employees, so it is billed once for all of
+   * them rather than each of them being billed separately. Seats are the right
+   * meter because the platform can count them itself — a plan is never just a
+   * line somebody typed into a file.
    */
-  private static seedHospitalTiers(): HospitalSubscriptionTier[] {
+  private static seedHospitalPlans(): HospitalPlan[] {
     return [
       {
-        id: 'CLINIC',
-        name: 'Clinic',
-        tagline: 'For small clinics and day-care centres',
-        minBeds: 0,
-        maxBeds: 50,
-        annualFeeRupees: 60_000,
-        hospitalCommissionRate: 0.025,  // 2.5% of collections
-        includedStaffSeats: 10,
-        includedDoctorSeats: 5,
+        id: 'HOSP-STARTER',
+        name: 'Starter',
+        tagline: 'For clinics and small hospitals',
+        minUsers: 1,
+        maxUsers: 25,
+        monthlyFee: 4_999,
+        includedStaffSeats: 25,
         features: [
-          'Up to 50 beds',
-          'Up to 5 doctors, 10 staff seats',
-          '2.5% platform commission on collections',
-          'Patient appointment booking',
-          'Billing & invoicing',
+          'Up to 25 staff accounts',
+          'Appointments, queues and billing',
+          'Bed and ward management',
+          'Email support',
         ],
         status: 'active',
         currency: '₹',
       },
       {
-        id: 'COMMUNITY',
-        name: 'Community Hospital',
-        tagline: 'For mid-sized community hospitals',
-        minBeds: 51,
-        maxBeds: 200,
-        annualFeeRupees: 1_50_000,
-        hospitalCommissionRate: 0.020,  // 2.0%
-        includedStaffSeats: 40,
-        includedDoctorSeats: 20,
-        features: [
-          '51 – 200 beds',
-          'Up to 20 doctors, 40 staff seats',
-          '2.0% platform commission',
-          'Ambulance dispatch module',
-          'Inventory management',
-          'Bed & ward management',
-        ],
-        status: 'active',
-        currency: '₹',
-      },
-      {
-        id: 'REGIONAL',
-        name: 'Regional Hospital',
-        tagline: 'For large regional referral hospitals',
-        minBeds: 201,
-        maxBeds: 500,
-        annualFeeRupees: 3_60_000,
-        hospitalCommissionRate: 0.015,  // 1.5%
+        id: 'HOSP-GROWTH',
+        name: 'Growth',
+        tagline: 'For mid-sized and community hospitals',
+        minUsers: 26,
+        maxUsers: 100,
+        monthlyFee: 14_999,
         includedStaffSeats: 100,
-        includedDoctorSeats: 60,
         features: [
-          '201 – 500 beds',
-          'Up to 60 doctors, 100 staff seats',
-          '1.5% platform commission',
-          'Revenue analytics dashboard',
-          'Staff leave management',
-          'Multi-department scheduling',
+          'Up to 100 staff accounts',
+          'Everything in Starter',
+          'Ambulance dispatch coordination',
+          'Inventory and equipment tracking',
+          'Revenue and occupancy analytics',
         ],
         status: 'active',
         currency: '₹',
       },
       {
-        id: 'ENTERPRISE',
-        name: 'Enterprise / Super Speciality',
-        tagline: 'For large teaching hospitals and hospital chains',
-        minBeds: 501,
-        maxBeds: null,
-        annualFeeRupees: 7_20_000,
-        hospitalCommissionRate: 0.010,  // 1.0% — negotiated floor
-        includedStaffSeats: 500,
-        includedDoctorSeats: 200,
+        id: 'HOSP-ENTERPRISE',
+        name: 'Enterprise',
+        tagline: 'For large and multi-speciality hospitals',
+        minUsers: 101,
+        maxUsers: null,
+        monthlyFee: 39_999,
+        includedStaffSeats: null,
         features: [
-          '501+ beds',
-          'Unlimited staff and doctor seats',
-          '1.0% platform commission (negotiated)',
+          'Unlimited staff accounts',
+          'Everything in Growth',
+          'Multi-department scheduling and rosters',
           'Dedicated account manager',
-          'Custom SLA and uptime guarantee',
-          'API access for EHR integration',
-        ],
-        status: 'active',
-        currency: '₹',
-      },
-    ];
-  }
-
-  /**
-   * The ladder is deliberately inverted: the free tier has the HIGHEST
-   * commission. A doctor with volume saves money by paying us more up front,
-   * which is what makes the upgrade voluntary rather than coerced.
-   */
-  private static seedDoctorPlans(): DoctorPlan[] {
-    return [
-      {
-        id: 'DOC-FREE',
-        name: 'Practice Free',
-        tagline: 'Get listed and take your first bookings',
-        monthlyFee: 0,
-        commissionRate: 0.12,
-        monthlyBookingCap: 25,
-        featuredPlacement: false,
-        verifiedBadge: false,
-        features: [
-          'Listed in patient search',
-          'Up to 25 bookings a month',
-          'Own schedule and leave calendar',
-          '12% platform commission per completed consultation',
-        ],
-        status: 'active',
-        currency: '₹',
-      },
-      {
-        id: 'DOC-VERIFIED',
-        name: 'Practice Verified',
-        tagline: 'For consultants with a steady clinic',
-        monthlyFee: 999,
-        commissionRate: 0.08,
-        monthlyBookingCap: null,
-        featuredPlacement: false,
-        verifiedBadge: true,
-        features: [
-          'Everything in Practice Free',
-          'Verified badge on your profile',
-          'Unlimited bookings',
-          '8% platform commission per completed consultation',
-          'Earnings and payout statements',
-        ],
-        status: 'active',
-        currency: '₹',
-      },
-      {
-        id: 'DOC-FEATURED',
-        name: 'Practice Featured',
-        tagline: 'Top placement in patient search',
-        monthlyFee: 2499,
-        commissionRate: 0.05,
-        monthlyBookingCap: null,
-        featuredPlacement: true,
-        verifiedBadge: true,
-        features: [
-          'Everything in Practice Verified',
-          'Ranked first in department search',
-          '5% platform commission — the lowest take rate',
-          'Priority support',
+          'Priority support and uptime SLA',
         ],
         status: 'active',
         currency: '₹',
@@ -272,7 +178,6 @@ export class PricingService {
       id: 'FEE-CONFIG',
       currency: '₹',
       patientBookingFee: 39,
-      hospitalCommissionRate: 0.015,
       ambulanceDispatchFee: 149,
       paymentGatewayRate: 0.019,
       extraStaffSeatFee: 250,
@@ -281,112 +186,121 @@ export class PricingService {
     };
   }
 
-  // ── Doctor plans ──────────────────────────────────────────────────────────
+  // ── Hospital plans ────────────────────────────────────────────────────────
 
-  loadDoctorPlans(): DoctorPlan[] {
-    return this.doctorPlansStore.load();
+  loadHospitalPlans(): HospitalPlan[] {
+    return this.hospitalPlansStore.load();
   }
 
-  async findDoctorPlans() {
+  async findHospitalPlans() {
     try {
-      return ResponseUtil.success('Doctor plans retrieved successfully', this.loadDoctorPlans());
+      return ResponseUtil.success('Hospital plans retrieved successfully', this.loadHospitalPlans());
     } catch {
-      return ResponseUtil.serverError('Failed to retrieve doctor plans');
+      return ResponseUtil.serverError('Failed to retrieve hospital plans');
     }
   }
 
-  async updateDoctorPlan(planId: string, changes: Partial<DoctorPlan>) {
+  async updateHospitalPlan(planId: string, changes: Partial<HospitalPlan>) {
     try {
-      const plans = this.doctorPlansStore.load();
+      const plans = this.hospitalPlansStore.load();
       const idx = plans.findIndex(p => p.id === planId);
-      if (idx === -1) return ResponseUtil.notFound('Doctor plan', planId);
+      if (idx === -1) return ResponseUtil.notFound('Hospital plan', planId);
+
+      if (typeof changes.monthlyFee === 'number' && changes.monthlyFee < 0) {
+        return ResponseUtil.validationError('Monthly fee cannot be negative');
+      }
 
       const { id, ...safe } = changes as any;
       plans[idx] = { ...plans[idx], ...safe };
-      this.doctorPlansStore.save(plans);
-      return ResponseUtil.updated('Doctor plan', plans[idx]);
+      this.hospitalPlansStore.save(plans);
+      return ResponseUtil.updated('Hospital plan', plans[idx]);
     } catch {
-      return ResponseUtil.serverError('Failed to update doctor plan');
+      return ResponseUtil.serverError('Failed to update hospital plan');
     }
   }
 
-  // ── Doctor subscriptions ──────────────────────────────────────────────────
-
-  loadDoctorSubscriptions(): DoctorSubscription[] {
-    return this.doctorSubsStore.load();
+  /** The plan a hospital of this size belongs on. */
+  resolveHospitalPlan(staffCount: number): HospitalPlan {
+    const plans = this.loadHospitalPlans().filter(p => p.status === 'active');
+    const match = plans.find(
+      p => staffCount >= p.minUsers && (p.maxUsers === null || staffCount <= p.maxUsers),
+    );
+    // A hospital with no staff yet still sits on the smallest plan rather than
+    // falling out of the model entirely.
+    return match ?? plans[0];
   }
 
-  async findDoctorSubscriptions(doctorId?: string) {
-    try {
-      const subs = this.loadDoctorSubscriptions();
-      return ResponseUtil.success(
-        'Doctor subscriptions retrieved successfully',
-        doctorId ? subs.filter(s => s.doctorId === doctorId) : subs,
-      );
-    } catch {
-      return ResponseUtil.serverError('Failed to retrieve doctor subscriptions');
-    }
+  // ── Hospital subscriptions ────────────────────────────────────────────────
+
+  loadHospitalSubscriptions(): HospitalSubscription[] {
+    return this.hospitalSubsStore.load();
   }
 
   /**
-   * Every doctor has a subscription whether or not a row exists — an unenrolled
-   * doctor is on the free tier. Materialising the row on first read keeps the
-   * revenue roll-up from silently skipping doctors nobody has enrolled yet.
+   * Every hospital on the platform is on a plan whether or not a row exists —
+   * an unenrolled hospital is on the plan its current headcount puts it on.
+   * Materialising the row on first read keeps the revenue roll-up from silently
+   * skipping hospitals nobody has enrolled yet, exactly as
+   * `ensureDoctorSubscription` used to do for doctors.
    */
-  ensureDoctorSubscription(doctor: {
-    id: string;
-    name: string;
-    hospitalId?: string;
-    consultationFee?: number;
-  }): DoctorSubscription {
-    const subs = this.doctorSubsStore.load();
-    const existing = subs.find(s => s.doctorId === doctor.id);
+  ensureHospitalSubscription(hospital: { id: string; name: string }, staffCount: number): HospitalSubscription {
+    const subs = this.hospitalSubsStore.load();
+    const existing = subs.find(s => s.hospitalId === hospital.id);
     if (existing) return existing;
 
+    const plan = this.resolveHospitalPlan(staffCount);
     const now = new Date();
-    const created: DoctorSubscription = {
-      id: `DSUB-${doctor.id}`,
-      doctorId: doctor.id,
-      doctorName: doctor.name,
-      hospitalId: doctor.hospitalId || '',
-      planId: 'DOC-FREE',
+    const created: HospitalSubscription = {
+      id: `HSUB-${hospital.id}`,
+      hospitalId: hospital.id,
+      hospitalName: hospital.name,
+      planId: plan.id,
       status: 'active',
-      consultationFee: doctor.consultationFee || 500,
+      billingCycle: 'monthly',
+      staffAtSignup: staffCount,
       startedAt: now.toISOString(),
       renewsOn: new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString(),
-      notes: 'Auto-enrolled on the free listing tier.',
+      notes: `Auto-enrolled on ${plan.name} at ${staffCount} staff account${staffCount === 1 ? '' : 's'}.`,
     };
     subs.push(created);
-    this.doctorSubsStore.save(subs);
+    this.hospitalSubsStore.save(subs);
     return created;
   }
 
-  async updateDoctorSubscription(
-    doctorId: string,
-    changes: { planId?: string; status?: string; consultationFee?: number },
+  async findHospitalSubscriptions(hospitalId?: string) {
+    try {
+      const subs = this.loadHospitalSubscriptions();
+      return ResponseUtil.success(
+        'Hospital subscriptions retrieved successfully',
+        hospitalId ? subs.filter(s => s.hospitalId === hospitalId) : subs,
+      );
+    } catch {
+      return ResponseUtil.serverError('Failed to retrieve hospital subscriptions');
+    }
+  }
+
+  async updateHospitalSubscription(
+    hospitalId: string,
+    changes: { planId?: string; status?: string },
   ) {
     try {
-      const subs = this.doctorSubsStore.load();
-      const idx = subs.findIndex(s => s.doctorId === doctorId);
-      if (idx === -1) return ResponseUtil.notFound('Doctor subscription', doctorId);
+      const subs = this.hospitalSubsStore.load();
+      const idx = subs.findIndex(s => s.hospitalId === hospitalId);
+      if (idx === -1) return ResponseUtil.notFound('Hospital subscription', hospitalId);
 
       if (changes.planId) {
-        const plan = this.loadDoctorPlans().find(p => p.id === changes.planId);
-        if (!plan) return ResponseUtil.error(`Unknown doctor plan '${changes.planId}'`);
-        subs[idx].planId = changes.planId;
+        const plan = this.loadHospitalPlans().find(p => p.id === changes.planId);
+        if (!plan) return ResponseUtil.error(`Unknown hospital plan '${changes.planId}'`);
+        subs[idx].planId = changes.planId as HospitalPlanId;
       }
-      if (changes.status) subs[idx].status = changes.status as DoctorSubscription['status'];
-      if (typeof changes.consultationFee === 'number') {
-        if (changes.consultationFee < 0) {
-          return ResponseUtil.validationError('Consultation fee cannot be negative');
-        }
-        subs[idx].consultationFee = changes.consultationFee;
+      if (changes.status) {
+        subs[idx].status = changes.status as HospitalSubscription['status'];
       }
 
-      this.doctorSubsStore.save(subs);
-      return ResponseUtil.updated('Doctor subscription', subs[idx]);
+      this.hospitalSubsStore.save(subs);
+      return ResponseUtil.updated('Hospital subscription', subs[idx]);
     } catch {
-      return ResponseUtil.serverError('Failed to update doctor subscription');
+      return ResponseUtil.serverError('Failed to update hospital subscription');
     }
   }
 
@@ -499,6 +413,35 @@ export class PricingService {
     }
   }
 
+  // ── Consultation fee ──────────────────────────────────────────────────────
+
+  /**
+   * The fee a doctor charges a patient per consultation. It is the hospital's
+   * money, not NexCare's — the platform takes nothing from it — but the doctor
+   * sets it, and the booking wizard quotes it, so it is edited here.
+   */
+  async setDoctorConsultationFee(doctorId: string, consultationFee: number) {
+    try {
+      if (!Number.isFinite(consultationFee) || consultationFee < 0) {
+        return ResponseUtil.validationError('Consultation fee cannot be negative');
+      }
+
+      const users = this.usersStore.load();
+      const idx = users.findIndex(u => u.id === doctorId && u.role === 'doctor');
+      if (idx === -1) return ResponseUtil.notFound('Doctor', doctorId);
+
+      users[idx].consultationFee = consultationFee;
+      this.usersStore.save(users);
+
+      return ResponseUtil.updated('Consultation fee', {
+        doctorId,
+        consultationFee,
+      });
+    } catch {
+      return ResponseUtil.serverError('Failed to update the consultation fee');
+    }
+  }
+
   // ── Cross-cutting fee config ──────────────────────────────────────────────
 
   loadFeeConfig(): PlatformFeeConfig {
@@ -526,11 +469,8 @@ export class PricingService {
           return ResponseUtil.validationError(`${key} cannot be negative`);
         }
       }
-      for (const rateKey of ['paymentGatewayRate', 'hospitalCommissionRate']) {
-        const value = (safe as any)[rateKey];
-        if (typeof value === 'number' && value > 1) {
-          return ResponseUtil.validationError(`${rateKey} is a fraction — 0.019 means 1.9%`);
-        }
+      if (typeof (safe as any).paymentGatewayRate === 'number' && (safe as any).paymentGatewayRate > 1) {
+        return ResponseUtil.validationError('paymentGatewayRate is a fraction — 0.019 means 1.9%');
       }
 
       const next: PlatformFeeConfig = {
@@ -545,116 +485,5 @@ export class PricingService {
     } catch {
       return ResponseUtil.serverError('Failed to update platform fee configuration');
     }
-  }
-
-  // ── Hospital Subscription Tiers & Contracts ────────────────────────────────
-
-  loadHospitalTiers(): HospitalSubscriptionTier[] {
-    return this.hospitalTierStore.load();
-  }
-
-  async findHospitalTiers() {
-    try {
-      return ResponseUtil.success('Hospital tiers retrieved', this.loadHospitalTiers());
-    } catch {
-      return ResponseUtil.serverError('Failed to retrieve hospital tiers');
-    }
-  }
-
-  /**
-   * Resolve which tier applies for a given bed count.
-   * Returns the matching tier or COMMUNITY as a safe default.
-   */
-  resolveHospitalTier(totalBeds: number): HospitalSubscriptionTier {
-    const tiers = this.loadHospitalTiers().filter(t => t.status === 'active');
-    const match = tiers.find(t =>
-      totalBeds >= t.minBeds && (t.maxBeds === null || totalBeds <= t.maxBeds),
-    );
-    return match ?? tiers.find(t => t.id === 'COMMUNITY') ?? tiers[0];
-  }
-
-  /**
-   * Create or replace the subscription contract for a hospital.
-   * Call this when a hospital is approved/verified, or when it renews.
-   *
-   * The tier is resolved automatically from totalBeds — callers do not
-   * pick the tier themselves.
-   */
-  assignHospitalContract(hospitalId: string, totalBeds: number): HospitalSubscriptionContract {
-    const tier = this.resolveHospitalTier(totalBeds);
-    const now = new Date();
-    const endDate = new Date(now);
-    endDate.setFullYear(endDate.getFullYear() + 1);
-
-    const contracts = this.hospitalContractStore.load();
-    const existingIdx = contracts.findIndex(c => c.hospitalId === hospitalId && c.status === 'active');
-
-    const contract: HospitalSubscriptionContract = {
-      id: existingIdx >= 0 ? contracts[existingIdx].id : IdGenerator.generate('HSC'),
-      hospitalId,
-      tierId: tier.id as HospitalTierId,
-      tierBasis: 'beds',
-      bedsAtSignup: totalBeds,
-      commissionRate: tier.hospitalCommissionRate,
-      billingCycle: 'annual',
-      annualFeeRupees: tier.annualFeeRupees,
-      contractStartDate: now.toISOString(),
-      contractEndDate: endDate.toISOString(),
-      status: 'active',
-      createdAt: existingIdx >= 0 ? contracts[existingIdx].createdAt : now.toISOString(),
-      updatedAt: now.toISOString(),
-    };
-
-    if (existingIdx >= 0) {
-      contracts[existingIdx] = contract;
-    } else {
-      contracts.push(contract);
-    }
-    this.hospitalContractStore.save(contracts);
-    return contract;
-  }
-
-  loadHospitalContracts(): HospitalSubscriptionContract[] {
-    return this.hospitalContractStore.load();
-  }
-
-  async findHospitalContracts(hospitalId?: string) {
-    try {
-      let contracts = this.loadHospitalContracts();
-      if (hospitalId) contracts = contracts.filter(c => c.hospitalId === hospitalId);
-      return ResponseUtil.success('Hospital contracts retrieved', contracts);
-    } catch {
-      return ResponseUtil.serverError('Failed to retrieve hospital contracts');
-    }
-  }
-
-  /**
-   * Annual reconciliation: measure actual MAP against contracted tier.
-   * Flags hospitals that have grown past their tier with an upgradeRecommendedTierId.
-   * Does NOT automatically charge — a human reviews and approves the upgrade.
-   */
-  runTierReconciliation(hospitalId: string, measuredMAP: number): HospitalSubscriptionContract | null {
-    const contracts = this.hospitalContractStore.load();
-    const idx = contracts.findIndex(c => c.hospitalId === hospitalId && c.status === 'active');
-    if (idx === -1) return null;
-
-    const currentTier = this.resolveHospitalTier(contracts[idx].bedsAtSignup);
-    // Use MAP * 30 as a rough "bed equivalent" to check if they've outgrown their tier
-    const tiers = this.loadHospitalTiers().filter(t => t.status === 'active');
-    const betterTier = tiers.find(t =>
-      t.id !== currentTier.id &&
-      t.annualFeeRupees > currentTier.annualFeeRupees &&
-      measuredMAP > (currentTier.maxBeds ?? Infinity) * 0.8, // 80% utilisation threshold
-    );
-
-    contracts[idx] = {
-      ...contracts[idx],
-      lastMeasuredMAP: measuredMAP,
-      lastReconciliationDate: new Date().toISOString(),
-      upgradeRecommendedTierId: betterTier ? (betterTier.id as HospitalTierId) : undefined,
-      updatedAt: new Date().toISOString(),
-    };
-    this.hospitalContractStore.save(contracts);
-    return contracts[idx];
   }
 }

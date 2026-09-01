@@ -78,8 +78,9 @@ hierarchy nor readable through `/revenue/hospital/H001` (403).
 
 Doctors, administrative staff and ambulance crew can also self-register at
 `front-end/auth/staff-register.html`. A new doctor must give a specialisation —
-that is the department patients book them under — and is auto-enrolled on the free
-listing tier.
+that is the department patients book them under. They are not enrolled on any
+plan: a doctor is a seat on their hospital's subscription, and NexCare charges
+them nothing.
 
 The login form sends the selected role alongside the credentials, and the backend
 rejects a mismatch — signing in as Priya Reddy with the "Ambulance Staff" radio
@@ -91,36 +92,38 @@ selected fails even though the password is correct.
 
 Doctors became login actors on 2026-08-30. Each has a portal at
 `front-end/doctor/` covering their own schedule, the appointments booked with them,
-their leave requests, and their earnings against the platform's listing tiers.
+their leave requests, and the consultation revenue they generated.
 Sign in at `front-end/auth/doctor-login.html` with the same `Password123`.
 
-The listing tier is what NexCare charges the doctor. The ladder is inverted on
-purpose — Practice Free carries a 12% commission, Practice Featured only 5% — so a
-busy consultant saves money by paying more up front. A doctor can change their own
-tier and consultation fee from the Earnings & Plan page.
+**NexCare charges a doctor nothing.** Doctor listing tiers and the commission on
+each consultation were removed on 2026-09-01: a doctor is an employee of the
+hospital, and the hospital's subscription — priced by how many staff accounts it
+runs — already covers their seat. The consultation fee below is what the *patient*
+is quoted and what the *hospital* bills; the platform takes no share of it. A
+doctor sets their own fee from the Earnings page. See `PROJECT_CONTEXT.md` §5A.
 
-| Name | Email | Department | Hospital | Status | Listing tier | Fee |
-|---|---|---|---|---|---|---|
-| Dr. Sunita Sharma | `sunita@nexcare.com` | Cardiology | H001 | Active | Practice Featured | ₹900 |
-| Dr. Vikram Patel | `vikram@nexcare.com` | Orthopaedics | H001 | Active | Practice Free | ₹800 |
-| Dr. Anjali Desai | `anjali@nexcare.com` | General Medicine | H001 | **On Leave** | Practice Verified | ₹500 |
-| Dr. Priya Nair | `priya@nexcare.com` | Paediatrics | H001 | Active | Practice Free | ₹600 |
-| Dr. Rajesh Khanna | `rajesh@nexcare.com` | Neurology | H002 | Active | Practice Verified | ₹1100 |
-| Dr. Meera Iyer | `meera@nexcare.com` | Dermatology | H002 | Active | Practice Featured | ₹700 |
-| Dr. Arjun Mehta | `arjun@nexcare.com` | General Medicine | H001 | Active | Practice Verified | ₹500 |
-| Dr. Kavya Reddy | `kavya@nexcare.com` | Gynaecology | H002 | Active | Practice Free | ₹750 |
-| Dr. Naveen Kumar | `naveen@nexcare.com` | Paediatrics | H002 | Active | Practice Verified | ₹600 |
-| Dr. Sneha Pillai | `sneha@nexcare.com` | General Medicine | H002 | Active | Practice Free | ₹500 |
-| Dr. Harish Varma | `harish@nexcare.com` | Cardiology | H002 | Active | Practice Featured | ₹900 |
-| Dr. Ananya Iyer | `ananya@nexcare.com` | Cardiology | H003 | Active | Practice Free | ₹900 |
-| Dr. Ravi Shankar | `ravi@nexcare.com` | Neurology | H003 | Active | Practice Verified | ₹1100 |
-| Dr. Deepak Nair | `deepak@nexcare.com` | Orthopaedics | H003 | Active | Practice Free | ₹800 |
-| Dr. Shalini Rao | `shalini@nexcare.com` | General Medicine | H003 | **On Leave** | Practice Verified | ₹500 |
-| Dr. Vignesh Murthy | `vignesh@nexcare.com` | Emergency Medicine | H003 | Active | Practice Featured | ₹600 |
-| Dr. Sanjay Gupta | `sanjay@nexcare.com` | Neurology | H001 | Active | Practice Verified | ₹1100 |
-| Dr. Preethi Nambiar | `preethi@nexcare.com` | Orthopaedics | H002 | Active | Practice Free | ₹800 |
-| Dr. Bhavana Menon | `bhavana@nexcare.com` | General Medicine | H003 | Active | Practice Verified | ₹500 |
-| Dr. Sarah Smith | `sarah.smith@nexcare.com` | Cardiology | H001 | Active | Practice Free | ₹900 |
+| Name | Email | Department | Hospital | Status | Consultation fee |
+|---|---|---|---|---|---|
+| Dr. Sunita Sharma | `sunita@nexcare.com` | Cardiology | H001 | Active | ₹900 |
+| Dr. Vikram Patel | `vikram@nexcare.com` | Orthopaedics | H001 | Active | ₹800 |
+| Dr. Anjali Desai | `anjali@nexcare.com` | General Medicine | H001 | **On Leave** | ₹500 |
+| Dr. Priya Nair | `priya@nexcare.com` | Paediatrics | H001 | Active | ₹600 |
+| Dr. Rajesh Khanna | `rajesh@nexcare.com` | Neurology | H002 | Active | ₹1100 |
+| Dr. Meera Iyer | `meera@nexcare.com` | Dermatology | H002 | Active | ₹700 |
+| Dr. Arjun Mehta | `arjun@nexcare.com` | General Medicine | H001 | Active | ₹500 |
+| Dr. Kavya Reddy | `kavya@nexcare.com` | Gynaecology | H002 | Active | ₹750 |
+| Dr. Naveen Kumar | `naveen@nexcare.com` | Paediatrics | H002 | Active | ₹600 |
+| Dr. Sneha Pillai | `sneha@nexcare.com` | General Medicine | H002 | Active | ₹500 |
+| Dr. Harish Varma | `harish@nexcare.com` | Cardiology | H002 | Active | ₹900 |
+| Dr. Ananya Iyer | `ananya@nexcare.com` | Cardiology | H003 | Active | ₹900 |
+| Dr. Ravi Shankar | `ravi@nexcare.com` | Neurology | H003 | Active | ₹1100 |
+| Dr. Deepak Nair | `deepak@nexcare.com` | Orthopaedics | H003 | Active | ₹800 |
+| Dr. Shalini Rao | `shalini@nexcare.com` | General Medicine | H003 | **On Leave** | ₹500 |
+| Dr. Vignesh Murthy | `vignesh@nexcare.com` | Emergency Medicine | H003 | Active | ₹600 |
+| Dr. Sanjay Gupta | `sanjay@nexcare.com` | Neurology | H001 | Active | ₹1100 |
+| Dr. Preethi Nambiar | `preethi@nexcare.com` | Orthopaedics | H002 | Active | ₹800 |
+| Dr. Bhavana Menon | `bhavana@nexcare.com` | General Medicine | H003 | Active | ₹500 |
+| Dr. Sarah Smith | `sarah.smith@nexcare.com` | Cardiology | H001 | Active | ₹900 |
 
 Two are seeded **On Leave**: `anjali@nexcare.com` and `shalini@nexcare.com`. The
 booking wizard will not offer a slot with a doctor on approved leave.

@@ -6,6 +6,10 @@ const path = require('path');
 // script is plain JS and cannot import the .ts enums) and asserted at the bottom
 // of this file, so a drift between the two fails the seed instead of silently
 // producing records that no backend comparison will ever match.
+// The Starter plan's monthly fee, mirrored from PricingService.seedHospitalPlans().
+// Every seeded hospital runs 14 staff accounts, which is inside Starter's band.
+const HOSPITAL_MONTHLY_FEE = 4999;
+
 const BedStatus = {
   AVAILABLE: 'available',
   OCCUPIED: 'occupied',
@@ -632,21 +636,27 @@ hospitalsData.forEach((h, hIdx) => {
     ambulanceService: true,
     verificationStatus: 'verified',
     subscriptionStatus: 'ACTIVE',
-    subscriptionPlan: hIdx % 2 === 0 ? 'ENTERPRISE' : 'PREMIUM',
+    // Plans are priced by staff headcount. Every seeded hospital runs 14 staff
+    // accounts, which is the Starter band; the annual dates are the agreement
+    // window, while the money itself moves monthly.
+    subscriptionPlan: 'HOSP-STARTER',
     subscriptionStartDate: '2026-01-01',
     subscriptionExpiryDate: '2026-12-31',
-    lastPaymentDate: '2026-01-15T10:00:00Z',
-    amountPaid: hIdx % 2 === 0 ? 150000 : 90000,
-    paymentHistory: [{
-      id: `PAY-SEED-${h.id}`,
-      date: '2026-01-15T10:00:00Z',
-      amount: hIdx % 2 === 0 ? 150000 : 90000,
-      paymentType: hIdx % 2 === 0 ? 'Bank Transfer' : 'UPI',
-      transactionId: `NXC-SEED-${h.id}-2026`,
-      previousExpiry: '2025-12-31',
-      newExpiry: '2026-12-31',
-      status: 'PAID'
-    }]
+    lastPaymentDate: '2026-08-01T10:00:00Z',
+    amountPaid: HOSPITAL_MONTHLY_FEE * 8,
+    paymentHistory: Array.from({ length: 8 }, (_, m) => {
+      const month = String(m + 1).padStart(2, '0');
+      return {
+        id: `PAY-${h.id}-2026-${month}`,
+        date: `2026-${month}-01T10:00:00Z`,
+        amount: HOSPITAL_MONTHLY_FEE,
+        paymentType: 'Bank Transfer',
+        transactionId: `NXC-${h.id}-2026${month}`,
+        previousExpiry: '2026-12-31',
+        newExpiry: '2026-12-31',
+        status: 'PAID'
+      };
+    })
   });
 
   // Add Hospital Manager

@@ -2,127 +2,74 @@
  * Pricing interfaces — the catalogue side of the revenue model.
  *
  * `revenue.interface.ts` describes what NexCare *earned*. This file describes
- * what NexCare *charges*, and to whom. There are three payers, deliberately kept
- * separate because they buy different things:
+ * what NexCare *charges*, and to whom.
  *
- *  1. HOSPITALS buy the platform itself — a per-site SaaS licence, tiered by
- *     bed capacity at signup with annual MAP reconciliation for upgrades.
- *  2. DOCTORS buy visibility and booking volume — a per-practitioner listing
- *     plan. A doctor on the free tier still earns NexCare money, because the
- *     free tier carries the highest per-booking commission. That is the whole
- *     point of the ladder: the cheaper the subscription, the higher the take
- *     rate, so a busy doctor upgrades because it is cheaper for them, not
- *     because we forced them.
- *  3. PATIENTS buy convenience — either per booking, or with a membership that
- *     waives the per-booking fee.
+ * There are TWO payers, and that is the whole point of the model:
  *
- * Rates that apply to everybody (booking fee, ambulance dispatch fee, gateway
- * fee) live in PlatformFeeConfig, which the Admin can reprice at runtime.
+ *  1. HOSPITALS buy the platform, on a subscription priced by how many staff
+ *     accounts they run on it. Doctors, nurses, administrative staff and
+ *     ambulance staff are all employees of the hospital — the hospital is the
+ *     customer, so the hospital is billed once for all of them. A small clinic
+ *     with a dozen users pays a small plan; a large hospital with hundreds pays
+ *     a large one.
+ *  2. PATIENTS buy convenience — either per booking, or with a Care+
+ *     membership that waives the per-booking fee and discounts ambulance
+ *     dispatch.
+ *
+ * On top of those two subscriptions sit small per-transaction fees: bill
+ * payments, appointment bookings and ambulance dispatches.
+ *
+ * ── What changed on 2026-09-01, and why ────────────────────────────────────
+ *
+ * DOCTORS ARE NO LONGER A PAYER. Doctor listing tiers and the commission on
+ * each completed consultation are gone. A doctor is not a customer of NexCare;
+ * they are a member of hospital staff, and billing them separately for a tool
+ * their employer already pays for made no sense.
+ *
+ * THE COMMISSION ON HOSPITAL COLLECTIONS IS ALSO GONE. Taking a percentage of
+ * what a hospital earns made NexCare's income swing with the hospital's, which
+ * is neither predictable for them nor easy to explain. A per-user subscription
+ * gives the hospital a fixed, forecastable cost and gives NexCare revenue that
+ * tracks the thing it actually provides: seats on the platform.
  */
 
-// ── Hospital Subscription Tiers (Bed-Based) ──────────────────────────────────
+// ── Hospital subscription plans (staff/user based) ───────────────────────────
 //
-// Tier assignment is based on bed capacity at signup (simple, verifiable).
-// An annual reconciliation job checks actual MAP (Monthly Active Patients)
-// and flags hospitals that have grown past their tier for an upgrade prompt.
-// This gives simplicity now with a growth path to usage-based tiers in v2.
+// The plan is chosen by how many staff accounts a hospital runs — a number the
+// platform can count for itself out of `users.json`, so a plan is never merely
+// declared. If a hospital grows past the seats its plan includes, the extra
+// seats are billed at PlatformFeeConfig.extraStaffSeatFee until it moves up.
 
-export type HospitalTierId = 'CLINIC' | 'COMMUNITY' | 'REGIONAL' | 'ENTERPRISE';
+export type HospitalPlanId = 'HOSP-STARTER' | 'HOSP-GROWTH' | 'HOSP-ENTERPRISE';
 
-/**
- * A hospital subscription tier — what NexCare charges a hospital for the
- * platform licence, based on bed capacity.
- */
-export interface HospitalSubscriptionTier {
-  id: HospitalTierId;
+/** A hospital subscription tier — what NexCare charges for platform access. */
+export interface HospitalPlan {
+  id: HospitalPlanId;
   name: string;
   tagline: string;
-  /** Minimum bed count (inclusive) for this tier. */
-  minBeds: number;
-  /** Maximum bed count (inclusive). null = no upper limit (ENTERPRISE). */
-  maxBeds: number | null;
-  /** Annual subscription fee in rupees. */
-  annualFeeRupees: number;
-  /**
-   * Share of what this hospital collects that NexCare takes, as a fraction.
-   * Larger hospitals negotiate a lower rate — mirrors real B2B SaaS economics.
-   */
-  hospitalCommissionRate: number;
-  /** Maximum staff accounts included before per-seat charges apply. */
-  includedStaffSeats: number;
-  /** Maximum doctor registrations included in the tier. */
-  includedDoctorSeats: number;
-  features: string[];
-  status: 'active' | 'retired';
-  currency: string;
-}
-
-/**
- * The subscription contract for a specific hospital.
- * Created/updated when a hospital registers or renews.
- */
-export interface HospitalSubscriptionContract {
-  id: string;
-  hospitalId: string;
-  tierId: HospitalTierId;
-  /**
-   * The basis used to assign the tier — 'beds' for initial signup.
-   * Future: 'map' for usage-based tiers after annual reconciliation.
-   */
-  tierBasis: 'beds' | 'map' | 'negotiated';
-  /** Bed count recorded at contract creation — the basis for tier assignment. */
-  bedsAtSignup: number;
-  /** Commission rate locked in at contract creation (may differ from tier default if negotiated). */
-  commissionRate: number;
-  billingCycle: 'annual' | 'monthly';
-  annualFeeRupees: number;
-  contractStartDate: string;
-  contractEndDate: string;
-  /**
-   * MAP measured during last reconciliation run.
-   * Populated by the billing-reconciliation job, not at signup.
-   */
-  lastMeasuredMAP?: number;
-  lastReconciliationDate?: string;
-  /** Set by reconciliation if the hospital has grown past its contracted tier. */
-  upgradeRecommendedTierId?: HospitalTierId;
-  status: 'active' | 'suspended' | 'expired' | 'cancelled';
-  createdAt: string;
-  updatedAt: string;
-}
-
-/** A listing tier a doctor can be placed on. */
-export interface DoctorPlan {
-  id: string;
-  name: string;
-  tagline: string;
-  /** Recurring listing fee per month, in rupees. 0 for the free tier. */
+  /** Minimum staff accounts (inclusive) this plan is meant for. */
+  minUsers: number;
+  /** Maximum staff accounts (inclusive). null = no upper limit. */
+  maxUsers: number | null;
+  /** Recurring platform fee per month, in rupees. */
   monthlyFee: number;
-  /**
-   * Share of each consultation fee NexCare takes when a booking made through
-   * the platform is completed, as a fraction (0.08 = 8%).
-   */
-  commissionRate: number;
-  /** Bookings the tier carries per month before the doctor is asked to upgrade. */
-  monthlyBookingCap: number | null;
-  /** Ranked above lower tiers in patient-facing doctor search. */
-  featuredPlacement: boolean;
-  verifiedBadge: boolean;
+  /** Staff accounts the fee covers. null = unlimited. */
+  includedStaffSeats: number | null;
   features: string[];
   status: 'active' | 'retired';
   currency: string;
 }
 
-/** Which listing tier a given doctor is on. */
-export interface DoctorSubscription {
+/** Which plan a given hospital is on. */
+export interface HospitalSubscription {
   id: string;
-  doctorId: string;
-  doctorName: string;
   hospitalId: string;
-  planId: string;
-  status: 'active' | 'pending_activation' | 'suspended' | 'cancelled';
-  /** What the doctor charges per consultation. The commission base. */
-  consultationFee: number;
+  hospitalName: string;
+  planId: HospitalPlanId;
+  status: 'active' | 'suspended' | 'cancelled';
+  billingCycle: 'monthly';
+  /** Staff headcount when the plan was assigned — the basis for the tier. */
+  staffAtSignup: number;
   startedAt: string;
   renewsOn: string;
   notes?: string;
@@ -161,27 +108,21 @@ export interface PatientSubscription {
 /**
  * Rates that are not tied to any single plan. Editable by the Admin at runtime
  * so pricing experiments do not need a redeploy.
+ *
+ * `hospitalCommissionRate` was removed on 2026-09-01 along with the commission
+ * on hospital collections — hospitals pay a subscription, not a share of what
+ * they earn.
  */
 export interface PlatformFeeConfig {
   id: string;
   currency: string;
   /** Charged to the patient on each appointment booked through NexCare. */
   patientBookingFee: number;
-  /**
-   * Share of what a hospital collects that NexCare takes, as a fraction.
-   *
-   * This used to live on the hospital's subscription plan. Hospital
-   * subscriptions were removed from the revenue model on 2026-08-30, so the
-   * rate is now a single platform-wide term — every hospital is charged the
-   * same percentage of what it actually collects, and nothing is billed to a
-   * hospital that collects nothing.
-   */
-  hospitalCommissionRate: number;
-  /** Charged to the hospital on each completed ambulance dispatch. */
+  /** Charged on each completed ambulance dispatch, discounted for members. */
   ambulanceDispatchFee: number;
   /** Taken on every bill settled through NexCare, as a fraction. */
   paymentGatewayRate: number;
-  /** Per extra staff seat beyond the plan's allowance, per month. */
+  /** Per staff seat beyond the plan's allowance, per month. */
   extraStaffSeatFee: number;
   /** Per SMS/WhatsApp notification sent on a hospital's behalf. */
   notificationCreditFee: number;
@@ -195,8 +136,8 @@ export interface RevenueStreamLine {
   key: string;
   /** Human label for the dashboard. */
   label: string;
-  /** Who actually pays this. */
-  payer: 'hospital' | 'doctor' | 'patient';
+  /** Who actually pays this. Doctors stopped being a payer on 2026-09-01. */
+  payer: 'hospital' | 'patient';
   /** Recurring subscription income vs. usage-based income. */
   type: 'recurring' | 'usage';
   amount: number;
@@ -222,41 +163,39 @@ export interface PlatformStreamsOverview {
   /** Headline unit economics — what the Admin quotes to an investor. */
   unitEconomics: {
     hospitals: number;
-    doctors: number;
+    /** Billable staff accounts across every hospital — what the plans price. */
+    staffSeats: number;
     patients: number;
     revenuePerHospital: number;
-    revenuePerDoctor: number;
+    /** Hospital subscription revenue divided by billable seats. */
+    revenuePerStaffSeat: number;
     revenuePerPatient: number;
     /** Recurring revenue as a share of total — the stickiness number. */
     recurringShare: number;
   };
 }
 
-/** What one doctor earned, and what the platform took. */
+/**
+ * What one doctor's consultations were worth.
+ *
+ * NexCare takes nothing from a doctor as of 2026-09-01, so there is no
+ * commission and no listing fee here any more. The figure is the consultation
+ * revenue the doctor generated for their hospital — their own contribution,
+ * not a bill.
+ */
 export interface DoctorEarnings {
   doctorId: string;
   doctorName: string;
   hospitalId: string;
   currency: string;
-  planId: string;
-  planName: string;
+  /** What the doctor charges per consultation. */
   consultationFee: number;
-  commissionRate: number;
   appointmentsBooked: number;
   appointmentsCompleted: number;
   appointmentsCancelled: number;
-  /** consultationFee × completed appointments. */
+  /** Sum of the fees on completed consultations. */
   grossEarnings: number;
-  /** What NexCare took in commission. */
-  platformCommission: number;
-  /** The recurring listing fee for the cycle. */
-  platformListingFee: number;
-  /** grossEarnings − commission − listing fee. */
-  netEarnings: number;
-  byMonth: Array<{ month: string; completed: number; gross: number; net: number }>;
-  /** Cheaper alternative tier, if one exists at this booking volume. */
-  recommendedPlanId: string | null;
-  recommendationReason: string | null;
+  byMonth: Array<{ month: string; completed: number; gross: number }>;
 }
 
 /** What one patient's membership is worth to them. */

@@ -55,14 +55,14 @@ async function loadPractice() {
     }
 }
 
-/** Net earnings is the number a doctor actually cares about, so it sits here too. */
+/** Consultation revenue is the number a doctor actually cares about, so it sits here too. */
 async function loadEarnings() {
     try {
         const res = await window.NexCareAPI.Revenue.getMyDoctorEarnings();
         if (!res.success) return;
         const e = res.data;
-        setText('kpiNet', money(e.netEarnings));
-        setText('kpiNetSub', `${money(e.grossEarnings)} gross · ${e.planName}`);
+        setText('kpiNet', money(e.grossEarnings));
+        setText('kpiNetSub', `${e.appointmentsCompleted} completed · ${money(e.consultationFee)} per consultation`);
     } catch (err) {
         console.error('Earnings load failed:', err);
     }

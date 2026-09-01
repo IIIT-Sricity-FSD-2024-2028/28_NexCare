@@ -18,7 +18,65 @@
         },
         "responses": {
           "200": {
-            "description": "Login result (check success field)",
+            "description": "Login successful",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
             "headers": {
               "x-request-id": {
                 "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
@@ -126,8 +184,8 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Registration result (check success field)",
+          "201": {
+            "description": "Registration successful",
             "headers": {
               "x-request-id": {
                 "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
@@ -264,8 +322,8 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Registration result (check success field)",
+          "201": {
+            "description": "Registration successful",
             "headers": {
               "x-request-id": {
                 "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
@@ -412,6 +470,35 @@
         "responses": {
           "200": {
             "description": "Successful logout",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
             "headers": {
               "x-request-id": {
                 "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
@@ -833,6 +920,35 @@
           },
           "400": {
             "description": "Validation error",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
             "headers": {
               "x-request-id": {
                 "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
@@ -9342,6 +9458,7 @@
     "/api/hospitals/register": {
       "post": {
         "operationId": "HospitalsController_register",
+        "summary": "Register a new hospital",
         "parameters": [
           {
             "name": "x-csrf-token",
@@ -9355,7 +9472,36 @@
         ],
         "responses": {
           "201": {
-            "description": "",
+            "description": "Hospital registered successfully",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
             "headers": {
               "x-request-id": {
                 "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
@@ -9385,6 +9531,35 @@
           },
           "403": {
             "description": "CSRF token missing or invalid on an unauthenticated state-changing request.",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Hospital with this registration number already exists",
             "headers": {
               "x-request-id": {
                 "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
@@ -34795,7 +34970,7 @@
     "/api/revenue/platform/overview": {
       "get": {
         "operationId": "RevenueController_platformOverview",
-        "summary": "Platform revenue overview — MRR, ARR, commission, per-hospital breakdown",
+        "summary": "Platform revenue overview — MRR, ARR, subscriptions, per-hospital breakdown",
         "parameters": [
           {
             "name": "from",
@@ -35511,7 +35686,7 @@
     "/api/revenue/health-score/{hospitalId}": {
       "get": {
         "operationId": "RevenueController_getHealthScore",
-        "summary": "Internal NexCare health score combining util, revenue, expiry, and no-shows",
+        "summary": "Internal NexCare health score combining bed use, revenue, no-shows, renewal and seat pressure",
         "parameters": [
           {
             "name": "hospitalId",
@@ -35624,7 +35799,7 @@
     "/api/revenue/platform/streams": {
       "get": {
         "operationId": "RevenueController_platformStreams",
-        "summary": "Every revenue stream — hospital licence, doctor listings, patient memberships and per-transaction fees",
+        "summary": "Every revenue stream — hospital subscriptions, patient memberships and per-transaction fees",
         "parameters": [
           {
             "name": "from",
@@ -36314,10 +36489,10 @@
         ]
       }
     },
-    "/api/revenue/doctor-plans/{id}": {
+    "/api/revenue/hospital-plans/{id}": {
       "patch": {
-        "operationId": "RevenueController_updateDoctorPlan",
-        "summary": "Reprice a doctor listing tier",
+        "operationId": "RevenueController_updateHospitalPlan",
+        "summary": "Reprice a hospital subscription plan",
         "parameters": [
           {
             "name": "id",
@@ -36680,13 +36855,13 @@
         ]
       }
     },
-    "/api/revenue/doctor-subscriptions": {
+    "/api/revenue/hospital-subscriptions": {
       "get": {
-        "operationId": "RevenueController_findDoctorSubscriptions",
-        "summary": "Which listing tier every doctor is on",
+        "operationId": "RevenueController_findHospitalSubscriptions",
+        "summary": "Which subscription plan every hospital is on",
         "parameters": [
           {
-            "name": "doctorId",
+            "name": "hospitalId",
             "required": false,
             "in": "query",
             "schema": {
@@ -37013,10 +37188,10 @@
         ]
       }
     },
-    "/api/revenue/doctor-plans": {
+    "/api/revenue/hospital-plans": {
       "get": {
-        "operationId": "RevenueController_findDoctorPlans",
-        "summary": "The doctor listing tiers on offer",
+        "operationId": "RevenueController_findHospitalPlans",
+        "summary": "The hospital subscription plans on offer, priced by staff headcount",
         "parameters": [],
         "responses": {
           "200": {
@@ -37340,7 +37515,7 @@
     "/api/revenue/doctor/me": {
       "get": {
         "operationId": "RevenueController_myDoctorEarnings",
-        "summary": "The signed-in doctor’s own earnings and platform charges",
+        "summary": "The signed-in doctor’s own consultation revenue",
         "parameters": [
           {
             "name": "from",
@@ -37516,170 +37691,10 @@
         ]
       }
     },
-    "/api/revenue/doctor/me/subscription": {
-      "get": {
-        "operationId": "RevenueController_myDoctorSubscription",
-        "summary": "The signed-in doctor’s listing tier",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "headers": {
-              "x-request-id": {
-                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "x-csrf-token": {
-                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "x-ratelimit-limit": {
-                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "x-ratelimit-remaining": {
-                "description": "Requests still permitted in the current window.",
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "headers": {
-              "x-request-id": {
-                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "x-csrf-token": {
-                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "x-ratelimit-limit": {
-                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "x-ratelimit-remaining": {
-                "description": "Requests still permitted in the current window.",
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "headers": {
-              "x-request-id": {
-                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "x-csrf-token": {
-                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "x-ratelimit-limit": {
-                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "x-ratelimit-remaining": {
-                "description": "Requests still permitted in the current window.",
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            }
-          },
-          "413": {
-            "description": "Payload too large — SecurityMiddleware rejects request bodies over 1024 KB.",
-            "headers": {
-              "x-request-id": {
-                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "x-csrf-token": {
-                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "x-ratelimit-limit": {
-                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "x-ratelimit-remaining": {
-                "description": "Requests still permitted in the current window.",
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded — SecurityMiddleware allows 300 requests per 60s per IP on this route. The retry-after header gives the wait in seconds.",
-            "headers": {
-              "x-request-id": {
-                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "x-csrf-token": {
-                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "x-ratelimit-limit": {
-                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "x-ratelimit-remaining": {
-                "description": "Requests still permitted in the current window.",
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Revenue"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
+    "/api/revenue/doctor/me/consultation-fee": {
       "patch": {
-        "operationId": "RevenueController_updateMyDoctorSubscription",
-        "summary": "Change your own listing tier or consultation fee",
+        "operationId": "RevenueController_updateMyConsultationFee",
+        "summary": "Change your own consultation fee",
         "parameters": [
           {
             "name": "x-csrf-token",
@@ -37851,13 +37866,13 @@
         ]
       }
     },
-    "/api/revenue/doctor-subscriptions/{doctorId}": {
+    "/api/revenue/hospital-subscriptions/{hospitalId}": {
       "patch": {
-        "operationId": "RevenueController_updateDoctorSubscription",
-        "summary": "Move a doctor onto a different listing tier, or suspend them",
+        "operationId": "RevenueController_updateHospitalSubscription",
+        "summary": "Move a hospital onto a different plan, or suspend it",
         "parameters": [
           {
-            "name": "doctorId",
+            "name": "hospitalId",
             "required": true,
             "in": "path",
             "schema": {
@@ -38037,7 +38052,7 @@
     "/api/revenue/doctor/{doctorId}": {
       "get": {
         "operationId": "RevenueController_doctorEarnings",
-        "summary": "One doctor’s earnings and what the platform took",
+        "summary": "One doctor’s consultation revenue",
         "parameters": [
           {
             "name": "doctorId",

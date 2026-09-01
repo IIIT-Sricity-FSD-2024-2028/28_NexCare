@@ -17,7 +17,6 @@ let beds = [];
 let inventory = [];
 let appointments = [];
 let billing = [];
-let docSubscriptions = [];
 
 // Superuser
 users.push({
@@ -135,14 +134,6 @@ for (let r = 0; r < 4; r++) {
       };
       users.push(doc);
       hospDocs.push(doc);
-      docSubscriptions.push({
-        id: `DSUB-${doc.id}`,
-        doctorId: doc.id,
-        doctorName: doc.name,
-        hospitalId: hospId,
-        planId: 'DOC-FREE',
-        status: 'active'
-      });
       docIdCounter++;
     }
 
@@ -257,6 +248,7 @@ fs.writeFileSync(path.join(DATA_DIR, 'beds.json'), JSON.stringify(beds, null, 2)
 fs.writeFileSync(path.join(DATA_DIR, 'inventory.json'), JSON.stringify(inventory, null, 2));
 fs.writeFileSync(path.join(DATA_DIR, 'appointments.json'), JSON.stringify(appointments, null, 2));
 fs.writeFileSync(path.join(DATA_DIR, 'billing.json'), JSON.stringify(billing, null, 2));
-fs.writeFileSync(path.join(DATA_DIR, 'doctor-subscriptions.json'), JSON.stringify(docSubscriptions, null, 2));
+// Doctors are not billed by NexCare — the hospital's staff-count subscription
+// covers their seat — so there is no doctor subscription file to write.
 
 console.log('Seed data generated successfully!');

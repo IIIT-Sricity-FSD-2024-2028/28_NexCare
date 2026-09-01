@@ -4,9 +4,10 @@
  * NexCare has two distinct revenue streams and they must not be conflated:
  *
  *  1. PLATFORM revenue — what NexCare earns from hospitals for using the
- *     platform (subscription base fee + per-bed overage + a commission on what
- *     the hospital collects). This is the business's own revenue model and is
- *     visible only to the Admin/superuser.
+ *     platform: a monthly subscription priced by the number of staff accounts
+ *     the hospital runs, plus the processing fee on bills settled through the
+ *     gateway. This is the business's own revenue model and is visible only to
+ *     the Admin/superuser.
  *
  *  2. OPERATIONAL revenue — what an individual hospital collects from patients
  *     through NexCare billing. It belongs to that hospital and its oversight
@@ -16,22 +17,26 @@
 /**
  * What one hospital contributed to platform revenue in a period.
  *
- * Hospital SUBSCRIPTIONS were removed from the model on 2026-08-30, so there is
- * no plan, no base fee and no bed overage here any more. A hospital pays only
- * on what it actually collects, which means a hospital that collects nothing
- * owes nothing.
+ * The COMMISSION on hospital collections was removed on 2026-09-01. NexCare no
+ * longer takes a share of what a hospital earns; it charges a subscription for
+ * the seats the hospital uses, so the hospital's cost is fixed and predictable
+ * whatever its month looks like.
  */
 export interface HospitalRevenueLine {
   hospitalId: string;
   hospitalName: string;
   status: string;
+  /** Which staff-count plan this hospital is on. */
+  planName: string;
+  /** Billable staff accounts — the meter the plan is priced on. */
+  staffSeats: number;
   /** What the hospital collected from patients (settled payments only). */
   collections: number;
-  /** Commission taken on those collections. */
-  commission: number;
+  /** The monthly subscription, including any seats beyond the plan's allowance. */
+  subscription: number;
   /** Processing fee taken on those payments. */
   processingFees: number;
-  /** commission + processingFees. */
+  /** subscription + processingFees. */
   platformRevenue: number;
   paymentsProcessed: number;
 }
@@ -40,18 +45,19 @@ export interface HospitalRevenueLine {
 export interface PlatformRevenueOverview {
   currency: string;
   /**
-   * Recurring revenue — doctor listing tiers and Care+ memberships only. The
-   * hospital licence used to sit here; it was removed on 2026-08-30.
+   * Recurring revenue — hospital staff-count subscriptions plus Care+
+   * memberships. Doctor listing tiers used to sit here; they were removed on
+   * 2026-09-01 along with the rest of the doctor-side billing.
    */
   mrr: number;
   arr: number;
-  /** Commission earned on hospital collections in the period. */
-  commissionRevenue: number;
+  /** Hospital subscription revenue for the cycle. */
+  subscriptionRevenue: number;
   /** Processing fees earned on those payments. */
   processingRevenue: number;
   /** Every stream added together, recurring and transactional. */
   totalRevenue: number;
-  /** Hospitals that actually generated revenue in the period. */
+  /** Hospitals that contributed revenue in the period. */
   earningHospitals: number;
   totalHospitals: number;
   averageRevenuePerHospital: number;
@@ -77,11 +83,22 @@ export interface HospitalOperationalRevenue {
   byDepartment: Array<{ department: string; amount: number; share: number }>;
   byMonth: Array<{ month: string; collected: number; outstanding: number }>;
   /**
-   * What this hospital owes NexCare for the period — transactional only, since
-   * the subscription was removed. Null when nothing was settled.
+   * What this hospital owes NexCare for the period: the staff-count
+   * subscription, plus the processing fee on the bills it actually settled.
+   * Null when the hospital has no active subscription.
    */
   platformCharges: {
-    commission: number;
+    planName: string;
+    /** Billable staff accounts the plan is priced on. */
+    staffSeats: number;
+    /** Seats the plan covers. null = unlimited. */
+    includedSeats: number | null;
+    /** The plan's own monthly fee. */
+    baseFee: number;
+    /** Seats beyond the allowance, at the per-seat rate. */
+    extraSeatFee: number;
+    /** baseFee + extraSeatFee. */
+    subscription: number;
     processingFees: number;
     total: number;
     paymentsProcessed: number;

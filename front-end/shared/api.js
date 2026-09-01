@@ -891,17 +891,14 @@ const LeavesAPI = {
 // Revenue API
 // Four audiences, deliberately separate:
 //   /platform/*                NexCare's own commercials — superuser only
-//   /hospital/:id              a hospital's own collections
-//   /doctor/me, /doctor/:id    a practitioner's earnings and platform charges
+//   /hospital/:id              a hospital's own collections and what it owes
+//   /doctor/me, /doctor/:id    a practitioner's consultation revenue
 //   /patient/me/membership     a patient's Care+ plan and what it saved them
+//
+// Doctor listing tiers and consultation commission were removed on 2026-09-01.
+// A doctor is hospital staff, and the hospital's staff-count subscription
+// already covers their seat, so there is nothing to bill them for.
 const RevenueAPI = {
-    // Hospital subscription plans were removed from the revenue model on
-    // 2026-08-30 — what a hospital pays is transactional now, and the rate
-    // lives in the platform fee config.
-
-
-
-
 
     async getPlatformOverview(query = {}) {
         const params = new URLSearchParams();
@@ -958,26 +955,28 @@ const RevenueAPI = {
         return await api.patch('/revenue/fees', changes);
     },
 
-    // ── Doctor listing tiers ────────────────────────────────────────────────
+    // ── Hospital subscription plans (priced by staff headcount) ─────────────
 
-    async getDoctorPlans() {
-        return await api.get('/revenue/doctor-plans');
+    async getHospitalPlans() {
+        return await api.get('/revenue/hospital-plans');
     },
 
-    async updateDoctorPlan(planId, changes) {
-        return await api.patch(`/revenue/doctor-plans/${encodeURIComponent(planId)}`, changes);
+    async updateHospitalPlan(planId, changes) {
+        return await api.patch(`/revenue/hospital-plans/${encodeURIComponent(planId)}`, changes);
     },
 
-    async getDoctorSubscriptions(doctorId) {
-        const s = doctorId ? `?doctorId=${encodeURIComponent(doctorId)}` : '';
-        return await api.get(`/revenue/doctor-subscriptions${s}`);
+    async getHospitalSubscriptions(hospitalId) {
+        const s = hospitalId ? `?hospitalId=${encodeURIComponent(hospitalId)}` : '';
+        return await api.get(`/revenue/hospital-subscriptions${s}`);
     },
 
-    async updateDoctorSubscription(doctorId, changes) {
-        return await api.patch(`/revenue/doctor-subscriptions/${encodeURIComponent(doctorId)}`, changes);
+    async updateHospitalSubscription(hospitalId, changes) {
+        return await api.patch(`/revenue/hospital-subscriptions/${encodeURIComponent(hospitalId)}`, changes);
     },
 
-    /** The signed-in doctor's own statement. */
+    // ── A doctor's own statement ────────────────────────────────────────────
+
+    /** Consultation revenue the doctor generated. Never a bill. */
     async getMyDoctorEarnings(query = {}) {
         const params = new URLSearchParams();
         if (query.from) params.append('from', query.from);
@@ -986,13 +985,9 @@ const RevenueAPI = {
         return await api.get(`/revenue/doctor/me${s ? `?${s}` : ''}`);
     },
 
-    async getMyDoctorSubscription() {
-        return await api.get('/revenue/doctor/me/subscription');
-    },
-
-    /** A doctor changing their own tier or consultation fee. */
-    async updateMyDoctorSubscription(changes) {
-        return await api.patch('/revenue/doctor/me/subscription', changes);
+    /** The one price NexCare does not set — the doctor's own consultation fee. */
+    async updateMyConsultationFee(consultationFee) {
+        return await api.patch('/revenue/doctor/me/consultation-fee', { consultationFee });
     },
 
     async getDoctorEarnings(doctorId, query = {}) {

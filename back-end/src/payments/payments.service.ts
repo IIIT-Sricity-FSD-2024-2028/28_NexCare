@@ -168,9 +168,14 @@ export class PaymentsService {
 
   /**
    * Record what NexCare earned from one settled bill: the processing fee on the
-   * transaction, and the commission on what the hospital collected.
+   * transaction, and nothing else.
    *
-   * Rates are read once, here, and stored on the row. Repricing later changes
+   * The COMMISSION on what the hospital collected was removed on 2026-09-01 —
+   * hospitals pay a staff-count subscription rather than a share of their
+   * takings, so settling a large bill no longer costs the hospital more than
+   * settling a small one beyond the processing fee itself.
+   *
+   * The rate is read once, here, and stored on the row. Repricing later changes
    * what the NEXT payment earns, not what this one did.
    */
   private recordFeesForBill(intent: PaymentIntent): PlatformTransaction[] {
@@ -186,17 +191,6 @@ export class PaymentsService {
         gross: intent.amount,
         rate: fees.paymentGatewayRate,
         amount: intent.amount * fees.paymentGatewayRate,
-        at,
-        origin: 'gateway',
-      }),
-      this.feeRow({
-        stream: 'hospital_commission',
-        sourceId: intent.billId,
-        hospitalId: intent.hospitalId,
-        patientId: intent.patientId,
-        gross: intent.amount,
-        rate: fees.hospitalCommissionRate,
-        amount: intent.amount * fees.hospitalCommissionRate,
         at,
         origin: 'gateway',
       }),
@@ -219,7 +213,6 @@ export class PaymentsService {
     sourceId: string;
     hospitalId?: string;
     patientId?: string;
-    doctorId?: string;
     gross: number;
     rate: number | null;
     amount: number;
@@ -229,11 +222,10 @@ export class PaymentsService {
     return {
       id: `TXN-${IdGenerator.generateUserId()}`,
       stream: input.stream,
-      sourceType: input.stream === 'doctor_commission' ? 'appointment' : 'bill',
+      sourceType: 'bill',
       sourceId: input.sourceId,
       hospitalId: input.hospitalId,
       patientId: input.patientId,
-      doctorId: input.doctorId,
       gross: this.round(input.gross),
       rate: input.rate,
       amount: this.round(input.amount),

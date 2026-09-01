@@ -1,0 +1,55 @@
+[
+  {
+    "id": "HOSP-STARTER",
+    "name": "Starter",
+    "tagline": "For clinics and small hospitals",
+    "minUsers": 1,
+    "maxUsers": 25,
+    "monthlyFee": 4999,
+    "includedStaffSeats": 25,
+    "features": [
+      "Up to 25 staff accounts",
+      "Appointments, queues and billing",
+      "Bed and ward management",
+      "Email support"
+    ],
+    "status": "active",
+    "currency": "₹"
+  },
+  {
+    "id": "HOSP-GROWTH",
+    "name": "Growth",
+    "tagline": "For mid-sized and community hospitals",
+    "minUsers": 26,
+    "maxUsers": 100,
+    "monthlyFee": 14999,
+    "includedStaffSeats": 100,
+    "features": [
+      "Up to 100 staff accounts",
+      "Everything in Starter",
+      "Ambulance dispatch coordination",
+      "Inventory and equipment tracking",
+      "Revenue and occupancy analytics"
+    ],
+    "status": "active",
+    "currency": "₹"
+  },
+  {
+    "id": "HOSP-ENTERPRISE",
+    "name": "Enterprise",
+    "tagline": "For large and multi-speciality hospitals",
+    "minUsers": 101,
+    "maxUsers": null,
+    "monthlyFee": 39999,
+    "includedStaffSeats": null,
+    "features": [
+      "Unlimited staff accounts",
+      "Everything in Growth",
+      "Multi-department scheduling and rosters",
+      "Dedicated account manager",
+      "Priority support and uptime SLA"
+    ],
+    "status": "active",
+    "currency": "₹"
+  }
+]
