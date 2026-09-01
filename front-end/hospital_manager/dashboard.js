@@ -112,7 +112,7 @@ function initManagerInfo() {
 function switchTab(tabName, event) {
     if (event) event.preventDefault();
 
-    const tabs = ['overview', 'leaves', 'schedules', 'staff', 'register-staff', 'inventory-approvals', 'ambulance', 'subscription', 'supervision', 'support'];
+    const tabs = ['overview', 'leaves', 'schedules', 'staff', 'register-staff', 'inventory-approvals', 'ambulance', 'subscription', 'revenue', 'supervision', 'support'];
     if (!tabs.includes(tabName)) tabName = 'overview';
 
     // Update active nav links
