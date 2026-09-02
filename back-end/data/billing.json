@@ -1,5 +1,42 @@
 [
   {
+    "id": "BILL-MEM-934929",
+    "patientId": "P002",
+    "hospitalId": "H001",
+    "hospitalName": "NexCare Platform Services",
+    "visitDate": "2026-09-02",
+    "dueDate": "2026-09-02",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 399,
+    "cgstRate": 0,
+    "sgstRate": 0,
+    "cgstAmount": 0,
+    "sgstAmount": 0,
+    "total": 399,
+    "items": [
+      {
+        "description": "Care+ Family Monthly Membership",
+        "department": "Care+ Membership",
+        "amount": 399,
+        "type": "MEMBERSHIP_SUBSCRIPTION",
+        "referenceId": "PSUB-P002"
+      }
+    ],
+    "payments": [
+      {
+        "id": "PAY-TXN-MEM-689017",
+        "amount": 399,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-MEM-689017",
+        "createdAt": "2026-09-02T06:02:14.928Z"
+      }
+    ],
+    "createdAt": "2026-09-02T06:02:14.928Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-02T06:02:14.928Z"
+  },
+  {
     "id": "BILL-H001-001",
     "patientId": "P001",
     "hospitalId": "H001",
@@ -436,5 +473,35 @@
     "createdAt": "2026-08-25T11:00:00Z",
     "paymentStatus": "Paid",
     "paidAt": "2026-09-01T18:35:19.147Z"
+  },
+  {
+    "id": "BILL-H001-006",
+    "patientId": "P003",
+    "hospitalId": "H001",
+    "visitDate": "2026-09-02",
+    "dueDate": "2026-09-16",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 2050,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 184.5,
+    "sgstAmount": 184.5,
+    "total": 2419,
+    "items": [
+      {
+        "description": "Consultation: Dr. Vikram Patel (Orthopaedics)",
+        "department": "Administrative",
+        "amount": 850
+      },
+      {
+        "description": "Ambulance Transport: Basic Life Support (BLS)",
+        "department": "Administrative",
+        "amount": 1200
+      }
+    ],
+    "payments": [],
+    "createdAt": "2026-09-02T06:10:42.791Z",
+    "updatedAt": "2026-09-02T06:10:42.791Z"
   }
 ]

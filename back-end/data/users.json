@@ -449,7 +449,7 @@
     "email": "sravani.reddy@example.in",
     "role": "patient",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$2013e8098727a7f4bef956ce41ac8114$d94c2b2070829cf7d4d3ebb157b07cbf374f722037e49aafa3336664d1e9681e22a5ea0bb87e2975c9ce40460a569b88aaf0a292c44d9c7fe7fba637885113e4",
     "patientId": "P002",
     "hospitalId": "H001",
     "regionId": "REG-AP-SOUTH",

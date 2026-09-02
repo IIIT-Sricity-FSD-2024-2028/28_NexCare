@@ -6168,5 +6168,115 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-09-02T01:18:15.096Z"
+  },
+  {
+    "id": "ACT-MTJOMPM71D4",
+    "timestamp": "2026-09-02T05:55:25.615Z",
+    "userId": "PAT-LOGIN-H1-2",
+    "action": "Login",
+    "details": "User Sravani Reddy logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T05:55:25.615Z"
+  },
+  {
+    "id": "ACT-MTJONL0N21F",
+    "timestamp": "2026-09-02T05:56:06.311Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Tirupati Crew Alpha logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T05:56:06.311Z"
+  },
+  {
+    "id": "ACT-MTJOTEHM3Z7",
+    "timestamp": "2026-09-02T06:00:37.786Z",
+    "userId": "PAT-LOGIN-H1-2",
+    "action": "Login",
+    "details": "User Sravani Reddy logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T06:00:37.786Z"
+  },
+  {
+    "id": "ACT-MTJOW6N24RO",
+    "timestamp": "2026-09-02T06:02:47.582Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T06:02:47.583Z"
+  },
+  {
+    "id": "ACT-MTJOXQOB5RH",
+    "timestamp": "2026-09-02T06:04:00.203Z",
+    "userId": "RM001",
+    "action": "Login",
+    "details": "User Anirudh Reddy logged in successfully as regional_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T06:04:00.203Z"
+  },
+  {
+    "id": "ACT-MTJOZFRN657",
+    "timestamp": "2026-09-02T06:05:19.379Z",
+    "userId": "RM001",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T06:05:19.379Z"
+  },
+  {
+    "id": "ACT-MTJOZSW375G",
+    "timestamp": "2026-09-02T06:05:36.387Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T06:05:36.387Z"
+  },
+  {
+    "id": "ACT-MTJP2HOW8WC",
+    "timestamp": "2026-09-02T06:07:41.840Z",
+    "userId": "U001",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T06:07:41.840Z"
+  },
+  {
+    "id": "ACT-MTJP2X7K9HZ",
+    "timestamp": "2026-09-02T06:08:01.952Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T06:08:01.952Z"
+  },
+  {
+    "id": "ACT-MTJP6DBSDFR",
+    "timestamp": "2026-09-02T06:10:42.808Z",
+    "userId": "P003",
+    "action": "Create",
+    "details": "New bill BILL-H001-006 generated for ₹2419",
+    "module": "Billing",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T06:10:42.808Z"
+  },
+  {
+    "id": "ACT-MTJP6QKQE30",
+    "timestamp": "2026-09-02T06:10:59.978Z",
+    "userId": "U002",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T06:10:59.978Z"
   }
 ]
