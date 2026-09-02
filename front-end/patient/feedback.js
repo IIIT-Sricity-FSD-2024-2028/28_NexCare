@@ -203,9 +203,21 @@ async function handleFeedbackSubmit(e) {
     const description = formData.get('description');
     const rating = formData.get('rating');
     
-    if (!category) { alert('Please select a category'); return; }
-    if (!description || description.trim().length < 10) { alert('Please provide more detail'); return; }
-    if (!rating || selectedRating === 0) { alert('Please rate your experience'); return; }
+    function notifyFeedback(msg, type = 'info') {
+        if (window.NexCareUI && typeof window.NexCareUI.showToast === 'function') {
+            window.NexCareUI.showToast(msg, type);
+            return;
+        }
+        const toast = document.createElement('div');
+        toast.style.cssText = `position:fixed; bottom:24px; right:24px; padding:12px 20px; border-radius:8px; background:${type === 'error' ? '#DC2626' : '#16A34A'}; color:#fff; font-size:14px; font-weight:600; box-shadow:0 10px 15px -3px rgba(0,0,0,0.2); z-index:99999;`;
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    if (!category) { notifyFeedback('Please select a feedback category', 'error'); return; }
+    if (!description || description.trim().length < 10) { notifyFeedback('Please provide more detail (at least 10 characters)', 'error'); return; }
+    if (!rating || selectedRating === 0) { notifyFeedback('Please rate your experience by selecting stars', 'error'); return; }
     
     const store = getStore();
     let refId = null;
@@ -218,7 +230,7 @@ async function handleFeedbackSubmit(e) {
             status: 'Open'
         });
         refId = editingFeedbackId;
-        alert(`✓ Feedback Updated!\nReference ID: ${refId}`);
+        notifyFeedback(`Feedback updated successfully! Reference ID: ${refId}`, 'success');
     } else {
         const created = await store?.createFeedback({
             category,
@@ -227,7 +239,7 @@ async function handleFeedbackSubmit(e) {
             status: 'Open'
         });
         refId = created?.id || ('REF-2026-' + Math.floor(Math.random() * 90000 + 10000));
-        alert(`✓ Feedback Submitted!\nReference ID: ${refId}`);
+        notifyFeedback(`Feedback submitted successfully! Reference ID: ${refId}`, 'success');
     }
     
     e.target.reset();

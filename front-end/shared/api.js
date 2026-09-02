@@ -299,6 +299,14 @@ const AuthAPI = {
     /** Self-registration for administrative staff, ambulance crew and doctors. */
     async registerStaff(data) {
         return await api.post('/auth/register-staff', data);
+    },
+
+    async forgotPasswordVerify(email) {
+        return await api.post('/auth/forgot-password/verify', { email });
+    },
+
+    async forgotPasswordReset(email, newPassword) {
+        return await api.post('/auth/forgot-password/reset', { email, newPassword });
     }
 };
 
@@ -823,24 +831,7 @@ const SupportRequestsAPI = {
     }
 };
 
-// System API
-const SystemAPI = {
-    async getActivity() {
-        return await api.get('/system/activity');
-    },
-
-    async getSettings() {
-        return await api.get('/system/settings');
-    },
-
-    async updateSettings(settings) {
-        return await api.put('/system/settings', settings);
-    },
-
-    async logActivity(activityData) {
-        return await api.post('/system/activity', activityData);
-    }
-};
+// System API (merged below with extended version)
 
 // Leaves API
 const LeavesAPI = {
@@ -1023,8 +1014,8 @@ const RevenueAPI = {
     },
 
     /** Join, switch or cancel — CARE-PAYG is how a patient cancels. */
-    async setMyMembership(planId) {
-        return await api.patch('/revenue/patient/me/membership', { planId });
+    async setMyMembership(planId, paymentDetails = {}) {
+        return await api.patch('/revenue/patient/me/membership', { planId, ...paymentDetails });
     }
 };
 
@@ -1115,6 +1106,30 @@ const NotificationsAPI = {
     },
     async create(data) {
         return await api.post('/notifications', data);
+    }
+};
+
+const SystemAPI = {
+    async getActivity() {
+        return await api.get('/system/activity');
+    },
+    async getStats() {
+        return await api.get('/system/stats');
+    },
+    async getHealth() {
+        return await api.get('/system/health');
+    },
+    async getPerformance() {
+        return await api.get('/system/performance');
+    },
+    async getSettings() {
+        return await api.get('/system/settings');
+    },
+    async updateSettings(settings) {
+        return await api.put('/system/settings', settings);
+    },
+    async logActivity(activityData) {
+        return await api.post('/system/activity', activityData);
     }
 };
 

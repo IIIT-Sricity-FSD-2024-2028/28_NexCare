@@ -47,8 +47,8 @@ export class FeedbackController {
    * Get all feedback with optional filtering
    */
   @Get()
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT, UserRole.HOSPITAL_MANAGER)
-  @ApiOperation({ summary: 'Get all feedback (patients: only their own)' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT, UserRole.HOSPITAL_MANAGER, UserRole.REGIONAL_MANAGER)
+  @ApiOperation({ summary: 'Get all feedback (patients: only their own, hospital staff: their hospital only)' })
   @ApiQuery({ name: 'patientId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: FeedbackStatus })
   @ApiQuery({ name: 'category', required: false })
@@ -64,11 +64,14 @@ export class FeedbackController {
     @Query('hospitalId') hospitalId?: string
   ) {
     if (this.isPatient(req)) {
-      patientId = req.user.patientId;
+      patientId = req.user.patientId || req.user.id;
     }
-    // If Hospital Manager, strictly scope to their hospital
-    if (req?.user?.role === UserRole.HOSPITAL_MANAGER) {
-      hospitalId = req.user.hospitalId;
+    // If Hospital Manager or Administrative Staff, strictly scope to their hospital
+    if (req?.user?.role === UserRole.HOSPITAL_MANAGER || req?.user?.role === UserRole.ADMINISTRATIVE_STAFF) {
+      hospitalId = req.user.hospitalId || 'H001';
+    }
+    if (req?.user?.role === UserRole.REGIONAL_MANAGER) {
+      return this.feedbackService.findForRegionalManager(req.user.id, status as any, category, hospitalId);
     }
     return this.feedbackService.findAll(patientId, status as any, category, hospitalId);
   }

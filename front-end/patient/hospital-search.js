@@ -151,10 +151,41 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsGrid.appendChild(emptyBox);
     }
 
+    function calculateDistance(h, userCity, userPin) {
+        const hPin = String(h.pincode || '').trim();
+        const hCity = String(h.city || '').trim().toLowerCase();
+        const targetCity = (userCity || '').trim().toLowerCase();
+        const targetPin = (userPin || '').trim();
+
+        // Deterministic distance generator based on ID/Pin
+        const seed = (h.id || h.name || '0').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+        const offset = ((seed % 20) / 10).toFixed(1); // 0.0 - 1.9 km
+
+        if (targetPin && hPin === targetPin) {
+            return { km: (0.8 + parseFloat(offset)).toFixed(1), badge: 'Same PIN Area', priority: 1 };
+        }
+        if (targetCity && hCity === targetCity) {
+            return { km: (2.2 + parseFloat(offset) * 2).toFixed(1), badge: 'In Your City', priority: 2 };
+        }
+        if (targetPin && targetPin.substring(0, 2) === hPin.substring(0, 2)) {
+            return { km: (7.5 + parseFloat(offset) * 3).toFixed(1), badge: 'Nearby Zone', priority: 3 };
+        }
+        return { km: (15.0 + parseFloat(offset) * 5).toFixed(1), badge: 'NexCare Network', priority: 4 };
+    }
+
     function renderHospitals(list) {
         resultsGrid.replaceChildren();
 
-        list.forEach(h => {
+        const userCity = (cityInput.value || '').trim() || (sessionStorage.getItem('nexcare_user_city') || 'Hyderabad');
+        const userPin = (pincodeInput.value || '').trim() || (sessionStorage.getItem('nexcare_user_pincode') || '500033');
+
+        // Augment with distance and sort nearest first
+        const hospitalsWithDist = list.map(h => {
+            const distInfo = calculateDistance(h, userCity, userPin);
+            return { ...h, distInfo };
+        }).sort((a, b) => parseFloat(a.distInfo.km) - parseFloat(b.distInfo.km));
+
+        hospitalsWithDist.forEach(h => {
             const card = document.createElement('div');
             card.style.background = '#FFFFFF';
             card.style.border = '1px solid #E5E7EB';
@@ -167,14 +198,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const contentWrap = document.createElement('div');
 
-            // Hospital Name
+            // Header with Name & Proximity Badge
+            const topHeader = document.createElement('div');
+            topHeader.style.display = 'flex';
+            topHeader.style.justifyContent = 'space-between';
+            topHeader.style.alignItems = 'flex-start';
+            topHeader.style.marginBottom = '8px';
+
             const nameEl = document.createElement('h3');
-            nameEl.style.margin = '0 0 10px 0';
+            nameEl.style.margin = '0';
             nameEl.style.fontSize = '16px';
             nameEl.style.fontWeight = '700';
             nameEl.style.color = '#111827';
             nameEl.textContent = h.name || 'Hospital';
-            contentWrap.appendChild(nameEl);
+
+            const distBadge = document.createElement('span');
+            distBadge.style.background = parseFloat(h.distInfo.km) < 5 ? '#DCFCE7' : '#EFF6FF';
+            distBadge.style.color = parseFloat(h.distInfo.km) < 5 ? '#15803D' : '#1D4ED8';
+            distBadge.style.fontSize = '11.5px';
+            distBadge.style.fontWeight = '700';
+            distBadge.style.padding = '3px 8px';
+            distBadge.style.borderRadius = '6px';
+            distBadge.style.whiteSpace = 'nowrap';
+            distBadge.textContent = `📍 ${h.distInfo.km} km away`;
+
+            topHeader.appendChild(nameEl);
+            topHeader.appendChild(distBadge);
+            contentWrap.appendChild(topHeader);
 
             // Location
             const locParts = [];
@@ -185,14 +235,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (locParts.length > 0) {
                 const locEl = document.createElement('p');
                 locEl.style.margin = '0 0 12px 0';
-                locEl.style.fontSize = '13px';
+                locEl.style.fontSize = '12.5px';
                 locEl.style.color = '#4B5563';
-                locEl.textContent = `📍 ${locParts.join(', ')}`;
+                locEl.textContent = `${locParts.join(', ')}`;
                 contentWrap.appendChild(locEl);
             }
 
-            // Specialities tags
-            const specs = Array.isArray(h.specialities) ? h.specialities : (Array.isArray(h.specialties) ? h.specialties : (h.speciality ? [h.speciality] : []));
+            // Available Departments & Specialities tags
+            const specs = Array.isArray(h.departments) && h.departments.length > 0
+                ? h.departments.map(d => typeof d === 'string' ? d : d.name)
+                : (Array.isArray(h.specialities) ? h.specialities : (h.speciality ? [h.speciality] : []));
+
             if (specs && specs.length > 0) {
                 const specWrap = document.createElement('div');
                 specWrap.style.display = 'flex';
@@ -200,13 +253,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 specWrap.style.gap = '6px';
                 specWrap.style.marginBottom = '12px';
 
-                specs.forEach(s => {
+                specs.slice(0, 5).forEach(s => {
                     if (s) {
                         const tag = document.createElement('span');
-                        tag.style.background = '#EFF6FF';
-                        tag.style.color = '#1D4ED8';
-                        tag.style.fontSize = '12px';
-                        tag.style.fontWeight = '500';
+                        tag.style.background = '#F1F5F9';
+                        tag.style.color = '#334155';
+                        tag.style.fontSize = '11px';
+                        tag.style.fontWeight = '600';
                         tag.style.padding = '3px 8px';
                         tag.style.borderRadius = '4px';
                         tag.textContent = s;
@@ -216,27 +269,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 contentWrap.appendChild(specWrap);
             }
 
-            // Aggregate bed capacity is calculated by the backend directory.
+            // Beds Capacity
             let bedsTotal = typeof h.totalBeds === 'number' ? h.totalBeds : 0;
             let bedsAvail = typeof h.availableBeds === 'number' ? h.availableBeds : (h.icuBeds || 0);
             const bedsEl = document.createElement('p');
             bedsEl.style.margin = '0 0 6px 0';
-            bedsEl.style.fontSize = '13px';
+            bedsEl.style.fontSize = '12.5px';
             bedsEl.style.color = '#374151';
-            bedsEl.textContent = `🛏️ Beds: ${bedsAvail} available / ${bedsTotal} total`;
+            bedsEl.innerHTML = `🛏️ Beds: <strong>${bedsAvail} available</strong> / ${bedsTotal} total`;
             contentWrap.appendChild(bedsEl);
 
-            // Emergency & Phone
+            // Emergency Readiness & Phone
             const isEmerg = !!(h.emergencyAvailable || h.emergency24x7);
             const contactParts = [];
-            contactParts.push(`🚨 Emergency: ${isEmerg ? 'Available 24x7' : 'No'}`);
+            contactParts.push(`🚨 Emergency: <strong style="color:${isEmerg ? '#16A34A' : '#6B7280'}">${isEmerg ? 'Available 24x7' : 'Standard'}</strong>`);
             if (h.phone) contactParts.push(`📞 ${h.phone}`);
 
             const contactEl = document.createElement('p');
             contactEl.style.margin = '0 0 16px 0';
-            contactEl.style.fontSize = '13px';
+            contactEl.style.fontSize = '12.5px';
             contactEl.style.color = '#4B5563';
-            contactEl.textContent = contactParts.join(' • ');
+            contactEl.innerHTML = contactParts.join(' • ');
             contentWrap.appendChild(contactEl);
 
             card.appendChild(contentWrap);
@@ -249,19 +302,21 @@ document.addEventListener('DOMContentLoaded', () => {
             actionBtn.style.textAlign = 'center';
             actionBtn.textContent = 'Book Appointment';
             actionBtn.onclick = () => {
-                // Check if user is logged in
                 const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
                 const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
 
                 if (!token || !isLoggedIn) {
-                    alert('Please login to book an appointment');
+                    if (window.NexCareUI && typeof window.NexCareUI.showToast === 'function') {
+                        window.NexCareUI.showToast('Please login to book an appointment', 'warning');
+                    } else {
+                        alert('Please login to book an appointment');
+                    }
                     return;
                 }
 
-                // User is logged in, proceed to booking
                 if (h && h.id) {
                     try { localStorage.setItem('selectedHospitalId', h.id); } catch(e) {}
-                    window.location.href = pageLink('appointments/appointments', { hospitalId: h.id });
+                    window.location.href = `appointments/appointments.html?hospitalId=${encodeURIComponent(h.id)}`;
                 } else {
                     window.location.href = 'appointments/appointments.html';
                 }

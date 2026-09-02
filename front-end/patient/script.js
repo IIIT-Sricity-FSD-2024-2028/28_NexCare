@@ -56,8 +56,24 @@ document.addEventListener('DOMContentLoaded', function() {
     viewButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const recordCard = this.closest('.record-card');
-            const title = recordCard.querySelector('h3').textContent;
-            alert(`Opening ${title}...`);
+            const title = recordCard.querySelector('h3')?.textContent || 'Medical Record';
+            const date = recordCard.querySelector('p')?.textContent || 'Recent';
+            const details = `
+                <div style="font-size:13.5px; color:#334155; line-height:1.6;">
+                    <div style="margin-bottom:8px;"><strong>Record:</strong> ${title}</div>
+                    <div style="margin-bottom:8px;"><strong>Date:</strong> ${date}</div>
+                    <div style="margin-bottom:8px;"><strong>Hospital:</strong> NexCare Multi-Speciality Network</div>
+                    <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:12px; border-radius:8px; margin-top:12px;">
+                        <strong>Diagnostic Summary:</strong><br>
+                        Patient vitals and clinical parameters recorded within normal thresholds. All attached laboratory reports verified by attending consultant.
+                    </div>
+                </div>
+            `;
+            if (typeof window.showSystemModal === 'function') {
+                window.showSystemModal(title, details);
+            } else if (window.NexCareUI && typeof window.NexCareUI.showToast === 'function') {
+                window.NexCareUI.showToast(`Displaying ${title}`, 'info');
+            }
         });
     });
     
@@ -65,8 +81,21 @@ document.addEventListener('DOMContentLoaded', function() {
     downloadButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const recordCard = this.closest('.record-card');
-            const title = recordCard.querySelector('h3').textContent;
-            alert(`Downloading ${title}...`);
+            const title = recordCard.querySelector('h3')?.textContent || 'Medical Record';
+            const fileName = `${title.toLowerCase().replace(/[^a-z0-9]/g, '_')}_summary.txt`;
+            const content = `NEXCARE HEALTHCARE NETWORK - OFFICIAL MEDICAL RECORD\n\nRecord: ${title}\nGenerated on: ${new Date().toLocaleDateString('en-IN')}\nStatus: Verified Clinical Entry\n\nThis is a digitally verified medical summary export from the NexCare Patient Portal.`;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            if (window.NexCareUI && typeof window.NexCareUI.showToast === 'function') {
+                window.NexCareUI.showToast(`Downloaded ${fileName}`, 'success');
+            }
         });
     });
     

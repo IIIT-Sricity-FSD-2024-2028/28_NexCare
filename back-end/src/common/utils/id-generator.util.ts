@@ -177,5 +177,12 @@ export class IdGenerator {
     const nextId = maxId + 1;
     return `H${nextId.toString().padStart(3, '0')}`;
   }
+
+  /**
+   * Generate prescription ID
+   */
+  static generatePrescriptionId(): string {
+    return this.generate('PRSC-');
+  }
 }
 

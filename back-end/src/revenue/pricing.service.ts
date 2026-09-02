@@ -370,6 +370,9 @@ export class PricingService {
     }
   }
 
+  private readonly billsStore = new FileStore<any>('billing.json', () => []);
+  private readonly ledgerStore = new FileStore<any>('platform-transactions.json', () => []);
+
   /**
    * Subscribe or switch a patient's membership. Selecting the pay-as-you-go tier
    * is how a patient cancels — there is no separate cancel endpoint.
@@ -378,6 +381,11 @@ export class PricingService {
     patientId: string,
     patientName: string,
     planId: string,
+    paymentDetails?: {
+      method?: string;
+      transactionId?: string;
+      amount?: number;
+    },
   ) {
     try {
       const plan = this.loadPatientPlans().find(p => p.id === planId);
@@ -401,6 +409,73 @@ export class PricingService {
       if (idx === -1) subs.push(row);
       else subs[idx] = row;
       this.patientSubsStore.save(subs);
+
+      // If activating/switching to a paid plan, record the transaction in billing and ledger
+      if (plan.monthlyFee > 0 && planId !== 'CARE-PAYG') {
+        const txnId = paymentDetails?.transactionId || `TXN-MEM-${Date.now().toString().slice(-6)}`;
+        const billId = `BILL-MEM-${Date.now().toString().slice(-6)}`;
+        const paidAt = now.toISOString();
+        const amount = paymentDetails?.amount || plan.monthlyFee;
+        const method = paymentDetails?.method || 'ONLINE (UPI/Card)';
+
+        // 1. Add Paid bill to billing.json
+        const bills = this.billsStore.load();
+        bills.unshift({
+          id: billId,
+          patientId,
+          hospitalId: 'H001',
+          hospitalName: 'NexCare Platform Services',
+          visitDate: now.toISOString().split('T')[0],
+          dueDate: now.toISOString().split('T')[0],
+          status: 'Paid',
+          currency: '₹',
+          subtotal: amount,
+          cgstRate: 0,
+          sgstRate: 0,
+          cgstAmount: 0,
+          sgstAmount: 0,
+          total: amount,
+          items: [
+            {
+              description: `${plan.name} Monthly Membership`,
+              department: 'Care+ Membership',
+              amount: amount,
+              type: 'MEMBERSHIP_SUBSCRIPTION',
+              referenceId: row.id,
+            },
+          ],
+          payments: [
+            {
+              id: `PAY-${txnId}`,
+              amount: amount,
+              method: method,
+              gatewayReference: txnId,
+              createdAt: paidAt,
+            },
+          ],
+          createdAt: paidAt,
+          paymentStatus: 'Paid',
+          paidAt: paidAt,
+        });
+        this.billsStore.save(bills);
+
+        // 2. Add to platform ledger
+        const ledger = this.ledgerStore.load();
+        ledger.push({
+          id: `TXN-P-${Date.now().toString().slice(-6)}`,
+          stream: 'patient_subscription',
+          sourceType: 'bill',
+          sourceId: billId,
+          patientId,
+          gross: amount,
+          rate: null,
+          amount: amount,
+          currency: '₹',
+          createdAt: paidAt,
+          origin: 'gateway',
+        });
+        this.ledgerStore.save(ledger);
+      }
 
       return ResponseUtil.success(
         planId === 'CARE-PAYG'

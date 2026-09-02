@@ -9,7 +9,7 @@
     "gross": 1180,
     "rate": 0.019,
     "amount": 22.42,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-10T10:00:00Z",
     "origin": "backfill"
   },
@@ -23,7 +23,7 @@
     "gross": 118,
     "rate": 0.019,
     "amount": 2.24,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-05T17:27:45.996Z",
     "origin": "backfill"
   },
@@ -37,7 +37,7 @@
     "gross": 118,
     "rate": 0.019,
     "amount": 2.24,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-05T17:31:44.119Z",
     "origin": "backfill"
   },
@@ -51,7 +51,7 @@
     "gross": 118,
     "rate": 0.019,
     "amount": 2.24,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-05T18:30:32.604Z",
     "origin": "backfill"
   },
@@ -65,7 +65,7 @@
     "gross": 14160,
     "rate": 0.019,
     "amount": 269.04,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-16T00:00:00Z",
     "origin": "backfill"
   },
@@ -79,7 +79,7 @@
     "gross": 1180,
     "rate": 0.019,
     "amount": 22.42,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-20T00:00:00Z",
     "origin": "backfill"
   },
@@ -93,7 +93,7 @@
     "gross": 2242,
     "rate": 0.019,
     "amount": 42.6,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-27T00:00:00Z",
     "origin": "backfill"
   },
@@ -107,7 +107,7 @@
     "gross": 708,
     "rate": 0.019,
     "amount": 13.45,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-24T00:00:00Z",
     "origin": "backfill"
   },
@@ -121,7 +121,7 @@
     "gross": 27730,
     "rate": 0.019,
     "amount": 526.87,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-22T00:00:00Z",
     "origin": "backfill"
   },
@@ -135,7 +135,7 @@
     "gross": 22420,
     "rate": 0.019,
     "amount": 425.98,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-08-01T00:00:00Z",
     "origin": "backfill"
   },
@@ -149,7 +149,7 @@
     "gross": 13570,
     "rate": 0.019,
     "amount": 257.83,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-25T00:00:00Z",
     "origin": "backfill"
   },
@@ -163,7 +163,7 @@
     "gross": 708,
     "rate": 0.019,
     "amount": 13.45,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-09T00:00:00Z",
     "origin": "backfill"
   },
@@ -177,7 +177,7 @@
     "gross": 9912,
     "rate": 0.019,
     "amount": 188.33,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-13T00:00:00Z",
     "origin": "backfill"
   },
@@ -191,7 +191,7 @@
     "gross": 12390,
     "rate": 0.019,
     "amount": 235.41,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-28T00:00:00Z",
     "origin": "backfill"
   },
@@ -205,7 +205,7 @@
     "gross": 2478,
     "rate": 0.019,
     "amount": 47.08,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-26T00:00:00Z",
     "origin": "backfill"
   },
@@ -219,7 +219,7 @@
     "gross": 17700,
     "rate": 0.019,
     "amount": 336.3,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-08-26T00:00:00Z",
     "origin": "backfill"
   },
@@ -233,7 +233,7 @@
     "gross": 5074,
     "rate": 0.019,
     "amount": 96.41,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-05T00:00:00Z",
     "origin": "backfill"
   },
@@ -247,7 +247,7 @@
     "gross": 3540,
     "rate": 0.019,
     "amount": 67.26,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-31T00:00:00Z",
     "origin": "backfill"
   },
@@ -261,7 +261,7 @@
     "gross": 5310,
     "rate": 0.019,
     "amount": 100.89,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-15T00:00:00Z",
     "origin": "backfill"
   },
@@ -275,7 +275,7 @@
     "gross": 3422,
     "rate": 0.019,
     "amount": 65.02,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-24T00:00:00Z",
     "origin": "backfill"
   },
@@ -289,7 +289,7 @@
     "gross": 708,
     "rate": 0.019,
     "amount": 13.45,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-12T00:00:00Z",
     "origin": "backfill"
   },
@@ -303,7 +303,7 @@
     "gross": 17582,
     "rate": 0.019,
     "amount": 334.06,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-24T00:00:00Z",
     "origin": "backfill"
   },
@@ -317,7 +317,7 @@
     "gross": 1180,
     "rate": 0.019,
     "amount": 22.42,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-12T00:00:00Z",
     "origin": "backfill"
   },
@@ -331,7 +331,7 @@
     "gross": 8260,
     "rate": 0.019,
     "amount": 156.94,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-08T00:00:00Z",
     "origin": "backfill"
   },
@@ -345,7 +345,7 @@
     "gross": 10030,
     "rate": 0.019,
     "amount": 190.57,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-05T00:00:00Z",
     "origin": "backfill"
   },
@@ -359,7 +359,7 @@
     "gross": 15576,
     "rate": 0.019,
     "amount": 295.94,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-16T00:00:00Z",
     "origin": "backfill"
   },
@@ -373,7 +373,7 @@
     "gross": 708,
     "rate": 0.019,
     "amount": 13.45,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-25T00:00:00Z",
     "origin": "backfill"
   },
@@ -387,7 +387,7 @@
     "gross": 17700,
     "rate": 0.019,
     "amount": 336.3,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-23T00:00:00Z",
     "origin": "backfill"
   },
@@ -401,7 +401,7 @@
     "gross": 9676,
     "rate": 0.019,
     "amount": 183.84,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-09T00:00:00Z",
     "origin": "backfill"
   },
@@ -415,7 +415,7 @@
     "gross": 7788,
     "rate": 0.019,
     "amount": 147.97,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-07T00:00:00Z",
     "origin": "backfill"
   },
@@ -429,7 +429,7 @@
     "gross": 3540,
     "rate": 0.019,
     "amount": 67.26,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-26T00:00:00Z",
     "origin": "backfill"
   },
@@ -443,7 +443,7 @@
     "gross": 8850,
     "rate": 0.019,
     "amount": 168.15,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-19T00:00:00Z",
     "origin": "backfill"
   },
@@ -457,7 +457,7 @@
     "gross": 2124,
     "rate": 0.019,
     "amount": 40.36,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-18T00:00:00Z",
     "origin": "backfill"
   },
@@ -471,7 +471,7 @@
     "gross": 4012,
     "rate": 0.019,
     "amount": 76.23,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-08-19T00:00:00Z",
     "origin": "backfill"
   },
@@ -485,7 +485,7 @@
     "gross": 1062,
     "rate": 0.019,
     "amount": 20.18,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-22T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -499,7 +499,7 @@
     "gross": 708,
     "rate": 0.019,
     "amount": 13.45,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-10T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -513,7 +513,7 @@
     "gross": 2420,
     "rate": 0.019,
     "amount": 45.98,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-11T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -527,7 +527,7 @@
     "gross": 1628,
     "rate": 0.019,
     "amount": 30.93,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-07T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -541,7 +541,7 @@
     "gross": 826,
     "rate": 0.019,
     "amount": 15.69,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-24T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -555,7 +555,7 @@
     "gross": 3056,
     "rate": 0.019,
     "amount": 58.06,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-21T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -569,7 +569,7 @@
     "gross": 1746,
     "rate": 0.019,
     "amount": 33.17,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-17T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -583,7 +583,7 @@
     "gross": 1062,
     "rate": 0.019,
     "amount": 20.18,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-25T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -597,7 +597,7 @@
     "gross": 2714,
     "rate": 0.019,
     "amount": 51.57,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-13T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -611,7 +611,7 @@
     "gross": 3068,
     "rate": 0.019,
     "amount": 58.29,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-21T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -625,7 +625,7 @@
     "gross": 708,
     "rate": 0.019,
     "amount": 13.45,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-08T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -639,7 +639,7 @@
     "gross": 1298,
     "rate": 0.019,
     "amount": 24.66,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-15T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -653,7 +653,7 @@
     "gross": 1062,
     "rate": 0.019,
     "amount": 20.18,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-30T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -667,7 +667,7 @@
     "gross": 1062,
     "rate": 0.019,
     "amount": 20.18,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-20T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -681,7 +681,7 @@
     "gross": 944,
     "rate": 0.019,
     "amount": 17.94,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-03-25T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -695,7 +695,7 @@
     "gross": 1310,
     "rate": 0.019,
     "amount": 24.89,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-28T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -709,7 +709,7 @@
     "gross": 3268,
     "rate": 0.019,
     "amount": 62.09,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-18T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -723,7 +723,7 @@
     "gross": 2266,
     "rate": 0.019,
     "amount": 43.05,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-20T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -737,7 +737,7 @@
     "gross": 3434,
     "rate": 0.019,
     "amount": 65.25,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-09T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -751,7 +751,7 @@
     "gross": 1298,
     "rate": 0.019,
     "amount": 24.66,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-22T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -765,7 +765,7 @@
     "gross": 2076,
     "rate": 0.019,
     "amount": 39.44,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-18T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -779,7 +779,7 @@
     "gross": 590,
     "rate": 0.019,
     "amount": 11.21,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-24T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -793,7 +793,7 @@
     "gross": 590,
     "rate": 0.019,
     "amount": 11.21,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-26T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -807,7 +807,7 @@
     "gross": 590,
     "rate": 0.019,
     "amount": 11.21,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-25T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -821,7 +821,7 @@
     "gross": 2938,
     "rate": 0.019,
     "amount": 55.82,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-04-26T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -835,7 +835,7 @@
     "gross": 590,
     "rate": 0.019,
     "amount": 11.21,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-08T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -849,7 +849,7 @@
     "gross": 4260,
     "rate": 0.019,
     "amount": 80.94,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-26T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -863,7 +863,7 @@
     "gross": 1062,
     "rate": 0.019,
     "amount": 20.18,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-04T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -877,7 +877,7 @@
     "gross": 1476,
     "rate": 0.019,
     "amount": 28.04,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-14T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -891,7 +891,7 @@
     "gross": 1936,
     "rate": 0.019,
     "amount": 36.78,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-21T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -905,7 +905,7 @@
     "gross": 826,
     "rate": 0.019,
     "amount": 15.69,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-15T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -919,7 +919,7 @@
     "gross": 2088,
     "rate": 0.019,
     "amount": 39.67,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-23T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -933,7 +933,7 @@
     "gross": 2502,
     "rate": 0.019,
     "amount": 47.54,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-21T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -947,7 +947,7 @@
     "gross": 1298,
     "rate": 0.019,
     "amount": 24.66,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-10T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -961,7 +961,7 @@
     "gross": 1994,
     "rate": 0.019,
     "amount": 37.89,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-05T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -975,7 +975,7 @@
     "gross": 3882,
     "rate": 0.019,
     "amount": 73.76,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-19T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -989,7 +989,7 @@
     "gross": 1062,
     "rate": 0.019,
     "amount": 20.18,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-24T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1003,7 +1003,7 @@
     "gross": 886,
     "rate": 0.019,
     "amount": 16.83,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-04T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1017,7 +1017,7 @@
     "gross": 590,
     "rate": 0.019,
     "amount": 11.21,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-12T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1031,7 +1031,7 @@
     "gross": 3516,
     "rate": 0.019,
     "amount": 66.8,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-05-23T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1045,7 +1045,7 @@
     "gross": 3800,
     "rate": 0.019,
     "amount": 72.2,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-26T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1059,7 +1059,7 @@
     "gross": 3138,
     "rate": 0.019,
     "amount": 59.62,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-27T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1073,7 +1073,7 @@
     "gross": 1062,
     "rate": 0.019,
     "amount": 20.18,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-22T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1087,7 +1087,7 @@
     "gross": 1958,
     "rate": 0.019,
     "amount": 37.2,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-07T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1101,7 +1101,7 @@
     "gross": 944,
     "rate": 0.019,
     "amount": 17.94,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-13T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1115,7 +1115,7 @@
     "gross": 1534,
     "rate": 0.019,
     "amount": 29.15,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-09T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1129,7 +1129,7 @@
     "gross": 2372,
     "rate": 0.019,
     "amount": 45.07,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-05T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1143,7 +1143,7 @@
     "gross": 944,
     "rate": 0.019,
     "amount": 17.94,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-16T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1157,7 +1157,7 @@
     "gross": 3364,
     "rate": 0.019,
     "amount": 63.92,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-22T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1171,7 +1171,7 @@
     "gross": 708,
     "rate": 0.019,
     "amount": 13.45,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-27T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1185,7 +1185,7 @@
     "gross": 2206,
     "rate": 0.019,
     "amount": 41.91,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-06-22T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1199,7 +1199,7 @@
     "gross": 708,
     "rate": 0.019,
     "amount": 13.45,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-26T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1213,7 +1213,7 @@
     "gross": 944,
     "rate": 0.019,
     "amount": 17.94,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-15T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1227,7 +1227,7 @@
     "gross": 826,
     "rate": 0.019,
     "amount": 15.69,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-06T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1241,7 +1241,7 @@
     "gross": 1298,
     "rate": 0.019,
     "amount": 24.66,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-15T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1255,7 +1255,7 @@
     "gross": 826,
     "rate": 0.019,
     "amount": 15.69,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-11T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1269,7 +1269,7 @@
     "gross": 708,
     "rate": 0.019,
     "amount": 13.45,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-04T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1283,7 +1283,7 @@
     "gross": 590,
     "rate": 0.019,
     "amount": 11.21,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-04T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1297,7 +1297,7 @@
     "gross": 1924,
     "rate": 0.019,
     "amount": 36.56,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-07-16T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1311,7 +1311,7 @@
     "gross": 3080,
     "rate": 0.019,
     "amount": 58.52,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-08-23T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1325,7 +1325,7 @@
     "gross": 590,
     "rate": 0.019,
     "amount": 11.21,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-08-16T04:30:00.000Z",
     "origin": "backfill"
   },
@@ -1339,8 +1339,21 @@
     "gross": 2950,
     "rate": 0.019,
     "amount": 56.05,
-    "currency": "\u20b9",
+    "currency": "₹",
     "createdAt": "2026-08-30T12:09:12.290Z",
+    "origin": "gateway"
+  },
+  {
+    "id": "TXN-P-934935",
+    "stream": "patient_subscription",
+    "sourceType": "bill",
+    "sourceId": "BILL-MEM-934929",
+    "patientId": "P002",
+    "gross": 399,
+    "rate": null,
+    "amount": 399,
+    "currency": "₹",
+    "createdAt": "2026-09-02T06:02:14.928Z",
     "origin": "gateway"
   }
 ]

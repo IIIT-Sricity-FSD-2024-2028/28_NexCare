@@ -43,3 +43,5 @@ export class FileStore<T> {
     }
   }
 }
+
+export { FileStore as FileStoreUtil };

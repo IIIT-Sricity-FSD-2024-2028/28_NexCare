@@ -435,11 +435,13 @@
     "email": "patient@gmail.com",
     "role": "patient",
     "status": "Active",
-    "password": "scrypt$f9aff72630a0453cfb8dcc1490aef18f$69b24ea6ce24ada1abbc4af0f10bd6652e90ac21e34f6c1ff08c2588dd876a25ef4f34906ff5db54d6bd422279f18e79a8c95a1b837cc9e2ee5e7283ea2569da",
+    "password": "scrypt$f1e30a47b76d92853add4fdf81c964a5$8bc80c3ad39fe72f236f35b16d9497b9a80c179dff2c947db9fc4536bac44259c403f0e5cfd608bf9ba9131a31af3daf6a63f7351efb6f54adf97049202d7226",
     "patientId": "P001",
     "hospitalId": "H001",
     "regionId": "REG-AP-SOUTH",
-    "phone": "+91 98480 11223"
+    "phone": "+91 98480 11223",
+    "mustChangePassword": false,
+    "updatedAt": "2026-09-02T00:19:05.770Z"
   },
   {
     "id": "PAT-LOGIN-H1-2",
@@ -447,7 +449,7 @@
     "email": "sravani.reddy@example.in",
     "role": "patient",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$2013e8098727a7f4bef956ce41ac8114$d94c2b2070829cf7d4d3ebb157b07cbf374f722037e49aafa3336664d1e9681e22a5ea0bb87e2975c9ce40460a569b88aaf0a292c44d9c7fe7fba637885113e4",
     "patientId": "P002",
     "hospitalId": "H001",
     "regionId": "REG-AP-SOUTH",

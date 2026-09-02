@@ -61,6 +61,25 @@
         .m-stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px; margin-top:14px; }
         .m-stat .label { font-size:12px; color:#6A7282; text-transform:uppercase; letter-spacing:.04em; font-weight:600; margin:0; }
         .m-stat .value { font-size:22px; font-weight:700; color:#101828; margin:4px 0 0; }
+
+        /* Payment Modal & Cancellation Modal Styles */
+        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:9999; padding:16px; }
+        .modal-card { background:#fff; border-radius:16px; max-width:520px; width:100%; max-height:92vh; overflow-y:auto; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.04); border:1px solid #E2E8F0; }
+        .modal-header { padding:20px 24px; border-bottom:1px solid #F1F5F9; display:flex; justify-content:space-between; align-items:center; }
+        .modal-header h3 { margin:0; font-size:18px; color:#0F172A; font-weight:700; }
+        .modal-close-btn { background:none; border:none; color:#64748B; cursor:pointer; font-size:22px; line-height:1; }
+        .modal-body { padding:24px; }
+        .method-tabs { display:flex; gap:8px; margin-bottom:18px; border-bottom:1px solid #E2E8F0; padding-bottom:8px; }
+        .method-tab { padding:8px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:1px solid transparent; background:#F8FAFC; color:#64748B; }
+        .method-tab.active { background:#EFF6FF; color:#2563EB; border-color:#BFDBFE; }
+        .order-summary-box { background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; padding:16px; margin-bottom:20px; }
+        .order-summary-row { display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:8px; color:#475569; }
+        .order-summary-row.total { font-weight:700; color:#0F172A; font-size:16px; border-top:1px dashed #CBD5E1; padding-top:10px; margin-top:10px; margin-bottom:0; }
+        .upi-app-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:14px; }
+        .upi-app-card { border:1.5px solid #E2E8F0; border-radius:10px; padding:12px 8px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:#334155; transition:all .2s; }
+        .upi-app-card.selected { border-color:#2563EB; background:#EFF6FF; color:#1D4ED8; }
+        .form-control-styled { width:100%; box-sizing:border-box; padding:10px 14px; border:1px solid #CBD5E1; border-radius:8px; font-size:14px; outline:none; }
+        .form-control-styled:focus { border-color:#2563EB; box-shadow:0 0 0 3px rgba(37,99,235,0.15); }
     </style>
 </head>
 <body>
@@ -193,8 +212,194 @@
         </div>
         </div>
     </div>
+
+    <!-- Membership Payment Gateway Modal -->
+    <div id="paymentModal" class="modal-overlay" onclick="handleModalBackdropClick(event)">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:36px; height:36px; border-radius:8px; background:#EFF6FF; color:#2563EB; display:flex; align-items:center; justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                    </div>
+                    <div>
+                        <h3 id="modalPlanTitle">Join NexCare Care+</h3>
+                        <p style="font-size:12px; color:#64748B; margin:0;">Secure Simulated Gateway</p>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closePaymentModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body" id="modalPaymentBody">
+                <!-- Step 1: Summary & Payment Method -->
+                <div id="paymentStep1">
+                    <div class="order-summary-box">
+                        <div class="order-summary-row">
+                            <span>Selected Membership</span>
+                            <strong id="summaryPlanName">NexCare Care+</strong>
+                        </div>
+                        <div class="order-summary-row">
+                            <span>Billing Cycle</span>
+                            <span>Monthly Auto-Renew</span>
+                        </div>
+                        <div class="order-summary-row">
+                            <span>Convenience Fee Waived</span>
+                            <span style="color:#059669; font-weight:600;">₹39 / appointment</span>
+                        </div>
+                        <div class="order-summary-row">
+                            <span>Ambulance Discount</span>
+                            <span style="color:#059669; font-weight:600;" id="summaryAmbulanceDisc">20% off dispatch</span>
+                        </div>
+                        <div class="order-summary-row total">
+                            <span>Total Payable Now</span>
+                            <span style="color:#2563EB;" id="summaryTotalPayable">₹199</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:8px;">Choose Payment Method</label>
+                        <div class="method-tabs">
+                            <button type="button" class="method-tab active" onclick="switchPayMethod('upi')">UPI Apps & ID</button>
+                            <button type="button" class="method-tab" onclick="switchPayMethod('card')">Debit / Credit Card</button>
+                            <button type="button" class="method-tab" onclick="switchPayMethod('netbanking')">Net Banking</button>
+                        </div>
+                    </div>
+
+                    <!-- UPI Form -->
+                    <div id="methodUpi" class="pay-method-panel">
+                        <div class="upi-app-grid">
+                            <div class="upi-app-card selected" onclick="selectUpiApp(this, 'Google Pay')">
+                                <div style="font-size:18px;">📱</div>
+                                <div>Google Pay</div>
+                            </div>
+                            <div class="upi-app-card" onclick="selectUpiApp(this, 'PhonePe')">
+                                <div style="font-size:18px;">⚡</div>
+                                <div>PhonePe</div>
+                            </div>
+                            <div class="upi-app-card" onclick="selectUpiApp(this, 'Paytm UPI')">
+                                <div style="font-size:18px;">💳</div>
+                                <div>Paytm</div>
+                            </div>
+                        </div>
+                        <div style="margin-top:12px;">
+                            <label style="display:block; font-size:12px; font-weight:600; color:#64748B; margin-bottom:4px;">Or Enter UPI ID</label>
+                            <input type="text" id="upiIdInput" class="form-control-styled" placeholder="e.g. mobile@okaxis / patient@okhdfc" value="patient@okhdfcbank">
+                        </div>
+                    </div>
+
+                    <!-- Card Form -->
+                    <div id="methodCard" class="pay-method-panel" style="display:none;">
+                        <div style="margin-bottom:10px;">
+                            <label style="display:block; font-size:12px; font-weight:600; color:#64748B; margin-bottom:4px;">Card Number</label>
+                            <input type="text" id="cardNumberInput" class="form-control-styled" placeholder="4242 •••• •••• 4242" value="4242 4242 4242 4242" maxlength="19">
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                            <div>
+                                <label style="display:block; font-size:12px; font-weight:600; color:#64748B; margin-bottom:4px;">Expiry (MM/YY)</label>
+                                <input type="text" id="cardExpiryInput" class="form-control-styled" placeholder="12/28" value="12/28">
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:12px; font-weight:600; color:#64748B; margin-bottom:4px;">CVV</label>
+                                <input type="password" id="cardCvvInput" class="form-control-styled" placeholder="•••" value="123" maxlength="4">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:12px; font-weight:600; color:#64748B; margin-bottom:4px;">Cardholder Name</label>
+                            <input type="text" id="cardNameInput" class="form-control-styled" placeholder="Name on card" value="Raghav Rao">
+                        </div>
+                    </div>
+
+                    <!-- Net Banking Form -->
+                    <div id="methodNetbanking" class="pay-method-panel" style="display:none;">
+                        <label style="display:block; font-size:12px; font-weight:600; color:#64748B; margin-bottom:6px;">Select Popular Indian Bank</label>
+                        <select id="netBankSelect" class="form-control-styled">
+                            <option value="HDFC Bank">HDFC Bank</option>
+                            <option value="State Bank of India">State Bank of India (SBI)</option>
+                            <option value="ICICI Bank">ICICI Bank</option>
+                            <option value="Axis Bank">Axis Bank</option>
+                            <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+                        </select>
+                    </div>
+
+                    <button type="button" id="paySubmitBtn" class="m-btn" style="margin-top:20px; padding:13px; font-size:15px;" onclick="processPayment()">
+                        Pay <span id="btnPayAmount">₹199</span> Securely & Activate Plan &rarr;
+                    </button>
+                    <div style="text-align:center; margin-top:10px;">
+                        <span style="font-size:11.5px; color:#64748B;">🔒 256-bit encrypted simulated transaction · Instant activation</span>
+                    </div>
+                </div>
+
+                <!-- Step 2: Processing Animation -->
+                <div id="paymentStep2" style="display:none; text-align:center; padding:30px 10px;">
+                    <div style="width:50px; height:50px; border:4px solid #E2E8F0; border-top-color:#2563EB; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 18px auto;"></div>
+                    <h3 style="font-size:18px; color:#0F172A; margin:0 0 6px 0;">Processing Payment...</h3>
+                    <p style="font-size:13px; color:#64748B; margin:0;" id="processingSubtext">Communicating with payment gateway...</p>
+                </div>
+
+                <!-- Step 3: Success Screen -->
+                <div id="paymentStep3" style="display:none; text-align:center; padding:20px 10px;">
+                    <div style="width:60px; height:60px; border-radius:50%; background:#DCFCE7; color:#16A34A; display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto; font-size:30px;">
+                        ✓
+                    </div>
+                    <h3 style="font-size:20px; color:#0F172A; margin:0 0 6px 0;">Membership Activated!</h3>
+                    <p style="font-size:13.5px; color:#475569; margin:0 0 16px 0;" id="successPlanMsg">
+                        You are now subscribed to <strong>NexCare Care+</strong>.
+                    </p>
+                    <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; padding:14px; text-align:left; font-size:12.5px; color:#475569; margin-bottom:20px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                            <span>Transaction ID:</span>
+                            <strong style="color:#0F172A;" id="successTxnId">TXN-MEM-123456</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                            <span>Amount Paid:</span>
+                            <strong style="color:#059669;" id="successAmountPaid">₹199</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span>Next Billing Date:</span>
+                            <span id="successRenewsOn">02 Oct 2026</span>
+                        </div>
+                    </div>
+                    <button type="button" class="m-btn" onclick="finishPaymentSuccess()" style="width:100%; padding:12px;">
+                        Done & View Membership Benefits
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancellation Confirmation Modal -->
+    <div id="cancelModal" class="modal-overlay" onclick="handleCancelBackdropClick(event)">
+        <div class="modal-card" style="max-width:440px;">
+            <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:36px; height:36px; border-radius:8px; background:#FEF3C7; color:#D97706; display:flex; align-items:center; justify-content:center; font-size:18px;">
+                        ⚠️
+                    </div>
+                    <h3 style="margin:0; font-size:17px;">Cancel Care+ Membership?</h3>
+                </div>
+                <button class="modal-close-btn" onclick="closeCancelModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:13.5px; color:#475569; line-height:1.5; margin:0 0 14px 0;">
+                    Are you sure you want to switch back to <strong>Pay As You Go (₹0)</strong>?
+                </p>
+                <div style="background:#FFFBEB; border:1px solid #FDE68A; border-radius:8px; padding:12px; font-size:12.5px; color:#92400E; margin-bottom:20px;">
+                    ● You will be charged ₹39 convenience fee on every new appointment.<br>
+                    ● You will lose up to 25% ambulance discount and priority queue benefits.
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" class="m-btn" style="flex:1;" onclick="closeCancelModal()">Keep Membership</button>
+                    <button type="button" class="m-btn secondary" style="flex:1; color:#DC2626; border-color:#FECACA;" onclick="confirmCancelMembership()">Confirm Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
+    </style>
+
     <script src="../logo.js"></script>
-    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/api.js?v=9"></script>
     <script src="../shared/session.js?v=8"></script>
     <script src="../shared/portal.js"></script>
     <script src="../shared/ui-components.js"></script>

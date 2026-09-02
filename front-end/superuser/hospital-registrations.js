@@ -200,21 +200,22 @@ async function loadHospitals(searchTerm = '') {
             }
 
             // Actions
+            const hNameSafe = escapeHtml(h.name || '').replace(/'/g, "\\'");
             let actions = '';
             if (h.verificationStatus === 'pending_verification') {
                 if (h.regionalReviewStatus === 'cleared') {
                     actions = `<div style="font-size:10px;color:#15803D;margin-bottom:4px;font-weight:600;">RO Cleared</div>
-                               <button class="btn-approve" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;" onclick="verifyHospital('${h.id}')" title="Final approve">Final Approve</button>
-                               <button class="btn-reject" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;margin-top:4px;" onclick="rejectHospital('${h.id}')" title="Reject">Reject</button>`;
+                               <button class="btn-approve" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;" onclick="verifyHospital('${h.id}', '${hNameSafe}')" title="Final approve">Final Approve</button>
+                               <button class="btn-reject" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;margin-top:4px;" onclick="rejectHospital('${h.id}', '${hNameSafe}')" title="Reject">Reject</button>`;
                 } else if (h.regionalReviewStatus === 'rejected') {
                     let reasonText = h.regionalReviewNotes ? `(Reason: ${escapeHtml(h.regionalReviewNotes)})` : '';
                     actions = `<div style="font-size:10px;color:#DC2626;margin-bottom:4px;font-weight:600;">RO Rejected<br><span style="font-weight:normal;color:#6A7282;">${reasonText}</span></div>
-                               <button class="btn-reject" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;" onclick="rejectHospital('${h.id}')" title="Reject">Final Reject</button>`;
+                               <button class="btn-reject" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;" onclick="rejectHospital('${h.id}', '${hNameSafe}')" title="Reject">Final Reject</button>`;
                 } else {
                     let statusText = h.assignedManagerId ? 'RO pending' : 'RO not assigned';
                     actions = `<div style="font-size:10px;color:#6A7282;margin-bottom:4px;font-weight:600;">${statusText}</div>
-                               <button class="btn-approve" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;" onclick="verifyHospital('${h.id}')" title="Direct approve">Direct Approve</button>
-                               <button class="btn-reject" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;margin-top:4px;" onclick="rejectHospital('${h.id}')" title="Reject">Reject</button>`;
+                               <button class="btn-approve" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;" onclick="verifyHospital('${h.id}', '${hNameSafe}')" title="Direct approve">Direct Approve</button>
+                               <button class="btn-reject" style="width:100px;text-align:center;padding:4px 8px;font-size:12px;cursor:pointer;border-radius:4px;margin-top:4px;" onclick="rejectHospital('${h.id}', '${hNameSafe}')" title="Reject">Reject</button>`;
                 }
             } else if (h.verificationStatus === 'verified') {
                  actions = `<span style="font-size:12px;color:#15803D;font-weight:600;">Approved</span>`;
@@ -245,85 +246,195 @@ function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 }
 
-window.verifyHospital = async function(id) {
-    if(!confirm("Are you sure you want to final approve this hospital? This will generate a manager account.")) return;
+function showToastNotification(msg, type = 'success') {
+    const toast = document.createElement('div');
+    toast.style.cssText = `position:fixed; bottom:24px; right:24px; padding:12px 20px; border-radius:8px; background:${type === 'error' ? '#DC2626' : (type === 'info' ? '#2563EB' : '#16A34A')}; color:#fff; font-size:14px; font-weight:600; box-shadow:0 10px 15px -3px rgba(0,0,0,0.2); z-index:99999;`;
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+function showHospitalCredentialsModal(data, hospitalName) {
+    const email = data.email || 'manager@hospital.com';
+    const password = data.password || 'tempPass123';
+    const hName = data.hospitalName || hospitalName || 'Registered Hospital';
+
+    const modal = document.createElement('div');
+    modal.id = 'credentialsModal';
+    modal.style.cssText = 'position:fixed; inset:0; background:rgba(15,23,42,0.6); display:flex; align-items:center; justify-content:center; z-index:99999; backdrop-filter:blur(4px);';
+    modal.innerHTML = `
+        <div style="background:#fff; border-radius:16px; width:90%; max-width:520px; padding:28px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); border:1px solid #E2E8F0;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                <div style="width:44px; height:44px; border-radius:12px; background:#DCFCE7; color:#15803D; display:flex; align-items:center; justify-content:center; font-size:22px;">✓</div>
+                <div>
+                    <h3 style="margin:0; font-size:18px; font-weight:700; color:#0F172A;">Hospital Approved Successfully</h3>
+                    <p style="margin:2px 0 0; font-size:13px; color:#64748B;">Manager credentials generated for ${escapeHtml(hName)}</p>
+                </div>
+            </div>
+            
+            <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; padding:16px; margin:18px 0; font-size:13.5px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:8px; border-bottom:1px dashed #CBD5E1;">
+                    <span style="color:#64748B;">Role:</span>
+                    <span style="font-weight:600; color:#0F172A;">Hospital Manager</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:8px; border-bottom:1px dashed #CBD5E1;">
+                    <span style="color:#64748B;">Login Email:</span>
+                    <span style="font-weight:700; color:#1E293B; font-family:monospace;" id="credEmail">${escapeHtml(email)}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:8px; border-bottom:1px dashed #CBD5E1;">
+                    <span style="color:#64748B;">Initial Password:</span>
+                    <span style="font-weight:700; color:#2563EB; font-family:monospace;" id="credPassword">${escapeHtml(password)}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:#64748B;">Portal Link:</span>
+                    <span style="font-weight:600; color:#059669; font-size:12px;">/hospital_manager/dashboard.html</span>
+                </div>
+            </div>
+
+            <p style="font-size:12px; color:#64748B; margin:0 0 20px;">Please copy and securely transmit these credentials to the hospital administrator.</p>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" id="copyCredsBtn" style="padding:10px 18px; border-radius:8px; background:#2563EB; color:#fff; border:none; font-weight:600; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                    📋 Copy Credentials
+                </button>
+                <button type="button" id="closeCredsBtn" style="padding:10px 18px; border-radius:8px; background:#F1F5F9; color:#334155; border:1px solid #CBD5E1; font-weight:600; font-size:13px; cursor:pointer;">
+                    Done
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('copyCredsBtn').onclick = () => {
+        const text = `NEXCARE HOSPITAL MANAGER CREDENTIALS\nHospital: ${hName}\nPortal URL: ${window.location.origin}/hospital_manager/dashboard.html\nLogin Email: ${email}\nInitial Password: ${password}\n\nPlease change your password upon first login.`;
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.getElementById('copyCredsBtn');
+            if (btn) btn.textContent = '✓ Copied to Clipboard!';
+            setTimeout(() => {
+                const b = document.getElementById('copyCredsBtn');
+                if (b) b.innerHTML = '📋 Copy Credentials';
+            }, 2500);
+        });
+    };
+
+    document.getElementById('closeCredsBtn').onclick = () => {
+        modal.remove();
+        loadHospitals();
+    };
+}
+
+window.verifyHospital = async function(id, name) {
     try {
         const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
         const host = window.location.hostname || 'localhost';
         
-        // Call the new approve endpoint that creates the manager account
         const response = await fetch(`http://${host}:3001/api/hospitals/${id}/approve`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         });
         const res = await response.json();
         
-        if(res.success) {
-            // Show the generated credentials
+        if (res.success) {
             if (res.data && res.data.email && res.data.password) {
-                alert(`Hospital Approved!\n\nManager Account Created:\nEmail: ${res.data.email}\nPassword: ${res.data.password}\n\nPlease share these securely.`);
+                showHospitalCredentialsModal(res.data, name);
             } else {
-                alert("Hospital Approved!");
+                showToastNotification('Hospital Approved Successfully!', 'success');
+                loadHospitals();
             }
-            loadHospitals();
         } else {
-            alert(res.message);
+            showToastNotification(res.message || 'Failed to approve hospital', 'error');
         }
     } catch(err) {
-        alert("Failed to verify: " + err.message);
+        showToastNotification("Failed to verify: " + err.message, 'error');
     }
-}
+};
 
-window.rejectHospital = async function(id) {
-    if(!confirm("Are you sure you want to reject this hospital?")) return;
-    try {
-        let res;
-        if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
-            res = await window.NexCareAPI.Hospitals.reject(id);
-        } else {
-            // Fallback to direct API call
+window.rejectHospital = function(id, name) {
+    const modal = document.createElement('div');
+    modal.id = 'rejectHospitalModal';
+    modal.style.cssText = 'position:fixed; inset:0; background:rgba(15,23,42,0.6); display:flex; align-items:center; justify-content:center; z-index:99999; backdrop-filter:blur(4px);';
+    modal.innerHTML = `
+        <div style="background:#fff; border-radius:16px; width:90%; max-width:480px; padding:24px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); border:1px solid #E2E8F0;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+                <div style="width:40px; height:40px; border-radius:10px; background:#FEE2E2; color:#DC2626; display:flex; align-items:center; justify-content:center; font-size:20px;">✕</div>
+                <div>
+                    <h3 style="margin:0; font-size:17px; font-weight:700; color:#0F172A;">Reject Hospital Registration</h3>
+                    <p style="margin:2px 0 0; font-size:12.5px; color:#64748B;">${escapeHtml(name || 'Selected Hospital')}</p>
+                </div>
+            </div>
+
+            <div style="margin:16px 0;">
+                <label style="display:block; font-size:13px; font-weight:600; color:#334155; margin-bottom:6px;">Reason for Rejection <span style="color:#DC2626;">*</span></label>
+                <textarea id="rejectionReasonInput" rows="3" placeholder="e.g. Incomplete NABH accreditation or invalid medical council registration license" style="width:100%; border:1px solid #CBD5E1; border-radius:8px; padding:10px; font-size:13px; resize:none; font-family:inherit;"></textarea>
+                <div id="rejectErrorMsg" style="display:none; color:#DC2626; font-size:12px; margin-top:4px;">Please provide a specific rejection reason.</div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" id="cancelRejectBtn" style="padding:9px 16px; border-radius:8px; background:#F1F5F9; color:#334155; border:1px solid #CBD5E1; font-weight:600; font-size:13px; cursor:pointer;">
+                    Cancel
+                </button>
+                <button type="button" id="confirmRejectBtn" style="padding:9px 16px; border-radius:8px; background:#DC2626; color:#fff; border:none; font-weight:600; font-size:13px; cursor:pointer;">
+                    Confirm Rejection
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('cancelRejectBtn').onclick = () => modal.remove();
+
+    document.getElementById('confirmRejectBtn').onclick = async () => {
+        const reason = document.getElementById('rejectionReasonInput').value.trim();
+        if (!reason || reason.length < 5) {
+            document.getElementById('rejectErrorMsg').style.display = 'block';
+            return;
+        }
+
+        const btn = document.getElementById('confirmRejectBtn');
+        btn.disabled = true;
+        btn.textContent = 'Rejecting...';
+
+        try {
             const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
             const host = window.location.hostname || 'localhost';
             const response = await fetch(`http://${host}:3001/api/hospitals/${id}/reject`, {
                 method: 'PATCH',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason })
             });
-            res = await response.json();
+            const res = await response.json();
+            modal.remove();
+            if (res.success) {
+                showToastNotification('Hospital registration rejected and reason logged.', 'info');
+                loadHospitals();
+            } else {
+                showToastNotification(res.message || 'Failed to reject hospital', 'error');
+            }
+        } catch (err) {
+            modal.remove();
+            showToastNotification('Failed to reject: ' + err.message, 'error');
         }
-        if(res.success) {
-            loadHospitals();
-        } else {
-            alert(res.message);
-        }
-    } catch(err) {
-        alert("Failed to reject: " + err.message);
-    }
-}
+    };
+};
 
 window.assignRegionalOfficer = async function(hospitalId, managerId) {
     if(!managerId) return;
     try {
-        let res;
-        if (window.NexCareAPI && window.NexCareAPI.Hospitals) {
-            res = await window.NexCareAPI.Hospitals.assignManager(hospitalId, managerId);
-        } else {
-            // Fallback to direct API call
-            const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
-            const host = window.location.hostname || 'localhost';
-            const response = await fetch(`http://${host}:3001/api/hospitals/${hospitalId}/assign-manager`, {
-                method: 'PATCH',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ managerId })
-            });
-            res = await response.json();
-        }
-        if(res.success) {
-            alert("Regional Officer assigned successfully!");
+        const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
+        const host = window.location.hostname || 'localhost';
+        const response = await fetch(`http://${host}:3001/api/hospitals/${hospitalId}/assign-manager`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ managerId })
+        });
+        const res = await response.json();
+        if (res.success) {
+            showToastNotification('Regional Officer assigned successfully!', 'success');
             loadHospitals();
         } else {
-            alert(res.message);
+            showToastNotification(res.message || 'Could not assign officer', 'error');
         }
     } catch(err) {
-        alert("Failed to assign manager: " + err.message);
+        showToastNotification('Failed to assign manager: ' + err.message, 'error');
     }
-}
+};

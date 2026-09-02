@@ -13,8 +13,10 @@
     "reorderLevel": 25,
     "unit": "Boxes",
     "unitCost": 450,
-    "status": "OUT_OF_STOCK",
-    "lastUpdated": "2026-08-30"
+    "status": "Out of Stock",
+    "lastUpdated": "2026-08-30",
+    "lastRestocked": "2026-09-02T06:09:20.789Z",
+    "updatedAt": "2026-09-02T06:09:46.404Z"
   },
   {
     "id": "INV-H001-002",

@@ -309,7 +309,7 @@
 
             <div class="hero">
                 <h1>Revenue Across My Hospitals</h1>
-                <p>What each hospital you oversee has collected, and what is still outstanding (unpaid patient bills).</p>
+                <p>What each hospital you oversee has collected, and current unpaid balance (amount due from patient bills).</p>
             </div>
 
             <div class="stats-grid">
@@ -317,7 +317,7 @@
                     <p class="stat-label">Total Collected</p><p class="stat-value" id="kpiCollected">--</p>
                 </div></div>
                 <div class="stat-card"><div class="stat-info">
-                    <p class="stat-label">Outstanding</p><p class="stat-value" id="kpiOutstanding">--</p>
+                    <p class="stat-label">Amount Due / Unpaid Balance</p><p class="stat-value" id="kpiOutstanding">--</p>
                 </div></div>
                 <div class="stat-card"><div class="stat-info">
                     <p class="stat-label">Bills Issued</p><p class="stat-value" id="kpiBills">--</p>
@@ -336,7 +336,7 @@
                         <tr>
                             <th>Hospital</th>
                             <th>Collected</th>
-                            <th>Outstanding</th>
+                            <th>Unpaid Balance (Amount Due)</th>
                             <th>Bills</th>
                             <th>Collection rate</th>
                         </tr>
@@ -361,7 +361,7 @@
         </div>
     </main>
 
-    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/api.js?v=9"></script>
     <script src="../shared/session.js?v=8"></script>
     <script>
         if (typeof checkAuth === "function") {

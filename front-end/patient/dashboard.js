@@ -6,6 +6,7 @@ let activePatientContext = {};
 
 document.addEventListener("DOMContentLoaded", async () => {
     await loadUserInfo();
+    loadMembershipStatus();
     loadNearbyHospitals();
     loadAppointments();
     loadBills();
@@ -463,4 +464,35 @@ async function loadNearbyHospitals() {
             </div>
         `;
     }).join('');
+}
+
+async function loadMembershipStatus() {
+    try {
+        if (!window.NexCareAPI || !window.NexCareAPI.Revenue) return;
+        const res = await window.NexCareAPI.Revenue.getMyMembership();
+        if (res && res.success && res.data) {
+            const m = res.data;
+            const hero = document.querySelector('.hero-content');
+            if (hero) {
+                let badgeEl = document.getElementById('heroMembershipBadge');
+                if (!badgeEl) {
+                    badgeEl = document.createElement('div');
+                    badgeEl.id = 'heroMembershipBadge';
+                    badgeEl.style.cssText = 'display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:700; margin-bottom:12px;';
+                    hero.insertBefore(badgeEl, hero.firstChild);
+                }
+                const isPaid = m.monthlyFee > 0 && m.planId !== 'CARE-PAYG';
+                badgeEl.style.background = isPaid ? '#DCFCE7' : '#F1F5F9';
+                badgeEl.style.color = isPaid ? '#166534' : '#475569';
+                badgeEl.style.border = isPaid ? '1px solid #86EFAC' : '1px solid #CBD5E1';
+                badgeEl.innerHTML = `
+                    <span>${isPaid ? '⭐' : '📋'}</span>
+                    <span>${escapeHtml(m.planName || 'Care+ Member')}</span>
+                    <a href="membership.html" style="color:inherit; text-decoration:underline; font-size:11.5px; margin-left:4px;">${isPaid ? 'View Benefits &rarr;' : 'Upgrade &rarr;'}</a>
+                `;
+            }
+        }
+    } catch (e) {
+        console.warn('Could not load membership badge:', e);
+    }
 }

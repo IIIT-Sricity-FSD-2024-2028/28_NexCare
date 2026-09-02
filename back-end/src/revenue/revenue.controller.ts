@@ -314,7 +314,10 @@ export class RevenueController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
   @ApiResponse({ status: 200, description: 'Success' })
-  async setMyMembership(@Req() req: any, @Body() body: { planId: string }) {
+  async setMyMembership(
+    @Req() req: any,
+    @Body() body: { planId: string; paymentMethod?: string; transactionId?: string; amount?: number },
+  ) {
     if (!body?.planId) {
       throw new BadRequestException('planId is required');
     }
@@ -322,6 +325,11 @@ export class RevenueController {
       this.patientKey(req.user),
       req.user.name,
       body.planId,
+      {
+        method: body.paymentMethod,
+        transactionId: body.transactionId,
+        amount: body.amount,
+      },
     );
   }
 
