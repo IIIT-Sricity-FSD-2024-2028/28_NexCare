@@ -476,8 +476,10 @@ async function handlePayment(e) {
         closePaymentModal();
         const fees = (result.data && result.data.platformFees) || [];
         console.info('[NexCare] Platform fees recorded:', fees);
-        alert(`Payment approved.\n\n${formatMoneyINR(bill.total)} paid for ${bill.id}.`);
-        window.location.reload();
+        if (window.NexCareUI && typeof window.NexCareUI.showToast === 'function') {
+            window.NexCareUI.showToast(`Payment of ${formatMoneyINR(bill.total)} approved for ${bill.id}.`, 'success');
+        }
+        setTimeout(() => window.location.reload(), 1200);
     } catch (err) {
         console.error('Payment failed:', err);
         showPaymentError(err.message || 'The payment could not be processed');

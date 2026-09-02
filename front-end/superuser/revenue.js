@@ -340,7 +340,7 @@ function hospitalBreakdown(r) {
                 <tr>
                     <th>Hospital</th><th>City</th><th>Status</th>
                     <th class="num">Doctors</th><th class="num">Beds free</th>
-                    <th class="num">Collections</th><th class="num">Outstanding</th>
+                    <th class="num">Collections</th><th class="num">Unpaid Balance</th>
                     <th class="num">Platform revenue</th>
                 </tr>
             </thead>
@@ -445,7 +445,7 @@ function renderKpis(o) {
 
     setText('kpiMrrSub', 'hospital plans + Care+ memberships');
     setText('kpiSubscriptionSub', `independent of the ${money(o.gatewayVolume)} they collected`);
-    setText('kpiProcessingSub', `${money(o.outstandingReceivables)} still outstanding`);
+    setText('kpiProcessingSub', `${money(o.outstandingReceivables)} unpaid balance`);
     setText('kpiSubsSub', `of ${o.totalHospitals} hospitals on the platform`);
 }
 

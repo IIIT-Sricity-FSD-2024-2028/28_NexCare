@@ -36,30 +36,42 @@ function setProfileEditMode(enabled) {
     if (saveBtn) saveBtn.style.display = enabled ? 'inline-flex' : 'none';
 }
 
+function showPatientNotice(msg, type = 'error') {
+    if (window.NexCareUI && typeof window.NexCareUI.showToast === 'function') {
+        window.NexCareUI.showToast(msg, type);
+        return;
+    }
+    const toast = document.createElement('div');
+    toast.style.cssText = `position:fixed; bottom:24px; right:24px; padding:12px 20px; border-radius:8px; background:${type === 'error' ? '#DC2626' : '#16A34A'}; color:#fff; font-size:14px; font-weight:600; box-shadow:0 10px 15px -3px rgba(0,0,0,0.2); z-index:99999;`;
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
 async function saveChanges() {
     const { fullName, phoneNumber, emailAddress, currentPassword, newPassword, confirmPassword } = getProfileFormValues();
     
     // Validate personal info
     if (!fullName || !phoneNumber || !emailAddress) {
-        alert('Please fill in all required fields in Personal Information');
+        showPatientNotice('Please fill in all required fields in Personal Information', 'error');
         return;
     }
     
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(emailAddress)) {
-        alert('Please enter a valid email address (e.g. user@example.com)');
+        showPatientNotice('Please enter a valid email address (e.g. user@example.com)', 'error');
         return;
     }
 
     // Validate phone format (strictly 10 digits only)
     const phoneRegex = /^\d{10}$/;
     if (!phoneRegex.test(phoneNumber)) {
-        alert('Phone number must be exactly 10 digits and contain only numbers.');
+        showPatientNotice('Phone number must be exactly 10 digits and contain only numbers.', 'error');
         return;
     }
     if (/^0+$/.test(phoneNumber) || /^(\d)\1+$/.test(phoneNumber)) {
-        alert('Please enter a valid phone number (cannot be all the same digit).');
+        showPatientNotice('Please enter a valid phone number (cannot be all the same digit).', 'error');
         return;
     }
     
@@ -67,23 +79,23 @@ async function saveChanges() {
     let passwordChanged = false;
     if (currentPassword || newPassword || confirmPassword) {
         if (!currentPassword) {
-            alert('Please enter your current password to change it.');
+            showPatientNotice('Please enter your current password to change it.', 'error');
             return;
         }
         if (!newPassword) {
-            alert('Please enter a new password.');
+            showPatientNotice('Please enter a new password.', 'error');
             return;
         }
         if (newPassword.length < 8) {
-            alert('New password must be at least 8 characters long.');
+            showPatientNotice('New password must be at least 8 characters long.', 'error');
             return;
         }
         if (newPassword === currentPassword) {
-            alert('New password cannot be the same as your current password.');
+            showPatientNotice('New password cannot be the same as your current password.', 'error');
             return;
         }
         if (newPassword !== confirmPassword) {
-            alert('New passwords do not match.');
+            showPatientNotice('New passwords do not match.', 'error');
             return;
         }
         passwordChanged = true;
@@ -130,7 +142,7 @@ async function saveChanges() {
                     if (result.success) {
                         pwChanged = true;
                     } else {
-                        alert(result.message || 'Failed to change password. Please check your current password.');
+                        showPatientNotice(result.message || 'Failed to change password. Please check your current password.', 'error');
                         if (saveButton) { saveButton.textContent = originalText; saveButton.disabled = false; }
                         return;
                     }
@@ -146,7 +158,7 @@ async function saveChanges() {
                     const userRow = await NexCareDB.getActiveUser(sessionEmail);
                     if (userRow) {
                         if (userRow.password !== currentPassword) {
-                            alert('Current password is incorrect. Please try again.');
+                            showPatientNotice('Current password is incorrect. Please try again.', 'error');
                             document.getElementById('currentPassword').value = '';
                             document.getElementById('currentPassword').focus();
                             if (saveButton) { saveButton.textContent = originalText; saveButton.disabled = false; }
@@ -192,7 +204,7 @@ async function saveChanges() {
             </div>
         `;
 
-        if (window.NexCareUI) {
+        if (window.NexCareUI && typeof window.NexCareUI.showSuccess === 'function') {
             NexCareUI.showSuccess({
                 title: 'Profile Updated!',
                 message: 'Your profile has been saved successfully.',
@@ -204,14 +216,14 @@ async function saveChanges() {
                 }
             });
         } else {
-            alert('Profile saved successfully!');
+            showPatientNotice('Profile saved successfully!', 'success');
             await loadProfileFromStore();
             profileSnapshot = null;
             setProfileEditMode(false);
         }
     } catch (error) {
         console.error('Save profile error:', error);
-        alert('An error occurred while saving your profile. Please try again.');
+        showPatientNotice('An error occurred while saving your profile. Please try again.', 'error');
         if (saveButton) {
             saveButton.textContent = originalText;
             saveButton.disabled = false;
@@ -300,6 +312,22 @@ async function loadProfileFromStore() {
         }
     }
     
+    // Dynamically update Care+ Membership Tier
+    const memEl = document.getElementById('profileMembershipTier');
+    if (memEl && window.NexCareAPI?.Revenue?.getMyMembership) {
+        window.NexCareAPI.Revenue.getMyMembership().then(res => {
+            if (res && res.success && res.data) {
+                const m = res.data;
+                const isPaid = m.monthlyFee > 0 && m.planId !== 'CARE-PAYG';
+                memEl.style.color = isPaid ? '#15803D' : '#475569';
+                memEl.innerHTML = `
+                    ${isPaid ? '⭐ ' : ''}<strong>${m.planName || 'Care+ Member'}</strong>
+                    <a href="membership.html" style="font-size:12px; font-weight:600; text-decoration:underline; margin-left:6px; color:#2563EB;">Manage</a>
+                `;
+            }
+        }).catch(() => {});
+    }
+
     // Update the header name if it exists (for immediate reflection)
     const headerName = document.querySelector('.profile-name');
     if (headerName) {

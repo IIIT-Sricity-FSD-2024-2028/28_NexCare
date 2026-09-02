@@ -21,60 +21,60 @@
             </div>
 
             <nav class="sidebar-nav">
-                <a href="#overview" class="nav-item active" onclick="switchTab('overview', event)">
+                <a href="#overview" class="nav-item active" data-tooltip="Overview" onclick="switchTab('overview', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                     <span>Overview</span>
                 </a>
-                <a href="#leaves" class="nav-item" onclick="switchTab('leaves', event)">
+                <a href="#leaves" class="nav-item" data-tooltip="Doctor Leaves" onclick="switchTab('leaves', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path><path d="M9 16h6"></path></svg>
                     <span>Doctor Leaves</span>
                     <span class="nav-counter" id="navLeaveBadge" style="display:none;">0</span>
                 </a>
-                <a href="#schedules" class="nav-item" onclick="switchTab('schedules', event)">
+                <a href="#schedules" class="nav-item" data-tooltip="Schedule Approvals" onclick="switchTab('schedules', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                     <span>Schedule Approvals</span>
                 </a>
-                <a href="#staff" class="nav-item" onclick="switchTab('staff', event)">
+                <a href="#staff" class="nav-item" data-tooltip="Staff Directory" onclick="switchTab('staff', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     <span>Staff Directory</span>
                 </a>
-                <a href="#setup" class="nav-item" onclick="switchTab('setup', event)">
+                <a href="#setup" class="nav-item" data-tooltip="Registration &amp; Setup" onclick="switchTab('setup', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                    <span>Registration & Setup</span>
+                    <span>Registration &amp; Setup</span>
                 </a>
                 
-                <a href="#assets" class="nav-item" onclick="switchTab('assets', event)">
+                <a href="#assets" class="nav-item" data-tooltip="Infrastructure &amp; Assets" onclick="switchTab('assets', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                    <span>Infrastructure & Assets</span>
+                    <span>Infrastructure &amp; Assets</span>
                 </a>
-<a href="#inventory-approvals" class="nav-item" onclick="switchTab('inventory-approvals', event)">
+                <a href="#inventory-approvals" class="nav-item" data-tooltip="Inventory Approvals" onclick="switchTab('inventory-approvals', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-4-9 4 9 4 9-4z"></path><path d="M3 8v8l9 4 9-4V8"></path><path d="M12 12v8"></path></svg>
                     <span>Inventory Approvals</span>
                     <span class="nav-counter" id="navInventoryBadge" style="display:none;">0</span>
                 </a>
-                <a href="#ambulance" class="nav-item" onclick="switchTab('ambulance', event)">
+                <a href="#ambulance" class="nav-item" data-tooltip="Ambulance Status" onclick="switchTab('ambulance', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v7h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M10 10v4"></path><path d="M8 12h4"></path></svg>
                     <span>Ambulance Status</span>
                     <span class="nav-counter" id="navAmbulanceBadge" style="display:none;">0</span>
                 </a>
-                <a href="#subscription" class="nav-item" onclick="switchTab('subscription', event)">
+                <a href="#subscription" class="nav-item" data-tooltip="Subscription" onclick="switchTab('subscription', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-                    <span>Subscription & Renewal</span>
+                    <span>Subscription &amp; Renewal</span>
                     <span class="nav-pill" id="navSubPill">Active</span>
                 </a>
-                <a href="#revenue" class="nav-item" onclick="switchTab('revenue', event)">
+                <a href="#revenue" class="nav-item" data-tooltip="Revenue" onclick="switchTab('revenue', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                     <span>Revenue</span>
                 </a>
-                <a href="#supervision" class="nav-item" onclick="switchTab('supervision', event)">
+                <a href="#supervision" class="nav-item" data-tooltip="Staff Supervision" onclick="switchTab('supervision', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
                     <span>Admin Supervision</span>
                 </a>
-                <a href="#support" class="nav-item" onclick="switchTab('support', event)">
+                <a href="#support" class="nav-item" data-tooltip="Support Requests" onclick="switchTab('support', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                     <span>Support Requests</span>
                 </a>
-                <a href="#feedback" class="nav-item" onclick="switchTab('feedback', event)">
+                <a href="#feedback" class="nav-item" data-tooltip="Patient Feedback" onclick="switchTab('feedback', event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
                     </svg>
@@ -97,6 +97,8 @@
                 </button>
             </div>
         </aside>
+        <!-- Mobile sidebar overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
         <!-- Main Content Area -->
         <main class="main-content">
@@ -108,7 +110,7 @@
                     </button>
                     <div class="header-title">
                         <h1 id="pageTitle">Hospital Overview</h1>
-                        <p id="pageSubtitle">Comprehensive oversight of staff, doctor leaves, inventory approvals, and annual subscription.</p>
+                        <p id="pageSubtitle">Real-time operational summary and metrics.</p>
                     </div>
                 </div>
                 <div class="header-actions">

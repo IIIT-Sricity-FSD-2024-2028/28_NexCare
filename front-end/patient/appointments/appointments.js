@@ -398,17 +398,35 @@ function renderStep1(container) {
         }
     };
 
+    const DEPT_INFO = {
+        'Cardiology': { icon: '❤️', desc: 'Heart care, ECG & cardiovascular diagnosis' },
+        'Orthopaedics': { icon: '🦴', desc: 'Bone, joint, fracture care & surgery' },
+        'Neurology': { icon: '🧠', desc: 'Brain, nerve disorders & stroke care' },
+        'General Medicine': { icon: '🩺', desc: 'Primary health, fever & lifestyle care' },
+        'Dermatology': { icon: '🧴', desc: 'Skin, hair, allergy & clinical dermatology' },
+        'Paediatrics': { icon: '👶', desc: 'Child health, neonatal & adolescent care' },
+        'ENT': { icon: '👂', desc: 'Ear, nose, throat diagnostics & treatment' },
+        'Ophthalmology': { icon: '👁️', desc: 'Eye examinations & cataract consultations' },
+        'Gynaecology & Obstetrics': { icon: '🤰', desc: 'Women’s health & maternal wellness' },
+        'Gynaecology': { icon: '🤰', desc: 'Women’s health & maternal wellness' },
+        'Pulmonology': { icon: '🫁', desc: 'Respiratory, asthma & lung care' },
+        'Gastroenterology': { icon: '🔬', desc: 'Digestive & gastrointestinal evaluation' },
+        'Emergency Medicine': { icon: '🚨', desc: '24x7 trauma triage & emergency response' }
+    };
+
     depts.forEach(d => {
         const specName = typeof d === 'string' ? d : (d.name || d);
         const isSelected = bookingData.department === specName;
+        const info = DEPT_INFO[specName] || { icon: '🏥', desc: `${specName} consultations and specialised medical care` };
 
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = `department-btn ${isSelected ? 'selected' : ''}`;
 
         btn.innerHTML = `
+            <div style="font-size:20px; margin-bottom:6px;">${info.icon}</div>
             <h3>${escapeHtml(specName)}</h3>
-            <p>Specialist medical services and consultation</p>
+            <p>${escapeHtml(info.desc)}</p>
         `;
 
         btn.onclick = () => {
@@ -789,7 +807,8 @@ function renderStep3(container) {
         { label: 'Department', val: bookingData.department },
         { label: 'Doctor', val: bookingData.doctor },
         { label: 'Appointment Date', val: bookingData.date },
-        { label: 'Time Slot', val: bookingData.time }
+        { label: 'Time Slot', val: bookingData.time },
+        { label: 'Consultation Fee', val: bookingData.fee ? `₹${bookingData.fee}` : '₹800' }
     ];
 
     items.forEach(it => {
@@ -812,6 +831,47 @@ function renderStep3(container) {
         row.appendChild(val);
         summaryBox.appendChild(row);
     });
+
+    // Membership Benefit Row
+    const memRow = document.createElement('div');
+    memRow.style.cssText = 'border-top:1px dashed #D1D5DB; padding-top:12px; margin-top:12px; display:flex; justify-content:space-between; align-items:center; font-size:13.5px;';
+    memRow.innerHTML = `
+        <span style="color:#4B5563;">Platform Convenience Fee:</span>
+        <span id="bookingConvenienceFee" style="font-weight:700; color:#059669;">
+            <span style="text-decoration:line-through; color:#9CA3AF; margin-right:4px;">₹39</span> FREE (Care+ Benefit)
+        </span>
+    `;
+    summaryBox.appendChild(memRow);
+
+    const queueRow = document.createElement('div');
+    queueRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center; font-size:13.5px; margin-top:8px;';
+    queueRow.innerHTML = `
+        <span style="color:#4B5563;">Queue Priority:</span>
+        <span id="bookingQueuePriority" style="font-weight:700; color:#2563EB;">⚡ Priority Queue (Care+)</span>
+    `;
+    summaryBox.appendChild(queueRow);
+
+    // Asynchronously check membership tier to refine fee row if PAYG
+    if (window.NexCareAPI?.Revenue?.getMyMembership) {
+        window.NexCareAPI.Revenue.getMyMembership().then(res => {
+            if (res && res.success && res.data) {
+                const isPaid = res.data.monthlyFee > 0 && res.data.planId !== 'CARE-PAYG';
+                const feeEl = document.getElementById('bookingConvenienceFee');
+                const qEl = document.getElementById('bookingQueuePriority');
+                if (feeEl) {
+                    feeEl.innerHTML = isPaid 
+                        ? `<span style="text-decoration:line-through; color:#9CA3AF; margin-right:4px;">₹39</span> FREE (${escapeHtml(res.data.planName)})`
+                        : `<span style="color:#111827;">₹39</span> <span style="font-size:11px; color:#6B7280;">(Pay As You Go)</span>`;
+                }
+                if (qEl) {
+                    qEl.innerHTML = isPaid 
+                        ? `<span style="color:#2563EB;">⚡ Priority Queue (${escapeHtml(res.data.planName)})</span>`
+                        : `<span style="color:#4B5563;">Standard Queue</span>`;
+                }
+            }
+        }).catch(() => {});
+    }
+
     card.appendChild(summaryBox);
 
     const actions = document.createElement('div');
@@ -836,7 +896,11 @@ function renderStep3(container) {
             // Guard: Check if slot was booked in the interim
             const freshBookedSlots = await getBookedSlotsForDoctor(hosp ? hosp.id : 'apollo', bookingData.doctor, bookingData.date);
             if (freshBookedSlots.has(bookingData.time)) {
-                alert(`The slot "${bookingData.time}" on ${bookingData.date} with ${bookingData.doctor} was just booked by another patient. Please select a different time slot.`);
+                if (window.NexCareUI && typeof window.NexCareUI.showToast === 'function') {
+                    window.NexCareUI.showToast(`Slot "${bookingData.time}" on ${bookingData.date} was just booked. Please choose another slot.`, 'error');
+                } else {
+                    alert(`The slot "${bookingData.time}" on ${bookingData.date} with ${bookingData.doctor} was just booked by another patient. Please select a different time slot.`);
+                }
                 currentStep = 2;
                 renderBookingStep();
                 return;
@@ -848,7 +912,8 @@ function renderStep3(container) {
                 department: bookingData.department,
                 doctorId: bookingData.doctorId || '',
                 doctor: bookingData.doctor,
-                fee: bookingData.fee || undefined,
+                fee: bookingData.fee || 800,
+                consultationFee: bookingData.fee || 800,
                 dateLabel: bookingData.date,
                 timeLabel: bookingData.time,
                 patientName: 'Patient'
@@ -869,7 +934,11 @@ function renderStep3(container) {
             renderConfirmation(container);
         } catch (err) {
             console.error('Error confirming appointment:', err);
-            alert(err?.message || 'Failed to confirm appointment. Please try again.');
+            if (window.NexCareUI && typeof window.NexCareUI.showToast === 'function') {
+                window.NexCareUI.showToast(err?.message || 'Failed to confirm appointment', 'error');
+            } else {
+                alert(err?.message || 'Failed to confirm appointment. Please try again.');
+            }
             confirmBtn.disabled = false;
             confirmBtn.textContent = 'Confirm Appointment';
         }

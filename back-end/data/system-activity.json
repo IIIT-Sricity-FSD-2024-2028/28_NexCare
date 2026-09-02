@@ -6098,5 +6098,75 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-09-01T18:02:05.580Z"
+  },
+  {
+    "id": "ACT-MTJBOQ251TU",
+    "timestamp": "2026-09-01T23:53:04.493Z",
+    "userId": "U004",
+    "action": "Login",
+    "details": "User Raghav Rao logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T23:53:04.493Z"
+  },
+  {
+    "id": "ACT-MTJBQWT32SQ",
+    "timestamp": "2026-09-01T23:54:46.551Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Tirupati Crew Alpha logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T23:54:46.551Z"
+  },
+  {
+    "id": "ACT-MTJBRYCB33Z",
+    "timestamp": "2026-09-01T23:55:35.195Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T23:55:35.195Z"
+  },
+  {
+    "id": "ACT-MTJBTDAH4Q9",
+    "timestamp": "2026-09-01T23:56:41.225Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-01T23:56:41.225Z"
+  },
+  {
+    "id": "ACT-MTJCM6R119Q",
+    "timestamp": "2026-09-02T00:19:05.773Z",
+    "userId": "U004",
+    "action": "Password Reset",
+    "details": "Password reset successfully for patient@gmail.com (patient)",
+    "module": "Auth",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T00:19:05.773Z"
+  },
+  {
+    "id": "ACT-MTJEPUIN1X0",
+    "timestamp": "2026-09-02T01:17:55.775Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T01:17:55.775Z"
+  },
+  {
+    "id": "ACT-MTJEQ9FC2GL",
+    "timestamp": "2026-09-02T01:18:15.096Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T01:18:15.096Z"
   }
 ]

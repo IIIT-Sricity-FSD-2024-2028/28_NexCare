@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     populateHospitalChoices();
+    loadAmbulanceMembership();
     renderAmbulanceRequests();
 
     const tbody = document.querySelector('.status-table tbody');
@@ -18,6 +19,34 @@ document.addEventListener('DOMContentLoaded', function() {
     prefetchPatientData();
 });
 
+async function loadAmbulanceMembership() {
+    try {
+        if (!window.NexCareAPI || !window.NexCareAPI.Revenue) return;
+        const res = await window.NexCareAPI.Revenue.getMyMembership();
+        const banner = document.getElementById('ambulanceMembershipBanner');
+        if (res && res.success && res.data && banner) {
+            const m = res.data;
+            if (m.planId === 'CARE-FAMILY') {
+                banner.style.background = '#DCFCE7';
+                banner.style.color = '#15803D';
+                banner.style.borderColor = '#86EFAC';
+                banner.innerHTML = `⭐ <strong>Care+ Family:</strong> 25% Ambulance Discount (₹1,125)`;
+            } else if (m.planId === 'CARE-PLUS') {
+                banner.style.background = '#DCFCE7';
+                banner.style.color = '#15803D';
+                banner.style.borderColor = '#86EFAC';
+                banner.innerHTML = `⭐ <strong>Care+ Member:</strong> 20% Ambulance Discount (₹1,200)`;
+            } else {
+                banner.style.background = '#F1F5F9';
+                banner.style.color = '#475569';
+                banner.style.borderColor = '#CBD5E1';
+                banner.innerHTML = `Standard Rate: ₹1,500 (<a href="membership.html" style="color:#2563EB;">Get up to 25% off</a>)`;
+            }
+        }
+    } catch (e) {
+        console.warn('Ambulance membership check failed:', e);
+    }
+}
 
 function getPatientIdFromToken() {
     const token = sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
@@ -98,7 +127,7 @@ function handleAmbulanceRequest(e) {
                 const hospitalSelect = document.getElementById('ambulanceHospital');
                 const hospitalId = hospitalSelect ? hospitalSelect.value : '';
                 if (!hospitalId) {
-                    alert('Please choose the hospital you want the ambulance from.');
+                    showNexCareModal('Hospital Required', 'Please choose the hospital you want the ambulance from.', { isError: true });
                     return;
                 }
 
@@ -115,8 +144,8 @@ function handleAmbulanceRequest(e) {
 
                 
                 // Show success modal
-                showNexCareModal('Request Submitted!', 
-                    'Your ambulance request has been dispatched successfully.', 
+                showNexCareModal('Ambulance Dispatched!', 
+                    'Your emergency ambulance request has been registered and dispatched.', 
                     { 
                         details: `<strong>Request ID:</strong> ${requestId}<br><strong>ETA:</strong> 8-12 minutes<br><strong>Contact:</strong> ${contact}`,
                         onClose: () => {
@@ -168,9 +197,27 @@ async function renderAmbulanceRequests() {
         return `${dateStr} - ${timeStr}`;
     }
 
-    tbody.innerHTML = rows.map(r => `
+    if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:#6B7280;">No ambulance requests found.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = rows.map(r => {
+        let driverHtml = '<span style="color:#9CA3AF; font-size:12px;">Awaiting Dispatch</span>';
+        if (r.driverName || r.assignedDriver?.name) {
+            const dName = r.driverName || r.assignedDriver?.name || 'Driver Assigned';
+            const dPhone = r.driverPhone || r.assignedDriver?.phone || '';
+            const dVehicle = r.vehicleNumber || r.assignedDriver?.vehicleNumber || '';
+            driverHtml = `
+                <div style="font-size:12.5px;">
+                    <strong style="color:#0F172A;">👨‍✈️ ${dName}</strong><br>
+                    <small style="color:#475569;">🚑 ${dVehicle || 'TN-07-AB-4501'} · 📞 ${dPhone || '+91 98765 43210'}</small>
+                </div>
+            `;
+        }
+        return `
         <tr data-id="${r.id}">
-            <td>${r.id}</td>
+            <td><strong>${r.id}</strong></td>
             <td>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:inline-block; margin-right:6px; vertical-align:middle;">
                     <circle cx="8" cy="8" r="6" stroke="#6A7282" stroke-width="1.33"/>
@@ -179,6 +226,7 @@ async function renderAmbulanceRequests() {
                 ${formatWhen(r.createdAt)}
             </td>
             <td>${r.pickupLocation}</td>
+            <td>${driverHtml}</td>
             <td>${r.contact}</td>
             <td><span class="badge ${badge(r.status)}">${r.status}</span></td>
             <td>
@@ -191,7 +239,7 @@ async function renderAmbulanceRequests() {
                 }
             </td>
         </tr>
-    `).join('');
+    `;}).join('');
 }
 
 function handleAmbulanceTableClick(e) {

@@ -131,25 +131,201 @@ function renderFees() {
         </p>`;
 }
 
-async function choosePlan(planId, planName) {
-    const cancelling = planId === 'CARE-PAYG';
-    const question = cancelling
-        ? 'Cancel your membership and go back to pay as you go?'
-        : `Switch to ${planName}?`;
-    if (!confirm(question)) return;
+let selectedPlan = null;
+let activePayMethod = 'upi';
+let selectedUpiApp = 'Google Pay';
 
+function choosePlan(planId, planName) {
+    const targetPlan = plans.find(p => p.id === planId);
+    if (!targetPlan) return;
+
+    if (planId === 'CARE-PAYG') {
+        openCancelModal();
+        return;
+    }
+
+    selectedPlan = targetPlan;
+    openPaymentModal(targetPlan);
+}
+
+function openPaymentModal(plan) {
+    const modal = document.getElementById('paymentModal');
+    if (!modal) return;
+
+    document.getElementById('modalPlanTitle').textContent = `Join ${plan.name}`;
+    document.getElementById('summaryPlanName').textContent = plan.name;
+    document.getElementById('summaryTotalPayable').textContent = money(plan.monthlyFee);
+    document.getElementById('btnPayAmount').textContent = money(plan.monthlyFee);
+    
+    const ambDisc = plan.id === 'CARE-FAMILY' ? '25% off emergency dispatch' : '20% off emergency dispatch';
+    document.getElementById('summaryAmbulanceDisc').textContent = ambDisc;
+
+    // Reset steps
+    document.getElementById('paymentStep1').style.display = 'block';
+    document.getElementById('paymentStep2').style.display = 'none';
+    document.getElementById('paymentStep3').style.display = 'none';
+
+    switchPayMethod('upi');
+    modal.style.display = 'flex';
+}
+
+function closePaymentModal() {
+    const modal = document.getElementById('paymentModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function handleModalBackdropClick(e) {
+    if (e.target.id === 'paymentModal') {
+        closePaymentModal();
+    }
+}
+
+function switchPayMethod(method) {
+    activePayMethod = method;
+    const tabs = document.querySelectorAll('.method-tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    const panels = {
+        upi: document.getElementById('methodUpi'),
+        card: document.getElementById('methodCard'),
+        netbanking: document.getElementById('methodNetbanking'),
+    };
+
+    Object.keys(panels).forEach(k => {
+        if (panels[k]) panels[k].style.display = k === method ? 'block' : 'none';
+    });
+
+    const activeTab = Array.from(tabs).find(t => t.textContent.toLowerCase().includes(method));
+    if (activeTab) activeTab.classList.add('active');
+}
+
+function selectUpiApp(el, appName) {
+    selectedUpiApp = appName;
+    document.querySelectorAll('.upi-app-card').forEach(c => c.classList.remove('selected'));
+    if (el) el.classList.add('selected');
+}
+
+async function processPayment() {
+    if (!selectedPlan) return;
+
+    let methodDetails = '';
+    if (activePayMethod === 'upi') {
+        const upiId = document.getElementById('upiIdInput')?.value.trim() || 'patient@okhdfcbank';
+        methodDetails = `UPI (${selectedUpiApp} / ${upiId})`;
+    } else if (activePayMethod === 'card') {
+        const cardNum = document.getElementById('cardNumberInput')?.value.trim() || '4242 4242 4242 4242';
+        const last4 = cardNum.replace(/\s+/g, '').slice(-4) || '4242';
+        methodDetails = `Card (•••• ${last4})`;
+    } else if (activePayMethod === 'netbanking') {
+        const bank = document.getElementById('netBankSelect')?.value || 'HDFC Bank';
+        methodDetails = `Net Banking (${bank})`;
+    }
+
+    const txnId = `TXN-MEM-${Math.floor(100000 + Math.random() * 900000)}`;
+    const step1 = document.getElementById('paymentStep1');
+    const step2 = document.getElementById('paymentStep2');
+    const step3 = document.getElementById('paymentStep3');
+    const subtext = document.getElementById('processingSubtext');
+
+    step1.style.display = 'none';
+    step2.style.display = 'block';
+
+    setTimeout(async () => {
+        if (subtext) subtext.textContent = 'Verifying with payment network & activating benefits...';
+        
+        try {
+            const res = await window.NexCareAPI.Revenue.setMyMembership(selectedPlan.id, {
+                method: methodDetails,
+                transactionId: txnId,
+                amount: selectedPlan.monthlyFee,
+            });
+
+            if (!res.success) {
+                step2.style.display = 'none';
+                step1.style.display = 'block';
+                showNotification(res.message || 'Payment simulation could not complete', 'error');
+                return;
+            }
+
+            // Populate success step
+            document.getElementById('successPlanMsg').innerHTML = `You are now subscribed to <strong>${esc(selectedPlan.name)}</strong>.`;
+            document.getElementById('successTxnId').textContent = txnId;
+            document.getElementById('successAmountPaid').textContent = money(selectedPlan.monthlyFee);
+            
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            document.getElementById('successRenewsOn').textContent = formatDate(nextMonth.toISOString());
+
+            step2.style.display = 'none';
+            step3.style.display = 'block';
+        } catch (err) {
+            console.error('Payment processing failed:', err);
+            step2.style.display = 'none';
+            step1.style.display = 'block';
+            showNotification('Payment processing failed. Please try again.', 'error');
+        }
+    }, 1200);
+}
+
+async function finishPaymentSuccess() {
+    closePaymentModal();
+    showNotification('Care+ Membership successfully activated!', 'success');
+    await load();
+}
+
+function openCancelModal() {
+    const modal = document.getElementById('cancelModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeCancelModal() {
+    const modal = document.getElementById('cancelModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function handleCancelBackdropClick(e) {
+    if (e.target.id === 'cancelModal') {
+        closeCancelModal();
+    }
+}
+
+async function confirmCancelMembership() {
+    closeCancelModal();
     try {
-        const res = await window.NexCareAPI.Revenue.setMyMembership(planId);
+        const res = await window.NexCareAPI.Revenue.setMyMembership('CARE-PAYG');
         if (!res.success) {
-            notify(res.message || 'Could not update your membership', 'error');
+            showNotification(res.message || 'Could not cancel membership', 'error');
             return;
         }
-        notify(res.message || 'Membership updated', 'success');
+        showNotification('Membership cancelled. You are now on Pay As You Go.', 'info');
         await load();
     } catch (err) {
-        console.error(err);
-        notify('Could not update your membership', 'error');
+        console.error('Cancel membership failed:', err);
+        showNotification('Could not cancel membership', 'error');
     }
+}
+
+function showNotification(msg, type = 'info') {
+    if (window.NexCareUI && typeof window.NexCareUI.showToast === 'function') {
+        window.NexCareUI.showToast(msg, type);
+        return;
+    }
+    // Fallback toast without blocking window alert
+    const toast = document.createElement('div');
+    toast.style.position = 'fixed';
+    toast.style.bottom = '24px';
+    toast.style.right = '24px';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '8px';
+    toast.style.background = type === 'error' ? '#DC2626' : type === 'success' ? '#059669' : '#1E293B';
+    toast.style.color = '#fff';
+    toast.style.fontSize = '14px';
+    toast.style.fontWeight = '600';
+    toast.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.2)';
+    toast.style.zIndex = '100000';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
 }
 
 /** The patient portal's header is its own markup, not the shared portal one. */

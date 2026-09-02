@@ -145,4 +145,28 @@ export class AuthController {
     
     return res.status(statusCode).json(result);
   }
+    
+  /** @route POST /api/auth/forgot-password/verify — Public */
+  @Public()
+  @Post('forgot-password/verify')
+  @ApiOperation({ summary: 'Validate account for password reset' })
+  @ApiResponse({ status: 200, description: 'Account verified for password reset' })
+  @ApiResponse({ status: 404, description: 'Account not found' })
+  async forgotPasswordVerify(@Body() body: { email: string }, @Res() res: Response) {
+    const result = await this.authService.validateResetAccount(body?.email);
+    const statusCode = result.success ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+    return res.status(statusCode).json(result);
+  }
+
+  /** @route POST /api/auth/forgot-password/reset — Public */
+  @Public()
+  @Post('forgot-password/reset')
+  @ApiOperation({ summary: 'Reset account password with verified email' })
+  @ApiResponse({ status: 200, description: 'Password reset successful' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  async forgotPasswordReset(@Body() body: { email: string; newPassword: string }, @Res() res: Response) {
+    const result = await this.authService.resetPassword(body?.email, body?.newPassword);
+    const statusCode = result.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+    return res.status(statusCode).json(result);
+  }
 }

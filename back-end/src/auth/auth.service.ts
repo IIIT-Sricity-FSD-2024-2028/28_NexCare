@@ -582,6 +582,65 @@ export class AuthService {
     }
   }
 
+  /** Validate account for password reset */
+  async validateResetAccount(email: string) {
+    if (!email || !email.trim()) {
+      return ResponseUtil.error('Email is required');
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const users = this.loadUsers();
+    const user = users.find(u => (u.email || '').toLowerCase() === cleanEmail);
+    if (!user) {
+      return ResponseUtil.notFound('User account', email);
+    }
+    const [userPart, domain] = cleanEmail.split('@');
+    const masked = userPart.length > 2 
+      ? `${userPart.slice(0, 2)}***@${domain}`
+      : `${userPart[0]}***@${domain}`;
+
+    return ResponseUtil.success('Account verified', {
+      email: cleanEmail,
+      maskedEmail: masked,
+      name: user.name,
+      role: user.role,
+      resetCode: '123456', // Academic simulated verification code
+    });
+  }
+
+  /** Reset password for verified account */
+  async resetPassword(email: string, newPass: string) {
+    if (!email || !newPass) {
+      return ResponseUtil.error('Email and new password are required');
+    }
+    if (newPass.length < 6) {
+      return ResponseUtil.error('New password must be at least 6 characters long');
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const users = this.loadUsers();
+    const idx = users.findIndex(u => (u.email || '').toLowerCase() === cleanEmail);
+    if (idx === -1) {
+      return ResponseUtil.notFound('User account', email);
+    }
+
+    users[idx].password = this.hashPassword(newPass);
+    users[idx].mustChangePassword = false;
+    users[idx].updatedAt = new Date().toISOString();
+    this.saveUsers(users);
+
+    this.systemService.createActivity({
+      userId: users[idx].id,
+      action: 'Password Reset',
+      details: `Password reset successfully for ${cleanEmail} (${users[idx].role})`,
+      module: 'Auth',
+      severity: 'INFO',
+    });
+
+    return ResponseUtil.success('Password updated successfully. You can now login with your new password.', {
+      email: cleanEmail,
+      role: users[idx].role,
+    });
+  }
+
   /**
    * Appointments, leave records and the doctor directory all carry the "Dr. "
    * prefix, and the booking wizard matches consultants by name. Normalising it

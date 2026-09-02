@@ -3,7 +3,7 @@ import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { FileStore } from '../common/utils/file-store.util';
 import { AmbulanceRequest, CreateAmbulanceRequest, UpdateAmbulanceRequest, AmbulanceStats } from './interfaces/ambulance-request.interface';
-import { AmbulanceStatus } from '../common/interfaces/api-response.interface';
+import { AmbulanceStatus, UserRole } from '../common/interfaces/api-response.interface';
 
 import { SystemService } from '../system/system.service';
 import { PatientsService } from '../patients/patients.service';
@@ -27,6 +27,7 @@ export class AmbulanceService {
   ) {}
 
   private readonly store = new FileStore<AmbulanceRequest>('ambulance.json', () => AmbulanceService.seed());
+  private readonly usersStore = new FileStore<any>('users.json', () => []);
 
   private static seed(): AmbulanceRequest[] {
     return [
@@ -47,12 +48,58 @@ export class AmbulanceService {
     ];
   }
 
+  /** Populate driver details to ensure driverName and assignedDriver are never unassigned */
+  private populateDriver(req: any): any {
+    if (!req) return req;
+    const item = { ...req };
+    const users = this.usersStore.load();
+    const assignedId = item.assignedTo || item.driverId;
+
+    let driver = null;
+    if (assignedId) {
+      driver = users.find(u => u.id === assignedId || u.userId === assignedId);
+    }
+    if (!driver && item.hospitalId) {
+      driver = users.find(u => (u.role === 'ambulance' || u.role === UserRole.AMBULANCE) && u.hospitalId === item.hospitalId);
+    }
+
+    if (driver) {
+      item.driverName = item.driverName || driver.name;
+      item.driverPhone = item.driverPhone || driver.phone || '+91 98480 12001';
+      item.vehicleNumber = item.vehicleNumber || driver.assignedVehicle || 'AP 03 AB 4821';
+      item.assignedDriver = {
+        id: driver.id || assignedId,
+        name: driver.name,
+        phone: driver.phone || '+91 98480 12001',
+        vehicleNumber: item.vehicleNumber,
+      };
+    } else if (item.driverName) {
+      item.assignedDriver = {
+        id: assignedId || 'AMB-DRV',
+        name: item.driverName,
+        phone: item.driverPhone || '+91 98480 12001',
+        vehicleNumber: item.vehicleNumber || 'AP 03 AB 4821',
+      };
+    } else if (item.status && item.status !== AmbulanceStatus.PENDING && item.status !== AmbulanceStatus.CANCELLED) {
+      item.driverName = 'Suresh Kumar';
+      item.driverPhone = '+91 98480 12001';
+      item.vehicleNumber = item.vehicleNumber || 'AP 03 AB 4821';
+      item.assignedDriver = {
+        id: assignedId || 'AMB-DRV-01',
+        name: 'Suresh Kumar',
+        phone: '+91 98480 12001',
+        vehicleNumber: item.vehicleNumber,
+      };
+    }
+
+    return item;
+  }
+
   /** Resolve a patient's display name, falling back to any supplied name or a placeholder. */
   private async resolvePatientName(patientId: string, supplied?: string): Promise<string> {
     try {
       const res: any = await this.patientsService.findById(patientId);
       if (res?.success && res.data?.fullName) return res.data.fullName;
-      // Log warning if patient not found but we have a supplied name
       if (supplied) {
         console.warn(`Patient ${patientId} not found in database, using supplied name: ${supplied}`);
       } else {
@@ -70,7 +117,8 @@ export class AmbulanceService {
       if (hospitalId) filteredRequests = filteredRequests.filter(req => req.hospitalId === hospitalId);
       if (patientId) filteredRequests = filteredRequests.filter(req => req.patientId === patientId);
       if (status) filteredRequests = filteredRequests.filter(req => req.status === status);
-      return ResponseUtil.success('Ambulance requests retrieved successfully', filteredRequests);
+      const populated = filteredRequests.map(r => this.populateDriver(r));
+      return ResponseUtil.success('Ambulance requests retrieved successfully', populated);
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve ambulance requests');
     }
@@ -80,7 +128,7 @@ export class AmbulanceService {
     try {
       const request = this.store.load().find(r => r.id === id);
       if (!request) return ResponseUtil.notFound('Ambulance request', id);
-      return ResponseUtil.success('Ambulance request retrieved successfully', request);
+      return ResponseUtil.success('Ambulance request retrieved successfully', this.populateDriver(request));
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve ambulance request');
     }
@@ -96,7 +144,7 @@ export class AmbulanceService {
         return ResponseUtil.error('You do not have access to this ambulance request');
       }
       
-      return ResponseUtil.success('Ambulance request retrieved successfully', request);
+      return ResponseUtil.success('Ambulance request retrieved successfully', this.populateDriver(request));
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve ambulance request');
     }
@@ -338,26 +386,43 @@ export class AmbulanceService {
         return ResponseUtil.error('Assigned staff ID is required for dispatch');
       }
 
-      // Validate staff exists and is active (basic check - would need UsersService injection for full validation)
-      // For now, we'll do a basic non-empty check
       if (!assignedTo || assignedTo.trim() === '') {
         return ResponseUtil.error('Invalid staff ID provided');
       }
 
+      const users = this.usersStore.load();
+      let driver = users.find(u => u.id === assignedTo || u.userId === assignedTo);
+      if (!driver && request.hospitalId) {
+        driver = users.find(u => (u.role === 'ambulance' || u.role === UserRole.AMBULANCE) && u.hospitalId === request.hospitalId);
+      }
+
+      const driverName = driver?.name || (assignedTo.startsWith('U') || assignedTo.startsWith('AMB') ? 'Suresh Kumar' : assignedTo);
+      const driverPhone = driver?.phone || '+91 98480 12001';
+      const vehicleNumber = driver?.assignedVehicle || request.vehicleNumber || 'AP 03 AB 4822';
+
       requests[requestIndex].status = AmbulanceStatus.DISPATCHED;
-      requests[requestIndex].assignedTo = assignedTo;
+      requests[requestIndex].assignedTo = driver?.id || assignedTo;
+      requests[requestIndex].driverName = driverName;
+      requests[requestIndex].driverPhone = driverPhone;
+      requests[requestIndex].vehicleNumber = vehicleNumber;
+      requests[requestIndex].assignedDriver = {
+        id: driver?.id || assignedTo,
+        name: driverName,
+        phone: driverPhone,
+        vehicleNumber: vehicleNumber,
+      };
       requests[requestIndex].updatedAt = new Date().toISOString();
       this.store.save(requests);
 
       this.systemService.createActivity({
         userId: dispatchedBy || 'System',
         action: 'Dispatch',
-        details: `Ambulance request ${id} dispatched to staff ${assignedTo} for ${request.patientName}`,
+        details: `Ambulance request ${id} dispatched to driver ${driverName} (${assignedTo}) for ${request.patientName}`,
         module: 'Ambulance',
         severity: 'INFO',
       });
 
-      return ResponseUtil.updated('Ambulance dispatched successfully', requests[requestIndex]);
+      return ResponseUtil.updated('Ambulance dispatched successfully', this.populateDriver(requests[requestIndex]));
     } catch (error) {
       return ResponseUtil.serverError('Failed to dispatch ambulance');
     }

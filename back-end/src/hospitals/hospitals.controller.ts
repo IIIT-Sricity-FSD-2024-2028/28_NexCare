@@ -196,11 +196,15 @@ export class HospitalsController {
   @ApiResponse({ status: 403, description: 'Forbidden — HospitalAccessMiddleware: you are not assigned to this hospital' })
   @ApiResponse({ status: 404, description: 'Hospital not found' })
   @Patch(':id/reject')
-  async reject(@Param('id') id: string, @Req() req: any, @Body('notes') notes?: string) {
+  async reject(@Param('id') id: string, @Req() req: any, @Body('notes') notes?: string, @Body('reason') reason?: string) {
+    const rejectionText = reason || notes || 'Hospital registration was not approved';
     if (req.user?.role === UserRole.REGIONAL_MANAGER) {
-      return this.hospitalsService.recordRegionalReview(id, req.user.id, 'rejected', notes);
+      return this.hospitalsService.recordRegionalReview(id, req.user.id, 'rejected', rejectionText);
     }
-    return this.hospitalsService.update(id, { verificationStatus: VerificationStatus.REJECTED });
+    return this.hospitalsService.update(id, { 
+      verificationStatus: VerificationStatus.REJECTED,
+      rejectionReason: rejectionText,
+    });
   }
 
   @Roles(UserRole.REGIONAL_MANAGER)

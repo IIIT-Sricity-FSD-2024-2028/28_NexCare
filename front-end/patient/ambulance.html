@@ -141,7 +141,12 @@
             </div>
 
             <div class="ambulance-form-card">
-                <h2>Request Ambulance Service</h2>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h2 style="margin:0;">Request Ambulance Service</h2>
+                    <div id="ambulanceMembershipBanner" style="font-size:12px; font-weight:700; color:#166534; background:#DCFCE7; border:1px solid #86EFAC; padding:4px 10px; border-radius:999px;">
+                        Standard Dispatch
+                    </div>
+                </div>
                 
                 <form id="ambulanceForm" class="ambulance-form">
                     <div class="form-group">
@@ -211,6 +216,7 @@
                                 <th>Request ID</th>
                                 <th>Request Time</th>
                                 <th>Pickup Location</th>
+                                <th>Assigned Driver & Vehicle</th>
                                 <th>Contact</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -267,7 +273,7 @@
     </main>
 
     <script src="../logo.js"></script>
-    <script src="../shared/api.js?v=8"></script>
+    <script src="../shared/api.js?v=9"></script>
     <script src="../shared/session.js?v=8"></script>
     <script src="../shared/db.js"></script>
     <script src="ambulance.js"></script>

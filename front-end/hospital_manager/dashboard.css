@@ -56,8 +56,112 @@ body {
     transition: transform 0.3s ease, width 0.3s ease;
 }
 
+/* ── Icon-only collapsed state (desktop) ── */
 body.sidebar-collapsed .sidebar {
-    transform: translateX(-100%);
+    width: 75px;
+}
+
+body.sidebar-collapsed .sidebar-header .portal-badge,
+body.sidebar-collapsed .sidebar-header nex-care-logo {
+    /* Keep logo centered, hide badge */
+}
+
+body.sidebar-collapsed .portal-badge {
+    display: none;
+}
+
+body.sidebar-collapsed .nav-item span:not(.nav-counter):not(.nav-pill) {
+    display: none;
+}
+
+body.sidebar-collapsed .nav-counter,
+body.sidebar-collapsed .nav-pill {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 9px;
+    padding: 1px 4px;
+}
+
+body.sidebar-collapsed .nav-item {
+    justify-content: center;
+    padding: 12px;
+    position: relative;
+}
+
+/* Tooltip on icon-only mode */
+body.sidebar-collapsed .nav-item::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1E293B;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 200;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+body.sidebar-collapsed .nav-item:hover::after {
+    opacity: 1;
+}
+
+body.sidebar-collapsed .user-details,
+body.sidebar-collapsed .logout-btn span {
+    display: none;
+}
+
+body.sidebar-collapsed .user-info {
+    justify-content: center;
+    padding: 8px;
+}
+
+body.sidebar-collapsed .logout-btn {
+    padding: 10px;
+    justify-content: center;
+}
+
+/* ── Mobile overlay drawer ── */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+}
+
+@media (max-width: 767px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 280px !important;
+        z-index: 200;
+    }
+
+    body.mobile-sidebar-open .sidebar {
+        transform: translateX(0);
+    }
+
+    body.mobile-sidebar-open .sidebar-overlay {
+        display: block;
+    }
+
+    body.sidebar-collapsed .sidebar {
+        transform: translateX(-100%);
+        width: 280px !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
 }
 
 .sidebar-header {
@@ -247,7 +351,7 @@ body.sidebar-collapsed .sidebar {
 }
 
 body.sidebar-collapsed .main-content {
-    margin-left: 0;
+    margin-left: 75px;
 }
 
 .top-header {
@@ -1277,3 +1381,49 @@ body.sidebar-collapsed .main-content {
 .toast-success { background: #059669; }
 .toast-error { background: #DC2626; }
 .toast-info { background: #2563EB; }
+
+/* ── Table horizontal overflow fix ── */
+.table-container,
+.data-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    min-width: 600px;
+}
+
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .top-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .main-content {
+        padding: 20px 16px;
+    }
+
+    .header-title h1 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 14px;
+    }
+}

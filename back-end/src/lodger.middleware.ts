@@ -122,8 +122,8 @@ export class CsrfMiddleware implements NestMiddleware {
     }
 
     // Skip CSRF for auth endpoints (no session exists yet)
-    if (req.path.includes('/auth/login') || req.path.includes('/auth/register') || 
-        req.path.includes('/api/auth/login') || req.path.includes('/api/auth/register')) {
+    if (req.path.includes('/auth/') || req.originalUrl.includes('/auth/')) {
+      res.setHeader('x-csrf-token', this.currentToken(req));
       next();
       return;
     }

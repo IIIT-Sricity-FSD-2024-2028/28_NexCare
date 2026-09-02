@@ -13,7 +13,18 @@ export interface AmbulanceRequest {
   notes: string;
   status: AmbulanceStatus;
   assignedTo?: string;
+  driverName?: string;
+  driverPhone?: string;
+  vehicleNumber?: string;
+  assignedDriver?: {
+    id: string;
+    name: string;
+    phone: string;
+    vehicleNumber?: string;
+  };
   hospitalId?: string;
+  hospitalName?: string;
+  type?: string;
   createdAt: string;
   updatedAt?: string;
   stepIndex?: number;

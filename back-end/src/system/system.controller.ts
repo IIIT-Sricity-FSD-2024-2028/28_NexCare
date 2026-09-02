@@ -16,6 +16,7 @@ import { SystemService } from './system.service';
 import { CreateSystemActivityDto } from './dto/create-activity.dto';
 import { UpdateSystemSettingsDto } from './dto/update-settings.dto';
 import { Roles } from '../common/decorators/roles.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { UserRole } from '../common/interfaces/api-response.interface';
 
 /**
@@ -92,13 +93,31 @@ export class SystemController {
   /**
    * Get system statistics
    */
+  @Public()
   @Get('stats')
   @ApiOperation({ summary: 'Get system statistics' })
   @ApiResponse({ status: 200, description: 'System statistics retrieved' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getStats() {
     return this.systemService.getStats();
+  }
+
+  /**
+   * Get system health and performance
+   */
+  @Public()
+  @Get('health')
+  @ApiOperation({ summary: 'Get system health and performance' })
+  @ApiResponse({ status: 200, description: 'System health retrieved' })
+  async getHealth() {
+    return this.systemService.getHealth();
+  }
+
+  @Public()
+  @Get('performance')
+  @ApiOperation({ summary: 'Get system performance metrics' })
+  @ApiResponse({ status: 200, description: 'System performance retrieved' })
+  async getPerformance() {
+    return this.systemService.getHealth();
   }
 
   /**
