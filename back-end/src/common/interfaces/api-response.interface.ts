@@ -45,7 +45,9 @@ export enum UserRole {
   HOSPITAL_MANAGER = 'hospital_manager',
   DOCTOR = 'doctor',
   // Directory-only — see note above.
-  NURSE = 'nurse'
+  NURSE = 'nurse',
+  HOSPITAL_ADMIN = 'hospital_admin',
+  PLATFORM_ADMIN = 'platform_admin'
 }
 
 /**
@@ -177,5 +179,14 @@ export enum SubscriptionStatus {
   DUE_SOON = 'DUE_SOON',
   EXPIRED = 'EXPIRED',
   OVERDUE = 'OVERDUE'
+}
+
+/**
+ * Communication Categories
+ */
+export enum CommunicationCategory {
+  REFERRAL = 'REFERRAL',
+  CONSULTATION = 'CONSULTATION',
+  DISCHARGE = 'DISCHARGE'
 }
 
