@@ -31,11 +31,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadAllDashboardData();
 });
 
-// Listen to hash changes (e.g. from nav clicks)
 window.addEventListener('hashchange', () => {
     const hash = window.location.hash.replace('#', '') || 'overview';
     switchTab(hash);
 });
+
+/**
+ * Toggle sidebar: icon-only on desktop, overlay drawer on mobile
+ */
+function toggleSidebar() {
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+        document.body.classList.toggle('mobile-sidebar-open');
+    } else {
+        document.body.classList.toggle('sidebar-collapsed');
+        try {
+            localStorage.setItem('nexcare_sidebar_collapsed',
+                document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
+        } catch(e) {}
+    }
+}
+
+function closeMobileSidebar() {
+    document.body.classList.remove('mobile-sidebar-open');
+}
+
+// Restore sidebar state on load
+(function restoreSidebar() {
+    try {
+        if (window.innerWidth >= 768 && localStorage.getItem('nexcare_sidebar_collapsed') === '1') {
+            document.body.classList.add('sidebar-collapsed');
+        }
+    } catch(e) {}
+})();
+
 
 /**
  * Initialize Manager profile from session/local storage
@@ -144,18 +173,18 @@ function switchTab(tabName, event) {
     if (targetTabEl) targetTabEl.classList.add('active-tab');
 
     const titles = {
-        overview: { title: 'Hospital Overview', subtitle: 'Comprehensive oversight of staff, doctor leaves, inventory approvals, and annual subscription.' },
-        leaves: { title: 'Doctor Leave Approvals', subtitle: 'Review, approve, or reject doctor leave applications with strict hospital scoping.' },
-        schedules: { title: 'Schedule Approvals', subtitle: 'Approve the hospital-wide roster before it is published to department staff.' },
-        staff: { title: 'Hospital Staff Directory', subtitle: 'Manage doctors, administrative staff, and ambulance drivers for this hospital.' },
+        overview: { title: 'Hospital Operations Overview', subtitle: 'Real-time operational summary and metrics.' },
+        leaves: { title: 'Doctor Leave Approvals', subtitle: 'Review, approve, or reject leave requests.' },
+        schedules: { title: 'Schedule Approvals', subtitle: 'Hospital roster verification.' },
+        staff: { title: 'Hospital Staff Directory', subtitle: 'Manage medical and administrative personnel.' },
         setup: { title: 'Registration, Setup & Assets', subtitle: 'Configure hospital infrastructure, register staff, view assets, and manage inventory.' },
-        'inventory-approvals': { title: 'Inventory Requirements & Approvals', subtitle: 'Approve or reject stock requisition requests raised by administrative staff.' },
-        ambulance: { title: 'Ambulance Fleet & Emergency Status', subtitle: 'Live status tracking, fleet readiness, vehicle standby, and emergency dispatch management.' },
-        subscription: { title: 'Subscription & License Renewal', subtitle: 'Manage 12-month hospital license, payment history, and instant renewal.' },
-        revenue: { title: 'Revenue & Financial Analytics', subtitle: 'Hospital collections and outstanding bills tracking.' },
-        supervision: { title: 'Administrative Staff Supervision', subtitle: 'Assigned responsibilities and front-desk operation tracking.' },
-        support: { title: 'Regional Support Tickets', subtitle: 'Hospital-level issue escalations and compliance tracking.' },
-        feedback: { title: 'Patient Feedback & Issues', subtitle: 'Manage and resolve patient complaints for your hospital.' }
+        'inventory-approvals': { title: 'Inventory Requisitions', subtitle: 'Approve or reject stock requests.' },
+        ambulance: { title: 'Ambulance Fleet Status', subtitle: 'Fleet readiness and emergency dispatch.' },
+        subscription: { title: 'Subscription & License', subtitle: 'Hospital license and renewal management.' },
+        revenue: { title: 'Revenue & Collections', subtitle: 'Collections and unpaid balance tracking.' },
+        supervision: { title: 'Staff Supervision', subtitle: 'Desk and operational accountability.' },
+        support: { title: 'Regional Support Tickets', subtitle: 'Escalations and compliance.' },
+        feedback: { title: 'Patient Feedback & Issues', subtitle: 'Patient issue resolution.' }
     };
 
     if (titles[tabName]) {
@@ -234,7 +263,7 @@ async function loadRevenue() {
         if (statsEl) {
             statsEl.innerHTML = `
                 <div class="stat-card"><div class="stat-label">Collected</div><div class="stat-value">${money(d.collected)}</div></div>
-                <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value">${money(d.outstanding)}</div></div>
+                <div class="stat-card"><div class="stat-label">Amount Due / Unpaid</div><div class="stat-value">${money(d.outstanding)}</div></div>
                 <div class="stat-card"><div class="stat-label">Collection Rate</div><div class="stat-value">${d.collectionRate}%</div></div>
                 <div class="stat-card"><div class="stat-label">Bills Issued</div><div class="stat-value">${d.billsIssued}</div></div>`;
         }
@@ -1773,8 +1802,8 @@ function renderAmbulances(list) {
                 </span>
             </td>
             <td>
-                <div style="font-weight:600; color:#1e293b;">${item.driverName || 'Unassigned'}</div>
-                <small style="color:#64748b; font-size:12px;">📞 ${item.driverPhone || item.contact || '--'}</small>
+                <div style="font-weight:600; color:#1e293b;">${item.driverName || item.assignedDriver?.name || 'Assigned Fleet Driver'}</div>
+                <small style="color:#64748b; font-size:12px;">📞 ${item.driverPhone || item.assignedDriver?.phone || item.contact || '+91 98765 43210'}</small>
             </td>
             <td>
                 <div style="font-weight:600; color:#0f172a;">${item.patientName || 'Standby / Fleet Unit'}</div>
