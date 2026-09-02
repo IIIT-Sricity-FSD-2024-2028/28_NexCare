@@ -6098,5 +6098,35 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-09-01T18:02:05.580Z"
+  },
+  {
+    "id": "ACT-MTJNFGQG191",
+    "timestamp": "2026-09-02T05:21:47.896Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T05:21:47.896Z"
+  },
+  {
+    "id": "ACT-MTJP8M9E1SE",
+    "timestamp": "2026-09-02T06:12:27.698Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T06:12:27.698Z"
+  },
+  {
+    "id": "ACT-MTJPCYUT2SR",
+    "timestamp": "2026-09-02T06:15:50.645Z",
+    "userId": "U002",
+    "action": "Login",
+    "details": "User Lakshmi Naidu logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-09-02T06:15:50.645Z"
   }
 ]

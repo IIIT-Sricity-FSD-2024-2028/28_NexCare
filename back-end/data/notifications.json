@@ -1,5 +1,17 @@
 [
   {
+    "id": "NOTIFMTJPEVXZ3XV",
+    "recipientRole": "hospital_manager",
+    "hospitalId": "H001",
+    "type": "ACTION_REQUIRED",
+    "title": "Inventory Purchase Request",
+    "message": "New purchase request for iron injections (20 units) submitted by Lakshmi Naidu.",
+    "entityType": "INVENTORY",
+    "entityId": "REQ-INV-534",
+    "createdAt": "2026-09-02T06:17:20.183Z",
+    "read": false
+  },
+  {
     "id": "NOTIFMTJ2U8BT32W",
     "recipientRole": "superuser",
     "type": "SUCCESS",

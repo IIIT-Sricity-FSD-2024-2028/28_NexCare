@@ -234,7 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function injectBackButton() {
     // Avoid injecting on explicitly public pages
     const path = window.location.pathname || "";
-    const publicPages = ["login", "signup", "register", "landing"];
+    const publicPages = ["login", "signup", "register", "landing", "dashboard"];
     if (publicPages.some(page => path.includes(page))) return;
 
     // Avoid duplicates if session.js is included multiple times

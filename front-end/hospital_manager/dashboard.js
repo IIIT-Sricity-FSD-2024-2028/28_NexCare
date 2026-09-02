@@ -112,7 +112,7 @@ function initManagerInfo() {
 function switchTab(tabName, event) {
     if (event) event.preventDefault();
 
-    const tabs = ['overview', 'leaves', 'schedules', 'staff', 'setup', 'assets', 'inventory-approvals', 'ambulance', 'subscription', 'supervision', 'support', 'revenue', 'feedback'];
+    const tabs = ['overview', 'leaves', 'schedules', 'staff', 'setup', 'inventory-approvals', 'ambulance', 'subscription', 'supervision', 'support', 'revenue', 'feedback'];
     if (!tabs.includes(tabName)) tabName = 'overview';
 
     // Update active nav links
@@ -131,7 +131,6 @@ function switchTab(tabName, event) {
         schedules: 'schedulesTab',
         staff: 'staffTab',
         setup: 'setupTab',
-        assets: 'assetsTab',
         'inventory-approvals': 'inventoryApprovalsTab',
         ambulance: 'ambulanceTab',
         subscription: 'subscriptionTab',
@@ -149,16 +148,14 @@ function switchTab(tabName, event) {
         leaves: { title: 'Doctor Leave Approvals', subtitle: 'Review, approve, or reject doctor leave applications with strict hospital scoping.' },
         schedules: { title: 'Schedule Approvals', subtitle: 'Approve the hospital-wide roster before it is published to department staff.' },
         staff: { title: 'Hospital Staff Directory', subtitle: 'Manage doctors, administrative staff, and ambulance drivers for this hospital.' },
-        setup: { title: 'Registration & Setup', subtitle: 'Configure hospital infrastructure, register staff, and manage initial inventory.' },
-        assets: { title: 'Infrastructure & Assets', subtitle: 'View existing wards, beds, and current stock catalog inventory.' },
+        setup: { title: 'Registration, Setup & Assets', subtitle: 'Configure hospital infrastructure, register staff, view assets, and manage inventory.' },
         'inventory-approvals': { title: 'Inventory Requirements & Approvals', subtitle: 'Approve or reject stock requisition requests raised by administrative staff.' },
         ambulance: { title: 'Ambulance Fleet & Emergency Status', subtitle: 'Live status tracking, fleet readiness, vehicle standby, and emergency dispatch management.' },
         subscription: { title: 'Subscription & License Renewal', subtitle: 'Manage 12-month hospital license, payment history, and instant renewal.' },
         revenue: { title: 'Revenue & Financial Analytics', subtitle: 'Hospital collections and outstanding bills tracking.' },
         supervision: { title: 'Administrative Staff Supervision', subtitle: 'Assigned responsibilities and front-desk operation tracking.' },
         support: { title: 'Regional Support Tickets', subtitle: 'Hospital-level issue escalations and compliance tracking.' },
-        feedback: { title: 'Patient Feedback & Issues', subtitle: 'Manage and resolve patient complaints for your hospital.' },
-        setup: { title: 'Registration & Setup', subtitle: 'Configure hospital infrastructure, register staff, and manage initial inventory.' }
+        feedback: { title: 'Patient Feedback & Issues', subtitle: 'Manage and resolve patient complaints for your hospital.' }
     };
 
     if (titles[tabName]) {
@@ -174,7 +171,7 @@ function switchTab(tabName, event) {
         loadSupervision();
     } else if (tabName === 'revenue') {
         loadRevenue();
-    } else if (tabName === 'assets') {
+    } else if (tabName === 'setup') {
         loadInfrastructure();
         loadInventoryCatalog();
     }
@@ -2081,6 +2078,8 @@ async function loadInfrastructure() {
                     </tr>
                 `).join('');
             }
+        } else {
+            tableBody.innerHTML = `<tr><td colspan="4" class="error-cell">${resp.message || 'Failed to load infrastructure.'}</td></tr>`;
         }
     } catch (e) {
         tableBody.innerHTML = '<tr><td colspan="4" class="error-cell">Failed to load infrastructure.</td></tr>';
@@ -2131,6 +2130,8 @@ async function loadInventoryCatalog() {
                     `;
                 }).join('');
             }
+        } else {
+            tableBody.innerHTML = `<tr><td colspan="5" class="error-cell">${resp.message || 'Failed to load inventory.'}</td></tr>`;
         }
     } catch (e) {
         tableBody.innerHTML = '<tr><td colspan="5" class="error-cell">Failed to load inventory.</td></tr>';
