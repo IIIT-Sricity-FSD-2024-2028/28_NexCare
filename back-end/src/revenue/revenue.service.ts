@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ResponseUtil } from '../common/utils/response.util';
 import { FileStore } from '../common/utils/file-store.util';
+import { VerificationStatus } from '../common/interfaces/api-response.interface';
 import {
   HospitalRevenueLine,
   PlatformRevenueOverview,
@@ -327,7 +328,10 @@ export class RevenueService {
       });
 
       const users = this.usersStore.load();
-      const hospitals = this.hospitalsStore.load().length;
+      // Billed hospitals, not registered ones. Dividing hospital revenue by a
+      // count that includes a pending registration nobody charges would
+      // understate revenue per hospital.
+      const hospitals = this.hospitalBilling().size;
       const staffSeats = this.streamUnits(streams, 'hospital_subscription');
       const patients = users.filter(u => u.role === 'patient').length;
 
@@ -500,6 +504,14 @@ export class RevenueService {
     }>();
 
     for (const hospital of hospitals) {
+      // Only a hospital that is actually ON the platform is a customer. A
+      // registration still awaiting the Admin's decision — or one that was
+      // rejected — cannot log anybody in, so billing it would put revenue on
+      // the dashboard that nobody agreed to pay and nobody could earn. This is
+      // the same principle as metering on staff accounts: the figure moves
+      // when the hospital really joins, not when a row is created.
+      if (hospital.verificationStatus !== VerificationStatus.VERIFIED) continue;
+
       const staffSeats = seatsByHospital.get(hospital.id) || 0;
       const sub = this.pricing.ensureHospitalSubscription(
         { id: hospital.id, name: hospital.name },

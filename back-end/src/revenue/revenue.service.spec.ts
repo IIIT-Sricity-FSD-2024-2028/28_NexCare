@@ -114,6 +114,37 @@ describe('RevenueService', () => {
       expect(line.amount).toBe(5250);
     });
 
+    it('does not bill a hospital that is still awaiting verification', async () => {
+      // A pending registration cannot log anybody in, so charging it would put
+      // revenue on the dashboard that nobody agreed to pay. Regression test for
+      // the seeded `pending_verification` hospital that was being billed a full
+      // Starter plan on zero staff accounts.
+      write('hospitals.json', [
+        { id: 'H001', name: 'Test Hospital', city: 'Tirupati', verificationStatus: 'verified' },
+        { id: 'H099', name: 'Applicant Hospital', city: 'Tirupati', verificationStatus: 'pending_verification' },
+      ]);
+
+      const res: any = await revenue.getPlatformStreams();
+      const line = streamNamed(res.data, 'hospital_subscription');
+
+      // Unchanged: only the verified hospital's 3 seats and ₹5,250 are billed.
+      expect(line.units).toBe(3);
+      expect(line.amount).toBe(5250);
+
+      const overview: any = await revenue.getPlatformOverview();
+      expect(overview.data.byHospital.map((l: any) => l.hospitalId)).not.toContain('H099');
+    });
+
+    it('does not bill a hospital whose registration was rejected', async () => {
+      write('hospitals.json', [
+        { id: 'H001', name: 'Test Hospital', city: 'Tirupati', verificationStatus: 'verified' },
+        { id: 'H098', name: 'Turned Down', city: 'Tirupati', verificationStatus: 'rejected' },
+      ]);
+
+      const res: any = await revenue.getPlatformStreams();
+      expect(streamNamed(res.data, 'hospital_subscription').amount).toBe(5250);
+    });
+
     it('does not count patients, and does not count an inactive account', async () => {
       write('users.json', staff.concat([
         { id: 'X1', name: 'Left Last Month', email: 'x@x.com', role: 'doctor', hospitalId: 'H001', status: 'Inactive' } as any,

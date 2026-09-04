@@ -370,7 +370,6 @@ export class PricingService {
     }
   }
 
-  private readonly billsStore = new FileStore<any>('billing.json', () => []);
   private readonly ledgerStore = new FileStore<any>('platform-transactions.json', () => []);
 
   /**
@@ -410,67 +409,32 @@ export class PricingService {
       else subs[idx] = row;
       this.patientSubsStore.save(subs);
 
-      // If activating/switching to a paid plan, record the transaction in billing and ledger
+      // A paid membership is money NexCare took, so it is recorded in the
+      // platform ledger — and ONLY there. It used to also write a phantom
+      // `Paid` bill into billing.json against a hardcoded `hospitalId: 'H001'`,
+      // which credited one hospital with platform income it never earned and
+      // inflated `gatewayVolume` without producing a matching gateway fee.
+      // Nothing ever read that bill. A membership is not a hospital's revenue.
       if (plan.monthlyFee > 0 && planId !== 'CARE-PAYG') {
         const txnId = paymentDetails?.transactionId || `TXN-MEM-${Date.now().toString().slice(-6)}`;
-        const billId = `BILL-MEM-${Date.now().toString().slice(-6)}`;
         const paidAt = now.toISOString();
         const amount = paymentDetails?.amount || plan.monthlyFee;
         const method = paymentDetails?.method || 'ONLINE (UPI/Card)';
 
-        // 1. Add Paid bill to billing.json
-        const bills = this.billsStore.load();
-        bills.unshift({
-          id: billId,
-          patientId,
-          hospitalId: 'H001',
-          hospitalName: 'NexCare Platform Services',
-          visitDate: now.toISOString().split('T')[0],
-          dueDate: now.toISOString().split('T')[0],
-          status: 'Paid',
-          currency: '₹',
-          subtotal: amount,
-          cgstRate: 0,
-          sgstRate: 0,
-          cgstAmount: 0,
-          sgstAmount: 0,
-          total: amount,
-          items: [
-            {
-              description: `${plan.name} Monthly Membership`,
-              department: 'Care+ Membership',
-              amount: amount,
-              type: 'MEMBERSHIP_SUBSCRIPTION',
-              referenceId: row.id,
-            },
-          ],
-          payments: [
-            {
-              id: `PAY-${txnId}`,
-              amount: amount,
-              method: method,
-              gatewayReference: txnId,
-              createdAt: paidAt,
-            },
-          ],
-          createdAt: paidAt,
-          paymentStatus: 'Paid',
-          paidAt: paidAt,
-        });
-        this.billsStore.save(bills);
-
-        // 2. Add to platform ledger
         const ledger = this.ledgerStore.load();
         ledger.push({
           id: `TXN-P-${Date.now().toString().slice(-6)}`,
-          stream: 'patient_subscription',
-          sourceType: 'bill',
-          sourceId: billId,
+          stream: 'patient_membership',
+          sourceType: 'subscription',
+          sourceId: row.id,
+          hospitalId: null,
           patientId,
           gross: amount,
           rate: null,
           amount: amount,
           currency: '₹',
+          method,
+          gatewayReference: txnId,
           createdAt: paidAt,
           origin: 'gateway',
         });
