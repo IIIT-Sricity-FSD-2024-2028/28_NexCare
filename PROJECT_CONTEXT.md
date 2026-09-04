@@ -54,7 +54,7 @@ Source of truth for scope: `README.md`, `DomainExpertInteraction.md`, `definitio
 **Branch:** `vivian`, merged up to `origin/main` at `7a4cf06`. The 2026-09-01 revenue
 model change is uncommitted in the working tree — the team commits it themselves.
 
-**Backend test suite:** 10 suites, 60 tests, **all passing** (`npx jest` in `back-end/`,
+**Backend test suite:** 10 suites, 62 tests, **all passing** (`npx jest` in `back-end/`,
 ~7s). Suites: `array.util`, `id-generator.util`, `hospitals.service`,
 `hospital-query.interceptor`, `leave-request.guard`, `appointments.service`,
 `appointments.controller`, `mock-gateway`, `payments.service`, `revenue.service`.
@@ -69,12 +69,13 @@ passes end to end against a running backend. The revenue routes were re-verified
 against a live backend on 2026-09-01: a 26-check 200/403 matrix across all six
 logged-in roles, plus the write paths and a live card payment.
 
-**Known gap, not caused by the revenue work:** `billing.json` holds 16 bills and
-**all of them are `Pending`**, while the ledger carries 96 backfilled payment rows
-from a larger billing set that is no longer in the repo. So every "collections"
-figure on the dashboards reads ₹0 even though platform revenue is correct. This
-predates the 2026-09-01 change (it is the same on `origin/main` at `05192a5`) and
-needs the billing seed regenerating, not a code fix.
+**The long-standing billing gap is CLOSED (2026-09-02).** It used to read: 16
+bills, a ledger of 96 backfilled rows from a billing set no longer in the repo,
+and collections that could never reconcile with processing revenue. The seed is
+now regenerated from real appointments — **77 bills (55 paid, 22 pending)**, and
+every ledger fee row derives from one of them at exactly `paymentGatewayRate`.
+Collections, `gatewayVolume` and `processingRevenue` agree to ₹0.05 of
+per-transaction rounding. See §14 (2026-09-02, billing seed).
 
 **Recent work (last 5 commits, newest first):**
 
@@ -417,8 +418,10 @@ re-filters every user per hospital and is O(hospitals × users).
 hospital's current headcount puts it on, the same way `ensureDoctorSubscription`
 used to for doctors — a hospital nobody enrolled is not skipped from the model.
 
-All eight seeded hospitals run 14 staff accounts, so all eight are on Starter:
-MRR ₹39,992 from subscriptions, ₹40,987 including Care+, ~81% recurring.
+All eight **verified** hospitals run 14 staff accounts, so all eight are on
+Starter: MRR ₹39,992 from subscriptions, ₹40,987 including Care+, ~81% recurring.
+A ninth hospital sits at `pending_verification` and is deliberately **not**
+billed — only a verified hospital is a customer. See §14 (2026-09-02).
 
 ### Patient tiers (unchanged)
 
@@ -1159,6 +1162,175 @@ loaded by 0 pages — still dead, left in place deliberately).
 ---
 
 ## 14. Cleanup log and remaining traps
+
+### Done on 2026-09-02 (revenue model — hardcoding sweep and four fixes)
+
+Prompted by a thorough review of the revenue model. Backend build clean,
+**10 suites / 62 tests pass** (60 before; two regression tests added). Verified
+against a live backend with a 38-check revenue integration script and a 30-check
+role-scoping matrix, both green.
+
+**A pending hospital registration was being billed (the significant one).**
+`RevenueService.hospitalBilling()` iterated every row in `hospitals.json` with no
+verification filter, so `H009 Rainbow Hospital` — `pending_verification`, zero
+staff accounts, nobody able to log in — was charged a full ₹4,999 Starter plan
+and counted in MRR. That was **₹4,999 of ₹44,991** of subscription revenue, 11%,
+from a registration the Admin had not yet approved. `hospitalBilling()` now skips
+any hospital whose `verificationStatus` is not `verified`.
+
+This is why the dashboard read ₹44,991 / MRR ₹45,986 when **§5A documents
+₹39,992 and ₹40,987**. The fix restores agreement with the spec: subscriptions
+₹39,992, MRR ₹40,987, 80.65% recurring, 8 earning hospitals, 112 seats.
+Regression tests cover both `pending_verification` and `rejected`.
+
+**`unitEconomics.hospitals` counted registrations, not customers.** It was
+`hospitalsStore.load().length`, so `revenuePerHospital` divided hospital revenue
+by 9 when 8 hospitals pay. Now `hospitalBilling().size`.
+
+**A Care+ membership credited its payment to H001.**
+`PricingService.setPatientSubscription` wrote a phantom `Paid` bill into
+`billing.json` against a hardcoded `hospitalId: 'H001'`. Subscribing any patient
+— including one belonging to H002 — added ₹199 to Sri Venkateswara
+Multispeciality's collections and to `gatewayVolume`, while producing no
+matching gateway fee. **Nothing ever read that bill.** It is no longer written;
+the platform ledger is the record, and its stream key is now the real
+`patient_membership` (it was `patient_subscription`, a key no code recognised),
+with `sourceType: 'subscription'` and `hospitalId: null`.
+
+**One consultation fee default, not three.** An unpriced doctor was quoted ₹800
+to the patient (`patient/appointments/appointments.js`), shown as ₹1,000 in the
+doctor dropdowns (`doctor/appointments.js`, `doctor/dashboard.js`) and counted at
+₹500 in earnings (`revenue.service.ts`) and on registration
+(`auth.service.ts`). All front-end sites now use a named
+`DEFAULT_CONSULTATION_FEE = 500` matching the backend. No seeded doctor is
+unpriced (48 doctors, ₹650–₹1,200), so nothing moved — but the booking path
+wrote its ₹800 onto the appointment, which feeds earnings.
+
+**`superuser/reports.js` is no longer mock data.** It called the APIs and then
+ignored them: five of six charts plotted invented series (a fabricated
+May–Sep revenue curve, four made-up geographic "regions" with SLA compliance
+this system does not collect, ambulance response times derivable from no field,
+a fixed API-latency curve), the "feature usage" table was a literal array, and
+the KPI tiles read `revData.totalGross` / `revData.hospitalsCovered` — fields
+the endpoint does not return — so they **always** fell through to a hardcoded
+`₹4.85L` and `8`. Every figure now comes from a live response:
+`/revenue/platform/trend` for the six-month split, real plan names and member
+counts for the membership doughnut, audit-log modules for the activity table,
+real signup months and bed occupancy, real dispatch volume by outcome, real
+per-hospital feedback rating and resolution rate. Latency is **measured** — the
+page times its own round trips. There are no invented fallbacks left: when data
+is missing the charts say so. Four tiles and six headings were renamed to match
+what they now show ("Daily Active Users" counted active accounts, not daily
+actives; chart 4 no longer claims response times).
+
+**Not a bug, checked:** `updateFeeConfig` does refuse a negative fee and a
+`paymentGatewayRate` above 1 — it returns HTTP 200 with `success: false`, this
+codebase's `ResponseUtil` convention, and `superuser/revenue.js` honours it.
+
+### Done on 2026-09-02 (feedback — hospital picker, real sender name)
+
+**Patients can now say which hospital their feedback is about.**
+`patient/feedback.html` had no hospital field at all, so every submission from
+the portal reached the Admin's queue as "Unknown Hospital" and could not be
+routed to whoever runs the place being reviewed. There is now a required
+picker, populated live from `GET /hospitals`, listing only **verified**
+hospitals — only somewhere actually on the platform can act on a complaint.
+The patient's own registered hospital is preselected (it is nearly always the
+one they mean) but any can be chosen, because a patient may be reviewing
+somewhere they were referred to. If nothing is chosen, `shared/db.js` falls
+back to their registered hospital, so a submission is never left unroutable.
+
+**The sender is the patient's name, not the word "Patient".**
+`createFeedback` read `patient?.fullName || 'Patient'`, but the patient record
+returns **`name`** — `fullName` only exists on an older shape. So every portal
+submission was signed with the literal string "Patient".
+`NexCareStore.resolveSenderName()` now tries `fullName`, then `name`, then the
+session blob, and only then gives up.
+
+**No backend work was needed for either** — `CreateFeedbackDto` already
+accepted `hospitalId` and `sender`, and `superuser/feedback.js` already mapped
+`hospitalId` to a name. The patient portal simply never sent them.
+
+**Two bugs found while testing this, both pre-existing:**
+
+- `UpdateFeedbackDto` had no `hospitalId`, so a patient correcting the hospital
+  on an edit would have been rejected by the whitelist validator. Added, plus
+  `hospitalId` on `UpdateFeedbackRequest`.
+- **The Edit and Delete buttons on the patient submissions list were dead.**
+  `@Put(':id')`, `@Patch(':id')` and `@Delete(':id')` inherited the class-level
+  `@Roles(SUPERUSER, ADMINISTRATIVE_STAFF)`, so both returned 403 for the only
+  people who ever saw them. `PATIENT` is now on all three, with ownership
+  checked in `assertMayEdit()` — adding the role alone would have let any
+  patient edit anybody's feedback. A patient may amend or withdraw their own
+  submission and nothing else; an unknown id is a 404, not a leak.
+
+One stale row (`FB-MTJQQ5JF1UDM`, a real portal submission from before the fix)
+was repaired from its patient record — all 8 feedback rows now carry a real
+sender name and a hospital.
+
+**Verified:** 62 unit tests, plus a 20-check end-to-end script that drives the
+real `shared/db.js` submission path against a live backend — the chosen
+hospital is kept (and is NOT silently overwritten with the patient's own), the
+fallback fires when none is picked, an edit can correct the hospital, another
+patient is blocked from editing or deleting it, the owner can withdraw their
+own, and the Admin's queue shows the real name against the real hospital. A
+separate check runs the real `populateHospitalPicker()`: 8 verified hospitals
+listed alphabetically with cities, the patient's own preselected, the pending
+registration `H009` excluded, and every value escaped.
+
+### Done on 2026-09-02 (billing seed — the patient portal had nothing to pay)
+
+**Reported as "the billing portal is bugged". The portal was not bugged.**
+`patient/billing.js` renders correctly and honestly — verified by running its
+own `renderPendingBillsList` against the live API for all 24 patient login
+accounts. The seed was the problem.
+
+`generate-comprehensive-seed.js` raised a bill only `if (pIdx % 4 === 0)`, and
+the patient LOGIN accounts are patients 1–3 of each hospital. So exactly one
+login account per hospital ever had a bill — **8 of 24** — and only **3 of 24**
+had anything unpaid. Sign in as almost any patient and Billing & Payments
+correctly said "No pending bills", which reads as broken.
+
+**`scripts/generate-billing-seed.js`** (new) rebuilds `billing.json` and the
+`payment_gateway_fee` rows of `platform-transactions.json` from the
+appointments that already exist. Deterministic — a re-run reproduces the file
+byte for byte. It bills every non-cancelled appointment, adds a bill for every
+**completed** ambulance dispatch (several patients' only appointment was
+cancelled, but they were carried), and guarantees every patient with a billable
+service has both a paid and a pending bill. **77 bills, 55 paid / 22 pending;
+22 of 24 login accounts now have something to pay.**
+
+`P026` and `P027` still have nothing, deliberately: their only appointment was
+cancelled and they had no dispatch. Nothing was rendered, so nothing is owed —
+inventing a charge would be worse than an empty page.
+
+**This also closes the ledger gap that had been open since 2026-08-30.** The 96
+backfilled rows referenced 96 `sourceId`s and **not one** existed in
+`billing.json`, so `gatewayVolume` and `processingRevenue` described different
+worlds. Every fee row is now derived from a real paid bill at exactly
+`paymentGatewayRate`, and the script asserts it before writing:
+
+| | Before | After |
+|---|---|---|
+| gatewayVolume | ₹11,446 | ₹59,531 |
+| processingRevenue | ₹6,801.55 | ₹1,131.14 |
+| volume × 1.9% | ₹217.47 | ₹1,131.09 |
+| reconciles? | **no, 31× out** | **yes, ₹0.05** (per-transaction rounding) |
+
+Platform revenue is now **₹45,352.34**, 90.8% recurring. Subscriptions are
+unchanged at ₹39,992 — the seed only ever touched what hospitals collect and
+what NexCare charges to process it.
+
+**Verified:** 62 unit tests, a 38-check revenue integration script, a 30-check
+role-scoping matrix, a 24-patient portal render sweep (no cross-patient
+leakage, every bill total matching its recomputed total), and an 11-check
+end-to-end payment through the simulated gateway — a declined card moves no
+money and leaves the bill Pending; an approved one flips it to Paid, adds
+exactly 1.9% processing revenue, and credits the correct hospital.
+
+**Regenerating:** `node scripts/generate-billing-seed.js` from `back-end/`. It
+is safe to re-run and self-checks before writing.
+
 
 ### Done on 2026-08-31 (fourth pass — the `main` bug audit)
 
