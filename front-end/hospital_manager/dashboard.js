@@ -141,7 +141,7 @@ function initManagerInfo() {
 function switchTab(tabName, event) {
     if (event) event.preventDefault();
 
-    const tabs = ['overview', 'leaves', 'schedules', 'staff', 'setup', 'assets', 'inventory-approvals', 'ambulance', 'subscription', 'supervision', 'support', 'revenue', 'feedback'];
+    const tabs = ['overview', 'leaves', 'schedules', 'staff', 'setup', 'inventory-approvals', 'ambulance', 'subscription', 'supervision', 'support', 'revenue', 'feedback'];
     if (!tabs.includes(tabName)) tabName = 'overview';
 
     // Update active nav links
@@ -160,7 +160,6 @@ function switchTab(tabName, event) {
         schedules: 'schedulesTab',
         staff: 'staffTab',
         setup: 'setupTab',
-        assets: 'assetsTab',
         'inventory-approvals': 'inventoryApprovalsTab',
         ambulance: 'ambulanceTab',
         subscription: 'subscriptionTab',
@@ -178,8 +177,7 @@ function switchTab(tabName, event) {
         leaves: { title: 'Doctor Leave Approvals', subtitle: 'Review, approve, or reject leave requests.' },
         schedules: { title: 'Schedule Approvals', subtitle: 'Hospital roster verification.' },
         staff: { title: 'Hospital Staff Directory', subtitle: 'Manage medical and administrative personnel.' },
-        setup: { title: 'Registration & Setup', subtitle: 'Infrastructure, staff, and initial inventory.' },
-        assets: { title: 'Infrastructure & Assets', subtitle: 'Wards, beds, and inventory catalog.' },
+        setup: { title: 'Registration, Setup & Assets', subtitle: 'Configure hospital infrastructure, register staff, view assets, and manage inventory.' },
         'inventory-approvals': { title: 'Inventory Requisitions', subtitle: 'Approve or reject stock requests.' },
         ambulance: { title: 'Ambulance Fleet Status', subtitle: 'Fleet readiness and emergency dispatch.' },
         subscription: { title: 'Subscription & License', subtitle: 'Hospital license and renewal management.' },
@@ -202,7 +200,7 @@ function switchTab(tabName, event) {
         loadSupervision();
     } else if (tabName === 'revenue') {
         loadRevenue();
-    } else if (tabName === 'assets') {
+    } else if (tabName === 'setup') {
         loadInfrastructure();
         loadInventoryCatalog();
     }
@@ -2109,6 +2107,8 @@ async function loadInfrastructure() {
                     </tr>
                 `).join('');
             }
+        } else {
+            tableBody.innerHTML = `<tr><td colspan="4" class="error-cell">${resp.message || 'Failed to load infrastructure.'}</td></tr>`;
         }
     } catch (e) {
         tableBody.innerHTML = '<tr><td colspan="4" class="error-cell">Failed to load infrastructure.</td></tr>';
@@ -2159,6 +2159,8 @@ async function loadInventoryCatalog() {
                     `;
                 }).join('');
             }
+        } else {
+            tableBody.innerHTML = `<tr><td colspan="5" class="error-cell">${resp.message || 'Failed to load inventory.'}</td></tr>`;
         }
     } catch (e) {
         tableBody.innerHTML = '<tr><td colspan="5" class="error-cell">Failed to load inventory.</td></tr>';

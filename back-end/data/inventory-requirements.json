@@ -1,5 +1,25 @@
 [
   {
+    "id": "REQ-INV-534",
+    "hospitalId": "H001",
+    "itemName": "iron injections",
+    "category": "General suplies",
+    "currentQuantity": 0,
+    "requiredQuantity": 20,
+    "requestedQuantity": 20,
+    "unit": "units",
+    "department": "General Medicine",
+    "requestedBy": "Lakshmi Naidu",
+    "requestedById": "U002",
+    "requestDate": "2026-09-02",
+    "priority": "HIGH",
+    "reason": "We are experiencing a shortage",
+    "estimatedCost": 5000,
+    "status": "PENDING",
+    "createdAt": "2026-09-02T06:17:20.159Z",
+    "updatedAt": "2026-09-02T06:17:20.159Z"
+  },
+  {
     "id": "REQ-INV-146",
     "hospitalId": "H001",
     "itemName": "N95 Protective Masks",

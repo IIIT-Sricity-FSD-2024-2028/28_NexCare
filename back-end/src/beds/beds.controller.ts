@@ -27,7 +27,7 @@ import { UserRole, BedStatus } from '../common/interfaces/api-response.interface
  */
 @ApiTags('Beds')
 @ApiBearerAuth('JWT-auth')
-@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
+@Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER)
 @Controller('beds')
 export class BedsController {
   constructor(private readonly bedsService: BedsService) {}
@@ -42,7 +42,7 @@ export class BedsController {
    * Get all beds with optional filtering
    */
   // Regional Officers get read-only oversight; the client scopes to one hospital.
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER)
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER)
   @Get()
   @ApiOperation({ summary: 'Get all beds' })
   @ApiQuery({ name: 'ward', required: false })
