@@ -1,3 +1,10 @@
+// The fee quoted when a doctor has not set one. It MUST match the backend:
+// auth.service.ts stamps it on a new doctor, revenue.service.ts falls back to
+// it when computing earnings. Three different values used to live here (500,
+// 800, 1000), so the same unpriced doctor was quoted, displayed and paid
+// differently.
+const DEFAULT_CONSULTATION_FEE = 500;
+
 // Doctor — the full appointment list.
 //
 // Fetched once and filtered in the browser. The list is per-doctor and small
@@ -171,7 +178,7 @@ function onReferDepartmentChange() {
     
     if (matchingDocs.length > 0) {
         docSelect.innerHTML = '<option value="">Select Doctor...</option>' +
-            matchingDocs.map(d => `<option value="${esc(d.id)}" data-name="${esc(d.name)}" data-dept="${esc(d.dept)}" data-fee="${d.consultationFee || 1000}">${esc(d.name)} (${esc(d.dept)}) — ₹${d.consultationFee || 1000}</option>`).join('');
+            matchingDocs.map(d => `<option value="${esc(d.id)}" data-name="${esc(d.name)}" data-dept="${esc(d.dept)}" data-fee="${d.consultationFee || DEFAULT_CONSULTATION_FEE}">${esc(d.name)} (${esc(d.dept)}) — ₹${d.consultationFee || DEFAULT_CONSULTATION_FEE}</option>`).join('');
     } else {
         docSelect.innerHTML = '<option value="">No doctors available in this department</option>';
     }

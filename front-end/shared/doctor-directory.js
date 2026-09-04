@@ -168,3 +168,87 @@ async function hydrateDoctorDirectory() {
 // Kick off immediately so the wizard can await the same promise no matter how
 // many times it re-renders.
 window.doctorDirectoryReady = hydrateDoctorDirectory();
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Booking-wizard lookups over the catalogue above.
+
+   `patient/appointments/appointments.js` calls these three on `window` and they
+   were never defined anywhere — step 3 of the wizard threw
+   `TypeError: window.getAvailableDoctorsForDate is not a function` before it
+   could populate the doctor dropdown OR render its own "no doctors available"
+   warning, so the page showed an empty, disabled select and no time slots with
+   no visible error. They live here because this file owns the catalogue's
+   shape, and both the live and the offline catalogue share it exactly:
+
+     hospital.departments[] = { id (slug), name, doctors[] }
+     doctor                 = { id, name, qualification, experience,
+                                consultationFee, availableDays[], slots{} }
+   ───────────────────────────────────────────────────────────────────────────── */
+
+const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+/**
+ * The weekday a `YYYY-MM-DD` value falls on, in the viewer's own timezone.
+ *
+ * `new Date('2026-09-10')` parses as UTC midnight, which is the *previous* day
+ * anywhere west of Greenwich — that would silently offer the wrong roster. The
+ * parts are split out and handed to the local-time constructor instead.
+ */
+function weekdayOfDate(dateStr) {
+    const [y, m, d] = String(dateStr || '').split('-').map(Number);
+    if (!y || !m || !d) return null;
+    const parsed = new Date(y, m - 1, d);
+    return isNaN(parsed.getTime()) ? null : WEEKDAY_NAMES[parsed.getDay()];
+}
+
+/** A hospital by its real id, or by name for older callers that pass one. */
+function findHospitalRecord(idOrName) {
+    if (!idOrName) return null;
+    const list = window.MOCK_HOSPITALS || [];
+    return list.find(h => h.id === idOrName || h.name === idOrName) || null;
+}
+
+/**
+ * A department by name, by slug id, or by either normalised — the wizard passes
+ * the display name ("Cardiology"), while a deep link may carry the slug.
+ */
+function findDepartmentRecord(hospital, dept) {
+    if (!hospital || !Array.isArray(hospital.departments) || !dept) return null;
+    const wanted = String(dept).toLowerCase();
+    const wantedSlug = slugify(dept);
+    return hospital.departments.find(d => {
+        if (typeof d === 'string') return d.toLowerCase() === wanted;
+        return String(d.name || '').toLowerCase() === wanted
+            || String(d.id || '').toLowerCase() === wanted
+            || slugify(d.name) === wantedSlug;
+    }) || null;
+}
+
+window.getHospitalById = findHospitalRecord;
+
+/**
+ * The consultants in one department who work on the given date.
+ *
+ * Returns [] rather than throwing for an unknown hospital, department or date,
+ * so the wizard shows its own "choose another date" message instead of dying.
+ * The server stays the authority on leave, past dates and slot clashes.
+ */
+window.getAvailableDoctorsForDate = function getAvailableDoctorsForDate(hospitalId, dept, dateStr) {
+    const weekday = weekdayOfDate(dateStr);
+    if (!weekday) return [];
+    const department = findDepartmentRecord(findHospitalRecord(hospitalId), dept);
+    if (!department || !Array.isArray(department.doctors)) return [];
+    return department.doctors.filter(doc =>
+        Array.isArray(doc.availableDays) && doc.availableDays.includes(weekday));
+};
+
+/** One doctor's slot list for that weekday. The select's value is their id. */
+window.getSlotsForDoctor = function getSlotsForDoctor(hospitalId, dept, doctorIdOrName, dateStr) {
+    const weekday = weekdayOfDate(dateStr);
+    if (!weekday || !doctorIdOrName) return [];
+    const department = findDepartmentRecord(findHospitalRecord(hospitalId), dept);
+    if (!department || !Array.isArray(department.doctors)) return [];
+    const doctor = department.doctors.find(d => d.id === doctorIdOrName || d.name === doctorIdOrName);
+    const slots = doctor && doctor.slots ? doctor.slots[weekday] : null;
+    return Array.isArray(slots) ? slots.slice() : [];
+};

@@ -1,3 +1,10 @@
+// The fee quoted when a doctor has not set one. It MUST match the backend:
+// auth.service.ts stamps it on a new doctor, revenue.service.ts falls back to
+// it when computing earnings. Three different values used to live here (500,
+// 800, 1000), so the same unpriced doctor was quoted, displayed and paid
+// differently.
+const DEFAULT_CONSULTATION_FEE = 500;
+
 // NexCare Patient Portal Appointments Management & Booking System
 
 let bookingData = {
@@ -912,8 +919,8 @@ function renderStep3(container) {
                 department: bookingData.department,
                 doctorId: bookingData.doctorId || '',
                 doctor: bookingData.doctor,
-                fee: bookingData.fee || 800,
-                consultationFee: bookingData.fee || 800,
+                fee: bookingData.fee || DEFAULT_CONSULTATION_FEE,
+                consultationFee: bookingData.fee || DEFAULT_CONSULTATION_FEE,
                 dateLabel: bookingData.date,
                 timeLabel: bookingData.time,
                 patientName: 'Patient'
