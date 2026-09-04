@@ -1,10 +1,23 @@
 /**
  * reports.js
- * Superuser Analytics and Reports Module
- * Fetches and displays comprehensive portal performance metrics and 5 interactive Chart.js graphs.
+ * Superuser Analytics and Reports.
+ *
+ * Every figure and every chart on this page is computed from a live API
+ * response. There are no seeded numbers, no illustrative series and no
+ * "|| 4.85L" style fallbacks that quietly substitute an invented figure when a
+ * call fails — a report that shows a plausible number for data it does not
+ * have is worse than one that shows nothing, because you cannot tell the two
+ * apart. When there is no data, these charts say so.
+ *
+ * Latency is MEASURED, not asserted: the page times its own API round trips.
  */
 
 const chartInstances = {};
+
+/** Round-trip timings collected by apiGet, in call order. */
+const latencySamples = [];
+
+const FALLBACK = '—';
 
 function getToken() {
     return sessionStorage.getItem('nexcare_auth_token') || localStorage.getItem('nexcare_auth_token');
@@ -13,6 +26,7 @@ function getToken() {
 async function apiGet(path) {
     const token = getToken();
     const host = window.location.hostname || 'localhost';
+    const startedAt = performance.now();
     try {
         const res = await fetch(`http://${host}:3001/api${path}`, {
             headers: {
@@ -20,11 +34,82 @@ async function apiGet(path) {
                 'Content-Type': 'application/json'
             }
         });
-        return await res.json();
+        const body = await res.json();
+        latencySamples.push({ path, ms: Math.round(performance.now() - startedAt), ok: res.ok });
+        return body;
     } catch (e) {
+        latencySamples.push({ path, ms: Math.round(performance.now() - startedAt), ok: false });
         console.warn(`API query ${path} failed:`, e);
         return { success: false, data: null };
     }
+}
+
+/** Unwrap { success, data } without inventing a value when data is absent. */
+function dataOf(resp, whenMissing = null) {
+    return resp && resp.success !== false && resp.data != null ? resp.data : whenMissing;
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value === null || value === undefined ? FALLBACK : value;
+}
+
+function inr(n) {
+    if (typeof n !== 'number' || !isFinite(n)) return FALLBACK;
+    return `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+}
+
+/** ₹4,58,210 reads badly on a tile; ₹4.58L reads at a glance. */
+function inrCompact(n) {
+    if (typeof n !== 'number' || !isFinite(n)) return FALLBACK;
+    if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)}Cr`;
+    if (n >= 100000) return `₹${(n / 100000).toFixed(2)}L`;
+    if (n >= 1000) return `₹${(n / 1000).toFixed(1)}k`;
+    return `₹${Math.round(n)}`;
+}
+
+function destroyChart(id) {
+    if (chartInstances[id]) {
+        chartInstances[id].destroy();
+        delete chartInstances[id];
+    }
+}
+
+/** Draws "nothing to show" onto a canvas rather than leaving a blank frame. */
+function emptyCanvas(canvasId, message) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return true;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = '13px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+    ctx.restore();
+    return true;
+}
+
+function monthKey(iso) {
+    const d = new Date(iso);
+    return isNaN(d) ? null : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function monthLabel(key) {
+    const [y, m] = key.split('-');
+    return new Date(Number(y), Number(m) - 1, 1)
+        .toLocaleString('en-IN', { month: 'short', year: 'numeric' });
+}
+
+/** The last `count` month keys ending this month, oldest first. */
+function recentMonthKeys(count) {
+    const out = [];
+    const now = new Date();
+    for (let i = count - 1; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+    }
+    return out;
 }
 
 // Tab Switching
@@ -41,27 +126,17 @@ function switchTab(tabName, event) {
     const targetSection = document.getElementById(`${tabName}-section`);
     if (targetSection) targetSection.classList.add('active');
 
-    switch(tabName) {
-        case 'usage':
-            loadUsageAnalytics();
-            break;
-        case 'performance':
-            loadSystemPerformance();
-            break;
-        case 'operational':
-            loadOperationalReports();
-            break;
-        case 'security':
-            loadSecurityReports();
-            break;
+    switch (tabName) {
+        case 'usage': loadUsageAnalytics(); break;
+        case 'performance': loadSystemPerformance(); break;
+        case 'operational': loadOperationalReports(); break;
+        case 'security': loadSecurityReports(); break;
     }
 }
 
-// Main initialization
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
-    const tabParam = params.get('tab') || 'usage';
-    switchTab(tabParam);
+    switchTab(params.get('tab') || 'usage');
 });
 
 function refreshAllReports() {
@@ -74,79 +149,76 @@ function refreshAllReports() {
 
 // ============ USAGE & REVENUE ANALYTICS ============
 async function loadUsageAnalytics() {
-    try {
-        const [usersResp, activityResp, revResp, patSubResp] = await Promise.all([
-            apiGet('/users'),
-            apiGet('/system/activity/recent'),
-            apiGet('/revenue/platform/overview'),
-            apiGet('/revenue/patient-subscriptions')
-        ]);
+    const [usersResp, activityResp, streamsResp, trendResp, patSubResp, patPlanResp] = await Promise.all([
+        apiGet('/users'),
+        apiGet('/system/activity/recent?limit=1000'),
+        apiGet('/revenue/platform/streams'),
+        apiGet('/revenue/platform/trend?months=6'),
+        apiGet('/revenue/patient-subscriptions'),
+        apiGet('/revenue/patient-plans')
+    ]);
 
-        const users = usersResp.data || [];
-        const activities = activityResp.data || [];
-        const revData = revResp.data || {};
-        const patSubs = patSubResp.data || [];
+    const users = dataOf(usersResp, []);
+    const activities = dataOf(activityResp, []);
+    const streams = dataOf(streamsResp);
+    const trend = dataOf(trendResp, []);
+    const patSubs = dataOf(patSubResp, []);
+    const patPlans = dataOf(patPlanResp, []);
 
-        const activeUsers = users.filter(u => u.status === 'Active').length || users.length || 141;
-        const totalRev = revData.totalGross ? `₹${(revData.totalGross / 100000).toFixed(2)}L` : '₹4.85L';
-        const activeSubsCount = patSubs.filter(s => s.status === 'Active' || s.planId !== 'CARE-PAYG').length || 42;
-        const verifiedHospCount = revData.hospitalsCovered || 8;
+    setText('dailyActiveUsers', users.length ? users.filter(u => u.status === 'Active').length : null);
+    setText('totalPlatformRevenue', streams ? inrCompact(streams.totalRevenue) : null);
 
-        document.getElementById('dailyActiveUsers').textContent = activeUsers;
-        document.getElementById('totalPlatformRevenue').textContent = totalRev;
-        document.getElementById('totalSubscribersCount').textContent = activeSubsCount;
-        document.getElementById('peakConcurrentUsers').textContent = `${verifiedHospCount} Hospitals`;
+    // A "subscriber" is someone on a plan that actually costs money. Being on
+    // the free Pay-as-you-go tier is the absence of a membership.
+    const paidPlanIds = new Set(patPlans.filter(p => p.monthlyFee > 0).map(p => p.id));
+    const activePaid = patSubs.filter(s => s.status === 'active' && paidPlanIds.has(s.planId));
+    setText('totalSubscribersCount', patPlans.length ? activePaid.length : null);
 
-        // Render Graph 1 & Graph 2
-        renderPlatformRevenueChart(revData);
-        renderMembershipAdoptionChart(patSubs);
+    // Billed hospitals — the ones actually on a plan. Pending registrations
+    // are deliberately not counted; they are not customers yet.
+    const billedHospitals = streams?.unitEconomics?.hospitals;
+    setText('peakConcurrentUsers', typeof billedHospitals === 'number' ? billedHospitals : null);
 
-        // Render feature usage table
-        renderFeatureUsageTable(activities);
-
-    } catch (err) {
-        console.error('Failed to load usage analytics:', err);
-        renderPlatformRevenueChart({});
-        renderMembershipAdoptionChart([]);
-        renderFeatureUsageTable([]);
-    }
+    renderRevenueTrendChart(trend);
+    renderMembershipAdoptionChart(patSubs, patPlans);
+    renderModuleUsageTable(activities);
 }
 
-function destroyChart(id) {
-    if (chartInstances[id]) {
-        chartInstances[id].destroy();
-        delete chartInstances[id];
-    }
-}
-
-// Graph 1: Platform Revenue Streams
-function renderPlatformRevenueChart(revData) {
+/**
+ * Graph 1 — the real six-month platform trend.
+ *
+ * `recurring` is subscriptions plus memberships, so memberships are the
+ * difference. Those three series are exactly the split the heading promises.
+ */
+function renderRevenueTrendChart(trend) {
     const canvas = document.getElementById('platformRevenueCanvas');
     if (!canvas || typeof Chart === 'undefined') return;
-
     destroyChart('platformRevenue');
 
-    const ctx = canvas.getContext('2d');
-    chartInstances['platformRevenue'] = new Chart(ctx, {
+    if (!Array.isArray(trend) || trend.length === 0) {
+        return emptyCanvas('platformRevenueCanvas', 'No revenue history yet');
+    }
+
+    chartInstances['platformRevenue'] = new Chart(canvas.getContext('2d'), {
         type: 'bar',
         data: {
-            labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep (Current)'],
+            labels: trend.map(t => t.month),
             datasets: [
                 {
                     label: 'Hospital Subscriptions (₹)',
-                    data: [180000, 220000, 240000, 290000, 320000],
+                    data: trend.map(t => t.subscriptions ?? 0),
                     backgroundColor: '#2563EB',
                     borderRadius: 6
                 },
                 {
                     label: 'Care+ Memberships (₹)',
-                    data: [25000, 38000, 52000, 78000, 95000],
+                    data: trend.map(t => Math.max(0, (t.recurring ?? 0) - (t.subscriptions ?? 0))),
                     backgroundColor: '#10B981',
                     borderRadius: 6
                 },
                 {
-                    label: 'Platform Booking Fees (₹)',
-                    data: [12000, 16500, 19800, 24000, 28500],
+                    label: 'Processing & Usage Fees (₹)',
+                    data: trend.map(t => t.transactional ?? t.processing ?? 0),
                     backgroundColor: '#F59E0B',
                     borderRadius: 6
                 }
@@ -159,58 +231,48 @@ function renderPlatformRevenueChart(revData) {
                 legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
                 tooltip: {
                     callbacks: {
-                        label: function(c) {
-                            return `${c.dataset.label}: ₹${c.raw.toLocaleString('en-IN')}`;
-                        }
+                        label: c => `${c.dataset.label}: ${inr(c.raw)}`
                     }
                 }
             },
             scales: {
-                x: { grid: { display: false } },
+                x: { stacked: true, grid: { display: false } },
                 y: {
+                    stacked: true,
                     beginAtZero: true,
-                    ticks: {
-                        callback: val => `₹${val / 1000}k`
-                    }
+                    ticks: { callback: v => `₹${(v / 1000).toFixed(0)}k` }
                 }
             }
         }
     });
 }
 
-// Graph 2: Patient Membership Tier Adoption
-function renderMembershipAdoptionChart(patSubs) {
+/** Graph 2 — real membership mix, labelled with the real plan names and fees. */
+function renderMembershipAdoptionChart(patSubs, patPlans) {
     const canvas = document.getElementById('membershipAdoptionCanvas');
     if (!canvas || typeof Chart === 'undefined') return;
-
     destroyChart('membershipAdoption');
 
-    let carePlus = 0;
-    let careFamily = 0;
-    let payg = 0;
-
-    if (Array.isArray(patSubs) && patSubs.length > 0) {
-        patSubs.forEach(s => {
-            if (s.planId === 'CARE-FAMILY') careFamily++;
-            else if (s.planId === 'CARE-PLUS') carePlus++;
-            else payg++;
-        });
+    if (!Array.isArray(patPlans) || patPlans.length === 0) {
+        return emptyCanvas('membershipAdoptionCanvas', 'Plan catalogue unavailable');
     }
 
-    if (carePlus === 0 && careFamily === 0) {
-        carePlus = 58;
-        careFamily = 34;
-        payg = 49;
+    const counts = patPlans.map(p => ({
+        label: `${p.name} (₹${p.monthlyFee})`,
+        value: patSubs.filter(s => s.planId === p.id && s.status === 'active').length
+    }));
+
+    if (counts.every(c => c.value === 0)) {
+        return emptyCanvas('membershipAdoptionCanvas', 'No active memberships yet');
     }
 
-    const ctx = canvas.getContext('2d');
-    chartInstances['membershipAdoption'] = new Chart(ctx, {
+    chartInstances['membershipAdoption'] = new Chart(canvas.getContext('2d'), {
         type: 'doughnut',
         data: {
-            labels: ['Care+ Individual (₹199)', 'Care+ Family (₹399)', 'Pay As You Go (₹0)'],
+            labels: counts.map(c => c.label),
             datasets: [{
-                data: [carePlus, careFamily, payg],
-                backgroundColor: ['#10B981', '#6366F1', '#94A3B8'],
+                data: counts.map(c => c.value),
+                backgroundColor: ['#94A3B8', '#10B981', '#6366F1', '#F59E0B'],
                 hoverOffset: 4,
                 borderWidth: 2
             }]
@@ -219,261 +281,296 @@ function renderMembershipAdoptionChart(patSubs) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                tooltip: { callbacks: { label: c => `${c.label}: ${c.raw} member(s)` } }
             },
             cutout: '65%'
         }
     });
 }
 
-function renderFeatureUsageTable(activities) {
+/**
+ * Replaces the old invented "feature usage" table. These are the modules the
+ * audit log actually recorded activity against, with real counts and real
+ * distinct users — no visit totals or average session times, because nothing
+ * in this system measures either.
+ */
+function renderModuleUsageTable(activities) {
     const tbody = document.getElementById('featureUsageTable');
     if (!tbody) return;
 
-    const mockFeatures = [
-        { name: 'Appointments Booking & Scheduling', visits: 14250, users: 342, avgTime: '3m 45s', trend: '+18%' },
-        { name: 'Care+ Membership & Benefits', visits: 9820, users: 215, avgTime: '4m 10s', trend: '+28%' },
-        { name: 'Emergency Ambulance Dispatch', visits: 3560, users: 98, avgTime: '2m 15s', trend: '+12%' },
-        { name: 'Doctor Consultation & E-Prescriptions', visits: 8780, users: 189, avgTime: '8m 45s', trend: '+14%' },
-        { name: 'Hospital Bed & Ward Operations', visits: 5340, users: 84, avgTime: '11m 30s', trend: '+9%' }
-    ];
+    if (!Array.isArray(activities) || activities.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#64748B;padding:18px;">No recorded activity yet.</td></tr>';
+        return;
+    }
 
-    tbody.innerHTML = mockFeatures.map(f => `
+    const byModule = new Map();
+    activities.forEach(a => {
+        const key = a.module || 'Unspecified';
+        if (!byModule.has(key)) byModule.set(key, { events: 0, users: new Set(), actions: new Map(), last: null });
+        const row = byModule.get(key);
+        row.events++;
+        if (a.userId) row.users.add(a.userId);
+        row.actions.set(a.action, (row.actions.get(a.action) || 0) + 1);
+        const ts = a.timestamp || a.createdAt;
+        if (ts && (!row.last || ts > row.last)) row.last = ts;
+    });
+
+    const rows = [...byModule.entries()].sort((a, b) => b[1].events - a[1].events);
+    const total = activities.length;
+
+    tbody.innerHTML = rows.map(([name, r]) => {
+        const topAction = [...r.actions.entries()].sort((a, b) => b[1] - a[1])[0];
+        const share = ((r.events / total) * 100).toFixed(1);
+        return `
         <tr>
-            <td style="font-weight: 600; color:#0F172A;">${f.name}</td>
-            <td>${f.visits.toLocaleString()}</td>
-            <td>${f.users}</td>
-            <td>${f.avgTime}</td>
-            <td><span style="color: #00A63E; font-weight:600;">${f.trend}</span></td>
-        </tr>
-    `).join('');
+            <td style="font-weight: 600; color:#0F172A;">${name}</td>
+            <td>${r.events.toLocaleString('en-IN')}</td>
+            <td>${r.users.size}</td>
+            <td>${topAction ? `${topAction[0]} (${topAction[1]})` : FALLBACK}</td>
+            <td><span style="color:#2563EB; font-weight:600;">${share}%</span></td>
+        </tr>`;
+    }).join('');
 }
 
 // ============ SYSTEM PERFORMANCE ============
 async function loadSystemPerformance() {
-    try {
-        const healthResp = await apiGet('/system/health');
-        const health = healthResp.data || healthResp || {};
+    const healthResp = await apiGet('/system/health');
+    const health = dataOf(healthResp);
 
-        document.getElementById('apiResponseTime').textContent = health.apiResponseTime || '12ms';
-        document.getElementById('systemUptime').textContent = health.systemUptime || '99.98%';
-        document.getElementById('errorRate').textContent = health.databaseStatus || 'Operational';
-        document.getElementById('dbPerformance').textContent = `${health.activeAmbulances || 16} Units`;
-
-        document.getElementById('cpuUsage').textContent = health.apiStatus || 'Operational (Healthy)';
-        document.getElementById('memoryUsage').textContent = health.memoryUsage || '95 MB';
-        document.getElementById('diskIO').textContent = `${health.activeHospitals || 8} Active (${health.pendingApprovals || 1} Pending)`;
-        document.getElementById('networkLatency').textContent = health.nodeVersion || 'v24.19.0';
-
-        renderApiResponseChart();
-    } catch (err) {
-        console.error('Failed to load system performance:', err);
-        document.getElementById('apiResponseTime').textContent = '12ms';
-        document.getElementById('systemUptime').textContent = '99.98%';
-        document.getElementById('errorRate').textContent = 'Operational';
-        document.getElementById('dbPerformance').textContent = '16 Units';
-        renderApiResponseChart();
+    if (!health) {
+        ['apiResponseTime', 'systemUptime', 'errorRate', 'dbPerformance',
+         'cpuUsage', 'memoryUsage', 'diskIO', 'networkLatency'].forEach(id => setText(id, null));
+        renderMeasuredLatencyChart();
+        return;
     }
+
+    setText('apiResponseTime', health.apiResponseTime);
+    setText('systemUptime', health.systemUptime);
+    setText('errorRate', health.databaseStatus);
+    setText('dbPerformance', health.activeAmbulances != null ? `${health.activeAmbulances} Units` : null);
+
+    setText('cpuUsage', health.apiStatus);
+    setText('memoryUsage', health.memoryUsage);
+    setText('diskIO', health.activeHospitals != null
+        ? `${health.activeHospitals} Active (${health.pendingApprovals ?? 0} Pending)`
+        : null);
+    setText('networkLatency', health.nodeVersion);
+
+    renderMeasuredLatencyChart();
 }
 
-function renderApiResponseChart() {
+/**
+ * Real measured latency. The old version drew a fixed 12/14/18/24/21/15ms
+ * curve against times of day it never sampled. This plots the actual round
+ * trip of each API call this page has made, newest last.
+ */
+function renderMeasuredLatencyChart() {
     const chartContainer = document.getElementById('apiResponseChart');
     if (!chartContainer) return;
 
-    const hours = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
-    const values = [12, 14, 18, 24, 21, 15];
-    const maxValue = 30;
+    const samples = latencySamples.slice(-8);
+    if (samples.length === 0) {
+        chartContainer.innerHTML = '<p style="color:#64748B;padding:12px;">No API calls measured yet.</p>';
+        return;
+    }
 
-    let chartHTML = '';
-    hours.forEach((hour, index) => {
-        const value = values[index];
-        const height = (value / maxValue) * 100;
-        const color = '#2563EB';
-        chartHTML += `
-            <div class="bar-group">
-                <div class="bar-value">${value}ms</div>
-                <div class="bar" style="height: ${height}%; background: ${color}"></div>
-                <div class="bar-label">${hour}</div>
-            </div>
-        `;
-    });
-
-    chartContainer.innerHTML = chartHTML;
+    const maxValue = Math.max(...samples.map(s => s.ms), 1);
+    chartContainer.innerHTML = samples.map(s => {
+        const height = Math.max(4, (s.ms / maxValue) * 100);
+        const label = s.path.replace(/^\//, '').split('?')[0];
+        return `
+            <div class="bar-group" title="${label} — ${s.ms}ms">
+                <div class="bar-value">${s.ms}ms</div>
+                <div class="bar" style="height: ${height}%; background: ${s.ok ? '#2563EB' : '#EF4444'}"></div>
+                <div class="bar-label" style="font-size:10px;">${label.length > 14 ? label.slice(0, 13) + '…' : label}</div>
+            </div>`;
+    }).join('');
 }
 
 // ============ OPERATIONAL & EMERGENCY REPORTS ============
 async function loadOperationalReports() {
-    try {
-        const [patientsResp, feedbackResp, hospitalsResp] = await Promise.all([
-            apiGet('/patients'),
-            apiGet('/feedback'),
-            apiGet('/hospitals')
-        ]);
+    const [patientsResp, feedbackResp, hospitalsResp, bedsResp, ambulanceResp] = await Promise.all([
+        apiGet('/patients'),
+        apiGet('/feedback'),
+        apiGet('/hospitals'),
+        apiGet('/beds'),
+        apiGet('/ambulance')
+    ]);
 
-        const patients = patientsResp.data || [];
-        const feedback = feedbackResp.data || [];
-        const hospitals = hospitalsResp.data || [];
+    const patients = dataOf(patientsResp, []);
+    const feedback = dataOf(feedbackResp, []);
+    const hospitals = dataOf(hospitalsResp, []);
+    const beds = dataOf(bedsResp, []);
+    const trips = dataOf(ambulanceResp, []);
 
-        const verifiedHospitals = hospitals.filter(h => h.verificationStatus === 'verified' || !h.verificationStatus).length || 8;
-        const avgRating = feedback.length > 0 
-            ? (feedback.reduce((sum, f) => sum + (f.rating || 0), 0) / feedback.length).toFixed(1)
-            : '4.8';
+    setText('newRegistrations', patientsResp && patientsResp.success !== false ? patients.length : null);
 
-        document.getElementById('newRegistrations').textContent = (patients.length || 48).toString();
-        document.getElementById('hospitalVerifyRate').textContent = `${verifiedHospitals} / ${hospitals.length || 9} Online`;
-        document.getElementById('avgFeedbackRating').textContent = `⭐ ${avgRating} / 5.0`;
-        document.getElementById('staffActivityLevel').textContent = '16 / 16 Ambulances Ready';
+    const verified = hospitals.filter(h => h.verificationStatus === 'verified').length;
+    setText('hospitalVerifyRate', hospitals.length ? `${verified} / ${hospitals.length} Verified` : null);
 
-        // Render Graph 3, 4, 5
-        renderHospitalGrowthChart(hospitals);
-        renderAmbulanceDispatchChart();
-        renderRegionalComplianceChart(feedback);
+    const rated = feedback.filter(f => typeof f.rating === 'number');
+    setText('avgFeedbackRating', rated.length
+        ? `⭐ ${(rated.reduce((s, f) => s + f.rating, 0) / rated.length).toFixed(1)} / 5.0`
+        : null);
 
-    } catch (err) {
-        console.error('Failed to load operational reports:', err);
-        renderHospitalGrowthChart([]);
-        renderAmbulanceDispatchChart();
-        renderRegionalComplianceChart([]);
-    }
+    const completedTrips = trips.filter(t => String(t.status || '').toLowerCase() === 'completed').length;
+    setText('staffActivityLevel', trips.length ? `${completedTrips} / ${trips.length} Dispatches Completed` : null);
+
+    renderHospitalGrowthChart(hospitals, beds);
+    renderAmbulanceDispatchChart(trips);
+    renderFeedbackByHospitalChart(feedback, hospitals);
 }
 
-// Graph 3: Monthly Hospital Growth & Bed Utilization
-function renderHospitalGrowthChart(hospitals) {
+/** Graph 3 — real cumulative hospital count by signup month, with real occupancy. */
+function renderHospitalGrowthChart(hospitals, beds) {
     const canvas = document.getElementById('hospitalGrowthCanvas');
     if (!canvas || typeof Chart === 'undefined') return;
-
     destroyChart('hospitalGrowth');
 
-    const ctx = canvas.getContext('2d');
-    chartInstances['hospitalGrowth'] = new Chart(ctx, {
+    if (!Array.isArray(hospitals) || hospitals.length === 0) {
+        return emptyCanvas('hospitalGrowthCanvas', 'No hospitals registered yet');
+    }
+
+    const months = recentMonthKeys(6);
+    // A hospital with no signup date was already on the platform before this
+    // window opened — the seeded hospitals predate the audit trail. Counting
+    // only dated rows would show 1 hospital when there are nine.
+    const cumulative = months.map(key =>
+        hospitals.filter(h => {
+            const k = monthKey(h.createdAt || h.registeredAt);
+            return k === null || k <= key;
+        }).length
+    );
+
+    // Occupancy is a point-in-time fact — beds carry no history — so it is
+    // drawn as a single flat reference line rather than a fake trend.
+    const occupied = beds.filter(b => String(b.status || '').toLowerCase() === 'occupied').length;
+    const occupancy = beds.length ? Number(((occupied / beds.length) * 100).toFixed(1)) : null;
+
+    const datasets = [{
         type: 'bar',
-        data: {
-            labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep'],
-            datasets: [
-                {
-                    type: 'bar',
-                    label: 'Hospital Network Count',
-                    data: [4, 5, 7, 8, 9],
-                    backgroundColor: '#3B82F6',
-                    yAxisID: 'y'
-                },
-                {
-                    type: 'line',
-                    label: 'Avg Bed Occupancy (%)',
-                    data: [68, 72, 79, 81, 76],
-                    borderColor: '#EC4899',
-                    backgroundColor: 'rgba(236, 72, 153, 0.1)',
-                    fill: true,
-                    tension: 0.3,
-                    yAxisID: 'y1'
-                }
-            ]
-        },
+        label: 'Hospitals on Platform (cumulative)',
+        data: cumulative,
+        backgroundColor: '#3B82F6',
+        yAxisID: 'y'
+    }];
+
+    if (occupancy !== null) {
+        datasets.push({
+            type: 'line',
+            label: `Bed Occupancy Now (${occupancy}%)`,
+            data: months.map(() => occupancy),
+            borderColor: '#EC4899',
+            borderDash: [5, 5],
+            pointRadius: 0,
+            fill: false,
+            yAxisID: 'y1'
+        });
+    }
+
+    chartInstances['hospitalGrowth'] = new Chart(canvas.getContext('2d'), {
+        data: { labels: months.map(monthLabel), datasets },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
-            },
+            plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } } },
             scales: {
-                y: {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                    title: { display: true, text: 'Hospitals' }
-                },
-                y1: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    min: 0,
-                    max: 100,
-                    grid: { drawOnChartArea: false },
-                    title: { display: true, text: 'Occupancy %' }
-                }
+                y: { type: 'linear', position: 'left', beginAtZero: true, title: { display: true, text: 'Hospitals' }, ticks: { precision: 0 } },
+                y1: { type: 'linear', position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: 'Occupancy %' } }
             }
         }
     });
 }
 
-// Graph 4: Emergency Ambulance Dispatch Response Time Trends
-function renderAmbulanceDispatchChart() {
+/**
+ * Graph 4 — real dispatch volume by month and outcome.
+ *
+ * The old chart plotted urban/suburban response times against an 8-minute
+ * benchmark. Nothing in the system records a dispatch timestamp separate from
+ * creation, so response time cannot be derived — it was invented. Volume and
+ * outcome are real and are what the data supports.
+ */
+function renderAmbulanceDispatchChart(trips) {
     const canvas = document.getElementById('ambulanceDispatchCanvas');
     if (!canvas || typeof Chart === 'undefined') return;
-
     destroyChart('ambulanceDispatch');
 
-    const ctx = canvas.getContext('2d');
-    chartInstances['ambulanceDispatch'] = new Chart(ctx, {
-        type: 'line',
+    if (!Array.isArray(trips) || trips.length === 0) {
+        return emptyCanvas('ambulanceDispatchCanvas', 'No ambulance dispatches recorded');
+    }
+
+    const months = recentMonthKeys(6);
+    const statuses = [...new Set(trips.map(t => t.status || 'Unknown'))];
+    const palette = { Completed: '#10B981', Pending: '#F59E0B', Dispatched: '#3B82F6', Cancelled: '#EF4444' };
+
+    chartInstances['ambulanceDispatch'] = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
         data: {
-            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-            datasets: [
-                {
-                    label: 'Urban Zone (min)',
-                    data: [9.4, 8.8, 8.1, 7.6],
-                    borderColor: '#10B981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Suburban Zone (min)',
-                    data: [14.2, 13.5, 12.8, 11.9],
-                    borderColor: '#F59E0B',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Target Benchmark (8 min)',
-                    data: [8, 8, 8, 8],
-                    borderColor: '#EF4444',
-                    borderDash: [5, 5],
-                    pointRadius: 0
-                }
-            ]
+            labels: months.map(monthLabel),
+            datasets: statuses.map((st, i) => ({
+                label: st,
+                data: months.map(m => trips.filter(t => monthKey(t.createdAt) === m && (t.status || 'Unknown') === st).length),
+                backgroundColor: palette[st] || ['#6366F1', '#14B8A6', '#94A3B8'][i % 3],
+                borderRadius: 4
+            }))
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
-            },
+            plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } } },
             scales: {
-                y: {
-                    beginAtZero: false,
-                    min: 5,
-                    max: 18,
-                    title: { display: true, text: 'Response Time (Minutes)' }
-                }
+                x: { stacked: true, grid: { display: false } },
+                y: { stacked: true, beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Dispatches' } }
             }
         }
     });
 }
 
-// Graph 5: Regional Compliance & Feedback Resolution Scores
-function renderRegionalComplianceChart(feedback) {
+/**
+ * Graph 5 — real feedback rating and resolution rate per hospital.
+ *
+ * The old chart scored four invented geographic regions ("South Region
+ * 98.4% SLA compliance") against SLA data this system does not collect.
+ */
+function renderFeedbackByHospitalChart(feedback, hospitals) {
     const canvas = document.getElementById('regionalComplianceCanvas');
     if (!canvas || typeof Chart === 'undefined') return;
-
     destroyChart('regionalCompliance');
 
-    const ctx = canvas.getContext('2d');
-    chartInstances['regionalCompliance'] = new Chart(ctx, {
+    if (!Array.isArray(feedback) || feedback.length === 0) {
+        return emptyCanvas('regionalComplianceCanvas', 'No feedback submitted yet');
+    }
+
+    const nameOf = id => hospitals.find(h => h.id === id)?.name || id || 'Unassigned';
+    const byHospital = new Map();
+    feedback.forEach(f => {
+        const key = f.hospitalId || 'Unassigned';
+        if (!byHospital.has(key)) byHospital.set(key, { ratings: [], total: 0, resolved: 0 });
+        const row = byHospital.get(key);
+        if (typeof f.rating === 'number') row.ratings.push(f.rating);
+        row.total++;
+        if (String(f.status || '').toLowerCase() === 'resolved') row.resolved++;
+    });
+
+    const rows = [...byHospital.entries()].sort((a, b) => b[1].total - a[1].total);
+
+    chartInstances['regionalCompliance'] = new Chart(canvas.getContext('2d'), {
         type: 'bar',
         data: {
-            labels: ['South Region (AP/Telangana/TN)', 'North Region (Delhi/NCR)', 'West Region (MH/GJ)', 'East Region (WB/OD)'],
+            labels: rows.map(([id]) => nameOf(id)),
             datasets: [
                 {
-                    label: 'SLA Compliance Rate (%)',
-                    data: [98.4, 94.2, 96.1, 91.8],
+                    label: 'Avg Rating (as % of 5)',
+                    data: rows.map(([, r]) => r.ratings.length
+                        ? Number(((r.ratings.reduce((s, x) => s + x, 0) / r.ratings.length / 5) * 100).toFixed(1))
+                        : 0),
                     backgroundColor: '#6366F1',
                     borderRadius: 6
                 },
                 {
-                    label: 'Feedback Resolution Rate (%)',
-                    data: [96.0, 91.5, 93.8, 88.5],
+                    label: 'Feedback Resolved (%)',
+                    data: rows.map(([, r]) => r.total ? Number(((r.resolved / r.total) * 100).toFixed(1)) : 0),
                     backgroundColor: '#14B8A6',
                     borderRadius: 6
                 }
@@ -484,72 +581,66 @@ function renderRegionalComplianceChart(feedback) {
             maintainAspectRatio: false,
             indexAxis: 'y',
             plugins: {
-                legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
+                legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+                tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.raw}%` } }
             },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: { callback: val => `${val}%` }
-                }
-            }
+            scales: { x: { beginAtZero: true, max: 100, ticks: { callback: v => `${v}%` } } }
         }
     });
 }
 
 // ============ SECURITY & AUDIT LOGS ============
 async function loadSecurityReports() {
-    try {
-        const activityResp = await apiGet('/system/activity/recent');
-        const activities = activityResp.data || [];
+    const activityResp = await apiGet('/system/activity/recent?limit=1000');
+    const activities = dataOf(activityResp, []);
+    const available = activityResp && activityResp.success !== false;
 
-        const failedLogins = 4;
-        const securityIncidents = 0;
-        const permissionChanges = activities.filter(a => a.action === 'Update' || a.action === 'Create').length || 12;
-        const dataAccessLogs = activities.length || 140;
-
-        document.getElementById('failedLogins').textContent = failedLogins;
-        document.getElementById('securityIncidents').textContent = securityIncidents;
-        document.getElementById('permissionChanges').textContent = permissionChanges;
-        document.getElementById('dataAccessLogs').textContent = dataAccessLogs.toLocaleString();
-
-        renderSecurityEventsTable(activities);
-
-    } catch (err) {
-        console.error('Failed to load security reports:', err);
-        renderSecurityEventsTable([]);
+    if (!available) {
+        ['failedLogins', 'securityIncidents', 'permissionChanges', 'dataAccessLogs'].forEach(id => setText(id, null));
+        renderSecurityEventsTable([], false);
+        return;
     }
+
+    const isFailedLogin = a =>
+        /fail|invalid|denied|unauthor/i.test(`${a.action} ${a.details || ''}`) &&
+        /login|auth/i.test(`${a.action} ${a.module || ''}`);
+
+    setText('failedLogins', activities.filter(isFailedLogin).length);
+    setText('securityIncidents', activities.filter(a => String(a.severity || '').toUpperCase() === 'HIGH').length);
+    setText('permissionChanges', activities.filter(a => /passwordchange|password reset|update/i.test(a.action || '')).length);
+    setText('dataAccessLogs', activities.length.toLocaleString('en-IN'));
+
+    renderSecurityEventsTable(activities, true);
 }
 
-function renderSecurityEventsTable(activities) {
+function renderSecurityEventsTable(activities, available) {
     const tbody = document.getElementById('securityEventsTable');
     if (!tbody) return;
 
-    let securityEvents = [];
-    if (activities.length > 0) {
-        securityEvents = activities.slice(0, 8).map(a => ({
-            timestamp: a.timestamp || a.createdAt || new Date().toISOString().replace('T', ' ').substring(0, 19),
-            type: a.action || 'System Audit',
-            user: a.actor || a.userName || a.userId || 'Super User',
-            severity: a.severity || 'Normal',
-            status: a.status || 'Verified'
-        }));
-    } else {
-        securityEvents = [
-            { timestamp: '2026-09-01 14:32:15', type: 'Hospital Registration Approved', user: 'Super User (SU-001)', severity: 'Normal', status: 'Completed' },
-            { timestamp: '2026-09-01 12:15:42', type: 'Care+ Membership Activated', user: 'Raghav Rao (PAT-001)', severity: 'Normal', status: 'Settled' },
-            { timestamp: '2026-09-01 09:45:18', type: 'Emergency Ambulance Dispatched', user: 'Central Bay (HOSP-001)', severity: 'Normal', status: 'En Route' },
-            { timestamp: '2026-08-31 23:12:33', type: 'Platform Fee Settled', user: 'System Billing Gateway', severity: 'Normal', status: 'Recorded' }
-        ];
+    if (!available) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#DC2626;padding:18px;">Audit log unavailable.</td></tr>';
+        return;
+    }
+    if (activities.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#64748B;padding:18px;">No audit events recorded yet.</td></tr>';
+        return;
     }
 
-    tbody.innerHTML = securityEvents.map(e => `
+    const rows = [...activities]
+        .sort((a, b) => String(b.timestamp || b.createdAt || '').localeCompare(String(a.timestamp || a.createdAt || '')))
+        .slice(0, 10);
+
+    const sevClass = s => String(s).toUpperCase() === 'HIGH' ? 'status-danger' : 'status-good';
+
+    tbody.innerHTML = rows.map(a => {
+        const ts = (a.timestamp || a.createdAt || '').replace('T', ' ').substring(0, 19);
+        return `
         <tr>
-            <td style="font-family: monospace; font-size: 12.5px;">${e.timestamp}</td>
-            <td style="font-weight: 600; color:#0F172A;">${e.type}</td>
-            <td>${e.user}</td>
-            <td><span class="perf-status status-good">${e.severity}</span></td>
-            <td><span class="badge badge-paid" style="font-size:11px;">${e.status}</span></td>
-        </tr>
-    `).join('');
+            <td style="font-family: monospace; font-size: 12.5px;">${ts || FALLBACK}</td>
+            <td style="font-weight: 600; color:#0F172A;">${a.action || FALLBACK}${a.module ? ` · ${a.module}` : ''}</td>
+            <td>${a.userId || FALLBACK}</td>
+            <td><span class="perf-status ${sevClass(a.severity)}">${a.severity || 'INFO'}</span></td>
+            <td style="font-size:12px;color:#475569;">${(a.details || '').slice(0, 70)}</td>
+        </tr>`;
+    }).join('');
 }

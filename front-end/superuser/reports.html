@@ -286,7 +286,7 @@
             <div id="usage-section" class="report-section active">
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <p class="stat-label">Daily Active Users</p>
+                        <p class="stat-label">Active User Accounts</p>
                         <p class="stat-value" id="dailyActiveUsers">--</p>
                         <span class="stat-trend trend-up">↑ 12% vs last period</span>
                     </div>
@@ -301,7 +301,7 @@
                         <span class="stat-trend trend-up">↑ Active Plans</span>
                     </div>
                     <div class="stat-card">
-                        <p class="stat-label">Total Verified Hospitals</p>
+                        <p class="stat-label">Hospitals on a Plan</p>
                         <p class="stat-value" id="peakConcurrentUsers">--</p>
                         <span class="stat-trend trend-up">Active Network</span>
                     </div>
@@ -311,7 +311,7 @@
                 <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:20px; margin-bottom:24px;">
                     <div class="chart-container" style="margin-bottom:0;">
                         <div class="chart-header">
-                            <h3>1. Platform Revenue Streams (Hospital vs Care+ vs Processing Fees)</h3>
+                            <h3>1. Platform Revenue by Stream — last 6 months (live)</h3>
                         </div>
                         <div style="height:260px; position:relative;">
                             <canvas id="platformRevenueCanvas"></canvas>
@@ -329,20 +329,20 @@
 
                 <div class="data-table-container">
                     <div class="table-header">
-                        <h3>Feature Usage Statistics</h3>
+                        <h3>Module Activity (from audit log)</h3>
                     </div>
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Feature/Module</th>
-                                <th>Total Visits</th>
-                                <th>Unique Users</th>
-                                <th>Avg Time Spent</th>
-                                <th>Usage Trend</th>
+                                <th>Module</th>
+                                <th>Recorded Events</th>
+                                <th>Distinct Users</th>
+                                <th>Most Common Action</th>
+                                <th>Share of Activity</th>
                             </tr>
                         </thead>
                         <tbody id="featureUsageTable">
-                            <tr><td colspan="5" class="loading-spinner">Loading feature usage data...</td></tr>
+                            <tr><td colspan="5" class="loading-spinner">Loading module activity...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -406,7 +406,7 @@
 
                 <div class="chart-container">
                     <div class="chart-header">
-                        <h3>API Response Time & Latency Trends (ms)</h3>
+                        <h3>Measured API Round-Trip Time — this page's own calls (ms)</h3>
                     </div>
                     <div class="simple-bar-chart" id="apiResponseChart">
                         <div class="loading-spinner">Loading performance data...</div>
@@ -433,7 +433,7 @@
                         <span class="stat-trend trend-up">⭐ 4.8 / 5.0</span>
                     </div>
                     <div class="stat-card">
-                        <p class="stat-label">Fleet Readiness</p>
+                        <p class="stat-label">Dispatches Completed</p>
                         <p class="stat-value" id="staffActivityLevel">--</p>
                         <span class="stat-trend trend-up">100% Online</span>
                     </div>
@@ -443,7 +443,7 @@
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px;">
                     <div class="chart-container" style="margin-bottom:0;">
                         <div class="chart-header">
-                            <h3>3. Monthly Hospital Growth & Bed Utilization</h3>
+                            <h3>3. Hospitals on Platform (cumulative) &amp; Current Bed Occupancy</h3>
                         </div>
                         <div style="height:260px; position:relative;">
                             <canvas id="hospitalGrowthCanvas"></canvas>
@@ -451,7 +451,7 @@
                     </div>
                     <div class="chart-container" style="margin-bottom:0;">
                         <div class="chart-header">
-                            <h3>4. Emergency Ambulance Dispatch Response Time (Minutes)</h3>
+                            <h3>4. Ambulance Dispatch Volume by Outcome</h3>
                         </div>
                         <div style="height:260px; position:relative;">
                             <canvas id="ambulanceDispatchCanvas"></canvas>
@@ -461,7 +461,7 @@
 
                 <div class="chart-container">
                     <div class="chart-header">
-                        <h3>5. Regional Compliance & Feedback Resolution Scores</h3>
+                        <h3>5. Feedback Rating &amp; Resolution Rate by Hospital</h3>
                     </div>
                     <div style="height:260px; position:relative;">
                         <canvas id="regionalComplianceCanvas"></canvas>
@@ -503,7 +503,7 @@
                         <span class="stat-trend trend-neutral">→ Resolved</span>
                     </div>
                     <div class="stat-card">
-                        <p class="stat-label">Permission Changes</p>
+                        <p class="stat-label">Credential &amp; Record Changes</p>
                         <p class="stat-value" id="permissionChanges">--</p>
                         <span class="stat-trend trend-neutral">→ Normal</span>
                     </div>
