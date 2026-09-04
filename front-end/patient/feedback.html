@@ -158,6 +158,19 @@ My Submissions
 
 <div class="form-group">
 
+<label for="hospitalId">Which hospital is this about? *</label>
+
+<select id="hospitalId" name="hospitalId" required>
+<option value="">Loading hospitals…</option>
+</select>
+
+<small id="hospitalHint" class="char-count" style="display:block;margin-top:6px;"></small>
+
+</div>
+
+
+<div class="form-group">
+
 <label for="category">Select Category *</label>
 
 <select id="category" name="category" required>
@@ -327,8 +340,8 @@ Submit
 <script src="../logo.js"></script>
 <script src="../shared/api.js?v=9"></script>
     <script src="../shared/session.js?v=8"></script>
-    <script src="../shared/db.js?v=10"></script>
-<script src="feedback.js?v=2"></script>
+    <script src="../shared/db.js?v=11"></script>
+<script src="feedback.js?v=3"></script>
 
 </body>
 </html>

@@ -15,6 +15,16 @@ async function renderSubmissions() {
     // listFeedback is async — must be awaited
     const items = await store.listFeedback();
 
+    // Names for the hospital each submission was filed against, so a patient
+    // can see where their complaint went rather than just a bare id.
+    let hospitalNames = {};
+    try {
+        const res = await window.NexCareAPI.Hospitals.getAll();
+        if (res && res.success) {
+            (res.data || []).forEach(h => { hospitalNames[h.id] = h.name; });
+        }
+    } catch (e) { /* fall back to the raw id below */ }
+
     function badgeClass(status) {
         if (status === 'Open') return 'badge-open';
         if (status === 'In Progress') return 'badge-in-progress';
@@ -37,6 +47,10 @@ async function renderSubmissions() {
                 <div class="submission-info">
                     <h3>Reference ID</h3>
                     <p class="ref-id">${escapeHtml(it.id)}</p>
+                </div>
+                <div class="submission-info">
+                    <h3>Hospital</h3>
+                    <p>${escapeHtml(hospitalNames[it.hospitalId] || it.hospitalId || 'Not specified')}</p>
                 </div>
                 <div class="submission-info">
                     <h3>Category</h3>
@@ -100,6 +114,8 @@ document.addEventListener('DOMContentLoaded', function() {
         feedbackForm.addEventListener('submit', handleFeedbackSubmit);
     }
 
+    populateHospitalPicker();
+
     renderSubmissions();
 
     const submissionsList = document.querySelector('.submissions-list');
@@ -135,7 +151,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const categoryEl = document.getElementById('category');
                 const descEl = document.getElementById('description');
                 const ratingEl = document.getElementById('rating');
+                const hospitalEl = document.getElementById('hospitalId');
                 const submitBtn = document.querySelector('.btn-submit-feedback');
+
+                // The picker may still be loading, so make sure it is filled
+                // before selecting — otherwise the value silently does not stick.
+                if (hospitalEl) {
+                    await populateHospitalPicker();
+                    if (current.hospitalId) hospitalEl.value = current.hospitalId;
+                }
 
                 if (categoryEl) categoryEl.value = current.category || '';
                 if (descEl) {
@@ -195,10 +219,71 @@ function updateStarRating(rating) {
     });
 }
 
+/**
+ * Fills the "which hospital is this about?" picker from the live hospital list.
+ *
+ * Feedback used to be submitted with no hospital at all, so it landed in the
+ * Admin's queue as "Unknown Hospital" and could not be routed to whoever runs
+ * the place being reviewed. The patient's own registered hospital is preselected
+ * because it is nearly always the one they mean, but they can pick any — a
+ * patient may well be reviewing somewhere they were referred to.
+ */
+async function populateHospitalPicker() {
+    const select = document.getElementById('hospitalId');
+    const hint = document.getElementById('hospitalHint');
+    if (!select) return;
+
+    let hospitals = [];
+    try {
+        const res = await window.NexCareAPI.Hospitals.getAll();
+        if (res && res.success) hospitals = res.data || [];
+    } catch (err) {
+        console.warn('Could not load hospitals for the feedback picker:', err.message);
+    }
+
+    // Only somewhere actually on the platform can act on a complaint.
+    hospitals = hospitals.filter(h => (h.verificationStatus || 'verified') === 'verified');
+
+    if (!hospitals.length) {
+        select.innerHTML = '<option value="">Could not load hospitals — please try again</option>';
+        if (hint) hint.textContent = 'The hospital list is unavailable, so feedback cannot be routed right now.';
+        return;
+    }
+
+    hospitals.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+
+    let ownId = null;
+    try {
+        const patient = await getStore()?.getActivePatient();
+        ownId = patient?.hospitalId || null;
+    } catch (e) { /* preselection is a convenience, not a requirement */ }
+
+    select.innerHTML = '<option value="">Select a hospital</option>' +
+        hospitals.map(h => {
+            const label = h.city ? `${h.name} — ${h.city}` : h.name;
+            const selected = h.id === ownId ? ' selected' : '';
+            return `<option value="${escapeAttr(h.id)}"${selected}>${escapeAttr(label)}</option>`;
+        }).join('');
+
+    if (hint) {
+        const own = hospitals.find(h => h.id === ownId);
+        hint.textContent = own
+            ? `Preselected your registered hospital (${own.name}). Change it if your feedback is about somewhere else.`
+            : 'Choose the hospital your feedback is about.';
+    }
+}
+
+function escapeAttr(value) {
+    return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 async function handleFeedbackSubmit(e) {
     e.preventDefault();
     
     const formData = new FormData(e.target);
+    const hospitalId = formData.get('hospitalId');
     const category = formData.get('category');
     const description = formData.get('description');
     const rating = formData.get('rating');
@@ -215,6 +300,7 @@ async function handleFeedbackSubmit(e) {
         setTimeout(() => toast.remove(), 4000);
     }
 
+    if (!hospitalId) { notifyFeedback('Please select the hospital this feedback is about', 'error'); return; }
     if (!category) { notifyFeedback('Please select a feedback category', 'error'); return; }
     if (!description || description.trim().length < 10) { notifyFeedback('Please provide more detail (at least 10 characters)', 'error'); return; }
     if (!rating || selectedRating === 0) { notifyFeedback('Please rate your experience by selecting stars', 'error'); return; }
@@ -224,6 +310,7 @@ async function handleFeedbackSubmit(e) {
 
     if (editingFeedbackId) {
         await store?.updateFeedback(editingFeedbackId, {
+            hospitalId,
             category,
             summary: description.trim(),
             rating: selectedRating,
@@ -233,6 +320,7 @@ async function handleFeedbackSubmit(e) {
         notifyFeedback(`Feedback updated successfully! Reference ID: ${refId}`, 'success');
     } else {
         const created = await store?.createFeedback({
+            hospitalId,
             category,
             description: description.trim(),
             rating: selectedRating,
@@ -243,6 +331,8 @@ async function handleFeedbackSubmit(e) {
     }
     
     e.target.reset();
+    // reset() blanks the picker's selection, so rebuild it for the next one.
+    populateHospitalPicker();
     selectedRating = 0;
     updateStarRating(0);
     document.getElementById('charCount').textContent = '0';

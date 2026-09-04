@@ -716,19 +716,43 @@ window.NexCareStore = {
         return NexCareDB.getTable('feedback').filter(f => f.patientId === patientId);
     },
     
+    /**
+     * The patient record returns `name`; `fullName` is only on the older shape.
+     * Reading just `fullName` meant every submission from the portal was signed
+     * with the literal string "Patient", which is what the Admin's queue showed.
+     * The session blob is the last resort before giving up on a name.
+     */
+    resolveSenderName(patient) {
+        if (patient?.fullName) return patient.fullName;
+        if (patient?.name) return patient.name;
+        try {
+            const raw = sessionStorage.getItem('nexcare_user_data');
+            if (raw) {
+                const user = JSON.parse(raw);
+                if (user?.name) return user.name;
+            }
+        } catch (e) { /* fall through */ }
+        return 'Patient';
+    },
+
     async createFeedback(data) {
         const patientId = NexCareDB.getActivePatientScope();
         const patient = await this.getActivePatient();
+        const sender = this.resolveSenderName(patient);
+        // The hospital the patient picked on the form; their registered hospital
+        // is the fallback so a submission is never left unroutable.
+        const hospitalId = data.hospitalId || patient?.hospitalId || undefined;
         
         if (isAPIAvailable()) {
             try {
                 const result = await window.NexCareAPI.Feedback.create({
                     patientId,
-                    sender: patient?.fullName || 'Patient',
+                    sender,
                     type: 'Patient',
                     category: data.category,
                     subject: data.category + " Feedback",
                     summary: data.description || data.summary || '',
+                    hospitalId,
                     rating: Number(data.rating) || 1
                 });
                 if (result.success) {
@@ -743,11 +767,12 @@ window.NexCareStore = {
         const fb = NexCareDB.addRow('feedback', {
             id: NexCareDB.generateId("FB"),
             patientId,
-            sender: patient?.fullName || 'Self',
+            sender,
             type: "Patient",
             category: data.category,
             summary: data.description,
             subject: data.category + " Feedback",
+            hospitalId,
             rating: data.rating,
             status: data.status || "Open",
             createdAt: new Date().toISOString()

@@ -33,4 +33,14 @@ export class UpdateFeedbackDto {
   @IsOptional()
   @IsEnum(FeedbackStatus)
   status?: FeedbackStatus;
+
+  /**
+   * A patient editing their own submission can correct which hospital it is
+   * about — they may have picked the wrong one, and a complaint filed against
+   * the wrong hospital reaches the wrong manager.
+   */
+  @ApiPropertyOptional({ example: 'H001', description: 'Hospital the feedback relates to' })
+  @IsOptional()
+  @IsString()
+  hospitalId?: string;
 }

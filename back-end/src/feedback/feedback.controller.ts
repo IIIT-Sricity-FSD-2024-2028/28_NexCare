@@ -10,6 +10,7 @@ import {
   Query,
   Req,
   ForbiddenException,
+  NotFoundException,
   HttpCode,
   HttpStatus
 } from '@nestjs/common';
@@ -217,12 +218,14 @@ export class FeedbackController {
    * Update feedback
    */
   @Put(':id')
-  @ApiOperation({ summary: 'Update feedback details' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Update feedback details (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Feedback updated successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
-  async update(@Param('id') id: string, @Body() updateFeedbackDto: UpdateFeedbackDto) {
+  async update(@Req() req: any, @Param('id') id: string, @Body() updateFeedbackDto: UpdateFeedbackDto) {
+    await this.assertMayEdit(req, id);
     return this.feedbackService.update(id, updateFeedbackDto as any);
   }
 
@@ -230,12 +233,14 @@ export class FeedbackController {
    * Partial update feedback
    */
   @Patch(':id')
-  @ApiOperation({ summary: 'Partially update feedback details' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Partially update feedback details (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Feedback updated successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
-  async patchUpdate(@Param('id') id: string, @Body() updateFeedbackDto: UpdateFeedbackDto) {
+  async patchUpdate(@Req() req: any, @Param('id') id: string, @Body() updateFeedbackDto: UpdateFeedbackDto) {
+    await this.assertMayEdit(req, id);
     return this.feedbackService.update(id, updateFeedbackDto as any);
   }
 
@@ -243,13 +248,38 @@ export class FeedbackController {
    * Delete feedback
    */
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete feedback' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Delete feedback (patients: own only)' })
   @ApiResponse({ status: 200, description: 'Feedback deleted successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
-  async delete(@Param('id') id: string) {
+  async delete(@Req() req: any, @Param('id') id: string) {
+    await this.assertMayEdit(req, id);
     return this.feedbackService.delete(id);
+  }
+
+  /**
+   * A patient may amend or withdraw their OWN submission and nothing else.
+   *
+   * The patient portal has always shown Edit and Delete buttons on the
+   * submissions list, but `@Put`, `@Patch` and `@Delete` inherited the
+   * class-level roles (superuser, administrative_staff), so both buttons
+   * returned 403 for the only people who ever saw them. Adding `PATIENT` to
+   * the role list alone would have let any patient edit anybody's feedback,
+   * so ownership is checked here rather than trusted from the request.
+   */
+  private async assertMayEdit(req: any, id: string) {
+    if (!this.isPatient(req)) return;
+
+    const existing: any = await this.feedbackService.findById(id);
+    const row = existing?.data ?? existing;
+    if (!row || !row.id) {
+      throw new NotFoundException(`Feedback ${id} was not found.`);
+    }
+    if (row.patientId !== req.user?.patientId) {
+      throw new ForbiddenException('You can only change your own feedback.');
+    }
   }
 
   /**

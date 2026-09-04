@@ -42,6 +42,7 @@ export interface UpdateFeedbackRequest {
   summary?: string;
   rating?: number;
   status?: FeedbackStatus;
+  hospitalId?: string;
 }
 
 /**
