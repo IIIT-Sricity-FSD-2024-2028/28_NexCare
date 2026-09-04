@@ -1,11 +1,74 @@
 [
   {
-    "id": "BILL-H001-001",
+    "id": "BILL-H001-P001-01",
     "patientId": "P001",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
+    "visitDate": "2026-04-01",
+    "dueDate": "2026-04-15",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 900,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 81,
+    "sgstAmount": 81,
+    "total": 1062,
+    "items": [
+      {
+        "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-UP-001"
+      }
+    ],
+    "createdAt": "2026-04-01T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-04-01T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H001-P001-01",
+        "amount": 1062,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H001-P001-01",
+        "createdAt": "2026-04-01T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H001-P001-02",
+    "patientId": "P001",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "visitDate": "2026-05-02",
+    "dueDate": "2026-05-16",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. Vikram Patel (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-UP-002"
+      }
+    ],
+    "createdAt": "2026-05-02T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H001-P001-03",
+    "patientId": "P001",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "visitDate": "2026-06-03",
+    "dueDate": "2026-06-17",
     "status": "Paid",
     "currency": "₹",
     "subtotal": 900,
@@ -23,45 +86,300 @@
         "referenceId": "APT-H001-001"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z",
+    "createdAt": "2026-06-03T11:00:00.000Z",
     "paymentStatus": "Paid",
-    "paidAt": "2026-09-01T18:35:19.146Z"
+    "paidAt": "2026-06-03T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H001-P001-03",
+        "amount": 1062,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H001-P001-03",
+        "createdAt": "2026-06-03T14:30:00.000Z"
+      }
+    ]
   },
   {
-    "id": "BILL-H001-005",
-    "patientId": "P005",
+    "id": "BILL-H001-P001-AMB57",
+    "patientId": "P001",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
+    "visitDate": "2026-06-05",
+    "dueDate": "2026-06-19",
     "status": "Paid",
     "currency": "₹",
-    "subtotal": 700,
+    "subtotal": 2500,
     "cgstRate": 0.09,
     "sgstRate": 0.09,
-    "cgstAmount": 63,
-    "sgstAmount": 63,
-    "total": 826,
+    "cgstAmount": 225,
+    "sgstAmount": 225,
+    "total": 2950,
     "items": [
       {
-        "description": "Consultation — Dr. Rajesh Rao (Paediatrics)",
-        "department": "Paediatrics",
-        "amount": 700,
-        "type": "CONSULTATION",
-        "referenceId": "APT-H001-005"
+        "description": "Emergency ambulance transfer — AP 03 AB 4821",
+        "department": "Emergency",
+        "amount": 2500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-H001-01"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z",
+    "createdAt": "2026-06-05T11:00:00.000Z",
     "paymentStatus": "Paid",
-    "paidAt": "2026-09-01T18:35:19.147Z"
+    "paidAt": "2026-06-05T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H001-P001-AMB57",
+        "amount": 2950,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H001-P001-AMB57",
+        "createdAt": "2026-06-05T14:30:00.000Z"
+      }
+    ]
   },
   {
-    "id": "BILL-H002-001",
+    "id": "BILL-H001-P002-04",
+    "patientId": "P002",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "visitDate": "2026-07-04",
+    "dueDate": "2026-07-18",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Harini Reddy (General Medicine)",
+        "department": "General Medicine",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-UP-003"
+      }
+    ],
+    "createdAt": "2026-07-04T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-07-04T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H001-P002-04",
+        "amount": 944,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H001-P002-04",
+        "createdAt": "2026-07-04T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H001-P002-05",
+    "patientId": "P002",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "visitDate": "2026-08-05",
+    "dueDate": "2026-08-19",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Harini Reddy (General Medicine)",
+        "department": "General Medicine",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H001-002"
+      }
+    ],
+    "createdAt": "2026-08-05T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H001-P003-07",
+    "patientId": "P003",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "visitDate": "2026-04-07",
+    "dueDate": "2026-04-21",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. Vikram Patel (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H001-003"
+      }
+    ],
+    "createdAt": "2026-04-07T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-04-07T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H001-P003-07",
+        "amount": 1003,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H001-P003-07",
+        "createdAt": "2026-04-07T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H001-P003-65",
+    "patientId": "P003",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "visitDate": "2026-08-13",
+    "dueDate": "2026-08-27",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. Vikram Patel (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H001-003"
+      }
+    ],
+    "createdAt": "2026-08-13T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H001-P004-08",
+    "patientId": "P004",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "visitDate": "2026-05-08",
+    "dueDate": "2026-05-22",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 90,
+    "sgstAmount": 90,
+    "total": 1180,
+    "items": [
+      {
+        "description": "Consultation — Dr. Sarah Smith (Neurology)",
+        "department": "Neurology",
+        "amount": 1000,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H001-004"
+      }
+    ],
+    "createdAt": "2026-05-08T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-05-08T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H001-P004-08",
+        "amount": 1180,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H001-P004-08",
+        "createdAt": "2026-05-08T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H001-P007-09",
+    "patientId": "P007",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "visitDate": "2026-06-09",
+    "dueDate": "2026-06-23",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 900,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 81,
+    "sgstAmount": 81,
+    "total": 1062,
+    "items": [
+      {
+        "description": "Consultation — Dr. Sunita Sharma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H001-007"
+      }
+    ],
+    "createdAt": "2026-06-09T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-06-09T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H001-P007-09",
+        "amount": 1062,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H001-P007-09",
+        "createdAt": "2026-06-09T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H001-P008-10",
+    "patientId": "P008",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "visitDate": "2026-07-10",
+    "dueDate": "2026-07-24",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Harini Reddy (General Medicine)",
+        "department": "General Medicine",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H001-008"
+      }
+    ],
+    "createdAt": "2026-07-10T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-07-10T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H001-P008-10",
+        "amount": 944,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H001-P008-10",
+        "createdAt": "2026-07-10T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H002-P009-11",
     "patientId": "P009",
     "hospitalId": "H002",
     "hospitalName": "Coastal Care Hospital",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
+    "visitDate": "2026-08-11",
+    "dueDate": "2026-08-25",
     "status": "Paid",
     "currency": "₹",
     "subtotal": 800,
@@ -79,45 +397,326 @@
         "referenceId": "APT-H002-001"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z",
+    "createdAt": "2026-08-11T11:00:00.000Z",
     "paymentStatus": "Paid",
-    "paidAt": "2026-09-01T18:35:19.147Z"
+    "paidAt": "2026-08-11T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H002-P009-11",
+        "amount": 944,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H002-P009-11",
+        "createdAt": "2026-08-11T14:30:00.000Z"
+      }
+    ]
   },
   {
-    "id": "BILL-H002-005",
-    "patientId": "P013",
+    "id": "BILL-H002-P009-AMB58",
+    "patientId": "P009",
     "hospitalId": "H002",
     "hospitalName": "Coastal Care Hospital",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
-    "status": "Paid",
+    "visitDate": "2026-07-06",
+    "dueDate": "2026-07-20",
+    "status": "Pending",
     "currency": "₹",
-    "subtotal": 750,
+    "subtotal": 2500,
     "cgstRate": 0.09,
     "sgstRate": 0.09,
-    "cgstAmount": 67.5,
-    "sgstAmount": 67.5,
-    "total": 885,
+    "cgstAmount": 225,
+    "sgstAmount": 225,
+    "total": 2950,
     "items": [
       {
-        "description": "Consultation — Dr. Madhav Raju (ENT)",
-        "department": "ENT",
-        "amount": 750,
-        "type": "CONSULTATION",
-        "referenceId": "APT-H002-005"
+        "description": "Emergency ambulance transfer — AP 26 CD 1042",
+        "department": "Emergency",
+        "amount": 2500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-H002-01"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z",
-    "paymentStatus": "Paid",
-    "paidAt": "2026-09-01T18:35:19.147Z"
+    "createdAt": "2026-07-06T11:00:00.000Z"
   },
   {
-    "id": "BILL-H003-001",
+    "id": "BILL-H002-P010-12",
+    "patientId": "P010",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "visitDate": "2026-09-12",
+    "dueDate": "2026-09-26",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 700,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 63,
+    "sgstAmount": 63,
+    "total": 826,
+    "items": [
+      {
+        "description": "Consultation — Dr. Swati Naidu (General Medicine)",
+        "department": "General Medicine",
+        "amount": 700,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H002-002"
+      }
+    ],
+    "createdAt": "2026-09-12T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-12T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H002-P010-12",
+        "amount": 826,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H002-P010-12",
+        "createdAt": "2026-09-12T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H002-P010-66",
+    "patientId": "P010",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "visitDate": "2026-09-14",
+    "dueDate": "2026-09-28",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 700,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 63,
+    "sgstAmount": 63,
+    "total": 826,
+    "items": [
+      {
+        "description": "Consultation — Dr. Swati Naidu (General Medicine)",
+        "department": "General Medicine",
+        "amount": 700,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H002-002"
+      }
+    ],
+    "createdAt": "2026-09-14T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H002-P011-13",
+    "patientId": "P011",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "visitDate": "2026-04-13",
+    "dueDate": "2026-04-27",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. Arvind Swamy (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H002-003"
+      }
+    ],
+    "createdAt": "2026-04-13T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-04-13T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H002-P011-13",
+        "amount": 1003,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H002-P011-13",
+        "createdAt": "2026-04-13T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H002-P011-67",
+    "patientId": "P011",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "visitDate": "2026-04-15",
+    "dueDate": "2026-04-28",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. Arvind Swamy (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H002-003"
+      }
+    ],
+    "createdAt": "2026-04-15T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H002-P014-14",
+    "patientId": "P014",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "visitDate": "2026-05-14",
+    "dueDate": "2026-05-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 900,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 81,
+    "sgstAmount": 81,
+    "total": 1062,
+    "items": [
+      {
+        "description": "Consultation — Dr. Leela Kothari (Gynaecology)",
+        "department": "Gynaecology",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H002-006"
+      }
+    ],
+    "createdAt": "2026-05-14T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-05-14T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H002-P014-14",
+        "amount": 1062,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H002-P014-14",
+        "createdAt": "2026-05-14T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H002-P015-15",
+    "patientId": "P015",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "visitDate": "2026-06-15",
+    "dueDate": "2026-06-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Srinivas Varma (Cardiology)",
+        "department": "Cardiology",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H002-007"
+      }
+    ],
+    "createdAt": "2026-06-15T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-06-15T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H002-P015-15",
+        "amount": 944,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H002-P015-15",
+        "createdAt": "2026-06-15T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H002-P016-16",
+    "patientId": "P016",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "visitDate": "2026-07-16",
+    "dueDate": "2026-07-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 700,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 63,
+    "sgstAmount": 63,
+    "total": 826,
+    "items": [
+      {
+        "description": "Consultation — Dr. Swati Naidu (General Medicine)",
+        "department": "General Medicine",
+        "amount": 700,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H002-008"
+      }
+    ],
+    "createdAt": "2026-07-16T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-07-16T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H002-P016-16",
+        "amount": 826,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H002-P016-16",
+        "createdAt": "2026-07-16T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H003-P002-06",
+    "patientId": "P002",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "visitDate": "2026-09-06",
+    "dueDate": "2026-09-20",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 99,
+    "sgstAmount": 99,
+    "total": 1298,
+    "items": [
+      {
+        "description": "Consultation — Dr. Ananya Hegde (Cardiology)",
+        "department": "Cardiology",
+        "amount": 1100,
+        "type": "CONSULTATION",
+        "referenceId": "APT-MTJQ62QTLLW"
+      }
+    ],
+    "createdAt": "2026-09-06T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-06T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H003-P002-06",
+        "amount": 1298,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H003-P002-06",
+        "createdAt": "2026-09-06T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H003-P017-17",
     "patientId": "P017",
     "hospitalId": "H003",
     "hospitalName": "Namma Health Multispeciality",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
+    "visitDate": "2026-08-17",
+    "dueDate": "2026-08-28",
     "status": "Paid",
     "currency": "₹",
     "subtotal": 1100,
@@ -135,17 +734,215 @@
         "referenceId": "APT-H003-001"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z",
+    "createdAt": "2026-08-17T11:00:00.000Z",
     "paymentStatus": "Paid",
-    "paidAt": "2026-09-01T18:35:19.147Z"
+    "paidAt": "2026-08-17T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H003-P017-17",
+        "amount": 1298,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H003-P017-17",
+        "createdAt": "2026-08-17T14:30:00.000Z"
+      }
+    ]
   },
   {
-    "id": "BILL-H003-005",
+    "id": "BILL-H003-P017-AMB59",
+    "patientId": "P017",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "visitDate": "2026-08-07",
+    "dueDate": "2026-08-21",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 2500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 225,
+    "sgstAmount": 225,
+    "total": 2950,
+    "items": [
+      {
+        "description": "Emergency ambulance transfer — KA 01 MN 7534",
+        "department": "Emergency",
+        "amount": 2500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-H003-01"
+      }
+    ],
+    "createdAt": "2026-08-07T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H003-P018-18",
+    "patientId": "P018",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "visitDate": "2026-09-18",
+    "dueDate": "2026-09-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1200,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 108,
+    "sgstAmount": 108,
+    "total": 1416,
+    "items": [
+      {
+        "description": "Consultation — Dr. Suresh Joshi (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H003-002"
+      }
+    ],
+    "createdAt": "2026-09-18T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-18T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H003-P018-18",
+        "amount": 1416,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H003-P018-18",
+        "createdAt": "2026-09-18T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H003-P018-68",
+    "patientId": "P018",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "visitDate": "2026-05-16",
+    "dueDate": "2026-05-28",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 1200,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 108,
+    "sgstAmount": 108,
+    "total": 1416,
+    "items": [
+      {
+        "description": "Consultation — Dr. Suresh Joshi (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H003-002"
+      }
+    ],
+    "createdAt": "2026-05-16T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H003-P019-19",
+    "patientId": "P019",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "visitDate": "2026-04-19",
+    "dueDate": "2026-04-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 90,
+    "sgstAmount": 90,
+    "total": 1180,
+    "items": [
+      {
+        "description": "Consultation — Dr. Pradeep Gowda (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 1000,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H003-003"
+      }
+    ],
+    "createdAt": "2026-04-19T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-04-19T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H003-P019-19",
+        "amount": 1180,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H003-P019-19",
+        "createdAt": "2026-04-19T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H003-P019-69",
+    "patientId": "P019",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "visitDate": "2026-06-17",
+    "dueDate": "2026-06-28",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 1000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 90,
+    "sgstAmount": 90,
+    "total": 1180,
+    "items": [
+      {
+        "description": "Consultation — Dr. Pradeep Gowda (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 1000,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H003-003"
+      }
+    ],
+    "createdAt": "2026-06-17T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H003-P020-20",
+    "patientId": "P020",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "visitDate": "2026-05-20",
+    "dueDate": "2026-05-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. Maya Kulkarni (General Medicine)",
+        "department": "General Medicine",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H003-004"
+      }
+    ],
+    "createdAt": "2026-05-20T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-05-20T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H003-P020-20",
+        "amount": 1003,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H003-P020-20",
+        "createdAt": "2026-05-20T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H003-P021-21",
     "patientId": "P021",
     "hospitalId": "H003",
     "hospitalName": "Namma Health Multispeciality",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
+    "visitDate": "2026-06-21",
+    "dueDate": "2026-06-28",
     "status": "Paid",
     "currency": "₹",
     "subtotal": 950,
@@ -163,46 +960,201 @@
         "referenceId": "APT-H003-005"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z",
+    "createdAt": "2026-06-21T11:00:00.000Z",
     "paymentStatus": "Paid",
-    "paidAt": "2026-09-01T18:35:19.147Z"
+    "paidAt": "2026-06-21T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H003-P021-21",
+        "amount": 1121,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H003-P021-21",
+        "createdAt": "2026-06-21T14:30:00.000Z"
+      }
+    ]
   },
   {
-    "id": "BILL-H004-001",
+    "id": "BILL-H003-P022-22",
+    "patientId": "P022",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "visitDate": "2026-07-22",
+    "dueDate": "2026-07-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Divya Ramesh (Dermatology)",
+        "department": "Dermatology",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H003-006"
+      }
+    ],
+    "createdAt": "2026-07-22T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-07-22T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H003-P022-22",
+        "amount": 944,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H003-P022-22",
+        "createdAt": "2026-07-22T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H003-P023-23",
+    "patientId": "P023",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "visitDate": "2026-08-23",
+    "dueDate": "2026-08-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 99,
+    "sgstAmount": 99,
+    "total": 1298,
+    "items": [
+      {
+        "description": "Consultation — Dr. Ananya Hegde (Cardiology)",
+        "department": "Cardiology",
+        "amount": 1100,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H003-007"
+      }
+    ],
+    "createdAt": "2026-08-23T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-08-23T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H003-P023-23",
+        "amount": 1298,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H003-P023-23",
+        "createdAt": "2026-08-23T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H003-P024-24",
+    "patientId": "P024",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "visitDate": "2026-09-24",
+    "dueDate": "2026-09-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1200,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 108,
+    "sgstAmount": 108,
+    "total": 1416,
+    "items": [
+      {
+        "description": "Consultation — Dr. Suresh Joshi (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H003-008"
+      }
+    ],
+    "createdAt": "2026-09-24T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-24T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H003-P024-24",
+        "amount": 1416,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H003-P024-24",
+        "createdAt": "2026-09-24T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H004-P025-AMB60",
     "patientId": "P025",
     "hospitalId": "H004",
     "hospitalName": "Cauvery City Hospital",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
-    "status": "Paid",
+    "visitDate": "2026-09-08",
+    "dueDate": "2026-09-22",
+    "status": "Pending",
     "currency": "₹",
-    "subtotal": 850,
+    "subtotal": 2500,
     "cgstRate": 0.09,
     "sgstRate": 0.09,
-    "cgstAmount": 76.5,
-    "sgstAmount": 76.5,
-    "total": 1003,
+    "cgstAmount": 225,
+    "sgstAmount": 225,
+    "total": 2950,
     "items": [
       {
-        "description": "Consultation — Dr. Gautham Nambiar (Cardiology)",
-        "department": "Cardiology",
-        "amount": 850,
-        "type": "CONSULTATION",
-        "referenceId": "APT-H004-001"
+        "description": "Emergency ambulance transfer — KA 09 PQ 3021",
+        "department": "Emergency",
+        "amount": 2500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-H004-01"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z",
-    "paymentStatus": "Paid",
-    "paidAt": "2026-09-01T18:35:19.147Z"
+    "createdAt": "2026-09-08T11:00:00.000Z"
   },
   {
-    "id": "BILL-H004-005",
+    "id": "BILL-H004-P028-25",
+    "patientId": "P028",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "visitDate": "2026-04-25",
+    "dueDate": "2026-04-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 700,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 63,
+    "sgstAmount": 63,
+    "total": 826,
+    "items": [
+      {
+        "description": "Consultation — Dr. Preeti Shenoy (ENT)",
+        "department": "ENT",
+        "amount": 700,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H004-004"
+      }
+    ],
+    "createdAt": "2026-04-25T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-04-25T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H004-P028-25",
+        "amount": 826,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H004-P028-25",
+        "createdAt": "2026-04-25T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H004-P029-26",
     "patientId": "P029",
     "hospitalId": "H004",
     "hospitalName": "Cauvery City Hospital",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
-    "status": "Pending",
+    "visitDate": "2026-05-26",
+    "dueDate": "2026-05-28",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 700,
     "cgstRate": 0.09,
@@ -219,42 +1171,327 @@
         "referenceId": "APT-H004-005"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-05-26T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-05-26T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H004-P029-26",
+        "amount": 826,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H004-P029-26",
+        "createdAt": "2026-05-26T14:30:00.000Z"
+      }
+    ]
   },
   {
-    "id": "BILL-H005-001",
+    "id": "BILL-H004-P030-27",
+    "patientId": "P030",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "visitDate": "2026-06-01",
+    "dueDate": "2026-06-15",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. Shalini Rai (Gynaecology)",
+        "department": "Gynaecology",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H004-006"
+      }
+    ],
+    "createdAt": "2026-06-01T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-06-01T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H004-P030-27",
+        "amount": 1003,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H004-P030-27",
+        "createdAt": "2026-06-01T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H004-P031-28",
+    "patientId": "P031",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "visitDate": "2026-07-02",
+    "dueDate": "2026-07-16",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. Gautham Nambiar (Cardiology)",
+        "department": "Cardiology",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H004-007"
+      }
+    ],
+    "createdAt": "2026-07-02T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-07-02T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H004-P031-28",
+        "amount": 1003,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H004-P031-28",
+        "createdAt": "2026-07-02T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H004-P032-29",
+    "patientId": "P032",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "visitDate": "2026-08-03",
+    "dueDate": "2026-08-17",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 750,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 67.5,
+    "sgstAmount": 67.5,
+    "total": 885,
+    "items": [
+      {
+        "description": "Consultation — Dr. Radhika Ursu (Paediatrics)",
+        "department": "Paediatrics",
+        "amount": 750,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H004-008"
+      }
+    ],
+    "createdAt": "2026-08-03T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-08-03T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H004-P032-29",
+        "amount": 885,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H004-P032-29",
+        "createdAt": "2026-08-03T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H005-P033-AMB61",
     "patientId": "P033",
     "hospitalId": "H005",
     "hospitalName": "Sahyadri Care Hospital",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
+    "visitDate": "2026-04-09",
+    "dueDate": "2026-04-23",
     "status": "Pending",
     "currency": "₹",
-    "subtotal": 1000,
+    "subtotal": 2500,
     "cgstRate": 0.09,
     "sgstRate": 0.09,
-    "cgstAmount": 90,
-    "sgstAmount": 90,
-    "total": 1180,
+    "cgstAmount": 225,
+    "sgstAmount": 225,
+    "total": 2950,
     "items": [
       {
-        "description": "Consultation — Dr. Tarun Kulkarni (Cardiology)",
-        "department": "Cardiology",
-        "amount": 1000,
-        "type": "CONSULTATION",
-        "referenceId": "APT-H005-001"
+        "description": "Emergency ambulance transfer — MH 12 QR 2846",
+        "department": "Emergency",
+        "amount": 2500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-H005-01"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-04-09T11:00:00.000Z"
   },
   {
-    "id": "BILL-H005-005",
+    "id": "BILL-H005-P034-30",
+    "patientId": "P034",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "visitDate": "2026-09-04",
+    "dueDate": "2026-09-18",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 99,
+    "sgstAmount": 99,
+    "total": 1298,
+    "items": [
+      {
+        "description": "Consultation — Dr. Meenakshi Sundaram (Neurology)",
+        "department": "Neurology",
+        "amount": 1100,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H005-002"
+      }
+    ],
+    "createdAt": "2026-09-04T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-04T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H005-P034-30",
+        "amount": 1298,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H005-P034-30",
+        "createdAt": "2026-09-04T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H005-P034-70",
+    "patientId": "P034",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "visitDate": "2026-07-18",
+    "dueDate": "2026-07-28",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 1100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 99,
+    "sgstAmount": 99,
+    "total": 1298,
+    "items": [
+      {
+        "description": "Consultation — Dr. Meenakshi Sundaram (Neurology)",
+        "department": "Neurology",
+        "amount": 1100,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H005-002"
+      }
+    ],
+    "createdAt": "2026-07-18T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H005-P035-31",
+    "patientId": "P035",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "visitDate": "2026-04-05",
+    "dueDate": "2026-04-19",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 900,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 81,
+    "sgstAmount": 81,
+    "total": 1062,
+    "items": [
+      {
+        "description": "Consultation — Dr. Sachin Shinde (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H005-003"
+      }
+    ],
+    "createdAt": "2026-04-05T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-04-05T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H005-P035-31",
+        "amount": 1062,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H005-P035-31",
+        "createdAt": "2026-04-05T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H005-P035-71",
+    "patientId": "P035",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "visitDate": "2026-08-19",
+    "dueDate": "2026-08-28",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 900,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 81,
+    "sgstAmount": 81,
+    "total": 1062,
+    "items": [
+      {
+        "description": "Consultation — Dr. Sachin Shinde (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H005-003"
+      }
+    ],
+    "createdAt": "2026-08-19T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H005-P036-32",
+    "patientId": "P036",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "visitDate": "2026-05-06",
+    "dueDate": "2026-05-20",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 750,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 67.5,
+    "sgstAmount": 67.5,
+    "total": 885,
+    "items": [
+      {
+        "description": "Consultation — Dr. Pooja Deshmukh (Paediatrics)",
+        "department": "Paediatrics",
+        "amount": 750,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H005-004"
+      }
+    ],
+    "createdAt": "2026-05-06T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-05-06T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H005-P036-32",
+        "amount": 885,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H005-P036-32",
+        "createdAt": "2026-05-06T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H005-P037-33",
     "patientId": "P037",
     "hospitalId": "H005",
     "hospitalName": "Sahyadri Care Hospital",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
-    "status": "Pending",
+    "visitDate": "2026-06-07",
+    "dueDate": "2026-06-21",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 850,
     "cgstRate": 0.09,
@@ -271,15 +1508,226 @@
         "referenceId": "APT-H005-005"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-06-07T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-06-07T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H005-P037-33",
+        "amount": 1003,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H005-P037-33",
+        "createdAt": "2026-06-07T14:30:00.000Z"
+      }
+    ]
   },
   {
-    "id": "BILL-H006-001",
+    "id": "BILL-H005-P038-34",
+    "patientId": "P038",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "visitDate": "2026-07-08",
+    "dueDate": "2026-07-22",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 750,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 67.5,
+    "sgstAmount": 67.5,
+    "total": 885,
+    "items": [
+      {
+        "description": "Consultation — Dr. Rekha Pawar (Dermatology)",
+        "department": "Dermatology",
+        "amount": 750,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H005-006"
+      }
+    ],
+    "createdAt": "2026-07-08T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-07-08T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H005-P038-34",
+        "amount": 885,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H005-P038-34",
+        "createdAt": "2026-07-08T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H005-P040-35",
+    "patientId": "P040",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "visitDate": "2026-08-09",
+    "dueDate": "2026-08-23",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 99,
+    "sgstAmount": 99,
+    "total": 1298,
+    "items": [
+      {
+        "description": "Consultation — Dr. Meenakshi Sundaram (Neurology)",
+        "department": "Neurology",
+        "amount": 1100,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H005-008"
+      }
+    ],
+    "createdAt": "2026-08-09T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-08-09T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H005-P040-35",
+        "amount": 1298,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H005-P040-35",
+        "createdAt": "2026-08-09T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H006-P041-AMB62",
     "patientId": "P041",
     "hospitalId": "H006",
     "hospitalName": "Deccan Multispeciality Centre",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
+    "visitDate": "2026-05-10",
+    "dueDate": "2026-05-24",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 2500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 225,
+    "sgstAmount": 225,
+    "total": 2950,
+    "items": [
+      {
+        "description": "Emergency ambulance transfer — MH 15 ST 9102",
+        "department": "Emergency",
+        "amount": 2500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-H006-01"
+      }
+    ],
+    "createdAt": "2026-05-10T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H006-P042-36",
+    "patientId": "P042",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "visitDate": "2026-09-10",
+    "dueDate": "2026-09-24",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 700,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 63,
+    "sgstAmount": 63,
+    "total": 826,
+    "items": [
+      {
+        "description": "Consultation — Dr. Amitav Ghosh (General Medicine)",
+        "department": "General Medicine",
+        "amount": 700,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H006-002"
+      }
+    ],
+    "createdAt": "2026-09-10T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-10T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H006-P042-36",
+        "amount": 826,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H006-P042-36",
+        "createdAt": "2026-09-10T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H006-P042-72",
+    "patientId": "P042",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "visitDate": "2026-09-20",
+    "dueDate": "2026-09-28",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 700,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 63,
+    "sgstAmount": 63,
+    "total": 826,
+    "items": [
+      {
+        "description": "Consultation — Dr. Amitav Ghosh (General Medicine)",
+        "department": "General Medicine",
+        "amount": 700,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H006-002"
+      }
+    ],
+    "createdAt": "2026-09-20T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H006-P043-37",
+    "patientId": "P043",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "visitDate": "2026-04-11",
+    "dueDate": "2026-04-25",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Sanjay Borse (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H006-003"
+      }
+    ],
+    "createdAt": "2026-04-11T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-04-11T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H006-P043-37",
+        "amount": 944,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H006-P043-37",
+        "createdAt": "2026-04-11T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H006-P043-73",
+    "patientId": "P043",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "visitDate": "2026-04-21",
+    "dueDate": "2026-04-28",
     "status": "Pending",
     "currency": "₹",
     "subtotal": 800,
@@ -290,22 +1738,22 @@
     "total": 944,
     "items": [
       {
-        "description": "Consultation — Dr. Deepa Chawla (Cardiology)",
-        "department": "Cardiology",
+        "description": "Consultation — Dr. Sanjay Borse (Orthopaedics)",
+        "department": "Orthopaedics",
         "amount": 800,
         "type": "CONSULTATION",
-        "referenceId": "APT-H006-001"
+        "referenceId": "APT-H006-003"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-04-21T11:00:00.000Z"
   },
   {
-    "id": "BILL-H006-005",
+    "id": "BILL-H006-P045-38",
     "patientId": "P045",
     "hospitalId": "H006",
     "hospitalName": "Deccan Multispeciality Centre",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
+    "visitDate": "2026-05-12",
+    "dueDate": "2026-05-26",
     "status": "Paid",
     "currency": "₹",
     "subtotal": 750,
@@ -323,17 +1771,137 @@
         "referenceId": "APT-H006-005"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z",
+    "createdAt": "2026-05-12T11:00:00.000Z",
     "paymentStatus": "Paid",
-    "paidAt": "2026-09-01T18:35:19.147Z"
+    "paidAt": "2026-05-12T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H006-P045-38",
+        "amount": 885,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H006-P045-38",
+        "createdAt": "2026-05-12T14:30:00.000Z"
+      }
+    ]
   },
   {
-    "id": "BILL-H007-001",
+    "id": "BILL-H006-P046-39",
+    "patientId": "P046",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "visitDate": "2026-06-13",
+    "dueDate": "2026-06-27",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. Smita Wagh (Gynaecology)",
+        "department": "Gynaecology",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H006-006"
+      }
+    ],
+    "createdAt": "2026-06-13T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-06-13T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H006-P046-39",
+        "amount": 1003,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H006-P046-39",
+        "createdAt": "2026-06-13T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H006-P047-40",
+    "patientId": "P047",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "visitDate": "2026-07-14",
+    "dueDate": "2026-07-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. Deepa Chawla (Cardiology)",
+        "department": "Cardiology",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H006-007"
+      }
+    ],
+    "createdAt": "2026-07-14T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-07-14T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H006-P047-40",
+        "amount": 944,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H006-P047-40",
+        "createdAt": "2026-07-14T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H006-P048-41",
+    "patientId": "P048",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "visitDate": "2026-08-15",
+    "dueDate": "2026-08-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 700,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 63,
+    "sgstAmount": 63,
+    "total": 826,
+    "items": [
+      {
+        "description": "Consultation — Dr. Amitav Ghosh (General Medicine)",
+        "department": "General Medicine",
+        "amount": 700,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H006-008"
+      }
+    ],
+    "createdAt": "2026-08-15T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-08-15T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H006-P048-41",
+        "amount": 826,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H006-P048-41",
+        "createdAt": "2026-08-15T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H007-P049-42",
     "patientId": "P049",
     "hospitalId": "H007",
     "hospitalName": "Chennai Lifeline Hospital",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
+    "visitDate": "2026-09-16",
+    "dueDate": "2026-09-28",
     "status": "Paid",
     "currency": "₹",
     "subtotal": 1100,
@@ -351,17 +1919,215 @@
         "referenceId": "APT-H007-001"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z",
+    "createdAt": "2026-09-16T11:00:00.000Z",
     "paymentStatus": "Paid",
-    "paidAt": "2026-09-01T18:35:19.147Z"
+    "paidAt": "2026-09-16T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H007-P049-42",
+        "amount": 1298,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H007-P049-42",
+        "createdAt": "2026-09-16T14:30:00.000Z"
+      }
+    ]
   },
   {
-    "id": "BILL-H007-005",
+    "id": "BILL-H007-P049-AMB63",
+    "patientId": "P049",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "visitDate": "2026-06-11",
+    "dueDate": "2026-06-25",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 2500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 225,
+    "sgstAmount": 225,
+    "total": 2950,
+    "items": [
+      {
+        "description": "Emergency ambulance transfer — TN 10 XY 6182",
+        "department": "Emergency",
+        "amount": 2500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-H007-01"
+      }
+    ],
+    "createdAt": "2026-06-11T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H007-P050-43",
+    "patientId": "P050",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "visitDate": "2026-04-17",
+    "dueDate": "2026-04-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1200,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 108,
+    "sgstAmount": 108,
+    "total": 1416,
+    "items": [
+      {
+        "description": "Consultation — Dr. S. Jayaraman (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H007-002"
+      }
+    ],
+    "createdAt": "2026-04-17T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-04-17T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H007-P050-43",
+        "amount": 1416,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H007-P050-43",
+        "createdAt": "2026-04-17T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H007-P050-74",
+    "patientId": "P050",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "visitDate": "2026-05-22",
+    "dueDate": "2026-05-28",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 1200,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 108,
+    "sgstAmount": 108,
+    "total": 1416,
+    "items": [
+      {
+        "description": "Consultation — Dr. S. Jayaraman (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H007-002"
+      }
+    ],
+    "createdAt": "2026-05-22T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H007-P051-44",
+    "patientId": "P051",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "visitDate": "2026-05-18",
+    "dueDate": "2026-05-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 900,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 81,
+    "sgstAmount": 81,
+    "total": 1062,
+    "items": [
+      {
+        "description": "Consultation — Dr. K. Ananthi (General Medicine)",
+        "department": "General Medicine",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H007-003"
+      }
+    ],
+    "createdAt": "2026-05-18T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-05-18T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H007-P051-44",
+        "amount": 1062,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H007-P051-44",
+        "createdAt": "2026-05-18T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H007-P051-75",
+    "patientId": "P051",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "visitDate": "2026-06-23",
+    "dueDate": "2026-06-28",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 900,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 81,
+    "sgstAmount": 81,
+    "total": 1062,
+    "items": [
+      {
+        "description": "Consultation — Dr. K. Ananthi (General Medicine)",
+        "department": "General Medicine",
+        "amount": 900,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H007-003"
+      }
+    ],
+    "createdAt": "2026-06-23T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H007-P052-45",
+    "patientId": "P052",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "visitDate": "2026-06-19",
+    "dueDate": "2026-06-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1000,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 90,
+    "sgstAmount": 90,
+    "total": 1180,
+    "items": [
+      {
+        "description": "Consultation — Dr. R. Karthik (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 1000,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H007-004"
+      }
+    ],
+    "createdAt": "2026-06-19T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-06-19T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H007-P052-45",
+        "amount": 1180,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H007-P052-45",
+        "createdAt": "2026-06-19T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H007-P053-46",
     "patientId": "P053",
     "hospitalId": "H007",
     "hospitalName": "Chennai Lifeline Hospital",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
+    "visitDate": "2026-07-20",
+    "dueDate": "2026-07-28",
     "status": "Paid",
     "currency": "₹",
     "subtotal": 950,
@@ -379,18 +2145,138 @@
         "referenceId": "APT-H007-005"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z",
+    "createdAt": "2026-07-20T11:00:00.000Z",
     "paymentStatus": "Paid",
-    "paidAt": "2026-09-01T18:35:19.147Z"
+    "paidAt": "2026-07-20T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H007-P053-46",
+        "amount": 1121,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H007-P053-46",
+        "createdAt": "2026-07-20T14:30:00.000Z"
+      }
+    ]
   },
   {
-    "id": "BILL-H008-001",
+    "id": "BILL-H007-P054-47",
+    "patientId": "P054",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "visitDate": "2026-08-21",
+    "dueDate": "2026-08-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. P. Sundar (Dermatology)",
+        "department": "Dermatology",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H007-006"
+      }
+    ],
+    "createdAt": "2026-08-21T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-08-21T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H007-P054-47",
+        "amount": 1003,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H007-P054-47",
+        "createdAt": "2026-08-21T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H007-P055-48",
+    "patientId": "P055",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "visitDate": "2026-09-22",
+    "dueDate": "2026-09-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1100,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 99,
+    "sgstAmount": 99,
+    "total": 1298,
+    "items": [
+      {
+        "description": "Consultation — Dr. V. Ramanathan (Cardiology)",
+        "department": "Cardiology",
+        "amount": 1100,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H007-007"
+      }
+    ],
+    "createdAt": "2026-09-22T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-09-22T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H007-P055-48",
+        "amount": 1298,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H007-P055-48",
+        "createdAt": "2026-09-22T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H007-P056-49",
+    "patientId": "P056",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "visitDate": "2026-04-23",
+    "dueDate": "2026-04-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 1200,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 108,
+    "sgstAmount": 108,
+    "total": 1416,
+    "items": [
+      {
+        "description": "Consultation — Dr. S. Jayaraman (Neurology)",
+        "department": "Neurology",
+        "amount": 1200,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H007-008"
+      }
+    ],
+    "createdAt": "2026-04-23T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-04-23T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H007-P056-49",
+        "amount": 1416,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H007-P056-49",
+        "createdAt": "2026-04-23T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H008-P057-50",
     "patientId": "P057",
     "hospitalId": "H008",
     "hospitalName": "Kaveri Medical Centre",
-    "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
-    "status": "Pending",
+    "visitDate": "2026-05-24",
+    "dueDate": "2026-05-28",
+    "status": "Paid",
     "currency": "₹",
     "subtotal": 850,
     "cgstRate": 0.09,
@@ -407,15 +2293,215 @@
         "referenceId": "APT-H008-001"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z"
+    "createdAt": "2026-05-24T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-05-24T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H008-P057-50",
+        "amount": 1003,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H008-P057-50",
+        "createdAt": "2026-05-24T14:30:00.000Z"
+      }
+    ]
   },
   {
-    "id": "BILL-H008-005",
-    "patientId": "P061",
+    "id": "BILL-H008-P057-AMB64",
+    "patientId": "P057",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "visitDate": "2026-07-12",
+    "dueDate": "2026-07-26",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 2500,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 225,
+    "sgstAmount": 225,
+    "total": 2950,
+    "items": [
+      {
+        "description": "Emergency ambulance transfer — TN 23 ZW 4410",
+        "department": "Emergency",
+        "amount": 2500,
+        "type": "AMBULANCE",
+        "referenceId": "AMB-H008-01"
+      }
+    ],
+    "createdAt": "2026-07-12T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H008-P058-51",
+    "patientId": "P058",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "visitDate": "2026-06-25",
+    "dueDate": "2026-06-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 750,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 67.5,
+    "sgstAmount": 67.5,
+    "total": 885,
+    "items": [
+      {
+        "description": "Consultation — Dr. N. Gayathri (General Medicine)",
+        "department": "General Medicine",
+        "amount": 750,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H008-002"
+      }
+    ],
+    "createdAt": "2026-06-25T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-06-25T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H008-P058-51",
+        "amount": 885,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H008-P058-51",
+        "createdAt": "2026-06-25T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H008-P058-76",
+    "patientId": "P058",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "visitDate": "2026-07-24",
+    "dueDate": "2026-07-28",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 750,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 67.5,
+    "sgstAmount": 67.5,
+    "total": 885,
+    "items": [
+      {
+        "description": "Consultation — Dr. N. Gayathri (General Medicine)",
+        "department": "General Medicine",
+        "amount": 750,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H008-002"
+      }
+    ],
+    "createdAt": "2026-07-24T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H008-P059-52",
+    "patientId": "P059",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "visitDate": "2026-07-26",
+    "dueDate": "2026-07-28",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. S. Balaji (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H008-003"
+      }
+    ],
+    "createdAt": "2026-07-26T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-07-26T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H008-P059-52",
+        "amount": 944,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H008-P059-52",
+        "createdAt": "2026-07-26T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H008-P059-77",
+    "patientId": "P059",
     "hospitalId": "H008",
     "hospitalName": "Kaveri Medical Centre",
     "visitDate": "2026-08-25",
-    "dueDate": "2026-09-08",
+    "dueDate": "2026-08-28",
+    "status": "Pending",
+    "currency": "₹",
+    "subtotal": 800,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 72,
+    "sgstAmount": 72,
+    "total": 944,
+    "items": [
+      {
+        "description": "Consultation — Dr. S. Balaji (Orthopaedics)",
+        "department": "Orthopaedics",
+        "amount": 800,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H008-003"
+      }
+    ],
+    "createdAt": "2026-08-25T11:00:00.000Z"
+  },
+  {
+    "id": "BILL-H008-P060-53",
+    "patientId": "P060",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "visitDate": "2026-08-01",
+    "dueDate": "2026-08-15",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 700,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 63,
+    "sgstAmount": 63,
+    "total": 826,
+    "items": [
+      {
+        "description": "Consultation — Dr. U. Malathi (Paediatrics)",
+        "department": "Paediatrics",
+        "amount": 700,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H008-004"
+      }
+    ],
+    "createdAt": "2026-08-01T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-08-01T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H008-P060-53",
+        "amount": 826,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H008-P060-53",
+        "createdAt": "2026-08-01T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H008-P061-54",
+    "patientId": "P061",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "visitDate": "2026-09-02",
+    "dueDate": "2026-09-16",
     "status": "Paid",
     "currency": "₹",
     "subtotal": 850,
@@ -433,8 +2519,91 @@
         "referenceId": "APT-H008-005"
       }
     ],
-    "createdAt": "2026-08-25T11:00:00Z",
+    "createdAt": "2026-09-02T11:00:00.000Z",
     "paymentStatus": "Paid",
-    "paidAt": "2026-09-01T18:35:19.147Z"
+    "paidAt": "2026-09-02T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H008-P061-54",
+        "amount": 1003,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H008-P061-54",
+        "createdAt": "2026-09-02T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H008-P063-55",
+    "patientId": "P063",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "visitDate": "2026-04-03",
+    "dueDate": "2026-04-17",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 850,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 76.5,
+    "sgstAmount": 76.5,
+    "total": 1003,
+    "items": [
+      {
+        "description": "Consultation — Dr. T. Venugopal (Cardiology)",
+        "department": "Cardiology",
+        "amount": 850,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H008-007"
+      }
+    ],
+    "createdAt": "2026-04-03T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-04-03T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H008-P063-55",
+        "amount": 1003,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H008-P063-55",
+        "createdAt": "2026-04-03T14:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "BILL-H008-P064-56",
+    "patientId": "P064",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "visitDate": "2026-05-04",
+    "dueDate": "2026-05-18",
+    "status": "Paid",
+    "currency": "₹",
+    "subtotal": 750,
+    "cgstRate": 0.09,
+    "sgstRate": 0.09,
+    "cgstAmount": 67.5,
+    "sgstAmount": 67.5,
+    "total": 885,
+    "items": [
+      {
+        "description": "Consultation — Dr. N. Gayathri (General Medicine)",
+        "department": "General Medicine",
+        "amount": 750,
+        "type": "CONSULTATION",
+        "referenceId": "APT-H008-008"
+      }
+    ],
+    "createdAt": "2026-05-04T11:00:00.000Z",
+    "paymentStatus": "Paid",
+    "paidAt": "2026-05-04T14:30:00.000Z",
+    "payments": [
+      {
+        "id": "PAY-BILL-H008-P064-56",
+        "amount": 885,
+        "method": "ONLINE (UPI/Card)",
+        "gatewayReference": "TXN-BILL-H008-P064-56",
+        "createdAt": "2026-05-04T14:30:00.000Z"
+      }
+    ]
   }
 ]

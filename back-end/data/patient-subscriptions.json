@@ -11,11 +11,11 @@
   {
     "id": "PSUB-P002",
     "patientId": "P002",
-    "patientName": "Maria Garcia",
-    "planId": "CARE-PLUS",
+    "patientName": "Sravani Reddy",
+    "planId": "CARE-FAMILY",
     "status": "active",
     "startedAt": "2026-05-01T00:00:00.000Z",
-    "renewsOn": "2026-08-31T18:30:00.000Z"
+    "renewsOn": "2026-10-01T18:30:00.000Z"
   },
   {
     "id": "PSUB-P003",
@@ -43,5 +43,14 @@
     "status": "active",
     "startedAt": "2026-05-01T00:00:00.000Z",
     "renewsOn": "2026-08-31T18:30:00.000Z"
+  },
+  {
+    "id": "PSUB-P009",
+    "patientId": "P009",
+    "patientName": "Karthik Varma",
+    "planId": "CARE-PAYG",
+    "status": "cancelled",
+    "startedAt": "2026-09-02T06:49:35.888Z",
+    "renewsOn": "2026-10-01T18:30:00.000Z"
   }
 ]

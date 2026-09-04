@@ -1,5 +1,31 @@
 [
   {
+    "id": "NOTIFMTJQ62R4OEC",
+    "recipientUserId": "DOC-KA01-001",
+    "recipientRole": "doctor",
+    "hospitalId": "H003",
+    "type": "INFO",
+    "title": "New Appointment Booked",
+    "message": "New appointment booked by Patient P002 on 2026-09-10 at 08:00 AM.",
+    "entityType": "APPOINTMENT",
+    "entityId": "APT-MTJQ62QTLLW",
+    "createdAt": "2026-09-02T06:38:28.720Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMTJQ62R1NK4",
+    "recipientUserId": "P002",
+    "recipientRole": "patient",
+    "hospitalId": "H003",
+    "type": "SUCCESS",
+    "title": "Appointment Booked",
+    "message": "Appointment confirmed with Dr. Ananya Hegde on 2026-09-10 at 08:00 AM.",
+    "entityType": "APPOINTMENT",
+    "entityId": "APT-MTJQ62QTLLW",
+    "createdAt": "2026-09-02T06:38:28.717Z",
+    "read": false
+  },
+  {
     "id": "NOTIFMTJ2U8BT32W",
     "recipientRole": "superuser",
     "type": "SUCCESS",
