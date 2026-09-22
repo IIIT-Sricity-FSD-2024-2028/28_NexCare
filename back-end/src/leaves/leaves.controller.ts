@@ -124,6 +124,16 @@ export class LeavesController {
     if ((user?.role === UserRole.HOSPITAL_MANAGER || user?.role === UserRole.ADMINISTRATIVE_STAFF) && user.hospitalId) {
       createLeaveDto.hospitalId = user.hospitalId;
     }
+    // A doctor files for themselves. CreateLeaveDto is a bare interface, so the
+    // global ValidationPipe checks nothing here: a request that omitted
+    // hospitalId was stored without one, and every hospital manager's list
+    // filters on it — the leave could then never be seen or approved. Fall back
+    // to the caller's own hospital and name.
+    if (user?.role === UserRole.DOCTOR) {
+      if (!createLeaveDto.hospitalId && user.hospitalId) createLeaveDto.hospitalId = user.hospitalId;
+      if (!createLeaveDto.doctorName && user.name) createLeaveDto.doctorName = user.name;
+      if (!createLeaveDto.doctorId && user.id) createLeaveDto.doctorId = user.id;
+    }
     return this.leavesService.create(createLeaveDto);
   }
 

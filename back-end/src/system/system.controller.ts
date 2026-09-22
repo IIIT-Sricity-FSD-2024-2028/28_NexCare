@@ -117,7 +117,7 @@ export class SystemController {
   @ApiOperation({ summary: 'Get system performance metrics' })
   @ApiResponse({ status: 200, description: 'System performance retrieved' })
   async getPerformance() {
-    return this.systemService.getHealth();
+    return this.systemService.getPerformance();
   }
 
   /**

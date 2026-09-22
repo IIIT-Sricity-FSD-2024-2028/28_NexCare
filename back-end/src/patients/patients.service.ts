@@ -238,10 +238,16 @@ export class PatientsService {
         }
       }
 
-      // Update patient
+      // Update patient.
+      // The DTO calls the display name `fullName`; the stored record calls it
+      // `name`. Spreading the DTO straight in added a `fullName` key nothing
+      // reads and left `name` untouched, so every rename from the patient
+      // portal was silently lost while the UI reported success. Map it over.
+      const { fullName, ...rest } = updateData as any;
       patients[patientIndex] = {
         ...patients[patientIndex],
-        ...updateData,
+        ...rest,
+        ...(fullName !== undefined ? { name: fullName } : {}),
         updatedAt: new Date().toISOString()
       };
 

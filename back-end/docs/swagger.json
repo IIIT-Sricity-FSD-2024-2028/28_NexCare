@@ -1077,6 +1077,350 @@
         ]
       }
     },
+    "/api/auth/forgot-password/verify": {
+      "post": {
+        "operationId": "AuthController_forgotPasswordVerify",
+        "summary": "Validate account for password reset",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "required": false,
+            "description": "CSRF token, read from the x-csrf-token response header of any preceding GET. Required only for writes that do not carry an Authorization: Bearer header — a Bearer-authenticated write is structurally immune, since a browser never attaches that header on its own.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account verified for password reset",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CSRF token missing or invalid on an unauthenticated state-changing request.",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Account not found",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large — SecurityMiddleware rejects request bodies over 1024 KB.",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded — SecurityMiddleware allows 300 requests per 60s per IP on this route. The retry-after header gives the wait in seconds.",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "x-csrf-token": []
+          }
+        ]
+      }
+    },
+    "/api/auth/forgot-password/reset": {
+      "post": {
+        "operationId": "AuthController_forgotPasswordReset",
+        "summary": "Reset account password with verified email",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "required": false,
+            "description": "CSRF token, read from the x-csrf-token response header of any preceding GET. Required only for writes that do not carry an Authorization: Bearer header — a Bearer-authenticated write is structurally immune, since a browser never attaches that header on its own.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password reset successful",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CSRF token missing or invalid on an unauthenticated state-changing request.",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large — SecurityMiddleware rejects request bodies over 1024 KB.",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded — SecurityMiddleware allows 300 requests per 60s per IP on this route. The retry-after header gives the wait in seconds.",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "x-csrf-token": []
+          }
+        ]
+      }
+    },
     "/api/system/activity": {
       "get": {
         "operationId": "SystemController_findAllActivity",
@@ -2026,8 +2370,8 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
+          "413": {
+            "description": "Payload too large — SecurityMiddleware rejects request bodies over 1024 KB.",
             "headers": {
               "x-request-id": {
                 "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
@@ -2055,8 +2399,158 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "429": {
+            "description": "Rate limit exceeded — SecurityMiddleware allows 300 requests per 60s per IP on this route. The retry-after header gives the wait in seconds.",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "System"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/system/health": {
+      "get": {
+        "operationId": "SystemController_getHealth",
+        "summary": "Get system health and performance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "System health retrieved",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large — SecurityMiddleware rejects request bodies over 1024 KB.",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded — SecurityMiddleware allows 300 requests per 60s per IP on this route. The retry-after header gives the wait in seconds.",
+            "headers": {
+              "x-request-id": {
+                "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-csrf-token": {
+                "description": "Current CSRF token, issued by CsrfMiddleware. Send it back in the x-csrf-token request header on unauthenticated writes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ratelimit-limit": {
+                "description": "Requests permitted in the current window, set by SecurityMiddleware.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-remaining": {
+                "description": "Requests still permitted in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "System"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/system/performance": {
+      "get": {
+        "operationId": "SystemController_getPerformance",
+        "summary": "Get system performance metrics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "System performance retrieved",
             "headers": {
               "x-request-id": {
                 "description": "Correlation id for this request, set by RequestLoggerMiddleware. Echoed from the request when supplied.",
@@ -5803,7 +6297,9 @@
                 "regional_manager",
                 "hospital_manager",
                 "doctor",
-                "nurse"
+                "nurse",
+                "hospital_admin",
+                "platform_admin"
               ],
               "type": "string"
             }
@@ -15111,7 +15607,7 @@
     "/api/inventory": {
       "get": {
         "operationId": "InventoryController_findAll",
-        "summary": "Get all inventory items",
+        "summary": "Get all inventory items (hospital staff and managers: their hospital only)",
         "parameters": [
           {
             "name": "category",
@@ -15136,6 +15632,14 @@
           },
           {
             "name": "location",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hospitalId",
             "required": false,
             "in": "query",
             "schema": {
@@ -30324,7 +30828,7 @@
     "/api/feedback": {
       "get": {
         "operationId": "FeedbackController_findAll",
-        "summary": "Get all feedback (patients: only their own)",
+        "summary": "Get all feedback (patients: only their own, hospital staff: their hospital only)",
         "parameters": [
           {
             "name": "patientId",
@@ -30349,6 +30853,14 @@
           },
           {
             "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hospitalId",
             "required": false,
             "in": "query",
             "schema": {
@@ -32088,7 +32600,7 @@
       },
       "put": {
         "operationId": "FeedbackController_update",
-        "summary": "Update feedback details",
+        "summary": "Update feedback details (patients: own only)",
         "parameters": [
           {
             "name": "id",
@@ -32279,7 +32791,7 @@
       },
       "patch": {
         "operationId": "FeedbackController_patchUpdate",
-        "summary": "Partially update feedback details",
+        "summary": "Partially update feedback details (patients: own only)",
         "parameters": [
           {
             "name": "id",
@@ -32470,7 +32982,7 @@
       },
       "delete": {
         "operationId": "FeedbackController_delete",
-        "summary": "Delete feedback",
+        "summary": "Delete feedback (patients: own only)",
         "parameters": [
           {
             "name": "id",
@@ -32653,7 +33165,7 @@
     "/api/feedback/{id}/status": {
       "patch": {
         "operationId": "FeedbackController_updateStatus",
-        "summary": "Update feedback status",
+        "summary": "Update feedback status (hospital staff and managers: their hospital only)",
         "parameters": [
           {
             "name": "id",
@@ -40787,7 +41299,9 @@
               "regional_manager",
               "hospital_manager",
               "doctor",
-              "nurse"
+              "nurse",
+              "hospital_admin",
+              "platform_admin"
             ],
             "example": "superuser",
             "description": "Role to login as"
@@ -41105,7 +41619,9 @@
               "regional_manager",
               "hospital_manager",
               "doctor",
-              "nurse"
+              "nurse",
+              "hospital_admin",
+              "platform_admin"
             ],
             "example": "administrative_staff",
             "description": "User role"
@@ -41283,7 +41799,9 @@
               "regional_manager",
               "hospital_manager",
               "doctor",
-              "nurse"
+              "nurse",
+              "hospital_admin",
+              "platform_admin"
             ],
             "example": "administrative_staff",
             "description": "User role"
@@ -42156,6 +42674,11 @@
             ],
             "example": "In Progress",
             "description": "Status of feedback"
+          },
+          "hospitalId": {
+            "type": "string",
+            "example": "H001",
+            "description": "Hospital the feedback relates to"
           }
         }
       },
@@ -42225,7 +42748,9 @@
               "regional_manager",
               "hospital_manager",
               "doctor",
-              "nurse"
+              "nurse",
+              "hospital_admin",
+              "platform_admin"
             ],
             "description": "Role of users to notify (e.g. all doctors)"
           },
