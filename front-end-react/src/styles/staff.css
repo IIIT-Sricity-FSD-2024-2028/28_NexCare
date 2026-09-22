@@ -1,0 +1,1716 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   front-end/administrative_staff/styles.css — verbatim copy (plan.md rule 5).
+   Route-mounted by portals/staff/StaffPortal.jsx via useStylesheet(), because
+   its body / table / th / td / select element rules must not reach other
+   portals. Nothing in this first section is edited; SPA-only fixes are in the
+   override block at the very end.
+   ─────────────────────────────────────────────────────────────────────────── */
+/* RESET */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, Arial, sans-serif;
+    background: #f5f7fb;
+    color: #111;
+}
+
+/* LAYOUT */
+.layout {
+    display: flex;
+}
+
+/* SIDEBAR */
+/* SIDEBAR FIX */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+}
+
+/* FADE OUT ANIMATION */
+.row-fade-out {
+    opacity: 0 !important;
+    transform: translateX(10px);
+    background: #fee2e2 !important;
+    transition: all 0.5s ease-out;
+}
+
+/* LOGO */
+.logo {
+    padding: 20px;
+}
+
+/* MENU */
+.menu {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+    flex: 1;
+}
+
+.menu li {
+    margin-bottom: 6px;
+}
+
+.menu li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #6b7280;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menu svg {
+    flex-shrink: 0;
+}
+
+/* HOVER */
+.menu li a:hover {
+    background: #f3f4f6;
+    color: #2563eb;
+}
+
+/* ACTIVE */
+.menu li.active a {
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* LOGOUT */
+.logout {
+    padding: 16px;
+}
+
+.logout button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #f9fafb;
+    cursor: pointer;
+    color: #2563eb;
+    font-weight: 500;
+}
+
+.logout button:hover {
+    background: #eef2ff;
+}
+
+/* MAIN */
+.main {
+    flex: 1;
+    padding: 24px;
+}
+
+/* TOPBAR */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search {
+    width: 50%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.user-profile {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    transition: 0.2s;
+}
+
+.user-profile:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.user-profile .avatar {
+    width: 28px;
+    height: 28px;
+    background: #2563eb;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.user-profile .user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    width: 160px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 1px solid #e5e7eb;
+    display: none;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.dropdown-menu.active {
+    display: flex;
+}
+
+.dropdown-menu a {
+    padding: 10px 14px;
+    text-decoration: none;
+    color: #374151;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.dropdown-menu a:hover {
+    background: #f3f4f6;
+    color: #2563eb;
+}
+
+.dropdown-menu .divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 4px 0;
+}
+
+.dropdown-menu .logout-link {
+    color: #ef4444;
+}
+
+.dropdown-menu .logout-link:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* HEADER */
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.sub {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 6px;
+}
+
+/* CARDS */
+.card {
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.05);
+}
+
+/* STATS */
+.cards {
+    display: flex;
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.stat {
+    flex: 1;
+    padding: 18px;
+    border-radius: 12px;
+}
+
+.stat p {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.stat h3 {
+    margin: 8px 0 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.green { background: #ecfdf5; }
+.yellow { background: #fffbeb; }
+.purple { background: #f5f3ff; }
+
+/* FILTERS */
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.filters .search {
+    width: 40%;
+}
+
+select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+/* BUTTONS */
+.btn {
+    background: #2563eb;
+    color: #fff;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-outline {
+    border: 1px solid #d1d5db;
+    background: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-outline:hover {
+    background: #f9fafb;
+}
+
+/* INPUT */
+.input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* TABLE */
+.table-container {
+    margin-top: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+thead {
+    background: #f9fafb;
+}
+
+th {
+    text-align: left;
+    padding: 12px;
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+td {
+    padding: 14px 12px;
+    border-top: 1px solid #f1f5f9;
+}
+
+tr:hover {
+    background: #f9fafb;
+}
+
+/* STATUS BADGES */
+.status {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status.paid {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status.pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status.overdue {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0,0,0,0.4);
+
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-card {
+    width: 320px;
+}
+
+/* UTIL */
+.small {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+h1, h3 {
+    margin: 0;
+}
+
+
+
+/* APPOINTMENTS */
+.appointment {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    background: #e0ecff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.info {
+    flex: 1;
+}
+
+.time {
+    font-size: 13px;
+    color: #6b7280;
+    margin-right: 10px;
+}
+
+/* BADGES */
+.badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    background: #e5e7eb;
+}
+
+.badge.success {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.badge.info {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.badge.warning {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+/* TRENDS */
+.trend {
+    font-size: 12px;
+    margin-top: 6px;
+    display: inline-block;
+}
+
+.trend.up { color: #16a34a; }
+.trend.down { color: #dc2626; }
+.trend.neutral { color: #6b7280; }
+
+/* ACTIONS */
+.actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.action-btn.edit:hover {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.action-btn.delete:hover {
+    background: #fee2e2;
+    border-color: #ef4444;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.action-btn.confirm {
+    background: #22c55e;
+    border-color: #16a34a;
+    color: white;
+}
+
+.action-btn.confirm:hover {
+    background: #16a34a;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+}
+
+.action-btn.cancel {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+.action-btn.cancel:hover {
+    background: #e5e7eb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn svg {
+    width: 14px;
+    height: 14px;
+}
+/* FIX APPOINTMENT LAYOUT */
+.appointment {
+    display: grid;
+    grid-template-columns: 40px 1fr 100px 140px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* FIX BADGE WIDTH */
+.status-wrap {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    text-align: center;
+    white-space: nowrap;
+    border-radius: 999px;
+    font-weight: 500;
+}
+
+/* Specific button for tables - keep small */
+.action-btn-sm {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.quick-action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    text-decoration: none !important;
+    color: #374151 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 12px;
+    text-align: center;
+}
+
+.quick-action-card:hover {
+    background: #ffffff;
+    border-color: #2563eb;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(37, 99, 235, 0.1);
+}
+
+.quick-action-card .icon {
+    width: 32px;
+    height: 32px;
+    color: #2563eb;
+    transition: transform 0.3s ease;
+}
+
+.quick-action-card:hover .icon {
+    transform: scale(1.1);
+}
+
+.quick-action-card span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+/* ---------------- BED GRID ---------------- */
+.beds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.bed {
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    border: 2px solid #e5e7eb;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.bed:hover {
+    transform: scale(1.05);
+}
+
+.bed.available {
+    border-color: #22c55e;
+    background: #ecfdf5;
+}
+
+.bed.occupied {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.bed.critical {
+    border-color: #ef4444;
+    background: #fee2e2;
+}
+
+/* Modal buttons */
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+/* WARD CARD */
+.ward-card {
+    border: 1px solid #e5e7eb;
+    padding: 14px;
+    border-radius: 12px;
+    background: #fff;
+    flex: 1;
+}
+
+.progress {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 6px 0;
+}
+
+.progress-bar {
+    height: 100%;
+}
+
+.progress.red { background:#fee2e2; }
+.progress.yellow { background:#fef3c7; }
+.progress.blue { background:#dbeafe; }
+.progress.green { background:#dcfce7; }
+
+.progress-bar.red { background:#ef4444; }
+.progress-bar.yellow { background:#f59e0b; }
+.progress-bar.blue { background:#3b82f6; }
+.progress-bar.green { background:#22c55e; }
+
+/* LIST MODE */
+.beds-list {
+    display: flex !important;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.beds-list .bed {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    font-size: 14px;
+}
+
+.btn-outline.active {
+    background: #2563eb;
+    color: #fff;
+}
+
+.legend {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    font-size: 13px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #374151;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.dot.green { background: #22c55e; }
+.dot.blue { background: #3b82f6; }
+.dot.red { background: #ef4444; }
+.dot.gray { background: #9ca3af; }
+
+.ward-card {
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.ward-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,.08);
+}
+
+/* INVENTORY BUTTON ALIGN */
+.table-container .btn {
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+/* STATUS COLORS REUSE */
+.status.paid {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status.pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+/* STAT NUMBER COLORS */
+.blue-text {
+    color: #2563eb;
+}
+
+.green-text {
+    color: #16a34a;
+}
+
+.orange-text {
+    color: #f59e0b;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.icon-btn {
+    border: none;
+    background: #f3f4f6;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn svg {
+    stroke: #374151;
+    stroke-width: 2;
+    fill: none;
+}
+
+.icon-btn:hover {
+    background: #e5e7eb;
+}
+
+#billContent p {
+    margin: 6px 0;
+}
+
+.logout {
+    margin-top: auto;
+    padding: 16px;
+}
+
+.logout-btn {
+    width: 100%;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: none;
+    background: #f9fafb;
+    cursor: pointer;
+    color: #374151;
+}
+
+.logout-btn:hover {
+    background: #eef2ff;
+    color: #2563eb;
+}
+
+.logout-icon {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   front-end/administrative_staff/logo.css — verbatim copy.
+   ─────────────────────────────────────────────────────────────────────────── */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    user-select: none;
+}
+
+.logo-icon-container {
+    background-color: #0066CC; 
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+
+.logo-icon-container svg {
+    width: 30px;
+    height: 30px;
+    stroke: #ffffff;
+    stroke-width: 1.5; 
+}
+
+.logo-text {
+    font-size: 41.25px; 
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+
+.logo-text .nex {
+    color: #0077B6;
+    transition: color 0.3s ease;
+}
+
+.logo-text .care {
+    color: #000000;
+    transition: color 0.3s ease;
+}
+
+.logo:hover .nex { color: #000000; }
+.logo:hover .care { color: #0077B6; }
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Per-page <style> blocks, one per HTML page that carried one, copied with
+   every selector prefixed by that page's root class (.sp-<page>) so the same
+   names (.modal-content, .status-badge, .form-group, table/th/td …) keep their
+   page-specific values and nothing leaks between pages. Inside each block the
+   declarations are unchanged.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ---- patient_checkin.html <style> → .sp-checkin ---- */
+.sp-checkin .checkin-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+}
+.sp-checkin .form-input {
+    height: 38px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 13px;
+}
+.sp-checkin .btn-dark {
+    height: 38px;
+    background: #0a0a0a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.sp-checkin .btn-dark:hover {
+    background: #1a1a1a;
+}
+.sp-checkin .status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+.sp-checkin .status-consultation {
+    background: #dbeafe; color: #1e40af;
+}
+.sp-checkin .status-er {
+    background: #fee2e2; color: #991b1b;
+}
+.sp-checkin .status-pharmacy {
+    background: #dcfce7; color: #166534;
+}
+.sp-checkin .status-waiting {
+    background: #fef3c7; color: #92400e;
+}
+.sp-checkin .update-btn {
+    padding: 6px 12px;
+    background: white; border: 1px solid #e5e7eb;
+    border-radius: 6px; font-size: 12px; cursor: pointer;
+}
+.sp-checkin .update-btn:hover {
+    background: #f9fafb;
+}
+.sp-checkin .movement-timeline {
+    display: flex; align-items: center; gap: 16px; margin-top: 10px;
+}
+.sp-checkin .movement-step {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.sp-checkin .step-icon {
+    width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+.sp-checkin .step-icon.completed {
+    background: #dcfce7; color: #16a34a;
+}
+.sp-checkin .step-icon.waiting {
+    background: #dbeafe; color: #2563eb;
+}
+.sp-checkin .step-label {
+    font-size: 11px; color: #374151;
+}
+.sp-checkin .step-time {
+    font-size: 10px; color: #9ca3af;
+}
+
+/* ---- patient-directory.html <style> → .sp-directory ---- */
+.sp-directory .table-wrapper {
+    overflow-y: auto; max-height: 500px; width: 100%;
+}
+.sp-directory table {
+    width: 100%; border-collapse: collapse; text-align: left;
+}
+.sp-directory th, .sp-directory td {
+    padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-size: 13px;
+}
+.sp-directory th {
+    background: #f9fafb; color: #6b7280; font-weight: 600; text-transform: uppercase; font-size: 11px;
+}
+.sp-directory tr:hover {
+    background: #f9fafb;
+}
+.sp-directory .badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    display: inline-block;
+}
+.sp-directory .badge.active {
+    background: #dcfce7; color: #166534;
+}
+.sp-directory .badge.critical {
+    background: #fee2e2; color: #991b1b;
+}
+
+/* ---- manage_appointments.html <style> → .sp-appointments ---- */
+.sp-appointments .table-wrapper {
+    overflow-y: auto; max-height: 500px; width: 100%;
+}
+.sp-appointments table {
+    width: 100%; border-collapse: collapse; text-align: left;
+}
+.sp-appointments th, .sp-appointments td {
+    padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-size: 13px;
+}
+.sp-appointments th {
+    background: #f9fafb; color: #6b7280; font-weight: 600; text-transform: uppercase; font-size: 11px;
+}
+.sp-appointments tr:hover {
+    background: #f9fafb;
+}
+.sp-appointments .action-buttons {
+    display: flex; gap: 8px;
+}
+.sp-appointments .action-btn {
+    width: 32px; height: 32px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.sp-appointments .action-btn:hover {
+    background: #f9fafb;
+}
+.sp-appointments .form-input, .sp-appointments .form-select {
+    height: 38px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 13px;
+}
+.sp-appointments .btn-dark {
+    height: 38px;
+    background: #0a0a0a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.sp-appointments .btn-dark:hover {
+    background: #1a1a1a;
+}
+.sp-appointments .btn-light {
+    background: white; border: 1px solid #e5e7eb;
+    color: #374151; border-radius: 6px; padding: 8px 20px; cursor: pointer;
+    font-size: 13px; font-weight: 500;
+}
+.sp-appointments .btn-light:hover {
+    background: #f9fafb;
+}
+.sp-appointments .status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+.sp-appointments .status-completed {
+    background: #d1fae5; color: #065f46;
+}
+.sp-appointments .status-inprogress {
+    background: #dbeafe; color: #1e40af;
+}
+.sp-appointments .status-waiting {
+    background: #fef3c7; color: #92400e;
+}
+.sp-appointments .status-scheduled {
+    background: #ede9fe; color: #6b21a8;
+}
+.sp-appointments .modal {
+    display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+    width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);
+    align-items: center; justify-content: center;
+}
+.sp-appointments .modal.active {
+    display: flex;
+}
+.sp-appointments .modal-content {
+    background-color: white; padding: 24px; border-radius: 8px; width: 450px; max-width: 90%;
+}
+.sp-appointments .modal-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+}
+.sp-appointments .modal-header h2 {
+    font-size: 18px; margin: 0;
+}
+.sp-appointments .modal-close {
+    background: none; border: none; font-size: 20px; cursor: pointer;
+}
+.sp-appointments .form-group {
+    margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px;
+}
+.sp-appointments .form-group label {
+    font-size: 13px; font-weight: 500; color: #374151;
+}
+
+/* ---- staff_scheduling.html <style> → .sp-scheduling ---- */
+.sp-scheduling .table-wrapper {
+    overflow-y: auto; max-height: 500px; width: 100%;
+}
+.sp-scheduling table {
+    width: 100%; border-collapse: collapse; text-align: left;
+}
+.sp-scheduling th, .sp-scheduling td {
+    padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-size: 13px;
+}
+.sp-scheduling th {
+    background: #f9fafb; color: #6b7280; font-weight: 600; text-transform: uppercase; font-size: 11px;
+}
+.sp-scheduling tr:hover {
+    background: #f9fafb;
+}
+.sp-scheduling .action-buttons {
+    display: flex; gap: 8px;
+}
+.sp-scheduling .action-btn {
+    width: 32px; height: 32px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.sp-scheduling .action-btn:hover {
+    background: #f9fafb;
+}
+.sp-scheduling .form-input, .sp-scheduling .form-select {
+    height: 38px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 13px;
+}
+.sp-scheduling .btn-dark {
+    height: 38px;
+    background: #0a0a0a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.sp-scheduling .btn-dark:hover {
+    background: #1a1a1a;
+}
+.sp-scheduling .btn-light {
+    background: white; border: 1px solid #e5e7eb;
+    color: #374151; border-radius: 6px; padding: 8px 20px; cursor: pointer;
+    font-size: 13px; font-weight: 500;
+}
+.sp-scheduling .btn-light:hover {
+    background: #f9fafb;
+}
+.sp-scheduling .status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+.sp-scheduling .status-onduty {
+    background: #dcfce7; color: #166534;
+}
+.sp-scheduling .status-scheduled {
+    background: #dbeafe; color: #1e40af;
+}
+.sp-scheduling .status-pending {
+    background: #fef3c7; color: #92400e;
+}
+.sp-scheduling .status-approved {
+    background: #dcfce7; color: #166534;
+}
+.sp-scheduling .status-rejected {
+    background: #fee2e2; color: #991b1b;
+}
+.sp-scheduling .slot-row {
+    display: flex; gap: 8px; margin-bottom: 8px;
+}
+.sp-scheduling .slot-row select {
+    flex: 1;
+}
+.sp-scheduling .modal-content {
+    width: 560px;
+}
+.sp-scheduling .modal {
+    display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+    width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);
+    align-items: center; justify-content: center;
+}
+.sp-scheduling .modal.active {
+    display: flex;
+}
+.sp-scheduling .modal-content {
+    background-color: white; padding: 24px; border-radius: 8px; width: 450px; max-width: 90%;
+}
+.sp-scheduling .week-selector-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 4px 8px;
+    border-radius: 10px;
+}
+.sp-scheduling .btn-week-nav {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.sp-scheduling .btn-week-nav:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+.sp-scheduling .week-label-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    padding: 0 10px;
+}
+.sp-scheduling .department-schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.sp-scheduling .dept-accordion-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.sp-scheduling .dept-accordion-card:hover {
+    border-color: #cbd5e1;
+}
+.sp-scheduling .dept-accordion-card.expanded {
+    border-color: #93c5fd;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.08);
+}
+.sp-scheduling .dept-accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: #f8fafc;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+}
+.sp-scheduling .dept-accordion-card.expanded .dept-accordion-header {
+    background: #eff6ff;
+    border-bottom: 1px solid #dbeafe;
+}
+.sp-scheduling .dept-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.sp-scheduling .dept-icon {
+    font-size: 18px;
+}
+.sp-scheduling .dept-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+}
+.sp-scheduling .dept-count-badge {
+    font-size: 12px;
+    font-weight: 600;
+    background: #e2e8f0;
+    color: #475569;
+    padding: 3px 10px;
+    border-radius: 12px;
+}
+.sp-scheduling .dept-accordion-card.expanded .dept-count-badge {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+.sp-scheduling .dept-expand-indicator {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: bold;
+    transition: transform 0.2s ease;
+}
+.sp-scheduling .dept-accordion-body {
+    padding: 16px 20px;
+    background: #ffffff;
+}
+.sp-scheduling .schedule-week-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 0;
+}
+.sp-scheduling .schedule-week-table th {
+    background: #f8fafc;
+    color: #475569;
+    padding: 10px 10px;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 2px solid #e2e8f0;
+    font-size: 12px;
+}
+.sp-scheduling .schedule-week-table th .col-date {
+    display: block;
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: normal;
+    margin-top: 2px;
+}
+.sp-scheduling .schedule-week-table td {
+    padding: 12px 10px;
+    text-align: center;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+.sp-scheduling .schedule-week-table tr:hover td {
+    background: #fafafa;
+}
+.sp-scheduling .doctor-meta-cell {
+    text-align: left !important;
+}
+.sp-scheduling .doc-name {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 14px;
+}
+.sp-scheduling .doc-spec {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+}
+.sp-scheduling .timing-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    white-space: nowrap;
+}
+.sp-scheduling .leave-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 11px;
+    white-space: nowrap;
+}
+.sp-scheduling .off-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: #f1f5f9;
+    color: #94a3b8;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+}
+.sp-scheduling .btn-delete-schedule {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #dc2626;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.sp-scheduling .btn-delete-schedule:hover {
+    background: #fee2e2;
+    border-color: #f87171;
+}
+.sp-scheduling .dept-empty-message {
+    padding: 24px;
+    text-align: center;
+    color: #64748b;
+    font-style: italic;
+    background: #f8fafc;
+    border-radius: 8px;
+    font-size: 13px;
+}
+.sp-scheduling .schedule-empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: #64748b;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+}
+.sp-scheduling .modal-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+}
+.sp-scheduling .modal-header h2 {
+    font-size: 18px; margin: 0;
+}
+.sp-scheduling .modal-close {
+    background: none; border: none; font-size: 20px; cursor: pointer;
+}
+.sp-scheduling .form-group {
+    margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px;
+}
+.sp-scheduling .form-group label {
+    font-size: 13px; font-weight: 500; color: #374151;
+}
+
+/* ---- leave-requests.html <style> → .sp-leaves ---- */
+.sp-leaves .table-wrapper {
+    overflow-y: auto; max-height: 520px; width: 100%;
+}
+.sp-leaves table {
+    width: 100%; border-collapse: collapse; text-align: left;
+}
+.sp-leaves th, .sp-leaves td {
+    padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-size: 13px;
+}
+.sp-leaves th {
+    background: #f9fafb; color: #6b7280; font-weight: 600; text-transform: uppercase; font-size: 11px;
+}
+.sp-leaves tr:hover {
+    background: #f9fafb;
+}
+.sp-leaves .action-buttons {
+    display: flex; gap: 8px;
+}
+.sp-leaves .action-btn {
+    width: 32px; height: 32px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.sp-leaves .action-btn:hover {
+    background: #f9fafb;
+}
+.sp-leaves .form-input, .sp-leaves .form-select, .sp-leaves .form-textarea {
+    height: 38px; background: #f9fafb; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 0 12px; font-size: 13px; width: 100%;
+}
+.sp-leaves .form-textarea {
+    height: auto; padding: 10px 12px; resize: vertical;
+}
+.sp-leaves .form-group {
+    margin-bottom: 14px;
+}
+.sp-leaves .form-group label {
+    display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 6px;
+}
+.sp-leaves .stats-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;
+}
+.sp-leaves .stat-box {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px 20px;
+}
+.sp-leaves .stat-box .label {
+    font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; font-weight: 600;
+}
+.sp-leaves .stat-box .value {
+    font-size: 28px; font-weight: 700; color: #111827; margin-top: 6px;
+}
+.sp-leaves .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; text-transform: capitalize;
+}
+.sp-leaves .badge.pending {
+    background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A;
+}
+.sp-leaves .badge.approved {
+    background: #DCFCE7; color: #166534; border: 1px solid #86EFAC;
+}
+.sp-leaves .badge.rejected {
+    background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5;
+}
+.sp-leaves .notice {
+    background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; border-radius: 10px;
+    padding: 12px 16px; font-size: 13px; margin-bottom: 20px;
+}
+.sp-leaves .btn-dark {
+    height: 38px; background: #0a0a0a; color: white; border: none; border-radius: 6px;
+    padding: 8px 20px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap;
+}
+.sp-leaves .btn-dark:hover {
+    background: #1a1a1a;
+}
+.sp-leaves .btn-light {
+    background: white; border: 1px solid #e5e7eb; color: #374151; border-radius: 6px;
+    padding: 8px 20px; cursor: pointer; font-size: 13px; font-weight: 500;
+}
+.sp-leaves .btn-light:hover {
+    background: #f9fafb;
+}
+.sp-leaves .modal {
+    display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;
+}
+.sp-leaves .modal.active {
+    display: flex;
+}
+.sp-leaves .modal-content {
+    background-color: white; padding: 24px; border-radius: 8px; width: 470px; max-width: 90%;
+    max-height: 90vh; overflow-y: auto;
+}
+.sp-leaves .modal-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+}
+.sp-leaves .modal-header h2 {
+    font-size: 18px; margin: 0;
+}
+.sp-leaves .modal-close {
+    background: none; border: none; font-size: 20px; cursor: pointer;
+}
+.sp-leaves .detail-row {
+    margin-bottom: 10px; font-size: 13px;
+}
+.sp-leaves .detail-row strong {
+    display: inline-block; min-width: 130px; color: #374151;
+}
+
+/* ---- feedback.html <style> → .sp-feedback ---- */
+.sp-feedback .table-wrapper {
+    overflow-y: auto; max-height: 500px; width: 100%;
+}
+.sp-feedback table {
+    width: 100%; border-collapse: collapse; text-align: left;
+}
+.sp-feedback th, .sp-feedback td {
+    padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-size: 13px;
+}
+.sp-feedback th {
+    background: #f9fafb; color: #6b7280; font-weight: 600; text-transform: uppercase; font-size: 11px;
+}
+.sp-feedback tr:hover {
+    background: #f9fafb;
+}
+.sp-feedback .action-buttons {
+    display: flex; gap: 8px;
+}
+.sp-feedback .action-btn {
+    width: 32px; height: 32px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.sp-feedback .action-btn:hover {
+    background: #f9fafb;
+}
+.sp-feedback .form-input, .sp-feedback .form-select, .sp-feedback .form-textarea {
+    height: 38px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 13px;
+}
+.sp-feedback .form-textarea {
+    height: auto;
+    resize: vertical;
+    padding: 10px 12px;
+}
+.sp-feedback .btn-dark {
+    height: 38px;
+    background: #0a0a0a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.sp-feedback .btn-dark:hover {
+    background: #1a1a1a;
+}
+.sp-feedback .btn-light {
+    background: white; border: 1px solid #e5e7eb;
+    color: #374151; border-radius: 6px; padding: 8px 20px; cursor: pointer;
+    font-size: 13px; font-weight: 500;
+}
+.sp-feedback .btn-light:hover {
+    background: #f9fafb;
+}
+.sp-feedback .status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+.sp-feedback .status-patient {
+    background: #fef3c7; color: #92400e;
+}
+.sp-feedback .status-staff {
+    background: #dbeafe; color: #1e40af;
+}
+.sp-feedback .modal {
+    display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+    width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);
+    align-items: center; justify-content: center;
+}
+.sp-feedback .modal.active {
+    display: flex;
+}
+.sp-feedback .modal-content {
+    background-color: white; padding: 24px; border-radius: 8px; width: 500px; max-width: 90%;
+}
+.sp-feedback .modal-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+}
+.sp-feedback .modal-header h2 {
+    font-size: 18px; margin: 0;
+}
+.sp-feedback .modal-close {
+    background: none; border: none; font-size: 20px; cursor: pointer;
+}
+.sp-feedback .form-group {
+    margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px;
+}
+.sp-feedback .form-group label {
+    font-size: 13px; font-weight: 500; color: #374151;
+}
+.sp-feedback .stars {
+    color: #f59e0b; font-size: 16px;
+}
+.sp-feedback .feedback-details-box {
+    background: #f9fafb; padding: 15px; border-radius: 6px; border: 1px solid #e5e7eb; margin-bottom: 15px;
+    font-size: 13px; color: #374151;
+}
+.sp-feedback .feedback-details-box div {
+    margin-bottom: 8px;
+}
+.sp-feedback .feedback-details-box strong {
+    color: #111827;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   SPA-only: undo what the bundled stylesheets leak into this portal.
+
+   The staff pages loaded styles.css + logo.css and nothing else. In the SPA,
+   global.css / portal.css / nav.css are bundled for every route, and they
+   share class names with this file. Each rule below restores the original
+   result; nothing above this block is modified, so the copies stay verbatim.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* nav.css fixes the sidebar to the viewport (282px, 24px padding, z-index
+   50) and global.css forces z-index 9999 on it. This portal's sidebar is a
+   flex child of .layout that scrolls with the page, as in the HTML. */
+.staff-portal .sidebar {
+    position: static;
+    padding: 0;
+    overflow: visible;
+    z-index: auto !important;
+}
+
+/* portal.css's .btn is a white outline button whose :hover paints it
+   #F9FAFB — that turned this portal's blue .btn white on hover. */
+.staff-portal .btn:hover { background: #2563eb; border-color: transparent; }
+
+/* global.css zeroes every element margin (`* { margin: 0 }`); these pages
+   relied on the browser's default margins for headings and paragraphs that
+   styles.css does not set itself (h2 in a header-row, h4 in a modal, p). */
+.staff-portal h2 { margin: 0.83em 0; }
+.staff-portal h4 { margin: 1.33em 0; }
+.staff-portal p { margin: 1em 0; }
+.staff-portal .stat p, .staff-portal .sub, .staff-portal .small { margin: 0; }
+.staff-portal .sub { margin-top: 6px; }
+
+/* global.css lifts .modal-content 20px, pads it 32px and caps it at 520px,
+   restoring it only for its own .modal-overlay.active convention. */
+.staff-portal .modal-content { transform: none; }
+
+/* global.css adds 8px under every .form-group label; these forms space
+   themselves with flex `gap` (or their own 6px), so it doubled the gap. */
+.staff-portal .form-group label { margin-bottom: 0; }
+.staff-portal .sp-leaves .form-group label { margin-bottom: 6px; }
+
+/* Manage Appointments now shows the backend's real AppointmentStatus values
+   (see ManageAppointmentsPage.jsx); the page block above only coloured the
+   HTML form's invented ones. Same palette: yellow = waiting, purple =
+   booked, green = done, red = did not happen. */
+.sp-appointments .status-pending   { background: #fef3c7; color: #92400e; }
+.sp-appointments .status-confirmed { background: #ede9fe; color: #6b21a8; }
+.sp-appointments .status-cancelled,
+.sp-appointments .status-noshow    { background: #fee2e2; color: #991b1b; }

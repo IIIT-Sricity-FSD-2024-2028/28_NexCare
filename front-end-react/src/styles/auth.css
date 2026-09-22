@@ -1,0 +1,172 @@
+/* front-end/auth/auth.css, every rule scoped under .auth-page so it cannot leak
+   into the landing page or the portals (it is bundled, not route-mounted).
+   The original body rule is replaced by .auth-page in app.css; .header is
+   renamed .auth-header because the portals have their own .header. */
+.auth-page {
+    --primary-blue: #0076b6;
+    --light-bg: #e8f7fa;
+    --white: #ffffff;
+    --text-dark: #333333;
+    --text-muted: #666666;
+    --border-color: #cccccc;
+    --border-radius: 12px;
+}
+.auth-page .auth-wrapper {
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+}
+.auth-page .auth-header { 
+    padding: 5px 0 15px 0; 
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+.auth-page .auth-card {
+    display: flex;
+    background-color: var(--light-bg);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    min-height: 520px;
+}
+.auth-page .auth-card.reverse {
+    flex-direction: row-reverse;
+}
+.auth-page .auth-form-section {
+    flex: 1;
+    padding: 25px 35px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.auth-page .auth-form-section h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--text-dark);
+}
+.auth-page .form-group {
+    margin-bottom: 15px;
+}
+.auth-page .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+.auth-page .form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: transparent;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+.auth-page .role-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.auth-page .role-option {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+.auth-page .role-option input {
+    margin-right: 8px;
+}
+.auth-page .form-actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+.auth-page .form-actions-row a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 600;
+}
+.auth-page .btn-primary {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    position: relative;
+    text-align: center;
+}
+.auth-page .btn-primary:hover {
+    background-color: #005f94;
+}
+.auth-page .btn-primary svg {
+    width: 26px;
+    height: 26px;
+    position: absolute;
+    right: 15px;          
+    top: 50%;
+    transform: translateY(-50%);
+    stroke: white;
+    fill: none;
+}
+.auth-page .auth-links {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+.auth-page .auth-links a {
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+.auth-page .or-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--text-muted);
+    margin: 20px 0;
+}
+.auth-page .or-divider::before, .auth-page .or-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+.auth-page .or-divider:not(:empty)::before { margin-right: .5em;
+}
+.auth-page .or-divider:not(:empty)::after { margin-left: .5em;
+}
+.auth-page .btn-google {
+    background-color: transparent;
+    border: 1px solid var(--text-dark);
+    padding: 10px;
+    width: 100%;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+}
+.auth-page .btn-google img {
+    height: 18px;
+    margin-right: 10px;
+}
+.auth-page .auth-image-section {
+    flex: 1;
+    background-image: url('../assets/wave-image.png');
+    background-size: cover;
+    background-position: center;
+
+    transform: translateX(0);
+    transition: transform 1s ease;
+}
+.auth-page .auth-card .auth-image-section {
+    transform: translateX(0);
+}

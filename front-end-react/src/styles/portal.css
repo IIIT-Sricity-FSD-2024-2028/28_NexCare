@@ -1,0 +1,144 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Shared portal chrome.
+
+   The header bar, page body, KPI tiles, panels and tables that the superuser
+   and regional-officer pages had each re-declared inline. Pulled out here so
+   the doctor portal, the hierarchy views and the membership page look like the
+   rest of NexCare without another copy of the same 120 lines.
+
+   Load AFTER global.css and nav.css. Page-specific rules still go in the page.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Header bar ---------------------------------------------------------------- */
+.header {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.header-title { font-size: 16px; font-weight: 600; color: #101828; }
+.header-user { display: flex; align-items: center; gap: 10px; }
+.header-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #2563EB; color: #FFFFFF;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 12px;
+}
+.header-user-name { font-size: 13px; font-weight: 600; color: #101828; margin: 0; }
+.header-user-role { font-size: 11px; color: #6A7282; margin: 0; }
+
+.page-body { padding: 24px; }
+
+.page-header {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.page-header h1 { margin: 0; font-size: 18px; font-weight: 700; color: #101828; }
+.page-header p { margin: 4px 0 0; font-size: 13px; color: #6A7282; }
+
+/* An explanatory banner. `.note.scope` is the visibility notice the hierarchy
+   pages show — same shape, different colour, so it reads as a rule not a tip. */
+.note {
+    background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF;
+    border-radius: 10px; padding: 12px 16px; font-size: 13px;
+    margin-bottom: 20px; line-height: 1.55;
+}
+.note.scope { background: #F5F3FF; border-color: #DDD6FE; color: #5B21B6; }
+.note.warn  { background: #FFFBEB; border-color: #FDE68A; color: #92400E; }
+
+/* KPI tiles ----------------------------------------------------------------- */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.kpi { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 18px 20px; }
+.kpi .label { font-size: 12px; color: #6B7280; text-transform: uppercase; letter-spacing: .04em; font-weight: 600; margin: 0; }
+.kpi .value { font-size: 26px; font-weight: 700; color: #111827; margin: 6px 0 0; line-height: 1.1; }
+.kpi .sub   { font-size: 12px; color: #6B7280; margin: 4px 0 0; }
+.kpi.accent { background: linear-gradient(135deg, #2563EB 0%, #0EA5E9 100%); border: none; }
+.kpi.accent .label, .kpi.accent .sub { color: rgba(255,255,255,.85); }
+.kpi.accent .value { color: #fff; }
+.kpi.good .value { color: #15803D; }
+.kpi.bad .value  { color: #B91C1C; }
+
+/* Panels -------------------------------------------------------------------- */
+.panel { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+.panel-head {
+    padding: 16px 20px; border-bottom: 1px solid #E5E7EB;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.panel-head h2 { font-size: 16px; font-weight: 700; margin: 0; color: #111827; }
+.panel-head .hint { font-size: 12px; color: #6B7280; }
+.panel-body { padding: 20px; }
+.panel-body.flush { padding: 0; }
+
+/* Tables -------------------------------------------------------------------- */
+table.rev { width: 100%; border-collapse: collapse; }
+table.rev th {
+    text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+    color: #6B7280; font-weight: 600; padding: 10px 16px;
+    background: #F9FAFB; border-bottom: 1px solid #E5E7EB;
+}
+table.rev td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #F3F4F6; color: #111827; }
+table.rev tr:hover td { background: #F9FAFB; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.muted { color: #6B7280; font-size: 12px; }
+.empty { text-align: center; padding: 28px; color: #6B7280; font-size: 13px; }
+
+/* Pills --------------------------------------------------------------------- */
+.pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.pill.active, .pill.Completed, .pill.completed, .pill.verified, .pill.Paid, .pill.approved { background: #DCFCE7; color: #15803D; }
+.pill.Pending, .pill.pending, .pill.pending_activation, .pill.pending_verification { background: #FEF3C7; color: #92400E; }
+.pill.Cancelled, .pill.cancelled, .pill.suspended, .pill.rejected { background: #FEE2E2; color: #991B1B; }
+.pill.Confirmed, .pill.confirmed, .pill.cleared { background: #DBEAFE; color: #1D4ED8; }
+
+/* Buttons ------------------------------------------------------------------- */
+.btn {
+    border: 1px solid #E5E7EB; background: #fff; color: #374151;
+    border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .15s ease;
+}
+.btn:hover { background: #F9FAFB; border-color: #D1D5DB; }
+.btn.primary { background: #2563EB; border-color: #2563EB; color: #fff; }
+.btn.primary:hover { background: #1D4ED8; }
+.btn.danger { background: #fff; border-color: #FCA5A5; color: #B91C1C; }
+.btn.danger:hover { background: #FEF2F2; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Simple form controls ------------------------------------------------------ */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 12px; font-weight: 600; color: #374151; }
+.field input, .field select, .field textarea {
+    height: 38px; border: 1px solid #E5E7EB; border-radius: 8px;
+    padding: 0 10px; font-size: 13px; font-family: inherit; background: #fff; color: #111827;
+}
+.field textarea { height: auto; padding: 10px; resize: vertical; }
+.field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+/* Horizontal bar chart ------------------------------------------------------ */
+.bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.bar-row .name { width: 190px; font-size: 12px; color: #374151; }
+.bar-track { flex: 1; height: 22px; background: #F3F4F6; border-radius: 6px; overflow: hidden; }
+.bar-fill { height: 100%; background: linear-gradient(90deg, #2563EB, #0EA5E9); }
+.bar-fill.doctor  { background: linear-gradient(90deg, #7C3AED, #A78BFA); }
+.bar-fill.patient { background: linear-gradient(90deg, #059669, #34D399); }
+.bar-row .amt { width: 120px; text-align: right; font-size: 12px; font-variant-numeric: tabular-nums; color: #111827; font-weight: 600; }
+
+/* Tabs ---------------------------------------------------------------------- */
+.tab-container { background: #fff; border: 1px solid #E5E7EB; border-radius: 14px; padding: 8px; margin-bottom: 24px; display: flex; gap: 8px; flex-wrap: wrap; }
+.tab-btn { padding: 10px 20px; border: none; background: transparent; border-radius: 8px; font-size: 14px; font-weight: 500; color: #6A7282; cursor: pointer; transition: all .2s; }
+.tab-btn:hover { background: #F3F4F6; }
+.tab-btn.active { background: #2563EB; color: #FFFFFF; }
+.tab-section { display: none; }
+.tab-section.active { display: block; }
