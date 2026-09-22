@@ -1,6 +1,6 @@
 # NexCare Login Credentials
 
-- Login: http://localhost:8080/auth/login
+- Login: http://localhost:5173/login
 - Shared demo password for every account: `Password123`
 - Select the matching role on the login form.
 

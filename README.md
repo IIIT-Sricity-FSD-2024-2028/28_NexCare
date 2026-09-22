@@ -127,7 +127,7 @@ A hospital that grows past the seats its plan includes pays ₹250 per extra sea
 
 **Patients pay for convenience, never for care.** Hospital bills belong to the hospital and are never counted as platform revenue.
 
-Every rate and plan price is repriced at runtime by the Admin at `front-end/superuser/revenue.html`.
+Every rate and plan price is repriced at runtime by the Admin on the Pricing controls tab of `/superuser/revenue`.
 
 ---
 
@@ -145,7 +145,7 @@ No real card is accepted, contacted or stored — only the last four digits are 
 
 When a payment is **approved**, the bill is settled and the fees NexCare earned are written to a **platform ledger** (`platform-transactions.json`) with the rate stored on each row. When it is **declined**, the bill stays outstanding and the platform earns nothing. Recording the fee at the moment it is charged means repricing changes what happens next rather than silently restating last month.
 
-Run the suite with `npx jest` in `back-end/` — 10 suites, 60 tests, including an end-to-end that takes one card payment and asserts the dashboard moves by exactly the processing fee, and nothing more.
+Run the suite with `npx jest` in `back-end/` — 10 suites, 62 tests, including an end-to-end that takes one card payment and asserts the dashboard moves by exactly the processing fee, and nothing more.
 
 ---
 
@@ -216,3 +216,42 @@ Enables generation of scheduled or on-demand reports with configurable filters b
 Maintains a detailed log of all user actions across the platform to support compliance, accountability, and security audits.
 
 ---
+
+---
+
+## 4. Running it
+
+Two processes: the NestJS API and the React front end.
+
+```bash
+# API — http://localhost:3001, everything under /api
+cd back-end
+npm install
+npm run build
+npm run start:prod          # or `npm run start:dev` for watch mode
+npx jest                    # 10 suites, 62 tests
+
+# Front end — http://localhost:5173
+cd front-end
+npm install
+npm run dev
+```
+
+Swagger UI is at `http://localhost:3001/api/docs`; it is rewritten on every boot,
+so it is always current.
+
+**The front end is a single-page React app** (Vite + React 18 +
+`react-router-dom`, JavaScript). `npm run build` writes a static bundle to
+`front-end/dist/`. Serve it from **any static host with history-API fallback** —
+`npm run preview`, `serve -s dist`, or nginx with `try_files $uri /index.html`.
+Without the fallback, a deep link such as `/superuser/revenue` 404s on refresh.
+
+The API client resolves the backend as `http://<current hostname>:3001/api`, so
+opening the app from another machine on the LAN works with no configuration.
+
+| Document | What is in it |
+|---|---|
+| `PROJECT_CONTEXT.md` | The working reference: actors, visibility scope, revenue model, route map, data store, front-end architecture, and the cleanup log. Read it first. |
+| `ACTOR_CREDENTIALS.md` | Every seeded login, per role and hospital. |
+| `MANUAL_TESTING_CHECKLIST.md` | The end-to-end validation run. |
+| `plan.md` / `progress.md` | The HTML → React migration (completed 2026-09-22) and every decision taken while porting. |

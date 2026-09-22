@@ -10,14 +10,14 @@
 
 | Hierarchy Level | Role Name | Dedicated Login URL |
 | :--- | :--- | :--- |
-| **Level 1** | Platform Super User | `front-end/auth/superuser-login.html` |
-| **Level 2** | Regional Officer | `front-end/auth/regional-officer-login.html` |
-| **Level 3** | Hospital Manager | `front-end/auth/hospital-manager-login.html` |
-| **Level 4** | Doctor | `front-end/auth/doctor-login.html` |
-| **Level 5** | Administrative Staff | `front-end/auth/staff-login.html` |
-| **Level 6** | Ambulance Staff | `front-end/auth/staff-login.html` |
-| **Level 7** | Patient | `front-end/auth/patient-login.html` |
-| **Unified Portal** | *All Roles* | `http://localhost:8080/auth/login` (`front-end/auth/login.html`) |
+| **Level 1** | Platform Super User | `/login/superuser` |
+| **Level 2** | Regional Officer | `/login/regional-officer` |
+| **Level 3** | Hospital Manager | `/login/hospital-manager` |
+| **Level 4** | Doctor | `/login/doctor` |
+| **Level 5** | Administrative Staff | `/login/staff` (Administrative Staff radio) |
+| **Level 6** | Ambulance Staff | `/login/staff` (Ambulance Staff radio) |
+| **Level 7** | Patient | `/login/patient` |
+| **Unified Portal** | *All Roles* | `http://localhost:5173/login` (the hub) |
 
 ---
 
@@ -41,7 +41,7 @@
 | 2 | Kavya Menon | `kavya.menon@nexcare.in` | `Password123` | REG-KA-SOUTH (Bengaluru, Mysuru) |
 | 3 | Rohan Deshmukh | `rohan.deshmukh@nexcare.in` | `Password123` | REG-MH-CENTRAL (Pune, Nashik) |
 | 4 | Nandini Iyer | `nandini.iyer@nexcare.in` | `Password123` | REG-TN-NORTH (Chennai, Vellore) |
-| 5 | Kavitha Menon | `regional2@nexcare.com` | `Password123` | Chittoor & Nellore Region |
+| 5 | Kavya Menon | `kavya.menon@nexcare.in` | `Password123` | Chittoor & Nellore Region |
 
 ---
 

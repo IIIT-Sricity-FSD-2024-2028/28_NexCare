@@ -1,8 +1,14 @@
 # NexCare Manual Testing Checklist
 
 Based on VERIFICATION.md requirements for comprehensive system validation.
+Re-run against the React SPA on 2026-09-22 (Phase 8 of the front-end migration);
+every route below is an SPA route, not a `.html` page.
 
-**Password for all accounts:** `Password123`
+**Password for all accounts:** `Password123` — with one exception:
+`patient@gmail.com` (`U004`, patient `P001`) had its password changed during
+testing and no longer accepts it. Use `venkat.rao@example.in` (`P003`) for a
+patient demo, or reset `U004` with the `node -e` one-liner in
+`ACTOR_CREDENTIALS.md`.
 
 ---
 
@@ -17,39 +23,44 @@ Based on VERIFICATION.md requirements for comprehensive system validation.
   node dist/src/main.js
   ```
 
-- [ ] Terminal 2: Start frontend on port 8080
+- [ ] Terminal 2: Start the front end on port 5173
   ```bash
   cd front-end
-  npx serve -l 8080
+  npm install          # first run only
+  npm run dev
   ```
 
-- [ ] Open http://localhost:8080/landing/landing.html
+- [ ] Open http://localhost:5173/
+
+  To test the production bundle instead: `npm run build && npm run preview`
+  → http://localhost:4173/. Use `npm run preview` (or any host with history-API
+  fallback) — a plain static server 404s every deep link on refresh.
 
 ### Initial Health Checks
 - [ ] Backend console prints LAN URLs without red errors
 - [ ] http://localhost:3001/api/docs loads Swagger UI with modules listed
-- [ ] http://localhost:3001/api/hospitals returns JSON with 12 hospitals (no auth needed)
+- [ ] http://localhost:3001/api/hospitals returns JSON with 9 hospitals (no auth needed)
 
 ---
 
 ## 1. Automated Checks (Run First)
 
 ### Backend Tests
-- [ ] Run `cd back-end && npx jest` → Expect: 8 suites, 51 tests, all passing
+- [ ] Run `cd back-end && npx jest` → Expect: 10 suites, 62 tests, all passing
 - [ ] Run `cd back-end && npm run build` → Expect: exit 0, no TypeScript errors
 
-### Frontend Syntax Checks
-- [ ] Run frontend syntax validation:
+### Frontend Build
+- [ ] Run the front-end build:
   ```bash
   cd front-end
-  for f in $(find . -name "*.js" -not -path "./node_modules/*"); do
-    node --check "$f" || echo "BROKEN: $f"
-  done
+  npm run build
   ```
-  → Expect: No broken files
+  → Expect: exit 0, no chunk over 500 kB. (The SPA replaced the static pages on
+  2026-09-22; a syntax error now fails the build, so the old `node --check`
+  sweep over loose `.js` files no longer applies.)
 
 ### Merge Conflict Check
-- [ ] Run `grep -rIl "^<<<<<<< \|^>>>>>>> " back-end/src front-end back-end/data`
+- [ ] Run `grep -rIl "^<<<<<<< \|^>>>>>>> " back-end/src front-end/src back-end/data`
   → Expect: No output (no merge conflict markers)
 
 ---
@@ -57,23 +68,24 @@ Based on VERIFICATION.md requirements for comprehensive system validation.
 ## 2. Login Matrix - All Seven Actors
 
 ### Positive Cases (Should Succeed)
-- [ ] **Admin**: Login at `auth/superuser-login.html` with `superuser@nexcare.com` → Lands on `/superuser/dashboard.html`
-- [ ] **Regional Officer**: Login at `auth/regional-officer-login.html` with `regional@nexcare.com` → Lands on `/regional-officer/dashboard.html`
-- [ ] **Hospital Manager**: Login at `auth/hospital-manager-login.html` with `hospitalmanager@nexcare.com` → Lands on `/hospital_manager/dashboard.html`
-- [ ] **Doctor**: Login at `auth/doctor-login.html` with `sunita@nexcare.com` → Lands on `/doctor/dashboard.html`
-- [ ] **Administrative Staff**: Login at `auth/staff-login.html` with `admin@nexcare.com` → Lands on `/administrative_staff/dashboard.html`
-- [ ] **Ambulance Staff**: Login at `auth/staff-login.html` with `ambulance@nexcare.com` → Lands on `/ambulance/`
-- [ ] **Patient**: Login at `auth/patient-login.html` with `patient@gmail.com` → Lands on `/patient/dashboard.html`
+- [ ] **Admin**: Login at `/login/superuser` with `superuser@nexcare.com` → Lands on `/superuser/dashboard`
+- [ ] **Regional Officer**: Login at `/login/regional-officer` with `regional@nexcare.com` → Lands on `/regional-officer/dashboard`
+- [ ] **Hospital Manager**: Login at `/login/hospital-manager` with `hospitalmanager@nexcare.com` → Lands on `/hospital-manager/overview`
+- [ ] **Doctor**: Login at `/login/doctor` with `sunita@nexcare.com` → Lands on `/doctor/dashboard`
+- [ ] **Administrative Staff**: Login at `/login/staff` (Administrative Staff radio) with `admin@nexcare.com` → Lands on `/staff/dashboard`
+- [ ] **Ambulance Staff**: Login at `/login/staff` (Ambulance Staff radio) with `ambulance@nexcare.com` → Lands on `/ambulance/dashboard`
+- [ ] **Patient**: Login at `/login/patient` with `venkat.rao@example.in` → Lands on `/patient/dashboard`
 
 ### Negative Cases (Should Fail)
 - [ ] **Wrong role selection**: Try login as Priya Reddy with "Ambulance Staff" selected → Expect: `Access Denied: Account is registered as 'administrative_staff'…`
-- [ ] **Nurse account**: Try any nurse account → Expect: `Access Denied: 'nurse' is a directory record, not a NexCare login account.`
+- [ ] **Nurse account**: the seed ships no nurse records, so this is exercised by adding one to `back-end/data/users.json` (`role: "nurse"`), attempting a login, then `git checkout` of the file → Expect: `Access Denied: 'nurse' is a directory record, not a NexCare login account.`
 - [ ] **Wrong password**: Use correct email but wrong password → Expect: `Authentication Failed: Incorrect password`
 - [ ] **Unknown email**: Use non-existent email → Expect: `Authentication Failed: Email address not found`
 
 ### Cross-Portal Guard
-- [ ] While signed in as **patient**, paste `http://localhost:8080/superuser/dashboard.html` → Expect: Bounced to login page, no admin content flash
-- [ ] While signed in as **doctor**, paste `http://localhost:8080/regional-officer/dashboard.html` → Expect: Bounced to login page, no regional officer content flash
+- [ ] While signed in as **patient**, paste `http://localhost:5173/superuser/dashboard` → Expect: bounced to `/patient/dashboard` (the SPA keeps the session and sends you to your own portal instead of logging you out), no admin content flash
+- [ ] While signed in as **doctor**, paste `http://localhost:5173/regional-officer/dashboard` → Expect: bounced to `/doctor/dashboard`, no regional-officer content flash
+- [ ] Signed out, paste `http://localhost:5173/staff/inventory` → Expect: `/login`, and signing in returns you to `/staff/inventory`
 
 ---
 
@@ -147,7 +159,7 @@ Based on VERIFICATION.md requirements for comprehensive system validation.
 - [ ] **Patient can access ambulance**:
   ```bash
   PAT=$(curl -s -X POST http://localhost:3001/api/auth/login -H 'Content-Type: application/json' \
-    -d '{"email":"patient@gmail.com","password":"Password123","role":"patient"}' \
+    -d '{"email":"venkat.rao@example.in","password":"Password123","role":"patient"}' \
     | python3 -c "import sys,json;print(json.load(sys.stdin)['data']['token'])")
   curl -s -o /dev/null -w "patient GET /ambulance: %{http_code}\n" \
     -H "Authorization: Bearer $PAT" http://localhost:3001/api/ambulance
@@ -177,22 +189,22 @@ Based on VERIFICATION.md requirements for comprehensive system validation.
 ## 4. Feature Walkthrough by Actor
 
 ### 4.1 Patient
-- [ ] **Book appointment**: Go to `patient/appointments/appointments.html` → Book
+- [ ] **Book appointment**: Go to `/patient/appointments` → Book
   - [ ] Step 0 lists real hospitals (H001, H002…), NOT fictional ones like "Apollo Hospitals"
   - [ ] Pick department, then doctor from real directory
   - [ ] Pick date and slot, confirm
   - [ ] Booking appears under "My Appointments" as *Pending*
 
-- [ ] **Care+ membership**: Go to `patient/membership.html`
+- [ ] **Care+ membership**: Go to `/patient/membership`
   - [ ] Join Care+ → Status panel updates, shows fees waived vs membership paid
   - [ ] Switch back to Pay as you go → Works as cancellation
 
-- [ ] **Pay bill**: Go to `patient/billing.html` → Pay Now
+- [ ] **Pay bill**: Go to `/patient/billing` → Pay Now
   - [ ] Modal shows simulated-gateway notice with test cards
   - [ ] Pay with `4000 0000 0000 0002` → Expect decline message, bill stays unpaid
   - [ ] Pay with `4242 4242 4242 4242` → Approved, bill becomes Paid
 
-- [ ] **Request ambulance**: Go to `patient/ambulance.html`
+- [ ] **Request ambulance**: Go to `/patient/ambulance`
   - [ ] Submit request → Appears as *Pending*
   - [ ] Cancel it → Status becomes *Cancelled*, row stays in table (NOT deleted)
 
@@ -228,7 +240,7 @@ Based on VERIFICATION.md requirements for comprehensive system validation.
   - [ ] System logs
   - [ ] Feedback
 
-- [ ] **Authority check**: On `leave-requests.html`, try to approve leave
+- [ ] **Authority check**: On `/staff/leave-requests`, try to approve leave
   → Expect: Refused (administrative staff record but don't approve)
 
 ### 4.4 Hospital Manager (hospitalmanager@nexcare.com)
@@ -237,17 +249,17 @@ Based on VERIFICATION.md requirements for comprehensive system validation.
 - [ ] **Revenue tab**: Shows own hospital's collections and what it owes NexCare
 
 ### 4.5 Regional Officer (regional@nexcare.com)
-- [ ] **My Region** (`hierarchy.html`): Scope banner names region and lists overseen hospitals
+- [ ] **My Region** (`/regional-officer/hierarchy`): Scope banner names region and lists overseen hospitals
 - [ ] **Dashboard, hospital approvals, revenue comparison, support requests** all work
-- [ ] **Scope test**: Log out, sign in as `regional2@nexcare.com` (Kavitha Menon, Chittoor + Nellore)
-  - [ ] She sees ONLY H009 and H011
-  - [ ] H001, H002 and rest of M001's region completely absent from hierarchy, dashboard, revenue comparison
+- [ ] **Scope test**: Log out, sign in as `kavya.menon@nexcare.in` (Kavya Menon, REG-KA-SOUTH — Bengaluru + Mysuru)
+  - [ ] She sees ONLY H003 and H004
+  - [ ] H001, H002, H009 and the rest of RM001's region completely absent from hierarchy, dashboard, revenue comparison
 
 ### 4.6 Admin/Superuser (superuser@nexcare.com)
 - [ ] **Organisation Hierarchy**: Whole tree (platform → regions → hospitals → departments → people)
   - [ ] Expand hospital, use search box
 - [ ] **Revenue** (six tabs):
-  - [ ] *All streams*: Seven streams, three payers, shares add to 100%
+  - [ ] *All streams*: Five streams, two payers (hospital, patient), shares add to 100%
   - [ ] *Hospitals*: Only hospitals that collected something appear
   - [ ] *Doctors*: Tier ladder, change tier fee and Save → figures recompute
   - [ ] *Patients*: Membership tiers and members
@@ -255,6 +267,43 @@ Based on VERIFICATION.md requirements for comprehensive system validation.
   - [ ] *Pricing controls*: Change booking fee, Save → All-streams total moves
 - [ ] **Hospital registrations**: Regional-officer dropdown grouped, shows load, prints suggestion
 - [ ] **Manage users, patient directory, system settings, feedback, reports** all work
+
+### 4.7 Cross-role flow — one patient, six actors, one sitting
+
+The flow the system exists for. Use a **freshly registered patient**: every seeded
+H001 patient already occupies 9–13 beds and holds an active ambulance request, so
+the backend refuses a second of either.
+
+- [ ] **Register** at `/register/patient` → the new account signs in at `/login/patient`
+  - [ ] It is minted a unique patient id (`P0xx`, never `P001`)
+- [ ] **Patient books** at `/patient/appointments` → Book Now → a real hospital
+      (H001), a department, a date, a slot, Confirm
+  - [ ] Step 1 lists the seeded hospitals, not fictional ones
+  - [ ] The booking lands as **Pending** under *My Appointments*
+- [ ] **Staff check in** at `/staff/patient-checkin` — patient id + visit purpose
+  - [ ] The patient joins the queue as *Waiting*
+- [ ] **Doctor confirms then completes** at `/doctor/appointments`
+  - [ ] Pending → **Confirmed** → **Completed**
+  - [ ] Completing appends the consultation fee to the patient's pending bill
+- [ ] **Staff bill** at `/staff/generate-bill` → + New Bill → Fetch Details → line
+      item → Save
+  - [ ] Fetch Details resolves the real patient name
+  - [ ] The bill is stamped with the staff member's hospital (`BILL-H001-nnn`)
+- [ ] **Patient pays** at `/patient/billing` → Pay Now on **that** bill
+  - [ ] `4000 0000 0000 0002` → declined, bill stays Pending, platform earns nothing
+  - [ ] `4242 4242 4242 4242` → approved, bill becomes **Paid**
+- [ ] **Hospital manager** at `/hospital-manager/revenue`
+  - [ ] Own-hospital collections grew by exactly the bill total
+- [ ] **Superuser** at `/superuser/revenue`
+  - [ ] Platform revenue grew by exactly `paymentGatewayRate` × the bill total
+  - [ ] `GET /payments/ledger?stream=payment_gateway_fee` has a row whose
+        `sourceId` is the bill, with the rate it was charged at and the hospital
+
+> **Note on the first bill.** Completing the consultation opens a pending bill
+> *before* the staff generate theirs. A patient with no billing history gets one
+> with no `hospitalId` (a flat `BILL-000n` — `getOrCreatePendingBill` can only
+> inherit the hospital from an earlier bill), so it is not counted in that
+> hospital's collections. Pay the staff-generated `BILL-H001-nnn` for this flow.
 
 ---
 
@@ -264,17 +313,17 @@ Based on VERIFICATION.md requirements for comprehensive system validation.
   - [ ] Note total on Admin → Revenue → All streams
   - [ ] As patient, pay bill with success card (section 4.1 step 3)
   - [ ] Reload Admin revenue page
-  - [ ] Total increased by exactly (commission rate + processing rate) × bill amount (3.4% with shipped rates)
+  - [ ] Total increased by exactly `paymentGatewayRate` × the bill total (₹47.08 on a ₹2,478 bill at 1.9%). The 2026-09-01 model has no per-bill hospital commission — processing is the only fee a card payment earns.
 
 - [ ] **Ledger recording**:
   ```bash
   SU=$(curl -s -X POST http://localhost:3001/api/auth/login -H 'Content-Type: application/json' \
     -d '{"email":"superuser@nexcare.com","password":"Password123","role":"superuser"}' \
     | python3 -c "import sys,json;print(json.load(sys.stdin)['data']['token'])")
-  curl -s -H "Authorization: Bearer $SU" "http://localhost:3001/api/payments/ledger?stream=hospital_commission" \
+  curl -s -H "Authorization: Bearer $SU" "http://localhost:3001/api/payments/ledger?stream=payment_gateway_fee" \
     | head -c 400
   ```
-  → Expect: Newest row names your bill with rate stored on the row
+  → Expect: a row whose `sourceId` is your bill id, with `rate`, `gross` and `amount` stored on it, and `hospitalId` set to the hospital that issued the bill
 
 - [ ] **History test**: Change `paymentGatewayRate` in Pricing controls from 1.9% to 3%
   - [ ] Reload revenue page → Past earnings do NOT change
@@ -305,10 +354,10 @@ tok () { curl -s -X POST $API/auth/login -H 'Content-Type: application/json' \
 
 SU=$(tok superuser@nexcare.com superuser)
 RO1=$(tok regional@nexcare.com regional_manager)
-RO2=$(tok regional2@nexcare.com regional_manager)
+RO2=$(tok kavya.menon@nexcare.in regional_manager)
 HM=$(tok hospitalmanager@nexcare.com hospital_manager)
 DOC=$(tok sunita@nexcare.com doctor)
-PAT=$(tok patient@gmail.com patient)
+PAT=$(tok venkat.rao@example.in patient)
 
 hit () { printf '%-46s %s\n' "$1" \
   "$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $2" "$API$3")"; }
@@ -317,11 +366,11 @@ hit () { printf '%-46s %s\n' "$1" \
 - [ ] `hit "admin: platform streams        (200)" "$SU"  /revenue/platform/streams` → 200
 - [ ] `hit "admin: payments ledger         (200)" "$SU"  /payments/ledger` → 200
 - [ ] `hit "admin: hierarchy               (200)" "$SU"  /hierarchy` → 200
-- [ ] `hit "M002: own hospital revenue     (200)" "$RO2" /revenue/hospital/H009` → 200
-- [ ] `hit "M002: OTHER region's revenue   (403)" "$RO2" /revenue/hospital/H001` → 403
-- [ ] `hit "M001: other region's revenue   (403)" "$RO1" /revenue/hospital/H009` → 403
-- [ ] `hit "M002: platform streams         (403)" "$RO2" /revenue/platform/streams` → 403
-- [ ] `hit "M002: payments ledger          (403)" "$RO2" /payments/ledger` → 403
+- [ ] `hit "RM002: own hospital revenue    (200)" "$RO2" /revenue/hospital/H003` → 200
+- [ ] `hit "RM002: OTHER region's revenue  (403)" "$RO2" /revenue/hospital/H001` → 403
+- [ ] `hit "RM001: other region's revenue  (403)" "$RO1" /revenue/hospital/H003` → 403
+- [ ] `hit "RM002: platform streams        (403)" "$RO2" /revenue/platform/streams` → 403
+- [ ] `hit "RM002: payments ledger         (403)" "$RO2" /payments/ledger` → 403
 - [ ] `hit "HM:   own hospital revenue     (200)" "$HM"  /revenue/hospital/H001` → 200
 - [ ] `hit "HM:   another hospital         (403)" "$HM"  /revenue/hospital/H002` → 403
 - [ ] `hit "doctor: own appointments       (200)" "$DOC" /appointments/doctor/me` → 200
@@ -379,9 +428,9 @@ hit () { printf '%-46s %s\n' "$1" \
 
 After completing full testing, you should be able to confirm:
 
-- [ ] 8 jest suites / 51 tests pass
+- [ ] 10 jest suites / 62 tests pass
 - [ ] Backend builds with no TypeScript errors
-- [ ] Every front-end `.js` parses
+- [ ] The front end builds (`cd front-end && npm run build`)
 - [ ] All seven actors log in and land on right portal
 - [ ] Cross-portal URL access blocked for every role
 - [ ] All six middleware behaviors verified individually (section 3)
@@ -389,11 +438,12 @@ After completing full testing, you should be able to confirm:
 - [ ] Patient can book, pay, request ambulance and cancel it
 - [ ] Cancelled ambulance request still in table
 - [ ] Doctor can confirm and complete, cannot touch another doctor's list
-- [ ] M002 cannot see M001's region anywhere
-- [ ] One card payment moves platform revenue by exactly 3.4% of bill
+- [ ] RM002 cannot see RM001's region anywhere
+- [ ] One card payment moves platform revenue by exactly `paymentGatewayRate` × the bill total (1.9% with shipped rates)
 - [ ] Declined payment moves nothing
 - [ ] Repricing does not restate past earnings
 - [ ] All 16 authorization checks in section 6 return expected codes
+- [ ] The cross-role flow in §4.7 completes end to end in one sitting
 
 ---
 
@@ -416,14 +466,14 @@ Any future expiry date and any 3-digit CVV. Unrecognized card numbers are declin
 | Role | Email |
 |------|-------|
 | Admin | `superuser@nexcare.com` |
-| Regional Officer (Tirupati + Renigunta) | `regional@nexcare.com` |
-| Regional Officer (Chittoor + Nellore) | `regional2@nexcare.com` |
-| Regional Officer (Chennai) | `regional3@nexcare.com` |
+| Regional Officer (Tirupati + Nellore) | `regional@nexcare.com` |
+| Regional Officer (Bengaluru + Mysuru) | `kavya.menon@nexcare.in` |
+| Regional Officer (Pune + Nashik) | `rohan.deshmukh@nexcare.in` |
 | Hospital Manager (H001) | `hospitalmanager@nexcare.com` |
 | Doctor (Cardiology, H001) | `sunita@nexcare.com` |
 | Administrative Staff (H001) | `admin@nexcare.com` |
 | Ambulance Staff (H001) | `ambulance@nexcare.com` |
-| Patient | `patient@gmail.com` |
+| Patient (`P003`) | `venkat.rao@example.in` |
 
 ---
 

@@ -91,6 +91,45 @@ per-transaction rounding. See §14 (2026-09-02, billing seed).
 Top contributors by commit count: Vivian545 (74), Nikitha101021 (35), poorvishree (35),
 Vivianmatheww (19), Deekshitha-1310 (13).
 
+**The front end is one React SPA (cutover 2026-09-22).** The nine-phase migration
+in `plan.md` is complete: all 59 static HTML pages are gone and `front-end/` is the
+Vite + React 18 single-page app that replaced them, portal by portal — public site
+and authentication, patient (booking wizard, card payments, invoice PDF),
+administrative staff (check-in, directory + documents, appointments, beds, billing,
+inventory + requisitions, scheduling, leave, feedback), hospital manager (the twelve
+`#section`s of the old `dashboard.html` as nested routes), ambulance (the transport
+lifecycle keyed on the server's `AmbulanceStatus`), regional officer (approvals,
+hospital details, comparison, alerts, complaints, revenue, hierarchy) and superuser
+(hierarchy, registrations, users, settings, the six-tab revenue model, Chart.js
+reports). Architecture and routes: §12. Every decision taken while porting — and
+every HTML bug found and either fixed or deliberately kept — is in `progress.md`;
+read it before changing the front end.
+
+Phase 8 closed with the whole of `MANUAL_TESTING_CHECKLIST.md` re-run against the
+SPA (40 API/middleware checks, 91 browser checks across every route of every
+portal, 26 checks for the cross-role flow **patient books → staff checks in →
+doctor completes → staff bills → patient pays → manager sees the revenue →
+superuser sees the ledger row**), plus the revenue-model checks in §5A: a paid
+₹2,478 bill moved platform revenue by exactly `paymentGatewayRate × total`
+(₹47.08), the ledger row names the bill and stores the rate it was charged at,
+a declined card earned nothing, and repricing the rate did not restate it.
+
+**The booking wizard's slot list** is derived from the hospital's **published
+schedule** (`GET /schedules`, 30-minute steps inside the doctor's saved hours)
+rather than from the doctor's roster alone — the roster alone offered 17:00 slots
+that the published 08:00–16:00 shift refused (progress.md, "Deferred / found while
+porting", fixed 2026-09-20).
+
+**Backend fixes made alongside Phase 4 (2026-09-20)** — the migration plan freezes
+the backend, but the user asked for deferred bugs to be fixed, and these were
+scope/route bugs the hospital-manager portal ran into head-on: `POST /auth/register`
+minted `P001` for every new patient; `PATCH /feedback/:id/status` excluded hospital
+managers and never checked the hospital; `GET /support-requests` returned `[]` to
+every hospital manager (it filtered on `assignedManagerId`, the regional officer);
+`GET /inventory` was unscoped and `POST /inventory` stamped no hospital; the
+inventory service read `name`/`minStock` while the seed stores `itemName`/
+`minimumQuantity`. See §14 (2026-09-20). Route map rows in §10 updated.
+
 **Open work items:** middleware implementation is the next graded deliverable; the
 application it will be evaluated on top of is what §4, §5A and §5B describe.
 
@@ -103,23 +142,23 @@ only ones the SRS recognises:
 
 | Actor | Role value in code | Portal |
 |---|---|---|
-| Patient | `patient` | `front-end/patient/` |
-| Administrative Staff | `administrative_staff` | `front-end/administrative_staff/` |
-| Ambulance Staff | `ambulance` | `front-end/ambulance/` |
-| Admin | `superuser` | `front-end/superuser/` |
+| Patient | `patient` | `/patient/*` |
+| Administrative Staff | `administrative_staff` | `/staff/*` |
+| Ambulance Staff | `ambulance` | `/ambulance/*` |
+| Admin | `superuser` | `/superuser/*` |
 
 The multi-hospital SaaS upgrade (commit `e6f3fc4`) added two oversight actors on top:
 
 | Actor | Role value in code | Portal |
 |---|---|---|
-| Regional Officer | `regional_manager` | `front-end/regional-officer/` |
-| Hospital Manager | `hospital_manager` | `front-end/hospital_manager/` |
+| Regional Officer | `regional_manager` | `/regional-officer/*` |
+| Hospital Manager | `hospital_manager` | `/hospital-manager/*` |
 
 The revised problem statement (2026-08-30) adds a seventh:
 
 | Actor | Role value in code | Portal |
 |---|---|---|
-| Doctor | `doctor` | `front-end/doctor/` |
+| Doctor | `doctor` | `/doctor/*` |
 
 ### Naming decisions (settled 2026-08-26)
 
@@ -149,9 +188,9 @@ prescription.
 
 - `UserRole.DOCTOR` is a full login actor. `NON_LOGIN_ROLES` in `auth.service.ts`
   contains only `UserRole.NURSE`.
-- Doctors self-register at `auth/staff-register.html` (`POST /auth/register-staff`,
+- Doctors self-register at `/register/staff` (`POST /auth/register-staff`,
   which now accepts `doctor` alongside `administrative_staff` and `ambulance`), or
-  are created by the Admin at `superuser/manage-users.html`.
+  are created by the Admin at `/superuser/manage-users`.
 - A registering doctor **must** give a specialisation. That specialisation becomes
   their `dept`, which is the department a patient picks in the booking wizard — a
   doctor without one is unbookable. `AuthService.registerStaff` rejects it.
@@ -167,17 +206,17 @@ prescription.
 `Access Denied: 'nurse' is a directory record, not a NexCare login account.` They
 exist so rosters, leave records and headcount statistics can reference them.
 
-### The doctor portal — `front-end/doctor/`
+### The doctor portal — `/doctor/*`
 
 | Page | What it does |
 |---|---|
-| `dashboard.html` | Five KPI tiles (today, awaiting confirmation, completed, patients seen, consultation revenue), today's schedule with inline Confirm/Complete, and an "up next" list. |
-| `appointments.html` | The full list, filtered by status tab and a search box. Confirm and Complete only — cancelling is the patient's or the front desk's call. |
-| `earnings.html` | Consultation revenue, consultations completed, the doctor's fee, and a "Deducted by NexCare" tile that reads ₹0 — because it is. A six-month trend. Edits the consultation fee. No tiers: NexCare charges a doctor nothing. |
-| `leaves.html` | Request leave, track it, withdraw a pending one. The hospital manager approves. |
-| `profile.html` | Read-only directory entry plus change-password. |
+| `/doctor/dashboard` | Five KPI tiles (today, awaiting confirmation, completed, patients seen, consultation revenue), today's schedule with inline Confirm/Complete, and an "up next" list. |
+| `/doctor/appointments` | The full list, filtered by status tab and a search box. Confirm and Complete only — cancelling is the patient's or the front desk's call. |
+| `/doctor/earnings` | Consultation revenue, consultations completed, the doctor's fee, and a "Deducted by NexCare" tile that reads ₹0 — because it is. A six-month trend. Edits the consultation fee. No tiers: NexCare charges a doctor nothing. |
+| `/doctor/leaves` | Request leave, track it, withdraw a pending one. The hospital manager approves. |
+| `/doctor/profile` | Read-only directory entry plus change-password. |
 
-Login at `auth/doctor-login.html`; the combined `auth/login.html` also offers a
+Login at `/login/doctor`; the combined `/login` hub also offers a
 Doctor radio. `shared/session.js` has `doctor: '/doctor/'` in `rolePathMap` and a
 `case "doctor"` in `redirectByRole`; `shared/nav.js` has a doctor branch.
 
@@ -216,9 +255,9 @@ unreachable the original mock array stands, so the wizard still works offline.
 
 Both routes now exist and that is deliberate:
 
-- **Doctors** file their own requests at `doctor/leaves.html`.
+- **Doctors** file their own requests at `/doctor/leaves`.
 - **Administrative Staff** record a request on behalf of a staff member at
-  `administrative_staff/leave-requests.html`. They **cannot** approve or reject —
+  `/staff/leave-requests`. They **cannot** approve or reject —
   `LeaveRequestGuard.validateLeaveApproval` returns 403.
 - **Hospital Manager / Superuser** approve or reject (`PATCH /api/leaves/:id`).
 
@@ -269,17 +308,17 @@ PATCH /hospitals/:id/verify         (superuser)
 
 A regional officer clearing a registration is due diligence, not activation.
 
-**Frontend (`front-end/regional-officer/`):**
+**Frontend (`/regional-officer/*`):**
 
-- `dashboard.html` — four KPI tiles (Assigned Hospitals, Total Doctors, Available
+- `dashboard` — four KPI tiles (Assigned Hospitals, Total Doctors, Available
   Beds, Low Stock Items) plus a "Hospitals Under Me" table with occupancy.
-- `hierarchy.html` — the officer's own subtree and their visibility scope (§5B).
-- `hospital-details.html` — read-only drill-down, five tabs: Overview, Staff &
+- `hierarchy` — the officer's own subtree and their visibility scope (§5B).
+- `hospital-details?id=` — read-only drill-down, five tabs: Overview, Staff &
   Doctors, Beds & Wards, Inventory, Ambulances.
-- `hospital-approvals.html` — approve/reject pending hospital registrations.
-- `revenue.html` — operational revenue compared across their own hospitals.
-- `support-requests.html` — triage requests and advance their status.
-- Login at `auth/regional-officer-login.html`.
+- `hospital-approvals` — clear/reject pending hospital registrations.
+- `revenue` — operational revenue compared across their own hospitals.
+- `complaints` — triage patient complaints and advance their status.
+- Login at `/login/regional-officer`.
 
 ### Assignment support — Deekshitha's endpoints (merged 2026-08-30)
 
@@ -432,7 +471,7 @@ billed — only a verified hospital is a customer. See §14 (2026-09-02).
 | Care+ Family | ₹399 | Same for up to 4 people, 25% off ambulance |
 
 Selecting Pay as you go **is** how a patient cancels — there is no separate cancel
-endpoint. `patient/membership.html` shows fees waived against membership paid and is
+endpoint. `/patient/membership` shows fees waived against membership paid and is
 honest when the plan is not paying off.
 
 ### Cross-cutting rates — `platform-fee-config.json`
@@ -468,12 +507,12 @@ money.
 
 | Role | Sees | Where |
 |---|---|---|
-| Admin (superuser) | All five streams, unit economics, per-payer split, every plan and rate, and the controls to change them | `superuser/revenue.html` — five tabs |
-| Regional Officer | Operational revenue across **their assigned hospitals only**; the hospital plan catalogue | `regional-officer/revenue.html` |
-| Hospital Manager | Their own hospital's collections + its subscription, seat count and processing fees | Revenue tab in `hospital_manager/dashboard.html` |
+| Admin (superuser) | All five streams, unit economics, per-payer split, every plan and rate, and the controls to change them | `/superuser/revenue` — six tabs |
+| Regional Officer | Operational revenue across **their assigned hospitals only**; the hospital plan catalogue | `/regional-officer/revenue` |
+| Hospital Manager | Their own hospital's collections + its subscription, seat count and processing fees | `/hospital-manager/revenue` |
 | Administrative Staff | Their own hospital's revenue (they raise the bills) | `GET /revenue/hospital/:id` |
-| Doctor | Their own consultation revenue and their fee. **Nothing is deducted.** | `doctor/earnings.html` |
-| Patient | Their own membership and what it saved them. **Never revenue.** | `patient/membership.html` |
+| Doctor | Their own consultation revenue and their fee. **Nothing is deducted.** | `/doctor/earnings` |
+| Patient | Their own membership and what it saved them. **Never revenue.** | `/patient/membership` |
 
 Enforced in `revenue.controller.ts`. `assertMayReadHospital` checks the caller
 actually oversees the hospital, and now also guards
@@ -505,7 +544,7 @@ unassigned hospital is a gap in the review chain, not missing data.
 It is computed from **one read of each file**. Bills, staff and beds are bucketed
 by hospital once up front (`groupBy`), so a hundredth officer costs a map lookup
 rather than another full pass over every bill. Shown as the *Regional officers*
-tab in `superuser/revenue.html`, with a click-to-expand hospital breakdown.
+tab at `/superuser/revenue`, with a click-to-expand hospital breakdown.
 
 
 ## 5C. Payments and the platform ledger (added 2026-08-30)
@@ -650,8 +689,8 @@ frontend than a 403.
 
 ### The frontend
 
-`shared/hierarchy-view.js` renders both pages: `superuser/hierarchy.html` and
-`regional-officer/hierarchy.html` see the *same* view of a *different* subtree. It
+`features/hierarchy/HierarchyView.jsx` renders both pages: `/superuser/hierarchy` and
+`/regional-officer/hierarchy` see the *same* view of a *different* subtree. It
 **never filters** — if a hospital reaches the browser, the caller was entitled to it.
 The tree is nested `<details>` elements, so expand/collapse is the browser's job and
 stays keyboard-navigable, and a search box filters by any node in a subtree.
@@ -685,7 +724,7 @@ had. Method-level `@Roles` fully overrides the class-level decorator (the guard 
 ```
 FFSD/
 ├── back-end/          NestJS 10 API, port 3001, global prefix /api
-├── front-end/         Static HTML/CSS/JS, one folder per portal, no framework
+├── front-end/         React SPA (Vite + React 18 + react-router-dom), all seven portals
 ├── Database/          ER diagram + MySQL schema (design artefacts, NOT used at runtime)
 ├── Figma Design/      Figma links
 ├── videos/            Team video link
@@ -711,14 +750,16 @@ tables and a `MANAGEMENT` role). Do not treat it as the schema of record.
 | `definitions.yml` | Domain glossary — 21 terms with definition, examples, aliases. Last updated 2026-02-03. |
 | `SRS.pdf` | Software Requirements Specification (994 KB). |
 | `docs-assembler-config.json` | Doc publishing config → `IIIT-Sricity-FSD-2024-2028/28_NexCare`, branch `master`, GitHub Pages URL. |
-| `.gitignore` | Ignores `node_modules/`, `.env`, `*.log`, `back-end/uploads/*`, `back-end/dist/`, `28_NexCare/` (a second clone that used to live here), and `Lab2-React/` (removed 2026-08-30 — see §14). |
+| `.gitignore` | Ignores `node_modules/`, `.env`, `*.log`, `back-end/uploads/*`, `back-end/dist/`, `front-end/dist/` (the Vite build), `28_NexCare/` (a second clone that used to live here), and `Lab2-React/` (removed 2026-08-30 — see §14). |
 | `package-lock.json` | 89 bytes, empty stub at root. Real lockfiles are per-package. |
 | `Database/DBschema.sql` | 185-line MySQL DDL — design artefact, not the runtime model. |
 | `Database/ER_diagram.png`, `Database/ERDiagram`, `Database/DB Schema.pdf` | ER design artefacts. |
 | `Figma Design/FigmaDashboard.md` | Figma design + prototype links. |
 | `Figma Design/Figma Designs.pdf` | Exported designs. |
 | `videos/video.md` | Google Drive link to the team video. |
-| `.vscode/settings.json` | Live Server on port 5501 + docs-assembler syntax colours. |
+| `.vscode/settings.json` | Live Server on port 5501 + docs-assembler syntax colours. Live Server is a leftover from the static front end and is no longer used. |
+| `plan.md` | The nine-phase plan for the HTML → React migration (completed 2026-09-22). |
+| `progress.md` | Per-phase status, every decision made while porting, and the deferred list. Read it before changing the front end. |
 | `.claude/settings.local.json` | Claude Code allowlist for this repo. |
 
 ---
@@ -906,17 +947,23 @@ Others (`POST`, `PUT`, `PATCH`, `DELETE`, `/stats/overview`, `/overdue`, `/reven
 | PUT · PATCH | `/ambulance/:id`, `/:id/dispatch`, `/:id/complete`, `/:id/status` | class |
 
 ### `feedback` — class: superuser, administrative_staff
-`GET /feedback`, `POST /feedback`, `GET /feedback/patient/:patientId` also allow **patient**.
+`GET /feedback` allows **patient, hospital_manager, regional_manager** (managers and staff are locked
+to their own hospital); `POST /feedback`, `GET /feedback/patient/:patientId` also allow **patient**.
+`PATCH /feedback/:id/status` — superuser, administrative_staff, **hospital_manager**, regional_manager;
+a manager or staff member may only move feedback that carries their own `hospitalId` (2026-09-20).
 `/stats/overview`, `/category/:category`, `/rating/:rating`, `/unresolved`,
-`/high-priority`, `/:id` (GET/PUT/PATCH/DELETE), `/:id/status` are class-only.
+`/high-priority`, `/:id` (GET/PUT/PATCH/DELETE) are class-only.
 
 ### `beds` — class: superuser, administrative_staff
 `GET /beds` also allows **regional_manager**. Everything else class-only:
 `POST`, `/stats/overview`, `/ward/:ward`, `/available`, `/patient/:patient`,
 `/occupancy`, `/:id` (GET/PUT/PATCH/DELETE), `/:id/allocate`, `/:id/release`, `/:id/status`.
 
-### `inventory` — class: superuser, administrative_staff
-`GET /inventory` also allows **regional_manager**. Everything else class-only:
+### `inventory` — class: superuser, administrative_staff, hospital_manager, regional_manager
+`GET /inventory` accepts `?hospitalId=`; a hospital manager or staff member always gets their own
+hospital (a different `hospitalId` is 403), superuser / regional officer may narrow to one.
+`POST /inventory` stamps the caller's hospital on the item (2026-09-20). The requirements
+workflow (`/inventory/requirements…`) is scoped the same way. Everything else class-only:
 `POST`, `/stats/overview`, `/low-stock`, `/out-of-stock`, `/category/:category`,
 `/location/:location`, `/search/:query`, `/audit/:itemId`, `/:id` (GET/PUT/PATCH/DELETE),
 `/:id/restock`, `/:id/use` (last two audited).
@@ -941,7 +988,7 @@ Others (`POST`, `PUT`, `PATCH`, `DELETE`, `/stats/overview`, `/overdue`, `/reven
 ### `support-requests` — no class-level roles, scoped in code
 | Method | Path | Behaviour |
 |---|---|---|
-| GET | `/support-requests` | superuser → any; regional_manager → their hospitals (filterable); hospital_manager → **locked to own hospital, client `hospitalId` ignored**; staff → own hospital |
+| GET | `/support-requests` | superuser → any; regional_manager → their hospitals (filterable); hospital_manager → **locked to own hospital, client `hospitalId` ignored** (no longer filtered on `assignedManagerId`, which is the regional officer — that returned `[]` to every manager until 2026-09-20); staff → own hospital |
 | POST | `/support-requests` | any authenticated; `hospitalId` defaults to the caller's |
 | PUT | `/support-requests/:id` | superuser, regional_manager, hospital_manager |
 
@@ -1043,125 +1090,321 @@ Every service persists through `FileStore<T>`, so **all 25 files survive a resta
 | `patient-subscriptions.json` | 5 | `patientId, planId, status, renewsOn` |
 | `platform-fee-config.json` | 1 | Single-row store: booking, ambulance, gateway, seat and notification rates |
 
-### Actual seed roster (verified 2026-08-28 — supersedes `TEST_ACCOUNTS.md`)
+### Actual seed roster (re-verified 2026-09-22 — supersedes `TEST_ACCOUNTS.md`)
 
-48 users, **all of which can log in**: 1 superuser, **3 regional_manager**,
-1 hospital_manager, 5 administrative_staff, 3 ambulance, 15 patients, **20 doctors**.
-Nurses are still directory-only but the seed ships none.
+**141 login accounts**, all of which can sign in: 1 superuser, 4 regional_manager,
+8 hospital_manager, 48 doctor, 40 administrative_staff, 16 ambulance, 24 patient.
+Nurses are still directory-only and the seed ships none — a `nurse` record is
+refused at login with *"'nurse' is a directory record, not a NexCare login
+account."* (`NON_LOGIN_ROLES` in `auth.service.ts`).
 
-Also 117 appointments (79 completed), 133 bills (95 paid) — see §5A on why the seed
-data was made coherent.
+Also **9 hospitals**, 64 patient records, 69 appointments (41 completed) and
+77 bills (55 paid) — see §5A on why the billing seed was made coherent.
 
-Login accounts worth knowing — password `Password123` for all:
+**`ACTOR_CREDENTIALS.md` is the canonical account list** (every email, per role,
+per hospital). The demo logins, all `Password123`:
 
-| Role | Name | Email | Hospital |
-|---|---|---|---|
-| superuser | Rajesh Kumar | `superuser@nexcare.com` | — |
-| regional_manager (`M001`) | Rajesh Sharma | `regional@nexcare.com` | Tirupati + Renigunta |
-| regional_manager (`M002`) | Kavitha Menon | `regional2@nexcare.com` | Chittoor + Nellore |
-| regional_manager (`M003`) | Arjun Raghavan | `regional3@nexcare.com` | Chennai |
-| doctor (`U005`) | Dr. Sunita Sharma | `sunita@nexcare.com` | H001 |
-| hospital_manager (`HM001`) | Srinivas Rao | `hospitalmanager@nexcare.com` | H001 |
-| administrative_staff | Priya Reddy | `admin@nexcare.com` | H001 |
-| administrative_staff | Lakshmi Menon | `lakshmi@nexcare.com` | H002 |
-| administrative_staff | Divya Krishnan / Karthik Raman | `divya@` / `karthik@nexcare.com` | H003 |
-| administrative_staff | Anita Joshi | `anita@nexcare.com` | H001 |
-| ambulance | Alex Martinez / Suresh Babu / Manoj Selvam | `ambulance@` / `suresh@` / `manoj@nexcare.com` | H001 / H002 / H003 |
-| patient | John Anderson | `patient@gmail.com` | — |
-| patient | +14 more (`patient2..8@gmail.com`, `ananya.sharma@`, `rahul.verma@`, …) | | |
+| Role | Id | Name | Email | Scope |
+|---|---|---|---|---|
+| superuser | `U001` | NexCare Platform Office | `superuser@nexcare.com` | the platform |
+| regional_manager | `RM001` | Anirudh Reddy | `regional@nexcare.com` | REG-AP-SOUTH — H001, H002, H009 |
+| regional_manager | `RM002` | Kavya Menon | `kavya.menon@nexcare.in` | REG-KA-SOUTH — H003, H004 |
+| hospital_manager | `HM-AP01` | Priya Reddy | `hospitalmanager@nexcare.com` | H001 |
+| doctor | `U005` | Dr. Sunita Sharma | `sunita@nexcare.com` | H001, Cardiology, ₹900 |
+| administrative_staff | `U002` | Lakshmi Naidu | `admin@nexcare.com` | H001 |
+| ambulance | `U003` | Tirupati Crew Alpha | `ambulance@nexcare.com` | H001 |
+| patient | `PAT-LOGIN-H1-3` | Venkat Rao (`P003`) | `venkat.rao@example.in` | — |
 
-**Hospitals:** H001 NexCare AIIMS Super Speciality (Tirupati, mgr HM001) ·
-H002 Apollo Health City (Tirupati, mgr M001) · H003 Fortis Care (Chennai, mgr M001) ·
-H004 Sri Venkateswara Care Center (Tirupati, no mgr) · HSP001–HSP008 (Tirupati,
-Chittoor, Renigunta, Nellore — all verified, no manager).
+**`patient@gmail.com` (`U004`, patient `P001`) no longer accepts `Password123`** —
+its password was changed during testing. `ACTOR_CREDENTIALS.md` carries the one-line
+`node -e` command that resets it. Use `venkat.rao@example.in` for a patient demo.
 
-**Login pages:** `auth/superuser-login.html` · `auth/regional-officer-login.html` ·
-`auth/staff-login.html` (administrative_staff + ambulance) · `auth/doctor-login.html` ·
-`auth/hospital-manager-login.html` · `auth/patient-login.html` ·
-`auth/login.html` (combined, now including Doctor).
+**Hospitals:** H001 Sri Venkateswara Multispeciality (Tirupati, RM001) ·
+H002 Coastal Care (Nellore, RM001) · H003 Namma Health Multispeciality
+(Bengaluru, RM002) · H004 Cauvery City (Mysuru, RM002) · H005 Sahyadri Care
+(Pune, RM003) · H006 Deccan Multispeciality (Nashik, RM003) · H007 Chennai
+Lifeline (Chennai, RM004) · H008 Kaveri Medical Centre (Vellore, RM004) ·
+H009 Rainbow Hospital (Tirupati, RM001).
+
+**Login routes:** `/login` (the hub — patient, administrative staff, hospital
+manager, ambulance staff, doctor) with footer links to `/login/regional-officer`
+and `/login/superuser`; the per-role pages are `/login/patient`, `/login/doctor`,
+`/login/staff` (administrative staff + ambulance), `/login/hospital-manager`,
+`/login/regional-officer` and `/login/superuser`.
 
 ---
 
 ## 12. Frontend architecture
 
-Plain HTML + CSS + vanilla JS, served statically (`npx serve` on 8080, or VS Code
-Live Server on 5501). No build step, no bundler, no framework.
+**One React single-page app** in `front-end/` — Vite 5 + React 18 +
+`react-router-dom` v6, **JavaScript, not TypeScript**, no UI library. It replaced
+the 59 static HTML pages on 2026-09-22 (Phase 8 of the migration; `plan.md` and
+`progress.md` at the repo root are the record of that work). There is no static
+`npx serve` host any more — the app is built (`npm run build`) and served by
+anything with history-API fallback.
 
-### The shared layer — `front-end/shared/`
+It talks to the same backend on `:3001`, writes the same five `sessionStorage`
+keys the old `shared/session.js` wrote (`nexcare_auth_token`, `nexcare_csrf_token`,
+`nexcare_user_data`, `nexcare_current_role`, `nexcare_user_email`), and uses the
+same stylesheets, copied verbatim.
 
-| File | Size | Role |
-|---|---|---|
-| `api.js` | 21 KB | **The API client.** `NexCareAPI` class + 13 modules (`Auth`, `Users`, `Patients`, `Appointments`, `Billing`, `Ambulance`, `Feedback`, `Beds`, `Inventory`, `Hospitals`, `Leaves`, `SupportRequests`, `System`) exposed on `window.NexCareAPI`, plus legacy flat aliases. Resolves the backend URL as `http://<current hostname>:3001/api` so it works on localhost, LAN IP, or WSL IP. Normalises every response to `{success, data, message}`. Also exports `window.pageLink(page, params)` — builds in-app links that keep `.html` only when the current URL has it, because static hosts 301 `/page.html?x=1` → `/page` and **drop the query string**. |
-| `session.js` | 12 KB | **Auth + routing guard.** Hides `<html>` before paint, decodes the JWT client-side (expiry only — signature is the backend's job), redirects unauthenticated users off protected pages, enforces `rolePathMap` so a role cannot sit in another portal, fades the page in, injects the floating back button. Exports `loginUser`, `redirectByRole`, `logoutUser`. |
-| `db.js` | 35 KB | **API-first compatibility bridge.** `NexCareDB` / `NexCareStore` try the API and fall back to `localStorage` (`nexcare_db_v3`) with a small seed. This is why the portals still work with the backend down. |
-| `nav.js` | 11 KB | Injects the sidebar and the role display name. **Only the superuser and regional-officer portals actually load it** — see §14. |
-| `ui-components.js` | 11 KB | `NexCareUI` — success modal, toast, confirm. `api.js` calls `NexCareUI.showToast` on network errors. |
-| `mock-hospitals.js` | 30 KB | `window.MOCK_HOSPITALS` — hospital → departments → doctors → `availableDays` → `slots`. **The booking wizard's step 0–2 data source.** |
-| `mockdb.json` | 7 KB | Legacy seed JSON. |
-| `doctor-directory.js` | 6 KB | Rebuilds `window.MOCK_HOSPITALS` from the live `/hospitals` and `/users/doctors` before the wizard renders, keeping the real ids, and layers a deterministic availability template on top. Falls back to the offline catalogue. **See §4 — without this, bookings reach no real doctor or hospital.** |
-| `hierarchy-view.js` | 6 KB | Shared renderer for both hierarchy pages. Draws whatever the backend hands it and never filters. |
-| `portal.css` | 6 KB | The header/page-body/KPI/panel/table/pill chrome the superuser and regional-officer pages each re-declared inline. Load after `global.css` and `nav.css`. |
-| `portal.js` | 4 KB | `currentUser`, `money`, `percent`, `esc`, `setText`, `setHTML`, `initials`, `fillHeader`, `notify`, `todayLabel`, `appointmentTime`. Plain globals, not a module — the portals use `<script src>`, not `import`. |
-| `global.css`, `nav.css` | 11 + 3 KB | Base styles and sidebar styles. |
-
-`front-end/logo.js` (85 lines) defines the `<nex-care-logo>` custom element with
-Shadow DOM so its styles never leak.
-
-### Portals
-
-| Portal | Pages | Sidebar | Notes |
-|---|---|---|---|
-| `patient/` | dashboard, appointments, billing, ambulance, feedback, membership, profile, hospital-search | hardcoded in HTML | Biggest CSS (`styles.css` 58 KB). `dataStore.js` is a thin ES-module proxy to `window.NexCareStore`. The 3 legacy `book-appointment-step*.html` pages were removed on 2026-08-28. |
-| `administrative_staff/` | dashboard, bed-allocation, inventory, manage_appointments, patient-directory, patient_checkin, staff_scheduling, generate-bill, feedback, leave-requests, system-logs | hardcoded in HTML | Each page has a matching `.js`; most define their own local `apiGet`/`apiRequest` rather than using `shared/api.js`. |
-| `superuser/` | dashboard, hierarchy, hospital-registrations, patient-directory, manage-users, system-settings, feedback, revenue, reports | **`shared/nav.js`** | `reports.js` is the largest (594 lines). `revenue.html` now has five tabs — All streams, Hospitals, Doctors, Patients, Pricing controls. |
-| `regional-officer/` | dashboard, hierarchy, hospital-approvals, hospital-details, revenue, support-requests | **`shared/nav.js`** | `hospital-details.html` has the 5 read-only tabs. |
-| `doctor/` | dashboard, appointments, earnings, leaves, profile | **`shared/nav.js`** | Built on `shared/portal.css` + `portal.js`. See §4. |
-| `hospital_manager/` | dashboard | hardcoded | 483-line tabbed dashboard: overview, leaves (approve/reject), staff, support. |
-| `ambulance/` | index.html | hardcoded | Single-page app: 6 `data-page` views (dashboard, ambulance-requests, assigned-dispatch, active-transport, completed-transports, profile). `app.js` is **3522 lines / 135 KB** — the largest file in the repo. |
-| `auth/` | login, patient-login, patient-register, staff-login, staff-register, superuser-login, regional-officer-login, hospital-manager-login, signup | n/a | |
-| `landing/` | landing.html (64 KB, sections: home, features, roles, how-it-works, reviews, contact), hospital-registration.html | n/a | `hospital-registration.html` is now the **only** hospital sign-up page; `auth/login.html` links here. |
-
-### The patient booking wizard (the React-conversion candidate)
-
-`patient/appointments/appointments.html` is one page with three top-level sections
-toggled by `display`: `#appointmentLanding`, `#myAppointments`, `#bookingFlow`.
-`appointments.js` (1069 lines) drives it with two module-level variables:
-
-```js
-let bookingData = { hospital, department, doctorId, doctor, date, time, patientInfo };
-let currentStep = 0..4;
+```
+front-end/
+  index.html  vite.config.js  package.json
+  src/
+    main.jsx                 BrowserRouter + AuthProvider + ToastProvider + DialogProvider
+    App.jsx                  the whole route tree; the seven portals are React.lazy
+    api/
+      client.js              fetch wrapper — base URL from the current hostname, Bearer
+                             token, CSRF prime-and-retry, 401 → session cleared,
+                             `ApiError` with `.status`, `http.upload()` multipart
+      index.js               one namespace per backend area (Auth, Users, Patients,
+                             Appointments, Billing, Payments, Ambulance, Feedback, Beds,
+                             Inventory, Hospitals, SupportRequests, Leaves, Revenue,
+                             Schedules, Hierarchy, Notifications, Uploads, System)
+      links.js               `pageLink(page, params)` + `LEGACY_ROUTES` — the old
+                             `folder/page.html#section` names still resolve to SPA routes
+    context/                 AuthContext (session, role aliases, JWT expiry, login/logout),
+                             ToastContext (`notify()`)
+    components/
+      layout/                PortalLayout, Sidebar (role → menu map in `navigation.js`),
+                             Header, NotificationBell, BackButton
+      ui/                    Panel, KpiTile, StatusPill, Modal, Tabs, DataTable, EmptyRow,
+                             ConfirmDialog, `useDialogs()` (the old `NexCareUI` modals)
+      RequireAuth.jsx        role-aware guard; wrong role → that role's own home
+      NexCareLogo.jsx, icons.jsx
+    features/                what two or more portals share: activity (audit writes),
+                             ambulance (transport status ladder + ETA), appointments
+                             (confirm/complete/refer), doctor-directory (the booking
+                             catalogue + published-schedule slots), hierarchy (the tree
+                             both hierarchy pages draw), invoice (totals + jsPDF export),
+                             payments (card form + the mock gateway)
+    portals/                 public · auth · patient · doctor · staff · hospital-manager ·
+                             ambulance · regional-officer · superuser
+    hooks/                   usePolling, useStylesheet (route-mounted stylesheets),
+                             useConfirm
+    styles/                  the copied stylesheets, one per portal + global/nav/portal/auth
+    utils/                   format, jwt, roles
 ```
 
-`renderBookingStep()` dispatches to `renderStep0` (hospital) → `renderStep1`
-(department) → `renderStep2` (date & doctor) → `renderStep3` (details) →
-`renderConfirmation`. `getBookedSlotsForDoctor()` unions booked slots from three
-sources (API → `NexCareStore` → raw `localStorage`) to grey out taken times.
+### Three things worth knowing before editing it
 
-That shared `bookingData` is exactly the "lift state up to the common parent" the lab
-asks for, and each step becomes a child component receiving props + an `onSelect`
-callback.
+**Stylesheets are copies, not rewrites.** Each portal's original CSS is in
+`src/styles/<portal>.css` **verbatim**, with a clearly marked *override block*
+appended at the end that undoes leaks from the globally-bundled `global.css` /
+`nav.css` / `portal.css` (they share class names). Fix a visual diff in the
+override block; do not edit the copied rules above it. Page-global stylesheets
+(`landing.css`, `patient.css`, `ambulance.css`, `hospital-manager.css`, …) are
+**route-mounted** through `useStylesheet()` — added as a `<link>` on mount,
+removed on unmount — because they style `body`/`h1` and would otherwise leak into
+every other route.
+
+**Portals are lazy-loaded.** `App.jsx` pulls each portal in with `React.lazy`, so
+`src/portals/<name>/index.jsx` is the chunk boundary: it exports both the route
+table and a default component that renders it. The entry chunk is 278 kB
+(78 kB gzip); the largest portal chunk is the patient's at 144 kB. `jspdf` and
+`chart.js` are dynamic imports of their own, fetched only on an invoice download
+or a report chart.
+
+**API calls throw.** The old HTML client returned `{success:false}`; the React
+client throws `ApiError` and resolves `{ success, data, message }`, so pages use
+`try/catch` and read `res.data`. Native `alert()` / `confirm()` / `prompt()` are
+gone — they are `notify()` toasts, the shared `ConfirmDialog` (`useConfirm`), and
+small input modals.
+
+### Routes
+
+```
+/                              landing            /login  /login/:role
+/hospital-registration         /register/patient  /register/staff  /signup
+/forgot-password               /change-password
+/patient/hospital-search       (deliberately outside the guard — the HTML page had none)
+
+/patient/{dashboard,appointments,billing,ambulance,feedback,membership,profile}
+/doctor/{dashboard,appointments,earnings,leaves,profile}
+/staff/{dashboard,manage-appointments,patient-checkin,patient-directory,bed-allocation,
+        generate-bill,inventory,staff-scheduling,leave-requests,feedback,system-logs}
+/hospital-manager/{overview,staff,leaves,schedules,supervision,support,feedback,
+                   inventory-approvals,ambulance,revenue,subscription,setup}
+/ambulance/{dashboard,ambulance-requests,assigned-dispatch,active-transport,
+            completed-transports,profile}
+/regional-officer/{dashboard,hospital-approvals,hospital-details,hospital-comparison,
+                   performance-alerts,complaints,revenue,hierarchy,profile}
+/superuser/{dashboard,hierarchy,hospital-registrations,patient-directory,manage-users,
+            system-settings,feedback,revenue,reports}
+```
+
+Login → home: `patient → /patient/dashboard` · `doctor → /doctor/dashboard` ·
+`administrative_staff → /staff/dashboard` · `ambulance → /ambulance/dashboard` ·
+`hospital_manager → /hospital-manager/overview` ·
+`regional_manager → /regional-officer/dashboard` · `superuser → /superuser/dashboard`.
+Role aliases (`super_user`, `hospital_admin`, `admin_staff`, `ambulance_staff`,
+`regional_officer`) are normalised in `AuthContext`.
+
+### The patient booking wizard
+
+`portals/patient/booking/BookingWizard.jsx` — four steps (hospital → department →
+date & doctor → summary) over one `booking` object held by `AppointmentsPage`,
+with a confirmation screen. Its catalogue is built live from `GET /hospitals` and
+`GET /users/doctors` (`features/doctor-directory/`), and its slots are cut from the
+hospital's **published schedule** (`GET /schedules?status=approved`, 30-minute
+steps inside the doctor's saved hours) — the doctor's roster alone used to offer
+slots the backend then refused.
 
 ---
 
-## 13. Frontend file counts
+## 13. Frontend file inventory
 
-29 files in `administrative_staff/` · 18 in `patient/` (+2 in `patient/appointments/`) ·
-17 in `superuser/` · 12 in `auth/` · 13 in `shared/` · 10 in `regional-officer/` ·
-10 in `doctor/` · 4 in `landing/` · 4 in `ambulance/` · 3 in `hospital_manager/` ·
-2 in `assets/`.
+160 files / ~38,500 lines under `front-end/src/`:
 
-**Every relative `href`/`src` across all 54 HTML pages resolves** (re-audited
-2026-08-30; the only non-resolving match is a `tel:` link on the landing page).
-Re-run the audit after adding pages.
+| Folder | Files | Lines |
+|---|---|---|
+| `portals/` | 102 | 17,145 |
+| `styles/` | 17 | 15,078 (the copied stylesheets) |
+| `features/` | 16 | 1,555 |
+| `components/` | 11 | 663 |
+| `api/` | 3 | 665 |
+| `context/` | 2 | 192 |
+| `hooks/` | 3 | 90 |
+| `utils/` | 3 | 177 |
 
-Also: `front-end/debug.html` (5 KB dev scratch page), `front-end/jsconfig.json`
-(`checkJs: false`), `front-end/package-lock.json` (88-byte stub),
-`front-end/administrative_staff/generate_pages.js` (257 lines, page-generation helper
-loaded by 0 pages — still dead, left in place deliberately).
+Per portal: patient 19 files / 3,449 lines · hospital-manager 20 / 2,825 ·
+superuser 11 / 2,461 · staff 15 / 3,095 · regional-officer 11 / 1,643 ·
+ambulance 10 / 1,026 · public 3 / 1,219 · auth 6 / 723 · doctor 7 / 704.
+
+**Not carried over from the HTML front end** (decisions recorded in `progress.md`):
+`shared/db.js` (the localStorage compatibility bridge — every call became a direct
+API call), `shared/mock-hospitals.js` (the offline hospital catalogue),
+`administrative_staff/validation.js` (an ES module no page ever imported),
+`administrative_staff/generate_pages.js` (a one-off page generator),
+`hospital-registration/register.html` + `register.js` (dead — nothing linked to it,
+and it read form ids its own HTML did not have), `debug.html`, `jsconfig.json`.
 
 ---
 
 ## 14. Cleanup log and remaining traps
+
+### Done on 2026-09-22 (post-migration audit — nine defects)
+
+A full sweep of the backend route surface and every portal once the migration
+had landed. Method and the complete table are in `progress.md`
+("Post-migration audit"); the fixes, in brief:
+
+1. `PatientsService.update` spread the DTO's `fullName` into the record instead
+   of mapping it to `name`, so **every patient rename was silently lost** while
+   the UI reported success. Now mapped.
+2. The patient profile form loaded the stored display phone (`+91 98480 33445`)
+   into a field validated as `^\d{10}$`, so **no patient could save their
+   profile at all**. It now loads the national 10-digit part.
+3. `GET /feedback` for a `regional_manager` passed `req.user.id` where an array
+   of hospital ids was expected — `new Set('RM001')` matched nothing, so the
+   list was **always empty**. It now resolves the ids like `/feedback/regional`.
+4. `GET /system/performance` answered with `getHealth()`. There is now a real
+   `getPerformance()` (uptime, memory, CPU, runtime).
+5. `POST /leaves` accepted a leave with no `hospitalId` — invisible to every
+   manager, because their tab filters on it. `CreateLeaveDto` is a bare
+   interface, so the `ValidationPipe` never guarded that route. The controller
+   now stamps the doctor's own hospital, name and id when they are missing.
+6. The doctor's Leaves page still raised a native `window.confirm`; it uses the
+   shared `ConfirmDialog` like every other portal.
+7. `features/invoice/invoice.js` raised a native `window.alert`; it now reports
+   through the caller's toast.
+8. `docs/swagger.json` was three weeks stale (185 paths against 189).
+   Regenerated.
+9. This file's §15 claimed the server rewrites `docs/swagger.json` on boot —
+   `main.ts` says in a comment that it deliberately does not. That wrong
+   instruction is why #8 went unnoticed. §15 now carries the real command.
+
+**Not changed, deliberately:** `InventoryService` caches its JSON file in memory
+at construction while every other service re-reads per request (so a hand-edit
+needs a restart, contradicting `VERIFICATION.md` §7.3); the staff Generate Bill
+page always POSTs a new bill rather than appending to the patient's open one;
+and a brand-new patient's first bill carries no `hospitalId`. All three are
+pre-existing product behaviour, recorded in `progress.md`.
+
+### Done on 2026-09-22 (Phase 8 — the HTML front end is deleted)
+
+`front-end/` no longer holds the static portals. What went:
+
+- All ten portal folders (`patient/`, `administrative_staff/`, `superuser/`,
+  `regional-officer/`, `doctor/`, `hospital_manager/`, `ambulance/`, `auth/`,
+  `landing/`, `hospital-registration/`), `shared/` (the 13 files §12 used to list),
+  `assets/`, and `logo.js`.
+- The dev leftovers: `debug.html`, `jsconfig.json`, the 88-byte
+  `package-lock.json` stub, `serve_out.txt`, `serve_err.txt`, `frontend_log.txt`.
+- `front-end-react/plan.md`, the superseded Lab-2 doctor-portal plan.
+
+`front-end-react/` was then renamed to `front-end/`, and `.gitignore` lost the
+`front-end/node_modules/` line (covered by the plain `node_modules/` rule) and
+gained `front-end/dist/` in place of `front-end-react/dist/`.
+
+**Traps that went with it.** Everything under "static hosts eat query strings"
+(§15) is history; so are the HTML-only bugs `progress.md` lists as *"pre-existing,
+not fixed — `front-end/` is frozen until Phase 8"*: `session.js`'s `publicPaths`
+missing three login pages, `dashboard.html`'s duplicated `#leavesTab` /
+`#revenueTab` / `#newAmbulanceModal` ids, the inline JWT guards that ran *after*
+the page scripts on three regional pages, and `reports.html`'s guard with a
+missing brace. None of them have an equivalent in the SPA.
+
+**What did NOT change:** the backend, the seed, and every route in §10. The
+migration's rule was that no route, DTO, guard or seed changes for it (`plan.md`
+§0 rule 2); the five backend fixes below, made during Phase 4 and Phase 5, are
+the documented exceptions and were made on explicit instruction.
+
+### Done on 2026-09-20 (Phase 4 of the React migration — backend bugs the hospital-manager portal exposed)
+
+The migration plan (`plan.md` §0 rule 2) freezes the backend; these were fixed on
+the user's explicit instruction to fix deferred bugs wherever they sit. None
+changes a DTO or a seed; each is a scope or a broken route.
+
+1. **`POST /auth/register` gave every new patient `patientId: "P001"`.**
+   `IdGenerator.generatePatientId(existingIds)` derives the next id from the list
+   it is handed; `AuthService.register()` handed it nothing. It now passes the
+   patient records' ids plus the ids on existing login accounts. (Found in
+   Phase 3, logged as deferred.)
+2. **`PATCH /feedback/:id/status` excluded `hospital_manager`** — the manager's
+   feedback tab's one action was a 403 — and let staff move any hospital's
+   feedback. Role added; managers and staff are checked against the row's
+   `hospitalId` (`assertOwnHospital`).
+3. **`GET /support-requests` returned `[]` to every hospital manager.** The
+   controller filtered on `assignedManagerId === caller.id`; that field is the
+   *regional officer* a ticket is escalated to (§5, 2026-08-30 item 2), never a
+   hospital manager. Managers get their hospital's tickets, unfiltered.
+4. **`GET /inventory` was unscoped and `POST /inventory` stamped no hospital.**
+   Every hospital's staff saw every hospital's stock (a §5B violation), and an
+   item added by H001 belonged to nobody. Scoped like `/inventory/requirements`
+   (`?hospitalId=` for superuser / regional officer; 403 on a foreign id for
+   staff and managers); create stamps the caller's hospital.
+5. **`InventoryService` and the seed disagreed on field names.** The service
+   works with `name` / `quantity` / `minStock`; `inventory.json` stores
+   `itemName` / `currentQuantity` / `minimumQuantity`. Low-stock checks were
+   dead for every seeded item and `mark-restocked` threw on
+   `i.name.toLowerCase()`. Items are normalised on load (`normalise()`), both
+   spellings are kept in step on save, the matcher guards the name. The
+   `Inventory` interface declares the seed spellings as optional aliases.
+6. **`BedsService.create`'s cap message** said "Subscription limit reached …
+   please upgrade" — wording from the removed bed-based tiers (§5A). The cap
+   itself (`hospital.totalBeds`, the registered capacity) is right and stays;
+   the message now names it. H001 is seeded at exactly its capacity (120).
+
+7. **(Phase 5, same day)** `AuthService.login` now also copies `assignedVehicle`,
+   `driverLicense`, `shift` and `joiningDate` onto the login response when the
+   user record has them (declared on `AuthResponse`). The ambulance portal's
+   profile is the only reader; that role cannot call `GET /users/:id`, and the
+   HTML portal had shown a hard-coded "Alex Martinez" instead.
+
+Backend builds clean; `npx jest` is still 10 suites / 62 tests.
+
+HTML-portal bugs found during the port and **not** fixed (`front-end/` is the
+parity reference until Phase 8): `session.js`'s `publicPaths` lacks
+`/auth/hospital-manager-login`, so the dedicated manager login page bounces to
+the hub; `dashboard.html` declares `#leavesTab`, `#revenueTab` and
+`#newAmbulanceModal` twice (the first `#leavesTab` is empty, so the tab was
+blank) and `#setupTab` carries inline `display:flex` (visible under every
+tab); `switchTab('leaves')` calls an undefined `renderLeaves()`; the staff
+status modal, the feedback status modal and `openSupportModal()` do not exist;
+the section titles are written to selectors the page lacks. Every one of these
+is documented, with the SPA behaviour, in `progress.md` → Phase 4 decisions.
 
 ### Done on 2026-09-02 (revenue model — hardcoding sweep and four fixes)
 
@@ -1683,18 +1926,38 @@ cd back-end
 npm install
 npm run start:dev          # watch mode
 npm run start:prod         # node dist/src/main
-npx jest                   # 5 suites, 19 tests
+npx jest                   # 10 suites, 62 tests
 npm run build              # regenerate dist/
 
-# Frontend (any static server; the API client mirrors the hostname on :3001)
+# Frontend (Vite; the API client mirrors the current hostname on :3001)
 cd front-end
-npx serve -l 8080
+npm install
+npm run dev                # http://localhost:5173, HMR
+npm run build              # static bundle → dist/ (gitignored)
+npm run preview            # serves dist/ with history-API fallback, :4173
 ```
 
-Swagger UI: `http://localhost:3001/api/docs`.
-**Just start the server to regenerate the docs** — `main.ts` writes
-`docs/swagger.json` during bootstrap, so it is always current after a run, and that
-is the authoritative version. Prefer it over `generate-swagger.ts`.
+In production, serve `front-end/dist/` from **any static host with history-API
+fallback** — `vite preview`, `serve -s dist`, or nginx with
+`try_files $uri /index.html`. Without the fallback a deep link such as
+`/superuser/revenue` 404s on refresh.
+
+Swagger UI: `http://localhost:3001/api/docs` — always built from the live
+decorators, so it is current the moment the server is running.
+
+**`docs/swagger.json` is NOT regenerated on boot.** `main.ts` says so explicitly:
+it is a tracked file, and rewriting it every run churned it in four of nineteen
+commits and guaranteed a conflict whenever two people ran the app. Regenerate it
+deliberately after adding or changing a route:
+
+```bash
+cd back-end && npm run swagger:generate
+```
+
+It had drifted three weeks out of date (185 paths against the app's 189 — it was
+missing `POST /auth/forgot-password/verify`, `POST /auth/forgot-password/reset`,
+`GET /system/health` and `GET /system/performance`) and was regenerated on
+2026-09-22.
 
 ### Env vars
 `PORT` (3001) · `JWT_SECRET` (warns if unset or left at the shipped default) ·
@@ -1713,15 +1976,18 @@ stored password in `data/users.json`. Harmless (the password was verified correc
 first), but it means poking at auth dirties the seed data — check
 `git diff back-end/data/` before committing.
 
-### Gotcha: static hosts eat query strings
-`npx serve` answers `/page.html?x=1` with a `301 → /page` and **drops the query
-string**. Always build in-app links with `window.pageLink(page, params)` from
-`shared/api.js` instead of hardcoding `.html`.
+### Gotcha (historical): static hosts ate query strings
+The old `npx serve` host answered `/page.html?x=1` with a `301 → /page` and
+**dropped the query string**, so several pages worked around it with
+`sessionStorage` hand-offs. The SPA keeps query strings, and those work-arounds
+are gone — `?id=`, `?bill=` and `?tab=` are read with `useSearchParams`. The old
+`folder/page.html` names still resolve through `pageLink()` in `api/links.js`;
+nothing in `src/` links to a `.html` path.
 
 ### Gotcha: rates are fractions, percentages are a UI concern
 `paymentGatewayRate` and `ambulanceDiscount` are stored as fractions — `0.019` is 1.9%.
-`superuser/revenue.js` converts on the way in and out (`FEE_FIELDS` marks which
-fields are `percent`). Sending `1.9` to `PATCH /revenue/fees` would charge 190%;
+`portals/superuser/RevenuePage.jsx` converts on the way in and out (`FEE_FIELDS`
+marks which fields are `percent`). Sending `1.9` to `PATCH /revenue/fees` would charge 190%;
 `PricingService.updateFeeConfig` rejects a gateway rate above 1 for exactly that reason.
 
 ### Gotcha: patient revenue is keyed on the patient record, not the login
