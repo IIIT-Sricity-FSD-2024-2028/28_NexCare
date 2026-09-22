@@ -72,7 +72,14 @@ export class FeedbackController {
       hospitalId = req.user.hospitalId || 'H001';
     }
     if (req?.user?.role === UserRole.REGIONAL_MANAGER) {
-      return this.feedbackService.findForRegionalManager(req.user.id, status as any, category, hospitalId);
+      // findForRegionalManager takes the officer's hospital *ids*. Passing
+      // req.user.id made `new Set('RM001')` a set of characters, so no hospital
+      // ever matched and the officer's list was always empty. Resolve the ids
+      // the same way GET /feedback/regional does.
+      const hospitalIds = this.hospitalsService
+        .getHospitalsForManager(req.user.id)
+        .map(h => h.id);
+      return this.feedbackService.findForRegionalManager(hospitalIds, status as any, category, hospitalId);
     }
     return this.feedbackService.findAll(patientId, status as any, category, hospitalId);
   }
@@ -286,13 +293,35 @@ export class FeedbackController {
    * Update feedback status
    */
   @Patch(':id/status')
-  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.REGIONAL_MANAGER)
-  @ApiOperation({ summary: 'Update feedback status' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.HOSPITAL_MANAGER, UserRole.REGIONAL_MANAGER)
+  @ApiOperation({ summary: 'Update feedback status (hospital staff and managers: their hospital only)' })
   @ApiResponse({ status: 200, description: 'Feedback status updated successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
-  async updateStatus(@Param('id') id: string, @Body('status') status: string) {
+  async updateStatus(@Req() req: any, @Param('id') id: string, @Body('status') status: string) {
+    await this.assertOwnHospital(req, id);
     return this.feedbackService.updateStatus(id, status as any);
+  }
+
+  /**
+   * The hospital manager's portal has always offered "Update Status" on its
+   * own hospital's feedback, but the role was never on this route, and the
+   * staff who were on it could move any hospital's feedback. Both read their
+   * feedback through the hospital-scoped GET, so the write is scoped the same
+   * way: the row must belong to the caller's hospital.
+   */
+  private async assertOwnHospital(req: any, id: string) {
+    const role = req?.user?.role;
+    if (role !== UserRole.HOSPITAL_MANAGER && role !== UserRole.ADMINISTRATIVE_STAFF) return;
+
+    const existing: any = await this.feedbackService.findById(id);
+    const row = existing?.data ?? existing;
+    if (!row || !row.id) {
+      throw new NotFoundException(`Feedback ${id} was not found.`);
+    }
+    if (row.hospitalId && req.user?.hospitalId && row.hospitalId !== req.user.hospitalId) {
+      throw new ForbiddenException('Cross-hospital access denied. You can only update feedback for your own hospital.');
+    }
   }
 }

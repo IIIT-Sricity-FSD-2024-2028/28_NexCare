@@ -33,15 +33,44 @@ export class InventoryService {
         return initial;
       }
       const raw = fs.readFileSync(this.inventoryFilePath, 'utf-8');
-      return JSON.parse(raw);
+      return (JSON.parse(raw) as any[]).map(item => this.normalise(item));
     } catch {
       return this.getInitialMockData();
     }
   }
 
+  /**
+   * The seed writes an item as `itemName` / `currentQuantity` /
+   * `minimumQuantity` while this service (and its create path) works with
+   * `name` / `quantity` / `minStock`. Read either spelling and keep both, so
+   * low-stock checks, the restock matcher and every client see one shape.
+   */
+  private normalise(item: any): Inventory {
+    const name = item.name ?? item.itemName ?? '';
+    const quantity = Number(item.quantity ?? item.currentQuantity ?? 0);
+    const minStock = Number(item.minStock ?? item.minimumQuantity ?? item.reorderLevel ?? 0);
+    return {
+      ...item,
+      name,
+      itemName: item.itemName ?? name,
+      quantity,
+      currentQuantity: item.currentQuantity ?? quantity,
+      minStock,
+      minimumQuantity: item.minimumQuantity ?? minStock,
+      location: item.location ?? item.department ?? 'Central Store',
+    };
+  }
+
   /** Persist inventory to disk */
   private saveInventory(items: Inventory[]): void {
     try {
+      // Restock / use move `quantity`; keep the seed's spellings in step so a
+      // client reading either sees the same stock level.
+      for (const item of items) {
+        item.itemName = item.name;
+        item.currentQuantity = item.quantity;
+        item.minimumQuantity = item.minStock;
+      }
       fs.mkdirSync(path.dirname(this.inventoryFilePath), { recursive: true });
       fs.writeFileSync(this.inventoryFilePath, JSON.stringify(items, null, 2), 'utf-8');
     } catch (err) {
@@ -183,9 +212,15 @@ export class InventoryService {
    * @param location Optional location filter
    * @returns List of inventory items
    */
-  async findAll(category?: string, status?: InventoryStatus, location?: string) {
+  async findAll(category?: string, status?: InventoryStatus, location?: string, hospitalId?: string) {
     try {
       let filteredInventory = [...this.inventory];
+
+      // Scope to one hospital (the controller passes the caller's own for
+      // hospital staff and managers).
+      if (hospitalId) {
+        filteredInventory = filteredInventory.filter(item => item.hospitalId === hospitalId);
+      }
 
       // Apply category filter
       if (category) {
@@ -258,7 +293,7 @@ export class InventoryService {
       }
 
       // Create new item
-      const newItem: Inventory = {
+      const newItem: Inventory = this.normalise({
         id: newItemId,
         name: itemData.name,
         category: itemData.category,
@@ -266,11 +301,12 @@ export class InventoryService {
         minStock: itemData.minStock,
         unit: itemData.unit,
         location: itemData.location,
+        hospitalId: itemData.hospitalId,
         status,
         lastRestocked: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
-      };
+      });
 
       // Add to inventory array
       this.inventory.push(newItem);
@@ -1021,7 +1057,9 @@ export class InventoryService {
 
       // Auto-replenish central inventory stock
       let inventoryList = this.loadInventory();
-      let matchedItem = inventoryList.find(i => (req.itemId && i.id === req.itemId) || i.name.toLowerCase() === req.itemName.toLowerCase());
+      const wantedName = String(req.itemName || '').toLowerCase();
+      let matchedItem = inventoryList.find(i => (req.itemId && i.id === req.itemId)
+        || (wantedName && String(i.name || '').toLowerCase() === wantedName));
 
       if (matchedItem) {
         const qtyBefore = matchedItem.quantity;

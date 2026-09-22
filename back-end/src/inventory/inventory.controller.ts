@@ -39,19 +39,41 @@ export class InventoryController {
    * Get all inventory items with optional filtering
    */
   @Get()
-  @ApiOperation({ summary: 'Get all inventory items' })
+  @ApiOperation({ summary: 'Get all inventory items (hospital staff and managers: their hospital only)' })
   @ApiQuery({ name: 'category', required: false })
   @ApiQuery({ name: 'status', required: false, enum: InventoryStatus })
   @ApiQuery({ name: 'location', required: false })
+  @ApiQuery({ name: 'hospitalId', required: false })
   @ApiResponse({ status: 200, description: 'List of inventory items' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   async findAll(
+    @Req() req: any,
     @Query('category') category?: string,
     @Query('status') status?: string,
-    @Query('location') location?: string
+    @Query('location') location?: string,
+    @Query('hospitalId') hospitalId?: string,
   ) {
-    return this.inventoryService.findAll(category, status as any, location);
+    return this.inventoryService.findAll(category, status as any, location, this.scopeHospitalId(req, hospitalId));
+  }
+
+  /**
+   * The stock list is per hospital, like every other record in this module
+   * (requirements already scoped this way). A hospital manager or staff
+   * member sees their own hospital's catalog whatever `?hospitalId=` says; a
+   * superuser or regional officer may pass one to narrow the list.
+   */
+  private scopeHospitalId(req: any, requested?: string): string | undefined {
+    const caller = req?.user;
+    if (caller?.role === UserRole.HOSPITAL_MANAGER || caller?.role === UserRole.ADMINISTRATIVE_STAFF) {
+      if (requested && caller.hospitalId && requested !== caller.hospitalId) {
+        throw new ForbiddenException(
+          `Cross-hospital access denied. You can only access inventory for your hospital (${caller.hospitalId}).`
+        );
+      }
+      return caller.hospitalId || requested;
+    }
+    return requested;
   }
 
   // ==============================================================
@@ -261,8 +283,11 @@ export class InventoryController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
-  async create(@Body() createInventoryDto: CreateInventoryDto) {
-    return this.inventoryService.create(createInventoryDto as any);
+  async create(@Req() req: any, @Body() createInventoryDto: CreateInventoryDto) {
+    // Stamp the caller's hospital on the new item — an item without one was
+    // invisible to the hospital that added it once the list became scoped.
+    const hospitalId = this.scopeHospitalId(req) || (createInventoryDto as any).hospitalId;
+    return this.inventoryService.create({ ...(createInventoryDto as any), hospitalId });
   }
 
   /**
