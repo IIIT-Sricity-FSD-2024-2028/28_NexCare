@@ -28,3 +28,6 @@ scratch/
 
 # E2E data snapshot (created/removed by test/global-setup.js)
 back-end/.e2e-data-backup/
+
+# Vite build output of the React frontend
+front-end/dist/
