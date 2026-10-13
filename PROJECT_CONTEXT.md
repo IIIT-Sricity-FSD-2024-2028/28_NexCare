@@ -689,7 +689,6 @@ FFSD/
 ├── Database/          ER diagram + MySQL schema (design artefacts, NOT used at runtime)
 ├── Figma Design/      Figma links
 ├── videos/            Team video link
-├── .claude/           Claude Code local permissions
 └── *.md, *.yml, *.pdf Project documentation
 ```
 
@@ -719,7 +718,6 @@ tables and a `MANAGEMENT` role). Do not treat it as the schema of record.
 | `Figma Design/Figma Designs.pdf` | Exported designs. |
 | `videos/video.md` | Google Drive link to the team video. |
 | `.vscode/settings.json` | Live Server on port 5501 + docs-assembler syntax colours. |
-| `.claude/settings.local.json` | Claude Code allowlist for this repo. |
 
 ---
 
@@ -1671,7 +1669,6 @@ Left in place — it looks like a scaffolding helper someone may still want.
 - Commits: Conventional Commits (`feat:`, `fix:`, `build:`).
 - Branch per member (`vivian`, `nikitha`, `poorna`, `deekshitha`, `Poorvishree`),
   merged to `main`.
-- **Never add a Claude co-author trailer to commits.**
 - `back-end/dist/` and `back-end/docs/swagger.json` are generated — rebuild rather
   than hand-edit.
 
