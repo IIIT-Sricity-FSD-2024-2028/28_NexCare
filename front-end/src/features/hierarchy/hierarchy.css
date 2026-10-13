@@ -1,0 +1,37 @@
+/* The inline <style> that regional-officer/hierarchy.html and
+   superuser/hierarchy.html both carried (byte-identical), prefixed with
+   .hierarchy-view so the bare `code` and `.node` rules stay on this view.
+   Values are the HTML's. The rest of the page (page-header, kpi-grid, panel,
+   note.scope, pill) is portal.css, which the SPA bundles for every route. */
+.hierarchy-view .node { --depth: 0; padding: 8px 12px; border-radius: 8px; }
+.hierarchy-view .node-children { margin-left: 22px; border-left: 2px solid #E5E7EB; padding-left: 10px; }
+.hierarchy-view details.node > summary {
+    list-style: none; cursor: pointer; padding: 8px 12px; border-radius: 8px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.hierarchy-view details.node > summary::-webkit-details-marker { display: none; }
+.hierarchy-view details.node > summary::before {
+    content: '\25B8'; color: #9CA3AF; font-size: 11px; transition: transform .15s ease;
+}
+.hierarchy-view details.node[open] > summary::before { transform: rotate(90deg); }
+.hierarchy-view details.node > summary:hover, .hierarchy-view .node.leaf:hover { background: #F9FAFB; }
+.hierarchy-view .node.leaf { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-left: 31px; }
+
+.hierarchy-view .node-type {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+    padding: 2px 7px; border-radius: 4px; background: #F3F4F6; color: #6B7280;
+}
+.hierarchy-view .node-type.platform { background: #1E293B; color: #fff; }
+.hierarchy-view .node-type.region { background: #EDE9FE; color: #5B21B6; }
+.hierarchy-view .node-type.hospital { background: #DBEAFE; color: #1D4ED8; }
+.hierarchy-view .node-type.department { background: #ECFDF5; color: #047857; }
+.hierarchy-view .node-type.user { background: #FEF3C7; color: #92400E; }
+
+.hierarchy-view .node-label { font-size: 14px; font-weight: 600; color: #111827; }
+.hierarchy-view .node-sub { font-size: 12px; color: #6B7280; }
+.hierarchy-view .chip {
+    font-size: 11px; color: #4B5563; background: #F3F4F6;
+    border-radius: 999px; padding: 2px 9px;
+}
+.hierarchy-view code { background: #F3F4F6; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+    
