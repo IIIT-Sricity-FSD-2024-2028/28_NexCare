@@ -52,6 +52,13 @@ export interface AuthResponse {
     hospitalName?: string;
     responsibilities?: string[] | string;
     gender?: string;
+    // Ambulance staff: the vehicle, licence, shift and start date the hospital
+    // manager registered them with — the only way the ambulance portal's
+    // profile can show them, since GET /users/:id is not open to that role.
+    assignedVehicle?: string;
+    driverLicense?: string;
+    shift?: string;
+    joiningDate?: string;
   };
   token?: string; // Placeholder for future JWT implementation
   csrfToken?: string; // CSRF token for post-authentication requests
