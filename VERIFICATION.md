@@ -19,21 +19,18 @@ npm install          # first run only
 npm run build
 node dist/src/main.js
 
-# Terminal 2 — front end on :5173
+# Terminal 2 — frontend on :8080
 cd front-end
-npm install          # first run only
-npm run dev
+npx serve -l 8080
 ```
 
-Open **http://localhost:5173/**. (To check the production bundle instead:
-`npm run build && npm run preview` → http://localhost:4173/. Use the preview
-server, not a plain static server — deep links need history-API fallback.)
+Open **http://localhost:8080/landing/landing.html**.
 
 | Check | Expected |
 |---|---|
 | Backend console | prints every reachable LAN URL, no red errors |
 | http://localhost:3001/api/docs | Swagger UI loads and lists the modules |
-| http://localhost:3001/api/hospitals | JSON with 9 hospitals, no auth needed |
+| http://localhost:3001/api/hospitals | JSON with 12 hospitals, no auth needed |
 
 > **If the backend will not start**, the usual cause is a stale build. Run
 > `npm run build` again and re-read the error — it names the file and line.
@@ -47,21 +44,22 @@ your time.
 
 ```bash
 cd back-end
-npx jest                       # expect: 10 suites, 62 tests, all passing
+npx jest                       # expect: 8 suites, 51 tests, all passing
 npm run build                  # expect: exit 0, no TypeScript errors
 ```
 
 ```bash
-# The front end builds (the SPA replaced the static pages on 2026-09-22, so the
-# old `node --check` sweep over loose .js files no longer applies — a syntax
-# error now fails the build)
+# Every front-end file parses (catches a committed syntax error, which silently
+# kills a whole portal — this has happened twice)
 cd front-end
-npm run build                  # expect: exit 0, no chunk over 500 kB
+for f in $(find . -name "*.js" -not -path "./node_modules/*"); do
+  node --check "$f" || echo "BROKEN: $f"
+done
 ```
 
 ```bash
 # No merge conflict markers anywhere (this has been committed to main before)
-grep -rIl "^<<<<<<< \|^>>>>>>> " back-end/src front-end/src back-end/data
+grep -rIl "^<<<<<<< \|^>>>>>>> " back-end/src front-end back-end/data
 # expect: no output
 ```
 
@@ -74,13 +72,13 @@ the next one.
 
 | Actor | Login page | Email | Lands on |
 |---|---|---|---|
-| Admin | `/login/superuser` | `superuser@nexcare.com` | `/superuser/dashboard` |
-| Regional Officer | `/login/regional-officer` | `regional@nexcare.com` | `/regional-officer/dashboard` |
-| Hospital Manager | `/login/hospital-manager` | `hospitalmanager@nexcare.com` | `/hospital-manager/overview` |
-| Doctor | `/login/doctor` | `sunita@nexcare.com` | `/doctor/dashboard` |
-| Administrative Staff | `/login/staff` (Administrative Staff) | `admin@nexcare.com` | `/staff/dashboard` |
-| Ambulance Staff | `/login/staff` (Ambulance Staff) | `ambulance@nexcare.com` | `/ambulance/dashboard` |
-| Patient | `/login/patient` | `venkat.rao@example.in` | `/patient/dashboard` |
+| Admin | `auth/superuser-login.html` | `superuser@nexcare.com` | `/superuser/dashboard.html` |
+| Regional Officer | `auth/regional-officer-login.html` | `regional@nexcare.com` | `/regional-officer/dashboard.html` |
+| Hospital Manager | `auth/hospital-manager-login.html` | `hospitalmanager@nexcare.com` | `/hospital_manager/dashboard.html` |
+| Doctor | `auth/doctor-login.html` | `sunita@nexcare.com` | `/doctor/dashboard.html` |
+| Administrative Staff | `auth/staff-login.html` | `admin@nexcare.com` | `/administrative_staff/dashboard.html` |
+| Ambulance Staff | `auth/staff-login.html` | `ambulance@nexcare.com` | `/ambulance/` |
+| Patient | `auth/patient-login.html` | `patient@gmail.com` | `/patient/dashboard.html` |
 
 ### Negative cases — these must FAIL
 
@@ -93,13 +91,13 @@ the next one.
 
 ### Cross-portal guard
 
-While signed in as a **patient**, paste `http://localhost:5173/superuser/dashboard`
+While signed in as a **patient**, paste `http://localhost:8080/superuser/dashboard.html`
 into the address bar.
 
 **Expected:** bounced straight back to the login page, and you never see the
 Admin content flash on screen.
 
-Repeat with a **doctor** trying `/regional-officer/dashboard`.
+Repeat with a **doctor** trying `/regional-officer/dashboard.html`.
 
 ---
 
@@ -200,7 +198,7 @@ API=http://localhost:3001/api
 # A patient has no hospitalId and must still be able to request an ambulance.
 # This 403'd for a while and made the feature unusable.
 PAT=$(curl -s -X POST $API/auth/login -H 'Content-Type: application/json' \
-  -d '{"email":"venkat.rao@example.in","password":"Password123","role":"patient"}' \
+  -d '{"email":"patient@gmail.com","password":"Password123","role":"patient"}' \
   | python3 -c "import sys,json;print(json.load(sys.stdin)['data']['token'])")
 curl -s -o /dev/null -w "patient GET /ambulance: %{http_code}\n" \
   -H "Authorization: Bearer $PAT" $API/ambulance
@@ -247,24 +245,24 @@ never an HTML error page or a raw stack trace.
 
 ### 4.1 Patient
 
-1. **Book an appointment** — `/patient/appointments` → Book.
+1. **Book an appointment** — `patient/appointments/appointments.html` → Book.
    - Step 0 lists **real hospitals from the database** (H001, H002…), not
      fictional ones. If you see "Apollo Hospitals" or "Manipal", the live
      directory did not load — check the browser console.
    - Pick a department, then a doctor. The doctor list is the real directory.
    - Pick a date and slot, confirm.
    - **Expected:** the booking appears under "My Appointments" as *Pending*.
-2. **Care+ membership** — `/patient/membership`.
+2. **Care+ membership** — `patient/membership.html`.
    - Join Care+. **Expected:** the status panel updates and shows fees waived
      vs membership paid, and is honest when the plan is not paying off.
    - Switch back to Pay as you go — that is how cancelling works.
-3. **Pay a bill** — `/patient/billing` → Pay Now.
+3. **Pay a bill** — `patient/billing.html` → Pay Now.
    - The modal shows the simulated-gateway notice with the test cards.
    - Pay with **`4000 0000 0000 0002`** → **expect a decline message**, and the
      bill stays unpaid.
    - Pay with **`4242 4242 4242 4242`** → approved, bill becomes Paid.
    - **Then check the money moved** (§5).
-4. **Request an ambulance** — `/patient/ambulance`.
+4. **Request an ambulance** — `patient/ambulance.html`.
    - Submit a request. **Expected:** it appears as *Pending*.
    - Cancel it. **Expected:** status becomes **Cancelled and the row stays in
      the table** — it must not vanish. (It used to be hard-deleted.)
@@ -297,7 +295,7 @@ bed allocation · inventory (+ restock) · manage appointments · patient check-
 patient directory · generate bill · staff scheduling · leave requests ·
 system logs · feedback.
 
-**Authority check:** on `/staff/leave-requests`, try to **approve** a leave.
+**Authority check:** on `leave-requests.html`, try to **approve** a leave.
 **Expected:** refused — administrative staff record leave, they do not approve it.
 
 ### 4.4 Hospital Manager (`hospitalmanager@nexcare.com`)
@@ -309,12 +307,12 @@ system logs · feedback.
 
 ### 4.5 Regional Officer (`regional@nexcare.com`)
 
-1. **My Region** (`/regional-officer/hierarchy`) — the scope banner names the officer's
+1. **My Region** (`hierarchy.html`) — the scope banner names the officer's
    region and lists exactly the hospitals they oversee.
 2. Dashboard, hospital approvals, revenue comparison, support requests.
 3. **The scope test — this is the important one.** Log out, sign in as
-   `kavya.menon@nexcare.in` (Kavya Menon, REG-KA-SOUTH — Bengaluru + Mysuru).
-   - **Expected:** she sees **only H003 and H004**. H001, H002, H009 and the rest
+   `regional2@nexcare.com` (Kavitha Menon, Chittoor + Nellore).
+   - **Expected:** she sees **only H009 and H011**. H001, H002 and the rest
      of M001's region must be completely absent from her hierarchy, her
      dashboard and her revenue comparison.
 
@@ -429,10 +427,10 @@ tok () { curl -s -X POST $API/auth/login -H 'Content-Type: application/json' \
 
 SU=$(tok superuser@nexcare.com superuser)
 RO1=$(tok regional@nexcare.com regional_manager)
-RO2=$(tok kavya.menon@nexcare.in regional_manager)
+RO2=$(tok regional2@nexcare.com regional_manager)
 HM=$(tok hospitalmanager@nexcare.com hospital_manager)
 DOC=$(tok sunita@nexcare.com doctor)
-PAT=$(tok venkat.rao@example.in patient)
+PAT=$(tok patient@gmail.com patient)
 
 hit () { printf '%-46s %s\n' "$1" \
   "$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $2" "$API$3")"; }
@@ -440,11 +438,11 @@ hit () { printf '%-46s %s\n' "$1" \
 hit "admin: platform streams        (200)" "$SU"  /revenue/platform/streams
 hit "admin: payments ledger         (200)" "$SU"  /payments/ledger
 hit "admin: hierarchy               (200)" "$SU"  /hierarchy
-hit "RM002: own hospital revenue    (200)" "$RO2" /revenue/hospital/H003
-hit "RM002: OTHER region's revenue  (403)" "$RO2" /revenue/hospital/H001
-hit "RM001: other region's revenue  (403)" "$RO1" /revenue/hospital/H003
-hit "RM002: platform streams        (403)" "$RO2" /revenue/platform/streams
-hit "RM002: payments ledger         (403)" "$RO2" /payments/ledger
+hit "M002: own hospital revenue     (200)" "$RO2" /revenue/hospital/H009
+hit "M002: OTHER region's revenue   (403)" "$RO2" /revenue/hospital/H001
+hit "M001: other region's revenue   (403)" "$RO1" /revenue/hospital/H009
+hit "M002: platform streams         (403)" "$RO2" /revenue/platform/streams
+hit "M002: payments ledger          (403)" "$RO2" /payments/ledger
 hit "HM:   own hospital revenue     (200)" "$HM"  /revenue/hospital/H001
 hit "HM:   another hospital         (403)" "$HM"  /revenue/hospital/H002
 hit "doctor: own appointments       (200)" "$DOC" /appointments/doctor/me
@@ -527,9 +525,9 @@ all 25 data files go through `FileStore`.
 
 After a full pass you should be able to say:
 
-- [ ] 10 jest suites / 62 tests pass
+- [ ] 8 jest suites / 51 tests pass
 - [ ] Backend builds with no TypeScript errors
-- [ ] The front end builds (`cd front-end && npm run build`)
+- [ ] Every front-end `.js` parses
 - [ ] All seven actors log in and land on the right portal
 - [ ] Cross-portal URL access is blocked for every role
 - [ ] All six middleware behaviours verified individually (§3)
@@ -537,8 +535,8 @@ After a full pass you should be able to say:
 - [ ] A patient can book, pay, request an ambulance and cancel it
 - [ ] A cancelled ambulance request is still in the table
 - [ ] A doctor can confirm and complete, and cannot touch another doctor's list
-- [ ] RM002 cannot see RM001's region anywhere
-- [ ] One card payment moves platform revenue by exactly `paymentGatewayRate` × the bill total (1.9% with shipped rates)
+- [ ] M002 cannot see M001's region anywhere
+- [ ] One card payment moves platform revenue by exactly 3.4% of the bill
 - [ ] A declined payment moves nothing
 - [ ] Repricing does not restate past earnings
 - [ ] All 16 authorisation checks in §6 return the expected codes
@@ -568,12 +566,12 @@ nobody chose.
 |---|---|
 | Admin | `superuser@nexcare.com` |
 | Regional Officer (Tirupati + Renigunta) | `regional@nexcare.com` |
-| Regional Officer (Bengaluru + Mysuru) | `kavya.menon@nexcare.in` |
-| Regional Officer (Pune + Nashik) | `rohan.deshmukh@nexcare.in` |
+| Regional Officer (Chittoor + Nellore) | `regional2@nexcare.com` |
+| Regional Officer (Chennai) | `regional3@nexcare.com` |
 | Hospital Manager (H001) | `hospitalmanager@nexcare.com` |
 | Doctor (Cardiology, H001) | `sunita@nexcare.com` |
 | Administrative Staff (H001) | `admin@nexcare.com` |
 | Ambulance Staff (H001) | `ambulance@nexcare.com` |
-| Patient (`P003`) | `venkat.rao@example.in` |
+| Patient | `patient@gmail.com` |
 
 Full roster in `TEST_ACCOUNTS.md`.

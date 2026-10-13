@@ -65,18 +65,16 @@ node -e 'console.log(require("./back-end/data/users.json").filter(u=>String(u.pa
 
 | Actor | Login page | Portal |
 |---|---|---|
-| Admin (Super User) | `/login/superuser` | `/superuser/*` |
-| Regional Officer | `/login/regional-officer` | `/regional-officer/*` |
-| Hospital Manager | `/login/hospital-manager` | `/hospital-manager/*` |
-| Doctor | `/login/doctor` | `/doctor/*` |
-| Administrative Staff | `/login/staff` (Administrative Staff radio) | `/staff/*` |
-| Ambulance Staff | `/login/staff` (Ambulance Staff radio) | `/ambulance/*` |
-| Patient | `/login/patient` | `/patient/*` |
+| Admin (Super User) | `auth/superuser-login.html` | `front-end/superuser/` |
+| Regional Officer | `auth/regional-officer-login.html` | `front-end/regional-officer/` |
+| Hospital Manager | `auth/hospital-manager-login.html` | `front-end/hospital_manager/` |
+| Doctor | `auth/doctor-login.html` | `front-end/doctor/` |
+| Administrative Staff | `auth/staff-login.html` | `front-end/administrative_staff/` |
+| Ambulance Staff | `auth/staff-login.html` | `front-end/ambulance/` |
+| Patient | `auth/patient-login.html` | `front-end/patient/` |
 
-`/login` is the combined hub, offering Patient, Administrative Staff, Ambulance
-Staff, Hospital Manager and Doctor by radio button, with footer links to the
-Regional Officer and Super User pages. All of these are routes in the React SPA
-(`front-end/`, `npm run dev` → http://localhost:5173).
+`auth/login.html` is a combined page offering Patient, Administrative Staff,
+Ambulance, Hospital Manager and Doctor by radio button.
 
 > **The role selector matters.** `POST /auth/login` requires a `role` field and
 > validates it against the account. The right email and password with the wrong
@@ -111,7 +109,7 @@ See `PROJECT_CONTEXT.md` §5B.
 
 ## Admin (Super User) — 1 account
 
-Login: `/login/superuser` · Portal: `/superuser/*` · Role value in code: `superuser`
+Login: `auth/superuser-login.html` · Portal: `front-end/superuser/` · Role value in code: `superuser`
 
 | ID | Name | Email | Password | Status | Login |
 |---|---|---|---|---|---|
@@ -119,7 +117,7 @@ Login: `/login/superuser` · Portal: `/superuser/*` · Role value in code: `supe
 
 ## Regional Officer — 4 accounts
 
-Login: `/login/regional-officer` · Portal: `/regional-officer/*` · Role value in code: `regional_manager`
+Login: `auth/regional-officer-login.html` · Portal: `front-end/regional-officer/` · Role value in code: `regional_manager`
 
 | ID | Name | Email | Password | Region | Status | Login |
 |---|---|---|---|---|---|---|
@@ -130,7 +128,7 @@ Login: `/login/regional-officer` · Portal: `/regional-officer/*` · Role value 
 
 ## Hospital Manager — 8 accounts
 
-Login: `/login/hospital-manager` · Portal: `/hospital-manager/*` · Role value in code: `hospital_manager`
+Login: `auth/hospital-manager-login.html` · Portal: `front-end/hospital_manager/` · Role value in code: `hospital_manager`
 
 | ID | Name | Email | Password | Hospital | Region | Status | Login |
 |---|---|---|---|---|---|---|---|
@@ -145,7 +143,7 @@ Login: `/login/hospital-manager` · Portal: `/hospital-manager/*` · Role value 
 
 ## Doctor — 48 accounts
 
-Login: `/login/doctor` · Portal: `/doctor/*` · Role value in code: `doctor`
+Login: `auth/doctor-login.html` · Portal: `front-end/doctor/` · Role value in code: `doctor`
 
 | ID | Name | Email | Password | Hospital | Region | Department | Fee | Status | Login |
 |---|---|---|---|---|---|---|---|---|---|
@@ -200,7 +198,7 @@ Login: `/login/doctor` · Portal: `/doctor/*` · Role value in code: `doctor`
 
 ## Administrative Staff — 40 accounts
 
-Login: `/login/staff` · Portal: `/staff/*` · Role value in code: `administrative_staff`
+Login: `auth/staff-login.html` · Portal: `front-end/administrative_staff/` · Role value in code: `administrative_staff`
 
 | ID | Name | Email | Password | Hospital | Region | Department | Status | Login |
 |---|---|---|---|---|---|---|---|---|
@@ -247,7 +245,7 @@ Login: `/login/staff` · Portal: `/staff/*` · Role value in code: `administrati
 
 ## Ambulance Staff — 16 accounts
 
-Login: `/login/staff` · Portal: `/ambulance/*` · Role value in code: `ambulance`
+Login: `auth/staff-login.html` · Portal: `front-end/ambulance/` · Role value in code: `ambulance`
 
 | ID | Name | Email | Password | Hospital | Region | Status | Login |
 |---|---|---|---|---|---|---|---|
@@ -270,7 +268,7 @@ Login: `/login/staff` · Portal: `/ambulance/*` · Role value in code: `ambulanc
 
 ## Patient — 24 accounts
 
-Login: `/login/patient` · Portal: `/patient/*` · Role value in code: `patient`
+Login: `auth/patient-login.html` · Portal: `front-end/patient/` · Role value in code: `patient`
 
 | ID | Name | Email | Password | Hospital | Region | Patient ID | Status | Login |
 |---|---|---|---|---|---|---|---|---|
@@ -314,7 +312,7 @@ Access Denied: 'nurse' is a directory record, not a NexCare login account.
 
 They exist so rosters, leave records and headcount statistics can reference
 them. **The seed ships none** — `users.json` holds 0 nurse records. The Admin
-creates them at `/superuser/manage-users`.
+creates them at `superuser/manage-users.html`.
 
 ### Accounts marked `On Leave`
 

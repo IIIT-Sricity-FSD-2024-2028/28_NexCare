@@ -267,10 +267,6 @@ export class AuthService {
       if (userAny.hospitalName) authResponse.user.hospitalName = userAny.hospitalName;
       if (userAny.responsibilities) authResponse.user.responsibilities = userAny.responsibilities;
       if (userAny.gender) authResponse.user.gender = userAny.gender;
-      if (userAny.assignedVehicle) authResponse.user.assignedVehicle = userAny.assignedVehicle;
-      if (userAny.driverLicense) authResponse.user.driverLicense = userAny.driverLicense;
-      if (userAny.shift) authResponse.user.shift = userAny.shift;
-      if (userAny.joiningDate) authResponse.user.joiningDate = userAny.joiningDate;
 
       // Log activity
       this.systemService.createActivity({
@@ -303,16 +299,7 @@ export class AuthService {
       }
 
       const newUserId = IdGenerator.generateUserId();
-      // generatePatientId() derives the next id from the ids it is handed; with
-      // no list it always answered "P001", so every self-registered patient
-      // collided with the first seeded one. Both stores are consulted: the
-      // patient records and the ids already stamped on login accounts.
-      const patientRes: any = await this.patientsService.findAll();
-      const existingPatientIds = [
-        ...((patientRes?.data || []) as any[]).map((p) => p.id),
-        ...users.map((u: any) => u.patientId).filter(Boolean),
-      ];
-      const newPatientId = IdGenerator.generatePatientId(existingPatientIds);
+      const newPatientId = IdGenerator.generatePatientId();
 
       const newUser = {
         id: newUserId,
