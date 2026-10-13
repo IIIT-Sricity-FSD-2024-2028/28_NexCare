@@ -252,6 +252,39 @@ export class SystemService {
     }
   }
 
+  /**
+   * Runtime metrics for GET /system/performance. The controller used to answer
+   * that route with getHealth(), so "performance" returned the hospital and
+   * user counts and nothing about the process. This is the process itself.
+   */
+  async getPerformance() {
+    try {
+      const mem = process.memoryUsage();
+      const mb = (n: number) => Math.round((n / 1024 / 1024) * 10) / 10;
+      const uptimeSec = Math.floor(process.uptime());
+      const cpu = process.cpuUsage();
+
+      return ResponseUtil.success('System performance metrics retrieved successfully', {
+        uptimeSeconds: uptimeSec,
+        memory: {
+          rssMb: mb(mem.rss),
+          heapUsedMb: mb(mem.heapUsed),
+          heapTotalMb: mb(mem.heapTotal),
+          externalMb: mb(mem.external),
+        },
+        cpu: {
+          userMs: Math.round(cpu.user / 1000),
+          systemMs: Math.round(cpu.system / 1000),
+        },
+        nodeVersion: process.version,
+        platform: `${process.platform} ${process.arch}`,
+        pid: process.pid,
+      });
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve system performance');
+    }
+  }
+
   async getActivitiesByDateRange(startDate: string, endDate: string) {
     try {
       const start = new Date(startDate);
