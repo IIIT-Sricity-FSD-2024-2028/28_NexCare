@@ -73,13 +73,15 @@ work in parallel because nobody touches the same file.
    Do not edit, reformat or "improve" them during this process. Use
    `git checkout nexcare-react-final -- <paths>`.
 3. **Commit only the paths listed for you.** Check with `git status` before committing.
-4. **Work on your own branch and open a PR into `main`.** Merge with
+4. **Work on your own branch and open a PR into `main`.** Name it
+   `<yourname>-<what>` with a hyphen: Git cannot create `nikitha/x` while a
+   branch called `nikitha` exists. Merge with
    *Create a merge commit* or *Rebase and merge* so your authorship is kept.
 5. **Start every round from the latest `main`:**
    ```bash
    git fetch origin --tags
    git checkout main && git pull
-   git checkout -b <yourname>/<what>
+   git checkout -b <yourname>-<what>
    ```
 
 Every per-person block below follows this pattern:
@@ -89,7 +91,7 @@ git checkout nexcare-react-final -- <paths to restore>
 git rm -r -q <old HTML folders to delete>     # only where listed
 git status                                    # only your paths should appear
 git commit -m "<message>"
-git push -u origin <yourname>/<what>          # then open the PR
+git push -u origin <yourname>-<what>          # then open the PR
 ```
 
 ---
@@ -133,7 +135,7 @@ print the router. If it does, the snapshot is safe.
 
 ### Round 1 — Poorvishree (foundation)
 
-Branch: `poorvishree/frontend-foundation`
+Branch: `poorvishree-frontend-foundation`
 
 ```bash
 git checkout nexcare-react-final -- \
@@ -171,7 +173,7 @@ git commit -m "feat(frontend): set up the Vite + React project, API client, auth
 
 ### Round 2 — Deekshita (layout shell + shared features)
 
-Branch: `deekshita/frontend-shell`
+Branch: `deekshita-frontend-shell`
 
 ```bash
 git checkout nexcare-react-final -- \
@@ -201,7 +203,7 @@ Each bullet below is **one commit / one PR**. Do them in any order.
 
 #### Vivian — Patient
 
-Branch: `vivian/patient-portal`
+Branch: `vivian-patient-portal`
 
 ```bash
 git checkout nexcare-react-final -- \
@@ -220,7 +222,7 @@ payments and the invoice PDF, ambulance request, hospital search, membership
 
 #### Nikitha — Doctor
 
-Branch: `nikitha/doctor-portal`
+Branch: `nikitha-doctor-portal`
 
 ```bash
 git checkout nexcare-react-final -- \
@@ -232,7 +234,7 @@ git commit -m "feat(doctor): port the doctor portal to React"
 
 #### Nikitha — Administrative Staff
 
-Branch: `nikitha/staff-portal`
+Branch: `nikitha-staff-portal`
 
 ```bash
 git checkout nexcare-react-final -- \
@@ -244,7 +246,7 @@ git commit -m "feat(staff): port the administrative staff portal to React"
 
 #### Poornasri — Hospital Manager
 
-Branch: `poornasri/hospital-manager-portal`
+Branch: `poornasri-hospital-manager-portal`
 
 ```bash
 git checkout nexcare-react-final -- \
@@ -256,7 +258,7 @@ git commit -m "feat(hospital-manager): port the hospital manager dashboard to Re
 
 #### Poornasri — Ambulance
 
-Branch: `poornasri/ambulance-portal`
+Branch: `poornasri-ambulance-portal`
 
 ```bash
 git checkout nexcare-react-final -- \
@@ -269,7 +271,7 @@ git commit -m "feat(ambulance): port the ambulance portal to React"
 
 #### Deekshita — Superuser
 
-Branch: `deekshita/superuser-portal`
+Branch: `deekshita-superuser-portal`
 
 ```bash
 git checkout nexcare-react-final -- \
@@ -281,7 +283,7 @@ git commit -m "feat(superuser): port the superuser portal to React"
 
 #### Deekshita — Public landing page
 
-Branch: `deekshita/landing-page`
+Branch: `deekshita-landing-page`
 
 ```bash
 git checkout nexcare-react-final -- \
@@ -294,7 +296,7 @@ git commit -m "feat(public): port the landing page to React"
 
 #### Poorvishree — Regional Officer
 
-Branch: `poorvishree/regional-officer-portal`
+Branch: `poorvishree-regional-officer-portal`
 
 ```bash
 git checkout nexcare-react-final -- \
@@ -308,7 +310,7 @@ git commit -m "feat(regional-officer): port the regional officer portal to React
 
 #### Poorvishree — Auth pages + hospital registration
 
-Branch: `poorvishree/auth-pages`
+Branch: `poorvishree-auth-pages`
 
 ```bash
 git checkout nexcare-react-final -- \
@@ -327,7 +329,7 @@ git commit -m "feat(auth): port login, registration, password pages and hospital
 
 Start this only after **every** Round 3 PR is merged.
 
-Branch: `poorvishree/router`
+Branch: `poorvishree-router`
 
 ```bash
 git checkout nexcare-react-final -- front-end/src/main.jsx front-end/src/App.jsx
@@ -354,11 +356,11 @@ each person owns. Each person makes one commit.
 
 | Person | Branch | Paths | Commit message |
 |---|---|---|---|
-| Vivian | `vivian/backend-patients` | `back-end/src/patients/patients.service.ts` | `fix(patients): save renames by mapping fullName onto name` |
-| Nikitha | `nikitha/backend-beds-leaves` | `back-end/src/beds/beds.service.ts` `back-end/src/leaves/leaves.controller.ts` | `fix(beds,leaves): correct the bed capacity message; stamp the doctor's hospital on new leaves` |
-| Poornasri | `poornasri/backend-hospital-scope` | `back-end/src/feedback/feedback.controller.ts` `back-end/src/support-requests/support-requests.controller.ts` `back-end/src/inventory/inventory.controller.ts` `back-end/src/inventory/inventory.service.ts` `back-end/src/inventory/interfaces/inventory.interface.ts` | `fix(backend): scope inventory and feedback per hospital, unblock support tickets` |
-| Deekshita | `deekshita/backend-system` | `back-end/src/system/system.controller.ts` `back-end/src/system/system.service.ts` `back-end/docs/swagger.json` | `fix(system): return real metrics from /system/performance; regenerate swagger.json` |
-| Poorvishree | `poorvishree/backend-auth` | `back-end/src/auth/auth.service.ts` `back-end/src/auth/interfaces/auth.interface.ts` | `fix(auth): unique patient IDs on registration; return ambulance crew profile on login` |
+| Vivian | `vivian-backend-patients` | `back-end/src/patients/patients.service.ts` | `fix(patients): save renames by mapping fullName onto name` |
+| Nikitha | `nikitha-backend-beds-leaves` | `back-end/src/beds/beds.service.ts` `back-end/src/leaves/leaves.controller.ts` | `fix(beds,leaves): correct the bed capacity message; stamp the doctor's hospital on new leaves` |
+| Poornasri | `poornasri-backend-hospital-scope` | `back-end/src/feedback/feedback.controller.ts` `back-end/src/support-requests/support-requests.controller.ts` `back-end/src/inventory/inventory.controller.ts` `back-end/src/inventory/inventory.service.ts` `back-end/src/inventory/interfaces/inventory.interface.ts` | `fix(backend): scope inventory and feedback per hospital, unblock support tickets` |
+| Deekshita | `deekshita-backend-system` | `back-end/src/system/system.controller.ts` `back-end/src/system/system.service.ts` `back-end/docs/swagger.json` | `fix(system): return real metrics from /system/performance; regenerate swagger.json` |
+| Poorvishree | `poorvishree-backend-auth` | `back-end/src/auth/auth.service.ts` `back-end/src/auth/interfaces/auth.interface.ts` | `fix(auth): unique patient IDs on registration; return ambulance crew profile on login` |
 
 ```bash
 git checkout nexcare-react-final -- <your paths>
