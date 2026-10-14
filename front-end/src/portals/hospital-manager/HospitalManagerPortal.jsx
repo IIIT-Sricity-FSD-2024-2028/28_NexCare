@@ -103,9 +103,9 @@ function Shell() {
 
       <main className="main-content">
         <header className="top-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <button type="button" className="btn-icon" onClick={toggle} title="Toggle Sidebar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-main)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 4 }}>
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+            <button type="button" className="btn-icon" onClick={toggle} title="Toggle Sidebar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-main)', marginTop: 4 }}>
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
             </button>
             <div className="header-title">
               <h1>{heading.title}</h1>
@@ -113,9 +113,9 @@ function Shell() {
             </div>
           </div>
           <div className="header-actions">
-            <button type="button" className="btn-primary" onClick={openStaffModal} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <button type="button" className="btn-primary" onClick={openStaffModal}>
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-              <span>Register Staff</span>
+              <span>+ Register Staff</span>
             </button>
             <span className="status-pill status-active">● Hospital Manager Online</span>
           </div>
