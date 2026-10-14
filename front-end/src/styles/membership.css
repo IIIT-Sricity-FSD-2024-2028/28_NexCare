@@ -1,0 +1,59 @@
+/* The <style> block from patient/membership.html, verbatim: the plan cards, the
+   fee rows and the simulated payment gateway's modal. Route-mounted with
+   useStylesheet because .modal-overlay / .modal-card / .modal-header collide
+   with the same names in global.css and patient/styles.css. */
+
+/* Membership-specific layout. Everything else comes from styles.css. */
+.membership-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; }
+.m-card { border:1px solid #E5E7EB; border-radius:14px; padding:22px; background:#fff; position:relative; display:flex; flex-direction:column; }
+.m-card.current { border-color:#10B981; box-shadow:0 0 0 3px rgba(16,185,129,.14); }
+.m-card h3 { margin:0 0 4px; font-size:18px; color:#101828; }
+.m-card .tag { font-size:13px; color:#6A7282; }
+.m-card .price { font-size:28px; font-weight:700; color:#10B981; margin:14px 0 2px; }
+.m-card .price small { font-size:13px; color:#6A7282; font-weight:500; }
+.m-card ul { margin:14px 0 18px; padding-left:18px; color:#374151; font-size:13px; line-height:1.8; }
+.m-card .cta { margin-top:auto; }
+.m-badge { position:absolute; top:16px; right:16px; background:#D1FAE5; color:#047857;
+           font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; }
+.m-btn { width:100%; border:none; border-radius:10px; padding:11px; font-size:14px;
+         font-weight:600; cursor:pointer; background:#10B981; color:#fff; }
+.m-btn:hover { background:#059669; }
+.m-btn.secondary { background:#fff; color:#374151; border:1px solid #E5E7EB; }
+.m-btn:disabled { opacity:.55; cursor:not-allowed; }
+.fee-row { display:flex; justify-content:space-between; align-items:baseline; gap:16px;
+           padding:10px 0; border-bottom:1px solid #F3F4F6; font-size:13px; color:#374151; }
+.fee-row strong { font-variant-numeric:tabular-nums; color:#101828; }
+.m-stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px; margin-top:14px; }
+.m-stat .label { font-size:12px; color:#6A7282; text-transform:uppercase; letter-spacing:.04em; font-weight:600; margin:0; }
+.m-stat .value { font-size:22px; font-weight:700; color:#101828; margin:4px 0 0; }
+
+/* Payment Modal & Cancellation Modal Styles */
+.modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:9999; padding:16px; }
+.modal-card { background:#fff; border-radius:16px; max-width:520px; width:100%; max-height:92vh; overflow-y:auto; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.04); border:1px solid #E2E8F0; }
+.modal-header { padding:20px 24px; border-bottom:1px solid #F1F5F9; display:flex; justify-content:space-between; align-items:center; }
+.modal-header h3 { margin:0; font-size:18px; color:#0F172A; font-weight:700; }
+.modal-close-btn { background:none; border:none; color:#64748B; cursor:pointer; font-size:22px; line-height:1; }
+.modal-body { padding:24px; }
+.method-tabs { display:flex; gap:8px; margin-bottom:18px; border-bottom:1px solid #E2E8F0; padding-bottom:8px; }
+.method-tab { padding:8px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:1px solid transparent; background:#F8FAFC; color:#64748B; }
+.method-tab.active { background:#EFF6FF; color:#2563EB; border-color:#BFDBFE; }
+.order-summary-box { background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; padding:16px; margin-bottom:20px; }
+.order-summary-row { display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:8px; color:#475569; }
+.order-summary-row.total { font-weight:700; color:#0F172A; font-size:16px; border-top:1px dashed #CBD5E1; padding-top:10px; margin-top:10px; margin-bottom:0; }
+.upi-app-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:14px; }
+.upi-app-card { border:1.5px solid #E2E8F0; border-radius:10px; padding:12px 8px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:#334155; transition:all .2s; }
+.upi-app-card.selected { border-color:#2563EB; background:#EFF6FF; color:#1D4ED8; }
+.form-control-styled { width:100%; box-sizing:border-box; padding:10px 14px; border:1px solid #CBD5E1; border-radius:8px; font-size:14px; outline:none; }
+.form-control-styled:focus { border-color:#2563EB; box-shadow:0 0 0 3px rgba(37,99,235,0.15); }
+
+/* membership.html carried this keyframe in a second <style> tag at the end. */
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+
+/* global.css (bundled for every route) starts .modal-overlay at opacity:0 /
+   visibility:hidden and only reveals it with a .active class. membership.html
+   never loaded global.css, so its own display:none → display:flex toggle was
+   enough. This stylesheet is mounted after the bundle, so re-asserting the two
+   properties here restores the original behaviour without touching global.css
+   (the portals' own modals rely on the .active convention). */
+.modal-overlay { opacity: 1; visibility: visible; }

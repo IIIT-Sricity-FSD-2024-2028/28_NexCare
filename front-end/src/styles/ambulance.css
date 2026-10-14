@@ -21,49 +21,53 @@ body {
 }
 
 :root {
-    --primary-blue: #2563eb;
-    --primary-blue-hover: #1d4ed8;
+    /* Use global CSS variables */
+    --primary-blue: var(--primary-color);
+    --primary-blue-hover: var(--primary-hover);
     --secondary-gray: #f3f4f6;
     --secondary-gray-hover: #e5e7eb;
-    --success-green: #10b981;
+    --success-green: var(--success);
     --success-green-hover: #059669;
-    --danger-red: #dc2626;
+    --danger-red: var(--danger);
     --danger-red-hover: #b91c1c;
-    --warning-orange: #f59e0b;
+    --warning-orange: var(--warning);
     --teal: #14b8a6;
     --teal-hover: #0d9488;
-    --text-primary: #1f2937;
-    --text-secondary: #6b7280;
+    --text-primary: var(--text-main);
+    --text-secondary: var(--text-muted);
     --text-light: #9ca3af;
-    --border-color: #e5e7eb;
+    --border-color: var(--border-color);
     --background-gray: #f5f5f5;
     --background-white: #ffffff;
-    --space-1: 4px;
-    --space-2: 8px;
-    --space-3: 12px;
-    --space-4: 16px;
-    --space-5: 20px;
-    --space-6: 24px;
-    --space-7: 28px;
-    --space-8: 32px;
-    --space-10: 40px;
-    --space-16: 64px;
+    
+    /* Use global spacing variables */
+    --space-1: var(--space-1);
+    --space-2: var(--space-2);
+    --space-3: var(--space-3);
+    --space-4: var(--space-4);
+    --space-5: var(--space-5);
+    --space-6: var(--space-6);
+    --space-7: var(--space-7);
+    --space-8: var(--space-8);
+    --space-10: var(--space-10);
+    --space-12: var(--space-12);
+    
     --btn-height: 48px;
     --btn-padding-x: var(--space-6);
     --btn-padding-y: var(--space-3);
-    --btn-border-radius: 12px;
-    --btn-font-size: 14px;
+    --btn-border-radius: var(--border-radius);
+    --btn-font-size: var(--font-size-base);
     --btn-font-weight: 600;
     --btn-transition: all 0.3s ease;
-    --card-border-radius: 16px;
-    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --card-border-radius: var(--border-radius-lg);
+    --card-shadow: var(--shadow-md);
+    --card-shadow-hover: var(--shadow-lg);
     --card-padding: var(--space-8);
     --input-height: 48px;
     --input-padding-x: var(--space-5);
     --input-padding-y: var(--space-4);
-    --input-border-radius: 12px;
-    --input-font-size: 14px;
+    --input-border-radius: var(--border-radius);
+    --input-font-size: var(--font-size-base);
     --input-border-width: 2px;
     --hover-transform: translateY(-2px);
     --focus-ring: 0 0 0 4px rgba(37, 99, 235, 0.1);
@@ -245,7 +249,7 @@ body {
 
 
 .sidebar {
-    width: 288px;
+    width: var(--sidebar-width);
     min-height: 0;
     height: 100%;
     align-self: stretch;
@@ -259,7 +263,7 @@ body {
 .sidebar .nav {
     flex: 1;
     min-height: 0;
-    padding: 24px 16px;
+    padding: var(--space-6) var(--space-4);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -269,7 +273,7 @@ body {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--space-1);
     width: 100%;
     flex-grow: 1;
 }
@@ -281,14 +285,14 @@ body {
 .sidebar .nav-link {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-3);
     min-height: 44px;
     width: 100%;
-    padding: 10px 16px;
+    padding: var(--space-3) var(--space-4);
     border-radius: 8px;
     text-decoration: none;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: var(--font-size-base);
     font-weight: 500;
     line-height: 1.4;
     transition: all 0.2s ease;
@@ -824,7 +828,7 @@ body {
     flex: 1;
     min-height: 0;
     background: var(--background-gray);
-    padding: var(--space-8);
+    padding: var(--main-content-padding);
     overflow-y: auto;
     animation: fadeIn 0.8s ease-out;
 }
@@ -2948,7 +2952,7 @@ h6 {
         margin: 0 auto;
     }
     .main-content {
-        padding: 32px;
+        padding: var(--main-content-padding);
     }
     /* Removed conflicting stats-grid styles - using the symmetric version above */
 }
