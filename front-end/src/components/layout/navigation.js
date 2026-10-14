@@ -8,7 +8,7 @@ import { ROLES } from '../../utils/roles';
 import {
   GridIcon, HierarchyIcon, HomeIcon, HomeCheckIcon, UsersIcon, ManageUsersIcon, UserCheckIcon,
   SettingsIcon, ChatIcon, RupeeIcon, PieIcon, LeaveIcon, CalendarIcon, BoxIcon, CardIcon,
-  AlertIcon, BarsIcon, UserIcon, BedIcon, SearchIcon, TruckIcon,
+  AlertIcon, BarsIcon, UserIcon, BedIcon, SearchIcon, TruckIcon, ActivityIcon, CheckCircleIcon,
 } from '../icons';
 
 export const NAVIGATION = {
@@ -80,8 +80,8 @@ export const NAVIGATION = {
     { to: '/ambulance/dashboard', label: 'Dashboard', Icon: GridIcon },
     { to: '/ambulance/ambulance-requests', label: 'Incoming Requests', Icon: AlertIcon },
     { to: '/ambulance/assigned-dispatch', label: 'Assigned Dispatch', Icon: TruckIcon },
-    { to: '/ambulance/active-transport', label: 'Active Transport', Icon: TruckIcon },
-    { to: '/ambulance/completed-transports', label: 'Completed Transports', Icon: UserCheckIcon },
+    { to: '/ambulance/active-transport', label: 'Active Transport', Icon: ActivityIcon },
+    { to: '/ambulance/completed-transports', label: 'Completed Transports', Icon: CheckCircleIcon },
     { to: '/ambulance/profile', label: 'Profile', Icon: UserIcon },
   ],
 };

@@ -2567,7 +2567,8 @@
     "entityType": "AMBULANCE",
     "entityId": "AMB-MTGRH30DYHF",
     "createdAt": "2026-08-31T04:51:43.368Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-10-14T08:08:17.417Z"
   },
   {
     "id": "NOTIFMTGYG2F946H",
@@ -2579,7 +2580,8 @@
     "entityType": "AMBULANCE",
     "entityId": "AMB-MTGYG2EU3F0",
     "createdAt": "2026-08-31T08:06:53.254Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-10-14T08:08:16.344Z"
   },
   {
     "id": "NOTIFMTGYHC5C6VJ",
@@ -2634,7 +2636,8 @@
     "entityType": "AMBULANCE",
     "entityId": "AMB-MTIYLX979JH",
     "createdAt": "2026-09-01T17:46:58.857Z",
-    "read": false
+    "read": true,
+    "readAt": "2026-10-14T08:08:15.134Z"
   },
   {
     "id": "NOTIFMTIYO8AADPG",

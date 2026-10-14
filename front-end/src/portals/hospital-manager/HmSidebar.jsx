@@ -58,7 +58,7 @@ export default function HmSidebar({ onNavigate }) {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <NexCareLogo />
+        <NexCareLogo scale={0.62} />
         <div className="portal-badge">Hospital Administration</div>
       </div>
 
@@ -81,7 +81,10 @@ export default function HmSidebar({ onNavigate }) {
           <div className="user-avatar">{initialsOf(user?.name)}</div>
           <div className="user-details">
             <span className="user-name">{user?.name || 'Hospital Manager'}</span>
-            <span className="user-role">🏥 {hospitalName || 'Hospital'}</span>
+            <span className="user-role">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: 4, flexShrink: 0 }}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              {hospitalName || 'Hospital'}
+            </span>
             <span className="hospital-id-badge">ID: {hospitalId || 'H001'}</span>
           </div>
         </div>

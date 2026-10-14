@@ -6128,5 +6128,85 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-09-02T06:15:50.645Z"
+  },
+  {
+    "id": "ACT-MV7SU3U41IN",
+    "timestamp": "2026-10-14T07:39:19.660Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-14T07:39:19.660Z"
+  },
+  {
+    "id": "ACT-MV7SV31A29J",
+    "timestamp": "2026-10-14T07:40:05.278Z",
+    "userId": "HM-AP01",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-14T07:40:05.278Z"
+  },
+  {
+    "id": "ACT-MV7SWA3K3Q0",
+    "timestamp": "2026-10-14T07:41:01.088Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Tirupati Crew Alpha logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-14T07:41:01.088Z"
+  },
+  {
+    "id": "ACT-MV7TFEAS1PU",
+    "timestamp": "2026-10-14T07:55:52.996Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Tirupati Crew Alpha logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-14T07:55:52.996Z"
+  },
+  {
+    "id": "ACT-MV7TT6YN24F",
+    "timestamp": "2026-10-14T08:06:36.671Z",
+    "userId": "U003",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-14T08:06:36.671Z"
+  },
+  {
+    "id": "ACT-MV7TTH9539K",
+    "timestamp": "2026-10-14T08:06:50.009Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Tirupati Crew Alpha logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-14T08:06:50.009Z"
+  },
+  {
+    "id": "ACT-MV7TY5P545K",
+    "timestamp": "2026-10-14T08:10:28.313Z",
+    "userId": "U003",
+    "action": "Dispatch",
+    "details": "Ambulance request AMB-H001-03 dispatched to driver Tirupati Crew Alpha (U003) for Venkat Rao",
+    "module": "Ambulance",
+    "severity": "INFO",
+    "createdAt": "2026-10-14T08:10:28.313Z"
+  },
+  {
+    "id": "ACT-MV7TZ4A65AB",
+    "timestamp": "2026-10-14T08:11:13.135Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-14T08:11:13.135Z"
   }
 ]
