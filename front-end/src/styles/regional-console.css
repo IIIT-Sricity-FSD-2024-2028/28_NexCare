@@ -1,0 +1,283 @@
+/* The two inline <style> blocks of front-end/regional-officer/hospital-approvals.html
+   (revenue.html carries the identical pair), every rule prefixed with
+   .ro-console so they only reach those two pages. Bundled, not route-mounted,
+   because the selectors (.header, .stats-grid, .stat-card, .pill, .muted, …)
+   are shared names — see plan.md §0 rule 5 and the Phase 1 decision on small
+   page styles. Values are the HTML's; only the prefix is added. */
+/* Page padding inside main-content */
+.ro-console .page-body { padding: 32px; }
+
+/* Hero banner — matches patient portal hero gradient */
+.ro-console .hero {
+    background: linear-gradient(135deg, #2563EB 0%, #0EA5E9 100%);
+    padding: 32px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    color: #FFFFFF;
+    animation: fadeInUp 0.5s ease-out;
+}
+.ro-console .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+.ro-console .hero p { font-size: 16px; opacity: 0.85; margin: 0; }
+
+/* Stats grid — matches patient portal stats-grid */
+.ro-console .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.ro-console .stat-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+    animation: fadeInUp 0.5s ease-out;
+}
+.ro-console .stat-card:hover {
+    border-color: #155DFC;
+    box-shadow: 0 4px 12px rgba(21, 93, 252, 0.15);
+    transform: translateY(-2px);
+}
+
+.ro-console .stat-label {
+    font-size: 13px;
+    color: #6A7282;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+.ro-console .stat-value {
+    font-size: 30px;
+    font-weight: 700;
+    color: #101828;
+    line-height: 1;
+}
+.ro-console .stat-trend {
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 8px;
+    display: block;
+}
+.ro-console .trend-up { color: #00A63E; }
+.ro-console .trend-down { color: #E7000B; }
+
+.ro-console .stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.ro-console .stat-icon.blue { background: #DBEAFE; }
+.ro-console .stat-icon.green { background: #DCFCE7; }
+.ro-console .stat-icon.purple { background: #F3E8FF; }
+.ro-console .stat-icon.orange { background: #FFEDD5; }
+
+/* Header bar — matches patient portal .header */
+.ro-console .header {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.ro-console .header-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #101828;
+}
+.ro-console .header-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ro-console .header-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #2563EB;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+.ro-console .header-user-info p { margin: 0; }
+.ro-console .header-user-name { font-size: 14px; font-weight: 700; color: #101828; }
+.ro-console .header-user-role { font-size: 12px; color: #6A7282; }
+
+/* Quick Actions Section */
+.ro-console .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #101828;
+    margin-bottom: 20px;
+    margin-top: 40px;
+}
+
+.ro-console .quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.ro-console .action-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.ro-console .action-card:hover {
+    border-color: #155DFC;
+    box-shadow: 0 4px 12px rgba(21, 93, 252, 0.1);
+    transform: translateY(-2px);
+}
+
+.ro-console .action-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ro-console .action-info h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #101828;
+    margin: 0 0 2px 0;
+}
+
+.ro-console .action-info p {
+    font-size: 12px;
+    color: #6A7282;
+    margin: 0;
+}
+
+/* Icon Colors */
+.ro-console .bg-blue { background: #EFF6FF; }
+.ro-console .bg-green { background: #F0FDF4; }
+.ro-console .bg-purple { background: #FAF5FF; }
+.ro-console .bg-orange { background: #FFF7ED; }
+.ro-console .bg-pink { background: #FDF2F8; }
+
+/* Recent Activity Table */
+.ro-console .activity-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 32px;
+    margin-top: 24px;
+}
+
+.ro-console .activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.ro-console .activity-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ro-console .activity-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6A7282;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 12px 16px;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.ro-console .activity-table td {
+    padding: 16px;
+    font-size: 14px;
+    color: #1E293B;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.ro-console .activity-table tr:hover {
+    background-color: #F8FAFC;
+}
+
+.ro-console .actor-cell {
+    font-weight: 700;
+    color: #111827;
+}
+
+.ro-console .badge-action {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.ro-console .badge-create { background: #DCFCE7; color: #15803D; }
+.ro-console .badge-update { background: #DBEAFE; color: #1D4ED8; }
+.ro-console .badge-delete { background: #FEE2E2; color: #B91C1C; }
+
+.ro-console .details-cell {
+    max-width: 400px;
+    color: #475569;
+    line-height: 1.5;
+}
+    
+/* Shared table/toolbar styling for the approval + support consoles */
+.ro-console .toolbar { display:flex; gap:12px; align-items:center; margin-bottom:20px; flex-wrap:wrap; }
+.ro-console .toolbar select, .ro-console .toolbar input {
+    height:38px; border:1px solid #E5E7EB; border-radius:8px; padding:0 12px;
+    font-size:13px; background:#FFFFFF; color:#111827;
+}
+.ro-console .toolbar input { min-width:260px; }
+.ro-console .btn-sm {
+    padding:6px 12px; font-size:12px; font-weight:600; border-radius:6px;
+    cursor:pointer; border:1px solid transparent; white-space:nowrap;
+}
+.ro-console .btn-approve { background:#DCFCE7; color:#15803D; border-color:#86EFAC; }
+.ro-console .btn-approve:hover { background:#BBF7D0; }
+.ro-console .btn-reject { background:#FEE2E2; color:#991B1B; border-color:#FCA5A5; }
+.ro-console .btn-reject:hover { background:#FECACA; }
+.ro-console .btn-neutral { background:#FFFFFF; color:#374151; border-color:#E5E7EB; }
+.ro-console .btn-neutral:hover { background:#F9FAFB; }
+.ro-console .pill {
+    display:inline-block; padding:3px 10px; border-radius:999px;
+    font-size:11px; font-weight:600; text-transform:capitalize;
+}
+.ro-console .pill.urgent { background:#FEE2E2; color:#991B1B; }
+.ro-console .pill.high { background:#FFEDD5; color:#9A3412; }
+.ro-console .pill.medium { background:#FEF3C7; color:#92400E; }
+.ro-console .pill.low { background:#E0E7FF; color:#3730A3; }
+.ro-console .pill.open { background:#DBEAFE; color:#1D4ED8; }
+.ro-console .pill.in_progress { background:#FEF3C7; color:#92400E; }
+.pill.waiting_for_hospital,
+.ro-console .pill.waiting_for_manager { background:#FFEDD5; color:#9A3412; }
+.ro-console .pill.resolved, .ro-console .pill.closed { background:#DCFCE7; color:#15803D; }
+.ro-console .muted { color:#6A7282; font-size:12px; margin-top:2px; }
+.ro-console .activity-table td { vertical-align: top; }
+    
