@@ -1427,3 +1427,77 @@ table {
         padding: 14px;
     }
 }
+
+/* ───────────────────────────────────────────────────────────────────────────
+   SPA-only: undo what the bundled stylesheets leak into this portal.
+
+   hospital_manager/dashboard.html loaded global.css + this file, in that
+   order — so every global.css rule this file does not override (the 20px
+   under .form-group, the 8px under its label, .btn-secondary, .data-table)
+   was part of the HTML page's look and is deliberately kept. In the SPA
+   nav.css, portal.css, auth.css and app.css are bundled for every route as
+   well, and they share class names with this file (.sidebar, .nav-item,
+   .logout-btn, .main-content, .header-title). Each rule below restores the
+   original result; nothing above this block is modified, so the copy stays
+   verbatim.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* nav.css pads the sidebar 24px 16px and gives it overflow-y:auto (kept —
+   the twelve-item menu scrolls on a short viewport). global.css forces
+   z-index 9999 (in the HTML too), which put the sidebar above every modal's
+   backdrop; the modals sit at 1000, so the sidebar goes back under them. */
+.hm-portal .sidebar {
+    padding: 0;
+    z-index: 100 !important;
+}
+
+/* nav.css .logout-btn: margin-top:auto, text-align:left, 15px — this file
+   sets its own size and centres the label. */
+.hm-portal .logout-btn { margin-top: 0; text-align: center; font-size: 13px; }
+.hm-portal .nav-item::before { display: none; }
+
+/* nav.css .main-content: margin-left 282px + min-height 100vh; this file's
+   sidebar is 280px, and the collapsed state needs the value from this file. */
+.hm-portal .main-content { margin-left: 280px; min-height: 100vh; }
+body.sidebar-collapsed .hm-portal .main-content { margin-left: 75px; }
+@media (max-width: 767px) {
+    .hm-portal .main-content { margin-left: 0 !important; }
+}
+
+/* The HTML page scrolled sideways at 1280 wide: .main-content is a `flex: 1`
+   item whose min-width is its content (the 4-up stat grid + tables), so it
+   grew to 1155px beside the 280px fixed sidebar and pushed the page to
+   1440px. The item is sized from the viewport instead. */
+.hm-portal .main-content { flex: 0 0 auto; min-width: 0; width: calc(100% - 280px); }
+body.sidebar-collapsed .hm-portal .main-content { width: calc(100% - 75px); }
+@media (max-width: 767px) {
+    .hm-portal .main-content { width: 100%; }
+}
+
+/* portal.css .header-title is a 16px/600 topbar label; here it is the page
+   title block whose h1/p this file sizes. */
+.hm-portal .header-title { font-size: inherit; font-weight: inherit; color: inherit; }
+
+/* Section markup that became routes and React components. */
+.hm-portal .tab-content { display: block; animation: fadeIn 0.2s ease-in; }
+.hm-portal .stat-card, .hm-portal .quick-action-btn { font-family: inherit; }
+.hm-portal a.stat-card, .hm-portal a.quick-action-btn { text-decoration: none; color: inherit; }
+
+/* The HTML `body` background belongs to the app root while this portal is mounted. */
+.hm-portal { background: var(--bg-main); min-height: 100vh; }
+
+/* .sub-hero-grid is a wrapping flex row meant to put the countdown box
+   beside the licence details, but .sub-hero-info has no flex-basis, so its
+   content width (the long title) always pushed the box onto a second row —
+   in the HTML too. Let the info column shrink so the row holds both. */
+.hm-portal .sub-hero-info { flex: 1 1 420px; min-width: 0; }
+
+/* The two-column grids had no phone rule (the HTML page scrolled sideways
+   at 390px); stack them under the same breakpoint the sidebar drawer uses. */
+@media (max-width: 767px) {
+    .hm-portal .grid-2-col,
+    .hm-portal .quick-actions-grid,
+    .hm-portal .admin-supervision-grid { grid-template-columns: 1fr; }
+    .hm-portal .sub-hero-info { flex-basis: 100%; }
+    .hm-portal .filter-toolbar, .hm-portal .filters-row { flex-wrap: wrap; }
+}
