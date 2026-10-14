@@ -30,7 +30,10 @@ export class SupportRequestsController {
       return this.supportRequestsService.findAll(hospitalId, user.id);
     } else if (user.role === UserRole.HOSPITAL_MANAGER) {
       // Locked to their own hospital — ignore any client-supplied hospitalId (C4).
-      return this.supportRequestsService.findAll(user.hospitalId, user.id);
+      // No manager filter: `assignedManagerId` is the REGIONAL OFFICER a
+      // ticket is escalated to, so filtering on the hospital manager's own
+      // id returned an empty list for every hospital manager.
+      return this.supportRequestsService.findAll(user.hospitalId);
     } else {
       // Normal hospital staff can only see their own hospital's requests.
       return this.supportRequestsService.findAll(user.hospitalId);
