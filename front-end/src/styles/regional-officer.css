@@ -308,3 +308,26 @@
     .header { padding: 12px 16px; }
     .data-table { display: block; overflow-x: auto; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SPA override block (Phase 6). Everything above is the verbatim copy of
+   front-end/regional-officer/regional-common.css, which the dashboard,
+   comparison, alerts and complaints pages loaded after global.css + nav.css.
+   The SPA also bundles portal.css for every route, and this file is mounted
+   as a <link> after it; the few portal.css rules it does not restate are
+   undone here.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* portal.css .panel has overflow: hidden, which clipped the lifted stat cards
+   inside the dashboard's revenue panel. */
+.panel { overflow: visible; }
+
+/* portal.css .btn-row / .btn are not used here, but its .header-title (16px)
+   and avatar (32px) are restated above at the HTML's 18px / 38px. Nothing
+   else in portal.css reaches these pages. */
+
+/* global.css forces the sidebar to z-index 9999, which put it on top of the
+   complaints page's status modal (z-index 1000, inline in complaints.html —
+   the HTML page had the same overlap). Back under the modals, as patient.css
+   and hospital-manager.css already do for their portals. */
+.ro-portal .sidebar { z-index: 10 !important; }
