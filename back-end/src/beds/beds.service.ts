@@ -109,7 +109,10 @@ export class BedsService {
 
       const hospitalId = bedData.hospitalId || 'H001';
 
-      // Subscription capacity limit validation
+      // Registered-capacity check: a hospital cannot hold more bed records
+      // than the capacity it registered with (hospital.totalBeds). The plan
+      // has nothing to do with it — plans are priced by staff seats (§5A),
+      // and the old "subscription limit / upgrade" wording pre-dated that.
       const hospitalStore = new FileStore<any>('hospitals.json', () => []);
       const hospitals = hospitalStore.load();
       const hospital = hospitals.find(h => h.id === hospitalId);
@@ -117,7 +120,7 @@ export class BedsService {
       if (hospital && hospital.totalBeds) {
         const hospitalBedsCount = beds.filter(b => b.hospitalId === hospitalId).length;
         if (hospitalBedsCount >= hospital.totalBeds) {
-          return ResponseUtil.error(`Subscription limit reached. Your current plan allows a maximum of ${hospital.totalBeds} beds. Please upgrade to add more.`);
+          return ResponseUtil.error(`Registered bed capacity reached (${hospital.totalBeds} beds). Update the hospital's registered capacity before adding more beds.`);
         }
       }
 
