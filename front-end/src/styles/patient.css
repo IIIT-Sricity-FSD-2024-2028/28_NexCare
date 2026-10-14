@@ -3333,3 +3333,29 @@ input, select {
 .modal-header { background: #1e293b; color: white; padding: 1rem 1.5rem; }
 .payment-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; height: 600px; }
 .payment-right-section { overflow-y: auto; max-height: 100%; padding: 2rem; }
+/* ───────────────────────────────────────────────────────────────────────────
+   SPA-only: undo what the bundled stylesheets leak into this portal.
+
+   The patient pages loaded styles.css and nothing else. In the SPA,
+   global.css / portal.css / nav.css are bundled for every route, so any class
+   name they share with this file still applies wherever this file does not
+   redeclare the same property. These four rules restore the original result;
+   nothing above this block is modified, so the copy stays verbatim.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* portal.css paints .tab-btn.active blue and this file colours its text blue —
+   blue on blue, so the active feedback tab's label vanished. */
+.tab-btn.active { background: none; }
+
+/* global.css lifts .modal-content 20px and only puts it back for its own
+   .modal-overlay.active convention, which these modals do not use. */
+.modal .modal-content { transform: none; }
+
+/* global.css forces the sidebar to z-index 9999, which put it on top of every
+   modal here (styles.css gave the sidebar no z-index at all). */
+.sidebar { z-index: auto !important; }
+
+/* global.css adds margins to .form-group and its label; these forms space
+   themselves with flex `gap`, so the extra margin doubled the gaps. */
+.form-group { margin-bottom: 0; }
+.form-group label { margin-bottom: 0; }
