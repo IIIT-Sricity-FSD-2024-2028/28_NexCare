@@ -171,7 +171,6 @@ body.sidebar-collapsed .logout-btn {
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    flex-shrink: 0;
 }
 
 .portal-badge {
@@ -187,14 +186,12 @@ body.sidebar-collapsed .logout-btn {
 }
 
 .sidebar-nav {
-    flex: 1 1 auto;
-    min-height: 0;
+    flex: 1;
     padding: 16px 12px;
     display: flex;
     flex-direction: column;
     gap: 6px;
     overflow-y: auto;
-    overflow-x: hidden;
 }
 
 .nav-item {
@@ -253,7 +250,6 @@ body.sidebar-collapsed .logout-btn {
     padding: 16px;
     border-top: 1px solid var(--border);
     background: #FAFAFA;
-    flex-shrink: 0;
 }
 
 .user-info {
@@ -348,11 +344,9 @@ body.sidebar-collapsed .logout-btn {
 /* ========================================================= */
 .main-content {
     flex: 1;
-    margin-left: var(--sidebar-width);
-    padding: var(--main-content-padding);
+    margin-left: 280px;
+    padding: 32px 40px;
     max-width: 1440px;
-    box-sizing: border-box;
-    min-width: 0;
     transition: margin-left 0.3s ease;
 }
 
@@ -363,14 +357,9 @@ body.sidebar-collapsed .main-content {
 .top-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-6);
-    gap: var(--space-5);
-    padding: 18px 24px;
-    background: #FFFFFF;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    box-shadow: var(--shadow-sm);
+    align-items: flex-start;
+    margin-bottom: 24px;
+    gap: 20px;
 }
 
 .header-title h1 {
@@ -1469,10 +1458,20 @@ table {
 
 /* nav.css .main-content: margin-left 282px + min-height 100vh; this file's
    sidebar is 280px, and the collapsed state needs the value from this file. */
-.hm-portal .main-content { margin-left: 280px; min-height: 100vh; padding: var(--main-content-padding); box-sizing: border-box; width: calc(100% - 280px); }
-body.sidebar-collapsed .hm-portal .main-content { margin-left: 75px; width: calc(100% - 75px); }
+.hm-portal .main-content { margin-left: 280px; min-height: 100vh; }
+body.sidebar-collapsed .hm-portal .main-content { margin-left: 75px; }
 @media (max-width: 767px) {
-    .hm-portal .main-content { margin-left: 0 !important; width: 100% !important; }
+    .hm-portal .main-content { margin-left: 0 !important; }
+}
+
+/* The HTML page scrolled sideways at 1280 wide: .main-content is a `flex: 1`
+   item whose min-width is its content (the 4-up stat grid + tables), so it
+   grew to 1155px beside the 280px fixed sidebar and pushed the page to
+   1440px. The item is sized from the viewport instead. */
+.hm-portal .main-content { flex: 0 0 auto; min-width: 0; width: calc(100% - 280px); }
+body.sidebar-collapsed .hm-portal .main-content { width: calc(100% - 75px); }
+@media (max-width: 767px) {
+    .hm-portal .main-content { width: 100%; }
 }
 
 /* portal.css .header-title is a 16px/600 topbar label; here it is the page

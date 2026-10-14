@@ -5,14 +5,25 @@ import { BUCKET_BADGE, BUCKET_LABEL, bucketOf, priorityOf } from '../../features
 // every page but the dashboard carried, the status/priority badges and the
 // empty-state block.
 
-export function PageHeader({ title, subtitle, children }) {
+/** goBack() went to the previously visited page (sessionStorage) or the dashboard. */
+export function PageHeader({ title, subtitle, back = true, children }) {
+  const navigate = useNavigate();
+  const goBack = () => (window.history.length > 1 ? navigate(-1) : navigate('/ambulance/dashboard'));
   return (
     <div className="page-header">
-      <div>
-        <h1 className="page-title">{title}</h1>
-        {subtitle && <p className="page-subtitle">{subtitle}</p>}
+      <div className="page-header-content">
+        <div>
+          {back && (
+            <button type="button" className="btn btn-secondary btn-back" onClick={goBack}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+              Back
+            </button>
+          )}
+          <h1 className="page-title">{title}</h1>
+          {subtitle && <p className="page-subtitle">{subtitle}</p>}
+        </div>
+        {children}
       </div>
-      {children && <div className="page-header-actions">{children}</div>}
     </div>
   );
 }
@@ -30,11 +41,9 @@ export function PriorityBadge({ request }) {
 export function EmptyState({ icon, title, description, action }) {
   return (
     <div className="empty-state">
-      <div className="empty-state-icon-wrap">
-        <svg className="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">{icon}</svg>
-      </div>
-      <h3 className="empty-state-title">{title}</h3>
-      <p className="empty-state-description">{description}</p>
+      <svg className="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">{icon}</svg>
+      <div className="empty-state-title">{title}</div>
+      <div className="empty-state-description">{description}</div>
       {action && <div className="empty-state-action">{action}</div>}
     </div>
   );

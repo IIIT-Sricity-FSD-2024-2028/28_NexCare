@@ -50,10 +50,6 @@ export const BedIcon = icon(<><path d="M2 9V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4" 
 export const SearchIcon = icon(<><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></>);
 /** Ambulance (truck). */
 export const TruckIcon = icon(<><path d="M10 10H6" /><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><circle cx="7" cy="18" r="2" /><path d="M9 18h5" /><circle cx="16" cy="18" r="2" /></>);
-/** Active transport activity / pulse. */
-export const ActivityIcon = icon(<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />);
-/** Completed checkmark inside circle. */
-export const CheckCircleIcon = icon(<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>);
 
 export const LogoutIcon = () => (
   <svg {...base} width={20} height={20} strokeWidth={1.5}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
