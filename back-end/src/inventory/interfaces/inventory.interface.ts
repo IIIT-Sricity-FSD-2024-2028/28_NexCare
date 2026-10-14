@@ -17,6 +17,10 @@ export interface Inventory {
   hospitalId?: string;
   createdAt?: string;
   updatedAt?: string;
+  /** The seed's spellings of name / quantity / minStock — kept in step by InventoryService.normalise(). */
+  itemName?: string;
+  currentQuantity?: number;
+  minimumQuantity?: number;
 }
 
 /**
