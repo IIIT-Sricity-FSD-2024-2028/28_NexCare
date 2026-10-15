@@ -6,7 +6,8 @@
 >
 > Generated from `users.json` on 2026-09-02 — 141 accounts.
 > **Every row was verified by an actual `POST /api/auth/login` call**, not
-> read off the file. 140 of 141 succeed.
+> read off the file. All 141 succeed (`U004` was reset on 2026-09-23 — see
+> below).
 
 ---
 
@@ -18,34 +19,28 @@
 Password123
 ```
 
-### ⚠ 1 exception
+### No exceptions
 
-| ID | Email | Role | Problem |
-|---|---|---|---|
-| `U004` | `patient@gmail.com` | patient | Password was changed — `Password123` is refused |
+`U004` / `patient@gmail.com` was the one account whose password had been
+changed through the change-password flow, leaving `Password123` refused. It
+was **reset on 2026-09-23** and now signs in with `Password123` like every
+other account. This matters because `U004` is patient record `P001`, the
+richest seeded patient — the bookings, bills and Care+ membership in the seed
+hang off it.
 
-This account's password was changed through the change-password flow and the
-new value **was committed** (the same hash is in `git show HEAD`). A scrypt
-hash cannot be reversed, so the current password is not recoverable from the
-repo — whoever changed it knows it.
-
-**This matters for a demo:** `U004 / patient@gmail.com` is patient record
-`P001`, the richest seeded patient — the bookings, bills and Care+ membership
-in the seed hang off it. Use a different patient from the table below, or
-reset it:
+If it is ever changed again, reset it from the repo root:
 
 ```bash
-# From the repo root. Sets U004 back to Password123 as plaintext;
-# it re-hashes itself on the next login. Tested.
-node -e 'const fs=require("fs"),f="back-end/data/users.json",u=JSON.parse(fs.readFileSync(f,"utf8"));u.find(x=>x.id==="U004").password="Password123";fs.writeFileSync(f,JSON.stringify(u,null,2));console.log("U004 reset to Password123")'
+# Writes a fresh scrypt$<salt>$<hash> for Password123, the same format
+# auth.service.ts writes. Tested — verified by a real login call.
+node -e 'const fs=require("fs"),c=require("crypto"),f="back-end/data/users.json",u=JSON.parse(fs.readFileSync(f,"utf8")),s=c.randomBytes(16).toString("hex");u.find(x=>x.id==="U004").password=`scrypt$${s}$${c.scryptSync("Password123",s,64).toString("hex")}`;fs.writeFileSync(f,JSON.stringify(u,null,2));console.log("U004 reset to Password123")'
 ```
 
 Restart the backend afterwards so it re-reads the file.
 
 ### Why some records look different in the file
 
-Some records store a `scrypt$…` hash rather than the plaintext string. For all
-but the exception above, **the password is still `Password123`** — NexCare
+Some records store a `scrypt$…` hash rather than the plaintext string. **The password is still `Password123`** — NexCare
 re-hashes a plaintext password the first time that account signs in. This is
 expected; nothing is broken, and you cannot read the password back out of a
 hashed record.
@@ -274,7 +269,7 @@ Login: `/login/patient` · Portal: `/patient/*` · Role value in code: `patient`
 
 | ID | Name | Email | Password | Hospital | Region | Patient ID | Status | Login |
 |---|---|---|---|---|---|---|---|---|
-| `U004` | Raghav Rao | `patient@gmail.com` | **changed — unknown** | H001 — Sri Venkateswara Multispeciality Hospital | REG-AP-SOUTH | `P001` | Active | ❌ |
+| `U004` | Raghav Rao | `patient@gmail.com` | `Password123` | H001 — Sri Venkateswara Multispeciality Hospital | REG-AP-SOUTH | `P001` | Active | ✅ |
 | `PAT-LOGIN-H1-2` | Sravani Reddy | `sravani.reddy@example.in` | `Password123` | H001 — Sri Venkateswara Multispeciality Hospital | REG-AP-SOUTH | `P002` | Active | ✅ |
 | `PAT-LOGIN-H1-3` | Venkat Rao | `venkat.rao@example.in` | `Password123` | H001 — Sri Venkateswara Multispeciality Hospital | REG-AP-SOUTH | `P003` | Active | ✅ |
 | `PAT-LOGIN-H2-1` | Karthik Varma | `karthik.v@example.in` | `Password123` | H002 — Coastal Care Hospital | REG-AP-SOUTH | `P009` | Active | ✅ |
