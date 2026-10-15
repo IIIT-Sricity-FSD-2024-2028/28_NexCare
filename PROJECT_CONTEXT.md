@@ -91,6 +91,14 @@ per-transaction rounding. See §14 (2026-09-02, billing seed).
 Top contributors by commit count: Vivian545 (74), Nikitha101021 (35), poorvishree (35),
 Vivianmatheww (19), Deekshitha-1310 (13).
 
+**React portal ownership (settled 2026-10-13, replaces the 2026-09-23 split)** —
+Vivian → Patient · Deekshitha → Superuser + layout shell, hierarchy view, activity
+log, landing page · Poorvishree → Regional Officer + project setup, API client,
+contexts, utils, UI kit, hooks, auth pages, hospital registration, router ·
+Poornasri → Hospital Manager + Ambulance · Nikitha → Doctor + Administrative Staff.
+The 2026-09-22 commits are reverted and re-committed by each owner from the
+`nexcare-react-final` tag. File-by-file lists and order: `TEAM_WORK_SPLIT.md`.
+
 **The front end is one React SPA (cutover 2026-09-22).** The nine-phase migration
 in `plan.md` is complete: all 59 static HTML pages are gone and `front-end/` is the
 Vite + React 18 single-page app that replaced them, portal by portal — public site

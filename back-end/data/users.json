@@ -435,13 +435,13 @@
     "email": "patient@gmail.com",
     "role": "patient",
     "status": "Active",
-    "password": "scrypt$f1e30a47b76d92853add4fdf81c964a5$8bc80c3ad39fe72f236f35b16d9497b9a80c179dff2c947db9fc4536bac44259c403f0e5cfd608bf9ba9131a31af3daf6a63f7351efb6f54adf97049202d7226",
+    "password": "scrypt$e6e0836a3d30349222a3c2f645f23253$274017e2d35865f7f4137f3f5b9953fd93123e519c6a00ca2f56cd980b5fa5397cc9c0e0c0f7e2f0a641c6b54df726a5d8218245f6091466755840adb11ccf0e",
     "patientId": "P001",
     "hospitalId": "H001",
     "regionId": "REG-AP-SOUTH",
     "phone": "+91 98480 11223",
     "mustChangePassword": false,
-    "updatedAt": "2026-09-02T00:19:05.770Z"
+    "updatedAt": "2026-09-23T05:18:08.702Z"
   },
   {
     "id": "PAT-LOGIN-H1-2",
