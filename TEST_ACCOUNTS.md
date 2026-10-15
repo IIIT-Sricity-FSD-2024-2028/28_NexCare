@@ -23,12 +23,12 @@ the seed data ships none.
 |---|---|---|---|
 | Admin (superuser) — `U001` | Rajesh Kumar | `superuser@nexcare.com` | — (all 12) |
 | Regional Officer — `M001` | Rajesh Sharma | `regional@nexcare.com` | Tirupati + Renigunta — 9 hospitals |
-| Regional Officer — `M002` | Kavitha Menon | `regional2@nexcare.com` | Chittoor + Nellore — HSP005, HSP007 |
-| Regional Officer — `M003` | Arjun Raghavan | `regional3@nexcare.com` | Chennai — H003 |
+| Regional Officer — `M002` | Kavya Menon | `kavya.menon@nexcare.in` | Chittoor + Nellore — HSP005, HSP007 |
+| Regional Officer — `M003` | Rohan Deshmukh | `rohan.deshmukh@nexcare.in` | Chennai — H003 |
 | Hospital Manager — `HM001` | Srinivas Rao | `hospitalmanager@nexcare.com` | H001 |
 
 Three regional officers rather than one, so the visibility scope is actually
-demonstrable: sign in as `regional2@nexcare.com` and H001 is neither visible in the
+demonstrable: sign in as `kavya.menon@nexcare.in` and H001 is neither visible in the
 hierarchy nor readable through `/revenue/hospital/H001` (403).
 
 ### Hospital staff
@@ -68,16 +68,16 @@ hierarchy nor readable through `/revenue/hospital/H001` (403).
 
 | Account | Login page |
 |---|---|
-| Admin / superuser | `front-end/auth/superuser-login.html` |
-| Regional Officer | `front-end/auth/regional-officer-login.html` |
-| Hospital Manager | `front-end/auth/hospital-manager-login.html` |
-| Administrative Staff, Ambulance Staff | `front-end/auth/staff-login.html` |
-| Doctor | `front-end/auth/doctor-login.html` |
-| Patient | `front-end/auth/patient-login.html` |
-| Patient / Admin Staff / Ambulance / Hospital Manager / Doctor | `front-end/auth/login.html` (combined) |
+| Admin / superuser | `/login/superuser` |
+| Regional Officer | `/login/regional-officer` |
+| Hospital Manager | `/login/hospital-manager` |
+| Administrative Staff, Ambulance Staff | `/login/staff` |
+| Doctor | `/login/doctor` |
+| Patient | `/login/patient` |
+| Patient / Admin Staff / Ambulance / Hospital Manager / Doctor | `/login` (the combined hub) |
 
 Doctors, administrative staff and ambulance crew can also self-register at
-`front-end/auth/staff-register.html`. A new doctor must give a specialisation —
+`/register/staff`. A new doctor must give a specialisation —
 that is the department patients book them under. They are not enrolled on any
 plan: a doctor is a seat on their hospital's subscription, and NexCare charges
 them nothing.
@@ -91,9 +91,9 @@ selected fails even though the password is correct.
 ## Doctors (20) — these DO log in
 
 Doctors became login actors on 2026-08-30. Each has a portal at
-`front-end/doctor/` covering their own schedule, the appointments booked with them,
+`/doctor/*` covering their own schedule, the appointments booked with them,
 their leave requests, and the consultation revenue they generated.
-Sign in at `front-end/auth/doctor-login.html` with the same `Password123`.
+Sign in at `/login/doctor` with the same `Password123`.
 
 **NexCare charges a doctor nothing.** Doctor listing tiers and the commission on
 each consultation were removed on 2026-09-01: a doctor is an employee of the
@@ -130,7 +130,7 @@ booking wizard will not offer a slot with a doctor on approved leave.
 
 Nurses remain directory-only records with no portal — `AuthService.login` still
 refuses them — but the seed data ships none. The Admin creates them at
-`front-end/superuser/manage-users.html`. See `PROJECT_CONTEXT.md` §4.
+`/superuser/manage-users`. See `PROJECT_CONTEXT.md` §4.
 
 ---
 
@@ -182,8 +182,8 @@ with `Password123` — but it means auth testing dirties the seed file. Check
 `git diff back-end/data/` before committing.
 
 **To add more login accounts**, either register through
-`front-end/auth/staff-register.html` (administrative_staff and ambulance only) or have
-the Admin create them in `front-end/superuser/manage-users.html`.
+`/register/staff` (administrative_staff and ambulance only) or have
+the Admin create them at `/superuser/manage-users`.
 
 **Before this ever goes near real deployment:** these are shared, committed, identical
 credentials. Rotate them, and move the seed file out of version control.
