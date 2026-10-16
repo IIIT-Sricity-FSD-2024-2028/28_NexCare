@@ -13,13 +13,13 @@
     position: fixed;
     left: 0;
     top: 0;
-    padding: 24px 16px;
+    padding: 20px 14px 16px;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
     font-family: 'Inter', sans-serif;
     z-index: 50;
     box-shadow: none;
+    box-sizing: border-box;
 }
 
 /* Brand / Logo area */
@@ -27,10 +27,11 @@
     display: block;
     text-decoration: none;
     color: inherit;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
     padding: 0 8px;
     border-bottom: none;
     background: none;
+    flex-shrink: 0;
 }
 
 /* Scale the animated logo to fit the sidebar width neatly */
@@ -54,14 +55,25 @@
     font-family: 'Inter', sans-serif;
 }
 
-/* Nav menu */
+/* Nav menu — scrollable so it never hides the pinned footer */
 .nav-menu {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
     flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
     margin-top: 0;
-    padding: 0;
+    padding-left: 0;
+}
+
+.nav-menu::-webkit-scrollbar {
+    width: 4px;
+}
+
+.nav-menu::-webkit-scrollbar-thumb {
+    background: #E5E7EB;
+    border-radius: 4px;
 }
 
 /* Nav items — clean light style matching patient portal */
@@ -69,11 +81,11 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-radius: 8px;
     text-decoration: none;
     color: #4A5565;
-    font-size: 15px;
+    font-size: 14.5px;
     font-weight: 500;
     transition: all 0.2s ease;
     cursor: pointer;
@@ -90,6 +102,7 @@
 .nav-item.active {
     background: #EFF6FF;
     color: #155DFC;
+    font-weight: 600;
 }
 
 /* Remove the dark-mode left-bar indicator */
@@ -103,15 +116,23 @@
     flex-shrink: 0;
 }
 
-/* Logout button — matches nav-logout from patient portal */
+/* Pinned sidebar footer — docked at bottom of sidebar */
+.sidebar-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #E5E7EB;
+}
+
+/* Logout button — matches nav-item alignment and styling */
 .logout-btn {
     margin: 0;
-    padding: 12px 16px;
+    padding: 10px 14px;
     background: none;
-    color: #E7000B;
+    color: #DC2626;
     border: none;
     border-radius: 8px;
-    font-size: 15px;
+    font-size: 14.5px;
     font-weight: 500;
     font-family: 'Inter', sans-serif;
     cursor: pointer;
@@ -120,13 +141,43 @@
     gap: 12px;
     width: 100%;
     text-align: left;
-    transition: background 0.2s ease;
-    margin-top: auto;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.logout-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    flex-shrink: 0;
 }
 
 .logout-btn:hover {
     background: #FEF2F2;
-    color: #E7000B;
+    color: #B91C1C;
+}
+
+/* Header Logout Button */
+.header-logout-btn {
+    background: #FFFFFF;
+    color: #DC2626;
+    border: 1px solid #FCA5A5;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.header-logout-btn:hover {
+    background: #FEF2F2;
+    border-color: #EF4444;
+    color: #B91C1C;
+    transform: translateY(-1px);
 }
 
 /* ==========================================

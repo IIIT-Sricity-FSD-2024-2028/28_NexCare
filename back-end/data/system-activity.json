@@ -6128,5 +6128,15 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-09-02T06:15:50.645Z"
+  },
+  {
+    "id": "ACT-MVB75G4J3H4",
+    "timestamp": "2026-10-16T16:43:21.957Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-16T16:43:21.957Z"
   }
 ]

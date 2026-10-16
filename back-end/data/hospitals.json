@@ -1112,5 +1112,32 @@
     "assignedManagerId": "RM001",
     "regionalReviewedAt": "2026-09-01T18:47:32.951Z",
     "regionalReviewNotes": "its not located at that place"
+  },
+  {
+    "name": "ABC Hospitals",
+    "registrationNumber": "AP-10293",
+    "type": "Clinic",
+    "ownershipType": "Private",
+    "address": "Street 101",
+    "city": "Sricity",
+    "state": "Andhra Pradesh",
+    "pincode": "517646",
+    "phone": "9999999999",
+    "email": "abc@gmail.com",
+    "totalBeds": 10,
+    "icuBeds": 0,
+    "emergency24x7": false,
+    "ambulanceService": false,
+    "adminName": "Rani",
+    "adminEmail": "abcd@gmail.com",
+    "adminPhone": "9999999999",
+    "specialities": [
+      "General"
+    ],
+    "id": "H010",
+    "verificationStatus": "pending_verification",
+    "regionalReviewStatus": "pending",
+    "createdAt": "2026-10-16T17:11:17.647Z",
+    "updatedAt": "2026-10-16T17:11:17.647Z"
   }
 ]

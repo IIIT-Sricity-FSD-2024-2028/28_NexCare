@@ -1,18 +1,30 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import NexCareLogo from '../../components/NexCareLogo';
-import useStylesheet from '../../hooks/useStylesheet';
 import useLandingEffects from './useLandingEffects';
-import landingCss from '../../styles/landing.css?url';
+import '../../styles/landing.css';
 
 // front-end/landing/landing.html, markup converted one-to-one. landing.css is
-// mounted for the life of the route (its element selectors would leak into the
-// portals if bundled), and landing.js lives in useLandingEffects.
+// scoped under .landing-page so it is safely bundled with no FOUC on navigation.
 export default function LandingPage() {
   const rootRef = useRef(null);
-  useStylesheet(landingCss);
+  const dropdownRef = useRef(null);
+  const [registerOpen, setRegisterOpen] = useState(false);
   useLandingEffects(rootRef);
   const year = new Date().getFullYear();
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setRegisterOpen(false);
+      }
+    }
+    if (registerOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return undefined;
+  }, [registerOpen]);
 
   return (
     <div className="landing-page" ref={rootRef}>
@@ -25,16 +37,73 @@ export default function LandingPage() {
                   {/* Navigation Links */}
                   <div className="nav-links">
                       <a href="#home" className="nav-link">Home</a>
+                      <a href="#hospitals" className="nav-link">Find Hospitals</a>
                       <a href="#features" className="nav-link">Features</a>
+                      <a href="#roles" className="nav-link">Roles</a>
                       <a href="#how-it-works" className="nav-link">How It Works</a>
                       <a href="#reviews" className="nav-link">Reviews</a>
-                      <a href="#contact" className="nav-link">Contact Us</a>
+                      <a href="#contact" className="nav-link">Contact</a>
                   </div>
 
                   {/* Auth Buttons */}
                   <div className="auth-buttons">
-                      <Link to="/login" className="btn-signin">Sign In </Link>
-                      <Link to="/signup" className="btn-primary">Register</Link>
+                      <Link to="/login" className="btn-signin">
+                          <span>Sign In</span>
+                      </Link>
+                      <div className="register-dropdown" ref={dropdownRef}>
+                          <button
+                            type="button"
+                            className="btn-primary register-toggle"
+                            onClick={() => setRegisterOpen((prev) => !prev)}
+                            aria-expanded={registerOpen}
+                          >
+                            <span>Register</span>
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              style={{ transform: registerOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
+                            >
+                              <path d="m6 9 6 6 6-6"/>
+                            </svg>
+                          </button>
+                          {registerOpen && (
+                            <div className="register-menu">
+                              <Link to="/signup" className="register-item" onClick={() => setRegisterOpen(false)}>
+                                <div className="register-item-icon patient">
+                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <div className="register-title">Patient Account</div>
+                                  <div className="register-desc">Book appointments, request ambulances &amp; pay bills</div>
+                                </div>
+                              </Link>
+                              <Link to="/hospital-registration" className="register-item" onClick={() => setRegisterOpen(false)}>
+                                <div className="register-item-icon hospital">
+                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M3 21h18" />
+                                    <path d="M5 21V7l8-4 8 4v14" />
+                                    <path d="M10 10h4" />
+                                    <path d="M12 8v4" />
+                                    <path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <div className="register-title">Hospital Registration</div>
+                                  <div className="register-desc">Register your hospital on the NexCare network</div>
+                                </div>
+                              </Link>
+                            </div>
+                          )}
+                      </div>
                   </div>
               </div>
           </div>
@@ -47,7 +116,7 @@ export default function LandingPage() {
                   <div className="hero-grid">
                       {/* Left Content */}
                       <div className="hero-content">
-                          <h1 className="hero-title">NexCare – Smart Hospital Operations Platform</h1>
+                          <h1 className="hero-title">NexCare – Unified Hospital Operations Platform</h1>
 
                           <p className="hero-description">
                               Seamlessly connect patients, hospital staff, ambulance teams, and management personnel
@@ -60,42 +129,35 @@ export default function LandingPage() {
                                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
                                   </svg>
-                                  <span>Find Hospitals by Speciality</span>
+                                  <span>Live Bed &amp; ICU Tracking</span>
                               </div>
                               <div className="hero-badge">
                                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
                                   </svg>
-                                  <span>Book Appointments Online</span>
+                                  <span>Verified Hospital Network</span>
                               </div>
                               <div className="hero-badge">
                                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
                                   </svg>
-                                  <span>Emergency Ambulance Services</span>
+                                  <span>24/7 Ambulance Dispatch</span>
                               </div>
                           </div>
 
                           <div className="hero-buttons">
-                              <Link to="/login" className="btn-primary btn-large">
-                                  Sign In
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-                                  </svg>
-                              </Link>
-
-                              <Link to="/signup" className="btn-outline btn-large">Create Account</Link>
-                              <Link to="/patient/hospital-search" className="btn-secondary btn-large">
+                              <Link to="/patient/hospital-search" className="btn-primary btn-large">
                                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                       <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
                                   </svg>
-                                  Find Hospitals
+                                  <span>Find Hospitals &amp; Doctors</span>
                               </Link>
-                              <Link to="/hospital-registration" className="btn-secondary btn-large" style={{ backgroundColor: '#8b5cf6', borderColor: '#8b5cf6' }}>
+
+                              <Link to="/hospital-registration" className="btn-outline btn-large">
                                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                       <path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M8 21v-2a2 2 0 0 1 4 0v2"/><path d="M12 21v-2a2 2 0 0 1 4 0v2"/><path d="M3 21l9-9 9 9"/>
                                   </svg>
-                                  Register Hospital
+                                  <span>Register Hospital</span>
                               </Link>
                           </div>
                       </div>
@@ -104,42 +166,50 @@ export default function LandingPage() {
                       <div className="hero-illustration">
                           <div className="dashboard-card floating">
                               <div className="dashboard-header">
-                                  <h3>Dashboard Overview</h3>
+                                  <div>
+                                      <h3 style={{ margin: 0, fontWeight: 700 }}>NexCare Operations Hub</h3>
+                                      <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>● Live Network Active</span>
+                                  </div>
                                   <div className="status-indicator"></div>
                               </div>
                             
                               <div className="dashboard-grid">
                                   <div className="stat-card stat-blue">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                          <path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/>
                                       </svg>
-                                      <p className="stat-value">3K+</p>
-                                      <p className="stat-label">Patients</p>
+                                      <p className="stat-value">142</p>
+                                      <p className="stat-label">Beds Available</p>
                                   </div>
                                 
                                   <div className="stat-card stat-green">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
                                       </svg>
-                                      <p className="stat-value">5K+</p>
-                                      <p className="stat-label">Requests</p>
+                                      <p className="stat-value">48</p>
+                                      <p className="stat-label">Doctors On-Duty</p>
                                   </div>
                                 
                                   <div className="stat-card stat-purple">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                          <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v7h2" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" /><path d="M10 10v4" /><path d="M8 12h4" />
                                       </svg>
-                                      <p className="stat-value">200+</p>
-                                      <p className="stat-label">Staff</p>
+                                      <p className="stat-value">12</p>
+                                      <p className="stat-label">Ambulances Active</p>
                                   </div>
                                 
                                   <div className="stat-card stat-orange">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                          <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                                       </svg>
-                                      <p className="stat-value">300+</p>
-                                      <p className="stat-label">Ambulance Requests</p>
+                                      <p className="stat-value">320+</p>
+                                      <p className="stat-label">Appointments Today</p>
                                   </div>
+                              </div>
+
+                              <div className="dashboard-ticker">
+                                  <span className="ticker-badge live">LIVE</span>
+                                  <span>ICU Ward 2: 4 beds ready • Ambulance #03 en route</span>
                               </div>
                           </div>
 
@@ -212,7 +282,7 @@ export default function LandingPage() {
           </section>
 
           {/* Hospital Search Preview Section */}
-          <section className="hospital-search-preview">
+          <section id="hospitals" className="hospital-search-preview">
               <div className="container">
                   <div className="section-header">
                       <h2>Find Your Perfect Hospital</h2>
@@ -308,41 +378,41 @@ export default function LandingPage() {
                       <div className="feature-card">
                           <div className="feature-icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="8"/><line x1="19.5" x2="19.5" y1="5.5" y2="10.5"/>
+                                  <path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/>
                               </svg>
                           </div>
-                          <h3>Patient Registration and Profile Management</h3>
-                          <p>Efficiently manage patient information with secure digital profiles, complete medical history, and instant access to records.</p>
+                          <h3>Real-Time Bed &amp; ICU Tracking</h3>
+                          <p>Live occupancy monitoring for general wards, semi-private rooms, and critical care units with instant vacancy counters.</p>
                       </div>
 
                       <div className="feature-card">
                           <div className="feature-icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
+                                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/>
                               </svg>
                           </div>
-                          <h3>Smart Appointment Booking</h3>
-                          <p>Find hospitals by speciality, book appointments with specialists, and manage your healthcare journey with intelligent scheduling.</p>
+                          <h3>Specialist &amp; Hospital Discovery</h3>
+                          <p>Discover verified hospitals by speciality, city, and services. Schedule appointments with top doctors with automated slot confirmation.</p>
                       </div>
 
                       <div className="feature-card">
                           <div className="feature-icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M8 21v-2a2 2 0 0 1 4 0v2"/><path d="M12 21v-2a2 2 0 0 1 4 0v2"/><path d="M3 21l9-9 9 9"/>
+                                  <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v7h2" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" /><path d="M10 10v4" /><path d="M8 12h4" />
                               </svg>
                           </div>
-                          <h3>Hospital Search & Discovery</h3>
-                          <p>Search and discover hospitals by speciality, location, and services. Find the right healthcare facility for your needs with detailed information.</p>
+                          <h3>Emergency Ambulance Dispatch</h3>
+                          <p>Immediate 24/7 emergency distress requests with automated nearest-driver assignment, live transit tracking, and hospital pre-alerts.</p>
                       </div>
 
                       <div className="feature-card">
                           <div className="feature-icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M10 10H6"/><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.579l-1.5-4.5A1 1 0 0 0 16.382 7h-2.764a1 1 0 0 0-.894.553l-1.5 3a1 1 0 0 1-.894.553H9.5a1 1 0 0 0-1 1V12"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/>
+                                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
                               </svg>
                           </div>
-                          <h3>Emergency Ambulance Request System</h3>
-                          <p>Rapid response coordination for emergency services with real-time tracking and automated dispatch.</p>
+                          <h3>Digital Prescriptions &amp; EHR Records</h3>
+                          <p>Paperless electronic health records, downloadable prescriptions, diagnostic test logs, and longitudinal patient health histories.</p>
                       </div>
 
                       <div className="feature-card">
@@ -351,8 +421,8 @@ export default function LandingPage() {
                                   <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>
                               </svg>
                           </div>
-                          <h3>Staff Workflow Management</h3>
-                          <p>Automate routine tasks and manage workflows efficiently to reduce staff burden and errors.</p>
+                          <h3>Staff Workflow &amp; OPD Token Queue</h3>
+                          <p>Digital OPD queue numbers, automated token calling, inpatient admission management, and departmental workload balancing.</p>
                       </div>
 
                       <div className="feature-card">
@@ -361,18 +431,8 @@ export default function LandingPage() {
                                   <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
                               </svg>
                           </div>
-                          <h3>Hospital Operations Monitoring Dashboard</h3>
-                          <p>Real-time insights and analytics to monitor hospital performance, resource utilization, and key metrics.</p>
-                      </div>
-
-                      <div className="feature-card">
-                          <div className="feature-icon">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="m12 12-4-4"/><path d="M12 12v8"/><path d="m12 12 5 5"/><circle cx="12" cy="12" r="9"/>
-                              </svg>
-                          </div>
-                          <h3>Real-Time Hospital Coordination</h3>
-                          <p>Seamless communication between departments, staff, and teams to ensure smooth operations across the hospital.</p>
+                          <h3>Multi-Tier Regional Governance</h3>
+                          <p>Centralized operational oversight and resource telemetry for Hospital Managers, Regional Officers, and Superusers across cities.</p>
                       </div>
                   </div>
               </div>
@@ -584,7 +644,7 @@ export default function LandingPage() {
               <div className="container">
                   <div className="section-header">
                       <h2>What Healthcare Teams Say</h2>
-                      <p>Trusted by healthcare professionals across the country</p>
+                      <p>Trusted by healthcare professionals across leading hospitals in India</p>
                   </div>
 
                   <div className="testimonials-grid">
@@ -611,12 +671,12 @@ export default function LandingPage() {
                                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                               </svg>
                           </div>
-                          <p className="testimonial-quote">"NexCare has revolutionized how we manage patient appointments. The interface is intuitive, and our workflow burden has decreased significantly."</p>
+                          <p className="testimonial-quote">"NexCare has transformed how we manage patient appointments and OPD queues. The interface is intuitive, and our daily workflow burden has decreased significantly."</p>
                           <div className="testimonial-author">
-                              <div className="author-avatar">D</div>
+                              <div className="author-avatar">R</div>
                               <div>
-                                  <p className="author-name">Dr. Sarah Johnson</p>
-                                  <p className="author-role">Chief Medical Officer, Metro Hospital</p>
+                                  <p className="author-name">Dr. Rajesh Sharma</p>
+                                  <p className="author-role">Chief Medical Officer, Apollo Hospitals, Hyderabad</p>
                               </div>
                           </div>
                       </div>
@@ -644,12 +704,12 @@ export default function LandingPage() {
                                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                               </svg>
                           </div>
-                          <p className="testimonial-quote">"The emergency ambulance dispatch system is incredible. Response times have improved by 40%, and the real-time tracking gives us peace of mind."</p>
+                          <p className="testimonial-quote">"The emergency ambulance dispatch system is exceptional. Response times have improved by over 40%, and real-time transit tracking gives our trauma center vital minutes of preparation."</p>
                           <div className="testimonial-author">
-                              <div className="author-avatar">M</div>
+                              <div className="author-avatar">V</div>
                               <div>
-                                  <p className="author-name">Michael Chen</p>
-                                  <p className="author-role">Emergency Services Director</p>
+                                  <p className="author-name">Vikram Malhotra</p>
+                                  <p className="author-role">Head of Emergency Response, Fortis Healthcare, Bengaluru</p>
                               </div>
                           </div>
                       </div>
@@ -677,12 +737,12 @@ export default function LandingPage() {
                                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                               </svg>
                           </div>
-                          <p className="testimonial-quote">"As part of hospital management, having all hospital operations data in one dashboard has been game-changing. We make better decisions faster."</p>
+                          <p className="testimonial-quote">"Having all hospital operations data, bed occupancy, and staff schedules in one unified dashboard has been game-changing. We make faster, data-driven decisions."</p>
                           <div className="testimonial-author">
-                              <div className="author-avatar">L</div>
+                              <div className="author-avatar">A</div>
                               <div>
-                                  <p className="author-name">Linda Martinez</p>
-                                  <p className="author-role">Hospital Operations Manager</p>
+                                  <p className="author-name">Dr. Ananya Iyer</p>
+                                  <p className="author-role">Medical Superintendent, Manipal Hospital, Vijayawada</p>
                               </div>
                           </div>
                       </div>
@@ -710,12 +770,12 @@ export default function LandingPage() {
                                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                               </svg>
                           </div>
-                          <p className="testimonial-quote">"Booking appointments is so easy now. I love being able to manage my health records and communicate with my doctors all in one place."</p>
+                          <p className="testimonial-quote">"Booking appointments is seamless now. Finding nearby verified hospitals and accessing my digital health records in one place gives me total peace of mind."</p>
                           <div className="testimonial-author">
-                              <div className="author-avatar">J</div>
+                              <div className="author-avatar">P</div>
                               <div>
-                                  <p className="author-name">James Wilson</p>
-                                  <p className="author-role">Patient</p>
+                                  <p className="author-name">Pooja Sundaram</p>
+                                  <p className="author-role">Patient, Chennai</p>
                               </div>
                           </div>
                       </div>
@@ -728,7 +788,7 @@ export default function LandingPage() {
               <div className="container">
                   <div className="section-header">
                       <h2>Contact Us</h2>
-                      <p>Reach out to NexCare support for onboarding, demos, and technical help.</p>
+                      <p>Reach out to NexCare support for onboarding, hospital registrations, and operational assistance.</p>
                   </div>
 
                   <div className="contact-grid">
@@ -739,7 +799,7 @@ export default function LandingPage() {
                               </svg>
                               <h3>Email</h3>
                           </div>
-                          <p><a href="mailto:support@nexcare.com">support@nexcare.com</a></p>
+                          <p><a href="mailto:support@nexcare.in">support@nexcare.in</a></p>
                       </div>
 
                       <div className="contact-card">
@@ -749,7 +809,7 @@ export default function LandingPage() {
                               </svg>
                               <h3>Phone</h3>
                           </div>
-                          <p><a href="tel:+1234567890">+1 (234) 567-890</a></p>
+                          <p><a href="tel:+914023456789">+91 40 2345 6789</a></p>
                       </div>
 
                       <div className="contact-card">
@@ -759,7 +819,7 @@ export default function LandingPage() {
                               </svg>
                               <h3>Address</h3>
                           </div>
-                          <p>123 Healthcare Blvd, Medical City, HC 12345</p>
+                          <p>NexCare Health Tower, Plot 42, Hitec City, Hyderabad, Telangana 500081, India</p>
                       </div>
                   </div>
               </div>
@@ -786,7 +846,9 @@ export default function LandingPage() {
                               </svg>
                           </Link>
                         
-                          <Link to="/login" className="btn-outline-white btn-large">Sign In</Link>
+                          <Link to="/login" className="btn-outline-white btn-large">
+                              <span>Sign In</span>
+                          </Link>
                       </div>
 
                       <div className="trust-badges">
@@ -825,7 +887,7 @@ export default function LandingPage() {
       </span>
   </div>
 
-                      <p>Smart Hospital Operations Platform connecting patients, staff, and administrators for better healthcare.</p>
+                      <p>Unified Hospital Operations Platform connecting patients, staff, and administrators for better healthcare.</p>
                       <div className="social-links">
                           <a href="#" className="social-link">
                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -850,9 +912,11 @@ export default function LandingPage() {
                       <h3>Quick Links</h3>
                       <ul>
                           <li><a href="#home">Home</a></li>
+                          <li><a href="#hospitals">Find Hospitals</a></li>
                           <li><a href="#features">Features</a></li>
                           <li><a href="#roles">Roles</a></li>
                           <li><a href="#how-it-works">How It Works</a></li>
+                          <li><a href="#reviews">Reviews</a></li>
                           <li><a href="#contact">Contact</a></li>
                       </ul>
                   </div>
@@ -879,7 +943,7 @@ export default function LandingPage() {
                               </svg>
                               <div>
                                   <p className="contact-label">Email</p>
-                                  <a href="mailto:support@nexcare.com">support@nexcare.com</a>
+                                  <a href="mailto:support@nexcare.in">support@nexcare.in</a>
                               </div>
                           </li>
                           <li>
@@ -888,7 +952,7 @@ export default function LandingPage() {
                               </svg>
                               <div>
                                   <p className="contact-label">Phone</p>
-                                  <a href="tel:+1234567890">+1 (234) 567-890</a>
+                                  <a href="tel:+914023456789">+91 40 2345 6789</a>
                               </div>
                           </li>
                           <li>
@@ -897,7 +961,7 @@ export default function LandingPage() {
                               </svg>
                               <div>
                                   <p className="contact-label">Address</p>
-                                  <p>123 Healthcare Blvd, Medical City, HC 12345</p>
+                                  <p>NexCare Health Tower, Plot 42, Hitec City, Hyderabad, Telangana 500081</p>
                               </div>
                           </li>
                       </ul>

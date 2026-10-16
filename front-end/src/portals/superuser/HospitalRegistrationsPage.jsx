@@ -100,6 +100,15 @@ export default function HospitalRegistrationsPage() {
 
   useEffect(() => { loadHospitals(); }, [loadHospitals]);
 
+  const officerMap = useMemo(() => {
+    const map = new Map();
+    (officers || []).forEach((o) => {
+      if (o.id) map.set(o.id, o);
+      if (o.email) map.set(o.email, o);
+    });
+    return map;
+  }, [officers]);
+
   const rows = useMemo(() => {
     const t = term.toLowerCase().trim();
     if (!t) return hospitals || [];
@@ -214,7 +223,7 @@ export default function HospitalRegistrationsPage() {
   const cell = { padding: '16px 24px', fontSize: 14, color: '#475569' };
 
   return (
-    <SuPage className="su-page su-regs" title="System Administrator Portal">
+    <SuPage className="su-page su-regs" title="Hospital Registrations">
       <div className="page-header">
         <div>
           <h1>Hospital Registrations</h1>
@@ -251,6 +260,13 @@ export default function HospitalRegistrationsPage() {
               const top = ranked[0];
               const pending = h.verificationStatus === 'pending_verification';
               const option = (r) => <option key={r.regionalManagerId} value={r.regionalManagerId}>{loadLabel(r)}</option>;
+
+              const assignedRo = h.assignedManagerId ? officerMap.get(h.assignedManagerId) : null;
+              const roName = assignedRo ? assignedRo.name : (h.assignedManagerName || (h.assignedManagerId ? `Officer (${h.assignedManagerId})` : null));
+              const roSub = assignedRo
+                ? (assignedRo.regionName || (Array.isArray(assignedRo.areas) ? assignedRo.areas.join(', ') : assignedRo.email))
+                : (h.regionName || '');
+
               return (
                 <tr key={h.id} style={{ borderBottom: '1px solid #F3F4F6' }}>
                   <td style={{ ...cell, color: '#111827', fontWeight: 500 }}>
@@ -259,21 +275,55 @@ export default function HospitalRegistrationsPage() {
                   <td style={cell}>{h.registrationNumber || 'N/A'}</td>
                   <td style={cell}>{h.adminName}<br /><span style={{ fontSize: 12 }}>{h.adminEmail}</span></td>
                   <td style={{ padding: '16px 24px' }}><StatusBadge status={h.verificationStatus} /></td>
-                  <td style={{ padding: '16px 24px' }}>
-                    <select
-                      className="form-control"
-                      style={{ padding: 4, fontSize: 12, maxWidth: 150, textOverflow: 'ellipsis' }}
-                      value={h.assignedManagerId || ''}
-                      disabled={!pending}
-                      onChange={(e) => assignRegionalOfficer(h.id, e.target.value)}
-                    >
-                      <option value="">{ranked.length ? '-- Assign regional officer --' : '-- No regional officers configured --'}</option>
-                      {covering.length > 0 && <optgroup label={`Covers ${h.city || 'this area'}`}>{covering.map(option)}</optgroup>}
-                      {others.length > 0 && <optgroup label="Other areas">{others.map(option)}</optgroup>}
-                    </select>
-                    {top && pending && !h.assignedManagerId && (
-                      <div style={{ fontSize: 11, color: '#6A7282', marginTop: 4 }}>
-                        Suggested: <strong>{top.regionalManagerName}</strong> — {top.reason || ''}
+                  <td style={{ padding: '16px 20px', minWidth: 200 }}>
+                    {roName ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontWeight: 600, fontSize: 13, color: '#0F172A' }}>
+                          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', flexShrink: 0 }} title="Assigned & Active"></span>
+                          <span>{roName}</span>
+                        </div>
+                        {roSub && (
+                          <span style={{ fontSize: 11.5, color: '#64748B', paddingLeft: 15, lineHeight: 1.3 }}>
+                            {roSub}
+                          </span>
+                        )}
+                        {pending && (
+                          <div style={{ marginTop: 4, paddingLeft: 15 }}>
+                            <select
+                              className="form-control"
+                              style={{ padding: '2px 6px', fontSize: 11, maxWidth: 170, height: 26 }}
+                              value={h.assignedManagerId || ''}
+                              onChange={(e) => assignRegionalOfficer(h.id, e.target.value)}
+                              title="Change assigned Regional Officer"
+                            >
+                              <option value={h.assignedManagerId || ''}>Reassign RO...</option>
+                              {covering.length > 0 && <optgroup label={`Covers ${h.city || 'this area'}`}>{covering.map(option)}</optgroup>}
+                              {others.length > 0 && <optgroup label="Other areas">{others.map(option)}</optgroup>}
+                            </select>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#D97706', fontWeight: 600 }}>
+                          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#F59E0B' }}></span>
+                          Not Assigned
+                        </span>
+                        <select
+                          className="form-control"
+                          style={{ padding: '3px 6px', fontSize: 11.5, maxWidth: 180, height: 28 }}
+                          value=""
+                          onChange={(e) => assignRegionalOfficer(h.id, e.target.value)}
+                        >
+                          <option value="">{ranked.length ? '⚡ Assign Regional Officer...' : '-- No Officers Configured --'}</option>
+                          {covering.length > 0 && <optgroup label={`Covers ${h.city || 'this area'}`}>{covering.map(option)}</optgroup>}
+                          {others.length > 0 && <optgroup label="Other areas">{others.map(option)}</optgroup>}
+                        </select>
+                        {top && pending && (
+                          <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                            Suggested: <strong>{top.regionalManagerName}</strong>
+                          </div>
+                        )}
                       </div>
                     )}
                   </td>

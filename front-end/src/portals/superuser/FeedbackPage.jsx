@@ -68,7 +68,7 @@ export default function FeedbackPage() {
   }
 
   return (
-    <SuPage className="su-page su-feedback" title="System Administrator Portal">
+    <SuPage className="su-page su-feedback" title="Feedback Review">
       <div className="page-header">
         <div>
           <h1>Feedback Review</h1>

@@ -148,6 +148,7 @@
 .su-dashboard .stat-icon.green { background: #DCFCE7; }
 .su-dashboard .stat-icon.purple { background: #F3E8FF; }
 .su-dashboard .stat-icon.orange { background: #FFEDD5; }
+.su-dashboard .stat-icon.teal { background: #CCFBF1; }
 .su-dashboard .header-user-info p { margin: 0; }
 .su-dashboard .header-user-name { font-size: 13px; font-weight: 600; color: #101828; }
 .su-dashboard .header-user-role { font-size: 11px; color: #6A7282; }
@@ -193,6 +194,8 @@
 .su-dashboard .bg-purple { background: #FAF5FF; }
 .su-dashboard .bg-orange { background: #FFF7ED; }
 .su-dashboard .bg-pink { background: #FDF2F8; }
+.su-dashboard .bg-teal { background: #F0FDFA; }
+.su-dashboard .bg-indigo { background: #EEF2FF; }
 .su-dashboard .activity-card {
     background: #FFFFFF;
     border: 1px solid #E5E7EB;

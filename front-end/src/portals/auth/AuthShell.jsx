@@ -1,13 +1,28 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import NexCareLogo from '../../components/NexCareLogo';
 
 /** The auth.css page frame every login / sign-up page shares: logo header, card, wave image. */
 export function AuthShell({ reverse, noImage, wrapperStyle, cardStyle, sectionStyle, children }) {
+  const navigate = useNavigate();
   return (
     <div className="auth-page">
       <div className="auth-wrapper" style={wrapperStyle}>
+        <div className="auth-top-bar">
+          <button
+            type="button"
+            className="auth-back-btn"
+            onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+            aria-label="Back"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5" />
+              <path d="M12 19l-7-7 7-7" />
+            </svg>
+            <span>Back</span>
+          </button>
+        </div>
         <header className="auth-header">
-          <Link to="/" style={{ textDecoration: 'none' }}><NexCareLogo /></Link>
+          <Link to="/" style={{ textDecoration: 'none' }}><NexCareLogo scale={0.75} /></Link>
         </header>
         <div className={`auth-card${reverse ? ' reverse' : ''}`} style={cardStyle}>
           <div className="auth-form-section" style={sectionStyle}>{children}</div>

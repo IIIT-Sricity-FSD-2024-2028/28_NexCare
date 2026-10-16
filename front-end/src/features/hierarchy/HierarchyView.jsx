@@ -90,17 +90,13 @@ function Node({ node, depth, filter }) {
 }
 
 function ScopeBanner({ scope }) {
+  if (scope.seesAllHospitals || scope.level === 0) return null;
   const ids = scope.hospitalIds || [];
+  if (!ids.length) return null;
   return (
     <div className="note scope">
-      <strong>Your visibility: {scope.rootLabel}.</strong>{' '}
-      {scope.description}
-      {!scope.seesAllHospitals && (
-        <>
-          {' '}You can act on {ids.length} hospital{ids.length === 1 ? '' : 's'}:{' '}
-          {ids.map((id, i) => <span key={id}>{i > 0 && ', '}<code>{id}</code></span>)}.
-        </>
-      )}
+      You can act on {ids.length} hospital{ids.length === 1 ? '' : 's'}:{' '}
+      {ids.map((id, i) => <span key={id}>{i > 0 && ', '}<code>{id}</code></span>)}.
     </div>
   );
 }

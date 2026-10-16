@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Feedback, Patients, System, Users } from '../../api';
+import { Feedback, Hospitals, Patients, System, Users } from '../../api';
 import usePolling from '../../hooks/usePolling';
 import { pageLink } from '../../api/links';
 import { SuPage } from './suShared';
 
-// superuser/dashboard.html + dashboard.js: four platform-wide counts, the
+// superuser/dashboard.html + dashboard.js: platform-wide counts, the
 // quick-action cards and the last ten audit rows, refreshed every 30 seconds
 // (the page's bare setInterval, as a hook with cleanup).
 
@@ -15,11 +15,15 @@ const stroke = (color, size, children, extra = {}) => (
 const usersPath = <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>;
 const patientsPath = <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>;
 const chatPath = <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />;
+const hospitalPath = <><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></>;
+const hierarchyPath = <><circle cx="12" cy="5" r="3" /><circle cx="6" cy="19" r="3" /><circle cx="18" cy="19" r="3" /><path d="M12 8v4m-6 4v-2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" /></>;
 
 const STATS = [
+  { key: 'hospitals', label: 'Registered Hospitals', trend: '↑ Hospital Registry', trendClass: 'trend-up', tone: 'teal',
+    icon: stroke('#0D9488', 26, hospitalPath) },
   { key: 'staff', label: 'Staff Users', trend: '↑ Manage Users', trendClass: 'trend-up', tone: 'blue',
     icon: stroke('#2563EB', 26, usersPath, { strokeLinecap: 'round', strokeLinejoin: 'round' }) },
-  { key: 'patients', label: 'Total Patients', trend: '↑ Hospital Registry', trendClass: 'trend-up', tone: 'green',
+  { key: 'patients', label: 'Total Patients', trend: '↑ Patient Directory', trendClass: 'trend-up', tone: 'green',
     icon: stroke('#059669', 26, patientsPath) },
   { key: 'doctors', label: 'Active Doctors', trend: '↓ Registered Specialists', trendClass: 'trend-up', tone: 'purple',
     icon: stroke('#7C3AED', 26, <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM9 19c-1.3 0-2.4-.4-3.1-.9-.8-.5-1.4-1.2-1.9-2.1L2 21h14l-2-5c-.5.9-1.1 1.6-1.9 2.1-.7.5-1.8.9-3.1.9zm13-8h-3V8a2 2 0 0 0-2-2h-3a2 2 0 0 0-2 2v3h-3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3h3a2 2 0 0 0 2 2v-3a2 2 0 0 0-2-2z" fill="#7C3AED" />) },
@@ -28,6 +32,10 @@ const STATS = [
 ];
 
 const ACTIONS = [
+  { to: 'superuser/hospital-registrations', title: 'Hospital Registrations', sub: 'Review & approve facilities', tone: 'bg-teal',
+    icon: stroke('#0D9488', 24, hospitalPath) },
+  { to: 'superuser/hierarchy', title: 'Organisation Hierarchy', sub: 'Platform tree & regional nodes', tone: 'bg-indigo',
+    icon: stroke('#4F46E5', 24, hierarchyPath) },
   { to: 'superuser/manage-users', title: 'Add User', sub: 'Create new account', tone: 'bg-blue',
     icon: stroke('#2563EB', 24, <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></>) },
   { to: 'superuser/patient-directory', title: 'Patient Directory', sub: 'View all registrations', tone: 'bg-green',
@@ -50,12 +58,14 @@ export default function DashboardPage() {
   const [activity, setActivity] = useState({ state: 'loading', rows: [] });
 
   const load = useCallback(() => {
-    Promise.all([Users.getAll(), Patients.getAll(), Feedback.getAll()])
-      .then(([usersRes, patientsRes, feedbackRes]) => {
+    Promise.all([Users.getAll(), Patients.getAll(), Feedback.getAll(), Hospitals.getAll()])
+      .then(([usersRes, patientsRes, feedbackRes, hospitalsRes]) => {
         const users = usersRes.data || [];
         const patients = patientsRes.data || [];
         const feedback = feedbackRes.data || [];
+        const hospitals = hospitalsRes.data || [];
         setStats({
+          hospitals: hospitals.length,
           // Staff users only (exclude patients — they have their own Patient Directory)
           staff: users.filter((u) => u.role !== 'patient').length,
           patients: patients.length,
@@ -65,7 +75,7 @@ export default function DashboardPage() {
       })
       .catch((err) => {
         console.error('Failed to load dashboard stats:', err);
-        setStats({ staff: 'N/A', patients: 'N/A', doctors: 'N/A', feedback: 'N/A' });
+        setStats({ hospitals: 'N/A', staff: 'N/A', patients: 'N/A', doctors: 'N/A', feedback: 'N/A' });
       });
 
     System.getRecentActivity()

@@ -65,18 +65,18 @@ export default function useLandingEffects(rootRef) {
       });
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
     root.querySelectorAll('.feature-card, .role-card, .step, .benefit-card, .testimonial-card, .dashboard-card-preview, .stat-card-large, .section-header')
-      .forEach((el) => { el.classList.add('reveal'); observer.observe(el); });
+      .forEach((el) => {
+        el.classList.add('reveal');
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight) {
+          el.classList.add('active');
+        } else {
+          observer.observe(el);
+        }
+      });
     root.querySelectorAll('.stat-number').forEach((el) => observer.observe(el));
     cleanups.push(() => observer.disconnect());
     cleanups.push(() => timers.forEach(clearInterval));
-
-    // Hero load animation (the HTML did this on window load; the route is already loaded)
-    const heroContent = root.querySelector('.hero-content');
-    const heroIllustration = root.querySelector('.hero-illustration');
-    requestAnimationFrame(() => {
-      if (heroContent) { heroContent.style.opacity = '1'; heroContent.style.transform = 'translateY(0)'; }
-      if (heroIllustration) { heroIllustration.style.opacity = '1'; heroIllustration.style.transform = 'translateX(0)'; }
-    });
 
     // Parallax
     on(window, 'scroll', () => {

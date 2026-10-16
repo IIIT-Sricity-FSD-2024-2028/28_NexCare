@@ -9,6 +9,7 @@ import SystemSettingsPage from './SystemSettingsPage';
 import FeedbackPage from './FeedbackPage';
 import RevenuePage from './RevenuePage';
 import ReportsPage from './ReportsPage';
+import ProfilePage from './ProfilePage';
 import '../../styles/superuser.css';
 
 /**
@@ -29,6 +30,7 @@ export const superuserRoutes = (
     <Route path="feedback" element={<FeedbackPage />} />
     <Route path="revenue" element={<RevenuePage />} />
     <Route path="reports" element={<ReportsPage />} />
+    <Route path="profile" element={<ProfilePage />} />
   </Route>
 );
 

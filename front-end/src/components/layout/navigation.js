@@ -22,6 +22,7 @@ export const NAVIGATION = {
     { to: '/superuser/feedback', label: 'Feedback Review', Icon: ChatIcon },
     { to: '/superuser/revenue', label: 'Revenue Model', Icon: RupeeIcon },
     { to: '/superuser/reports', label: 'Reports & Analytics', Icon: PieIcon },
+    { to: '/superuser/profile', label: 'Admin Profile', Icon: UserIcon },
   ],
   [ROLES.HOSPITAL_MANAGER]: [
     { to: '/hospital-manager/overview', label: 'Overview', Icon: GridIcon },

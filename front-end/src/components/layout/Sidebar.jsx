@@ -34,22 +34,28 @@ export default function Sidebar() {
       <div className="sidebar-brand">
         <NexCareLogo scale={0.62} />
         <span className="sidebar-role-tag">{roleLabel(role)}</span>
-        <div id="sidebarHospitalName" style={{ marginTop: 8, fontSize: 13, color: '#374151', fontWeight: 600, paddingLeft: 8, lineHeight: 1.3 }}>
-          {hospitalName}
-        </div>
+        {hospitalName && (
+          <div id="sidebarHospitalName" style={{ marginTop: 8, fontSize: 13, color: '#374151', fontWeight: 600, paddingLeft: 8, lineHeight: 1.3 }}>
+            {hospitalName}
+          </div>
+        )}
       </div>
+
       <nav className="nav-menu">
         {menuFor(role).map(({ to, label, Icon }) => (
           <NavLink key={to} to={to} className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
             <Icon />
-            {label}
+            <span>{label}</span>
           </NavLink>
         ))}
       </nav>
-      <button type="button" className="logout-btn" onClick={handleLogout}>
-        <LogoutIcon />
-        <span>Logout</span>
-      </button>
+
+      <div className="sidebar-footer">
+        <button type="button" className="logout-btn" onClick={handleLogout} title="Sign Out of NexCare">
+          <LogoutIcon />
+          <span>Logout</span>
+        </button>
+      </div>
     </div>
   );
 }

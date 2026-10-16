@@ -1,5 +1,27 @@
 [
   {
+    "id": "NOTIFMVB85D5T5MW",
+    "recipientRole": "regional_manager",
+    "type": "INFO",
+    "title": "New Hospital Verification Pending",
+    "message": "ABC Hospitals in your region is pending verification review.",
+    "entityType": "HOSPITAL",
+    "entityId": "H010",
+    "createdAt": "2026-10-16T17:11:17.729Z",
+    "read": false
+  },
+  {
+    "id": "NOTIFMVB85D4445B",
+    "recipientRole": "superuser",
+    "type": "INFO",
+    "title": "Hospital Registration Submitted",
+    "message": "ABC Hospitals submitted registration for verification (Sricity, Andhra Pradesh).",
+    "entityType": "HOSPITAL",
+    "entityId": "H010",
+    "createdAt": "2026-10-16T17:11:17.668Z",
+    "read": false
+  },
+  {
     "id": "NOTIF-004",
     "recipientRole": "superuser",
     "type": "INFO",

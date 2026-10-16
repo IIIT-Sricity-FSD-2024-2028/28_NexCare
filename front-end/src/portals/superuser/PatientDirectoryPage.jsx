@@ -64,7 +64,7 @@ export default function PatientDirectoryPage() {
   }
 
   return (
-    <SuPage className="su-page su-patients" title="System Administrator Portal">
+    <SuPage className="su-page su-patients" title="Patient Directory">
       <div className="page-header">
         <div>
           <h1>Patient Directory</h1>

@@ -96,10 +96,11 @@ the next one.
 While signed in as a **patient**, paste `http://localhost:5173/superuser/dashboard`
 into the address bar.
 
-**Expected:** bounced straight back to the login page, and you never see the
-Admin content flash on screen.
+**Expected:** redirected immediately to the patient's own dashboard
+(`/patient/dashboard`), preserving the active session without exposing Admin content.
 
-Repeat with a **doctor** trying `/regional-officer/dashboard`.
+Repeat with a **doctor** trying `/regional-officer/dashboard` (redirects to
+`/doctor/dashboard`).
 
 ---
 

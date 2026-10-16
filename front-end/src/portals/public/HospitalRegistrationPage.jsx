@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import NexCareLogo from '../../components/NexCareLogo';
 import { Hospitals } from '../../api';
 import '../../styles/hospital-registration.css';
 
@@ -17,6 +18,7 @@ export default function HospitalRegistrationPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState(EMPTY);
   const [alert, setAlert] = useState(null); // { type: 'success'|'error', html }
+  const [submitted, setSubmitted] = useState(null);
   const [busy, setBusy] = useState(false);
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
 
@@ -34,16 +36,19 @@ export default function HospitalRegistrationPage() {
     };
     if (data.icuBeds > data.totalBeds) {
       setAlert({ type: 'error', text: 'ICU beds cannot exceed total beds.' });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     setBusy(true);
     try {
       await Hospitals.register(data);
-      setAlert({ type: 'success', strong: 'Success!', text: ' Your hospital registration request has been submitted. It is now Pending Verification. Redirecting to login...' });
+      const hospitalName = form.name;
+      const adminEmail = form.adminEmail;
       setForm(EMPTY);
-      setTimeout(() => navigate('/login'), 3000);
+      setSubmitted({ hospitalName, adminEmail });
     } catch (err) {
       setAlert({ type: 'error', strong: 'Error:', text: ` ${err.message || 'Network error. Please try again later.'}` });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setBusy(false);
     }
@@ -54,10 +59,20 @@ export default function HospitalRegistrationPage() {
       <nav id="navbar">
         <div className="container">
           <div className="nav-content">
-            <Link to="/" style={{ textDecoration: 'none', color: '#2c3e50', fontSize: 24, fontWeight: 'bold' }}>NexCare</Link>
-            <div className="nav-links">
-              <Link to="/" className="nav-link">Home</Link>{' '}
-              <Link to="/login" className="nav-link">Sign In</Link>
+            <Link to="/" className="nav-brand-link" style={{ textDecoration: 'none' }}>
+              <NexCareLogo scale={0.7} />
+            </Link>
+            <div className="auth-buttons">
+              <Link to="/" className="nav-link nav-back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6, verticalAlign: 'middle' }}>
+                  <path d="M19 12H5" />
+                  <path d="M12 19l-7-7 7-7" />
+                </svg>
+                <span>Back to Home</span>
+              </Link>
+              <Link to="/login" className="btn-signin">
+                <span>Sign In</span>
+              </Link>
             </div>
           </div>
         </div>
@@ -179,6 +194,42 @@ export default function HospitalRegistrationPage() {
           <button type="submit" className="submit-btn" disabled={busy}>{busy ? 'Submitting...' : 'Submit Registration Request'}</button>
         </form>
       </div>
+
+      {submitted && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 16 }}>
+          <div style={{ background: '#ffffff', borderRadius: 16, maxWidth: 500, width: '100%', padding: '32px 28px', textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', border: '1px solid #E2E8F0' }}>
+            <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#DCFCE7', color: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px', fontSize: 28, fontWeight: 'bold' }}>
+              ✓
+            </div>
+            <h3 style={{ fontSize: 21, fontWeight: 700, color: '#0F172A', margin: '0 0 8px' }}>Registration Submitted!</h3>
+            <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.5, margin: '0 0 20px' }}>
+              Your registration request for <strong>{submitted.hospitalName}</strong> has been received and is now <strong>Pending Verification</strong>.
+            </p>
+            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: 16, textAlign: 'left', fontSize: 13, color: '#334155', marginBottom: 24, lineHeight: 1.6 }}>
+              <div style={{ fontWeight: 700, color: '#0F172A', marginBottom: 8 }}>📋 How You Get Your Credentials:</div>
+              <div><strong>1. Regional Officer Review:</strong> The designated RO for your district will verify your facility and beds.</div>
+              <div style={{ marginTop: 4 }}><strong>2. Superuser Approval:</strong> System Admin issues final clearance and generates your manager account.</div>
+              <div style={{ marginTop: 4 }}><strong>3. Account Provisioning:</strong> Initial login details will be created for <strong>{submitted.adminEmail}</strong>.</div>
+            </div>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                style={{ padding: '10px 20px', borderRadius: 8, background: '#F1F5F9', color: '#334155', border: '1px solid #CBD5E1', fontWeight: 600, fontSize: 13.5, cursor: 'pointer' }}
+              >
+                Back to Home
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                style={{ padding: '10px 22px', borderRadius: 8, background: '#0066CC', color: '#FFFFFF', border: 'none', fontWeight: 600, fontSize: 13.5, cursor: 'pointer' }}
+              >
+                Go to Sign In
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
