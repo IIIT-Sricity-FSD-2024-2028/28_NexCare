@@ -211,8 +211,7 @@ export default function RevenuePage() {
     return (
       <>
         <div className="note">
-          <strong>A hospital pays for seats, not for a share of its takings.</strong>{' '}
-          The commission on collections was removed on 2026-09-01: NexCare charges a monthly plan priced by how many staff accounts the hospital runs, which makes its cost fixed and forecastable whatever kind of month it has. The only variable part left is the fee on processing a bill payment, read from the platform ledger at the rate in force when each payment was taken — which is why repricing today does not restate last month.
+          <strong>Hospital Revenue:</strong> Predictable monthly subscriptions scaled by staff accounts plus ledger-tracked payment processing fees.
         </div>
 
         <div className="kpi-grid">
@@ -281,8 +280,7 @@ export default function RevenuePage() {
     return (
       <>
         <div className="note">
-          <strong>The hospital is the customer, so the hospital is billed once.</strong>{' '}
-          Doctors, nurses, administrative staff and ambulance staff are all its employees; charging each of them for a tool their employer already pays for made no sense, so none of them is charged. The plan is priced by how many staff accounts the hospital runs — a number NexCare counts for itself out of the staff directory, so it moves when somebody is actually hired, not when a line in a file is edited. A hospital that grows past the seats its plan includes pays the per-seat rate for the overflow until it moves up.
+          <strong>Hospital Subscription Plans:</strong> Institutional tiered pricing covering all employee roles (doctors, nurses, admin, ambulance) with dynamic seat scaling.
         </div>
 
         <div className="kpi-grid">
@@ -352,7 +350,7 @@ export default function RevenuePage() {
     return (
       <>
         <div className="note">
-          <strong>Patients pay for convenience, never for care.</strong> A booking fee on each appointment, waived by a Care+ membership, plus a dispatch fee on a completed ambulance trip. Hospital bills are the hospital's and are not touched.
+          <strong>Patient Revenue Streams:</strong> Convenience fee per appointment booking, emergency dispatch fee, and recurring Care+ membership subscriptions.
         </div>
 
         <div className="kpi-grid">
@@ -418,8 +416,7 @@ export default function RevenuePage() {
     return (
       <>
         <div className="note">
-          <strong>What each regional officer's patch is worth, and how much they carry.</strong>{' '}
-          Collections belong to the hospitals; platform revenue is NexCare's cut of them. Hospitals with no officer assigned appear as their own row — an unassigned hospital is a gap in the review chain, not missing data.
+          <strong>Regional Officer Overview:</strong> Operational workload, hospital oversight, and platform revenue attribution across geographic territories.
         </div>
 
         <div className="kpi-grid">
@@ -474,7 +471,7 @@ export default function RevenuePage() {
     return (
       <>
         <div className="note">
-          Rates that are not tied to any one plan. They apply across the whole platform and take effect on the next read — every figure on this page is derived, so changing a rate here re-prices the reports immediately.
+          <strong>Global Pricing Controls:</strong> Platform-wide transaction fees, per-seat overflow rates, and notification credits updated in real time.
         </div>
         <Panel title="Cross-cutting fees" hint={fees && fees.updatedAt ? `last changed ${shortDate(fees.updatedAt)}` : ''} hintId="feeUpdated">
           <div className="field-grid" id="feeFields">
@@ -501,8 +498,7 @@ export default function RevenuePage() {
   return (
     <SuPage className="su-revenue" title="Revenue Model">
       <div className="note">
-        <strong>NexCare makes money in five ways, from two payers.</strong>{' '}
-        Hospitals buy the platform on a subscription priced by how many staff accounts they run; patients buy convenience, per booking or with a Care+ membership. Small per-transaction fees sit on top. Doctors, nurses, administrative and ambulance staff are all hospital employees, so none of them is billed separately — their seats are what the hospital's plan is priced on. Everything below is derived at read time from the staff directory, the bills, the appointments and the dispatches, so a total can never drift away from what actually happened. What a hospital collects from its own patients is that <em>hospital's</em> revenue and is shown to its manager, not counted here.
+        <strong>Platform Revenue Architecture:</strong> Dual-payer B2B/B2C model combining hospital subscriptions (priced by staff seats), patient convenience fees (Care+ & booking fees), and transaction processing.
       </div>
 
       <div className="tab-container" id="revenueTabs">

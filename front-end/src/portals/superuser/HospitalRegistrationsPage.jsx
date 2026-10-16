@@ -190,37 +190,35 @@ export default function HospitalRegistrationsPage() {
     if (h.verificationStatus === 'pending_verification') {
       if (h.regionalReviewStatus === 'cleared') {
         return (
-          <>
-            <div style={{ fontSize: 10, color: '#15803D', marginBottom: 4, fontWeight: 600 }}>RO Cleared</div>
-            <button type="button" className="btn-approve" style={actionBtn} onClick={() => verifyHospital(h)} title="Final approve">Final Approve</button>
-            <button type="button" className="btn-reject" style={{ ...actionBtn, marginTop: 4 }} onClick={() => setReject({ id: h.id, name: h.name, reason: '' })} title="Reject">Reject</button>
-          </>
+          <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4, width: 104 }}>
+            <span style={{ fontSize: 10.5, color: '#15803D', fontWeight: 700 }}>RO Cleared</span>
+            <button type="button" className="btn-approve" style={{ width: '100%', height: 28, fontSize: 11.5, fontWeight: 600, borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => verifyHospital(h)} title="Final approve">Final Approve</button>
+            <button type="button" className="btn-reject" style={{ width: '100%', height: 26, fontSize: 11.5, fontWeight: 600, borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setReject({ id: h.id, name: h.name, reason: '' })} title="Reject">Reject</button>
+          </div>
         );
       }
       if (h.regionalReviewStatus === 'rejected') {
         return (
-          <>
-            <div style={{ fontSize: 10, color: '#DC2626', marginBottom: 4, fontWeight: 600 }}>
-              RO Rejected<br /><span style={{ fontWeight: 'normal', color: '#6A7282' }}>{h.regionalReviewNotes ? `(Reason: ${h.regionalReviewNotes})` : ''}</span>
-            </div>
-            <button type="button" className="btn-reject" style={actionBtn} onClick={() => setReject({ id: h.id, name: h.name, reason: '' })} title="Reject">Final Reject</button>
-          </>
+          <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4, width: 104 }}>
+            <span style={{ fontSize: 10.5, color: '#DC2626', fontWeight: 700 }}>RO Rejected</span>
+            <button type="button" className="btn-reject" style={{ width: '100%', height: 26, fontSize: 11.5, fontWeight: 600, borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setReject({ id: h.id, name: h.name, reason: '' })} title="Final reject">Final Reject</button>
+          </div>
         );
       }
       return (
-        <>
-          <div style={{ fontSize: 10, color: '#6A7282', marginBottom: 4, fontWeight: 600 }}>{h.assignedManagerId ? 'RO pending' : 'RO not assigned'}</div>
-          <button type="button" className="btn-approve" style={actionBtn} onClick={() => verifyHospital(h)} title="Direct approve">Direct Approve</button>
-          <button type="button" className="btn-reject" style={{ ...actionBtn, marginTop: 4 }} onClick={() => setReject({ id: h.id, name: h.name, reason: '' })} title="Reject">Reject</button>
-        </>
+        <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4, width: 104 }}>
+          <span style={{ fontSize: 10.5, color: '#6A7282', fontWeight: 600 }}>{h.assignedManagerId ? 'RO Pending' : 'RO Not Assigned'}</span>
+          <button type="button" className="btn-approve" style={{ width: '100%', height: 28, fontSize: 11.5, fontWeight: 600, borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => verifyHospital(h)} title="Direct approve">Direct Approve</button>
+          <button type="button" className="btn-reject" style={{ width: '100%', height: 26, fontSize: 11.5, fontWeight: 600, borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setReject({ id: h.id, name: h.name, reason: '' })} title="Reject">Reject</button>
+        </div>
       );
     }
-    if (h.verificationStatus === 'verified') return <span style={{ fontSize: 12, color: '#15803D', fontWeight: 600 }}>Approved</span>;
-    if (h.verificationStatus === 'rejected') return <span style={{ fontSize: 12, color: '#DC2626', fontWeight: 600 }}>Rejected</span>;
+    if (h.verificationStatus === 'verified') return <span style={{ fontSize: 12.5, color: '#15803D', fontWeight: 700 }}>✓ Approved</span>;
+    if (h.verificationStatus === 'rejected') return <span style={{ fontSize: 12.5, color: '#DC2626', fontWeight: 700 }}>✕ Rejected</span>;
     return null;
   }
 
-  const cell = { padding: '16px 24px', fontSize: 14, color: '#475569' };
+  const cell = { padding: '12px 14px', fontSize: 13.5, color: '#475569' };
 
   return (
     <SuPage className="su-page su-regs" title="Hospital Registrations">
@@ -238,7 +236,12 @@ export default function HospitalRegistrationsPage() {
         <table className="data-table" id="hospitalsTable">
           <thead>
             <tr>
-              <th>Hospital Name</th><th>Registration Number</th><th>Admin Contact</th><th>Verification Status</th><th>Regional Officer</th><th>Actions</th>
+              <th style={{ width: '22%' }}>Hospital Name</th>
+              <th style={{ width: '15%' }}>Registration Number</th>
+              <th style={{ width: '18%' }}>Admin Contact</th>
+              <th style={{ width: '14%' }}>Verification Status</th>
+              <th style={{ width: '18%' }}>Regional Officer</th>
+              <th style={{ width: '13%', textAlign: 'center', paddingRight: 16 }}>Actions</th>
             </tr>
           </thead>
           <tbody id="tableBody" data-tick={tick}>
@@ -274,8 +277,23 @@ export default function HospitalRegistrationsPage() {
                   </td>
                   <td style={cell}>{h.registrationNumber || 'N/A'}</td>
                   <td style={cell}>{h.adminName}<br /><span style={{ fontSize: 12 }}>{h.adminEmail}</span></td>
-                  <td style={{ padding: '16px 24px' }}><StatusBadge status={h.verificationStatus} /></td>
-                  <td style={{ padding: '16px 20px', minWidth: 200 }}>
+                  <td style={cell}>
+                    <StatusBadge status={h.verificationStatus} />
+                    {h.regionalReviewStatus === 'cleared' && (
+                      <div style={{ fontSize: 11, color: '#15803D', fontWeight: 600, marginTop: 4 }}>✓ RO Cleared</div>
+                    )}
+                    {h.regionalReviewStatus === 'rejected' && (
+                      <div style={{ fontSize: 11, color: '#DC2626', fontWeight: 600, marginTop: 4 }}>
+                        ✕ RO Rejected
+                        {h.regionalReviewNotes && (
+                          <div style={{ fontSize: 10.5, color: '#6A7282', fontWeight: 400, marginTop: 2, lineHeight: 1.3 }}>
+                            {h.regionalReviewNotes}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                  <td style={cell}>
                     {roName ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontWeight: 600, fontSize: 13, color: '#0F172A' }}>
@@ -291,7 +309,7 @@ export default function HospitalRegistrationsPage() {
                           <div style={{ marginTop: 4, paddingLeft: 15 }}>
                             <select
                               className="form-control"
-                              style={{ padding: '2px 6px', fontSize: 11, maxWidth: 170, height: 26 }}
+                              style={{ padding: '2px 6px', fontSize: 11, maxWidth: 160, height: 26 }}
                               value={h.assignedManagerId || ''}
                               onChange={(e) => assignRegionalOfficer(h.id, e.target.value)}
                               title="Change assigned Regional Officer"
@@ -311,7 +329,7 @@ export default function HospitalRegistrationsPage() {
                         </span>
                         <select
                           className="form-control"
-                          style={{ padding: '3px 6px', fontSize: 11.5, maxWidth: 180, height: 28 }}
+                          style={{ padding: '3px 6px', fontSize: 11.5, maxWidth: 170, height: 28 }}
                           value=""
                           onChange={(e) => assignRegionalOfficer(h.id, e.target.value)}
                         >
@@ -327,7 +345,7 @@ export default function HospitalRegistrationsPage() {
                       </div>
                     )}
                   </td>
-                  <td style={{ padding: '16px 24px', textAlign: 'right' }}>{actionsFor(h)}</td>
+                  <td style={{ padding: '12px 14px', textAlign: 'center', verticalAlign: 'middle' }}>{actionsFor(h)}</td>
                 </tr>
               );
             })}

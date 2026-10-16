@@ -69,7 +69,8 @@
     background: #FFFFFF;
     border: 1px solid #E5E7EB;
     border-radius: 14px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     animation: fadeInUp 0.4s ease-out;
 }
 .su-page .btn-icon {
@@ -310,10 +311,51 @@
     border: 1px solid transparent;
     width: 120px;
 }
-.su-regs .btn-approve { background: #10B981; color: white; border-color: #059669; }
-.su-regs .btn-approve:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2), 0 2px 4px -1px rgba(16, 185, 129, 0.1); }
-.su-regs .btn-reject { background: #FFFFFF; color: #DC2626; border-color: #FECACA; }
-.su-regs .btn-reject:hover { background: #FEF2F2; border-color: #DC2626; }
+.su-regs .data-table {
+    min-width: 960px;
+    width: 100%;
+}
+.su-regs .data-table th,
+.su-regs .data-table td {
+    padding: 12px 14px;
+    font-size: 13.5px;
+}
+.su-regs .data-table th:last-child,
+.su-regs .data-table td:last-child {
+    text-align: center;
+    padding-right: 20px;
+}
+.su-regs .btn-approve {
+    background: #10B981;
+    color: white;
+    border: 1px solid #059669;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.su-regs .btn-approve:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+}
+.su-regs .btn-reject {
+    background: #FFFFFF;
+    color: #DC2626;
+    border: 1px solid #FECACA;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.su-regs .btn-reject:hover {
+    background: #FEF2F2;
+    border-color: #DC2626;
+}
 
 /* ── manage-users.html ──────────────────────────────────────────── */
 .su-users .badge.admin { background: #DBEAFE; color: #1447E6; }
