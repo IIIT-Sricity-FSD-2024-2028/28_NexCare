@@ -257,3 +257,15 @@
         margin: 20px 12px 40px;
     }
 }
+
+@media (max-width: 480px) {
+    .hosp-reg-page .container {
+        padding: 0 1rem;
+    }
+    .hosp-reg-page .auth-buttons {
+        gap: 0.75rem;
+    }
+    .hosp-reg-page .nav-back-link span {
+        display: none;
+    }
+}
