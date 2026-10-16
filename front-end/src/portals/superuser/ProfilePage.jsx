@@ -35,33 +35,31 @@ export default function ProfilePage() {
   }
 
   const u = user || {};
-  const nameStr = u.name || 'NexCare Platform Office';
-  const emailStr = u.email || 'superuser@nexcare.com';
-  const idStr = u.id || 'U001';
+  const nameStr = u.name || 'Super User';
   const joinedDate = u.createdAt
     ? new Date(u.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-    : '01 Jan 2026';
+    : null;
 
+  // Only what the account record actually holds — the seeded superuser has no
+  // phone or createdAt, so those rows are left out rather than filled in.
   const profileFields = [
     ['Full Name', nameStr],
-    ['Admin ID', idStr],
-    ['Official Email', emailStr],
-    ['Contact Phone', u.phone || '+91 98480 00100'],
-    ['System Role', 'System Administrator / Superuser'],
-    ['Platform Authority', 'Root Level (All Regions & Hospitals)'],
+    ['Admin ID', u.id],
+    ['Official Email', u.email],
+    ['Contact Phone', u.phone],
+    ['System Role', 'Super User'],
+    ['Visibility', 'All regions & hospitals'],
     ['Account Status', u.status || 'Active'],
-    ['Security Clearance', 'Tier-1 System Administrator'],
-    ['Two-Factor Auth', 'Enabled (Policy Enforced)'],
-    ['Active Session', 'JWT Bearer Authentication'],
+    ['Sign-in', 'Email + password (JWT session)'],
     ['Member Since', joinedDate],
-  ];
+  ].filter(([, value]) => value);
 
   const permissions = [
     { title: 'Hospital Network Onboarding', desc: 'Final review and verification of hospitals; auto-generates manager credentials' },
-    { title: 'Regional Governance & Assignment', desc: 'Designate regional managers, balance hospital workloads across cities' },
-    { title: 'User & Role Administration', desc: 'Create, update, and manage accounts for administrative staff, doctors, and nurses' },
-    { title: 'Revenue & Pricing Controls', desc: 'Configure platform fee rates, manage hospital subscription tiers, and review financials' },
-    { title: 'System Diagnostics & Settings', desc: 'Toggle platform maintenance mode, manage emergency dispatch hotlines, and security audits' },
+    { title: 'Regional Officer Assignment', desc: 'Assign a regional officer to each new hospital registration for review' },
+    { title: 'User & Role Administration', desc: 'Create and update accounts for administrative staff, ambulance crews, regional officers and doctors, plus nurse directory records' },
+    { title: 'Revenue & Pricing Controls', desc: 'Set platform fees, reprice hospital plans and Care+ tiers, and review the revenue ledger' },
+    { title: 'System Settings & Audit Log', desc: 'Patient-registration and maintenance-mode switches, support email and ambulance hotline, and the activity log in Reports' },
   ];
 
   return (
@@ -70,13 +68,13 @@ export default function ProfilePage() {
         <div>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#101828' }}>System Administrator Profile</h1>
           <p style={{ margin: '6px 0 0', color: '#6A7282', fontSize: 14 }}>
-            Root administrator credentials, platform security clearance, and account access management.
+            Your account details and password.
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#DCFCE7', color: '#15803D', padding: '6px 14px', borderRadius: 9999, fontSize: 13, fontWeight: 600 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#16A34A' }}></span>
-            Active Root Access
+            {u.status || 'Active'}
           </span>
         </div>
       </div>
@@ -90,7 +88,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#111827' }}>{nameStr}</h2>
-              <p style={{ margin: '2px 0 0', fontSize: 13, color: '#2563EB', fontWeight: 600 }}>NexCare Master Administrator</p>
+              <p style={{ margin: '2px 0 0', fontSize: 13, color: '#2563EB', fontWeight: 600 }}>Super User</p>
             </div>
           </div>
 
@@ -112,7 +110,7 @@ export default function ProfilePage() {
         <div className="table-card" style={{ padding: 24, margin: 0 }}>
           <div style={{ marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #E5E7EB' }}>
             <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#111827' }}>Security &amp; Password</h2>
-            <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6A7282' }}>Change master administrative password</p>
+            <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6A7282' }}>Change your sign-in password</p>
           </div>
 
           <form onSubmit={changePassword} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
