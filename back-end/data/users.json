@@ -91,7 +91,7 @@
     "consultationFee": 900,
     "experienceYears": 14,
     "qualification": "MBBS, MD, DM",
-    "status": "Active",
+    "status": "Inactive",
     "password": "scrypt$2822a868a2bdab3e2609a6a2b5ade627$75fafa3e0f128bdf63180970637783a736efd0ee05f11bd5002ed6211c40755464eb9ed0f4c212d47c697682954cdcfa8311e7e0ffa278bb5f5ce13595776c20",
     "hospitalId": "H001",
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
@@ -123,7 +123,8 @@
       },
       "sunday": null
     },
-    "phone": "+91 9661886547"
+    "phone": "+91 9661886547",
+    "updatedAt": "2026-10-17T04:11:10.875Z"
   },
   {
     "id": "DOC-AP01-002",

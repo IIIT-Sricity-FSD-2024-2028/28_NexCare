@@ -1,5 +1,17 @@
 [
   {
+    "id": "NOTIFMVBVOZLA2WK",
+    "recipientRole": "administrative_staff",
+    "hospitalId": "H001",
+    "type": "SUCCESS",
+    "title": "Inventory Purchase Approved",
+    "message": "Purchase request for iron injections (20 units) has been approved.",
+    "entityType": "INVENTORY",
+    "entityId": "REQ-INV-534",
+    "createdAt": "2026-10-17T04:10:24.430Z",
+    "read": false
+  },
+  {
     "id": "NOTIFMVB85D5T5MW",
     "recipientRole": "regional_manager",
     "type": "INFO",

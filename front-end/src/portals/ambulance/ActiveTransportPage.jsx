@@ -102,7 +102,7 @@ export default function ActiveTransportPage() {
 
   return (
     <div className="page active" id="active-transport-page">
-      <PageHeader title="Active Transport" />
+      <PageHeader title="Active Transport" subtitle="Track live milestones, calculate ETA, and manage transport lifecycle" />
 
       {loaded && !active && (
         <div className="content-card" id="active-transport-empty">

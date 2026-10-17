@@ -37,7 +37,7 @@ export default function RequestsPage() {
 
   return (
     <div className="page active" id="ambulance-requests-page">
-      <PageHeader title="Incoming Requests" />
+      <PageHeader title="Incoming Requests" subtitle="Review and accept emergency ambulance dispatch requests" />
       <div className="content-card">
         <div className="table-container">
           <table className="data-table">

@@ -92,38 +92,30 @@ export default function ProfilePage() {
 
   return (
     <div className="page active" id="profile-page">
-      <PageHeader title="Profile" />
+      <PageHeader title="Profile" subtitle="Manage your profile information and account credentials" />
       <div className="profile-layout">
-        <div className="profile-sidebar">
-          <div className="content-card">
-            <div className="profile-avatar-section">
-              <div className="profile-avatar">{initials(current.name)}</div>
-              <h3 className="profile-name" id="profile-display-name">{current.name}</h3>
-              <p className="profile-role">Ambulance Staff</p>
-              <span className={`badge ${STATUS_BADGE[current.status] || 'badge-green'}`} id="profile-status-badge">{current.status}</span>
-            </div>
-            <div className="profile-info-section">
-              <div className="profile-info-item">{ICON.phone}<span id="profile-display-phone">{current.phone || '—'}</span></div>
-              <div className="profile-info-item">{ICON.truck}<span>Vehicle: <span id="profile-display-vehicle">{current.vehicle || '—'}</span></span></div>
-            </div>
+        {/* Row 1, Col 1: Profile Avatar & Details Card */}
+        <div className="content-card profile-card">
+          <div className="profile-avatar-section">
+            <div className="profile-avatar">{initials(current.name)}</div>
+            <h3 className="profile-name" id="profile-display-name">{current.name}</h3>
+            <p className="profile-role">Ambulance Staff</p>
+            <span className={`badge ${STATUS_BADGE[current.status] || 'badge-green'}`} id="profile-status-badge">{current.status}</span>
           </div>
-          <div className="content-card">
-            <h4 className="card-title">Quick Stats</h4>
-            <div className="quick-stats">
-              <div className="quick-stat-row"><span className="quick-stat-label">Total Transports</span><span className="quick-stat-value" id="qs-total">{completed.length}</span></div>
-              <div className="quick-stat-row"><span className="quick-stat-label">This Month</span><span className="quick-stat-value" id="qs-month">{thisMonth}</span></div>
-              <div className="quick-stat-row"><span className="quick-stat-label">Success Rate</span><span className="quick-stat-value quick-stat-success" id="qs-rate">{accepted > 0 ? `${Math.round((completed.length / accepted) * 100)}%` : '—'}</span></div>
-            </div>
+          <div className="profile-info-section">
+            <div className="profile-info-item">{ICON.phone}<span id="profile-display-phone">{current.phone || '—'}</span></div>
+            <div className="profile-info-item">{ICON.truck}<span>Vehicle: <span id="profile-display-vehicle">{current.vehicle || '—'}</span></span></div>
           </div>
         </div>
 
-        <div className="profile-main">
-          <div className="content-card">
-            <div className="card-header-row">
-              <h2 className="card-title">Personal Information</h2>
-              {!editing && <button type="button" id="edit-profile-btn" className="btn btn-primary" onClick={startEdit}>Edit Profile</button>}
-            </div>
-            <form id="profile-form" className="profile-form" onSubmit={(e) => { e.preventDefault(); save(); }}>
+        {/* Row 1, Col 2: Personal Information Card */}
+        <div className="content-card profile-personal-card">
+          <div className="card-header-row">
+            <h2 className="card-title">Personal Information</h2>
+            {!editing && <button type="button" id="edit-profile-btn" className="btn btn-primary" onClick={startEdit}>Edit Profile</button>}
+          </div>
+          <form id="profile-form" className="profile-form" onSubmit={(e) => { e.preventDefault(); save(); }}>
+            <div className="profile-fields-grid">
               {field('name', 'Full Name', ICON.user, <input type="text" id="profile-name" className={`form-input${errors.name ? ' input-error' : ''}`} value={form.name} onChange={set('name')} disabled={!editing} />)}
               {field('phone', 'Phone Number', ICON.phone, <input type="tel" id="profile-phone" className={`form-input${errors.phone ? ' input-error' : ''}`} inputMode="numeric" maxLength={10} value={form.phone} onChange={set('phone')} disabled={!editing} />)}
               {field('vehicle', 'Vehicle Number', ICON.truck, <input type="text" id="profile-vehicle" className={`form-input${errors.vehicle ? ' input-error' : ''}`} value={form.vehicle} onChange={set('vehicle')} disabled={!editing} />)}
@@ -132,25 +124,40 @@ export default function ProfilePage() {
                   {STATUSES.map((s) => <option key={s}>{s}</option>)}
                 </select>
               ))}
-              {editing && (
-                <div id="profile-actions" className="form-actions" style={{ display: 'flex' }}>
-                  <button type="submit" id="save-profile-btn" className="btn btn-primary btn-with-icon">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>
-                    Save Changes
-                  </button>
-                  <button type="button" id="cancel-profile-btn" className="btn btn-secondary" onClick={cancel}>Cancel</button>
-                </div>
-              )}
-            </form>
-          </div>
-
-          <div className="content-card">
-            <h3 className="card-title">Account Information</h3>
-            <div className="account-info-grid">
-              <div><p className="account-info-label">Employee ID</p><p className="account-info-value">{user?.employeeId || user?.id || '—'}</p></div>
-              <div><p className="account-info-label">Joined Date</p><p className="account-info-value">{formatJoined(user?.joiningDate)}</p></div>
-              <div><p className="account-info-label">License Number</p><p className="account-info-value">{user?.driverLicense || '—'}</p></div>
             </div>
+            {editing && (
+              <div id="profile-actions" className="form-actions" style={{ display: 'flex' }}>
+                <button type="submit" id="save-profile-btn" className="btn btn-primary btn-with-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>
+                  Save Changes
+                </button>
+                <button type="button" id="cancel-profile-btn" className="btn btn-secondary" onClick={cancel}>Cancel</button>
+              </div>
+            )}
+          </form>
+        </div>
+
+        {/* Row 2, Col 1: Quick Stats Card */}
+        <div className="content-card stats-panel-card">
+          <div className="card-header-row">
+            <h3 className="card-title">Quick Stats</h3>
+          </div>
+          <div className="quick-stats">
+            <div className="quick-stat-row"><span className="quick-stat-label">Total Transports</span><span className="quick-stat-value" id="qs-total">{completed.length}</span></div>
+            <div className="quick-stat-row"><span className="quick-stat-label">This Month</span><span className="quick-stat-value" id="qs-month">{thisMonth}</span></div>
+            <div className="quick-stat-row"><span className="quick-stat-label">Success Rate</span><span className="quick-stat-value quick-stat-success" id="qs-rate">{accepted > 0 ? `${Math.round((completed.length / accepted) * 100)}%` : '—'}</span></div>
+          </div>
+        </div>
+
+        {/* Row 2, Col 2: Account Information Card */}
+        <div className="content-card profile-account-card">
+          <div className="card-header-row">
+            <h3 className="card-title">Account Information</h3>
+          </div>
+          <div className="account-info-grid">
+            <div className="account-info-tile"><p className="account-info-label">Employee ID</p><p className="account-info-value">{user?.employeeId || user?.id || '—'}</p></div>
+            <div className="account-info-tile"><p className="account-info-label">Joined Date</p><p className="account-info-value">{formatJoined(user?.joiningDate)}</p></div>
+            <div className="account-info-tile"><p className="account-info-label">License Number</p><p className="account-info-value">{user?.driverLicense || '—'}</p></div>
           </div>
         </div>
       </div>

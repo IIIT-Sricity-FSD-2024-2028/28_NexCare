@@ -20,16 +20,25 @@ export default function DashboardPage() {
   return (
     <div className="page active" id="dashboard-page">
       <div className="page-header">
-        <h1 className="page-title">Welcome, <span id="dashboard-user-name">{profile.name || user?.name || 'Ambulance Staff'}</span></h1>
-        <p className="page-subtitle">Here's your ambulance operations overview for today</p>
+        <div className="page-header-content">
+          <div className="page-header-left">
+            <div className="page-header-titles">
+              <h1 className="page-title">Welcome, <span id="dashboard-user-name">{profile.name || user?.name || 'Ambulance Staff'}</span></h1>
+              <p className="page-subtitle">Here's your ambulance operations overview for today</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="stats-grid">
         {STATS.map((s) => (
           <div key={s.key} className="stat-card">
-            <div className="stat-header"><div className={`stat-icon ${s.tone}`}>{s.icon}</div></div>
-            <h3 className="stat-label">{s.label}</h3>
+            <div className="stat-header">
+              <h3 className="stat-label">{s.label}</h3>
+              <div className={`stat-icon ${s.tone}`}>{s.icon}</div>
+            </div>
             <p className="stat-value" id={`stat-${s.key}`}>{requests.filter(s.test).length}</p>
+            <p className="stat-change">Updated in real-time</p>
           </div>
         ))}
       </div>

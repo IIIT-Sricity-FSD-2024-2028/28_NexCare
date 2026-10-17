@@ -43,7 +43,7 @@ export default function CompletedTransportsPage() {
 
   return (
     <div className="page active" id="completed-transports-page">
-      <PageHeader title="Completed Transports">
+      <PageHeader title="Completed Transports" subtitle="Historical log of successfully completed ambulance dispatches">
         <button type="button" className="btn btn-primary btn-with-icon" onClick={exportCsv}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
           Export
@@ -52,18 +52,33 @@ export default function CompletedTransportsPage() {
 
       <div className="stats-grid-3">
         <div className="stat-card">
-          <div className="stat-row"><h3 className="stat-label">Total Completed</h3><svg className="stat-icon-small" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg></div>
+          <div className="stat-header">
+            <h3 className="stat-label">Total Completed</h3>
+            <div className="stat-icon-small" style={{ padding: 6, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--success-green-light)', color: 'var(--success-green)' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>
+            </div>
+          </div>
           <p className="stat-value" id="stat-total-completed">{completed.length}</p>
           <p className="stat-change" id="stat-completed-sub">{completed.length === 0 ? 'No transports yet' : completed.length === 1 ? '1 transport done' : `${completed.length} transports done`}</p>
         </div>
         <div className="stat-card">
-          <div className="stat-row"><h3 className="stat-label">Pending Requests</h3><svg className="stat-icon-small" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg></div>
+          <div className="stat-header">
+            <h3 className="stat-label">Pending Requests</h3>
+            <div className="stat-icon-small orange-bg" style={{ padding: 6, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+            </div>
+          </div>
           <p className="stat-value" id="stat-pending-count">{pendingCount}</p>
           <p className="stat-change" id="stat-pending-sub">{pendingCount === 0 ? 'No pending requests' : pendingCount === 1 ? '1 request awaiting acceptance' : `${pendingCount} requests awaiting acceptance`}</p>
         </div>
         <div className="stat-card">
-          <div className="stat-row"><h3 className="stat-label">Latest Transport</h3><svg className="stat-icon-small" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg></div>
-          <p className="stat-value" id="stat-latest-patient" style={{ fontSize: 16, fontWeight: 600 }}>{latest ? patientOf(latest) : '—'}</p>
+          <div className="stat-header">
+            <h3 className="stat-label">Latest Transport</h3>
+            <div className="stat-icon-small blue-bg" style={{ padding: 6, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+            </div>
+          </div>
+          <p className="stat-value" id="stat-latest-patient" style={{ fontSize: 18, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{latest ? patientOf(latest) : '—'}</p>
           <p className="stat-change" id="stat-latest-time">{latest ? (completedAt(latest) || 'Time not recorded') : 'No completed transport yet'}</p>
         </div>
       </div>

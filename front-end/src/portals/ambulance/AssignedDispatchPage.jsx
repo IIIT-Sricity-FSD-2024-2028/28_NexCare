@@ -52,12 +52,39 @@ export default function AssignedDispatchPage() {
 
   return (
     <div className="page active" id="assigned-dispatch-page">
-      <PageHeader title="Assigned Dispatch" />
+      <PageHeader title="Assigned Dispatch" subtitle="Review pre-departure checklist and initiate transport dispatches" />
 
       <div className="stats-grid-3">
-        <div className="stat-card"><h3 className="stat-label">Total Assigned</h3><p className="stat-value" id="dispatch-stat-total">{assigned.length + (activeTransport ? 1 : 0)}</p></div>
-        <div className="stat-card"><h3 className="stat-label">Ready to Start</h3><p className="stat-value stat-value-blue" id="dispatch-stat-ready">{assigned.length}</p></div>
-        <div className="stat-card"><h3 className="stat-label">In Progress</h3><p className="stat-value stat-value-teal" id="dispatch-stat-progress">{activeTransport ? 1 : 0}</p></div>
+        <div className="stat-card">
+          <div className="stat-header">
+            <h3 className="stat-label">Total Assigned</h3>
+            <div className="stat-icon-small blue-bg" style={{ padding: 6, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>
+            </div>
+          </div>
+          <p className="stat-value" id="dispatch-stat-total">{assigned.length + (activeTransport ? 1 : 0)}</p>
+          <p className="stat-change">Active in queue</p>
+        </div>
+        <div className="stat-card">
+          <div className="stat-header">
+            <h3 className="stat-label">Ready to Start</h3>
+            <div className="stat-icon-small teal-bg" style={{ padding: 6, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+            </div>
+          </div>
+          <p className="stat-value stat-value-blue" id="dispatch-stat-ready">{assigned.length}</p>
+          <p className="stat-change">Awaiting departure</p>
+        </div>
+        <div className="stat-card">
+          <div className="stat-header">
+            <h3 className="stat-label">In Progress</h3>
+            <div className="stat-icon-small orange-bg" style={{ padding: 6, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+            </div>
+          </div>
+          <p className="stat-value stat-value-teal" id="dispatch-stat-progress">{activeTransport ? 1 : 0}</p>
+          <p className="stat-change">{activeTransport ? '1 transport active' : 'None in transit'}</p>
+        </div>
       </div>
 
       <div className="content-card">

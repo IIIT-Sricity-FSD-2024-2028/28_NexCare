@@ -15,9 +15,13 @@
     "priority": "HIGH",
     "reason": "We are experiencing a shortage",
     "estimatedCost": 5000,
-    "status": "PENDING",
+    "status": "APPROVED",
     "createdAt": "2026-09-02T06:17:20.159Z",
-    "updatedAt": "2026-09-02T06:17:20.159Z"
+    "updatedAt": "2026-10-17T04:10:24.425Z",
+    "approvedBy": "HM-AP01",
+    "approvedByName": "Priya Reddy",
+    "approvedAt": "2026-10-17T04:10:24.425Z",
+    "managerRemarks": "Approved by Hospital Manager"
   },
   {
     "id": "REQ-INV-146",

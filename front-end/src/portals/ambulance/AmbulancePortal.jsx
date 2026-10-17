@@ -36,14 +36,16 @@ function Sidebar() {
 
   return (
     <aside className="sidebar">
-      <div className="logo-container" style={{ padding: 24, paddingBottom: 12, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ transform: 'scale(0.65)', transformOrigin: 'left top', marginBottom: -10, height: 35 }}>
-          <NexCareLogo />
-        </div>
-        <p className="subtitle" style={{ fontSize: 11, color: '#6b7280', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginTop: 10, marginLeft: 2 }}>Ambulance Portal</p>
-        <div id="logoHospitalName" style={{ marginTop: 8, fontSize: 13, color: '#374151', fontWeight: 600, paddingLeft: 2, lineHeight: 1.3 }}>{hospitalName}</div>
+      <div className="sidebar-brand">
+        <NexCareLogo scale={0.62} />
+        <span className="sidebar-role-tag">Ambulance Portal</span>
+        {hospitalName && (
+          <div id="logoHospitalName" className="sidebar-hospital-name">
+            {hospitalName}
+          </div>
+        )}
       </div>
-      <nav className="nav" aria-label="Main">
+      <nav className="nav-menu" aria-label="Main">
         <ul className="nav-list">
           {SECTIONS.map((s) => (
             <li key={s.slug} className="nav-item">
@@ -54,15 +56,15 @@ function Sidebar() {
             </li>
           ))}
         </ul>
-        <button type="button" className="logout-btn" onClick={handleLogout}>
-          <svg className="logout-icon" fill="none" viewBox="0 0 23.5688 23.5688" aria-hidden="true">
-            <path strokeWidth="1.96407" strokeLinecap="round" strokeLinejoin="round" d="M8.83831 20.6226H4.91018C4.38927 20.6226 3.8897 20.4156 3.52137 20.0473C3.15304 19.679 2.94611 19.1794 2.94611 18.6585V4.91002C2.94611 4.38912 3.15304 3.88955 3.52137 3.52122C3.8897 3.15288 4.38927 2.94596 4.91018 2.94596H8.83831" />
-            <path strokeWidth="1.96407" strokeLinecap="round" strokeLinejoin="round" d="M15.7127 16.6946L20.6229 11.7844L15.7127 6.87428" />
-            <path strokeWidth="1.96407" strokeLinecap="round" strokeLinejoin="round" d="M20.6227 11.7843H8.83831" />
+      </nav>
+      <div className="sidebar-footer">
+        <button type="button" className="logout-btn" onClick={handleLogout} title="Sign Out of NexCare">
+          <svg className="logout-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
           <span>Logout</span>
         </button>
-      </nav>
+      </div>
       {dialog}
     </aside>
   );

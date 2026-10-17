@@ -6138,5 +6138,25 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-10-16T16:43:21.957Z"
+  },
+  {
+    "id": "ACT-MVBVO96O14A",
+    "timestamp": "2026-10-17T04:09:50.208Z",
+    "userId": "HM-AP01",
+    "action": "Login",
+    "details": "User Priya Reddy logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T04:09:50.208Z"
+  },
+  {
+    "id": "ACT-MVC3JCTO3TE",
+    "timestamp": "2026-10-17T07:49:58.572Z",
+    "userId": "U003",
+    "action": "Login",
+    "details": "User Tirupati Crew Alpha logged in successfully as ambulance",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T07:49:58.572Z"
   }
 ]
