@@ -77,7 +77,7 @@ export default function DashboardPage() {
 
   async function cancelAppointment(id) {
     try {
-      await Appointments.update(id, { status: 'Cancelled' });
+      await Appointments.cancel(id);
       loadAppointments();
     } catch (err) {
       notify(err.message || 'Could not cancel the appointment', 'error');
