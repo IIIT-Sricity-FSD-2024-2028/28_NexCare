@@ -15,8 +15,10 @@ import StepIndicator from './StepIndicator';
 // page so a reschedule can prefill them; `catalogue` is the live directory.
 //
 // Steps: 0 hospital · 1 department · 2 date, doctor & slot · 3 summary · 4 done.
+// A set `rescheduleId` moves that appointment to the chosen slot instead of
+// booking a new one.
 
-export const EMPTY_BOOKING = { hospital: null, department: null, doctorId: null, doctor: null, fee: null, date: null, time: null, lastToken: null };
+export const EMPTY_BOOKING = { rescheduleId: null, hospital: null, department: null, doctorId: null, doctor: null, fee: null, date: null, time: null, lastToken: null };
 
 export default function BookingWizard({ catalogue, catalogueError, booking, setBooking, onBackToLanding, onViewAppointments }) {
   const [step, setStep] = useState(booking.hospital ? 1 : 0);
@@ -47,7 +49,7 @@ function StepHospital({ catalogue, catalogueError, booking, setBooking, onBack, 
     <>
       <div className="booking-header">
         <button type="button" className="btn-outline-sm" style={{ marginBottom: 16, display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={onBack}>← Back to Appointments Landing</button>
-        <h1>Book an Appointment</h1>
+        <h1>{booking.rescheduleId ? 'Reschedule Appointment' : 'Book an Appointment'}</h1>
         <p>Select a hospital to proceed with booking.</p>
       </div>
       <StepIndicator step={0} />
@@ -191,7 +193,7 @@ function StepDateDoctor({ catalogue, booking, setBooking, onBack, onNext }) {
   useEffect(() => {
     if (!date || !selectedDoc) { setBooked(new Set()); return undefined; }
     const id = ++latest.current;
-    bookedSlotsForDoctor(selectedDoc.name, date).then((set) => { if (id === latest.current) setBooked(set); });
+    bookedSlotsForDoctor(selectedDoc.name, date, booking.rescheduleId).then((set) => { if (id === latest.current) setBooked(set); });
     return undefined;
   }, [date, selectedDoc]);
 
@@ -318,19 +320,19 @@ function StepSummary({ booking, setBooking, onBack, onSlotTaken, onDone }) {
     setBusy(true);
     try {
       // Guard: the slot may have been taken since step 2.
-      const fresh = await bookedSlotsForDoctor(booking.doctor, booking.date);
+      const fresh = await bookedSlotsForDoctor(booking.doctor, booking.date, booking.rescheduleId);
       if (fresh.has(booking.time)) {
         notify(`Slot "${booking.time}" on ${booking.date} was just booked. Please choose another slot.`, 'error');
         onSlotTaken();
         return;
       }
-      // Exactly the fields CreateAppointmentDto declares, no more and no less —
+      // Exactly the fields CreateAppointmentDto (or RescheduleAppointmentDto,
+      // without patientId and reason) declares, no more and no less —
       // the ValidationPipe runs with forbidNonWhitelisted, so an extra key is a
       // 400, and `patientId` is @IsNotEmpty even though the controller then
       // overwrites it with the caller's own id. appointments.js built a wider
       // object and db.js whitelisted it down to this before POSTing.
-      const res = await Appointments.create({
-        patientId,
+      const slot = {
         hospitalId: hosp ? hosp.id : undefined,
         hospitalName: hospName,
         department: booking.department,
@@ -338,11 +340,13 @@ function StepSummary({ booking, setBooking, onBack, onSlotTaken, onDone }) {
         doctorId: booking.doctorId || undefined,
         dateLabel: booking.date,
         timeLabel: booking.time,
-        reason: '',
         fee: booking.fee || DEFAULT_CONSULTATION_FEE,
-      });
+      };
+      const res = booking.rescheduleId
+        ? await Appointments.reschedule(booking.rescheduleId, slot)
+        : await Appointments.create({ patientId, ...slot, reason: '' });
       const result = res.data;
-      if (!result || !result.id) throw new Error('The hospital did not create an appointment record.');
+      if (!result || !result.id) throw new Error(booking.rescheduleId ? 'The hospital did not update the appointment.' : 'The hospital did not create an appointment record.');
       setBooking({ ...booking, lastToken: result.token || result.id });
       onDone();
     } catch (err) {
@@ -388,7 +392,7 @@ function StepSummary({ booking, setBooking, onBack, onSlotTaken, onDone }) {
         </div>
         <div className="booking-actions">
           <button type="button" className="btn-back-booking" onClick={onBack}>← Back to Date &amp; Doctor</button>
-          <button type="button" className="btn-continue" disabled={busy} onClick={confirm}>{busy ? 'Processing...' : 'Confirm Appointment'}</button>
+          <button type="button" className="btn-continue" disabled={busy} onClick={confirm}>{busy ? 'Processing...' : booking.rescheduleId ? 'Confirm New Slot' : 'Confirm Appointment'}</button>
         </div>
       </div>
     </>
@@ -411,8 +415,8 @@ function Confirmation({ booking, onViewAppointments }) {
   return (
     <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 16, padding: '40px 24px', textAlign: 'center', maxWidth: 550, margin: '40px auto', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)' }}>
       <div style={{ fontSize: 48, marginBottom: 16 }}>🎉</div>
-      <h2 style={{ color: '#00A63E', fontSize: 22, fontWeight: 700, marginBottom: 8 }}>Appointment Confirmed!</h2>
-      <p style={{ color: '#4B5563', fontSize: 14, marginBottom: 24 }}>Your appointment has been successfully scheduled. Present your appointment token at the reception.</p>
+      <h2 style={{ color: '#00A63E', fontSize: 22, fontWeight: 700, marginBottom: 8 }}>{booking.rescheduleId ? 'Appointment Rescheduled!' : 'Appointment Confirmed!'}</h2>
+      <p style={{ color: '#4B5563', fontSize: 14, marginBottom: 24 }}>{booking.rescheduleId ? 'Your appointment has been moved to the new slot. Your token stays the same.' : 'Your appointment has been successfully scheduled.'} Present your appointment token at the reception.</p>
       <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 12, padding: 20, marginBottom: 24, textAlign: 'left' }}>
         {items.map(([label, val]) => (
           <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 14 }}>

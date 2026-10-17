@@ -17,6 +17,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@ne
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { RescheduleAppointmentDto } from './dto/reschedule-appointment.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole, AppointmentStatus } from '../common/interfaces/api-response.interface';
 
@@ -320,6 +321,25 @@ export class AppointmentsController {
   async markNoShow(@Req() req: any, @Param('id') id: string) {
     await this.assertDoctorOwnsAppointment(req, id);
     return this.appointmentsService.markNoShow(id);
+  }
+
+  /**
+   * Reschedule appointment
+   */
+  @Patch(':id/reschedule')
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.PATIENT)
+  @ApiOperation({
+    summary: 'Move an appointment to a new slot (patients: own only)',
+    description: 'Updates the existing appointment rather than booking a new one. The new slot goes through the same checks as a booking, and the appointment returns to Pending.',
+  })
+  @ApiResponse({ status: 200, description: 'Appointment rescheduled successfully' })
+  @ApiResponse({ status: 400, description: 'Slot unavailable, or the appointment is cancelled or completed' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Appointment not found' })
+  async reschedule(@Req() req: any, @Param('id') id: string, @Body() dto: RescheduleAppointmentDto) {
+    await this.assertOwnsAppointment(req, id);
+    return this.appointmentsService.reschedule(id, dto);
   }
 
   /**
