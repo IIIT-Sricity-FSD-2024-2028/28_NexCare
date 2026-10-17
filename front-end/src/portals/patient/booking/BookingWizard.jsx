@@ -118,11 +118,32 @@ function StepDepartment({ booking, setBooking, onBack, onNext }) {
           {depts.map((d) => {
             const name = typeof d === 'string' ? d : d.name || d;
             const info = deptInfo(name);
+            const isSelected = booking.department === name;
             return (
-              <button type="button" key={name} className={`department-btn${booking.department === name ? ' selected' : ''}`} onClick={() => pick(name)}>
-                <div style={{ fontSize: 20, marginBottom: 6 }}>{info.icon}</div>
-                <h3>{name}</h3>
-                <p>{info.desc}</p>
+              <button
+                type="button"
+                key={name}
+                className={`department-btn${isSelected ? ' selected' : ''}`}
+                onClick={() => pick(name)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  padding: '18px 22px',
+                  borderRadius: 12,
+                  border: isSelected ? '2px solid #155DFC' : '1.5px solid #E5E7EB',
+                  background: isSelected ? '#EFF6FF' : '#FFFFFF',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.2s',
+                  boxShadow: isSelected ? '0 0 0 2px rgba(21, 93, 252, 0.12)' : '0 1px 2px rgba(0,0,0,0.03)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, width: '100%' }}>
+                  <span style={{ fontSize: 22, lineHeight: 1 }}>{info.icon}</span>
+                  <h3 style={{ fontSize: 16.5, fontWeight: 700, color: '#1E293B', margin: 0 }}>{name}</h3>
+                </div>
+                <p style={{ fontSize: 13.5, color: '#64748B', margin: 0, lineHeight: 1.5, textAlign: 'left' }}>{info.desc}</p>
               </button>
             );
           })}
@@ -233,8 +254,35 @@ function StepDateDoctor({ catalogue, booking, setBooking, onBack, onNext }) {
       <StepIndicator step={2} />
       <div className="booking-card">
         <div style={{ marginBottom: 20 }}>
-          <label htmlFor="step2DatePicker" style={labelStyle}>📅 1. Select Appointment Date *</label>
-          <input type="date" id="step2DatePicker" className="form-input" style={fieldStyle} min={todayStr} max={maxDate.toISOString().split('T')[0]} value={date} onChange={(e) => { setDate(e.target.value); setTime(null); }} />
+          <label
+            htmlFor="step2DatePicker"
+            style={{ ...labelStyle, cursor: 'pointer' }}
+            onClick={() => {
+              try {
+                const el = document.getElementById('step2DatePicker');
+                if (el && typeof el.showPicker === 'function') el.showPicker();
+              } catch (_) {}
+            }}
+          >
+            📅 1. Select Appointment Date *
+          </label>
+          <input
+            type="date"
+            id="step2DatePicker"
+            className="form-input"
+            style={{ ...fieldStyle, cursor: 'pointer' }}
+            min={todayStr}
+            max={maxDate.toISOString().split('T')[0]}
+            value={date}
+            onClick={(e) => {
+              try {
+                if (typeof e.target.showPicker === 'function') {
+                  e.target.showPicker();
+                }
+              } catch (_) {}
+            }}
+            onChange={(e) => { setDate(e.target.value); setTime(null); }}
+          />
         </div>
 
         {alert && <div style={{ padding: '14px 16px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8, color: '#991B1B', fontSize: 13, marginBottom: 20 }}>{alert}</div>}

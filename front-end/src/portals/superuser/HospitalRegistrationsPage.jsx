@@ -260,9 +260,13 @@ export default function HospitalRegistrationsPage() {
               const ranked = suggestionsFor(h.city);
               const covering = ranked.filter((r) => r.coversCity);
               const others = ranked.filter((r) => !r.coversCity);
-              const top = ranked[0];
+              const top = covering.length > 0 ? covering[0] : null;
               const pending = h.verificationStatus === 'pending_verification';
-              const option = (r) => <option key={r.regionalManagerId} value={r.regionalManagerId}>{loadLabel(r)}</option>;
+              const option = (r, disabled = false) => (
+                <option key={r.regionalManagerId} value={r.regionalManagerId} disabled={disabled}>
+                  {loadLabel(r)}{disabled ? ' (Outside coverage)' : ''}
+                </option>
+              );
 
               const assignedRo = h.assignedManagerId ? officerMap.get(h.assignedManagerId) : null;
               const roName = assignedRo ? assignedRo.name : (h.assignedManagerName || (h.assignedManagerId ? `Officer (${h.assignedManagerId})` : null));
@@ -315,8 +319,8 @@ export default function HospitalRegistrationsPage() {
                               title="Change assigned Regional Officer"
                             >
                               <option value={h.assignedManagerId || ''}>Reassign RO...</option>
-                              {covering.length > 0 && <optgroup label={`Covers ${h.city || 'this area'}`}>{covering.map(option)}</optgroup>}
-                              {others.length > 0 && <optgroup label="Other areas">{others.map(option)}</optgroup>}
+                              {covering.length > 0 && <optgroup label={`Covers ${h.city || 'this area'}`}>{covering.map((r) => option(r, false))}</optgroup>}
+                              {others.length > 0 && <optgroup label="Other areas (Ineligible)">{others.map((r) => option(r, true))}</optgroup>}
                             </select>
                           </div>
                         )}
@@ -333,13 +337,18 @@ export default function HospitalRegistrationsPage() {
                           value=""
                           onChange={(e) => assignRegionalOfficer(h.id, e.target.value)}
                         >
-                          <option value="">{ranked.length ? '⚡ Assign Regional Officer...' : '-- No Officers Configured --'}</option>
-                          {covering.length > 0 && <optgroup label={`Covers ${h.city || 'this area'}`}>{covering.map(option)}</optgroup>}
-                          {others.length > 0 && <optgroup label="Other areas">{others.map(option)}</optgroup>}
+                          <option value="">{covering.length ? '⚡ Assign Regional Officer...' : '-- No RO Covers this City --'}</option>
+                          {covering.length > 0 && <optgroup label={`Covers ${h.city || 'this area'}`}>{covering.map((r) => option(r, false))}</optgroup>}
+                          {others.length > 0 && <optgroup label="Other areas (Ineligible)">{others.map((r) => option(r, true))}</optgroup>}
                         </select>
                         {top && pending && (
                           <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
                             Suggested: <strong>{top.regionalManagerName}</strong>
+                          </div>
+                        )}
+                        {!top && pending && (
+                          <div style={{ fontSize: 10.5, color: '#DC2626', marginTop: 2, lineHeight: 1.25 }}>
+                            ⚠️ Uncovered area: No RO covers {h.city || 'this city'}. Use <strong>Direct Approve</strong> or assign city to an RO.
                           </div>
                         )}
                       </div>

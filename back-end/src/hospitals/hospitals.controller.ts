@@ -289,7 +289,7 @@ export class HospitalsController {
     
     const shortId = id.toLowerCase();
     const generatedEmail = `${emailPrefix}.${shortId}@nexcare.com`;
-    const generatedPassword = 'Patient123';
+    const generatedPassword = 'Password123';
 
     // Create the user
     await this.usersService.create({

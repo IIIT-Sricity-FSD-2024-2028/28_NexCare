@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import RequireAuth from './components/RequireAuth';
+import ScrollToTop from './components/ScrollToTop';
 import LandingPage from './portals/public/LandingPage';
 import HospitalRegistrationPage from './portals/public/HospitalRegistrationPage';
 import LoginPage from './portals/auth/LoginPage';
@@ -49,35 +50,38 @@ function portal(base, roles, Element) {
 
 export default function App() {
   return (
-    <Routes>
-      {/* Public site + auth (plan.md Phase 1) */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/hospital-registration" element={<HospitalRegistrationPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/login/:role" element={<LoginPage />} />
-      <Route path="/register/patient" element={<PatientRegisterPage variant="patient" />} />
-      <Route path="/signup" element={<PatientRegisterPage variant="signup" />} />
-      <Route path="/register/staff" element={<StaffRegisterPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/change-password" element={<RequireAuth><ChangePasswordPage /></RequireAuth>} />
+    <>
+      <ScrollToTop />
+      <Routes>
+        {/* Public site + auth (plan.md Phase 1) */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/hospital-registration" element={<HospitalRegistrationPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login/:role" element={<LoginPage />} />
+        <Route path="/register/patient" element={<PatientRegisterPage variant="patient" />} />
+        <Route path="/signup" element={<PatientRegisterPage variant="signup" />} />
+        <Route path="/register/staff" element={<StaffRegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/change-password" element={<RequireAuth><ChangePasswordPage /></RequireAuth>} />
 
-      {/* patient/hospital-search.html had no auth guard — anyone could search,
-          and only booking asked for a login. Mounted before the guarded portal
-          so that stays true. */}
-      <Route
-        path="/patient/hospital-search"
-        element={<Suspense fallback={<ChunkLoading />}><HospitalSearchPage /></Suspense>}
-      />
+        {/* patient/hospital-search.html had no auth guard — anyone could search,
+            and only booking asked for a login. Mounted before the guarded portal
+            so that stays true. */}
+        <Route
+          path="/patient/hospital-search"
+          element={<Suspense fallback={<ChunkLoading />}><HospitalSearchPage /></Suspense>}
+        />
 
-      {portal('/doctor', [ROLES.DOCTOR], DoctorRoutes)}
-      {portal('/patient', [ROLES.PATIENT], PatientRoutes)}
-      {portal('/staff', [ROLES.STAFF], StaffRoutes)}
-      {portal('/hospital-manager', [ROLES.HOSPITAL_MANAGER], HospitalManagerRoutes)}
-      {portal('/ambulance', [ROLES.AMBULANCE], AmbulanceRoutes)}
-      {portal('/regional-officer', [ROLES.REGIONAL_MANAGER], RegionalOfficerRoutes)}
-      {portal('/superuser', [ROLES.SUPERUSER], SuperuserRoutes)}
+        {portal('/doctor', [ROLES.DOCTOR], DoctorRoutes)}
+        {portal('/patient', [ROLES.PATIENT], PatientRoutes)}
+        {portal('/staff', [ROLES.STAFF], StaffRoutes)}
+        {portal('/hospital-manager', [ROLES.HOSPITAL_MANAGER], HospitalManagerRoutes)}
+        {portal('/ambulance', [ROLES.AMBULANCE], AmbulanceRoutes)}
+        {portal('/regional-officer', [ROLES.REGIONAL_MANAGER], RegionalOfficerRoutes)}
+        {portal('/superuser', [ROLES.SUPERUSER], SuperuserRoutes)}
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }

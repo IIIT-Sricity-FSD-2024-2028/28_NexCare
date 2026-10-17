@@ -1302,13 +1302,18 @@ body {
 }
 
 .department-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     border: 2px solid #E5E7EB;
     background: #FFFFFF;
-    border-radius: 11px;
-    padding: 28px;
+    border-radius: 12px;
+    padding: 20px 24px;
     cursor: pointer;
     transition: all 0.2s;
     text-align: left;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .department-btn:hover {
@@ -1319,18 +1324,21 @@ body {
 .department-btn.selected {
     border-color: #155DFC;
     background: #EFF6FF;
+    box-shadow: 0 0 0 2px rgba(21, 93, 252, 0.12);
 }
 
 .department-btn h3 {
-    font-size: 19px;
-    font-weight: 600;
-    color: #1E2939;
-    margin-bottom: 4px;
+    font-size: 16.5px;
+    font-weight: 700;
+    color: #1E293B;
+    margin: 0 0 4px 0;
 }
 
 .department-btn p {
-    font-size: 15px;
-    color: #4A5565;
+    font-size: 13.5px;
+    color: #64748B;
+    margin: 0;
+    line-height: 1.5;
 }
 
 .booking-actions {

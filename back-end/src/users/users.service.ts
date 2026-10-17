@@ -561,7 +561,10 @@ export class UsersService {
 
         let recommendation: string;
         let reason: string;
-        if (workload.workloadLevel === 'high') {
+        if (!cityMatch) {
+          recommendation = 'not_eligible';
+          reason = `Does not cover ${hospitalCity} (covers: ${rm.areas?.join(', ') || 'none'})`;
+        } else if (workload.workloadLevel === 'high') {
           recommendation = 'not_recommended';
           reason = `Already carrying ${workload.totalHospitals} hospitals`;
         } else if (workload.workloadLevel === 'medium') {
@@ -569,18 +572,16 @@ export class UsersService {
           reason = `Moderate load — ${workload.totalHospitals} hospitals`;
         } else {
           recommendation = 'available';
-          // The original text said "No current workload" regardless of the real
-          // number, so an officer with two hospitals still read as idle.
           reason = workload.totalHospitals
             ? `Light load — ${workload.totalHospitals} hospital${workload.totalHospitals === 1 ? '' : 's'}`
             : 'No hospitals assigned yet';
         }
-        if (workload.pendingVerifications) {
+        if (cityMatch && workload.pendingVerifications) {
           reason += `, ${workload.pendingVerifications} awaiting review`;
         }
-        reason += cityMatch
-          ? `, covers ${hospitalCity}`
-          : `, does not cover ${hospitalCity}`;
+        if (cityMatch) {
+          reason += `, covers ${hospitalCity}`;
+        }
 
         return {
           regionalManagerId: rm.id,

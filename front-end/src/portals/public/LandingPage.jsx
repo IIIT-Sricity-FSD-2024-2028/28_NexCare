@@ -408,11 +408,11 @@ export default function LandingPage() {
                       <div className="feature-card">
                           <div className="feature-icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                  <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>
                               </svg>
                           </div>
-                          <h3>Digital Prescriptions &amp; EHR Records</h3>
-                          <p>Paperless electronic health records, downloadable prescriptions, diagnostic test logs, and longitudinal patient health histories.</p>
+                          <h3>Automated Billing &amp; Invoicing</h3>
+                          <p>Itemized hospital bills, secure online fee payments, Care+ coverage plans, and instant downloadable PDF tax invoices.</p>
                       </div>
 
                       <div className="feature-card">
@@ -454,7 +454,7 @@ export default function LandingPage() {
                               </svg>
                           </div>
                           <h3>Patient</h3>
-                          <p>Search hospitals by speciality, find the right healthcare facility, book appointments with specialists, request emergency ambulance services, and track your medical history all in one place.</p>
+                          <p>Search hospitals by speciality, book appointments, request emergency ambulance services, and track billing and visit history all in one place.</p>
                       </div>
 
                       <div className="role-card role-green">
@@ -463,8 +463,8 @@ export default function LandingPage() {
                                   <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><circle cx="17" cy="11" r="3"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/>
                               </svg>
                           </div>
-                          <h3>Hospital Staff</h3>
-                          <p>Process patient registrations, manage appointments, coordinate with departments, and handle workflows efficiently.</p>
+                          <h3>Administrative Staff</h3>
+                          <p>Process patient check-ins, issue OPD queue tokens, manage bed allocations, and handle hospital inventory workflows efficiently.</p>
                       </div>
 
                       <div className="role-card role-red">
@@ -474,7 +474,7 @@ export default function LandingPage() {
                               </svg>
                           </div>
                           <h3>Ambulance Staff</h3>
-                          <p>Receive and respond to emergency requests, track ambulance availability, navigate to patients, and coordinate with hospital staff for smooth handoffs.</p>
+                          <p>Receive emergency dispatch alerts, update transit availability, navigate to patient pickup locations, and coordinate hospital arrivals.</p>
                       </div>
 
                       <div className="role-card role-purple">
@@ -483,8 +483,8 @@ export default function LandingPage() {
                                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
                               </svg>
                           </div>
-                          <h3>Management</h3>
-                          <p>Monitor hospital operations, analyze performance metrics, manage staff assignments, oversee all departments, and make data-driven decisions.</p>
+                          <h3>Hospital &amp; Regional Management</h3>
+                          <p>Monitor multi-hospital occupancy, analyze operational telemetry, manage approvals, and oversee regional healthcare performance.</p>
                       </div>
                   </div>
               </div>
@@ -819,7 +819,7 @@ export default function LandingPage() {
                               </svg>
                               <h3>Address</h3>
                           </div>
-                          <p>NexCare Health Tower, Plot 42, Hitec City, Hyderabad, Telangana 500081, India</p>
+                          <p>NexCare Health Tower, Plot 42, Hitech City, Hyderabad, Telangana 500081, India</p>
                       </div>
                   </div>
               </div>
@@ -921,17 +921,6 @@ export default function LandingPage() {
                       </ul>
                   </div>
 
-                  {/* Resources */}
-                  <div className="footer-column">
-                      <h3>Resources</h3>
-                      <ul>
-                          <li><a href="#">Documentation</a></li>
-                          <li><a href="#">API Reference</a></li>
-                          <li><a href="#">Support</a></li>
-                          <li><a href="#">Privacy Policy</a></li>
-                          <li><a href="#">Terms of Service</a></li>
-                      </ul>
-                  </div>
 
                   {/* Contact Info */}
                   <div className="footer-column">
@@ -961,7 +950,7 @@ export default function LandingPage() {
                               </svg>
                               <div>
                                   <p className="contact-label">Address</p>
-                                  <p>NexCare Health Tower, Plot 42, Hitec City, Hyderabad, Telangana 500081</p>
+                                  <p>NexCare Health Tower, Plot 42, Hitech City, Hyderabad, Telangana 500081</p>
                               </div>
                           </li>
                       </ul>

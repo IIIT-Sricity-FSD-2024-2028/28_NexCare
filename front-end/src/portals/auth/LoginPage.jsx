@@ -99,8 +99,11 @@ export default function LoginPage() {
 
   if (!page) return <Navigate to="/login" replace />;
   // The HTML login pages never bounced a signed-in visitor (they may be here to
-  // switch role); a `from` means RequireAuth sent them, so honour that one.
-  if (user && location.state?.from) return <Navigate to={location.state.from} replace />;
+  // switch role); a `from` means RequireAuth sent them, so honour that one only
+  // if the user already has the required role.
+  if (user && location.state?.from && (!page.role || page.role === user.role)) {
+    return <Navigate to={location.state.from} replace />;
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();

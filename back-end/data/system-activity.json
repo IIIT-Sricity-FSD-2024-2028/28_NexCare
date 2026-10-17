@@ -6138,5 +6138,165 @@
     "module": "Authentication",
     "severity": "INFO",
     "createdAt": "2026-10-16T16:43:21.957Z"
+  },
+  {
+    "id": "ACT-MVC63HKP2CQ",
+    "timestamp": "2026-10-17T09:01:37.081Z",
+    "userId": "P065",
+    "action": "Create",
+    "details": "New patient record created for Ravi",
+    "module": "Patients",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:01:37.081Z"
+  },
+  {
+    "id": "ACT-MVC63HM43EN",
+    "timestamp": "2026-10-17T09:01:37.132Z",
+    "userId": "UMVC63HE11GR",
+    "action": "Register",
+    "details": "New patient account registered: Ravi (ravi@gmail.com)",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:01:37.132Z"
+  },
+  {
+    "id": "ACT-MVC63HT74NX",
+    "timestamp": "2026-10-17T09:01:37.387Z",
+    "userId": "UMVC63HE11GR",
+    "action": "Login",
+    "details": "User Ravi logged in successfully as patient",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:01:37.387Z"
+  },
+  {
+    "id": "ACT-MVC73HAE9R7",
+    "timestamp": "2026-10-17T09:29:36.326Z",
+    "userId": "P065",
+    "action": "Create",
+    "details": "New appointment scheduled for Ravi with Dr. Nitin Gadkari",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:29:36.326Z"
+  },
+  {
+    "id": "ACT-MVC73ULFAHY",
+    "timestamp": "2026-10-17T09:29:53.571Z",
+    "userId": "UMVC63HE11GR",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:29:53.571Z"
+  },
+  {
+    "id": "ACT-MVC768T8B3V",
+    "timestamp": "2026-10-17T09:31:45.308Z",
+    "userId": "ADM-MH01-02",
+    "action": "Login",
+    "details": "User Pooja Kadam logged in successfully as administrative_staff",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:31:45.308Z"
+  },
+  {
+    "id": "ACT-MVC786H9CQS",
+    "timestamp": "2026-10-17T09:33:15.597Z",
+    "userId": "System",
+    "action": "Update",
+    "details": "Appointment APT-MVC73H835DU details updated",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:33:15.597Z"
+  },
+  {
+    "id": "ACT-MVC786IPD9Y",
+    "timestamp": "2026-10-17T09:33:15.649Z",
+    "userId": "ADM-MH01-02",
+    "action": "Update",
+    "details": "Updated appointment to Confirmed for Ravi (Dr. Dr. Nitin Gadkari)",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:33:15.649Z"
+  },
+  {
+    "id": "ACT-MVC79FR3IU5",
+    "timestamp": "2026-10-17T09:34:14.271Z",
+    "userId": "P065",
+    "action": "Create",
+    "details": "New appointment scheduled for Ravi with Dr. Nitin Gadkari",
+    "module": "Appointments",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:34:14.271Z"
+  },
+  {
+    "id": "ACT-MVC7D7L1JN2",
+    "timestamp": "2026-10-17T09:37:10.309Z",
+    "userId": "UMVC63HE11GR",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:37:10.309Z"
+  },
+  {
+    "id": "ACT-MVC7GBWAMW4",
+    "timestamp": "2026-10-17T09:39:35.866Z",
+    "userId": "U001",
+    "action": "Login",
+    "details": "User NexCare Platform Office logged in successfully as superuser",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:39:35.866Z"
+  },
+  {
+    "id": "ACT-MVC7O2W9RU0",
+    "timestamp": "2026-10-17T09:45:37.449Z",
+    "userId": "UMVC7M51JNQK",
+    "action": "Login",
+    "details": "User Rani logged in successfully as hospital_manager",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:45:37.449Z"
+  },
+  {
+    "id": "ACT-MVC7OKP6SJQ",
+    "timestamp": "2026-10-17T09:46:00.522Z",
+    "userId": "UMVC7M51JNQK",
+    "action": "PasswordChange",
+    "details": "Password changed for user Rani",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T09:46:00.522Z"
+  },
+  {
+    "id": "ACT-MVC874NSWQW",
+    "timestamp": "2026-10-17T10:00:26.200Z",
+    "userId": "UMVC7M51JNQK",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T10:00:26.200Z"
+  },
+  {
+    "id": "ACT-MVC8EVXEXAK",
+    "timestamp": "2026-10-17T10:06:28.130Z",
+    "userId": "U001",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T10:06:28.130Z"
+  },
+  {
+    "id": "ACT-MVC8TYZNY2X",
+    "timestamp": "2026-10-17T10:18:11.939Z",
+    "userId": "ADM-MH01-02",
+    "action": "Logout",
+    "details": "User logged out",
+    "module": "Authentication",
+    "severity": "INFO",
+    "createdAt": "2026-10-17T10:18:11.939Z"
   }
 ]

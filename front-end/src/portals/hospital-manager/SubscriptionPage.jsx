@@ -92,9 +92,9 @@ export default function SubscriptionPage() {
       <div className="subscription-hero card">
         <div className="sub-hero-grid">
           <div className="sub-hero-info">
-            <div className="sub-plan-badge">Enterprise License</div>
-            <h2>{sub ? `${sub.hospitalName} - Enterprise License` : 'NexCare Hospital Annual License'}</h2>
-            <p className="sub-plan-desc">Provides uninterrupted hospital connectivity, staff directories, emergency dispatch, and administrative workflows.</p>
+            <div className="sub-plan-badge">Annual Operating License</div>
+            <h2>{sub ? `${sub.hospitalName} - Annual Operating License` : 'Hospital Annual Operating License'}</h2>
+            <p className="sub-plan-desc">Annual registration license covering verification, emergency network access, and hospital operations.</p>
             <div className="sub-meta-grid">
               <div className="sub-meta-box"><span className="sub-meta-label">Hospital ID</span><strong className="sub-meta-val">{sub?.hospitalId || '--'}</strong></div>
               <div className="sub-meta-box"><span className="sub-meta-label">Registration Date</span><strong className="sub-meta-val">{sub?.registrationDate || '--'}</strong></div>
@@ -108,10 +108,10 @@ export default function SubscriptionPage() {
               <span className="countdown-unit">Days Left</span>
             </div>
             <div className="sub-status-pill" style={{ background: expired ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.2)', color: expired ? '#F87171' : '#34D399' }}>Status: {sub?.status || 'Active'}</div>
-            <div className="sub-price-tag">₹50,000 / 12 Months</div>
+            <div className="sub-price-tag">₹50,000 / Year</div>
             <button type="button" className="btn-primary btn-renew-hero" onClick={openRenewalModal}>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" /></svg>
-              <span>Renew Subscription (+12 Months)</span>
+              <span>Renew License (+12 Months)</span>
             </button>
           </div>
         </div>
@@ -119,8 +119,8 @@ export default function SubscriptionPage() {
 
       <div className="card mt-24">
         <div className="card-header">
-          <h2>Platform plan — priced by staff accounts</h2>
-          <span className="card-subtitle">The monthly NexCare plan this hospital runs on. The seat count is your live staff headcount.</span>
+          <h2>Monthly Staff Software Plan</h2>
+          <span className="card-subtitle">Monthly plan based on your hospital's active staff size.</span>
         </div>
         <div style={{ padding: 20 }}>
           {revenue === undefined && <p className="loading-cell">Loading…</p>}
