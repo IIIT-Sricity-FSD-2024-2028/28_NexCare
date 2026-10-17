@@ -89,7 +89,7 @@ export default function AppointmentsPage() {
 
   async function cancelAppt(id) {
     try {
-      await Appointments.update(id, { status: 'Cancelled' });
+      await Appointments.cancel(id);
       await load();
     } catch (err) {
       notify(err.message || 'Could not cancel the appointment', 'error');

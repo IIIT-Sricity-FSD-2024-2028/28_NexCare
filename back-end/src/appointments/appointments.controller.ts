@@ -264,12 +264,20 @@ export class AppointmentsController {
    * Delete appointment
    */
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete an appointment' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.DOCTOR, UserRole.PATIENT)
+  @ApiOperation({ summary: 'Delete an appointment (patients: own cancelled ones only)' })
   @ApiResponse({ status: 200, description: 'Appointment deleted successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
-  async delete(@Param('id') id: string) {
+  async delete(@Req() req: any, @Param('id') id: string) {
+    await this.assertOwnsAppointment(req, id);
+    if (this.isPatient(req)) {
+      const res: any = await this.appointmentsService.findById(id);
+      if (res?.success && res.data && res.data.status !== AppointmentStatus.CANCELLED) {
+        throw new ForbiddenException('Cancel the appointment before deleting it.');
+      }
+    }
     return this.appointmentsService.delete(id);
   }
 

@@ -830,6 +830,14 @@ export class AppointmentsService {
       if (appointmentIndex === -1) {
         return ResponseUtil.notFound('Appointment', id);
       }
+      const current = appointments[appointmentIndex].status;
+      if (
+        current === AppointmentStatus.CANCELLED ||
+        current === AppointmentStatus.COMPLETED ||
+        current === AppointmentStatus.NO_SHOW
+      ) {
+        return ResponseUtil.error(`A ${String(current).toLowerCase()} appointment cannot be cancelled`);
+      }
 
       // Update status to cancelled
       appointments[appointmentIndex].status = AppointmentStatus.CANCELLED;
