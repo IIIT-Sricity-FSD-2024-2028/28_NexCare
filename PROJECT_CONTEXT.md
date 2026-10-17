@@ -241,6 +241,16 @@ normalised name** ("Dr. Sarah Smith", "dr sarah smith" and "Sarah Smith" are one
 person), so historical rows are not silently dropped. `RevenueService` uses the same
 two-step match. Do not remove the fallback.
 
+### Rescheduling moves the appointment; it does not book a new one
+
+The patient's Reschedule button reopens the booking wizard with `rescheduleId` set,
+and the summary step calls `PATCH /appointments/:id/reschedule` instead of
+`POST /appointments`. The same record (id and token) moves to the new slot after
+the same checks as a new booking (`AppointmentsService.validateBooking`, which
+ignores the appointment's own current slot), and its status goes back to
+**Pending** so staff confirm the new time. Cancelled, completed and no-show
+appointments cannot be rescheduled.
+
 ### The booking catalogue had drifted — `shared/doctor-directory.js`
 
 The wizard's hospital → department → doctor tree came from `shared/mock-hospitals.js`,

@@ -4,7 +4,8 @@ import { Appointments } from '../../../api';
 // getBookedSlotsForDoctor). GET /appointments is scoped by the backend to the
 // signed-in patient, so — exactly as in the HTML page — this catches the
 // patient's own clashes; the server refuses everyone else's at booking time.
-export async function bookedSlotsForDoctor(doctorName, dateStr) {
+// `ignoreId` is the appointment being rescheduled, whose own slot stays free.
+export async function bookedSlotsForDoctor(doctorName, dateStr, ignoreId) {
   const booked = new Set();
   if (!doctorName || !dateStr) return booked;
   const normDoc = String(doctorName).toLowerCase().replace(/^dr\.\s*/i, '').trim();
@@ -13,7 +14,7 @@ export async function bookedSlotsForDoctor(doctorName, dateStr) {
     const res = await Appointments.getAll();
     const list = Array.isArray(res.data) ? res.data : Array.isArray(res.data?.data) ? res.data.data : [];
     list.forEach((a) => {
-      if (a.status === 'Cancelled') return;
+      if (a.status === 'Cancelled' || (ignoreId && a.id === ignoreId)) return;
       const aDoc = String(a.doctor || a.doctorName || '').toLowerCase().replace(/^dr\.\s*/i, '').trim();
       const aDate = String(a.dateLabel || a.date || '').trim();
       if ((aDoc === normDoc || aDoc.includes(normDoc) || normDoc.includes(aDoc))

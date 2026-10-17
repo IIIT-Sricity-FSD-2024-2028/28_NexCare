@@ -182,6 +182,159 @@ export class AppointmentsService {
   }
 
   /**
+   * Checks a requested booking against the directory, the published roster,
+   * leave and existing appointments. Shared by create() and reschedule();
+   * `ignoreId` is the appointment being moved, so it never clashes with itself.
+   */
+  private async validateBooking(appointmentData: CreateAppointmentRequest, appointments: Appointment[], ignoreId?: string) {
+    // Validate appointment date is not in the past
+    const appointmentDate = new Date(appointmentData.dateLabel);
+    if (isNaN(appointmentDate.getTime())) {
+      return { error: ResponseUtil.error('Invalid date format') };
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (appointmentDate < today) {
+      return { error: ResponseUtil.error('Cannot book appointments in the past') };
+    }
+
+    // Resolve the selected provider and hospital from the live user/hospital
+    // directory. A patient's profile may have a home hospital for reporting,
+    // but that value never limits where they can book.
+    const requestedHospitalId = appointmentData.hospitalId;
+    const hasNamedDoctor = !!appointmentData.doctor && appointmentData.doctor !== 'TBD';
+    let doctorUser: any;
+
+    if (appointmentData.doctorId) {
+      const doctorResult: any = await this.usersService.findById(appointmentData.doctorId);
+      doctorUser = doctorResult?.success ? doctorResult.data : undefined;
+    } else if (hasNamedDoctor) {
+      const doctorsResult: any = await this.usersService.findByRole(UserRole.DOCTOR);
+      const doctors = Array.isArray(doctorsResult?.data) ? doctorsResult.data : [];
+      doctorUser = doctors.find((doctor: any) =>
+        this.sameDoctor(doctor.name, appointmentData.doctor) &&
+        (!requestedHospitalId || doctor.hospitalId === requestedHospitalId),
+      );
+    }
+
+    if ((appointmentData.doctorId || hasNamedDoctor) &&
+        (!doctorUser || doctorUser.role !== UserRole.DOCTOR)) {
+      return { error: ResponseUtil.error('Select a valid doctor from the hospital directory') };
+    }
+    if (doctorUser?.status === UserStatus.INACTIVE) {
+      return { error: ResponseUtil.error('The selected doctor is currently inactive') };
+    }
+
+    const hospitalId = doctorUser?.hospitalId || requestedHospitalId;
+    if (!hospitalId) {
+      return { error: ResponseUtil.error('Select a hospital before booking an appointment') };
+    }
+    if (requestedHospitalId && doctorUser?.hospitalId && doctorUser.hospitalId !== requestedHospitalId) {
+      return { error: ResponseUtil.error('The selected doctor does not belong to the selected hospital') };
+    }
+
+    const hospital = this.loadHospitals().find(item => item.id === hospitalId);
+    if (!hospital) {
+      return { error: ResponseUtil.error('The selected hospital is not part of the NexCare network') };
+    }
+    if (hospital.verificationStatus && hospital.verificationStatus !== 'verified') {
+      return { error: ResponseUtil.error('The selected hospital is not currently verified for patient bookings') };
+    }
+
+    const doctorDepartments = [doctorUser?.dept, doctorUser?.specialization]
+      .filter(Boolean)
+      .map(value => String(value).trim().toLowerCase());
+    if (
+      doctorDepartments.length > 0 &&
+      !doctorDepartments.includes(String(appointmentData.department || '').trim().toLowerCase())
+    ) {
+      return { error: ResponseUtil.error('The selected doctor is not assigned to that department') };
+    }
+
+    const doctorId = doctorUser?.id;
+    const doctorName = doctorUser?.name || appointmentData.doctor || 'TBD';
+    const consultationFee = Number(doctorUser?.consultationFee);
+    const fee = Number.isFinite(consultationFee) && consultationFee >= 0
+      ? consultationFee
+      : (appointmentData.fee || 100);
+
+    // Check for duplicate appointment (same patient, same doctor, same date/time)
+    const duplicate = appointments.find(apt =>
+      apt.id !== ignoreId &&
+      apt.patientId === appointmentData.patientId &&
+      (doctorId && apt.doctorId ? apt.doctorId === doctorId : this.sameDoctor(apt.doctor, doctorName)) &&
+      apt.dateLabel === appointmentData.dateLabel &&
+      apt.timeLabel === appointmentData.timeLabel &&
+      apt.status !== AppointmentStatus.CANCELLED &&
+      apt.status !== AppointmentStatus.COMPLETED &&
+      apt.status !== AppointmentStatus.NO_SHOW
+    );
+    if (duplicate) {
+      return { error: ResponseUtil.error('Appointment already exists for this patient with this doctor at the same time') };
+    }
+
+    // Check for time slot conflict (same doctor, same date/time)
+    const timeConflict = appointments.find(apt =>
+      apt.id !== ignoreId &&
+      (doctorId && apt.doctorId ? apt.doctorId === doctorId : this.sameDoctor(apt.doctor, doctorName)) &&
+      apt.dateLabel === appointmentData.dateLabel &&
+      apt.timeLabel === appointmentData.timeLabel &&
+      apt.status !== AppointmentStatus.CANCELLED &&
+      apt.status !== AppointmentStatus.COMPLETED &&
+      apt.status !== AppointmentStatus.NO_SHOW
+    );
+    if (timeConflict) {
+      return { error: ResponseUtil.error('Time slot already booked for this doctor') };
+    }
+
+    if (hospitalId && !this.schedulesService.hasPublishedSchedule(hospitalId)) {
+      return { error: ResponseUtil.error('No hospital schedule has been published yet. Wait for the hospital manager to approve the roster.') };
+    }
+    if (
+      hospitalId &&
+      !this.schedulesService.isPublishedCoverage(
+        hospitalId,
+        appointmentData.department,
+        appointmentData.dateLabel,
+        appointmentData.timeLabel,
+      )
+    ) {
+      return { error: ResponseUtil.error('That slot is outside the published hospital schedule.') };
+    }
+
+    // Check doctor availability (not on leave)
+    if (doctorName && doctorName !== 'TBD') {
+      try {
+        const leavesRes: any = await this.leavesService.findAll(undefined, undefined, LeaveStatus.APPROVED);
+        if (leavesRes?.success && Array.isArray(leavesRes.data)) {
+          const doctorOnLeave = leavesRes.data.some((leave: any) => {
+            const leaveStart = new Date(leave.startDate);
+            const leaveEnd = new Date(leave.endDate);
+            const aptDate = new Date(appointmentData.dateLabel);
+            // Check if appointment date falls within leave period
+            const sameProvider = leave.doctorId && doctorId
+              ? leave.doctorId === doctorId
+              : this.sameDoctor(leave.doctorName, doctorName);
+            return (
+              sameProvider &&
+              aptDate >= leaveStart &&
+              aptDate <= leaveEnd
+            );
+          });
+          if (doctorOnLeave) {
+            return { error: ResponseUtil.error(`Doctor ${doctorName} is on leave during this period`) };
+          }
+        }
+      } catch (err) {
+        console.error('Error checking doctor leave status:', err);
+        // Continue with booking if leave check fails (non-blocking)
+      }
+    }
+
+    return { doctorId, doctorName, fee, hospitalId, hospital };
+  }
+
+  /**
    * Create new appointment
    * @param appointmentData Appointment creation data
    * @returns Created appointment data
@@ -190,147 +343,10 @@ export class AppointmentsService {
     try {
       const appointments = this.loadAppointments();
 
-      // Validate appointment date is not in the past
-      const appointmentDate = new Date(appointmentData.dateLabel);
-      if (isNaN(appointmentDate.getTime())) {
-        return ResponseUtil.error('Invalid date format');
-      }
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (appointmentDate < today) {
-        return ResponseUtil.error('Cannot book appointments in the past');
-      }
+      const check = await this.validateBooking(appointmentData, appointments);
+      if ('error' in check) return check.error;
+      const { doctorId, doctorName, fee, hospitalId, hospital } = check;
 
-      // Resolve the selected provider and hospital from the live user/hospital
-      // directory. A patient's profile may have a home hospital for reporting,
-      // but that value never limits where they can book.
-      const requestedHospitalId = appointmentData.hospitalId;
-      const hasNamedDoctor = !!appointmentData.doctor && appointmentData.doctor !== 'TBD';
-      let doctorUser: any;
-
-      if (appointmentData.doctorId) {
-        const doctorResult: any = await this.usersService.findById(appointmentData.doctorId);
-        doctorUser = doctorResult?.success ? doctorResult.data : undefined;
-      } else if (hasNamedDoctor) {
-        const doctorsResult: any = await this.usersService.findByRole(UserRole.DOCTOR);
-        const doctors = Array.isArray(doctorsResult?.data) ? doctorsResult.data : [];
-        doctorUser = doctors.find((doctor: any) =>
-          this.sameDoctor(doctor.name, appointmentData.doctor) &&
-          (!requestedHospitalId || doctor.hospitalId === requestedHospitalId),
-        );
-      }
-
-      if ((appointmentData.doctorId || hasNamedDoctor) &&
-          (!doctorUser || doctorUser.role !== UserRole.DOCTOR)) {
-        return ResponseUtil.error('Select a valid doctor from the hospital directory');
-      }
-      if (doctorUser?.status === UserStatus.INACTIVE) {
-        return ResponseUtil.error('The selected doctor is currently inactive');
-      }
-
-      const hospitalId = doctorUser?.hospitalId || requestedHospitalId;
-      if (!hospitalId) {
-        return ResponseUtil.error('Select a hospital before booking an appointment');
-      }
-      if (requestedHospitalId && doctorUser?.hospitalId && doctorUser.hospitalId !== requestedHospitalId) {
-        return ResponseUtil.error('The selected doctor does not belong to the selected hospital');
-      }
-
-      const hospital = this.loadHospitals().find(item => item.id === hospitalId);
-      if (!hospital) {
-        return ResponseUtil.error('The selected hospital is not part of the NexCare network');
-      }
-      if (hospital.verificationStatus && hospital.verificationStatus !== 'verified') {
-        return ResponseUtil.error('The selected hospital is not currently verified for patient bookings');
-      }
-
-      const doctorDepartments = [doctorUser?.dept, doctorUser?.specialization]
-        .filter(Boolean)
-        .map(value => String(value).trim().toLowerCase());
-      if (
-        doctorDepartments.length > 0 &&
-        !doctorDepartments.includes(String(appointmentData.department || '').trim().toLowerCase())
-      ) {
-        return ResponseUtil.error('The selected doctor is not assigned to that department');
-      }
-
-      const doctorId = doctorUser?.id;
-      const doctorName = doctorUser?.name || appointmentData.doctor || 'TBD';
-      const consultationFee = Number(doctorUser?.consultationFee);
-      const fee = Number.isFinite(consultationFee) && consultationFee >= 0
-        ? consultationFee
-        : (appointmentData.fee || 100);
-
-      // Check for duplicate appointment (same patient, same doctor, same date/time)
-      const duplicate = appointments.find(apt =>
-        apt.patientId === appointmentData.patientId &&
-        (doctorId && apt.doctorId ? apt.doctorId === doctorId : this.sameDoctor(apt.doctor, doctorName)) &&
-        apt.dateLabel === appointmentData.dateLabel &&
-        apt.timeLabel === appointmentData.timeLabel &&
-        apt.status !== AppointmentStatus.CANCELLED &&
-        apt.status !== AppointmentStatus.COMPLETED &&
-        apt.status !== AppointmentStatus.NO_SHOW
-      );
-      if (duplicate) {
-        return ResponseUtil.error('Appointment already exists for this patient with this doctor at the same time');
-      }
-
-      // Check for time slot conflict (same doctor, same date/time)
-      const timeConflict = appointments.find(apt =>
-        (doctorId && apt.doctorId ? apt.doctorId === doctorId : this.sameDoctor(apt.doctor, doctorName)) &&
-        apt.dateLabel === appointmentData.dateLabel &&
-        apt.timeLabel === appointmentData.timeLabel &&
-        apt.status !== AppointmentStatus.CANCELLED &&
-        apt.status !== AppointmentStatus.COMPLETED &&
-        apt.status !== AppointmentStatus.NO_SHOW
-      );
-      if (timeConflict) {
-        return ResponseUtil.error('Time slot already booked for this doctor');
-      }
-
-      if (hospitalId && !this.schedulesService.hasPublishedSchedule(hospitalId)) {
-        return ResponseUtil.error('No hospital schedule has been published yet. Wait for the hospital manager to approve the roster.');
-      }
-      if (
-        hospitalId &&
-        !this.schedulesService.isPublishedCoverage(
-          hospitalId,
-          appointmentData.department,
-          appointmentData.dateLabel,
-          appointmentData.timeLabel,
-        )
-      ) {
-        return ResponseUtil.error('That slot is outside the published hospital schedule.');
-      }
-
-      // Check doctor availability (not on leave)
-      if (doctorName && doctorName !== 'TBD') {
-        try {
-          const leavesRes: any = await this.leavesService.findAll(undefined, undefined, LeaveStatus.APPROVED);
-          if (leavesRes?.success && Array.isArray(leavesRes.data)) {
-            const doctorOnLeave = leavesRes.data.some((leave: any) => {
-              const leaveStart = new Date(leave.startDate);
-              const leaveEnd = new Date(leave.endDate);
-              const aptDate = new Date(appointmentData.dateLabel);
-              // Check if appointment date falls within leave period
-              const sameProvider = leave.doctorId && doctorId
-                ? leave.doctorId === doctorId
-                : this.sameDoctor(leave.doctorName, doctorName);
-              return (
-                sameProvider &&
-                aptDate >= leaveStart &&
-                aptDate <= leaveEnd
-              );
-            });
-            if (doctorOnLeave) {
-              return ResponseUtil.error(`Doctor ${doctorName} is on leave during this period`);
-            }
-          }
-        } catch (err) {
-          console.error('Error checking doctor leave status:', err);
-          // Continue with booking if leave check fails (non-blocking)
-        }
-      }
 
       // Generate new appointment ID
       const newAppointmentId = IdGenerator.generateAppointmentId();
@@ -432,6 +448,101 @@ export class AppointmentsService {
     } catch (error) {
       console.error('Create appointment error:', error);
       return ResponseUtil.serverError('Failed to create appointment');
+    }
+  }
+
+  /**
+   * Reschedule an appointment in place: the same record (id and token) moves to
+   * the new slot after passing the same checks as a new booking, and goes back
+   * to PENDING so staff confirm the new time.
+   * @param id Appointment ID
+   * @param data The new hospital, department, doctor, date and time
+   * @returns Updated appointment data
+   */
+  async reschedule(id: string, data: UpdateAppointmentRequest) {
+    try {
+      const appointments = this.loadAppointments();
+      const index = appointments.findIndex(a => a.id === id);
+      if (index === -1) {
+        return ResponseUtil.notFound('Appointment', id);
+      }
+      const existing = appointments[index];
+      if (
+        existing.status === AppointmentStatus.CANCELLED ||
+        existing.status === AppointmentStatus.COMPLETED ||
+        existing.status === AppointmentStatus.NO_SHOW
+      ) {
+        return ResponseUtil.error(`A ${String(existing.status).toLowerCase()} appointment cannot be rescheduled`);
+      }
+
+      const request: CreateAppointmentRequest = {
+        patientId: existing.patientId,
+        hospitalId: data.hospitalId ?? existing.hospitalId,
+        hospitalName: data.hospitalName ?? existing.hospitalName,
+        department: data.department ?? existing.department,
+        doctor: data.doctor ?? existing.doctor,
+        doctorId: data.doctorId ?? (data.doctor ? undefined : existing.doctorId),
+        dateLabel: data.dateLabel ?? existing.dateLabel,
+        timeLabel: data.timeLabel ?? existing.timeLabel,
+        fee: data.fee ?? existing.fee,
+        reason: data.reason ?? existing.reason,
+      };
+      const check = await this.validateBooking(request, appointments, id);
+      if ('error' in check) return check.error;
+
+      const previous = `${existing.dateLabel} at ${existing.timeLabel}`;
+      appointments[index] = {
+        ...existing,
+        department: request.department,
+        doctor: check.doctorName,
+        doctorId: check.doctorId,
+        hospitalId: check.hospitalId,
+        hospitalName: check.hospital.name,
+        dateLabel: request.dateLabel,
+        timeLabel: request.timeLabel,
+        fee: check.fee,
+        reason: request.reason || '',
+        status: AppointmentStatus.PENDING,
+        updatedAt: new Date().toISOString()
+      };
+      this.saveAppointments(appointments);
+      const updated = appointments[index];
+
+      if (this.notificationsService) {
+        this.notificationsService.create({
+          recipientUserId: updated.patientId,
+          recipientRole: 'patient',
+          hospitalId: updated.hospitalId,
+          type: NotificationType.SUCCESS,
+          title: 'Appointment Rescheduled',
+          message: `Your appointment with ${updated.doctor} moved from ${previous} to ${updated.dateLabel} at ${updated.timeLabel}.`,
+          entityType: NotificationEntityType.APPOINTMENT,
+          entityId: updated.id,
+        });
+        this.notificationsService.create({
+          recipientUserId: updated.doctorId,
+          recipientRole: 'doctor',
+          hospitalId: updated.hospitalId,
+          type: NotificationType.INFO,
+          title: 'Appointment Rescheduled',
+          message: `${updated.patientName} rescheduled to ${updated.dateLabel} at ${updated.timeLabel}.`,
+          entityType: NotificationEntityType.APPOINTMENT,
+          entityId: updated.id,
+        });
+      }
+
+      this.systemService.createActivity({
+        userId: updated.patientId,
+        action: 'Update',
+        details: `Appointment ${updated.id} rescheduled from ${previous} to ${updated.dateLabel} at ${updated.timeLabel}`,
+        module: 'Appointments',
+        severity: 'INFO'
+      });
+
+      return ResponseUtil.success('Appointment rescheduled successfully', updated);
+    } catch (error) {
+      console.error('Reschedule appointment error:', error);
+      return ResponseUtil.serverError('Failed to reschedule appointment');
     }
   }
 

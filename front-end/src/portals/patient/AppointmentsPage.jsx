@@ -80,6 +80,7 @@ export default function AppointmentsPage() {
   function reschedule(appt) {
     startBooking({
       ...EMPTY_BOOKING,
+      rescheduleId: appt.id,
       hospital: findHospital(catalogue, appt.hospitalId || appt.hospitalName),
       department: appt.department || null,
       doctor: appt.doctor || null,

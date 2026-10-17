@@ -78,6 +78,8 @@ export const Appointments = {
   getById: (id) => http.get(`/appointments/${enc(id)}`),
   create: (data) => http.post('/appointments', data),
   update: (id, data) => http.put(`/appointments/${enc(id)}`, data),
+  /** Moves the existing appointment to a new slot instead of booking another. */
+  reschedule: (id, data) => http.patch(`/appointments/${enc(id)}/reschedule`, data),
   updateStatus: (id, status) => http.patch(`/appointments/${enc(id)}/status`, { status }),
   confirm: (id) => http.patch(`/appointments/${enc(id)}/confirm`),
   complete: (id) => http.patch(`/appointments/${enc(id)}/complete`),
