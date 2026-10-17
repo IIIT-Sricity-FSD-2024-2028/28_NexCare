@@ -1135,9 +1135,55 @@
       "General"
     ],
     "id": "H010",
-    "verificationStatus": "pending_verification",
-    "regionalReviewStatus": "pending",
+    "verificationStatus": "verified",
+    "regionalReviewStatus": "cleared",
     "createdAt": "2026-10-16T17:11:17.647Z",
-    "updatedAt": "2026-10-16T17:11:17.647Z"
+    "updatedAt": "2026-10-17T09:59:44.939Z",
+    "subscriptionStartDate": "2026-10-16",
+    "subscriptionExpiryDate": "2027-10-16",
+    "lastPaymentDate": "2026-10-17T09:59:44.939Z",
+    "amountPaid": 50000,
+    "paymentStatus": "ACTIVE",
+    "renewalStatus": "UP_TO_DATE",
+    "transactionId": "TXN-NEX-184939-1789",
+    "paymentHistory": [
+      {
+        "id": "PAYMVC868TNTNJ",
+        "date": "2026-10-17T09:59:44.939Z",
+        "amount": 50000,
+        "paymentType": "UPI (admin.aiims@icici)",
+        "transactionId": "TXN-NEX-184939-1789",
+        "previousExpiry": "2026-10-16",
+        "newExpiry": "2027-10-16",
+        "status": "PAID"
+      }
+    ]
+  },
+  {
+    "name": "ABC Hospitals",
+    "registrationNumber": "AP-123",
+    "type": "General Hospital",
+    "ownershipType": "Private",
+    "address": "Street A. Sricity",
+    "city": "Chittoor",
+    "state": "AndhraPradesh",
+    "pincode": "500021",
+    "phone": "9994905995",
+    "email": "abc@gmail.com",
+    "totalBeds": 20,
+    "icuBeds": 3,
+    "emergency24x7": false,
+    "ambulanceService": false,
+    "adminName": "Rani",
+    "adminEmail": "abcde@gmail.com",
+    "adminPhone": "9090909090",
+    "specialities": [
+      "General"
+    ],
+    "id": "H011",
+    "verificationStatus": "verified",
+    "regionalReviewStatus": "cleared",
+    "createdAt": "2026-10-17T09:39:04.576Z",
+    "updatedAt": "2026-10-17T09:45:16.047Z"
   }
 ]

@@ -1635,7 +1635,7 @@ button,
 
 @media (min-width: 1024px) {
     .footer-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: 1.4fr 1fr 1.2fr;
     }
 }
 

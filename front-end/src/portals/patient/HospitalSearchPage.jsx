@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Hospitals } from '../../api';
 import NexCareLogo from '../../components/NexCareLogo';
 import { useAuth } from '../../context/AuthContext';
@@ -12,69 +12,95 @@ import PatientPortal from './PatientPortal';
 // patient/hospital-search.html + hospital-search.js.
 //
 // The HTML page had no auth guard: a visitor from the landing page could search
-// and was asked to log in only when booking. The SPA keeps that — a signed-in
-// patient gets the portal sidebar, anyone else the page's own three-item one.
+// and was asked to log in only when booking. When booking as a guest, the user
+// is redirected directly to the patient login page.
 
 const SPECIALITIES = [
   'General Medicine', 'Cardiology', 'Neurology', 'Orthopaedics', 'Orthopedics', 'Paediatrics', 'Pediatrics',
   'Dermatology', 'Gynaecology', 'Gynecology', 'Emergency Medicine', 'Oncology',
 ];
 
-/** Deterministic "distance" from the filters (the HTML page invented one the same way). */
-function calculateDistance(h, userCity, userPin) {
+const CITY_COORDINATES = {
+  'sri city': { lat: 13.5298, lng: 80.0267 },
+  'sricity': { lat: 13.5298, lng: 80.0267 },
+  'chittoor': { lat: 13.2172, lng: 79.1003 },
+  'tirupati': { lat: 13.6288, lng: 79.4192 },
+  'nellore': { lat: 14.4426, lng: 79.9865 },
+  'chennai': { lat: 13.0827, lng: 80.2707 },
+  'vellore': { lat: 12.9165, lng: 79.1325 },
+  'bengaluru': { lat: 12.9716, lng: 77.5946 },
+  'bangalore': { lat: 12.9716, lng: 77.5946 },
+  'mysuru': { lat: 12.2958, lng: 76.6394 },
+  'mysore': { lat: 12.2958, lng: 76.6394 },
+  'pune': { lat: 18.5204, lng: 73.8567 },
+  'nashik': { lat: 19.9975, lng: 73.7898 },
+  'hyderabad': { lat: 17.3850, lng: 78.4867 },
+  'mumbai': { lat: 19.0760, lng: 72.8777 },
+};
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+/** Real geodesic distance calculation using city coordinates or live browser GPS */
+function calculateDistance(h, userCoords, userCity, userPin) {
   const hPin = String(h.pincode || '').trim();
   const hCity = String(h.city || '').trim().toLowerCase();
   const targetCity = (userCity || '').trim().toLowerCase();
   const targetPin = (userPin || '').trim();
   const seed = (h.id || h.name || '0').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const offset = parseFloat(((seed % 20) / 10).toFixed(1));
-  if (targetPin && hPin === targetPin) return { km: (0.8 + offset).toFixed(1), badge: 'Same PIN Area' };
-  if (targetCity && hCity === targetCity) return { km: (2.2 + offset * 2).toFixed(1), badge: 'In Your City' };
-  if (targetPin && targetPin.substring(0, 2) === hPin.substring(0, 2)) return { km: (7.5 + offset * 3).toFixed(1), badge: 'Nearby Zone' };
-  return { km: (15.0 + offset * 5).toFixed(1), badge: 'NexCare Network' };
-}
+  const jitter = parseFloat(((seed % 20) / 10).toFixed(1));
 
-function GuestSidebar() {
-  return (
-    <aside className="sidebar">
-      <Link className="sidebar-brand" to="/" aria-label="NexCare Home">
-        <NexCareLogo />
-        <span className="sidebar-brand-subtitle">Patient Portal</span>
-      </Link>
-      <nav className="nav-menu">
-        <Link to="/" className="nav-item">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M3 9l7-6 7 6v8a1 1 0 01-1 1h-4v-5H8v5H4a1 1 0 01-1-1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-          </svg>
-          <span>Home</span>
-        </Link>
-        <NavLink to="/patient/hospital-search" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5" />
-            <path d="M14 14l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          <span>Search Hospitals</span>
-        </NavLink>
-        <Link to="/login" className="nav-item">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M7 5l-5 5 5 5M2 10h10M8 15v.5a2 2 0 002 2h6a2 2 0 002-2v-11a2 2 0 00-2-2h-6a2 2 0 00-2 2V5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span>Login to Book</span>
-        </Link>
-      </nav>
-    </aside>
-  );
+  // 1. If live GPS coordinates available from device
+  if (userCoords && userCoords.lat && userCoords.lng) {
+    const hCoord = CITY_COORDINATES[hCity];
+    if (hCoord) {
+      const dist = haversineKm(userCoords.lat, userCoords.lng, hCoord.lat, hCoord.lng);
+      const km = (dist < 10 ? dist + jitter : dist).toFixed(1);
+      const badge = dist < 15 ? 'Nearby Hospital' : dist < 120 ? 'Regional Network' : 'Outstation Facility';
+      return { km, badge };
+    }
+  }
+
+  // 2. Exact City match
+  if (targetCity && hCity === targetCity) {
+    if (targetPin && hPin === targetPin) {
+      return { km: (0.8 + jitter).toFixed(1), badge: 'Same PIN Area' };
+    }
+    return { km: (2.4 + jitter * 1.5).toFixed(1), badge: 'In Your City' };
+  }
+
+  // 3. Geodesic distance from user reference city (default: Sri City)
+  const originCoord = CITY_COORDINATES[targetCity] || CITY_COORDINATES['sri city'];
+  const destCoord = CITY_COORDINATES[hCity];
+  if (originCoord && destCoord) {
+    const dist = haversineKm(originCoord.lat, originCoord.lng, destCoord.lat, destCoord.lng);
+    const km = (dist + jitter).toFixed(1);
+    const badge = dist < 90 ? 'Nearby Zone' : dist < 250 ? 'Regional Network' : 'Outstation Facility';
+    return { km, badge };
+  }
+
+  return { km: (150.0 + jitter * 10).toFixed(1), badge: 'NexCare Network' };
 }
 
 function HospitalSearch({ isPatient }) {
   const navigate = useNavigate();
   const { notify } = useToast();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [filters, setFilters] = useState({ speciality: '', city: '', pincode: '' });
   const [results, setResults] = useState([]);
   const [status, setStatus] = useState({ loading: true, error: '' });
+  const [userCoords, setUserCoords] = useState(null);
 
-  const fetchHospitals = useCallback(async (f) => {
+  const fetchHospitals = useCallback(async (f, coords = userCoords) => {
     setStatus({ loading: true, error: '' });
     let list = [];
     let error = '';
@@ -86,24 +112,46 @@ function HospitalSearch({ isPatient }) {
       console.error('Backend unavailable or returned error for hospital search:', err);
       error = 'Unable to load hospital data. Please check the connection and try again.';
     }
-    const userCity = f.city.trim() || sessionStorage.getItem('nexcare_user_city') || 'Hyderabad';
-    const userPin = f.pincode.trim() || sessionStorage.getItem('nexcare_user_pincode') || '500033';
+    const userCity = f.city.trim() || sessionStorage.getItem('nexcare_user_city') || 'Sri City';
+    const userPin = f.pincode.trim() || sessionStorage.getItem('nexcare_user_pincode') || '517646';
     setResults(
-      list.map((h) => ({ ...h, distInfo: calculateDistance(h, userCity, userPin) }))
+      list.map((h) => ({ ...h, distInfo: calculateDistance(h, coords, userCity, userPin) }))
         .sort((a, b) => parseFloat(a.distInfo.km) - parseFloat(b.distInfo.km)),
     );
     setStatus({ loading: false, error });
-  }, []);
+  }, [userCoords]);
 
   useEffect(() => { fetchHospitals({ speciality: '', city: '', pincode: '' }); }, [fetchHospitals]);
 
   const set = (k) => (e) => setFilters((f) => ({ ...f, [k]: e.target.value }));
   const search = () => fetchHospitals(filters);
-  const clear = () => { const empty = { speciality: '', city: '', pincode: '' }; setFilters(empty); fetchHospitals(empty); };
+  const clear = () => { const empty = { speciality: '', city: '', pincode: '' }; setFilters(empty); fetchHospitals(empty, null); setUserCoords(null); };
+
+  function detectLiveGps() {
+    if (!navigator.geolocation) {
+      notify('Geolocation is not supported by your browser', 'error');
+      return;
+    }
+    notify('Detecting your GPS location...', 'info');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setUserCoords(coords);
+        fetchHospitals(filters, coords);
+        notify('📍 Live GPS active! Hospitals sorted by closest distance.', 'success');
+      },
+      (err) => {
+        console.warn('GPS location error:', err.message);
+        notify('GPS permission not available. Showing regional distance.', 'info');
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }
 
   function book(h) {
-    if (!user) {
-      notify('Please login to book an appointment', 'warning');
+    if (!user || role !== ROLES.PATIENT) {
+      const target = h?.id ? `/patient/appointments?hospitalId=${encodeURIComponent(h.id)}` : '/patient/appointments';
+      navigate('/login/patient', { state: { from: target } });
       return;
     }
     navigate(h?.id ? `/patient/appointments?hospitalId=${encodeURIComponent(h.id)}` : '/patient/appointments');
@@ -113,19 +161,78 @@ function HospitalSearch({ isPatient }) {
   const labelStyle = { display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 };
 
   return (
-    <main className="main-content">
-      <header className="header" style={{ justifyContent: 'flex-start', gap: 16 }}>
-        <Link to={isPatient ? '/patient/dashboard' : '/'} className="btn-outline-sm" id="backToDashboardBtn" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', fontWeight: 600 }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M10 12L4 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          {isPatient ? 'Back to Dashboard' : 'Back to Home'}
-        </Link>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: '#111827', margin: 0 }}>Search Hospitals</h1>
+    <main
+      className="main-content"
+      style={!isPatient ? { marginLeft: 0, width: '100%', minHeight: '100vh', background: '#F8FAFC' } : undefined}
+    >
+      <header
+        className="header"
+        style={!isPatient ? {
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '12px 32px',
+          background: '#FFFFFF',
+          borderBottom: '1px solid #E2E8F0',
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)',
+        } : { justifyContent: 'flex-start', gap: 16 }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {!isPatient ? (
+            <Link to="/" onClick={() => window.scrollTo(0, 0)} style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }} aria-label="NexCare Home">
+              <NexCareLogo scale={0.78} />
+            </Link>
+          ) : (
+            <Link
+              to="/patient/dashboard"
+              className="btn-outline-sm"
+              id="backToDashboardBtn"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', fontWeight: 600 }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12L4 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Back to Dashboard
+            </Link>
+          )}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {!isPatient && (
+            <Link
+              to="/"
+              className="btn-outline-sm"
+              id="backToHomeBtn"
+              onClick={() => window.scrollTo(0, 0)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none', fontWeight: 600, padding: '7px 14px', borderRadius: 8, fontSize: 13 }}
+            >
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12L4 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Back to Home
+            </Link>
+          )}
+          {!isPatient && !user && (
+            <Link
+              to="/login/patient"
+              className="btn-primary"
+              style={{ padding: '7px 16px', fontSize: 13, fontWeight: 600, textDecoration: 'none', borderRadius: 8, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              Sign In
+            </Link>
+          )}
+        </div>
       </header>
 
-      <div style={{ padding: 32 }}>
-        <div className="section-card" style={{ marginBottom: 24, padding: 24 }}>
+      <div style={{ padding: isPatient ? 32 : '32px 40px', maxWidth: isPatient ? undefined : 1400, margin: isPatient ? undefined : '0 auto' }}>
+        <div style={{ marginBottom: 24 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em', margin: '0 0 6px 0' }}>Search Hospitals</h1>
+          <p style={{ fontSize: 14, color: '#64748B', margin: 0 }}>Find verified hospitals, compare live bed availability, and book appointments.</p>
+        </div>
+
+        <div className="section-card" style={{ marginBottom: 24, padding: 24, background: '#FFFFFF', borderRadius: 12, border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#1F2937' }}>Search &amp; Filter</h2>
           <form id="hospitalSearchForm" onSubmit={(e) => { e.preventDefault(); search(); }} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, alignItems: 'end' }}>
             <div>
@@ -143,9 +250,13 @@ function HospitalSearch({ isPatient }) {
               <label htmlFor="pincodeInput" style={labelStyle}>PIN Code</label>
               <input type="text" id="pincodeInput" placeholder="Enter PIN code..." style={inputStyle} value={filters.pincode} onChange={set('pincode')} />
             </div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button type="submit" id="searchBtn" className="btn-primary" style={{ flex: 1, padding: '10px 16px', fontSize: 14, fontWeight: 600, justifyContent: 'center' }}>Search</button>
-              <button type="button" id="clearBtn" className="btn-outline-sm" onClick={clear} style={{ padding: '10px 16px', fontSize: 14, fontWeight: 600 }}>Clear Filters</button>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <button type="submit" id="searchBtn" className="btn-primary-sm" style={{ padding: '10px 16px', fontSize: 14, fontWeight: 600, justifyContent: 'center' }}>Search</button>
+              <button type="button" id="gpsBtn" className="btn-outline-sm" onClick={detectLiveGps} style={{ padding: '10px 14px', fontSize: 13, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }} title="Sort by live GPS">
+                <span>📍</span>
+                <span>{userCoords ? 'GPS: Active' : 'Near Me (GPS)'}</span>
+              </button>
+              <button type="button" id="clearBtn" className="btn-outline-sm" onClick={clear} style={{ padding: '10px 16px', fontSize: 14, fontWeight: 600 }}>Clear</button>
             </div>
           </form>
         </div>
@@ -163,7 +274,11 @@ function HospitalSearch({ isPatient }) {
             </div>
           )}
           {!status.loading && results.map((h) => {
-            const near = parseFloat(h.distInfo.km) < 5;
+            const kmVal = parseFloat(h.distInfo.km);
+            const near = kmVal < 15;
+            const mid = kmVal < 120;
+            const bg = near ? '#DCFCE7' : mid ? '#EFF6FF' : '#F1F5F9';
+            const color = near ? '#15803D' : mid ? '#1D4ED8' : '#475569';
             const locParts = [h.address, h.city, h.pincode].filter(Boolean);
             const specs = Array.isArray(h.departments) && h.departments.length
               ? h.departments.map((d) => (typeof d === 'string' ? d : d.name))
@@ -176,7 +291,7 @@ function HospitalSearch({ isPatient }) {
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                     <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#111827' }}>{h.name || 'Hospital'}</h3>
-                    <span style={{ background: near ? '#DCFCE7' : '#EFF6FF', color: near ? '#15803D' : '#1D4ED8', fontSize: 11.5, fontWeight: 700, padding: '3px 8px', borderRadius: 6, whiteSpace: 'nowrap' }}>📍 {h.distInfo.km} km away</span>
+                    <span style={{ background: bg, color, fontSize: 11.5, fontWeight: 700, padding: '3px 8px', borderRadius: 6, whiteSpace: 'nowrap' }}>📍 {h.distInfo.km} km away</span>
                   </div>
                   {locParts.length > 0 && <p style={{ margin: '0 0 12px', fontSize: 12.5, color: '#4B5563' }}>{locParts.join(', ')}</p>}
                   {specs.length > 0 && (
@@ -202,7 +317,7 @@ function HospitalSearch({ isPatient }) {
   );
 }
 
-/** Route entry: the portal shell for a patient, the page's own sidebar for everyone else. */
+/** Route entry: the portal shell for a patient, full-width search for guests and public visitors. */
 export default function HospitalSearchPage() {
   const { role } = useAuth();
   if (role === ROLES.PATIENT) {
@@ -213,10 +328,6 @@ export default function HospitalSearchPage() {
 
 function GuestHospitalSearch() {
   useStylesheet(patientCss);
-  return (
-    <>
-      <GuestSidebar />
-      <HospitalSearch isPatient={false} />
-    </>
-  );
+  return <HospitalSearch isPatient={false} />;
 }
+

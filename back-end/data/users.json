@@ -18,7 +18,9 @@
     "regionName": "Andhra Pradesh South",
     "areas": [
       "Tirupati",
-      "Nellore"
+      "Nellore",
+      "Chittoor",
+      "Sri City"
     ],
     "phone": "+91 9740003204"
   },
@@ -1944,7 +1946,7 @@
     "email": "pooja.kadam@nexcare.in",
     "role": "administrative_staff",
     "status": "Active",
-    "password": "Password123",
+    "password": "scrypt$288b14d553ed5d5f6e88635c28d2c658$54e22539c58f6f98bd841cd5e2449f63a34d5e412f777e6726e1ecfd292b093ce97121780e93f3ef06a654b2e24545b431b8c8baabbf3a318731dd1e9749f615",
     "hospitalId": "H005",
     "hospitalName": "Sahyadri Care Hospital",
     "regionId": "REG-MH-CENTRAL",
@@ -3246,5 +3248,47 @@
     "hospitalId": "H008",
     "regionId": "REG-TN-NORTH",
     "phone": "+91 94441 33445"
+  },
+  {
+    "id": "UMVC63HE11GR",
+    "name": "Ravi",
+    "email": "ravi@gmail.com",
+    "phone": "9999999999",
+    "role": "patient",
+    "status": "Active",
+    "password": "scrypt$4b066e617a878363c1f7da1b1fa69bfe$500206a7237a82308f160971913a4114e58c07c43885bb0cd849eb1299f894cca1bb54e504bbf1e7a91bfa7ea04c6d286d183c61d6d9b2f66930edda111ea49f",
+    "patientId": "P065"
+  },
+  {
+    "id": "UMVC7M51JNQK",
+    "name": "Rani",
+    "email": "rani.h010@nexcare.com",
+    "role": "hospital_manager",
+    "status": "Active",
+    "password": "scrypt$40dd8bf91164b38f8ef4da8660e3324e$2afb53fb66bd71707edf1a1db8079f937cc47cb04e9d200d1b324c305a359829c9bf7bb57581b2a860588121ef58982d432312dccfdf06bbf73c402aedfba2bb",
+    "mustChangePassword": false,
+    "employeeId": "EMP-H010-001",
+    "joiningDate": "2026-10-17",
+    "employmentType": "Full-time",
+    "hospitalId": "H010",
+    "hospitalName": "ABC Hospitals",
+    "createdAt": "2026-10-17T09:44:06.949Z",
+    "updatedAt": "2026-10-17T09:44:06.949Z"
+  },
+  {
+    "id": "UMVC7NME9PXO",
+    "name": "Rani",
+    "email": "rani.h011@nexcare.com",
+    "role": "hospital_manager",
+    "status": "Active",
+    "password": "Password123",
+    "mustChangePassword": true,
+    "employeeId": "EMP-H011-001",
+    "joiningDate": "2026-10-17",
+    "employmentType": "Full-time",
+    "hospitalId": "H011",
+    "hospitalName": "ABC Hospitals",
+    "createdAt": "2026-10-17T09:45:16.098Z",
+    "updatedAt": "2026-10-17T09:45:16.098Z"
   }
 ]

@@ -40,17 +40,10 @@ export default function useStylesheet(href) {
       refCounts.set(href, n);
       if (n <= 0) {
         refCounts.delete(href);
-        // Delay disabling so back/forward navigation or fast page swaps don't cause FOUC
-        const timer = setTimeout(() => {
-          if (!refCounts.has(href)) {
-            const currentLink = document.querySelector(`link[data-route-css="${href}"]`);
-            if (currentLink) {
-              currentLink.disabled = true;
-            }
-          }
-          disableTimers.delete(href);
-        }, 1500);
-        disableTimers.set(href, timer);
+        const currentLink = document.querySelector(`link[data-route-css="${href}"]`);
+        if (currentLink) {
+          currentLink.disabled = true;
+        }
       }
     };
   }, [href]);

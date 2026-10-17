@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Auth } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import { AuthShell, SubmitButton, FormMessage, Field, validateSignupBasics, describeError } from './AuthShell';
@@ -10,6 +10,7 @@ import { AuthShell, SubmitButton, FormMessage, Field, validateSignupBasics, desc
 export default function PatientRegisterPage({ variant = 'patient' }) {
   const isSignup = variant === 'signup';
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [form, setForm] = useState({ fullName: '', email: '', phone: '', city: '', pincode: '', password: '', confirmPassword: '' });
   const [message, setMessage] = useState({ text: '', tone: 'error' });
@@ -44,7 +45,7 @@ export default function PatientRegisterPage({ variant = 'patient' }) {
       }
       setMessage({ text: 'Registration successful! Redirecting to login...', tone: 'success' });
       setBusyLabel('Redirecting…');
-      setTimeout(() => navigate('/login/patient'), 1500);
+      setTimeout(() => navigate('/login/patient', { state: location.state }), 1500);
     } catch (err) {
       setMessage({ text: describeError(err) || 'Registration failed. Please try again.', tone: 'error' });
       setBusy(false);
@@ -83,7 +84,7 @@ export default function PatientRegisterPage({ variant = 'patient' }) {
         <FormMessage message={message.text} tone={message.tone} />
         <SubmitButton busy={busy} busyLabel={busyLabel}>Sign up</SubmitButton>
         <div className="auth-links">
-          Already have an account? <Link to={isSignup ? '/login' : '/login/patient'}>Sign in</Link>
+          Already have an account? <Link to={isSignup ? '/login' : '/login/patient'} state={location.state}>Sign in</Link>
         </div>
       </form>
     </AuthShell>
