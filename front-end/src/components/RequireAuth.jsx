@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAppSelector } from '../store/hooks';
+import { selectRole, selectUser } from '../store/authSlice';
 import { homeFor, normalizeRole } from '../utils/roles';
 
 /**
@@ -11,7 +12,8 @@ import { homeFor, normalizeRole } from '../utils/roles';
  *                           same outcome without the surprise logout)
  */
 export default function RequireAuth({ roles, children }) {
-  const { user, role } = useAuth();
+  const user = useAppSelector(selectUser);
+  const role = useAppSelector(selectRole);
   const location = useLocation();
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   if (roles && roles.length && !roles.map(normalizeRole).includes(role)) {
