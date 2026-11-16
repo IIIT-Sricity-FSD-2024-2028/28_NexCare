@@ -1,0 +1,22 @@
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import auth, { logoutUser, sessionCleared } from './authSlice';
+import toast from './toastSlice';
+import ui from './uiSlice';
+import patient from './patientSlice';
+import doctor from './doctorSlice';
+import staff from './staffSlice';
+import hospitalManager from './hospitalManagerSlice';
+import ambulance from './ambulanceSlice';
+import regionalOfficer from './regionalOfficerSlice';
+import superuser from './superuserSlice';
+
+const appReducer = combineReducers({
+  auth, toast, ui, patient, doctor, staff, hospitalManager, ambulance, regionalOfficer, superuser,
+});
+
+const resetActions = [logoutUser.fulfilled.type, sessionCleared.type];
+const rootReducer = (state, action) =>
+  appReducer(resetActions.includes(action.type) ? undefined : state, action);
+
+export const store = configureStore({ reducer: rootReducer });
+export default store;
