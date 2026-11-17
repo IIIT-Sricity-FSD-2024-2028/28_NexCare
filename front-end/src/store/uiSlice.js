@@ -1,3 +1,51 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-export default createSlice({ name: 'ui', initialState: {}, reducers: {} }).reducer;
+const initialState = {
+  sidebarOpen: true,
+  activeModal: null,
+  confirmDialog: {
+    open: false,
+    title: '',
+    message: '',
+  },
+};
+
+const uiSlice = createSlice({
+  name: 'ui',
+  initialState,
+  reducers: {
+    toggleSidebar(state) {
+      state.sidebarOpen = !state.sidebarOpen;
+    },
+    openModal(state, action) {
+      state.activeModal = action.payload;
+    },
+    closeModal(state) {
+      state.activeModal = null;
+    },
+    showConfirmDialog(state, action) {
+      state.confirmDialog = {
+        open: true,
+        title: action.payload?.title || '',
+        message: action.payload?.message || '',
+      };
+    },
+    hideConfirmDialog(state) {
+      state.confirmDialog = initialState.confirmDialog;
+    },
+  },
+});
+
+export const {
+  toggleSidebar,
+  openModal,
+  closeModal,
+  showConfirmDialog,
+  hideConfirmDialog,
+} = uiSlice.actions;
+
+export const selectSidebarOpen = (state) => state.ui.sidebarOpen;
+export const selectActiveModal = (state) => state.ui.activeModal;
+export const selectConfirmDialog = (state) => state.ui.confirmDialog;
+
+export default uiSlice.reducer;
