@@ -1,7 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Header from '../../components/layout/Header';
-import { Feedback, Hospitals } from '../../api';
 import { useToast } from '../../context/ToastContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchComplaints,
+  selectRoComplaints,
+  updateComplaintStatus,
+} from '../../store/regionalOfficerSlice';
 import { FeedbackStatusBadge, Hero, ICONS, StatCard, Stars, formatDate, useRegionalCss } from './roShared';
 
 // regional-officer/complaints.html + complaints.js: GET /feedback/regional
@@ -13,10 +18,8 @@ const STATUSES = ['Open', 'In Progress', 'Resolved'];
 export default function ComplaintsPage() {
   useRegionalCss();
   const { notify } = useToast();
-  const [items, setItems] = useState(null);
-  const [stats, setStats] = useState({});
-  const [names, setNames] = useState({});
-  const [error, setError] = useState('');
+  const dispatch = useAppDispatch();
+  const { list: items, loading, error } = useAppSelector(selectRoComplaints);
   const [status, setStatus] = useState('all');
   const [category, setCategory] = useState('all');
   const [hospital, setHospital] = useState('all');
@@ -24,33 +27,22 @@ export default function ComplaintsPage() {
   const [editing, setEditing] = useState(null); // { id, subject, status }
   const [saving, setSaving] = useState(false);
 
-  const loadComplaints = useCallback(async () => {
-    try {
-      const res = await Feedback.getRegional();
-      setItems(res.data?.items || []);
-      setStats(res.data?.stats || {});
-      setError('');
-    } catch (err) {
-      console.error(err);
-      setError('Could not load complaints.');
-    }
-  }, []);
-
   useEffect(() => {
-    let cancelled = false;
-    Hospitals.getMyHospitals()
-      .then((res) => {
-        if (cancelled) return;
-        const map = {};
-        (res.data || []).forEach((h) => { map[h.id] = h.name; });
-        setNames(map);
-      })
-      .catch((err) => console.warn('Hospital names unavailable:', err));
-    loadComplaints();
-    return () => { cancelled = true; };
-  }, [loadComplaints]);
+    dispatch(fetchComplaints());
+  }, [dispatch]);
 
-  const all = items || [];
+  const all = items;
+  const stats = useMemo(() => {
+    const rated = all.filter((item) => Number(item.rating) > 0);
+    return {
+      total: all.length,
+      open: all.filter((item) => item.status === 'Open').length,
+      inProgress: all.filter((item) => item.status === 'In Progress').length,
+      averageRating: rated.length
+        ? (rated.reduce((sum, item) => sum + Number(item.rating), 0) / rated.length).toFixed(1)
+        : '—',
+    };
+  }, [all]);
   const categories = useMemo(() => [...new Set(all.map((i) => i.category))].sort(), [all]);
   const hospitalIds = useMemo(() => [...new Set(all.map((i) => i.hospitalId).filter(Boolean))], [all]);
 
@@ -72,9 +64,8 @@ export default function ComplaintsPage() {
     if (!editing) return;
     setSaving(true);
     try {
-      await Feedback.updateStatus(editing.id, editing.status);
+      await dispatch(updateComplaintStatus({ id: editing.id, status: editing.status })).unwrap();
       setEditing(null);
-      await loadComplaints();
     } catch (err) {
       console.error(err);
       notify(err?.message || 'Could not update status. Please try again.', 'error');
@@ -92,10 +83,10 @@ export default function ComplaintsPage() {
         </Hero>
 
         <div className="stats-grid" role="region" aria-label="Complaint statistics">
-          <StatCard label="Total Feedback" value={items ? stats.total ?? 0 : '—'} icon={ICONS.chat('#2563EB')} tone="blue" />
-          <StatCard label="Open" value={items ? stats.open ?? 0 : '—'} icon={ICONS.circle()} tone="red" />
-          <StatCard label="In Progress" value={items ? stats.inProgress ?? 0 : '—'} icon={ICONS.clock()} tone="orange" />
-          <StatCard label="Avg. Rating" value={items ? stats.averageRating ?? '—' : '—'} icon={ICONS.star()} tone="purple" />
+          <StatCard label="Total Feedback" value={loading && !items.length ? '—' : stats.total} icon={ICONS.chat('#2563EB')} tone="blue" />
+          <StatCard label="Open" value={loading && !items.length ? '—' : stats.open} icon={ICONS.circle()} tone="red" />
+          <StatCard label="In Progress" value={loading && !items.length ? '—' : stats.inProgress} icon={ICONS.clock()} tone="orange" />
+          <StatCard label="Avg. Rating" value={loading && !items.length ? '—' : stats.averageRating} icon={ICONS.star()} tone="purple" />
         </div>
 
         <section className="panel">
@@ -113,7 +104,7 @@ export default function ComplaintsPage() {
             <label htmlFor="hospitalFilter">Hospital</label>
             <select id="hospitalFilter" aria-label="Filter by hospital" value={hospital} onChange={(e) => setHospital(e.target.value)}>
               <option value="all">All hospitals</option>
-              {hospitalIds.map((id) => <option key={id} value={id}>{names[id] || id}</option>)}
+              {hospitalIds.map((id) => <option key={id} value={id}>{all.find((item) => item.hospitalId === id)?.hospitalName || id}</option>)}
             </select>
             <label htmlFor="searchInput" className="sr-only">Search complaints</label>
             <input type="search" id="searchInput" placeholder="Search complaints…" aria-label="Search complaints" value={term} onChange={(e) => setTerm(e.target.value)} />
@@ -140,14 +131,14 @@ export default function ComplaintsPage() {
               <tbody id="complaintsTableBody">
                 {error ? (
                   <tr><td colSpan={8} style={{ textAlign: 'center', color: '#DC2626' }}>{error}</td></tr>
-                ) : items === null ? (
+                ) : loading && !items.length ? (
                   <tr><td colSpan={8} className="empty-state">Loading complaints…</td></tr>
                 ) : !rows.length ? (
                   <tr><td colSpan={8} className="empty-state">No complaints match your filters.</td></tr>
                 ) : rows.map((item) => (
                   <tr key={item.id}>
                     <td>{formatDate(item.createdAt)}</td>
-                    <td>{names[item.hospitalId] || item.hospitalId || '—'}</td>
+                    <td>{item.hospitalName || item.hospitalId || '—'}</td>
                     <td>
                       <strong>{item.sender}</strong>
                       <div style={{ fontSize: 12, color: '#6A7282' }}>{item.type}</div>

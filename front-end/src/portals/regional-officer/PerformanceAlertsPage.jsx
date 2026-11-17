@@ -1,6 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import Header from '../../components/layout/Header';
-import { Hospitals } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchPerformanceAlerts,
+  selectRoAlerts,
+  setAlertFilter,
+} from '../../store/regionalOfficerSlice';
 import { DetailsLink, Hero, ICONS, SeverityBadge, StatCard, useRegionalCss } from './roShared';
 
 // regional-officer/performance-alerts.html + performance-alerts.js:
@@ -8,25 +13,16 @@ import { DetailsLink, Hero, ICONS, SeverityBadge, StatCard, useRegionalCss } fro
 
 export default function PerformanceAlertsPage() {
   useRegionalCss();
-  const [data, setData] = useState(null);
-  const [error, setError] = useState('');
-  const [severity, setSeverity] = useState('all');
-  const [category, setCategory] = useState('all');
-  const [hospital, setHospital] = useState('all');
-  const [term, setTerm] = useState('');
+  const dispatch = useAppDispatch();
+  const {
+    list: alerts, summary: data, filters, loading, error,
+  } = useAppSelector(selectRoAlerts);
+  const { severity, category, hospital, term } = filters;
 
   useEffect(() => {
-    let cancelled = false;
-    Hospitals.getPerformanceAlerts()
-      .then((res) => { if (!cancelled) setData(res.data || { alerts: [] }); })
-      .catch((err) => {
-        console.error(err);
-        if (!cancelled) setError('Could not load performance alerts.');
-      });
-    return () => { cancelled = true; };
-  }, []);
+    dispatch(fetchPerformanceAlerts());
+  }, [dispatch]);
 
-  const alerts = data?.alerts || [];
   const categories = useMemo(() => [...new Set(alerts.map((a) => a.category))].sort(), [alerts]);
   const hospitals = useMemo(() => {
     const names = {};
@@ -67,23 +63,23 @@ export default function PerformanceAlertsPage() {
           <h2 className="sr-only" id="filters-title">Filter alerts</h2>
           <div className="filter-bar">
             <label htmlFor="severityFilter">Severity</label>
-            <select id="severityFilter" aria-label="Filter by severity" value={severity} onChange={(e) => setSeverity(e.target.value)}>
+            <select id="severityFilter" aria-label="Filter by severity" value={severity} onChange={(e) => dispatch(setAlertFilter({ key: 'severity', value: e.target.value }))}>
               <option value="all">All severities</option>
               <option value="critical">Critical only</option>
               <option value="warning">Warnings only</option>
             </select>
             <label htmlFor="categoryFilter">Category</label>
-            <select id="categoryFilter" aria-label="Filter by category" value={category} onChange={(e) => setCategory(e.target.value)}>
+            <select id="categoryFilter" aria-label="Filter by category" value={category} onChange={(e) => dispatch(setAlertFilter({ key: 'category', value: e.target.value }))}>
               <option value="all">All categories</option>
               {categories.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
             <label htmlFor="hospitalFilter">Hospital</label>
-            <select id="hospitalFilter" aria-label="Filter by hospital" value={hospital} onChange={(e) => setHospital(e.target.value)}>
+            <select id="hospitalFilter" aria-label="Filter by hospital" value={hospital} onChange={(e) => dispatch(setAlertFilter({ key: 'hospital', value: e.target.value }))}>
               <option value="all">All hospitals</option>
               {hospitals.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
             </select>
             <label htmlFor="searchInput" className="sr-only">Search alerts</label>
-            <input type="search" id="searchInput" placeholder="Search alerts…" aria-label="Search alerts" value={term} onChange={(e) => setTerm(e.target.value)} />
+            <input type="search" id="searchInput" placeholder="Search alerts…" aria-label="Search alerts" value={term} onChange={(e) => dispatch(setAlertFilter({ key: 'term', value: e.target.value }))} />
           </div>
         </section>
 
@@ -92,7 +88,7 @@ export default function PerformanceAlertsPage() {
           <div id="alertsList" className="alert-list" aria-live="polite">
             {error ? (
               <p className="empty-state" style={{ color: '#DC2626' }}>{error}</p>
-            ) : !data ? (
+            ) : loading && !data ? (
               <p className="empty-state">Loading alerts…</p>
             ) : !filtered.length ? (
               <p className="empty-state">No alerts match your filters.</p>

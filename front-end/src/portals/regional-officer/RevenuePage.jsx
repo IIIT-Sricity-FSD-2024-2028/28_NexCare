@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import Header from '../../components/layout/Header';
-import { Revenue } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchRoHospitalRevenue,
+  fetchRoRevenue,
+  selectRoRevenue,
+} from '../../store/regionalOfficerSlice';
 import { formatINR as money } from './roShared';
 import '../../styles/regional-console.css';
 
@@ -14,46 +19,32 @@ import '../../styles/regional-console.css';
 const rateColour = (rate) => (rate >= 70 ? '#10B981' : rate >= 50 ? '#F59E0B' : '#EF4444');
 
 export default function RevenuePage() {
-  const [rows, setRows] = useState(null);
-  const [error, setError] = useState('');
+  const dispatch = useAppDispatch();
+  const {
+    data, loading, detailLoading, error, detailError,
+  } = useAppSelector(selectRoRevenue);
   const [picked, setPicked] = useState('');
-  const [dept, setDept] = useState({ state: 'idle' }); // idle | loading | error | { data }
 
   useEffect(() => {
-    let cancelled = false;
-    Revenue.compareMyHospitals()
-      .then((res) => {
-        if (cancelled) return;
-        const list = res.data || [];
-        setRows(list);
-        if (list.length) setPicked(list[0].hospitalId);
-      })
-      .catch((err) => {
-        console.error(err);
-        if (!cancelled) setError('Could not load revenue data.');
-      });
-    return () => { cancelled = true; };
-  }, []);
+    dispatch(fetchRoRevenue());
+  }, [dispatch]);
 
   useEffect(() => {
-    if (!picked) return undefined;
-    let cancelled = false;
-    setDept({ state: 'loading' });
-    Revenue.getHospitalRevenue(picked)
-      .then((res) => { if (!cancelled) setDept({ state: 'ready', data: res.data }); })
-      .catch((err) => {
-        console.error(err);
-        if (!cancelled) setDept({ state: 'error' });
-      });
-    return () => { cancelled = true; };
-  }, [picked]);
+    if (!picked && data?.rows?.length) setPicked(data.rows[0].hospitalId);
+  }, [data, picked]);
 
-  const list = rows || [];
+  useEffect(() => {
+    if (picked && data && !data.detailsByHospital[picked]) {
+      dispatch(fetchRoHospitalRevenue(picked));
+    }
+  }, [data, dispatch, picked]);
+
+  const list = data?.rows || [];
   const collected = list.reduce((t, r) => t + r.collected, 0);
   const outstanding = list.reduce((t, r) => t + r.outstanding, 0);
   const bills = list.reduce((t, r) => t + r.billsIssued, 0);
   const avgRate = list.length ? list.reduce((t, r) => t + r.collectionRate, 0) / list.length : 0;
-  const d = dept.data;
+  const d = data?.detailsByHospital?.[picked];
   const max = d ? Math.max(...d.byDepartment.map((x) => x.amount), 1) : 1;
 
   return (
@@ -67,10 +58,10 @@ export default function RevenuePage() {
 
         <div className="stats-grid">
           {[
-            ['Total Collected', rows ? money(collected) : '--'],
-            ['Amount Due / Unpaid Balance', rows ? money(outstanding) : '--'],
-            ['Bills Issued', rows ? bills : '--'],
-            ['Avg Collection Rate', rows ? `${avgRate.toFixed(1)}%` : '--'],
+            ['Total Collected', data ? money(collected) : '--'],
+            ['Amount Due / Unpaid Balance', data ? money(outstanding) : '--'],
+            ['Bills Issued', data ? bills : '--'],
+            ['Avg Collection Rate', data ? `${avgRate.toFixed(1)}%` : '--'],
           ].map(([lbl, val]) => (
             <div className="stat-card" key={lbl}>
               <div className="stat-info">
@@ -98,7 +89,7 @@ export default function RevenuePage() {
             <tbody id="compareTableBody">
               {error ? (
                 <tr><td colSpan={5} style={{ textAlign: 'center', color: '#DC2626' }}>{error}</td></tr>
-              ) : rows === null ? (
+              ) : loading && !data ? (
                 <tr><td colSpan={5} style={{ textAlign: 'center', color: '#6A7282' }}>Loading revenue…</td></tr>
               ) : !list.length ? (
                 <tr><td colSpan={5} style={{ textAlign: 'center', color: '#6A7282' }}>No hospitals assigned to you.</td></tr>
@@ -135,9 +126,9 @@ export default function RevenuePage() {
             </select>
           </div>
           <div style={{ padding: 20 }} id="deptBody">
-            {dept.state === 'idle' && <p style={{ color: '#6A7282', fontSize: 13 }}>Select a hospital.</p>}
-            {dept.state === 'loading' && <p style={{ color: '#6A7282', fontSize: 13 }}>Loading…</p>}
-            {dept.state === 'error' && <p style={{ color: '#DC2626', fontSize: 13 }}>Could not load the department breakdown.</p>}
+            {!picked && <p style={{ color: '#6A7282', fontSize: 13 }}>Select a hospital.</p>}
+            {detailLoading && !d && <p style={{ color: '#6A7282', fontSize: 13 }}>Loading…</p>}
+            {detailError && picked && !d && !detailLoading && <p style={{ color: '#DC2626', fontSize: 13 }}>{detailError}</p>}
             {d && !d.byDepartment.length && <p style={{ color: '#6A7282', fontSize: 13 }}>No collected revenue to break down yet.</p>}
             {d && d.byDepartment.length > 0 && (
               <>

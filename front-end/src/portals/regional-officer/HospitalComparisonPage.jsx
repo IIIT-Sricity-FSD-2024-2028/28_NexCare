@@ -1,7 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Header from '../../components/layout/Header';
-import { Hospitals } from '../../api';
 import { useToast } from '../../context/ToastContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchHospitalComparison,
+  selectRoComparison,
+  setComparisonSelection,
+} from '../../store/regionalOfficerSlice';
 import { DetailsLink, Hero, metricClass, useRegionalCss } from './roShared';
 
 // regional-officer/hospital-comparison.html + hospital-comparison.js:
@@ -26,27 +31,14 @@ const cls = (m, val) => (m.thresholds ? metricClass(m.key, val, { [m.key]: m.thr
 export default function HospitalComparisonPage() {
   useRegionalCss();
   const { notify } = useToast();
-  const [all, setAll] = useState([]);
-  const [selected, setSelected] = useState([]);
-  const [shown, setShown] = useState(null);
-  const [error, setError] = useState('');
+  const dispatch = useAppDispatch();
+  const {
+    hospitals: all, selected, result: shown, loading, error,
+  } = useAppSelector(selectRoComparison);
 
   useEffect(() => {
-    let cancelled = false;
-    Hospitals.getComparison()
-      .then((res) => {
-        if (cancelled) return;
-        const list = res.data?.hospitals || [];
-        setAll(list);
-        setSelected(list.map((h) => h.hospitalId));
-        setShown(list);
-      })
-      .catch((err) => {
-        console.error(err);
-        if (!cancelled) setError('Could not load hospital comparison data.');
-      });
-    return () => { cancelled = true; };
-  }, []);
+    dispatch(fetchHospitalComparison());
+  }, [dispatch]);
 
   async function run(ids) {
     if (!ids.length) {
@@ -54,8 +46,7 @@ export default function HospitalComparisonPage() {
       return;
     }
     try {
-      const res = await Hospitals.getComparison(ids);
-      setShown(res.data?.hospitals || []);
+      await dispatch(fetchHospitalComparison(ids)).unwrap();
     } catch (err) {
       console.error(err);
       notify('Could not run comparison. Please try again.', 'error');
@@ -64,7 +55,7 @@ export default function HospitalComparisonPage() {
 
   function compareAll() {
     const ids = all.map((h) => h.hospitalId);
-    setSelected(ids);
+    dispatch(setComparisonSelection(ids));
     run(ids);
   }
 
@@ -89,7 +80,7 @@ export default function HospitalComparisonPage() {
               aria-label="Select hospitals to compare"
               style={{ minWidth: 280, minHeight: 100 }}
               value={selected}
-              onChange={(e) => setSelected([...e.target.selectedOptions].map((o) => o.value))}
+              onChange={(e) => dispatch(setComparisonSelection([...e.target.selectedOptions].map((o) => o.value)))}
             >
               {all.map((h) => <option key={h.hospitalId} value={h.hospitalId}>{h.hospitalName} ({h.city})</option>)}
             </select>
@@ -103,7 +94,7 @@ export default function HospitalComparisonPage() {
           <div id="comparisonCards" className="comparison-grid" aria-live="polite">
             {error ? (
               <p className="empty-state" style={{ color: '#DC2626' }}>{error}</p>
-            ) : shown === null ? (
+            ) : loading && shown === null ? (
               <p className="empty-state">Loading comparison data…</p>
             ) : !hospitals.length ? (
               <p className="empty-state">No hospitals to compare.</p>

@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import Header from '../../components/layout/Header';
 import { http } from '../../api/client';
-import { Hospitals } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchHospitalDetails,
+  selectRoHospitalDetails,
+} from '../../store/regionalOfficerSlice';
 import '../../styles/regional-details.css';
 
 // regional-officer/hospital-details.html + hospital-details.js: one hospital,
@@ -46,34 +50,37 @@ const isLow = (i) => {
 export default function HospitalDetailsPage() {
   const [params] = useSearchParams();
   const id = params.get('id');
+  const dispatch = useAppDispatch();
+  const { data, loading, error } = useAppSelector(selectRoHospitalDetails);
   const [tab, setTab] = useState('overview');
-  const [hospital, setHospital] = useState(null);
-  const [headline, setHeadline] = useState({ name: 'Loading...', address: '--' });
   const [counts, setCounts] = useState(null); // { beds:{…}, inventory:n }
   // Per-tab state: { loading, error, rows }
   const [tabs, setTabs] = useState({});
 
   useEffect(() => {
     if (!id) return undefined;
+    setCounts(null);
+    setTabs({});
+    setTab('overview');
+    dispatch(fetchHospitalDetails(id));
+    return undefined;
+  }, [dispatch, id]);
+
+  const hospital = data?.hospital || null;
+  const headline = hospital
+    ? {
+      name: hospital.name,
+      address: `${hospital.address || ''}, ${hospital.city || ''}, ${hospital.state || ''} - ${hospital.pincode || ''}`,
+    }
+    : {
+      name: error || (loading ? 'Loading...' : 'Hospital Not Found'),
+      address: error || (loading ? '--' : 'Unable to load this hospital.'),
+    };
+
+  useEffect(() => {
+    if (!id || !hospital) return undefined;
     let cancelled = false;
     (async () => {
-      let h;
-      try {
-        const res = await Hospitals.getById(id);
-        h = res.data;
-        if (!h) throw new Error(res.message || 'Hospital Not Found');
-      } catch (err) {
-        console.error(err);
-        if (!cancelled) setHeadline({ name: err?.message || 'Hospital Not Found', address: err?.message || 'Unable to load this hospital.' });
-        return;
-      }
-      if (cancelled) return;
-      setHospital(h);
-      setHeadline({
-        name: h.name,
-        address: `${h.address || ''}, ${h.city || ''}, ${h.state || ''} - ${h.pincode || ''}`,
-      });
-
       // Actual bed and inventory counts from the database rather than the static hospital record.
       const [beds, inventory] = await Promise.all([
         http.get(`/hospitals/${enc(id)}/beds`).then((r) => r.data || []).catch((e) => { console.warn('Failed to load beds data:', e); return []; }),
@@ -83,7 +90,7 @@ export default function HospitalDetailsPage() {
       setCounts({ beds: bedCounts(beds), inventory: inventory.length });
     })();
     return () => { cancelled = true; };
-  }, [id]);
+  }, [hospital, id]);
 
   // The four lazy tabs: fetch when opened, every time.
   useEffect(() => {

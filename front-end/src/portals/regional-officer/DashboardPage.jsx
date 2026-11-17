@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/layout/Header';
-import { Hospitals } from '../../api';
 import { useAuth } from '../../context/AuthContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchRoDashboard, selectRoDashboard } from '../../store/regionalOfficerSlice';
 import {
   DetailsLink, Hero, ICONS, SeverityBadge, StatCard, Stars, StatusBadge, formatINR, useRegionalCss,
 } from './roShared';
@@ -22,35 +23,17 @@ const occupancyClass = (rate) => (rate >= 90 ? 'bad' : rate >= 80 ? 'warn' : 'go
 export default function DashboardPage() {
   useRegionalCss();
   const { user } = useAuth();
-  const [summary, setSummary] = useState(null);
-  const [hospitals, setHospitals] = useState(null);
-  const [revenueList, setRevenueList] = useState([]);
-  const [alerts, setAlerts] = useState({ total: 0, alerts: [] });
-  const [error, setError] = useState('');
+  const dispatch = useAppDispatch();
+  const { stats, loading, error } = useAppSelector(selectRoDashboard);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      // The alerts call failing must not take the overview down with it (the
-      // HTML fell back to zero alerts when that response was not a success).
-      const [overviewRes, alertsRes] = await Promise.all([
-        Hospitals.getRegionalOverview().catch((err) => { console.error('Dashboard initialization error:', err); return null; }),
-        Hospitals.getPerformanceAlerts().catch(() => null),
-      ]);
-      if (cancelled) return;
-      if (!overviewRes) {
-        setError('Could not load regional overview. Check that the backend is running.');
-        return;
-      }
-      const data = overviewRes.data || {};
-      setSummary(data.summary || {});
-      setHospitals(data.hospitals || []);
-      setRevenueList(data.hospitalRevenueList || []);
-      setAlerts(alertsRes?.data || { total: 0, alerts: [] });
-    })();
-    return () => { cancelled = true; };
-  }, []);
+    dispatch(fetchRoDashboard());
+  }, [dispatch]);
 
+  const summary = stats?.summary || null;
+  const hospitals = stats?.hospitals || [];
+  const revenueList = stats?.hospitalRevenueList || [];
+  const alerts = stats?.alerts || { total: 0, alerts: [] };
   const s = summary || {};
   const top = (alerts.alerts || []).slice(0, 4);
 
@@ -113,7 +96,7 @@ export default function DashboardPage() {
               <tbody id="hospitalsTableBody">
                 {error ? (
                   <tr><td colSpan={7} style={{ textAlign: 'center', color: '#DC2626' }}>{error}</td></tr>
-                ) : hospitals === null ? (
+                ) : loading && !stats ? (
                   <tr><td colSpan={7} className="empty-state">Loading hospitals…</td></tr>
                 ) : !hospitals.length ? (
                   <tr><td colSpan={7} className="empty-state">No hospitals assigned to you yet.</td></tr>
@@ -167,7 +150,7 @@ export default function DashboardPage() {
                 </tr>
               </thead>
               <tbody id="revenueTableBody">
-                {hospitals === null && !error ? (
+                {loading && !stats && !error ? (
                   <tr><td colSpan={6} className="empty-state">Loading subscription revenue data…</td></tr>
                 ) : !revenueList.length ? (
                   <tr><td colSpan={6} className="empty-state">No subscription revenue data found for this region.</td></tr>
@@ -194,7 +177,7 @@ export default function DashboardPage() {
           <div id="alertsPreview" className="alert-list" aria-live="polite">
             {error ? (
               <p className="empty-state" style={{ color: '#DC2626' }}>{error}</p>
-            ) : hospitals === null ? (
+            ) : loading && !stats ? (
               <p className="empty-state">Loading alerts…</p>
             ) : !top.length ? (
               <p className="empty-state">No performance alerts — all hospitals are within normal thresholds.</p>
