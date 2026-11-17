@@ -1,9 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import Header from '../../components/layout/Header';
 import { Modal } from '../../components/ui';
-import { Hospitals } from '../../api';
 import { useToast } from '../../context/ToastContext';
 import useConfirm from '../../hooks/useConfirm';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchHospitalApprovals,
+  reviewHospital,
+  selectRoApprovals,
+  setApprovalFilter,
+} from '../../store/regionalOfficerSlice';
 import '../../styles/regional-console.css';
 
 // regional-officer/hospital-approvals.html + hospital-approvals.js.
@@ -29,24 +35,16 @@ const reviewNote = (h) => (
 export default function HospitalApprovalsPage() {
   const { notify } = useToast();
   const { ask, dialog } = useConfirm();
-  const [hospitals, setHospitals] = useState(null);
-  const [error, setError] = useState('');
-  const [status, setStatus] = useState('pending_verification');
+  const dispatch = useAppDispatch();
+  const { list: hospitals, filter: status, loading, error } = useAppSelector(selectRoApprovals);
   const [term, setTerm] = useState('');
   const [busyId, setBusyId] = useState(null);
   // The `prompt()` for a rejection reason, as a small dialog.
   const [reject, setReject] = useState(null); // { hospital, notes }
 
   useEffect(() => {
-    let cancelled = false;
-    Hospitals.getReviewQueue()
-      .then((res) => { if (!cancelled) setHospitals(res.data || []); })
-      .catch((err) => {
-        console.error(err);
-        if (!cancelled) setError('Could not load registrations. Check that the backend is running.');
-      });
-    return () => { cancelled = true; };
-  }, []);
+    dispatch(fetchHospitalApprovals());
+  }, [dispatch]);
 
   const count = (st) => (hospitals || []).filter((h) => normalise(h.verificationStatus) === st).length;
 
@@ -63,8 +61,7 @@ export default function HospitalApprovalsPage() {
     const name = hospital.name || hospital.id;
     setBusyId(hospital.id);
     try {
-      await Hospitals.regionalReview(hospital.id, action, notes);
-      setHospitals((list) => list.map((h) => (h.id === hospital.id ? { ...h, regionalReviewStatus: action } : h)));
+      await dispatch(reviewHospital({ id: hospital.id, decision: action, notes })).unwrap();
       notify(`${name} ${action === 'cleared' ? 'sent to the superuser for final approval' : 'review rejected'} successfully`, 'success');
     } catch (err) {
       console.error(err);
@@ -103,7 +100,7 @@ export default function HospitalApprovalsPage() {
             <div className="stat-card" key={st}>
               <div className="stat-info">
                 <p className="stat-label">{lbl}</p>
-                <p className="stat-value">{hospitals ? count(st) : '--'}</p>
+                <p className="stat-value">{loading && !hospitals.length ? '--' : count(st)}</p>
               </div>
             </div>
           ))}
@@ -114,7 +111,7 @@ export default function HospitalApprovalsPage() {
             <h2 className="section-title" style={{ margin: 0 }}>Registrations</h2>
           </div>
           <div className="toolbar" style={{ padding: '0 20px' }}>
-            <select id="statusFilter" value={status} onChange={(e) => setStatus(e.target.value)}>
+            <select id="statusFilter" value={status} onChange={(e) => dispatch(setApprovalFilter(e.target.value))}>
               <option value="pending_verification">Awaiting review</option>
               <option value="all">All statuses</option>
               <option value="verified">Verified</option>
@@ -136,7 +133,7 @@ export default function HospitalApprovalsPage() {
             <tbody id="approvalsTableBody">
               {error ? (
                 <tr><td colSpan={6} style={{ textAlign: 'center', color: '#DC2626' }}>{error}</td></tr>
-              ) : hospitals === null ? (
+              ) : loading && !hospitals.length ? (
                 <tr><td colSpan={6} style={{ textAlign: 'center', color: '#6A7282' }}>Loading registrations...</td></tr>
               ) : !rows.length ? (
                 <tr><td colSpan={6} style={{ textAlign: 'center', color: '#6A7282' }}>No registrations match this filter.</td></tr>
