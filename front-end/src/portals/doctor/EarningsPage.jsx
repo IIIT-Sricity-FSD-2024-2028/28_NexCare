@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '../../components/layout/Header';
 import { KpiTile, Panel, PageHeader } from '../../components/ui';
-import { Revenue } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchDoctorEarnings, updateConsultationFee, selectDoctorEarnings } from '../../store/doctorSlice';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { money, plural } from '../../utils/format';
@@ -13,23 +14,14 @@ import { money, plural } from '../../utils/format';
 export default function EarningsPage() {
   const { updateUser } = useAuth();
   const { notify } = useToast();
-  const [earnings, setEarnings] = useState(null);
-  const [error, setError] = useState('');
+  const dispatch = useAppDispatch();
+  const { data: earnings, error } = useAppSelector(selectDoctorEarnings);
   const [fee, setFee] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const load = useCallback(async () => {
-    setError('');
-    try {
-      const res = await Revenue.myEarnings();
-      setEarnings(res?.data || null);
-      setFee(String(res?.data?.consultationFee ?? ''));
-    } catch (err) {
-      setError(err.message || 'Could not load your earnings. Check that the backend is running.');
-    }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { dispatch(fetchDoctorEarnings()); }, [dispatch]);
+  // Pre-fill the input whenever the stored fee changes.
+  useEffect(() => { setFee(String(earnings?.consultationFee ?? '')); }, [earnings?.consultationFee]);
 
   async function saveFee(e) {
     e.preventDefault();
@@ -40,12 +32,12 @@ export default function EarningsPage() {
     }
     setSaving(true);
     try {
-      await Revenue.updateMyConsultationFee(consultationFee);
+      await dispatch(updateConsultationFee(consultationFee)).unwrap();
       updateUser({ consultationFee });
       notify('Consultation fee updated', 'success');
-      await load();
+      dispatch(fetchDoctorEarnings());
     } catch (err) {
-      notify(err.message || 'Could not save your fee', 'error');
+      notify(err || 'Could not save your fee', 'error');
     } finally {
       setSaving(false);
     }

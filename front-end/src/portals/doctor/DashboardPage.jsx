@@ -5,40 +5,35 @@ import { KpiTile, Panel, StatusPill, EmptyRow, PageHeader } from '../../componen
 import AppointmentActions from '../../features/appointments/AppointmentActions';
 import ReferPatientModal from '../../features/appointments/ReferPatientModal';
 import { useAppointmentActions } from '../../features/appointments/useAppointmentActions';
-import { Appointments, Revenue } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchDoctorAppointments, fetchDoctorStats, fetchDoctorEarnings,
+  selectDoctorAppointmentsState, selectDoctorEarnings,
+} from '../../store/doctorSlice';
 import { useAuth } from '../../context/AuthContext';
 import { money, todayLabel, appointmentTime, plural } from '../../utils/format';
 
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [stats, setStats] = useState(null);
-  const [appointments, setAppointments] = useState([]);
-  const [earnings, setEarnings] = useState(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const { list: appointments, stats, loading: aptLoading, error } = useAppSelector(selectDoctorAppointmentsState);
+  const { data: earnings } = useAppSelector(selectDoctorEarnings);
+  const [loaded, setLoaded] = useState(false);
   const [referTarget, setReferTarget] = useState(null);
 
+  // Earnings is its own thunk, so a failure there never blanks the schedule.
   const load = useCallback(async () => {
-    setError('');
-    try {
-      const [statsRes, listRes] = await Promise.all([Appointments.myStats(), Appointments.mine()]);
-      setStats(statsRes?.data || {});
-      setAppointments(Array.isArray(listRes?.data) ? listRes.data : []);
-    } catch (err) {
-      setError(err.message || 'Could not load your schedule. Check that the backend is running.');
-    }
-    // Earnings is its own call so a failure there never blanks the schedule.
-    try {
-      const res = await Revenue.myEarnings();
-      setEarnings(res?.data || null);
-    } catch {
-      setEarnings(null);
-    }
-    setLoading(false);
-  }, []);
+    await Promise.all([
+      dispatch(fetchDoctorStats()),
+      dispatch(fetchDoctorAppointments()),
+      dispatch(fetchDoctorEarnings()),
+    ]);
+    setLoaded(true);
+  }, [dispatch]);
 
   useEffect(() => { load(); }, [load]);
+  const loading = !loaded || (aptLoading && appointments.length === 0);
 
   const { act, busyId } = useAppointmentActions(load);
 
