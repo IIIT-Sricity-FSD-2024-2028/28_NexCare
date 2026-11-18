@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import Header from '../../components/layout/Header';
 import { Panel, StatusPill, EmptyRow, PageHeader } from '../../components/ui';
-import { Leaves } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchDoctorLeaves, requestLeave, deleteLeave, selectDoctorLeaves } from '../../store/doctorSlice';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import useConfirm from '../../hooks/useConfirm';
@@ -15,27 +16,17 @@ export default function LeavesPage() {
   const { user } = useAuth();
   const { notify } = useToast();
   const { ask, dialog } = useConfirm();
-  const [leaves, setLeaves] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const dispatch = useAppDispatch();
+  const { list: leaves, loading, error } = useAppSelector(selectDoctorLeaves);
   const [form, setForm] = useState({ startDate: '', endDate: '', reason: '' });
   const [submitting, setSubmitting] = useState(false);
 
   const today = isoDate();
 
-  const load = useCallback(async () => {
-    if (!user) return;
-    setError('');
-    try {
-      const res = await Leaves.list({ doctorId: user.id });
-      const list = Array.isArray(res?.data) ? res.data : [];
-      setLeaves(list.sort((a, b) => String(b.startDate).localeCompare(String(a.startDate))));
-    } catch (err) {
-      setError(err.message || 'Could not load your leave requests. Check that the backend is running.');
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
+  const load = useCallback(() => {
+    if (user?.id) return dispatch(fetchDoctorLeaves(user.id));
+    return undefined;
+  }, [dispatch, user?.id]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -51,18 +42,18 @@ export default function LeavesPage() {
 
     setSubmitting(true);
     try {
-      await Leaves.create({
+      await dispatch(requestLeave({
         doctorId: user.id,
         doctorName: user.name,
         hospitalId: user.hospitalId || '',
         startDate, endDate, reason,
-      });
+      })).unwrap();
       notify('Leave request submitted — your manager will review it', 'success');
       setForm({ startDate: '', endDate: '', reason: '' });
       await load();
     } catch (err) {
       // The guard returns 409 when an approved leave already covers these dates.
-      notify(err.message || 'Could not submit the request', 'error');
+      notify(err || 'Could not submit the request', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -73,11 +64,10 @@ export default function LeavesPage() {
     // the last one still raising a native window.confirm.
     if (!(await ask('Withdraw this leave request?', { title: 'Withdraw leave', confirmLabel: 'Withdraw', danger: true }))) return;
     try {
-      await Leaves.remove(id);
+      await dispatch(deleteLeave(id)).unwrap();
       notify('Leave request withdrawn', 'success');
-      await load();
     } catch (err) {
-      notify(err.message || 'Could not withdraw the request', 'error');
+      notify(err || 'Could not withdraw the request', 'error');
     }
   }
 
@@ -118,7 +108,7 @@ export default function LeavesPage() {
             </thead>
             <tbody>
               {error && <EmptyRow colSpan={6} error>{error}</EmptyRow>}
-              {!error && loading && <EmptyRow colSpan={6}>Loading…</EmptyRow>}
+              {!error && loading && leaves.length === 0 && <EmptyRow colSpan={6}>Loading…</EmptyRow>}
               {!error && !loading && leaves.length === 0 && <EmptyRow colSpan={6}>No leave requested yet.</EmptyRow>}
               {!error && leaves.map((l) => (
                 <tr key={l.id}>
