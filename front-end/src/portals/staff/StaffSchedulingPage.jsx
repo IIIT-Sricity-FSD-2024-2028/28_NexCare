@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Leaves, Schedules, Users } from '../../api';
+import { Schedules } from '../../api';
 import { useToast } from '../../context/ToastContext';
 import { errorMessage, useHospitalId } from './staffData';
 import useConfirm from '../../hooks/useConfirm';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchSchedules, createSchedule, selectSchedules,
+} from '../../store/staffSlice';
 
 // administrative_staff/staff_scheduling.html + staff_scheduling.js: the
 // weekly department accordion (doctors' saved rosters, approved leaves laid
@@ -87,10 +91,8 @@ export default function StaffSchedulingPage() {
   const { ask, dialog } = useConfirm();
   const [weekStart, setWeekStart] = useState(() => getStartOfWeek(new Date(2026, 8, 1))); // Default around 01 Sep 2026
   const [expanded, setExpanded] = useState(() => new Set(['Cardiology', 'Orthopedics', 'Orthopaedics', 'Neurology', 'General Medicine']));
-  const [doctors, setDoctors] = useState([]);
-  const [schedules, setSchedules] = useState([]);
-  const [leaves, setLeaves] = useState([]);
-  const [loaded, setLoaded] = useState(false);
+  const dispatch = useAppDispatch();
+  const { list: schedules, doctors, leaves, loaded } = useAppSelector(selectSchedules);
   const [modal, setModal] = useState(null); // { validFrom, validTo, notes, slots: [{department, shift}] }
   const [submitting, setSubmitting] = useState(false);
 
@@ -98,27 +100,7 @@ export default function StaffSchedulingPage() {
     if (!hospitalId) notify('Error: You are not assigned to a hospital.', 'error');
   }, [hospitalId, notify]);
 
-  const load = useCallback(async () => {
-    try {
-      const schedResp = await Schedules.getAll({ hospitalId });
-      setSchedules(schedResp.data || []);
-
-      const usersResp = await Users.getAll({ role: 'doctor', hospitalId });
-      let list = Array.isArray(usersResp.data) ? usersResp.data : [];
-      if (list.length === 0) {
-        const all = (await Users.getAll()).data;
-        if (Array.isArray(all)) list = all.filter((u) => (u.role || '').toLowerCase() === 'doctor');
-      }
-      setDoctors(list);
-
-      const leavesResp = await Leaves.getAll({ hospitalId, status: 'approved' });
-      setLeaves((Array.isArray(leavesResp.data) ? leavesResp.data : []).filter((l) => l.status === 'approved'));
-    } catch (err) {
-      console.error('Error fetching scheduling and leaves data:', err);
-    } finally {
-      setLoaded(true);
-    }
-  }, [hospitalId]);
+  const load = useCallback(() => dispatch(fetchSchedules()), [dispatch]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -172,7 +154,7 @@ export default function StaffSchedulingPage() {
     if (!slots.length) { notify('Add at least one department shift.', 'warning'); return; }
     setSubmitting(true);
     try {
-      await Schedules.create({ hospitalId, validFrom: modal.validFrom, validTo: modal.validTo, slots, notes: modal.notes.trim() });
+      await dispatch(createSchedule({ hospitalId, validFrom: modal.validFrom, validTo: modal.validTo, slots, notes: modal.notes.trim() })).unwrap();
       setModal(null);
       await load();
     } catch (err) {

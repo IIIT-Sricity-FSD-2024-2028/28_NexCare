@@ -1,9 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Inventory } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { errorMessage, logActivity, useHospitalId } from './staffData';
+import { errorMessage, logActivity } from './staffData';
 import useConfirm from '../../hooks/useConfirm';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchInventory, fetchRequisitions, restockItem, consumeInventoryItem, createRequisition, selectInventory,
+} from '../../store/staffSlice';
 
 // administrative_staff/inventory.html + inventory.js: the stock table with
 // restock / use / audit-trail / delete, and the requisition workflow with the
@@ -64,40 +68,25 @@ function requisitionView(r) {
 }
 
 export default function InventoryPage() {
-  const hospitalId = useHospitalId();
   const { user } = useAuth();
   const { notify } = useToast();
   const { ask, dialog } = useConfirm();
-  const [inventory, setInventory] = useState([]);
-  const [loadError, setLoadError] = useState(false);
+  const dispatch = useAppDispatch();
+  const inv = useAppSelector(selectInventory);
+  const inventory = useMemo(() => inv.items.map(normalizeRow).filter(Boolean), [inv.items]);
+  const loadError = Boolean(inv.error);
   const [search, setSearch] = useState('');
-  const [requisitions, setRequisitions] = useState(null); // null = loading
-  const [reqError, setReqError] = useState(false);
+  const requisitions = inv.requisitions; // null = loading
+  const reqError = Boolean(inv.requisitionsError);
   const [modal, setModal] = useState(null); // { kind, item?, req?, form }
 
-  const loadInventory = useCallback(async () => {
-    try {
-      const resp = await Inventory.getAll({ hospitalId });
-      setInventory((resp.data || []).map(normalizeRow).filter(Boolean));
-      setLoadError(false);
-    } catch (err) {
-      console.error('Error loading inventory:', err);
-      notify('Failed to load inventory. Please check your connection and try again.', 'error');
-      setLoadError(true);
-    }
-  }, [hospitalId, notify]);
+  const loadInventory = useCallback(
+    () => dispatch(fetchInventory()).unwrap()
+      .catch(() => notify('Failed to load inventory. Please check your connection and try again.', 'error')),
+    [dispatch, notify],
+  );
 
-  const loadRequisitions = useCallback(async () => {
-    try {
-      const resp = await Inventory.getRequirements({ hospitalId });
-      setRequisitions(resp.data || []);
-      setReqError(false);
-    } catch (err) {
-      console.error('Failed to load requisitions:', err);
-      setRequisitions([]);
-      setReqError(true);
-    }
-  }, [hospitalId]);
+  const loadRequisitions = useCallback(() => dispatch(fetchRequisitions()), [dispatch]);
 
   useEffect(() => { loadInventory(); loadRequisitions(); }, [loadInventory, loadRequisitions]);
 
@@ -155,13 +144,13 @@ export default function InventoryPage() {
     const quantity = Number(f.quantity);
     if (!quantity || quantity <= 0 || !Number.isInteger(quantity)) { notify('Please enter a valid positive integer quantity to add.', 'warning'); return; }
     try {
-      await Inventory.restock(item.id, {
+      await dispatch(restockItem({ id: item.id, data: {
         quantity,
         supplier: (f.supplier || '').trim() || undefined,
         batchNumber: (f.batch || '').trim() || undefined,
         notes: (f.notes || '').trim() || undefined,
         restockedBy: user?.id || user?.email || 'ADMIN',
-      });
+      } })).unwrap();
       logActivity('Restock', 'Inventory', `Restocked ${item.name}: +${quantity} units (new total: ${item.qty + quantity})`);
       close();
       await loadInventory();
@@ -182,7 +171,7 @@ export default function InventoryPage() {
     if (!quantity || quantity <= 0 || !Number.isInteger(quantity)) { notify('Please enter a valid positive integer quantity to consume.', 'warning'); return; }
     if (quantity > item.qty) { notify(`Cannot use ${quantity} units. Only ${item.qty} units available.`, 'warning'); return; }
     try {
-      await Inventory.use(item.id, { quantity, notes: (f.notes || '').trim() || undefined });
+      await dispatch(consumeInventoryItem({ id: item.id, usage: { quantity, notes: (f.notes || '').trim() || undefined } })).unwrap();
       logActivity('Use', 'Inventory', `Used ${item.name}: -${quantity} units (remaining: ${item.qty - quantity})`);
       close();
       await loadInventory();
@@ -214,7 +203,7 @@ export default function InventoryPage() {
       return;
     }
     try {
-      await Inventory.createRequirement({
+      await dispatch(createRequisition({
         itemName,
         category,
         department: f.department,
@@ -223,7 +212,7 @@ export default function InventoryPage() {
         priority: f.priority || 'MEDIUM',
         estimatedCost: Number(f.estimatedCost) || 0,
         reason,
-      });
+      })).unwrap();
       notify('Inventory requirement submitted to Hospital Manager for approval!', 'success');
       close();
       loadRequisitions();

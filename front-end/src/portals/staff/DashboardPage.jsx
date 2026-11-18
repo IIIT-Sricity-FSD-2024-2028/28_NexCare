@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Appointments, Beds, Feedback, Users } from '../../api';
 import { useDialogs } from '../../components/ui/Dialogs';
 import { useToast } from '../../context/ToastContext';
-import { useHospitalId } from './staffData';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchBeds, fetchPatientDirectory, fetchStaffAppointments, fetchStaffFeedback,
+  selectBeds, selectStaffAppointments, selectStaffFeedback, selectStaffPatients,
+} from '../../store/staffSlice';
 
 // administrative_staff/dashboard.html + dashboard.js.
 
@@ -16,76 +19,66 @@ function statusClass(status) {
 }
 
 export default function DashboardPage() {
-  const hospitalId = useHospitalId();
+  const dispatch = useAppDispatch();
   const { showLoading } = useDialogs();
   const { notify } = useToast();
-  const [stats, setStats] = useState({ patients: '--', todayAppts: '--', beds: null, alerts: null });
-  const [appointments, setAppointments] = useState([]);
+  const { list: patients } = useAppSelector(selectStaffPatients);
+  const { list: all } = useAppSelector(selectStaffAppointments);
+  const { list: beds } = useAppSelector(selectBeds);
+  const { list: feedbacks } = useAppSelector(selectStaffFeedback);
+  const [loaded, setLoaded] = useState(false);
   const [search, setSearch] = useState('');
 
+  // Four thunks, one per slice key. A failed one just leaves its list empty,
+  // as the old per-call .catch(() => ({ data: [] })) did.
   useEffect(() => {
     let cancelled = false;
     const hideLoading = showLoading('Loading dashboard data...');
-    (async () => {
-      try {
-        const [patientsResp, apptResp, bedsResp, feedbackResp] = await Promise.all([
-          Users.getAll({ role: 'patient' }).catch(() => ({ data: [] })),
-          Appointments.getAll({ hospitalId }).catch(() => ({ data: [] })),
-          Beds.getAll({ hospitalId }).catch(() => ({ data: [] })),
-          Feedback.getAll({ hospitalId }).catch(() => ({ data: [] })),
-        ]);
-        if (cancelled) return;
-        const patients = patientsResp.data || [];
-        const all = apptResp.data || [];
-        const beds = bedsResp.data || [];
-        const feedbacks = feedbackResp.data || [];
-
-        // "Today's" appointments — dashboard.js matched the current month and
-        // year inside dateLabel, not the day.
-        const now = new Date();
-        const year = String(now.getFullYear());
-        const month = now.toLocaleString('default', { month: 'long' });
-        const todays = all.filter((a) => a.dateLabel && a.dateLabel.includes(year) && a.dateLabel.includes(month));
-
-        let bedStat = null;
-        if (beds.length > 0) {
-          const available = beds.filter((b) => b.status && b.status.toLowerCase() === 'available').length;
-          const percent = Math.round((available / beds.length) * 100);
-          bedStat = { text: `${available}/${beds.length}`, trend: `${percent}% available`, cls: percent > 20 ? 'trend success' : 'trend down' };
-        }
-
-        const open = feedbacks.filter((f) => {
-          const status = (f.status || '').toLowerCase();
-          return status === 'open' || status === 'pending' || !f.status;
-        }).length;
-
-        setStats({
-          patients: patients.length,
-          todayAppts: todays.length,
-          beds: bedStat,
-          alerts: { count: open, trend: open > 0 ? 'Needs Attention' : 'All clear', cls: open > 0 ? 'trend down' : 'trend success' },
-        });
-
-        // The real full name from the patient record, newest first.
-        const rows = all.map((appt) => {
-          const record = patients.find((p) => p.id === appt.patientId);
-          return { ...appt, patientName: record ? record.fullName : (appt.patientName || 'Unknown') };
-        });
-        rows.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        setAppointments(rows);
-      } catch (err) {
-        console.error('Dashboard load failed:', err);
-        if (!cancelled) {
-          notify('Failed to load dashboard data. Please refresh the page.', 'error');
-          setStats((s) => ({ ...s, patients: 'N/A', todayAppts: 'N/A' }));
-        }
-      } finally {
-        hideLoading();
-      }
-    })();
+    Promise.all([fetchPatientDirectory, fetchStaffAppointments, fetchBeds, fetchStaffFeedback].map((t) => dispatch(t())))
+      .then((results) => {
+        if (!cancelled && results.every((r) => r.error)) notify('Failed to load dashboard data. Please refresh the page.', 'error');
+      })
+      .finally(() => { hideLoading(); if (!cancelled) setLoaded(true); });
     return () => { cancelled = true; hideLoading(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hospitalId]);
+  }, [dispatch]);
+
+  const stats = useMemo(() => {
+    if (!loaded) return { patients: '--', todayAppts: '--', beds: null, alerts: null };
+    // "Today's" appointments — dashboard.js matched the current month and
+    // year inside dateLabel, not the day.
+    const now = new Date();
+    const year = String(now.getFullYear());
+    const month = now.toLocaleString('default', { month: 'long' });
+    const todays = all.filter((a) => a.dateLabel && a.dateLabel.includes(year) && a.dateLabel.includes(month));
+
+    let bedStat = null;
+    if (beds.length > 0) {
+      const available = beds.filter((b) => b.status && b.status.toLowerCase() === 'available').length;
+      const percent = Math.round((available / beds.length) * 100);
+      bedStat = { text: `${available}/${beds.length}`, trend: `${percent}% available`, cls: percent > 20 ? 'trend success' : 'trend down' };
+    }
+
+    const open = feedbacks.filter((f) => {
+      const status = (f.status || '').toLowerCase();
+      return status === 'open' || status === 'pending' || !f.status;
+    }).length;
+
+    return {
+      patients: patients.length,
+      todayAppts: todays.length,
+      beds: bedStat,
+      alerts: { count: open, trend: open > 0 ? 'Needs Attention' : 'All clear', cls: open > 0 ? 'trend down' : 'trend success' },
+    };
+  }, [loaded, all, beds, feedbacks, patients]);
+
+  // The real full name from the patient record, newest first.
+  const appointments = useMemo(() => all
+    .map((appt) => {
+      const record = patients.find((p) => p.id === appt.patientId);
+      return { ...appt, patientName: record ? record.fullName : (appt.patientName || 'Unknown') };
+    })
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)), [all, patients]);
 
   const filtered = useMemo(() => {
     const term = search.toLowerCase();

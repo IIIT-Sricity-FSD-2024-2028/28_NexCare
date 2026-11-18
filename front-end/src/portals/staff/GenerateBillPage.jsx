@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Ambulance, Appointments, Beds, Billing, Users } from '../../api';
+import { Ambulance, Appointments, Beds, Users } from '../../api';
 import { useToast } from '../../context/ToastContext';
 import { errorMessage, findPatient, logActivity, useHospitalId } from './staffData';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchBills, fetchPatientDirectory, generateBill, selectStaffBilling, selectStaffPatients,
+} from '../../store/staffSlice';
 
 // administrative_staff/generate-bill.html + billing.js.
 
@@ -31,38 +35,35 @@ function wardLineItem(bed) {
 export default function GenerateBillPage() {
   const hospitalId = useHospitalId();
   const { notify } = useToast();
-  const [bills, setBills] = useState([]);
-  const [loadError, setLoadError] = useState(false);
+  const dispatch = useAppDispatch();
+  const billing = useAppSelector(selectStaffBilling);
+  const { list: patients } = useAppSelector(selectStaffPatients);
+  const loadError = Boolean(billing.error);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [modal, setModal] = useState(null); // { patientId, name, items: [{description, amount}] }
   const [view, setView] = useState(null); // a bill row
   const [busy, setBusy] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      const [billsResp, patientsResp] = await Promise.all([Billing.getAll({ hospitalId }), Users.getAll({ role: 'patient' })]);
-      const patients = patientsResp.data || [];
-      setBills((billsResp.data || []).map((db) => {
-        const patient = patients.find((p) => p.id === db.patientId || p.patientId === db.patientId);
-        return {
-          id: db.id,
-          patientId: db.patientId,
-          patient: patient ? (patient.fullName || patient.name) : (db.patientName || 'Unknown Patient'),
-          date: db.visitDate || db.date || '',
-          services: db.items && db.items.length > 0 ? db.items[0].description : 'Medical Services',
-          amount: db.subtotal || db.amount || 0,
-          status: db.status || 'Pending',
-          payment: db.payments && db.payments.length > 0 ? 'Paid' : '-',
-        };
-      }));
-      setLoadError(false);
-    } catch (err) {
-      console.error('Error loading bills:', err);
-      notify('Failed to load bills. Please check your connection and try again.', 'error');
-      setLoadError(true);
-    }
-  }, [hospitalId, notify]);
+  const bills = useMemo(() => billing.bills.map((db) => {
+    const patient = patients.find((p) => p.id === db.patientId || p.patientId === db.patientId);
+    return {
+      id: db.id,
+      patientId: db.patientId,
+      patient: patient ? (patient.fullName || patient.name) : (db.patientName || 'Unknown Patient'),
+      date: db.visitDate || db.date || '',
+      services: db.items && db.items.length > 0 ? db.items[0].description : 'Medical Services',
+      amount: db.subtotal || db.amount || 0,
+      status: db.status || 'Pending',
+      payment: db.payments && db.payments.length > 0 ? 'Paid' : '-',
+    };
+  }), [billing.bills, patients]);
+
+  const load = useCallback(
+    () => Promise.all([dispatch(fetchBills()).unwrap(), dispatch(fetchPatientDirectory()).unwrap()])
+      .catch(() => notify('Failed to load bills. Please check your connection and try again.', 'error')),
+    [dispatch, notify],
+  );
 
   useEffect(() => { load(); }, [load]);
 
@@ -149,7 +150,7 @@ export default function GenerateBillPage() {
         items: modal.items.map((item) => ({ description: item.description, department: 'Administrative', amount: Number(item.amount) })),
       };
       if (hospitalId) payload.hospitalId = hospitalId;
-      await Billing.create(payload);
+      await dispatch(generateBill(payload)).unwrap();
       logActivity('Create', 'Billing', `Admin generated new bill for ${modal.name} (ID: ${patient.id})`);
       setModal(null);
       await load();
