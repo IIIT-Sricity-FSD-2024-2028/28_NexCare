@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import Header from '../../components/layout/Header';
 import { Panel, PageHeader } from '../../components/ui';
 import { Auth } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchDoctorProfile, selectDoctorProfile } from '../../store/doctorSlice';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { money } from '../../utils/format';
@@ -14,18 +16,16 @@ import { money } from '../../utils/format';
 export default function ProfilePage() {
   const { user } = useAuth();
   const { notify } = useToast();
-  const [record, setRecord] = useState(user);
+  const dispatch = useAppDispatch();
+  const { data: fetched } = useAppSelector(selectDoctorProfile);
+  // Falls back to the cached session until (or if) the fetch succeeds.
+  const record = fetched ? { ...user, ...fetched } : user;
   const [pw, setPw] = useState({ current: '', next: '' });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    if (!user?.id) return undefined;
-    Auth.getCurrentUser(user.id)
-      .then((res) => { if (!cancelled && res?.data) setRecord({ ...user, ...res.data }); })
-      .catch(() => { /* fall back to the cached session */ });
-    return () => { cancelled = true; };
-  }, [user]);
+    if (user?.id) dispatch(fetchDoctorProfile(user.id));
+  }, [dispatch, user?.id]);
 
   async function changePassword(e) {
     e.preventDefault();
