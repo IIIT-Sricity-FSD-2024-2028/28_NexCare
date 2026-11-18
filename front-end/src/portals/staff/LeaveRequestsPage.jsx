@@ -3,6 +3,10 @@ import { Leaves, Users } from '../../api';
 import { useToast } from '../../context/ToastContext';
 import { useHospitalId } from './staffData';
 import useConfirm from '../../hooks/useConfirm';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchLeaveRequests, createLeaveRequest, selectLeaveRequests,
+} from '../../store/staffSlice';
 
 // administrative_staff/leave-requests.html + leave-requests.js.
 //
@@ -24,7 +28,8 @@ export default function LeaveRequestsPage() {
   const hospitalId = useHospitalId();
   const { notify } = useToast();
   const { ask, dialog } = useConfirm();
-  const [leaves, setLeaves] = useState([]);
+  const dispatch = useAppDispatch();
+  const { list: leaves } = useAppSelector(selectLeaveRequests);
   const [staff, setStaff] = useState(null); // null = loading
   const [status, setStatus] = useState('all');
   const [term, setTerm] = useState('');
@@ -32,16 +37,11 @@ export default function LeaveRequestsPage() {
   const [view, setView] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const loadLeaves = useCallback(async () => {
-    try {
-      const res = await Leaves.getAll(hospitalId ? { hospitalId } : {});
-      setLeaves(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
-      console.warn('Failed to load leaves from backend:', error);
-      notify('Failed to load leave requests. Please check your connection and try again.', 'error');
-      setLeaves([]);
-    }
-  }, [hospitalId, notify]);
+  const loadLeaves = useCallback(
+    () => dispatch(fetchLeaveRequests()).unwrap()
+      .catch(() => notify('Failed to load leave requests. Please check your connection and try again.', 'error')),
+    [dispatch, notify],
+  );
 
   // The staff directory powers the "who is this leave for" dropdown.
   const loadStaff = useCallback(async () => {
@@ -80,8 +80,7 @@ export default function LeaveRequestsPage() {
     const payload = { doctorId: staffId, doctorName: member ? member.name : 'Unknown', hospitalId: hospitalId || undefined, startDate, endDate, reason };
     setSubmitting(true);
     try {
-      const res = await Leaves.create(payload);
-      if (res.data) setLeaves((prev) => [res.data, ...prev]);
+      await dispatch(createLeaveRequest(payload)).unwrap();
       setForm(null);
       notify('Leave request recorded successfully', 'success');
     } catch (error) {
@@ -101,7 +100,7 @@ export default function LeaveRequestsPage() {
       notify(error?.message || 'Failed to withdraw request', 'error');
       return;
     }
-    setLeaves((prev) => prev.filter((l) => l.id !== leaveId));
+    loadLeaves();
     notify('Leave request withdrawn', 'success');
   }
 
