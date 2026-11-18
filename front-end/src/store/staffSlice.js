@@ -167,7 +167,9 @@ const initialState = () => ({
 const track = (builder, asyncThunk, key, apply) => {
   builder
     .addCase(asyncThunk.pending, (state) => { state[key].loading = true; state[key].error = null; })
-    .addCase(asyncThunk.rejected, (state, { payload }) => { state[key].loading = false; state[key].error = payload; })
+    .addCase(asyncThunk.rejected, (state, { payload }) => { state[key].loading = false; state[key].error = payload;
+      if ('loaded' in state[key]) state[key].loaded = true; // schedules: stop the spinner on failure too
+    })
     .addCase(asyncThunk.fulfilled, (state, { payload }) => { state[key].loading = false; apply(state[key], payload); });
 };
 
@@ -205,7 +207,6 @@ const staffSlice = createSlice({
         state.inventory.requisitionsError = payload;
       })
       .addCase(fetchRequisitions.fulfilled, (state, { payload }) => { state.inventory.requisitions = payload; })
-      .addCase(fetchSchedules.rejected, (state) => { state.schedules.loaded = true; })
       .addCase(updateBedStatus.fulfilled, (state, { payload }) => {
         const bed = state.beds.list.find((b) => b.id === payload.id);
         if (bed) bed.status = payload.status;
