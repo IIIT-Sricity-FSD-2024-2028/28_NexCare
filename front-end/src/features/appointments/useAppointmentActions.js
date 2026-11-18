@@ -1,12 +1,15 @@
 import { useCallback, useState } from 'react';
-import { Appointments } from '../../api';
 import { useToast } from '../../context/ToastContext';
+import { useAppDispatch } from '../../store/hooks';
+import { updateAppointmentStatus } from '../../store/doctorSlice';
 
 /**
- * Confirm / complete an appointment, then let the page reload its data.
- * Both the dashboard and the appointment list had a copy of this `act()`.
+ * Confirm / complete an appointment through the doctor slice. The slice
+ * patches the row's status in place; `reload` (optional) refreshes anything
+ * derived on the server, such as the dashboard stats.
  */
 export function useAppointmentActions(reload) {
+  const dispatch = useAppDispatch();
   const { notify } = useToast();
   const [busyId, setBusyId] = useState(null);
 
@@ -14,16 +17,16 @@ export function useAppointmentActions(reload) {
     async (id, verb) => {
       setBusyId(id);
       try {
-        await Appointments[verb](id);
+        await dispatch(updateAppointmentStatus({ id, verb })).unwrap();
         notify(verb === 'confirm' ? 'Appointment confirmed' : 'Consultation marked complete', 'success');
-        await reload();
+        if (reload) await reload();
       } catch (err) {
-        notify(err.message || 'Could not update the appointment', 'error');
+        notify(typeof err === 'string' ? err : err?.message || 'Could not update the appointment', 'error');
       } finally {
         setBusyId(null);
       }
     },
-    [notify, reload],
+    [dispatch, notify, reload],
   );
 
   return { act, busyId };
