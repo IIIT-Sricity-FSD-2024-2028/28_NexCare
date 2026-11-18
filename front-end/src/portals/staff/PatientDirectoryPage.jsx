@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Uploads, Users } from '../../api';
+import { Uploads } from '../../api';
 import { useToast } from '../../context/ToastContext';
 import useConfirm from '../../hooks/useConfirm';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchPatientDirectory, selectStaffPatients,
+} from '../../store/staffSlice';
 
 // administrative_staff/patient-directory.html + patient-directory.js: the
 // read-only patient table and the per-patient documents modal (uploads go
@@ -15,23 +19,17 @@ function formatSize(bytes) {
 
 export default function PatientDirectoryPage() {
   const { notify } = useToast();
-  const [patients, setPatients] = useState([]);
+  const dispatch = useAppDispatch();
+  const { list: patients } = useAppSelector(selectStaffPatients);
   const [loading, setLoading] = useState(true);
   const [term, setTerm] = useState('');
   const [docs, setDocs] = useState(null); // { patientId, patientName }
 
   useEffect(() => {
-    let cancelled = false;
-    Users.getAll({ role: 'patient' })
-      .then((resp) => { if (!cancelled) setPatients(resp.data || []); })
-      .catch((err) => {
-        console.error('Failed to load patients:', err);
-        if (!cancelled) { notify('Failed to load patients. Please check your connection and try again.', 'error'); setPatients([]); }
-      })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    dispatch(fetchPatientDirectory()).unwrap()
+      .catch(() => notify('Failed to load patients. Please check your connection and try again.', 'error'))
+      .finally(() => setLoading(false));
+  }, [dispatch, notify]);
 
   const q = term.toLowerCase().trim();
   const filtered = patients.filter((p) =>

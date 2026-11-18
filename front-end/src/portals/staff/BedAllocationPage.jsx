@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Beds, Users } from '../../api';
+import { Beds } from '../../api';
 import { useToast } from '../../context/ToastContext';
-import { errorMessage, findPatient, patientName, useHospitalId } from './staffData';
+import { errorMessage, findPatient, patientName } from './staffData';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchBeds, fetchPatientDirectory, allocateBed, setWard as setWardAction, selectBeds, selectStaffPatients,
+} from '../../store/staffSlice';
 
 // administrative_staff/bed-allocation.html + bed.js.
 
@@ -60,29 +64,22 @@ async function applyStatusChange(bed, target, patient) {
 }
 
 export default function BedAllocationPage() {
-  const hospitalId = useHospitalId();
   const { notify } = useToast();
-  const [beds, setBeds] = useState([]);
-  const [patients, setPatients] = useState([]);
-  const [ward, setWard] = useState('Emergency');
+  const dispatch = useAppDispatch();
+  const { list: beds, ward } = useAppSelector(selectBeds);
+  const { list: patients } = useAppSelector(selectStaffPatients);
+  const setWard = (w) => dispatch(setWardAction(w));
   const [view, setView] = useState('grid');
   const [search, setSearch] = useState('');
   const [update, setUpdate] = useState(null); // { bedId, patientId, patientName, status, error }
   const [admit, setAdmit] = useState(null); // { patientId, name, ward }
 
-  const load = useCallback(async () => {
-    try {
-      const [bedsResp, patientsResp] = await Promise.all([Beds.getAll({ hospitalId }), Users.getAll({ role: 'patient' })]);
-      const list = bedsResp.data || [];
-      setBeds(list);
-      setPatients(patientsResp.data || []);
-      const wards = [...new Set(list.map((b) => b.ward))];
-      setWard((w) => (wards.length && !wards.includes(w) ? wards[0] : w));
-    } catch (err) {
-      console.error('Failed to load bed allocation data:', err);
-      notify('Failed to load bed data. Please check your connection and try again.', 'error');
-    }
-  }, [hospitalId, notify]);
+  // fetchBeds also snaps `ward` to a real ward when the current one has no beds.
+  const load = useCallback(
+    () => Promise.all([dispatch(fetchBeds()).unwrap(), dispatch(fetchPatientDirectory()).unwrap()])
+      .catch(() => notify('Failed to load bed data. Please check your connection and try again.', 'error')),
+    [dispatch, notify],
+  );
 
   useEffect(() => { load(); }, [load]);
 
@@ -160,7 +157,7 @@ export default function BedAllocationPage() {
     const availableBed = beds.find((b) => b.ward === admit.ward && b.status && b.status.toLowerCase() === 'available');
     if (!availableBed) { notify(`No available beds in ${admit.ward} Ward.`, 'warning'); return; }
     try {
-      await Beds.allocate(availableBed.id, { patientId: name });
+      await dispatch(allocateBed({ id: availableBed.id, allocation: { patientId: name } })).unwrap();
       await load();
       setAdmit(null);
       notify(`Successfully admitted ${name} to Bed ${availableBed.id} in ${admit.ward} Ward.`, 'success');

@@ -2,13 +2,16 @@ import { useState } from 'react';
 import { Users } from '../../api';
 import { useToast } from '../../context/ToastContext';
 import { findPatient, logActivity, patientName } from './staffData';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  CHECKIN_KEY, patientCheckedIn, checkinsUpdated, selectCheckins,
+} from '../../store/staffSlice';
 
 // administrative_staff/patient_checkin.html + patient_checkin.js.
 //
 // Check-ins are runtime-only: the HTML page kept them in sessionStorage under
 // `nexcare_checkins_session` and never sent them to the backend. Same key
 // here, so a tab that checked patients in on the HTML page still lists them.
-const CHECKIN_KEY = 'nexcare_checkins_session';
 
 function readCheckins() {
   try { return JSON.parse(sessionStorage.getItem(CHECKIN_KEY) || '[]'); } catch { return []; }
@@ -20,7 +23,8 @@ const timeNow = () => new Date().toLocaleTimeString([], { hour: '2-digit', minut
 
 export default function PatientCheckinPage() {
   const { notify } = useToast();
-  const [checkins, setCheckins] = useState(readCheckins);
+  const dispatch = useAppDispatch();
+  const checkins = useAppSelector(selectCheckins);
   const [patientId, setPatientId] = useState('');
   const [purpose, setPurpose] = useState('');
   const [busy, setBusy] = useState(false);
@@ -29,7 +33,7 @@ export default function PatientCheckinPage() {
 
   function save(list) {
     writeCheckins(list);
-    setCheckins(list);
+    dispatch(checkinsUpdated(list));
   }
 
   async function handleCheckin() {
@@ -70,7 +74,8 @@ export default function PatientCheckinPage() {
         location: 'Reception',
         history: [{ label: 'Reception', time: now, state: 'completed' }],
       };
-      save([entry, ...current]);
+      writeCheckins([entry, ...current]);
+      dispatch(patientCheckedIn(entry));
       logActivity('Create', 'Patient Check-in', `Patient ${displayName} checked in for: ${why}`);
       notify(`Successfully checked in patient ${displayName} for ${why}`, 'success');
       setPatientId('');

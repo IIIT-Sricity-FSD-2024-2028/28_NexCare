@@ -24,7 +24,7 @@ export function patientName(p) {
 
 /** `alert()`-style server errors: the ApiError message, else the page's own fallback. */
 export function errorMessage(err, fallback) {
-  return (err && err.message) || fallback;
+  return (typeof err === 'string' && err) || (err && err.message) || fallback;
 }
 
 // NexCareStore.logActivity() moved to features/activity/ once the superuser

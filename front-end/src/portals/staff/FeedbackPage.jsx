@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Feedback } from '../../api';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useToast } from '../../context/ToastContext';
-import { useHospitalId } from './staffData';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchStaffFeedback, selectStaffFeedback,
+} from '../../store/staffSlice';
 
 // administrative_staff/feedback.html + feedback.js: read-only feedback list
 // with a details modal.
@@ -11,31 +13,28 @@ function Stars({ rating }) {
 }
 
 export default function FeedbackPage() {
-  const hospitalId = useHospitalId();
   const { notify } = useToast();
-  const [rows, setRows] = useState([]);
+  const dispatch = useAppDispatch();
+  const { list } = useAppSelector(selectStaffFeedback);
   const [term, setTerm] = useState('');
   const [type, setType] = useState('All');
   const [view, setView] = useState(null);
 
-  const load = useCallback(async () => {
-    try {
-      const resp = await Feedback.getAll({ hospitalId });
-      setRows((resp.data || []).map((f) => ({
-        id: f.id,
-        date: f.createdAt ? f.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
-        type: f.type || 'Patient',
-        sender: f.sender || 'Anonymous',
-        rating: f.rating || 0,
-        subject: f.subject || 'Feedback',
-        comment: f.summary || f.description || '',
-      })));
-    } catch (err) {
-      console.error('Failed to load feedback:', err);
-      notify('Failed to load feedback. Please check your connection and try again.', 'error');
-      setRows([]);
-    }
-  }, [hospitalId, notify]);
+  const rows = useMemo(() => list.map((f) => ({
+    id: f.id,
+    date: f.createdAt ? f.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+    type: f.type || 'Patient',
+    sender: f.sender || 'Anonymous',
+    rating: f.rating || 0,
+    subject: f.subject || 'Feedback',
+    comment: f.summary || f.description || '',
+  })), [list]);
+
+  const load = useCallback(
+    () => dispatch(fetchStaffFeedback()).unwrap()
+      .catch(() => notify('Failed to load feedback. Please check your connection and try again.', 'error')),
+    [dispatch, notify],
+  );
 
   useEffect(() => { load(); }, [load]);
 

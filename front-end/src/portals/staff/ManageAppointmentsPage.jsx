@@ -1,7 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Appointments, Users } from '../../api';
 import { useToast } from '../../context/ToastContext';
-import { errorMessage, logActivity, useHospitalId } from './staffData';
+import { errorMessage, logActivity } from './staffData';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchStaffAppointments, selectStaffAppointments,
+} from '../../store/staffSlice';
 
 // administrative_staff/manage_appointments.html + manage_appointments.js.
 //
@@ -45,9 +49,9 @@ function toTimeLabel(value) {
 }
 
 export default function ManageAppointmentsPage() {
-  const hospitalId = useHospitalId();
   const { notify } = useToast();
-  const [rows, setRows] = useState([]);
+  const dispatch = useAppDispatch();
+  const { list } = useAppSelector(selectStaffAppointments);
   const [term, setTerm] = useState('');
   const [status, setStatus] = useState('All');
   const [pendingDelete, setPendingDelete] = useState(null); // id whose row shows confirm/cancel
@@ -56,25 +60,22 @@ export default function ManageAppointmentsPage() {
   const [doctors, setDoctors] = useState({ state: 'idle', list: [] });
   const [saving, setSaving] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      const resp = await Appointments.getAll({ hospitalId });
-      setRows((resp.data || []).map((a) => ({
-        id: a.id,
-        patient: a.patientName || 'Unknown Patient',
-        patientId: a.patientId || 'N/A',
-        doctor: a.doctor || 'TBD',
-        dept: a.department || 'General',
-        date: a.dateLabel || 'Unscheduled',
-        time: a.timeLabel || 'TBD',
-        status: a.status || 'Pending',
-      })));
-    } catch (err) {
-      console.error('Failed to load appointments:', err);
-      notify('Failed to load appointments. Please check your connection and try again.', 'error');
-      setRows([]);
-    }
-  }, [hospitalId, notify]);
+  const rows = useMemo(() => list.map((a) => ({
+    id: a.id,
+    patient: a.patientName || 'Unknown Patient',
+    patientId: a.patientId || 'N/A',
+    doctor: a.doctor || 'TBD',
+    dept: a.department || 'General',
+    date: a.dateLabel || 'Unscheduled',
+    time: a.timeLabel || 'TBD',
+    status: a.status || 'Pending',
+  })), [list]);
+
+  const load = useCallback(
+    () => dispatch(fetchStaffAppointments()).unwrap()
+      .catch(() => notify('Failed to load appointments. Please check your connection and try again.', 'error')),
+    [dispatch, notify],
+  );
 
   useEffect(() => { load(); }, [load]);
 
