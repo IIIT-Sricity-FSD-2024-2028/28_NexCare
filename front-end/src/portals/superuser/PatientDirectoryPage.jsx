@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Users } from '../../api';
+import { useEffect, useMemo, useState } from 'react';
 import { useToast } from '../../context/ToastContext';
 import useConfirm from '../../hooks/useConfirm';
 import logActivity from '../../features/activity/logActivity';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { deleteUser, fetchAllUsers, selectAllUsers } from '../../store/superuserSlice';
 import { ICONS, MessageRow, SuPage } from './suShared';
 
 // superuser/patient-directory.html + patient-directory.js: every patient
@@ -24,21 +25,12 @@ function toRow(u) {
 export default function PatientDirectoryPage() {
   const { notify } = useToast();
   const { ask, dialog } = useConfirm();
-  const [patients, setPatients] = useState(null);
+  const dispatch = useAppDispatch();
+  const { list: users, loading, error } = useAppSelector(selectAllUsers);
   const [term, setTerm] = useState('');
 
-  const fetchPatients = useCallback(async () => {
-    setPatients(null);
-    try {
-      const res = await Users.getAll();
-      setPatients((res.data || []).filter((u) => u.role === 'patient').map(toRow));
-    } catch (e) {
-      console.error('Failed to fetch patients from API:', e);
-      setPatients([]);
-    }
-  }, []);
-
-  useEffect(() => { fetchPatients(); }, [fetchPatients]);
+  useEffect(() => { dispatch(fetchAllUsers()); }, [dispatch]);
+  const patients = users?.filter((u) => u.role === 'patient').map(toRow) || [];
 
   const rows = useMemo(() => {
     const t = term.toLowerCase().trim();
@@ -52,15 +44,13 @@ export default function PatientDirectoryPage() {
   async function deletePatient(p) {
     if (!(await ask('WARNING: Are you sure you want to permanently delete this patient from the NexCare records?', { title: 'Delete patient', confirmLabel: 'OK', danger: true }))) return;
     try {
-      // Delete the user account (cascades patient records on backend)
-      await Users.delete(p._userId);
+      await dispatch(deleteUser(p._userId)).unwrap();
       logActivity('Delete', 'Patient Directory', `Full deletion of patient: ${p.fullName} (ID: ${p.id})`);
+      notify('Patient deleted successfully', 'success');
     } catch (err) {
       console.error('Delete patient failed:', err);
-      notify('Failed to delete patient. Please try again.', 'error');
-      return;
+      notify(err?.message || 'Failed to delete patient. Please try again.', 'error');
     }
-    fetchPatients();
   }
 
   return (
@@ -83,8 +73,10 @@ export default function PatientDirectoryPage() {
             </tr>
           </thead>
           <tbody id="patientsTableBody">
-            {patients === null ? (
+            {loading ? (
               <MessageRow colSpan={6}>Loading patients…</MessageRow>
+            ) : error ? (
+              <MessageRow colSpan={6} padding={30} color="#DC2626">{error}</MessageRow>
             ) : !rows.length ? (
               <MessageRow colSpan={6} padding={30}>No patients found.</MessageRow>
             ) : rows.map((p) => {

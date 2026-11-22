@@ -47,9 +47,23 @@ export const fetchRegistrations = run(
   'fetchRegistrations',
   async () => {
     const [hospitals, users] = await Promise.all([Hospitals.getAll(), Users.getAll()]);
+    const list = dataOf(hospitals, []);
+    const officerList = dataOf(users, []).filter((user) => user.role === 'regional_manager');
+    const cityKeys = [...new Set(list
+      .map((hospital) => String(hospital.city || '').trim())
+      .filter(Boolean))];
+    const suggestionEntries = await Promise.all(cityKeys.map(async (city) => {
+      try {
+        const response = await Users.suggestRegionalManagers(city);
+        return [String(city).trim().toLowerCase(), dataOf(response, [])];
+      } catch {
+        return [String(city).trim().toLowerCase(), []];
+      }
+    }));
     return {
-      list: dataOf(hospitals, []),
-      officers: dataOf(users, []).filter((user) => user.role === 'regional_manager'),
+      list,
+      officers: officerList,
+      suggestions: Object.fromEntries(suggestionEntries),
     };
   },
   'Could not load hospital registrations.',
@@ -126,7 +140,19 @@ export const updateSystemSettings = run(
 
 export const fetchSuFeedback = run(
   'fetchFeedback',
-  async () => dataOf(await Feedback.getAll(), []),
+  async () => {
+    const [feedback, hospitals] = await Promise.all([
+      Feedback.getAll(),
+      Hospitals.getAll(),
+    ]);
+    const names = Object.fromEntries(
+      dataOf(hospitals, []).map((hospital) => [hospital.id, hospital.name]),
+    );
+    return dataOf(feedback, []).map((item) => ({
+      ...item,
+      hospitalName: names[item.hospitalId] || item.hospitalName || item.hospitalId || 'Unknown Hospital',
+    }));
+  },
   'Could not load feedback.',
 );
 
@@ -175,6 +201,20 @@ export const updatePricingRates = run(
   'Could not update pricing rates.',
 );
 
+export const updateHospitalPlan = run(
+  'updateHospitalPlan',
+  async ({ planId, monthlyFee }) =>
+    dataOf(await Revenue.updateHospitalPlan(planId, { monthlyFee }), { planId, monthlyFee }),
+  'Could not update the hospital plan.',
+);
+
+export const updatePatientPlan = run(
+  'updatePatientPlan',
+  async ({ planId, monthlyFee }) =>
+    dataOf(await Revenue.updatePatientPlan(planId, { monthlyFee }), { planId, monthlyFee }),
+  'Could not update the patient plan.',
+);
+
 export const fetchReports = run(
   'fetchReports',
   async () => {
@@ -212,7 +252,7 @@ export const fetchReports = run(
 
 const initialState = {
   dashboard: { stats: null, activity: [], loading: false, error: null },
-  registrations: { list: [], officers: [], credentials: null, loading: false, error: null },
+  registrations: { list: [], officers: [], suggestions: {}, credentials: null, loading: false, error: null },
   patients: { list: [], loading: false, error: null },
   users: { list: [], loading: false, error: null },
   settings: { config: null, loading: false, error: null },
@@ -262,6 +302,7 @@ const superuserSlice = createSlice({
       .addCase(fetchRegistrations.fulfilled, (state, action) => {
         state.registrations.list = action.payload.list;
         state.registrations.officers = action.payload.officers;
+        state.registrations.suggestions = action.payload.suggestions;
         state.registrations.loading = false;
       })
       .addCase(approveRegistration.fulfilled, (state, action) => {
@@ -315,6 +356,18 @@ const superuserSlice = createSlice({
       .addCase(updatePricingRates.fulfilled, (state, action) => {
         if (state.revenue.data) state.revenue.data.fees = action.payload;
         state.revenue.loading = false;
+      })
+      .addCase(updateHospitalPlan.fulfilled, (state, action) => {
+        if (state.revenue.data) {
+          const plan = state.revenue.data.hospitalPlans.find((item) => item.id === action.payload.planId);
+          if (plan) plan.monthlyFee = action.payload.monthlyFee;
+        }
+      })
+      .addCase(updatePatientPlan.fulfilled, (state, action) => {
+        if (state.revenue.data) {
+          const plan = state.revenue.data.patientPlans.find((item) => item.id === action.payload.planId);
+          if (plan) plan.monthlyFee = action.payload.monthlyFee;
+        }
       })
       .addCase(fetchReports.fulfilled, (state, action) => {
         state.reports.data = action.payload;

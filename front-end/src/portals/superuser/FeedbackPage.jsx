@@ -1,6 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Feedback, Hospitals } from '../../api';
+import { useEffect, useMemo, useState } from 'react';
 import useConfirm from '../../hooks/useConfirm';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  deleteFeedback as deleteFeedbackAction,
+  fetchSuFeedback,
+  selectSuFeedback,
+} from '../../store/superuserSlice';
 import { ICONS, MessageRow, Stars, SuPage } from './suShared';
 
 // superuser/feedback.html + feedback.js: every feedback entry on the platform
@@ -17,12 +22,14 @@ function toRow(f, hospMap) {
     rating: f.rating || 0,
     subject: f.subject || 'Feedback',
     comment: f.summary || f.description || '',
-    hospitalName: hospMap[f.hospitalId] || f.hospitalId || 'Unknown Hospital',
+    hospitalName: f.hospitalName || hospMap[f.hospitalId] || f.hospitalId || 'Unknown Hospital',
   };
 }
 
 export default function FeedbackPage() {
   const { ask, dialog } = useConfirm();
+  const dispatch = useAppDispatch();
+  const { list: feedbackRows, loading, error } = useAppSelector(selectSuFeedback);
   const [items, setItems] = useState(null);
   const [hospitalOptions, setHospitalOptions] = useState([]);
   const [term, setTerm] = useState('');
@@ -30,22 +37,15 @@ export default function FeedbackPage() {
   const [hospital, setHospital] = useState('All');
   const [viewing, setViewing] = useState(null);
 
-  const load = useCallback(async () => {
-    try {
-      const [resp, hospResp] = await Promise.all([Feedback.getAll(), Hospitals.getAll()]);
-      const hospMap = {};
-      (hospResp.data || []).forEach((h) => { hospMap[h.id] = h.name; });
-      const rows = (resp.data || []).map((f) => toRow(f, hospMap));
-      setItems(rows);
-      // Populate hospital filter dropdown if empty
-      setHospitalOptions((opts) => (opts.length ? opts : [...new Set(rows.map((f) => f.hospitalName))].sort()));
-    } catch (err) {
-      console.error('Failed to load feedback:', err);
-      setItems([]);
-    }
-  }, []);
+  useEffect(() => { dispatch(fetchSuFeedback()); }, [dispatch]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const rows = (feedbackRows || []).map((feedback) => toRow(feedback, {}));
+    setItems(rows);
+    setHospitalOptions((opts) => opts.length
+      ? opts
+      : [...new Set(rows.map((row) => row.hospitalName))].sort());
+  }, [feedbackRows]);
 
   const rows = useMemo(() => {
     const t = term.toLowerCase();
@@ -60,11 +60,10 @@ export default function FeedbackPage() {
   async function deleteFeedback(id) {
     if (!(await ask('WARNING: Are you sure you want to permanently delete this feedback?', { title: 'Delete feedback', confirmLabel: 'OK', danger: true }))) return;
     try {
-      await Feedback.delete(id);
+      await dispatch(deleteFeedbackAction(id)).unwrap();
     } catch (err) {
       console.error('Delete feedback failed:', err);
     }
-    load();
   }
 
   return (
@@ -96,8 +95,10 @@ export default function FeedbackPage() {
             </tr>
           </thead>
           <tbody id="feedbackTableBody">
-            {items === null ? (
+            {loading || items === null ? (
               <MessageRow colSpan={8}>Loading feedback…</MessageRow>
+            ) : error ? (
+              <MessageRow colSpan={8} padding={30} color="#DC2626">{error}</MessageRow>
             ) : !rows.length ? (
               <MessageRow colSpan={7} padding={30}>No feedback entries found.</MessageRow>
             ) : rows.map((f) => (

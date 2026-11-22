@@ -1,6 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Revenue } from '../../api';
+import { useEffect, useState } from 'react';
 import { useToast } from '../../context/ToastContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchPlatformRevenue,
+  selectPlatformRevenue,
+  setRevenueTab,
+  updateHospitalPlan,
+  updatePatientPlan,
+  updatePricingRates,
+} from '../../store/superuserSlice';
 import { money, shortDate, SuPage } from './suShared';
 
 // superuser/revenue.html + revenue.js — NexCare's own revenue model.
@@ -62,56 +70,36 @@ const feeInput = { width: 120, fontSize: 22, fontWeight: 700, color: '#2563EB', 
 
 export default function RevenuePage() {
   const { notify } = useToast();
-  const [tab, setTab] = useState('streams');
-  const [data, setData] = useState(null); // the snapshot; null while loading
-  const [failed, setFailed] = useState(false);
+  const dispatch = useAppDispatch();
+  const revenueState = useAppSelector(selectPlatformRevenue);
+  const tab = revenueState.tab;
+  const data = revenueState.data;
+  const failed = Boolean(revenueState.error);
   const [hospFees, setHospFees] = useState({});
   const [patFees, setPatFees] = useState({});
   const [feeForm, setFeeForm] = useState({});
   const [openRegions, setOpenRegions] = useState({});
 
-  const load = useCallback(async () => {
-    const settle = (p) => p.then((r) => r.data).catch(() => null);
-    try {
-      const [overview, trend, streams, hospitalPlans, hospitalSubs, patientPlans, patientSubs, fees, regions] = await Promise.all([
-        Revenue.getPlatformOverview().then((r) => r.data),
-        settle(Revenue.getPlatformTrend(6)),
-        settle(Revenue.getPlatformStreams()),
-        settle(Revenue.getHospitalPlans()),
-        settle(Revenue.getHospitalSubscriptions()),
-        settle(Revenue.getPatientPlans()),
-        settle(Revenue.getPatientSubscriptions()),
-        settle(Revenue.getFees()),
-        settle(Revenue.getRegionalOfficerOverview()),
-      ]);
-      const snap = {
-        overview, trend: trend || [], streams,
-        hospitalPlans: hospitalPlans || [], hospitalSubs: hospitalSubs || [],
-        patientPlans: patientPlans || [], patientSubs: patientSubs || [], fees, regions,
-      };
-      setData(snap);
-      setFailed(false);
-      setHospFees(Object.fromEntries(snap.hospitalPlans.map((p) => [p.id, String(p.monthlyFee)])));
-      setPatFees(Object.fromEntries(snap.patientPlans.map((p) => [p.id, String(p.monthlyFee)])));
-      if (fees) {
-        setFeeForm(Object.fromEntries(FEE_FIELDS.map(([key, , kind]) =>
-          [key, kind === 'percent' ? (fees[key] * 100).toFixed(2) : String(fees[key])])));
-      }
-    } catch (err) {
-      console.error('Revenue load failed:', err);
-      setFailed(true);
-      setData((d) => d || { overview: null, trend: [], streams: null, hospitalPlans: [], hospitalSubs: [], patientPlans: [], patientSubs: [], fees: null, regions: null });
-    }
-  }, []);
+  useEffect(() => { dispatch(fetchPlatformRevenue()); }, [dispatch]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    if (!data) return;
+    setHospFees(Object.fromEntries((data.hospitalPlans || []).map((plan) =>
+      [plan.id, String(plan.monthlyFee)])));
+    setPatFees(Object.fromEntries((data.patientPlans || []).map((plan) =>
+      [plan.id, String(plan.monthlyFee)])));
+    if (data.fees) {
+      setFeeForm(Object.fromEntries(FEE_FIELDS.map(([key, , kind]) =>
+        [key, kind === 'percent' ? (data.fees[key] * 100).toFixed(2) : String(data.fees[key])])));
+    }
+  }, [data]);
 
   /** Run a pricing change, report it, and reload every figure on the page. */
   async function apply(action, successMessage) {
     try {
       await action();
       notify(successMessage, 'success');
-      await load();
+      await dispatch(fetchPlatformRevenue()).unwrap();
       return true;
     } catch (err) {
       console.error(err);
@@ -123,13 +111,13 @@ export default function RevenuePage() {
   async function saveHospitalPlanFee(planId) {
     const monthlyFee = Number(hospFees[planId]);
     if (!Number.isFinite(monthlyFee) || monthlyFee < 0) { notify('Enter a valid monthly fee', 'error'); return; }
-    await apply(() => Revenue.updateHospitalPlan(planId, { monthlyFee }), 'Hospital plan repriced');
+    await apply(() => dispatch(updateHospitalPlan({ planId, monthlyFee })).unwrap(), 'Hospital plan repriced');
   }
 
   async function savePatientPlanFee(planId) {
     const monthlyFee = Number(patFees[planId]);
     if (!Number.isFinite(monthlyFee) || monthlyFee < 0) { notify('Enter a valid monthly fee', 'error'); return; }
-    await apply(() => Revenue.updatePatientPlan(planId, { monthlyFee }), 'Membership tier repriced');
+    await apply(() => dispatch(updatePatientPlan({ planId, monthlyFee })).unwrap(), 'Membership tier repriced');
   }
 
   async function saveFees() {
@@ -139,7 +127,7 @@ export default function RevenuePage() {
       if (!Number.isFinite(raw) || raw < 0) { notify(`${label} must be a number that is not negative`, 'error'); return; }
       changes[key] = kind === 'percent' ? raw / 100 : raw;
     }
-    await apply(() => Revenue.updateFees(changes), 'Pricing updated — reports re-priced');
+    await apply(() => dispatch(updatePricingRates(changes)).unwrap(), 'Pricing updated — reports re-priced');
   }
 
   const d = data;
@@ -503,7 +491,7 @@ export default function RevenuePage() {
 
       <div className="tab-container" id="revenueTabs">
         {TABS.map(([key, label]) => (
-          <button key={key} type="button" className={`tab-btn${tab === key ? ' active' : ''}`} data-tab={key} onClick={() => setTab(key)}>{label}</button>
+          <button key={key} type="button" className={`tab-btn${tab === key ? ' active' : ''}`} data-tab={key} onClick={() => dispatch(setRevenueTab(key))}>{label}</button>
         ))}
       </div>
 

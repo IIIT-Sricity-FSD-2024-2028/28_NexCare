@@ -1,7 +1,14 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Hospitals, Users } from '../../api';
+import { useEffect, useMemo, useState } from 'react';
 import { pageLink } from '../../api/links';
 import { useToast } from '../../context/ToastContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  approveRegistration,
+  assignManager,
+  fetchRegistrations,
+  rejectRegistration,
+  selectRegistrations,
+} from '../../store/superuserSlice';
 import { MessageRow, SuPage } from './suShared';
 
 // superuser/hospital-registrations.html + hospital-registrations.js: every
@@ -53,52 +60,20 @@ const grey = { padding: '9px 16px', borderRadius: 8, background: '#F1F5F9', colo
 
 export default function HospitalRegistrationsPage() {
   const { notify } = useToast();
-  const [hospitals, setHospitals] = useState(null);
-  const [officers, setOfficers] = useState([]);
-  const [error, setError] = useState('');
+  const dispatch = useAppDispatch();
+  const {
+    list: hospitals,
+    officers,
+    suggestions: officerSuggestions,
+    loading,
+    error,
+  } = useAppSelector(selectRegistrations);
   const [term, setTerm] = useState('');
-  const [tick, setTick] = useState(0); // bumps when the suggestion cache fills
   const [creds, setCreds] = useState(null); // { email, password, hospitalName }
   const [copied, setCopied] = useState(false);
   const [reject, setReject] = useState(null); // { id, name, reason, error, busy }
-  // One request per distinct city, cached for the page. The backend ranks by
-  // area coverage first, then by current workload, so the dropdown order IS
-  // the recommendation — the page does no ranking of its own.
-  const suggestions = useRef(new Map());
+  useEffect(() => { dispatch(fetchRegistrations()); }, [dispatch]);
 
-  const loadHospitals = useCallback(async () => {
-    setError('');
-    try {
-      const hRes = await Hospitals.getAll();
-      const list = (hRes.data || []).slice().sort(byQueueOrder);
-      // Fetch Regional Officers for dropdown.
-      let ros = [];
-      try {
-        const uRes = await Users.getAll();
-        ros = (uRes.data || []).filter((u) => u.role === 'regional_manager');
-      } catch { /* the dropdown falls back to nothing */ }
-      const cities = [...new Set(list.map((h) => String(h.city || '').trim()).filter(Boolean))]
-        .filter((city) => !suggestions.current.has(cityKey(city)));
-      await Promise.all(cities.map(async (city) => {
-        try {
-          const res = await Users.suggestRegionalManagers(city);
-          if (Array.isArray(res.data)) suggestions.current.set(cityKey(city), res.data);
-        } catch (err) {
-          // A failed suggestion must not stop the table rendering; the
-          // dropdown falls back to the plain officer list below.
-          console.warn(`Could not load RM suggestions for ${city}:`, err.message);
-        }
-      }));
-      setOfficers(ros);
-      setHospitals(list);
-      setTick((t) => t + 1);
-    } catch (err) {
-      setError(`Error loading data. ${err.message}`);
-      setHospitals([]);
-    }
-  }, []);
-
-  useEffect(() => { loadHospitals(); }, [loadHospitals]);
 
   const officerMap = useMemo(() => {
     const map = new Map();
@@ -111,8 +86,9 @@ export default function HospitalRegistrationsPage() {
 
   const rows = useMemo(() => {
     const t = term.toLowerCase().trim();
-    if (!t) return hospitals || [];
-    return (hospitals || []).filter((h) =>
+    const sorted = (hospitals || []).slice().sort(byQueueOrder);
+    if (!t) return sorted;
+    return sorted.filter((h) =>
       (h.name && h.name.toLowerCase().includes(t))
       || (h.city && h.city.toLowerCase().includes(t))
       || (h.registrationNumber && h.registrationNumber.toLowerCase().includes(t))
@@ -125,7 +101,7 @@ export default function HospitalRegistrationsPage() {
    * the Admin is never left with an empty dropdown.
    */
   function suggestionsFor(city) {
-    const cached = suggestions.current.get(cityKey(city));
+    const cached = officerSuggestions?.[cityKey(city)];
     if (cached) return cached.map((r) => ({ ...r, coversCity: covers(r.areas, city) }));
     return officers.map((ro) => ({
       regionalManagerId: ro.id, regionalManagerName: ro.name, regionalManagerEmail: ro.email,
@@ -136,9 +112,8 @@ export default function HospitalRegistrationsPage() {
   async function assignRegionalOfficer(hospitalId, managerId) {
     if (!managerId) return;
     try {
-      await Hospitals.assignManager(hospitalId, managerId);
+      await dispatch(assignManager({ id: hospitalId, managerId })).unwrap();
       notify('Regional Officer assigned successfully!', 'success');
-      loadHospitals();
     } catch (err) {
       notify(err?.message || 'Could not assign officer', 'error');
     }
@@ -146,13 +121,17 @@ export default function HospitalRegistrationsPage() {
 
   async function verifyHospital(h) {
     try {
-      const res = await Hospitals.approve(h.id);
-      if (res.data && res.data.email && res.data.password) {
+      const result = await dispatch(approveRegistration(h.id)).unwrap();
+      if (result.credentials && result.credentials.email && result.credentials.password) {
         setCopied(false);
-        setCreds({ email: res.data.email, password: res.data.password, hospitalName: res.data.hospitalName || h.name || 'Registered Hospital' });
+        setCreds({
+          email: result.credentials.email,
+          password: result.credentials.password,
+          hospitalName: result.credentials.hospitalName || h.name || 'Registered Hospital',
+        });
       } else {
         notify('Hospital Approved Successfully!', 'success');
-        loadHospitals();
+        dispatch(fetchRegistrations());
       }
     } catch (err) {
       notify(err?.message || 'Failed to approve hospital', 'error');
@@ -167,10 +146,9 @@ export default function HospitalRegistrationsPage() {
     }
     setReject((r) => ({ ...r, busy: true }));
     try {
-      await Hospitals.rejectFinal(reject.id, reason);
+      await dispatch(rejectRegistration({ id: reject.id, reason })).unwrap();
       setReject(null);
       notify('Hospital registration rejected and reason logged.', 'info');
-      loadHospitals();
     } catch (err) {
       setReject(null);
       notify(err?.message || 'Failed to reject hospital', 'error');
@@ -244,10 +222,10 @@ export default function HospitalRegistrationsPage() {
               <th style={{ width: '13%', textAlign: 'center', paddingRight: 16 }}>Actions</th>
             </tr>
           </thead>
-          <tbody id="tableBody" data-tick={tick}>
+          <tbody id="tableBody">
             {error ? (
               <MessageRow colSpan={6} padding={24} color="#DC2626">{error}</MessageRow>
-            ) : hospitals === null ? (
+            ) : loading ? (
               <MessageRow colSpan={6} padding={24} color="#6A7282">Loading hospitals...</MessageRow>
             ) : !rows.length ? (
               <tr>
@@ -390,7 +368,7 @@ export default function HospitalRegistrationsPage() {
               <button type="button" id="copyCredsBtn" onClick={copyCredentials} style={{ padding: '10px 18px', borderRadius: 8, background: '#2563EB', color: '#fff', border: 'none', fontWeight: 600, fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 {copied ? '✓ Copied to Clipboard!' : '📋 Copy Credentials'}
               </button>
-              <button type="button" id="closeCredsBtn" onClick={() => { setCreds(null); loadHospitals(); }} style={{ ...grey, padding: '10px 18px' }}>Done</button>
+              <button type="button" id="closeCredsBtn" onClick={() => { setCreds(null); dispatch(fetchRegistrations()); }} style={{ ...grey, padding: '10px 18px' }}>Done</button>
             </div>
           </div>
         </div>

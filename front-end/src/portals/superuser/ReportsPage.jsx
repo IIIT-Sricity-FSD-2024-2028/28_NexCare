@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Ambulance, Beds, Feedback, Hospitals, Patients, Revenue, System, Users } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchReports, selectReports } from '../../store/superuserSlice';
 import { SuPage } from './suShared';
 
 // superuser/reports.html + reports.js — Analytics and Reports.
@@ -110,70 +111,16 @@ export default function ReportsPage() {
   const [params, setParams] = useSearchParams();
   const tab = TABS.some(([k]) => k === params.get('tab')) ? params.get('tab') : 'usage';
   const [range, setRange] = useState('30');
-  const [usage, setUsage] = useState(null);
-  const [perf, setPerf] = useState(null);
-  const [ops, setOps] = useState(null);
-  const [sec, setSec] = useState(null);
-  /** Round-trip timings collected by timed(), in call order. */
-  const samples = useRef([]);
-  const [latency, setLatency] = useState([]);
+  const dispatch = useAppDispatch();
+  const { data: reportData, loading, error } = useAppSelector(selectReports);
 
-  /** Time one API call; a failure records a red bar and yields null, never an invented value. */
-  const timed = useCallback(async (path, call) => {
-    const startedAt = performance.now();
-    try {
-      const res = await call();
-      samples.current.push({ path, ms: Math.round(performance.now() - startedAt), ok: true });
-      return res.data ?? null;
-    } catch (e) {
-      samples.current.push({ path, ms: Math.round(performance.now() - startedAt), ok: false });
-      console.warn(`API query ${path} failed:`, e);
-      return null;
-    }
-  }, []);
+  useEffect(() => { dispatch(fetchReports()); }, [dispatch, tab, range]);
 
-  // ============ USAGE & REVENUE ANALYTICS ============
-  const loadUsage = useCallback(async () => {
-    const [users, activities, streams, trend, patSubs, patPlans] = await Promise.all([
-      timed('/users', () => Users.getAll()),
-      timed('/system/activity/recent?limit=1000', () => System.getRecentActivity(1000)),
-      timed('/revenue/platform/streams', () => Revenue.getPlatformStreams()),
-      timed('/revenue/platform/trend?months=6', () => Revenue.getPlatformTrend(6)),
-      timed('/revenue/patient-subscriptions', () => Revenue.getPatientSubscriptions()),
-      timed('/revenue/patient-plans', () => Revenue.getPatientPlans()),
-    ]);
-    setUsage({ users: users || [], activities: activities || [], streams, trend: trend || [], patSubs: patSubs || [], patPlans: patPlans || [] });
-  }, [timed]);
-
-  // ============ SYSTEM PERFORMANCE ============
-  const loadPerformance = useCallback(async () => {
-    const health = await timed('/system/health', () => System.getHealth());
-    setPerf({ health });
-    setLatency(samples.current.slice(-8));
-  }, [timed]);
-
-  // ============ OPERATIONAL & EMERGENCY REPORTS ============
-  const loadOperational = useCallback(async () => {
-    const [patients, feedback, hospitals, beds, trips] = await Promise.all([
-      timed('/patients', () => Patients.getAll()),
-      timed('/feedback', () => Feedback.getAll()),
-      timed('/hospitals', () => Hospitals.getAll()),
-      timed('/beds', () => Beds.getAll()),
-      timed('/ambulance', () => Ambulance.getAll()),
-    ]);
-    setOps({ patients, feedback: feedback || [], hospitals: hospitals || [], beds: beds || [], trips: trips || [] });
-  }, [timed]);
-
-  // ============ SECURITY & AUDIT LOGS ============
-  const loadSecurity = useCallback(async () => {
-    const activities = await timed('/system/activity/recent?limit=1000', () => System.getRecentActivity(1000));
-    setSec({ available: activities !== null, activities: activities || [] });
-  }, [timed]);
-
-  const loaders = { usage: loadUsage, performance: loadPerformance, operational: loadOperational, security: loadSecurity };
-
-  // switchTab(): each tab reloads its own data when opened (and on the date-range change).
-  useEffect(() => { loaders[tab](); }, [tab, range]); // eslint-disable-line react-hooks/exhaustive-deps
+  const usage = reportData?.usage || null;
+  const perf = reportData?.performance || null;
+  const ops = reportData?.operational || null;
+  const sec = reportData?.security || null;
+  const latency = [];
 
   function switchTab(name) {
     setParams(name === 'usage' ? {} : { tab: name }, { replace: true });
