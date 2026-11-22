@@ -4,6 +4,8 @@ import { initials } from '../../utils/format';
 import { roleLabel, ROLES } from '../../utils/roles';
 import NotificationBell from './NotificationBell';
 import BackButton from './BackButton';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { selectSidebarOpen, toggleSidebar } from '../../store/uiSlice';
 
 /**
  * The sticky title bar every portal page shares (portal.js fillHeader()).
@@ -12,6 +14,8 @@ import BackButton from './BackButton';
  */
 export default function Header({ title, roleText }) {
   const { user, role } = useAuth();
+  const dispatch = useAppDispatch();
+  const sidebarOpen = useAppSelector(selectSidebarOpen);
   const label = roleText || roleLabel(role);
 
   const profileRoute = role === ROLES.SUPERUSER ? '/superuser/profile' :
@@ -23,6 +27,16 @@ export default function Header({ title, roleText }) {
   return (
     <header className="header">
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
+        <button
+          type="button"
+          className="sidebar-toggle"
+          aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+          aria-expanded={sidebarOpen}
+          onClick={() => dispatch(toggleSidebar())}
+          style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 6, color: 'inherit', fontSize: 18, lineHeight: 1 }}
+        >
+          {sidebarOpen ? '‹' : '›'}
+        </button>
         <BackButton />
         <span className="header-title">{title}</span>
       </span>

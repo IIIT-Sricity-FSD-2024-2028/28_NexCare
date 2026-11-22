@@ -6,12 +6,15 @@ import { useAuth } from '../../context/AuthContext';
 import { Hospitals } from '../../api';
 import { roleLabel } from '../../utils/roles';
 import { menuFor } from './navigation';
+import { useAppSelector } from '../../store/hooks';
+import { selectSidebarOpen } from '../../store/uiSlice';
 
 // front-end/shared/nav.js as a component: the role picks the menu, NavLink
 // handles the "active" class nav.js computed from window.location, and the
 // hospital name under the role tag is fetched once for anyone with a hospitalId.
 export default function Sidebar() {
   const { user, role, logout } = useAuth();
+  const sidebarOpen = useAppSelector(selectSidebarOpen);
   const navigate = useNavigate();
   const [hospitalName, setHospitalName] = useState(user?.hospitalName || '');
 
@@ -30,7 +33,7 @@ export default function Sidebar() {
   }
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
       <div className="sidebar-brand">
         <NexCareLogo scale={0.62} />
         <span className="sidebar-role-tag">{roleLabel(role)}</span>

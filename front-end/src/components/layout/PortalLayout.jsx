@@ -1,5 +1,8 @@
 import { Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
 import Sidebar from './Sidebar';
+import { useAppSelector } from '../../store/hooks';
+import { selectSidebarOpen } from '../../store/uiSlice';
 
 /**
  * Sidebar + the routed page. Each page renders its own <Header title /> so the
@@ -7,6 +10,13 @@ import Sidebar from './Sidebar';
  * hospital manager) wrap this with their stylesheet via `className`.
  */
 export default function PortalLayout({ className }) {
+  const sidebarOpen = useAppSelector(selectSidebarOpen);
+
+  useEffect(() => {
+    document.body.classList.toggle('sidebar-collapsed', !sidebarOpen);
+    return () => document.body.classList.remove('sidebar-collapsed');
+  }, [sidebarOpen]);
+
   return (
     <div className={className}>
       <Sidebar />
