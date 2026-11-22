@@ -209,7 +209,7 @@ export function StaffRegisterModal() {
   const staffModal = useAppSelector(selectHmUi).staffModalOpen;
   const hospitalId = user?.hospitalId || '';
   const hospitalName = hospital.name || user?.hospitalName || '';
-  const closeStaffModal = () => dispatch(closeStaffModal());
+  const closeModal = () => dispatch(closeStaffModal());
   const [form, setForm] = useState(() => blank('modal'));
   const email = useEmailPreview(form.name);
   const { submit, busy } = useRegisterStaff('modal');
@@ -220,13 +220,13 @@ export function StaffRegisterModal() {
 
   async function onSubmit(e) {
     e.preventDefault();
-    if (await submit(form)) closeStaffModal();
+    if (await submit(form)) closeModal();
   }
 
   return (
     <HmModal
       open={staffModal}
-      onClose={closeStaffModal}
+      onClose={closeModal}
       title="Register Hospital Staff Member"
       size="large"
       as="form"
@@ -234,7 +234,7 @@ export function StaffRegisterModal() {
       bodyStyle={{ overflowY: 'auto', flex: 1, padding: 24 }}
       footer={(
         <>
-          <button type="button" className="btn-secondary" onClick={closeStaffModal} disabled={busy}>Cancel</button>
+          <button type="button" className="btn-secondary" onClick={closeModal} disabled={busy}>Cancel</button>
           <button type="submit" className="btn-primary" style={{ padding: '10px 24px', fontSize: 14, fontWeight: 700 }} disabled={busy}>
             {busy ? 'Registering Staff...' : 'Submit Registration'}
           </button>

@@ -97,12 +97,13 @@ const mergeRequest = (state, payload) => {
   if (index >= 0) state.requests.list[index] = { ...state.requests.list[index], ...payload };
 };
 
-const initialState = {
+// A function, so the logout reset re-reads checklist/profile from sessionStorage.
+const initialState = () => ({
   requests: { list: [], loaded: false, loading: false, error: null },
   hospitalName: '',
   checklist: readJson(CHECKLIST_KEY),
   profile: readJson(PROFILE_KEY),
-};
+});
 
 const ambulanceSlice = createSlice({
   name: 'ambulance',
@@ -160,4 +161,4 @@ export const selectCompletedTransports = (state) =>
 export const selectChecklistComplete = (state) =>
   CHECKLIST_ITEMS.every((_, i) => state.ambulance.checklist[`checklist-${i}`]);
 
-export default ambulanceSlice.reducer;
+export default ambulanceSlice.reducer;
