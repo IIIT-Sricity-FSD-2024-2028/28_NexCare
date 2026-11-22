@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useToast } from '../../context/ToastContext';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchPlatformRevenue,
@@ -9,7 +8,7 @@ import {
   updatePatientPlan,
   updatePricingRates,
 } from '../../store/superuserSlice';
-import { money, shortDate, SuPage } from './suShared';
+import { money, shortDate, SuPage, useNotify } from './suShared';
 
 // superuser/revenue.html + revenue.js — NexCare's own revenue model.
 //
@@ -69,7 +68,7 @@ function Panel({ title, hint, hintId, flush, children }) {
 const feeInput = { width: 120, fontSize: 22, fontWeight: 700, color: '#2563EB', border: '1px solid #E5E7EB', borderRadius: 8, padding: '2px 8px' };
 
 export default function RevenuePage() {
-  const { notify } = useToast();
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const revenueState = useAppSelector(selectPlatformRevenue);
   const tab = revenueState.tab;

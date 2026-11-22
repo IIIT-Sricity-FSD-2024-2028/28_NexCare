@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useToast } from '../../context/ToastContext';
 import useConfirm from '../../hooks/useConfirm';
 import logActivity from '../../features/activity/logActivity';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -10,7 +9,7 @@ import {
   selectAllUsers,
   updateUser,
 } from '../../store/superuserSlice';
-import { MessageRow, SuPage } from './suShared';
+import { MessageRow, SuPage, useNotify } from './suShared';
 
 // superuser/manage-users.html + manage-users.js: every non-patient login
 // account, with an add/edit modal (POST / PUT /users) and a delete. New
@@ -40,7 +39,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const EMPTY = { id: '', name: '', email: '', role: '', dept: '', region: '', status: 'Active' };
 
 export default function ManageUsersPage() {
-  const { notify } = useToast();
+  const notify = useNotify();
   const { ask, dialog } = useConfirm();
   const dispatch = useAppDispatch();
   const { list: users, loading, error } = useAppSelector(selectAllUsers);

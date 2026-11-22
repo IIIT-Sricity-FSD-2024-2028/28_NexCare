@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { useToast } from '../../context/ToastContext';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchSystemSettings,
   selectSystemSettings,
   updateSystemSettings,
 } from '../../store/superuserSlice';
-import { SuPage } from './suShared';
+import { SuPage, useNotify } from './suShared';
 
 // superuser/system-settings.html + system-settings.js: three text fields and
 // two toggles, read from `GET /system/settings` (an array of { key, value })
@@ -40,7 +39,7 @@ function bool(value, fallback) {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SystemSettingsPage() {
-  const { notify } = useToast();
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const { config, loading } = useAppSelector(selectSystemSettings);
   const [form, setForm] = useState(DEFAULT_SETTINGS);
