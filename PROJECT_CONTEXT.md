@@ -1164,11 +1164,25 @@ keys the old `shared/session.js` wrote (`nexcare_auth_token`, `nexcare_csrf_toke
 `nexcare_user_data`, `nexcare_current_role`, `nexcare_user_email`), and uses the
 same stylesheets, copied verbatim.
 
+**State management: Redux Toolkit + React-Redux (migration started 2026-11).** The
+plan and owners are in `REDUX_WORK_SPLIT.md`. One store (`src/store/index.js`)
+with ten slices; logout / a 401 resets every slice to its initial state in the
+root reducer. Import hooks from `src/store/hooks.js` only. `AuthContext` and
+`ToastContext` are temporary shims over the auth/toast slices until Phase 2.
+Status on 2026-11-22: Phase 0 and every Phase 1 PR are merged (#48–#55); the
+patient slice (`vivian-patient-redux`) replaces `PatientContext.jsx`, which is
+deleted. The slice owns `EMPTY_BOOKING` (BookingWizard re-exports it) and
+`errorText(err, fallback)` reads a `.unwrap()` rejection, which is a string,
+not an Error. Still not migrated: the superuser pages (slice written, no page
+imports it), most hospital-manager pages (fetch the API directly), and
+`HmContext` / `AmbulanceContext`, which remain as context adapters over their slices.
+
 ```
 front-end/
   index.html  vite.config.js  package.json
   src/
-    main.jsx                 BrowserRouter + AuthProvider + ToastProvider + DialogProvider
+    main.jsx                 Redux <Provider> + BrowserRouter + AuthProvider/ToastProvider (shims) + DialogProvider
+    store/                   configureStore, hooks, and one slice per portal (see above)
     App.jsx                  the whole route tree; the seven portals are React.lazy
     api/
       client.js              fetch wrapper — base URL from the current hostname, Bearer

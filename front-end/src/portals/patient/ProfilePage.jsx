@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Auth, Patients } from '../../api';
+import { Auth } from '../../api';
 import { useDialogs } from '../../components/ui/Dialogs';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { isPaidMembership, usePatient } from './PatientContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  errorText, fetchPatientProfile, selectIsPaidMembership, selectPatientDisplayId, selectPatientId,
+  selectPatientMembership, selectPatientProfile, selectPatientRecord, updatePatientProfile,
+} from '../../store/patientSlice';
 
 // patient/profile.html + profile.js.
 //
@@ -32,7 +37,16 @@ function localPhone(raw) {
 export default function ProfilePage() {
   const { notify } = useToast();
   const { showSuccess } = useDialogs();
-  const { patientId, patient, profile, displayId, membership, refreshPatient, updateUser } = usePatient();
+  // updateUser keeps the cached session user (auth slice + sessionStorage) in step; it
+  // comes from the AuthContext shim until Phase 2 replaces useAuth().
+  const { updateUser } = useAuth();
+  const dispatch = useAppDispatch();
+  const patientId = useAppSelector(selectPatientId);
+  const patient = useAppSelector(selectPatientRecord);
+  const profile = useAppSelector(selectPatientProfile);
+  const displayId = useAppSelector(selectPatientDisplayId);
+  const membership = useAppSelector(selectPatientMembership);
+  const paid = useAppSelector(selectIsPaidMembership);
 
   const [edit, setEdit] = useState(false);
   const [fields, setFields] = useState({ fullName: '', phoneNumber: '', emailAddress: '' });
@@ -85,7 +99,7 @@ export default function ProfilePage() {
 
     setSaving(true);
     try {
-      await Patients.update(patientId, { fullName, phone: phoneNumber, email: emailAddress });
+      await dispatch(updatePatientProfile({ id: patientId, data: { fullName, phone: phoneNumber, email: emailAddress } })).unwrap();
       // Keep the cached session user in step, so the header and sidebar update.
       updateUser({ name: fullName, email: emailAddress });
 
@@ -93,7 +107,7 @@ export default function ProfilePage() {
         try {
           await Auth.changePassword(currentPassword, newPassword);
         } catch (err) {
-          notify(err.message || 'Failed to change password. Please check your current password.', 'error');
+          notify(errorText(err, 'Failed to change password. Please check your current password.'), 'error');
           setSaving(false);
           return;
         }
@@ -115,11 +129,11 @@ export default function ProfilePage() {
             )}
           </div>
         ),
-        onClose: () => { refreshPatient(); setSnapshot(null); setEdit(false); },
+        onClose: () => { dispatch(fetchPatientProfile(patientId)); setSnapshot(null); setEdit(false); },
       });
     } catch (err) {
       console.error('Save profile error:', err);
-      notify(err.message || 'An error occurred while saving your profile. Please try again.', 'error');
+      notify(errorText(err, 'An error occurred while saving your profile. Please try again.'), 'error');
     } finally {
       setSaving(false);
     }
@@ -129,7 +143,6 @@ export default function ProfilePage() {
   const statusClass = ['active', 'critical', 'emergency', 'pending'].includes(status.toLowerCase())
     ? (status.toLowerCase() === 'emergency' ? 'critical' : status.toLowerCase())
     : 'inactive';
-  const paid = isPaidMembership(membership);
 
   const userIcon = (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

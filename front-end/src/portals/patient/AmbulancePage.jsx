@@ -1,14 +1,19 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Ambulance, Hospitals } from '../../api';
+import { Hospitals } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  cancelAmbulanceRequest, errorText, fetchAmbulanceRequests, requestAmbulance, selectAmbulanceRequests,
+  selectPatientDisplayName, selectPatientId, selectPatientMembership, selectPatientProfile, selectPatientRecord,
+} from '../../store/patientSlice';
 import NexCareModal from './NexCareModal';
-import { usePatient } from './PatientContext';
 
 // patient/ambulance.html + ambulance.js.
 //
 // The request table in the HTML shipped with three hard-coded demo rows that
 // were replaced on load; here it simply renders what GET /ambulance/patient/:id
 // returns. Cancel is a soft cancel (PATCH …/cancel) — the row is kept.
+// The request list lives in the patient slice; the form and modal stay local.
 
 const BADGES = {
   Completed: 'badge-completed',
@@ -28,26 +33,19 @@ function formatWhen(iso) {
 }
 
 export default function AmbulancePage() {
-  const { patientId, patient, profile, displayName, membership } = usePatient();
+  const dispatch = useAppDispatch();
+  const patientId = useAppSelector(selectPatientId);
+  const patient = useAppSelector(selectPatientRecord);
+  const profile = useAppSelector(selectPatientProfile);
+  const displayName = useAppSelector(selectPatientDisplayName);
+  const membership = useAppSelector(selectPatientMembership);
+  const rows = useAppSelector(selectAmbulanceRequests);
   const [form, setForm] = useState({ hospitalId: '', pickupLocation: '', contact: '', notes: '' });
   const [hospitals, setHospitals] = useState(null); // null = loading
-  const [rows, setRows] = useState([]);
   const [modal, setModal] = useState(null);
 
-  const loadRequests = useCallback(async () => {
-    if (!patientId) return;
-    try {
-      const res = await Ambulance.getByPatient(patientId);
-      const list = res.data || [];
-      list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      setRows(list);
-    } catch (err) {
-      console.error('Failed to load requests', err);
-      setRows([]);
-    }
-  }, [patientId]);
-
-  useEffect(() => { loadRequests(); }, [loadRequests]);
+  const loadRequests = () => { if (patientId) dispatch(fetchAmbulanceRequests(patientId)); };
+  useEffect(() => { if (patientId) dispatch(fetchAmbulanceRequests(patientId)); }, [dispatch, patientId]);
 
   // Prefill the contact number from the patient's own record.
   useEffect(() => {
@@ -109,15 +107,15 @@ export default function AmbulancePage() {
       isConfirm: true,
       onConfirm: async () => {
         try {
-          const res = await Ambulance.createRequest({
+          const created = await dispatch(requestAmbulance({
             patientId,
             patientName: displayName,
             hospitalId,
             pickupLocation,
             contact,
             notes: notes || '',
-          });
-          const requestId = res.data?.id || `AMB-2026-${String(Math.floor(Math.random() * 900 + 100)).padStart(3, '0')}`;
+          })).unwrap();
+          const requestId = created?.id || `AMB-2026-${String(Math.floor(Math.random() * 900 + 100)).padStart(3, '0')}`;
           setModal({
             title: 'Ambulance Dispatched!',
             message: 'Your emergency ambulance request has been registered and dispatched.',
@@ -128,7 +126,7 @@ export default function AmbulancePage() {
             },
           });
         } catch (err) {
-          setModal({ title: 'Error', message: err.message || 'Failed to dispatch ambulance.', isError: true });
+          setModal({ title: 'Error', message: errorText(err, 'Failed to dispatch ambulance.'), isError: true });
         }
       },
     });
@@ -141,9 +139,9 @@ export default function AmbulancePage() {
       isConfirm: true,
       onConfirm: async () => {
         try {
-          await Ambulance.cancelRequest(id);
+          await dispatch(cancelAmbulanceRequest(id)).unwrap();
         } catch (err) {
-          setModal({ title: 'Could not cancel', message: err.message || 'The request could not be cancelled.' });
+          setModal({ title: 'Could not cancel', message: errorText(err, 'The request could not be cancelled.') });
         }
         loadRequests();
       },

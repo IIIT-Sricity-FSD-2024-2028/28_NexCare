@@ -1,14 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Billing } from '../../api';
 import { useToast } from '../../context/ToastContext';
 import CardPaymentForm from '../../features/payments/CardPaymentForm';
-import { payBill as payBillThroughGateway } from '../../features/payments/payBill';
 import InvoiceModal from '../../features/invoice/InvoiceModal';
 import { checkAmbulanceStatus, downloadInvoicePDF, getBillTotals } from '../../features/invoice/invoice';
 import { moneyFixed } from '../../utils/format';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  errorText, fetchBills, payBill, selectBillingState, selectPaidBills, selectPatientDisplayId,
+  selectPatientDisplayName, selectPatientRecord, selectPendingBills,
+} from '../../store/patientSlice';
 import PatientHeader from './PatientHeader';
-import { usePatient } from './PatientContext';
 
 // patient/billing.html + billing.js.
 //
@@ -16,34 +18,32 @@ import { usePatient } from './PatientContext';
 // (`nexcare_selected_bill_id`) because the static host dropped query strings.
 // The SPA uses ?bill=<id> instead (plan.md §4) and still falls back to the
 // first pending bill, then the first bill of any kind.
+//
+// Paying dispatches the payBill thunk; its fulfilled reducer marks the bill
+// paid in the slice, so the dashboard's "Pending Bills" count drops too.
 
 export default function BillingPage() {
   const [params, setParams] = useSearchParams();
   const { notify } = useToast();
-  const { patient, displayName, displayId } = usePatient();
+  const dispatch = useAppDispatch();
+  const patient = useAppSelector(selectPatientRecord);
+  const displayName = useAppSelector(selectPatientDisplayName);
+  const displayId = useAppSelector(selectPatientDisplayId);
+  const { bills, loading: billsLoading } = useAppSelector(selectBillingState);
+  const pendingBills = useAppSelector(selectPendingBills);
+  const paidBills = useAppSelector(selectPaidBills);
+  // "Loading…" only when there is nothing to show yet: bills already in the
+  // store (from the dashboard) render straight away while they refresh.
+  const loading = billsLoading && bills.length === 0;
 
-  const [bills, setBills] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [payOpen, setPayOpen] = useState(false);
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState('');
   const [invoiceBill, setInvoiceBill] = useState(null);
 
-  const load = useCallback(async () => {
-    try {
-      setBills((await Billing.getAll()).data || []);
-    } catch (err) {
-      notify(err.message || 'Could not load your bills', 'error');
-      setBills([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [notify]);
-
-  useEffect(() => { load(); }, [load]);
-
-  const pendingBills = bills.filter((b) => String(b.status).toLowerCase() === 'pending');
-  const paidBills = bills.filter((b) => String(b.status).toLowerCase() === 'paid');
+  useEffect(() => {
+    dispatch(fetchBills()).unwrap().catch((err) => notify(errorText(err, 'Could not load your bills'), 'error'));
+  }, [dispatch, notify]);
 
   const selectedId = params.get('bill');
   const bill = (selectedId && bills.find((b) => String(b.id) === String(selectedId))) || pendingBills[0] || bills[0] || null;
@@ -62,14 +62,15 @@ export default function BillingPage() {
     setPaying(true);
     setPayError('');
     try {
-      const result = await payBillThroughGateway(bill.id, card);
-      console.info('[NexCare] Platform fees recorded:', result?.platformFees || []);
+      const result = await dispatch(payBill({ billId: bill.id, card })).unwrap();
+      console.info('[NexCare] Platform fees recorded:', result.platformFees);
       setPayOpen(false);
       notify(`Payment of ${moneyFixed(totals.total)} approved for ${bill.id}.`, 'success');
-      await load();
+      // The bill is already marked paid in the store; refetch for the server's own fields.
+      dispatch(fetchBills());
     } catch (err) {
       // A decline is a normal outcome — show why, leave the bill open.
-      setPayError(err.message || 'The payment could not be processed');
+      setPayError(errorText(err, 'The payment could not be processed'));
     } finally {
       setPaying(false);
     }

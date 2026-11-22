@@ -1,24 +1,31 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Appointments } from '../../../api';
 import { useToast } from '../../../context/ToastContext';
 import { availableDoctorsForDate, departmentsOf, slotsForDoctor, weekdayOfDate } from '../../../features/doctor-directory/catalogue';
 import { loadPublishedSchedules, publishedWindows } from '../../../features/doctor-directory/hospitalSchedule';
 import { DEFAULT_CONSULTATION_FEE } from '../../../utils/format';
-import { isPaidMembership, usePatient } from '../PatientContext';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import {
+  createAppointment, errorText, rescheduleAppointment, selectBookingSubmitting, selectIsPaidMembership,
+  selectPatientId, selectPatientMembership,
+} from '../../../store/patientSlice';
 import { bookedSlotsForDoctor } from './bookedSlots';
 import { deptInfo } from './DEPT_INFO';
 import StepIndicator from './StepIndicator';
 
 // The four-step booking flow from patient/appointments/appointments.js
-// (renderStep0..3 + renderConfirmation). `booking` / `setBooking` live in the
-// page so a reschedule can prefill them; `catalogue` is the live directory.
+// (renderStep0..3 + renderConfirmation). `booking` is the patient slice's
+// booking draft and `setBooking` dispatches updateBookingDraft, so a reschedule
+// can prefill it; `catalogue` is the live directory. The step, the `booked`
+// slot Set and the field inputs stay in local state (short-lived wizard UI).
+//
 //
 // Steps: 0 hospital · 1 department · 2 date, doctor & slot · 3 summary · 4 done.
 // A set `rescheduleId` moves that appointment to the chosen slot instead of
 // booking a new one.
 
-export const EMPTY_BOOKING = { rescheduleId: null, hospital: null, department: null, doctorId: null, doctor: null, fee: null, date: null, time: null, lastToken: null };
+// The draft's empty shape lives in the slice; re-exported for existing imports.
+export { EMPTY_BOOKING } from '../../../store/patientSlice';
 
 export default function BookingWizard({ catalogue, catalogueError, booking, setBooking, onBackToLanding, onViewAppointments }) {
   const [step, setStep] = useState(booking.hospital ? 1 : 0);
@@ -26,7 +33,7 @@ export default function BookingWizard({ catalogue, catalogueError, booking, setB
   if (step === 0) return <StepHospital catalogue={catalogue} catalogueError={catalogueError} booking={booking} setBooking={setBooking} onBack={onBackToLanding} onNext={() => setStep(1)} />;
   if (step === 1) return <StepDepartment booking={booking} setBooking={setBooking} onBack={() => setStep(0)} onNext={() => setStep(2)} />;
   if (step === 2) return <StepDateDoctor catalogue={catalogue} booking={booking} setBooking={setBooking} onBack={() => setStep(1)} onNext={() => setStep(3)} />;
-  if (step === 3) return <StepSummary booking={booking} setBooking={setBooking} onBack={() => setStep(2)} onSlotTaken={() => setStep(2)} onDone={() => setStep(4)} />;
+  if (step === 3) return <StepSummary booking={booking} onBack={() => setStep(2)} onSlotTaken={() => setStep(2)} onDone={() => setStep(4)} />;
   return <Confirmation booking={booking} onViewAppointments={onViewAppointments} />;
 }
 
@@ -347,13 +354,17 @@ function StepDateDoctor({ catalogue, booking, setBooking, onBack, onNext }) {
 }
 
 /* ── Step 3: summary + confirm ────────────────────────────────────────────── */
-function StepSummary({ booking, setBooking, onBack, onSlotTaken, onDone }) {
+function StepSummary({ booking, onBack, onSlotTaken, onDone }) {
   const { notify } = useToast();
-  const { membership, patientId } = usePatient();
-  const [busy, setBusy] = useState(false);
+  const dispatch = useAppDispatch();
+  const membership = useAppSelector(selectPatientMembership);
+  const patientId = useAppSelector(selectPatientId);
+  const paid = useAppSelector(selectIsPaidMembership);
+  const submitting = useAppSelector(selectBookingSubmitting);
+  const [checking, setChecking] = useState(false); // the fresh slot check before submitting
+  const busy = checking || submitting;
   const hosp = booking.hospital;
   const hospName = hosp ? hosp.name : 'Hospital';
-  const paid = isPaidMembership(membership);
 
   const items = [
     ['Hospital', hospName],
@@ -365,10 +376,11 @@ function StepSummary({ booking, setBooking, onBack, onSlotTaken, onDone }) {
   ];
 
   async function confirm() {
-    setBusy(true);
+    setChecking(true);
     try {
       // Guard: the slot may have been taken since step 2.
       const fresh = await bookedSlotsForDoctor(booking.doctor, booking.date, booking.rescheduleId);
+      setChecking(false);
       if (fresh.has(booking.time)) {
         notify(`Slot "${booking.time}" on ${booking.date} was just booked. Please choose another slot.`, 'error');
         onSlotTaken();
@@ -390,18 +402,16 @@ function StepSummary({ booking, setBooking, onBack, onSlotTaken, onDone }) {
         timeLabel: booking.time,
         fee: booking.fee || DEFAULT_CONSULTATION_FEE,
       };
-      const res = booking.rescheduleId
-        ? await Appointments.reschedule(booking.rescheduleId, slot)
-        : await Appointments.create({ patientId, ...slot, reason: '' });
-      const result = res.data;
-      if (!result || !result.id) throw new Error(booking.rescheduleId ? 'The hospital did not update the appointment.' : 'The hospital did not create an appointment record.');
-      setBooking({ ...booking, lastToken: result.token || result.id });
+      // The fulfilled reducer adds the appointment to the list and stores lastToken.
+      await dispatch(booking.rescheduleId
+        ? rescheduleAppointment({ id: booking.rescheduleId, slot })
+        : createAppointment({ patientId, ...slot, reason: '' })).unwrap();
       onDone();
     } catch (err) {
       console.error('Error confirming appointment:', err);
-      notify(err?.message || 'Failed to confirm appointment', 'error');
+      notify(errorText(err, 'Failed to confirm appointment'), 'error');
     } finally {
-      setBusy(false);
+      setChecking(false);
     }
   }
 

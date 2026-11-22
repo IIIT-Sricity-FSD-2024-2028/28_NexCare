@@ -1,14 +1,19 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Feedback, Hospitals } from '../../api';
+import { useEffect, useState } from 'react';
+import { Hospitals } from '../../api';
 import { ConfirmDialog } from '../../components/ui';
 import { useToast } from '../../context/ToastContext';
-import { usePatient } from './PatientContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  deleteFeedback, errorText, fetchFeedback, selectFeedbackList, selectPatientDisplayName,
+  selectPatientId, selectPatientRecord, submitFeedback, updateFeedback,
+} from '../../store/patientSlice';
 
 // patient/feedback.html + feedback.js.
 //
 // Two tabs: submit (or edit) a submission, and the list of your own. The
 // hospital picker is required — feedback with no hospital used to land in the
 // Admin's queue as "Unknown Hospital" and could not be routed.
+// Submissions live in the patient slice; the form and tab stay local.
 
 const CATEGORIES = [
   ['billing', 'Billing/Payment Issue'],
@@ -25,26 +30,20 @@ const EMPTY = { hospitalId: '', category: '', description: '', rating: 0 };
 
 export default function FeedbackPage() {
   const { notify } = useToast();
-  const { patientId, patient, displayName } = usePatient();
+  const dispatch = useAppDispatch();
+  const patientId = useAppSelector(selectPatientId);
+  const patient = useAppSelector(selectPatientRecord);
+  const displayName = useAppSelector(selectPatientDisplayName);
+  const items = useAppSelector(selectFeedbackList);
 
   const [tab, setTab] = useState('submit');
   const [form, setForm] = useState(EMPTY);
   const [editingId, setEditingId] = useState(null);
   const [hospitals, setHospitals] = useState(null); // null = loading
-  const [items, setItems] = useState([]);
   const [confirm, setConfirm] = useState(null);
 
-  const loadSubmissions = useCallback(async () => {
-    if (!patientId) return;
-    try {
-      setItems((await Feedback.getByPatient(patientId)).data || []);
-    } catch (err) {
-      console.warn('Could not load submissions:', err.message);
-      setItems([]);
-    }
-  }, [patientId]);
-
-  useEffect(() => { loadSubmissions(); }, [loadSubmissions]);
+  const loadSubmissions = () => (patientId ? dispatch(fetchFeedback(patientId)) : null);
+  useEffect(() => { if (patientId) dispatch(fetchFeedback(patientId)); }, [dispatch, patientId]);
 
   // Only somewhere actually on the platform can act on a complaint.
   useEffect(() => {
@@ -86,11 +85,11 @@ export default function FeedbackPage() {
     try {
       let refId;
       if (editingId) {
-        await Feedback.update(editingId, { hospitalId, category, summary: description.trim(), rating, status: 'Open' });
+        await dispatch(updateFeedback({ id: editingId, data: { hospitalId, category, summary: description.trim(), rating, status: 'Open' } })).unwrap();
         refId = editingId;
         notify(`Feedback updated successfully! Reference ID: ${refId}`, 'success');
       } else {
-        const res = await Feedback.create({
+        const created = await dispatch(submitFeedback({
           patientId,
           sender: displayName,
           type: 'Patient',
@@ -99,16 +98,16 @@ export default function FeedbackPage() {
           summary: description.trim(),
           hospitalId,
           rating: Number(rating) || 1,
-        });
-        refId = res.data?.id;
+        })).unwrap();
+        refId = created?.id;
         notify(`Feedback submitted successfully! Reference ID: ${refId}`, 'success');
       }
       setForm({ ...EMPTY, hospitalId: ownHospitalId || '' });
       setEditingId(null);
-      await loadSubmissions();
+      loadSubmissions();
       setTimeout(() => setTab('submissions'), 500);
     } catch (err) {
-      notify(err.message || 'Could not submit your feedback', 'error');
+      notify(errorText(err, 'Could not submit your feedback'), 'error');
     }
   }
 
@@ -125,19 +124,17 @@ export default function FeedbackPage() {
 
   async function remove(id) {
     try {
-      await Feedback.delete(id);
-      await loadSubmissions();
+      await dispatch(deleteFeedback(id)).unwrap();
     } catch (err) {
-      notify(err.message || 'Could not delete the submission', 'error');
+      notify(errorText(err, 'Could not delete the submission'), 'error');
     }
   }
 
   async function resolve(id) {
     try {
-      await Feedback.update(id, { status: 'Resolved' });
-      await loadSubmissions();
+      await dispatch(updateFeedback({ id, data: { status: 'Resolved' } })).unwrap();
     } catch (err) {
-      notify(err.message || 'Could not update the submission', 'error');
+      notify(errorText(err, 'Could not update the submission'), 'error');
     }
   }
 
