@@ -3,7 +3,7 @@ import { useToast } from '../../context/ToastContext';
 import useConfirm from '../../hooks/useConfirm';
 import logActivity from '../../features/activity/logActivity';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { deleteUser, fetchAllUsers, selectAllUsers } from '../../store/superuserSlice';
+import { deleteUser, fetchAllPatients, selectAllPatients } from '../../store/superuserSlice';
 import { ICONS, MessageRow, SuPage } from './suShared';
 
 // superuser/patient-directory.html + patient-directory.js: every patient
@@ -14,11 +14,11 @@ function toRow(u) {
   return {
     id: u.patientId || u.id,
     patientIdDisplay: u.patientId || u.id,
-    fullName: u.name,
+    fullName: u.fullName || u.name,
     email: u.email,
     phone: u.phone || '-',
     status: u.status || 'Active',
-    _userId: u.id, // keep original user ID for delete
+    _userId: u.userId || u.id, // keep original user ID for delete
   };
 }
 
@@ -26,15 +26,14 @@ export default function PatientDirectoryPage() {
   const { notify } = useToast();
   const { ask, dialog } = useConfirm();
   const dispatch = useAppDispatch();
-  const { list: users, loading, error } = useAppSelector(selectAllUsers);
+  const { list: patients, loading, error } = useAppSelector(selectAllPatients);
   const [term, setTerm] = useState('');
 
-  useEffect(() => { dispatch(fetchAllUsers()); }, [dispatch]);
-  const patients = users?.filter((u) => u.role === 'patient').map(toRow) || [];
+  useEffect(() => { dispatch(fetchAllPatients()); }, [dispatch]);
 
   const rows = useMemo(() => {
     const t = term.toLowerCase().trim();
-    return (patients || []).filter((p) =>
+    return (patients || []).map(toRow).filter((p) =>
       (p.fullName && p.fullName.toLowerCase().includes(t))
       || (p.email && p.email.toLowerCase().includes(t))
       || (p.patientIdDisplay && p.patientIdDisplay.toLowerCase().includes(t))
