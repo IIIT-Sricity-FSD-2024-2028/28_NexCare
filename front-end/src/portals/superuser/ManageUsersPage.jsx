@@ -5,7 +5,7 @@ import logActivity from '../../features/activity/logActivity';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   createUser,
-  deleteUser,
+  deleteUser as deleteUserAction,
   fetchAllUsers,
   selectAllUsers,
   updateUser,
@@ -120,10 +120,10 @@ export default function ManageUsersPage() {
     setModal(null);
   }
 
-  async function deleteUser(id) {
+  async function handleDeleteUser(id) {
     if (!(await ask('Are you sure you want to delete this user? This action cannot be undone.', { title: 'Delete user', confirmLabel: 'OK', danger: true }))) return;
     try {
-      await dispatch(deleteUser(id)).unwrap();
+      await dispatch(deleteUserAction(id)).unwrap();
       notify('User deleted successfully', 'success');
     } catch (e) {
       notify(e?.message || 'Failed to delete user', 'error');
@@ -168,7 +168,7 @@ export default function ManageUsersPage() {
                 </td>
                 <td>
                   <button type="button" className="btn-secondary btn-icon" onClick={() => editUser(user)}>Edit</button>
-                  <button type="button" className="btn-danger btn-icon" onClick={() => deleteUser(user.id)} title="Delete user">
+                  <button type="button" className="btn-danger btn-icon" onClick={() => handleDeleteUser(user.id)} title="Delete user">
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M6 6l1 16h10l1-16" />
