@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Appointments, Billing } from '../../api';
-import { usePatient } from './PatientContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchAppointments, fetchBills, selectPatientDisplayId, selectPatientDisplayName } from '../../store/patientSlice';
 import SystemModal from './SystemModal';
 
 // The <header class="header"> on the patient pages: a search box, the bell and
@@ -9,15 +9,18 @@ import SystemModal from './SystemModal';
 // "Notifications Center": upcoming appointments and pending bills.
 export default function PatientHeader({ searchPlaceholder = 'Search...', search, onSearch }) {
   const navigate = useNavigate();
-  const { displayName, displayId } = usePatient();
+  const dispatch = useAppDispatch();
+  const displayName = useAppSelector(selectPatientDisplayName);
+  const displayId = useAppSelector(selectPatientDisplayId);
   const [notifications, setNotifications] = useState(null); // null = closed
   const initials = displayName.split(' ').map((p) => p[0]).join('').substring(0, 2).toUpperCase();
 
+  // Refetches through the slice, so opening the bell also refreshes the pages' lists.
   async function showNotifications() {
     let appointments = [];
     let bills = [];
-    try { appointments = (await Appointments.getAll()).data || []; } catch { /* shown as none */ }
-    try { bills = (await Billing.getAll()).data || []; } catch { /* shown as none */ }
+    try { appointments = await dispatch(fetchAppointments()).unwrap(); } catch { /* shown as none */ }
+    try { bills = await dispatch(fetchBills()).unwrap(); } catch { /* shown as none */ }
     const upcoming = appointments.filter((a) => a.status === 'Confirmed' || a.status === 'Pending');
     const pending = bills.filter((b) => b.status === 'Pending');
     setNotifications({ upcoming, pending });

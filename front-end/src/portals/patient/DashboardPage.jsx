@@ -1,17 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Ambulance, Appointments, Billing, Hospitals } from '../../api';
+import { Hospitals } from '../../api';
 import { useToast } from '../../context/ToastContext';
 import InvoiceModal from '../../features/invoice/InvoiceModal';
 import { downloadInvoicePDF } from '../../features/invoice/invoice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  cancelAppointment, errorText, fetchAmbulanceRequests, fetchAppointments, fetchBills,
+  selectBills, selectCompletedAppointments, selectIsPaidMembership, selectOpenAmbulanceCount,
+  selectPatientDisplayName, selectPatientId, selectPatientMembership, selectPatientProfile,
+  selectPatientRecord, selectPendingBills, selectUpcomingAppointments,
+} from '../../store/patientSlice';
 import PatientHeader from './PatientHeader';
 import SystemModal from './SystemModal';
-import { isPaidMembership, usePatient } from './PatientContext';
 
 // patient/dashboard.html + dashboard.js + script.js.
 //
-// Every NexCareStore call is now a direct API call scoped by the backend to the
-// signed-in patient. The "medical records" grid is what the HTML showed:
+// Appointments, bills and ambulance requests come from the patient slice, so a
+// bill paid or an appointment cancelled on another page shows here at once. The "medical records" grid is what the HTML showed:
 // completed appointments, with canned "record" text — nothing clinical is stored.
 
 const contains = (q, ...parts) => !q || parts.join(' ').toLowerCase().includes(q);
@@ -19,10 +25,18 @@ const contains = (q, ...parts) => !q || parts.join(' ').toLowerCase().includes(q
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { notify } = useToast();
-  const { profile, displayName, membership, patient } = usePatient();
-  const [appointments, setAppointments] = useState([]);
-  const [bills, setBills] = useState([]);
-  const [ambulanceCount, setAmbulanceCount] = useState(0);
+  const dispatch = useAppDispatch();
+  const patientId = useAppSelector(selectPatientId);
+  const profile = useAppSelector(selectPatientProfile);
+  const patient = useAppSelector(selectPatientRecord);
+  const displayName = useAppSelector(selectPatientDisplayName);
+  const membership = useAppSelector(selectPatientMembership);
+  const paidMember = useAppSelector(selectIsPaidMembership);
+  const bills = useAppSelector(selectBills);
+  const upcoming = useAppSelector(selectUpcomingAppointments);
+  const completed = useAppSelector(selectCompletedAppointments);
+  const pendingBills = useAppSelector(selectPendingBills);
+  const ambulanceCount = useAppSelector(selectOpenAmbulanceCount);
   const [hospitals, setHospitals] = useState(null); // null = loading, [] = unavailable
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(null); // { title, message, onConfirm? }
@@ -31,20 +45,11 @@ export default function DashboardPage() {
 
   const firstName = displayName.split(' ')[0];
 
-  const loadAppointments = useCallback(async () => {
-    try { setAppointments((await Appointments.getAll()).data || []); } catch { setAppointments([]); }
-  }, []);
-  const loadBills = useCallback(async () => {
-    try { setBills((await Billing.getAll()).data || []); } catch { setBills([]); }
-  }, []);
-  const loadAmbulance = useCallback(async () => {
-    try {
-      const reqs = (await Ambulance.getAllRequests()).data || [];
-      setAmbulanceCount(reqs.filter((r) => r.status !== 'Completed').length);
-    } catch { setAmbulanceCount(0); }
-  }, []);
-
-  useEffect(() => { loadAppointments(); loadBills(); loadAmbulance(); }, [loadAppointments, loadBills, loadAmbulance]);
+  useEffect(() => {
+    dispatch(fetchAppointments());
+    dispatch(fetchBills());
+    if (patientId) dispatch(fetchAmbulanceRequests(patientId));
+  }, [dispatch, patientId]);
 
   // The hospital network, ranked by proximity to the patient's own address.
   // Waits for the patient record so the ranking uses their city/PIN.
@@ -70,17 +75,13 @@ export default function DashboardPage() {
     return () => { cancelled = true; };
   }, [patientCity, patientState, patientPincode, patient]);
 
-  const upcoming = appointments.filter((a) => a.status !== 'Completed' && a.status !== 'Cancelled');
-  const completed = appointments.filter((a) => a.status === 'Completed');
-  const pendingBills = bills.filter((b) => b.status === 'Pending');
   const q = search.toLowerCase().trim();
 
-  async function cancelAppointment(id) {
+  async function cancelAppt(id) {
     try {
-      await Appointments.cancel(id);
-      loadAppointments();
+      await dispatch(cancelAppointment(id)).unwrap();
     } catch (err) {
-      notify(err.message || 'Could not cancel the appointment', 'error');
+      notify(errorText(err, 'Could not cancel the appointment'), 'error');
     }
   }
 
@@ -105,7 +106,6 @@ export default function DashboardPage() {
   const location = [patientCity, patientState, patientPincode].filter(Boolean).join(' • ');
 
   const doctorName = (appt) => (appt.doctor && appt.doctor.startsWith('Dr.') ? appt.doctor : appt.doctorName || `Dr. ${appt.department || 'General'} Specialist`);
-  const paidMember = isPaidMembership(membership);
 
   const eyeIcon = (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="#4A5565" strokeWidth="1.5" /><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" stroke="#4A5565" strokeWidth="1.5" /></svg>
@@ -262,7 +262,7 @@ export default function DashboardPage() {
                         <button type="button" className="btn-icon" title="View" onClick={() => setModal({ title: 'Appointment Details', message: `Viewing details for Appointment: ${appt.token || appt.id}\nHospital: ${hosp}\nDoctor: ${doc}\nReason: ${appt.reason || 'N/A'}` })}>
                           {eyeIcon}
                         </button>
-                        <button type="button" className="btn-icon" title="Cancel" onClick={() => setModal({ title: 'Cancel Appointment', message: `Are you sure you want to cancel this appointment with ${doc} at ${hosp}?`, onConfirm: () => cancelAppointment(appt.id) })}>
+                        <button type="button" className="btn-icon" title="Cancel" onClick={() => setModal({ title: 'Cancel Appointment', message: `Are you sure you want to cancel this appointment with ${doc} at ${hosp}?`, onConfirm: () => cancelAppt(appt.id) })}>
                           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M12 4L4 12M4 4l8 8" stroke="#E7000B" strokeWidth="1.33" strokeLinecap="round" /></svg>
                         </button>
                       </td>

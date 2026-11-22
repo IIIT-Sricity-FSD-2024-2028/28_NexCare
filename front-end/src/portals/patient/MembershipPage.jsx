@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Revenue } from '../../api';
 import { useToast } from '../../context/ToastContext';
 import useStylesheet from '../../hooks/useStylesheet';
 import membershipCss from '../../styles/membership.css?url';
 import { formatDate, money, percent } from '../../utils/format';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  errorText, fetchMembership, fetchPatientPlans, selectMembershipState, subscribeMembership,
+} from '../../store/patientSlice';
 import PatientHeader from './PatientHeader';
-import { usePatient } from './PatientContext';
 
 // patient/membership.html + membership.js.
 //
@@ -18,27 +20,18 @@ import { usePatient } from './PatientContext';
 export default function MembershipPage() {
   useStylesheet(membershipCss);
   const { notify } = useToast();
-  const { membership, refreshMembership } = usePatient();
+  const dispatch = useAppDispatch();
+  const { data: membership, plans, loading: membershipLoading, error } = useAppSelector(selectMembershipState);
+  // Until the plan list has arrived once, the page shows its loading copy.
+  const loading = membershipLoading && plans.length === 0;
 
-  const [plans, setPlans] = useState([]);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
   const [payment, setPayment] = useState(null); // { plan, step, txnId }
   const [cancelOpen, setCancelOpen] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      const planRes = await Revenue.getPatientPlans();
-      setPlans(planRes.data || []);
-      await refreshMembership();
-      setError('');
-    } catch (err) {
-      console.error('Membership load failed:', err);
-      setError('Could not load your membership. Check that the backend is running.');
-    } finally {
-      setLoading(false);
-    }
-  }, [refreshMembership]);
+  const load = useCallback(
+    () => Promise.all([dispatch(fetchPatientPlans()), dispatch(fetchMembership())]),
+    [dispatch],
+  );
 
   useEffect(() => { load(); }, [load]);
 
@@ -54,12 +47,15 @@ export default function MembershipPage() {
     // The 1.2s wait is the original's gateway animation, kept so the flow reads the same.
     await new Promise((r) => { setTimeout(r, 1200); });
     try {
-      await Revenue.setMyMembership(plan.id, { method: methodDetails, transactionId: txnId, amount: plan.monthlyFee });
+      await dispatch(subscribeMembership({
+        planId: plan.id,
+        paymentDetails: { method: methodDetails, transactionId: txnId, amount: plan.monthlyFee },
+      })).unwrap();
       setPayment((p) => ({ ...p, step: 3, txnId }));
     } catch (err) {
       console.error('Payment processing failed:', err);
       setPayment((p) => ({ ...p, step: 1 }));
-      notify(err.message || 'Payment simulation could not complete', 'error');
+      notify(errorText(err, 'Payment simulation could not complete'), 'error');
     }
   }
 
@@ -72,12 +68,12 @@ export default function MembershipPage() {
   async function confirmCancel() {
     setCancelOpen(false);
     try {
-      await Revenue.setMyMembership('CARE-PAYG');
+      await dispatch(subscribeMembership({ planId: 'CARE-PAYG' })).unwrap();
       notify('Membership cancelled. You are now on Pay As You Go.', 'info');
       await load();
     } catch (err) {
       console.error('Cancel membership failed:', err);
-      notify(err.message || 'Could not cancel membership', 'error');
+      notify(errorText(err, 'Could not cancel membership'), 'error');
     }
   }
 

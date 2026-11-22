@@ -1,11 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Appointments } from '../../api';
 import { ConfirmDialog } from '../../components/ui';
 import { useToast } from '../../context/ToastContext';
 import useDoctorDirectory from '../../features/doctor-directory/useDoctorDirectory';
 import { findHospital } from '../../features/doctor-directory/catalogue';
-import BookingWizard, { EMPTY_BOOKING } from './booking/BookingWizard';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  EMPTY_BOOKING, cancelAppointment, deleteAppointment, errorText, fetchAppointments, resetBooking,
+  selectAppointments, selectBookingDraft, selectCompletedAppointments, selectPastAppointments,
+  selectUpcomingAppointments, updateBookingDraft,
+} from '../../store/patientSlice';
+import BookingWizard from './booking/BookingWizard';
 
 // patient/appointments/appointments.html + appointments.js.
 //
@@ -13,6 +18,7 @@ import BookingWizard, { EMPTY_BOOKING } from './booking/BookingWizard';
 // which the HTML switched by toggling display on three sections. Here they are
 // a `view` state, seeded from the query string exactly as the original did
 // (?view=book|my, or ?hospitalId=… from a hospital card, which opens booking).
+// The appointment list and the booking draft live in the patient slice.
 
 const badgeClass = (status) => ({
   Confirmed: 'badge-confirmed',
@@ -26,23 +32,19 @@ export default function AppointmentsPage() {
   const { notify } = useToast();
   const { catalogue, loading: catalogueLoading, error: catalogueError } = useDoctorDirectory();
 
+  const dispatch = useAppDispatch();
+  const appointments = useAppSelector(selectAppointments);
+  const upcoming = useAppSelector(selectUpcomingAppointments);
+  const past = useAppSelector(selectPastAppointments);
+  const completedCount = useAppSelector(selectCompletedAppointments).length;
+  const booking = useAppSelector(selectBookingDraft);
+
   const [view, setView] = useState('landing'); // landing | my | book
-  const [booking, setBooking] = useState(EMPTY_BOOKING);
-  const [appointments, setAppointments] = useState([]);
   const [confirm, setConfirm] = useState(null); // { title, message, onConfirm }
   const [seeded, setSeeded] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      const res = await Appointments.getAll();
-      setAppointments(Array.isArray(res.data) ? res.data : Array.isArray(res.data?.data) ? res.data.data : []);
-    } catch (err) {
-      console.warn('Could not load appointments:', err.message);
-      setAppointments([]);
-    }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
+  const load = () => dispatch(fetchAppointments());
+  useEffect(() => { dispatch(fetchAppointments()); }, [dispatch]);
 
   // The wizard's catalogue has to be in before a deep link can pick its hospital,
   // so the query string is read once the directory has settled.
@@ -51,7 +53,7 @@ export default function AppointmentsPage() {
     const viewParam = params.get('view') || params.get('mode');
     const hospitalId = params.get('hospitalId');
     if (hospitalId) {
-      setBooking({ ...EMPTY_BOOKING, hospital: findHospital(catalogue, hospitalId) });
+      dispatch(resetBooking({ hospital: findHospital(catalogue, hospitalId) }));
       setView('book');
     } else if (viewParam === 'book') {
       setView('book');
@@ -59,7 +61,7 @@ export default function AppointmentsPage() {
       setView('my');
     }
     setSeeded(true);
-  }, [seeded, catalogueLoading, catalogue, params]);
+  }, [seeded, catalogueLoading, catalogue, params, dispatch]);
 
   /** Leaving a view drops the query string so a refresh does not reopen it. */
   function go(next) {
@@ -68,7 +70,7 @@ export default function AppointmentsPage() {
   }
 
   function startBooking(prefill) {
-    setBooking(prefill || EMPTY_BOOKING);
+    dispatch(resetBooking(prefill));
     go('book');
   }
 
@@ -89,25 +91,19 @@ export default function AppointmentsPage() {
 
   async function cancelAppt(id) {
     try {
-      await Appointments.cancel(id);
-      await load();
+      await dispatch(cancelAppointment(id)).unwrap();
     } catch (err) {
-      notify(err.message || 'Could not cancel the appointment', 'error');
+      notify(errorText(err, 'Could not cancel the appointment'), 'error');
     }
   }
 
   async function deleteAppt(id) {
     try {
-      await Appointments.delete(id);
-      await load();
+      await dispatch(deleteAppointment(id)).unwrap();
     } catch (err) {
-      notify(err.message || 'Could not delete the appointment', 'error');
+      notify(errorText(err, 'Could not delete the appointment'), 'error');
     }
   }
-
-  const upcoming = appointments.filter((a) => a.status !== 'Cancelled' && a.status !== 'Completed');
-  const past = appointments.filter((a) => a.status === 'Completed' || a.status === 'Cancelled');
-  const completedCount = appointments.filter((a) => a.status === 'Completed').length;
 
   return (
     <main className="main-content" id="appointmentsPage">
@@ -211,7 +207,7 @@ export default function AppointmentsPage() {
             catalogue={catalogue}
             catalogueError={catalogueLoading ? '' : catalogueError}
             booking={booking}
-            setBooking={setBooking}
+            setBooking={(next) => dispatch(updateBookingDraft(next))}
             onBackToLanding={() => go('landing')}
             onViewAppointments={showMine}
           />
