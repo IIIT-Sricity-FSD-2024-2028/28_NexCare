@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Beds, Inventory } from '../../api';
-import { useToast } from '../../context/ToastContext';
-import { useHm } from './HmContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import { selectUser } from '../../store/authSlice';
 import { LoadingCell } from './hmShared';
 import { StaffRegisterForm } from './StaffRegistration';
 
@@ -14,8 +15,9 @@ const CATEGORIES = ['Medication', 'Medical Supplies', 'Surgical Equipment', 'Lab
 const pillClass = (status) => `status-pill status-${String(status || '').toLowerCase().replace('_', '-')}`;
 
 function BedsSection() {
-  const { hospitalId } = useHm();
-  const { notify } = useToast();
+  const dispatch = useAppDispatch();
+  const hospitalId = useAppSelector(selectUser)?.hospitalId || '';
+  const notify = (message, type) => dispatch(addToast({ message, type }));
   const [beds, setBeds] = useState(null);
   const [failed, setFailed] = useState('');
   const [form, setForm] = useState({ ward: 'General', id: '' });
@@ -92,8 +94,9 @@ function BedsSection() {
 }
 
 function InventorySection() {
-  const { hospitalId } = useHm();
-  const { notify } = useToast();
+  const dispatch = useAppDispatch();
+  const hospitalId = useAppSelector(selectUser)?.hospitalId || '';
+  const notify = (message, type) => dispatch(addToast({ message, type }));
   const [items, setItems] = useState(null);
   const [failed, setFailed] = useState('');
   const blank = { name: '', category: 'Medication', quantity: '', minStock: '', unit: '', location: '' };

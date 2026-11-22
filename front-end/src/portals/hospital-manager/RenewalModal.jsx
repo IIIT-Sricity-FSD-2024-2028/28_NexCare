@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Hospitals } from '../../api';
-import { useToast } from '../../context/ToastContext';
-import { useHm } from './HmContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import { selectUser } from '../../store/authSlice';
+import {
+  closeRenewalModal,
+  fetchHmOverview,
+  fetchSubscription,
+  renewSubscription,
+  selectHmHospital,
+  selectHmSubscription,
+  selectHmUi,
+} from '../../store/hospitalManagerSlice';
 import { HmModal } from './hmShared';
 
 // MODAL 2 from dashboard.html: the 12-month registration renewal with the
@@ -23,14 +32,22 @@ export function plusTwelveMonths(currentExpiry) {
   return next.toISOString().split('T')[0];
 }
 
+const messageOf = (err, fallback) => (typeof err === 'string' && err) || err?.message || fallback;
+
 export default function RenewalModal() {
-  const { renewalModal, closeRenewalModal, hospitalId, hospitalName, subscription, reloadSubscription, refresh } = useHm();
-  const { notify } = useToast();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const subscription = useAppSelector(selectHmSubscription).plan;
+  const hospital = useAppSelector(selectHmHospital);
+  const renewalModal = useAppSelector(selectHmUi).renewalModalOpen;
   const [tab, setTab] = useState('upi');
   const [upi, setUpi] = useState('admin.aiims@icici');
   const [card, setCard] = useState({ number: '4111 •••• •••• 9921', expiry: '08/29', cvv: '882' });
   const [bank, setBank] = useState(BANKS[0]);
   const [busy, setBusy] = useState(false);
+
+  const hospitalId = user?.hospitalId || '';
+  const hospitalName = hospital.name || user?.hospitalName || '';
 
   useEffect(() => { if (renewalModal) setTab('upi'); }, [renewalModal]);
 
@@ -47,13 +64,14 @@ export default function RenewalModal() {
         : `Net Banking (${bank})`;
     setBusy(true);
     try {
-      await Hospitals.renewSubscription(hospitalId, { paymentMethod, amount: RENEWAL_FEE });
-      notify('Payment successful! Hospital subscription extended by 12 Months.', 'success');
-      closeRenewalModal();
-      await reloadSubscription();
-      refresh();
+      await dispatch(renewSubscription({ paymentMethod, amount: RENEWAL_FEE })).unwrap();
+      dispatch(addToast({ message: 'Payment successful! Hospital subscription extended by 12 Months.', type: 'success' }));
+      dispatch(closeRenewalModal());
+      // The licence hero reads the subscription; the banner and sidebar pill read the overview.
+      dispatch(fetchSubscription());
+      dispatch(fetchHmOverview());
     } catch (err) {
-      notify(err?.message || 'Payment processing failed', 'error');
+      dispatch(addToast({ message: messageOf(err, 'Payment processing failed'), type: 'error' }));
     } finally {
       setBusy(false);
     }
@@ -62,12 +80,12 @@ export default function RenewalModal() {
   return (
     <HmModal
       open={renewalModal}
-      onClose={closeRenewalModal}
+      onClose={() => dispatch(closeRenewalModal())}
       title="Hospital Registration Renewal (12 Months)"
       size="medium"
       footer={(
         <>
-          <button type="button" className="btn-secondary" onClick={closeRenewalModal} disabled={busy}>Cancel</button>
+          <button type="button" className="btn-secondary" onClick={() => dispatch(closeRenewalModal())} disabled={busy}>Cancel</button>
           <button type="button" className="btn-primary" onClick={pay} disabled={busy}>
             <span>{busy ? 'Processing Secure Payment...' : 'Pay ₹50,000 & Extend 12 Months'}</span>
           </button>

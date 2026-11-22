@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Ambulance } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import {
+  completeTransport,
+  selectActiveTransport,
+  selectAmbulanceRequests,
+  updateRequest,
+  updateTransportStatus,
+} from '../../store/ambulanceSlice';
 import { TRANSPORT_STEPS, completionStamps, isFinalStep, nextStatus, stepIndexOf } from '../../features/ambulance/transportSteps';
 import useTransportEta from '../../features/ambulance/useTransportEta';
-import { useAmbulance } from './AmbulanceContext';
 import { PageHeader, contactOf, locationOf, patientOf } from './ambulanceShared';
 
 // #active-transport-page: the ETA banner, patient details, the vertical
@@ -48,11 +54,15 @@ function ProgressTracker({ status }) {
   );
 }
 
+const messageOf = (err, fallback) => (typeof err === 'string' && err) || err?.message || fallback;
+
 export default function ActiveTransportPage() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { notify } = useToast();
-  const { activeTransport: active, loaded, reload } = useAmbulance();
+  const active = useAppSelector(selectActiveTransport);
+  const loaded = useAppSelector(selectAmbulanceRequests).loaded;
   const [busy, setBusy] = useState(false);
+  const notify = (message, type) => dispatch(addToast({ message, type }));
   const eta = useTransportEta(active?.id, active?.status);
 
   async function nextStep() {
@@ -60,10 +70,9 @@ export default function ActiveTransportPage() {
     if (!next) return;
     setBusy(true);
     try {
-      await Ambulance.updateStatus(active.id, next);
-      await reload();
+      await dispatch(updateTransportStatus({ id: active.id, status: next })).unwrap();
     } catch (err) {
-      notify(err?.message || 'Failed to update the transport step. Please try again.', 'error');
+      notify(messageOf(err, 'Failed to update the transport step. Please try again.'), 'error');
     } finally {
       setBusy(false);
     }
@@ -73,16 +82,15 @@ export default function ActiveTransportPage() {
     setBusy(true);
     try {
       // The completion stamps app.js wrote on the record, then the completion itself.
-      await Ambulance.update(active.id, completionStamps());
-      await Ambulance.complete(active.id);
+      await dispatch(updateRequest({ id: active.id, data: completionStamps() })).unwrap();
+      await dispatch(completeTransport(active.id)).unwrap();
       // app.js also called NexCareStore.logActivity() here; POST /system/activity
       // is staff/superuser-only, so for this role it was always a 403 — dropped.
       notify(`Transport for ${patientOf(active)} completed successfully!`, 'success');
-      await reload();
       navigate('/ambulance/completed-transports');
     } catch (err) {
       console.error('Error completing transport:', err);
-      notify(err?.message || 'Failed to complete transport. Please try again.', 'error');
+      notify(messageOf(err, 'Failed to complete transport. Please try again.'), 'error');
     } finally {
       setBusy(false);
     }

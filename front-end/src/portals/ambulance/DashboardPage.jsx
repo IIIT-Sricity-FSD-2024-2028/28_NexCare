@@ -1,5 +1,7 @@
+import { useAppSelector } from '../../store/hooks';
+import { selectUser } from '../../store/authSlice';
+import { selectAmbulanceProfile, selectAmbulanceRequests } from '../../store/ambulanceSlice';
 import { isAssigned, isCompleted, isInTransit, isPending, requestTime } from '../../features/ambulance/transportSteps';
-import { useAmbulance } from './AmbulanceContext';
 import { PriorityBadge, StatusBadge, locationOf, patientOf } from './ambulanceShared';
 
 // #dashboard-page: renderDashboard() + DynamicRenderer.renderRecentRequests().
@@ -14,7 +16,11 @@ const STATS = [
 ];
 
 export default function DashboardPage() {
-  const { user, profile, requests, loaded } = useAmbulance();
+  const user = useAppSelector(selectUser);
+  const profile = useAppSelector(selectAmbulanceProfile);
+  const requestsState = useAppSelector(selectAmbulanceRequests);
+  const requests = requestsState.list;
+  const loaded = requestsState.loaded;
   const recent = [...requests].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 10);
 
   return (

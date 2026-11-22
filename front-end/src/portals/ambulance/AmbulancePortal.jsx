@@ -1,11 +1,20 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import NexCareLogo from '../../components/NexCareLogo';
-import { useAuth } from '../../context/AuthContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { logoutUser, selectUser } from '../../store/authSlice';
+import { addToast } from '../../store/toastSlice';
 import useConfirm from '../../hooks/useConfirm';
+import usePolling from '../../hooks/usePolling';
 import useStylesheet from '../../hooks/useStylesheet';
 import ambulanceCss from '../../styles/ambulance.css?url';
-import { AmbulanceProvider, useAmbulance } from './AmbulanceContext';
+import {
+  REFRESH_MS,
+  fetchAmbulanceRequests,
+  fetchHospitalName,
+  selectAmbulanceHospitalName,
+  selectAmbulanceRequests,
+} from '../../store/ambulanceSlice';
 
 // ambulance/index.html: one page whose six `.page` blocks were switched by
 // SessionManager.navigateToPage(); each is a nested route now. The shell is
@@ -23,14 +32,15 @@ export const SECTIONS = [
 ];
 
 function Sidebar() {
-  const { logout } = useAuth();
-  const { hospitalName } = useAmbulance();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const hospitalName = useAppSelector(selectAmbulanceHospitalName);
   const navigate = useNavigate();
   const { ask, dialog } = useConfirm();
 
   async function handleLogout() {
     if (!(await ask('Are you sure you want to logout?', { title: 'Log out', confirmLabel: 'Logout', danger: true }))) return;
-    await logout();
+    await dispatch(logoutUser());
     navigate('/login', { replace: true });
   }
 
@@ -96,7 +106,29 @@ function useArrowNavigation() {
 }
 
 function Shell() {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const requests = useAppSelector(selectAmbulanceRequests);
+  const warned = useRef(false);
   useArrowNavigation();
+
+  // AmbulanceProvider used to own this: the 5 s poll of GET /ambulance, the
+  // hospital name for the sidebar, and the one-shot load-failure toast.
+  const reload = useCallback(() => { dispatch(fetchAmbulanceRequests()); }, [dispatch]);
+  usePolling(reload, REFRESH_MS);
+
+  useEffect(() => {
+    dispatch(fetchHospitalName());
+  }, [dispatch, user?.hospitalId, user?.hospitalName]);
+
+  useEffect(() => {
+    if (requests.error && !warned.current) {
+      warned.current = true;
+      dispatch(addToast({ message: 'Failed to load ambulance requests. Please check your connection.', type: 'error' }));
+    }
+    if (!requests.error) warned.current = false;
+  }, [requests.error, dispatch]);
+
   return (
     <div className="portal-shell ambulance-portal">
       <div className="app-container">
@@ -111,9 +143,5 @@ function Shell() {
 
 export default function AmbulancePortal() {
   useStylesheet(ambulanceCss);
-  return (
-    <AmbulanceProvider>
-      <Shell />
-    </AmbulanceProvider>
-  );
+  return <Shell />;
 }

@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Users } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import { fetchHmStaff, openStaffModal, selectHmStaff, updateStaffStatus } from '../../store/hospitalManagerSlice';
 import useConfirm from '../../hooks/useConfirm';
-import { useHm } from './HmContext';
 import { Badge, LoadingCell, initialsOf, roleLabel } from './hmShared';
 
 // TAB 3 — Staff Directory: loadStaff() / filterStaff() /
@@ -11,31 +11,21 @@ import { Badge, LoadingCell, initialsOf, roleLabel } from './hmShared';
 // console, nothing on screen); the SPA uses the shared confirm dialog and
 // PATCH /users/:id/status as executeToggleStaffStatus() intended.
 export default function StaffPage() {
-  const { hospitalId, openStaffModal, version } = useHm();
-  const { notify } = useToast();
+  const dispatch = useAppDispatch();
+  const staffState = useAppSelector(selectHmStaff);
   const { ask, dialog } = useConfirm();
-  const [staff, setStaff] = useState(null);
-  const [failed, setFailed] = useState(false);
   const [term, setTerm] = useState('');
   const [role, setRole] = useState('ALL');
   const [status, setStatus] = useState('ALL');
 
-  const load = useCallback(async () => {
-    try {
-      const res = await Users.getAll();
-      const users = Array.isArray(res.data) ? res.data : [];
-      setStaff(users.filter((u) => u.hospitalId === hospitalId));
-      setFailed(false);
-    } catch (e) {
-      console.error('Error loading staff:', e);
-      setFailed(true);
-      setStaff([]);
-    }
-  }, [hospitalId]);
-  useEffect(() => { load(); }, [load, version]);
+  useEffect(() => { dispatch(fetchHmStaff()); }, [dispatch]);
+
+  const staff = staffState.list;
+  const failed = Boolean(staffState.error);
+  const loading = staffState.loading && staff.length === 0;
 
   const q = term.trim().toLowerCase();
-  const filtered = (staff || []).filter((s) =>
+  const filtered = staff.filter((s) =>
     (role === 'ALL' || (s.role || '').toLowerCase() === role.toLowerCase())
     && (status === 'ALL' || (s.status || '').toLowerCase() === status.toLowerCase())
     && (!q || [s.name, s.email, s.employeeId, s.designation].some((v) => (v || '').toLowerCase().includes(q))));
@@ -50,11 +40,10 @@ export default function StaffPage() {
     });
     if (!ok) return;
     try {
-      await Users.updateStatus(member.id, next);
-      notify(`Staff member marked as ${next}`, 'success');
-      await load();
+      await dispatch(updateStaffStatus({ id: member.id, status: next })).unwrap();
+      dispatch(addToast({ message: `Staff member marked as ${next}`, type: 'success' }));
     } catch (err) {
-      notify(err?.message || 'Error updating staff status', 'error');
+      dispatch(addToast({ message: typeof err === 'string' ? err : err?.message || 'Error updating staff status', type: 'error' }));
     }
   }
 
@@ -66,7 +55,7 @@ export default function StaffPage() {
           <p className="card-subtitle">Manage doctors, administrative staff, and ambulance drivers for this hospital</p>
         </div>
         <div className="filter-toolbar">
-          <button type="button" className="btn-primary" onClick={openStaffModal}>
+          <button type="button" className="btn-primary" onClick={() => dispatch(openStaffModal())}>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             <span>Register New Staff</span>
           </button>
@@ -92,8 +81,8 @@ export default function StaffPage() {
           </thead>
           <tbody>
             {failed && <LoadingCell colSpan={6} tone="danger">Failed to load staff directory.</LoadingCell>}
-            {!failed && staff === null && <LoadingCell colSpan={6}>Loading staff directory...</LoadingCell>}
-            {!failed && staff && filtered.length === 0 && <LoadingCell colSpan={6}>No staff members found matching your search.</LoadingCell>}
+            {!failed && loading && <LoadingCell colSpan={6}>Loading staff directory...</LoadingCell>}
+            {!failed && !loading && filtered.length === 0 && <LoadingCell colSpan={6}>No staff members found matching your search.</LoadingCell>}
             {filtered.map((s) => {
               const isActive = (s.status || 'Active').toLowerCase() === 'active';
               const resps = Array.isArray(s.responsibilities) ? s.responsibilities : ['Bed Allocation', 'Inventory'];

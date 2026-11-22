@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { useToast } from '../../context/ToastContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import { selectUser } from '../../store/authSlice';
+import { PROFILE_KEY, profileSaved, selectAmbulanceProfile, selectAmbulanceRequests } from '../../store/ambulanceSlice';
 import { isAssigned, isCompleted, isInTransit } from '../../features/ambulance/transportSteps';
 import { initials } from '../../utils/format';
-import { useAmbulance } from './AmbulanceContext';
 import { PageHeader } from './ambulanceShared';
 
 // #profile-page: initProfile() / initializeProfile(). The HTML page showed a
@@ -44,8 +46,19 @@ const formatJoined = (v) => {
 };
 
 export default function ProfilePage() {
-  const { notify } = useToast();
-  const { user, profile, saveProfile, requests } = useAmbulance();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const profile = useAppSelector(selectAmbulanceProfile);
+  const requests = useAppSelector(selectAmbulanceRequests).list;
+  const notify = (message, type) => dispatch(addToast({ message, type }));
+
+  // The page keeps the edits in sessionStorage (no route lets an ambulance
+  // account update its own record); the slice holds them for this session.
+  function saveProfile(patch) {
+    const next = { ...profile, ...patch, updatedAt: new Date().toISOString() };
+    dispatch(profileSaved(next));
+    try { sessionStorage.setItem(PROFILE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+  }
   const current = {
     name: profile.name || user?.name || '',
     phone: profile.phone || user?.phone || '',

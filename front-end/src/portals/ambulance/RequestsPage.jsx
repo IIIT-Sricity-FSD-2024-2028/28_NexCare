@@ -1,9 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Ambulance } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import { selectUser } from '../../store/authSlice';
+import {
+  dispatchAmbulance,
+  fetchAmbulanceRequests,
+  selectAmbulanceProfile,
+  selectAmbulanceRequests,
+  selectChecklistComplete,
+} from '../../store/ambulanceSlice';
 import { isPending, requestTime } from '../../features/ambulance/transportSteps';
-import { useAmbulance } from './AmbulanceContext';
 import { EmptyState, ICON_PATH, PageHeader, PriorityBadge, contactOf, locationOf, patientOf } from './ambulanceShared';
 
 // #ambulance-requests-page: renderAmbulanceRequests() + the delegated Accept
@@ -12,24 +19,35 @@ import { EmptyState, ICON_PATH, PageHeader, PriorityBadge, contactOf, locationOf
 // left the request attributed to nobody); the outcome — status Dispatched,
 // the request on the Assigned Dispatch page — is the same. Accept stays
 // disabled until the pre-departure checklist is complete, as it did.
+const messageOf = (err, fallback) => (typeof err === 'string' && err) || err?.message || fallback;
+
 export default function RequestsPage() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { notify } = useToast();
-  const { user, profile, requests, loaded, checklistComplete, reload } = useAmbulance();
+  const user = useAppSelector(selectUser);
+  const profile = useAppSelector(selectAmbulanceProfile);
+  const requestsState = useAppSelector(selectAmbulanceRequests);
+  const checklistComplete = useAppSelector(selectChecklistComplete);
   const [busy, setBusy] = useState('');
+  const requests = requestsState.list;
+  const loaded = requestsState.loaded;
   const pending = requests.filter(isPending);
+  const notify = (message, type) => dispatch(addToast({ message, type }));
 
   async function accept(r) {
-    if (!isPending(r)) { notify('This request is no longer pending', 'warning'); reload(); return; }
+    if (!isPending(r)) { notify('This request is no longer pending', 'warning'); dispatch(fetchAmbulanceRequests()); return; }
     setBusy(r.id);
     try {
-      await Ambulance.dispatch(r.id, user.id, profile.vehicle || user.assignedVehicle || undefined);
+      await dispatch(dispatchAmbulance({
+        id: r.id,
+        assignedTo: user.id,
+        vehicleNumber: profile.vehicle || user.assignedVehicle || undefined,
+      })).unwrap();
       notify(`Accepted request ${r.id} - ${patientOf(r)}`, 'success');
-      await reload();
       navigate('/ambulance/assigned-dispatch');
     } catch (err) {
       console.error('Error accepting request:', err);
-      notify(err?.message || 'Failed to accept request. Please try again.', 'error');
+      notify(messageOf(err, 'Failed to accept request. Please try again.'), 'error');
     } finally {
       setBusy('');
     }

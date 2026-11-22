@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
-import { SupportRequests } from '../../api';
-import { useToast } from '../../context/ToastContext';
-import { useHm } from './HmContext';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import { createSupportTicket, fetchSupportTickets, selectHmSupport } from '../../store/hospitalManagerSlice';
 import { Badge, Field, HmModal, LoadingCell, isoDay } from './hmShared';
 
 // TAB 7 — Support Requests: loadSupport(). GET /support-requests is locked to
@@ -19,37 +19,32 @@ const statusText = (s) => String(s || 'open').replace(/_/g, ' ').replace(/\b\w/g
 const isOpen = (s) => ['open', 'in_progress', 'waiting_for_hospital', 'waiting_for_manager'].includes(String(s || 'open').toLowerCase());
 
 export default function SupportPage() {
-  const { notify } = useToast();
-  const { version } = useHm();
-  const [tickets, setTickets] = useState(null);
-  const [failed, setFailed] = useState(false);
+  const dispatch = useAppDispatch();
+  const support = useAppSelector(selectHmSupport);
   const [form, setForm] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      const res = await SupportRequests.getAll();
-      setTickets(Array.isArray(res.data) ? res.data : []);
-      setFailed(false);
-    } catch (e) {
-      console.error('Error loading support:', e);
-      setFailed(true);
-      setTickets([]);
-    }
-  }, []);
-  useEffect(() => { load(); }, [load, version]);
+  useEffect(() => { dispatch(fetchSupportTickets()); }, [dispatch]);
+
+  const tickets = support.tickets;
+  const failed = Boolean(support.error);
+  const loading = support.loading && tickets.length === 0;
 
   async function submit(e) {
     e.preventDefault();
-    if (!form.subject.trim() || !form.description.trim()) { notify('Please enter a subject and a description.', 'error'); return; }
+    if (!form.subject.trim() || !form.description.trim()) { dispatch(addToast({ message: 'Please enter a subject and a description.', type: 'error' })); return; }
     setBusy(true);
     try {
-      await SupportRequests.create({ category: form.category, subject: form.subject.trim(), description: form.description.trim(), priority: form.priority });
-      notify('Support ticket submitted to your Regional Officer.', 'success');
+      await dispatch(createSupportTicket({
+        category: form.category,
+        subject: form.subject.trim(),
+        description: form.description.trim(),
+        priority: form.priority,
+      })).unwrap();
+      dispatch(addToast({ message: 'Support ticket submitted to your Regional Officer.', type: 'success' }));
       setForm(null);
-      await load();
     } catch (err) {
-      notify(err?.message || 'Failed to submit the support ticket', 'error');
+      dispatch(addToast({ message: typeof err === 'string' ? err : err?.message || 'Failed to submit the support ticket', type: 'error' }));
     } finally {
       setBusy(false);
     }
@@ -69,9 +64,9 @@ export default function SupportPage() {
           <thead><tr><th>Ticket ID</th><th>Subject / Category</th><th>Priority</th><th>Submitted Date</th><th>Status</th><th>Response / Resolution</th></tr></thead>
           <tbody>
             {failed && <LoadingCell colSpan={6} tone="danger">Failed to load support tickets.</LoadingCell>}
-            {!failed && tickets === null && <LoadingCell colSpan={6}>Loading support tickets...</LoadingCell>}
-            {!failed && tickets && tickets.length === 0 && <LoadingCell colSpan={6}>No support tickets found for your hospital.</LoadingCell>}
-            {(tickets || []).map((t) => (
+            {!failed && loading && <LoadingCell colSpan={6}>Loading support tickets...</LoadingCell>}
+            {!failed && !loading && tickets.length === 0 && <LoadingCell colSpan={6}>No support tickets found for your hospital.</LoadingCell>}
+            {tickets.map((t) => (
               <tr key={t.id}>
                 <td><strong>{t.id}</strong></td>
                 <td><strong>{t.subject || t.title}</strong><div style={{ fontSize: 11, color: '#64748B' }}>{t.category || 'General'}</div></td>

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Leaves } from '../../api';
-import { useHm } from './HmContext';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchHmLeaves, selectHmLeaves } from '../../store/hospitalManagerSlice';
 import { Badge, LoadingCell, isoDay } from './hmShared';
 import useApprovals from './useApprovals';
 
@@ -21,32 +21,23 @@ export function leaveDays(l) {
 const typeLabel = (l) => l.leaveType || (l.type ? `${l.type.charAt(0).toUpperCase()}${l.type.slice(1).toLowerCase()} Leave` : 'Casual Leave');
 
 export default function LeavesPage() {
-  const { hospitalId, version } = useHm();
-  const [leaves, setLeaves] = useState(null);
-  const [failed, setFailed] = useState(false);
+  const dispatch = useAppDispatch();
+  const leaves = useAppSelector(selectHmLeaves);
   const [term, setTerm] = useState('');
   const [status, setStatus] = useState('pending'); // "Pending Only" was preselected
   const [dept, setDept] = useState('ALL');
 
-  const load = useCallback(async () => {
-    if (!hospitalId) return;
-    try {
-      const res = await Leaves.getAll({ hospitalId });
-      setLeaves(Array.isArray(res.data) ? res.data : []);
-      setFailed(false);
-    } catch (e) {
-      console.error('Error loading leaves:', e);
-      setFailed(true);
-      setLeaves([]);
-    }
-  }, [hospitalId]);
-  useEffect(() => { load(); }, [load, version]);
+  useEffect(() => { dispatch(fetchHmLeaves()); }, [dispatch]);
 
-  const { approveLeave, rejectLeave, dialogs } = useApprovals(load);
+  const { approveLeave, rejectLeave, dialogs } = useApprovals();
 
-  const depts = [...new Set((leaves || []).map((l) => l.department).filter(Boolean))];
+  const rows = leaves.list;
+  const failed = Boolean(leaves.error);
+  const loading = leaves.loading && rows.length === 0;
+
+  const depts = [...new Set(rows.map((l) => l.department).filter(Boolean))];
   const q = term.trim().toLowerCase();
-  const filtered = (leaves || []).filter((l) =>
+  const filtered = rows.filter((l) =>
     (status === 'ALL' || (l.status || '').toLowerCase() === status)
     && (dept === 'ALL' || l.department === dept)
     && (!q || (l.doctorName || '').toLowerCase().includes(q) || (l.reason || '').toLowerCase().includes(q) || (l.specialization || '').toLowerCase().includes(q)));
@@ -80,8 +71,8 @@ export default function LeavesPage() {
             </thead>
             <tbody>
               {failed && <LoadingCell colSpan={8} tone="danger">Failed to load doctor leaves.</LoadingCell>}
-              {!failed && leaves === null && <LoadingCell colSpan={8}>Loading doctor leave requests...</LoadingCell>}
-              {leaves && filtered.length === 0 && !failed && <LoadingCell colSpan={8}>No leave requests match the selected criteria.</LoadingCell>}
+              {!failed && loading && <LoadingCell colSpan={8}>Loading doctor leave requests...</LoadingCell>}
+              {!failed && !loading && filtered.length === 0 && <LoadingCell colSpan={8}>No leave requests match the selected criteria.</LoadingCell>}
               {filtered.map((leave) => {
                 const st = (leave.status || 'pending').toLowerCase();
                 const days = leaveDays(leave);

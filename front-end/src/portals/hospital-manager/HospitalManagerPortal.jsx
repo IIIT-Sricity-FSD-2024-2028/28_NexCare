@@ -2,7 +2,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import useStylesheet from '../../hooks/useStylesheet';
 import hmCss from '../../styles/hospital-manager.css?url';
-import { HmProvider, useHm } from './HmContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { selectUser } from '../../store/authSlice';
+import {
+  fetchHmOverview,
+  fetchSubscription,
+  openRenewalModal,
+  openStaffModal,
+  selectHmSubscription,
+} from '../../store/hospitalManagerSlice';
 import HmSidebar from './HmSidebar';
 import { RegistrationSuccessModal, StaffRegisterModal } from './StaffRegistration';
 import RenewalModal from './RenewalModal';
@@ -59,29 +67,31 @@ function useSidebarState() {
 }
 
 function SubscriptionBanner() {
-  const { subscription: sub, openRenewalModal } = useHm();
+  const dispatch = useAppDispatch();
+  const sub = useAppSelector(selectHmSubscription).plan;
   if (!sub) return null;
+  const open = () => dispatch(openRenewalModal());
   const icon = <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>;
   let body = null;
   if (sub.warningLevel === 'expired') {
     body = (
       <div className="alert-banner alert-banner-expired">
         <div className="alert-banner-content">{icon}<div><strong>Hospital Registration Expired:</strong> Your NexCare subscription ended on {sub.subscriptionExpiryDate}. Please renew immediately to maintain active hospital services.</div></div>
-        <button type="button" className="alert-btn alert-btn-danger" onClick={openRenewalModal}>Renew Subscription (12 Months)</button>
+        <button type="button" className="alert-btn alert-btn-danger" onClick={open}>Renew Subscription (12 Months)</button>
       </div>
     );
   } else if (sub.warningLevel === 'urgent_7') {
     body = (
       <div className="alert-banner alert-banner-urgent">
         <div className="alert-banner-content">{icon}<div><strong>URGENT: Registration Renewal Due:</strong> Only {sub.daysRemaining} day{sub.daysRemaining === 1 ? '' : 's'} remaining before your hospital license expires on {sub.subscriptionExpiryDate}.</div></div>
-        <button type="button" className="alert-btn alert-btn-warning" onClick={openRenewalModal}>Renew License Now</button>
+        <button type="button" className="alert-btn alert-btn-warning" onClick={open}>Renew License Now</button>
       </div>
     );
   } else if (sub.warningLevel === 'warning_30') {
     body = (
       <div className="alert-banner alert-banner-warning">
         <div className="alert-banner-content">{icon}<div><strong>Renewal Notice:</strong> Your NexCare annual registration expires in {sub.daysRemaining} days ({sub.subscriptionExpiryDate}).</div></div>
-        <button type="button" className="alert-btn alert-btn-warning" onClick={openRenewalModal}>Renew (+12 Months)</button>
+        <button type="button" className="alert-btn alert-btn-warning" onClick={open}>Renew (+12 Months)</button>
       </div>
     );
   }
@@ -90,11 +100,21 @@ function SubscriptionBanner() {
 }
 
 function Shell() {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
   const { pathname } = useLocation();
-  const { openStaffModal } = useHm();
   const { toggle, closeMobile } = useSidebarState();
   const slug = pathname.split('/').filter(Boolean)[1] || 'overview';
   const heading = TITLES[slug] || TITLES.overview;
+  const hospitalId = user?.hospitalId || '';
+
+  // HmProvider did this on mount: one overview round (stats + sidebar badge
+  // counts) and the subscription the banner and the sidebar pill read.
+  useEffect(() => {
+    if (!hospitalId) return;
+    dispatch(fetchHmOverview());
+    dispatch(fetchSubscription());
+  }, [dispatch, hospitalId]);
 
   return (
     <div className="layout hm-portal">
@@ -113,7 +133,7 @@ function Shell() {
             </div>
           </div>
           <div className="header-actions">
-            <button type="button" className="btn-primary" onClick={openStaffModal}>
+            <button type="button" className="btn-primary" onClick={() => dispatch(openStaffModal())}>
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
               <span>+ Register Staff</span>
             </button>
@@ -137,9 +157,5 @@ function Shell() {
 
 export default function HospitalManagerPortal() {
   useStylesheet(hmCss);
-  return (
-    <HmProvider>
-      <Shell />
-    </HmProvider>
-  );
+  return <Shell />;
 }

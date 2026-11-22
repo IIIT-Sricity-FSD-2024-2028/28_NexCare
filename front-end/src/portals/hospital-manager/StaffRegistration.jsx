@@ -1,8 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users } from '../../api';
-import { useToast } from '../../context/ToastContext';
-import { useHm } from './HmContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import { selectUser } from '../../store/authSlice';
+import {
+  closeStaffModal,
+  fetchHmStaff,
+  openStaffModal,
+  registerStaff,
+  selectHmHospital,
+  selectHmUi,
+  setRegistered,
+} from '../../store/hospitalManagerSlice';
 import { Field, HmModal, roleLabel } from './hmShared';
 
 // The two "Register Hospital Staff Member" forms from dashboard.html — the
@@ -52,9 +62,13 @@ function useEmailPreview(name) {
 
 /** Shared submit: build the CreateUserDto the HTML built, POST it, hand the credentials card the result. */
 export function useRegisterStaff(variant) {
-  const { hospitalId, hospitalName, setRegistered, refresh } = useHm();
-  const { notify } = useToast();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const hospital = useAppSelector(selectHmHospital);
+  const hospitalId = user?.hospitalId || '';
+  const hospitalName = hospital.name || user?.hospitalName || '';
   const [busy, setBusy] = useState(false);
+  const notify = (message, type) => dispatch(addToast({ message, type }));
 
   async function submit(form) {
     const name = form.name.trim();
@@ -96,14 +110,16 @@ export function useRegisterStaff(variant) {
 
     setBusy(true);
     try {
-      const res = await Users.create(payload);
-      if (!res.data) throw new Error(res.message || 'Staff registration failed');
+      const created = await dispatch(registerStaff(payload)).unwrap();
+      if (!created) throw new Error('Staff registration failed');
       if (variant === 'page') notify(`Staff member ${name} registered successfully!`, 'success');
-      setRegistered(res.data);
-      refresh();
+      dispatch(setRegistered(created));
+      dispatch(fetchHmStaff());
       return true;
     } catch (err) {
-      const msg = Array.isArray(err?.message) ? err.message.join(', ') : (err?.message || 'Server error');
+      const msg = typeof err === 'string' ? err
+        : Array.isArray(err?.message) ? err.message.join(', ')
+          : (err?.message || 'Server error');
       notify(`${variant === 'page' ? 'Error registering staff member' : 'Error creating staff record'}: ${msg}`, 'error');
       return false;
     } finally {
@@ -187,7 +203,13 @@ function RoleFields({ variant, form, set }) {
 
 /** The header's "Register Hospital Staff Member" modal. */
 export function StaffRegisterModal() {
-  const { staffModal, closeStaffModal, hospitalId, hospitalName } = useHm();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const hospital = useAppSelector(selectHmHospital);
+  const staffModal = useAppSelector(selectHmUi).staffModalOpen;
+  const hospitalId = user?.hospitalId || '';
+  const hospitalName = hospital.name || user?.hospitalName || '';
+  const closeStaffModal = () => dispatch(closeStaffModal());
   const [form, setForm] = useState(() => blank('modal'));
   const email = useEmailPreview(form.name);
   const { submit, busy } = useRegisterStaff('modal');
@@ -268,7 +290,12 @@ export function StaffRegisterModal() {
 /** The dedicated form at the top of the Setup page. */
 export function StaffRegisterForm() {
   const navigate = useNavigate();
-  const { hospitalId, hospitalName, regionId, regionName } = useHm();
+  const user = useAppSelector(selectUser);
+  const hospital = useAppSelector(selectHmHospital);
+  const hospitalId = user?.hospitalId || '';
+  const hospitalName = hospital.name || user?.hospitalName || '';
+  const regionId = user?.regionId || '';
+  const regionName = user?.regionName || '';
   const [form, setForm] = useState(() => blank('page'));
   const email = useEmailPreview(form.name);
   const { submit, busy } = useRegisterStaff('page');
@@ -359,9 +386,13 @@ export function StaffRegisterForm() {
 
 /** "Staff Registered Successfully!" — the credentials card with copy / register another / view directory. */
 export function RegistrationSuccessModal() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { registered, setRegistered, hospitalName, openStaffModal } = useHm();
-  const { notify } = useToast();
+  const user = useAppSelector(selectUser);
+  const hospital = useAppSelector(selectHmHospital);
+  const registered = useAppSelector(selectHmUi).registered;
+  const hospitalName = hospital.name || user?.hospitalName || '';
+  const notify = (message, type) => dispatch(addToast({ message, type }));
   if (!registered) return null;
 
   const creds = {
@@ -382,7 +413,7 @@ export function RegistrationSuccessModal() {
       .catch(() => notify(`Credentials ready: ${creds.email}`, 'info'));
   }
 
-  const close = () => setRegistered(null);
+  const close = () => dispatch(setRegistered(null));
 
   return (
     <div className="modal-backdrop" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
@@ -408,7 +439,7 @@ export function RegistrationSuccessModal() {
           <button type="button" className="btn-primary" style={{ justifyContent: 'center', width: '100%', fontWeight: 600 }} onClick={copy}>📋 Copy Credentials</button>
           <div style={{ display: 'flex', gap: 10 }}>
             {/* registerAnotherStaff() switched to a tab that did not exist and landed on the overview; the form lives on Setup. */}
-            <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => { close(); if (window.location.pathname.endsWith('/setup')) window.scrollTo({ top: 0, behavior: 'smooth' }); else openStaffModal(); }}>+ Register Another</button>
+            <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => { close(); if (window.location.pathname.endsWith('/setup')) window.scrollTo({ top: 0, behavior: 'smooth' }); else dispatch(openStaffModal()); }}>+ Register Another</button>
             <button type="button" className="btn-secondary" style={{ flex: 1, background: '#0f172a', color: '#fff' }} onClick={() => { close(); navigate('/hospital-manager/staff'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>View Directory</button>
           </div>
         </div>
