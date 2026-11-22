@@ -1,8 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Users } from '../../api';
+import { useEffect, useState } from 'react';
 import { useToast } from '../../context/ToastContext';
 import useConfirm from '../../hooks/useConfirm';
 import logActivity from '../../features/activity/logActivity';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  createUser,
+  deleteUser,
+  fetchAllUsers,
+  selectAllUsers,
+  updateUser,
+} from '../../store/superuserSlice';
 import { MessageRow, SuPage } from './suShared';
 
 // superuser/manage-users.html + manage-users.js: every non-patient login
@@ -35,23 +42,13 @@ const EMPTY = { id: '', name: '', email: '', role: '', dept: '', region: '', sta
 export default function ManageUsersPage() {
   const { notify } = useToast();
   const { ask, dialog } = useConfirm();
-  const [users, setUsers] = useState(null);
+  const dispatch = useAppDispatch();
+  const { list: users, loading, error } = useAppSelector(selectAllUsers);
   const [modal, setModal] = useState(null); // form values while open
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
-  const renderTable = useCallback(async () => {
-    setUsers(null);
-    try {
-      const resp = await Users.getAll();
-      setUsers(resp.data || []);
-    } catch (e) {
-      console.error('Failed to load users from API:', e);
-      setUsers([]);
-    }
-  }, []);
-
-  useEffect(() => { renderTable(); }, [renderTable]);
+  useEffect(() => { dispatch(fetchAllUsers()); }, [dispatch]);
 
   // Staff management: exclude patients (they are in Patient Directory)
   const staffList = (users || []).filter((u) => u.role !== 'patient');
@@ -98,11 +95,18 @@ export default function ManageUsersPage() {
     setSaving(true);
     try {
       if (modal.id === '') {
-        await Users.create({ name, email, role, dept, status, areas: role === 'regional_manager' ? areas : undefined, password: 'Password123' });
+        await dispatch(createUser({
+          name, email, role, dept, status,
+          areas: role === 'regional_manager' ? areas : undefined,
+          password: 'Password123',
+        })).unwrap();
         notify(`Successfully created ${role} account for ${name}`, 'success');
         logActivity('Create', 'Users', `New ${role} account created: ${name} (${dept})`);
       } else {
-        await Users.update(modal.id, { name, email, role, dept, status, areas: role === 'regional_manager' ? areas : undefined });
+        await dispatch(updateUser({
+          id: modal.id,
+          data: { name, email, role, dept, status, areas: role === 'regional_manager' ? areas : undefined },
+        })).unwrap();
         notify(`Successfully updated user details for ${name}`, 'success');
         logActivity('Update', 'Users', `Updated user details for ${name} (ID: ${modal.id})`);
       }
@@ -113,18 +117,17 @@ export default function ManageUsersPage() {
       return;
     }
     setSaving(false);
-    renderTable();
     setModal(null);
   }
 
   async function deleteUser(id) {
     if (!(await ask('Are you sure you want to delete this user? This action cannot be undone.', { title: 'Delete user', confirmLabel: 'OK', danger: true }))) return;
     try {
-      await Users.delete(id);
+      await dispatch(deleteUser(id)).unwrap();
+      notify('User deleted successfully', 'success');
     } catch (e) {
-      console.warn('Delete API call failed, removing from local cache only:', e);
+      notify(e?.message || 'Failed to delete user', 'error');
     }
-    renderTable();
   }
 
   const errorStyle = (key) => ({ borderColor: errors[key] ? 'var(--danger)' : 'var(--border-color)' });
@@ -148,8 +151,10 @@ export default function ManageUsersPage() {
             <tr><th>Name</th><th>Email</th><th>Department</th><th>Role</th><th>Status</th><th>Actions</th></tr>
           </thead>
           <tbody id="usersTableBody">
-            {users === null ? (
+            {loading ? (
               <MessageRow colSpan={6}>Loading users…</MessageRow>
+            ) : error ? (
+              <MessageRow colSpan={6} padding={30} color="#DC2626">{error}</MessageRow>
             ) : !staffList.length ? (
               <MessageRow colSpan={6} padding={30} color="var(--text-muted)">No users found. Add one to get started.</MessageRow>
             ) : staffList.map((user) => (

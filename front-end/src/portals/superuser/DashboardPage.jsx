@@ -1,8 +1,9 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Feedback, Hospitals, Patients, System, Users } from '../../api';
 import usePolling from '../../hooks/usePolling';
 import { pageLink } from '../../api/links';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchSuDashboard, selectSuDashboard } from '../../store/superuserSlice';
 import { SuPage } from './suShared';
 
 // superuser/dashboard.html + dashboard.js: platform-wide counts, the
@@ -54,37 +55,12 @@ function badgeClass(action) {
 }
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState(null); // null = '--', 'N/A' on failure
-  const [activity, setActivity] = useState({ state: 'loading', rows: [] });
+  const dispatch = useAppDispatch();
+  const { stats, activity, loading, error } = useAppSelector(selectSuDashboard);
 
   const load = useCallback(() => {
-    Promise.all([Users.getAll(), Patients.getAll(), Feedback.getAll(), Hospitals.getAll()])
-      .then(([usersRes, patientsRes, feedbackRes, hospitalsRes]) => {
-        const users = usersRes.data || [];
-        const patients = patientsRes.data || [];
-        const feedback = feedbackRes.data || [];
-        const hospitals = hospitalsRes.data || [];
-        setStats({
-          hospitals: hospitals.length,
-          // Staff users only (exclude patients — they have their own Patient Directory)
-          staff: users.filter((u) => u.role !== 'patient').length,
-          patients: patients.length,
-          doctors: users.filter((u) => u.role === 'doctor' && u.status === 'Active').length,
-          feedback: feedback.filter((f) => f.status === 'Open' || f.status === 'Pending' || !f.resolved).length,
-        });
-      })
-      .catch((err) => {
-        console.error('Failed to load dashboard stats:', err);
-        setStats({ hospitals: 'N/A', staff: 'N/A', patients: 'N/A', doctors: 'N/A', feedback: 'N/A' });
-      });
-
-    System.getRecentActivity()
-      .then((res) => setActivity({ state: 'ready', rows: (res.data || []).slice(0, 10) }))
-      .catch((err) => {
-        console.error('Failed to load activity log:', err);
-        setActivity({ state: 'error', rows: [] });
-      });
-  }, []);
+    dispatch(fetchSuDashboard());
+  }, [dispatch]);
 
   // Auto-refresh every 30 seconds
   usePolling(load, 30000);
@@ -132,13 +108,13 @@ export default function DashboardPage() {
             <tr><th>Date</th><th>Actor</th><th>Action</th><th>Module</th><th>Details</th></tr>
           </thead>
           <tbody id="activityTableBody">
-            {activity.state === 'loading' ? (
+            {loading ? (
               <tr><td colSpan={5} style={{ textAlign: 'center', padding: 20, color: '#6A7282' }}>Loading activity...</td></tr>
-            ) : activity.state === 'error' ? (
-              <tr><td colSpan={5} style={{ textAlign: 'center', padding: 20, color: '#dc2626' }}>Could not load activity log. Backend may be unavailable.</td></tr>
-            ) : !activity.rows.length ? (
+            ) : error ? (
+              <tr><td colSpan={5} style={{ textAlign: 'center', padding: 20, color: '#dc2626' }}>{error}</td></tr>
+            ) : !activity.length ? (
               <tr><td colSpan={5} style={{ textAlign: 'center', padding: 20, color: '#6A7282' }}>No system activity recorded yet.</td></tr>
-            ) : activity.rows.map((act, i) => {
+            ) : activity.map((act, i) => {
               const date = act.timestamp || act.createdAt || act.date || '';
               const action = act.action || act.type || '—';
               return (

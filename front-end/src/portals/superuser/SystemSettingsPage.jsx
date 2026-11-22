@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { System } from '../../api';
 import { useToast } from '../../context/ToastContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchSystemSettings,
+  selectSystemSettings,
+  updateSystemSettings,
+} from '../../store/superuserSlice';
 import { SuPage } from './suShared';
 
 // superuser/system-settings.html + system-settings.js: three text fields and
@@ -36,29 +41,31 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SystemSettingsPage() {
   const { notify } = useToast();
+  const dispatch = useAppDispatch();
+  const { config, loading } = useAppSelector(selectSystemSettings);
   const [form, setForm] = useState(DEFAULT_SETTINGS);
   const [emailError, setEmailError] = useState(false);
   const [banner, setBanner] = useState(false);
   const bannerTimer = useRef(null);
 
   useEffect(() => {
-    let cancelled = false;
-    System.getSettings()
-      .then((resp) => {
-        if (cancelled || !resp.data) return;
-        const parsed = parseSettingsArray(resp.data);
+    dispatch(fetchSystemSettings());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!config) return;
+    const parsed = parseSettingsArray(config);
         // Map backend keys to our settings keys
-        setForm({
-          hospitalName: parsed.hospitalName || DEFAULT_SETTINGS.hospitalName,
-          supportEmail: parsed.supportEmail || DEFAULT_SETTINGS.supportEmail,
-          emergencyPhone: parsed.emergencyContact || parsed.emergencyPhone || DEFAULT_SETTINGS.emergencyPhone,
-          enableRegistration: bool(parsed.enableRegistration, DEFAULT_SETTINGS.enableRegistration),
-          maintenanceMode: bool(parsed.maintenanceMode, DEFAULT_SETTINGS.maintenanceMode),
-        });
-      })
-      .catch((err) => console.warn('Could not load settings from API, using defaults:', err));
-    return () => { cancelled = true; clearTimeout(bannerTimer.current); };
-  }, []);
+    setForm({
+      hospitalName: parsed.hospitalName || DEFAULT_SETTINGS.hospitalName,
+      supportEmail: parsed.supportEmail || DEFAULT_SETTINGS.supportEmail,
+      emergencyPhone: parsed.emergencyContact || parsed.emergencyPhone || DEFAULT_SETTINGS.emergencyPhone,
+      enableRegistration: bool(parsed.enableRegistration, DEFAULT_SETTINGS.enableRegistration),
+      maintenanceMode: bool(parsed.maintenanceMode, DEFAULT_SETTINGS.maintenanceMode),
+    });
+  }, [config]);
+
+  useEffect(() => () => clearTimeout(bannerTimer.current), []);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
 
@@ -80,9 +87,10 @@ export default function SystemSettingsPage() {
       maintenanceMode: form.maintenanceMode,
     };
     try {
-      await System.updateSettings(updatedSettings);
+      await dispatch(updateSystemSettings(updatedSettings)).unwrap();
     } catch (err) {
-      console.warn('Failed to save settings to API, saving locally:', err);
+      notify(err?.message || 'Failed to save system settings', 'error');
+      return;
     }
     // Show visual confirmation
     setBanner(true);
