@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Revenue } from '../../api';
-import { useHm } from './HmContext';
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { selectUser } from '../../store/authSlice';
+import { fetchHmRevenue, selectHmRevenue } from '../../store/hospitalManagerSlice';
 import { money } from './hmShared';
 import { PlatformCharges } from './SubscriptionPage';
 
@@ -11,19 +12,16 @@ import { PlatformCharges } from './SubscriptionPage';
 // platform-charges card was on the second copy (and on the Subscription
 // tab). It is shown here too so the section reads whole.
 export default function RevenuePage() {
-  const { hospitalId, version } = useHm();
-  const [data, setData] = useState(undefined);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const revenue = useAppSelector(selectHmRevenue);
+  const hospitalId = user?.hospitalId || '';
 
-  useEffect(() => {
-    let cancelled = false;
-    if (!hospitalId) { setData(null); return undefined; }
-    Revenue.getHospitalRevenue(hospitalId)
-      .then((res) => { if (!cancelled) setData(res.data || null); })
-      .catch((err) => { console.error('Revenue load failed:', err); if (!cancelled) setData(null); });
-    return () => { cancelled = true; };
-  }, [hospitalId, version]);
+  useEffect(() => { dispatch(fetchHmRevenue()); }, [dispatch]);
 
-  const d = data;
+  const d = revenue.data;
+  const loading = revenue.loading && !d;
+  const failed = Boolean(revenue.error) && !d;
   const max = d?.byDepartment?.length ? Math.max(...d.byDepartment.map((x) => x.amount), 1) : 1;
 
   return (
@@ -43,8 +41,8 @@ export default function RevenuePage() {
         <div className="card-header"><h2>Revenue by department</h2></div>
         <div style={{ padding: 20 }}>
           {!hospitalId && <p style={{ color: '#DC2626' }}>No hospital is linked to this account.</p>}
-          {hospitalId && d === undefined && <p className="loading-cell">Loading revenue…</p>}
-          {hospitalId && d === null && <p style={{ color: '#DC2626' }}>Could not load revenue data.</p>}
+          {hospitalId && loading && <p className="loading-cell">Loading revenue…</p>}
+          {hospitalId && failed && <p style={{ color: '#DC2626' }}>Could not load revenue data.</p>}
           {d && (!d.byDepartment || !d.byDepartment.length) && <p>No collected revenue to break down yet.</p>}
           {d && d.byDepartment?.length > 0 && (
             <>
@@ -70,7 +68,7 @@ export default function RevenuePage() {
       <div className="card" style={{ marginTop: 20 }}>
         <div className="card-header"><h2>What this hospital owes NexCare</h2></div>
         <div style={{ padding: 20 }}>
-          {d === undefined && <p className="loading-cell">Loading…</p>}
+          {loading && <p className="loading-cell">Loading…</p>}
           {d && <PlatformCharges pc={d.platformCharges} />}
         </div>
       </div>

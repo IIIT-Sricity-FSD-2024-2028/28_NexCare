@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Inventory } from '../../api';
-import { useHm } from './HmContext';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchInventoryApprovals, selectHmInventory } from '../../store/hospitalManagerSlice';
 import { Badge, LoadingCell, isoDay } from './hmShared';
 import useApprovals from './useApprovals';
 
@@ -32,31 +32,22 @@ function Audit({ req }) {
 }
 
 export default function InventoryApprovalsPage() {
-  const { hospitalId, version } = useHm();
-  const [reqs, setReqs] = useState(null);
-  const [failed, setFailed] = useState(false);
+  const dispatch = useAppDispatch();
+  const inventory = useAppSelector(selectHmInventory);
   const [term, setTerm] = useState('');
   const [status, setStatus] = useState('PENDING');
   const [priority, setPriority] = useState('ALL');
 
-  const load = useCallback(async () => {
-    if (!hospitalId) return;
-    try {
-      const res = await Inventory.getRequirements({ hospitalId });
-      setReqs(Array.isArray(res.data) ? res.data : []);
-      setFailed(false);
-    } catch (e) {
-      console.error('Error loading inventory reqs:', e);
-      setFailed(true);
-      setReqs([]);
-    }
-  }, [hospitalId]);
-  useEffect(() => { load(); }, [load, version]);
+  useEffect(() => { dispatch(fetchInventoryApprovals()); }, [dispatch]);
 
-  const { approveReq, rejectReq, dialogs } = useApprovals(load);
+  const { approveReq, rejectReq, dialogs } = useApprovals();
+
+  const reqs = inventory.approvals;
+  const failed = Boolean(inventory.error);
+  const loading = inventory.loading && reqs.length === 0;
 
   const q = term.trim().toLowerCase();
-  const filtered = (reqs || []).filter((r) => {
+  const filtered = reqs.filter((r) => {
     const st = (r.status || '').toUpperCase();
     const matchStatus = status === 'ALL' || st === status || (status === 'PENDING' && st === 'PENDING_APPROVAL') || (status === 'FULFILLED' && st === 'RESTOCKED');
     return matchStatus
@@ -96,8 +87,8 @@ export default function InventoryApprovalsPage() {
           </thead>
           <tbody>
             {failed && <LoadingCell colSpan={8} tone="danger">Failed to load inventory requirements.</LoadingCell>}
-            {!failed && reqs === null && <LoadingCell colSpan={8}>Loading inventory requirements...</LoadingCell>}
-            {!failed && reqs && filtered.length === 0 && <LoadingCell colSpan={8}>No inventory requisitions match the selected filter.</LoadingCell>}
+            {!failed && loading && <LoadingCell colSpan={8}>Loading inventory requirements...</LoadingCell>}
+            {!failed && !loading && filtered.length === 0 && <LoadingCell colSpan={8}>No inventory requisitions match the selected filter.</LoadingCell>}
             {filtered.map((req) => {
               const st = (req.status || '').toUpperCase();
               const s = STATUS[st] || STATUS.PENDING;

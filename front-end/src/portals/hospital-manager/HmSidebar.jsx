@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import NexCareLogo from '../../components/NexCareLogo';
-import { useAuth } from '../../context/AuthContext';
-import { useHm } from './HmContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { logoutUser, selectUser } from '../../store/authSlice';
+import { selectHmCounts, selectHmHospital, selectHmSubscription } from '../../store/hospitalManagerSlice';
 import { initialsOf } from './hmShared';
 
 // <aside class="sidebar"> from hospital_manager/dashboard.html: the section
@@ -45,13 +46,18 @@ export function subscriptionPill(sub) {
 }
 
 export default function HmSidebar({ onNavigate }) {
-  const { user, logout } = useAuth();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const hospital = useAppSelector(selectHmHospital);
+  const counts = useAppSelector(selectHmCounts);
+  const subscription = useAppSelector(selectHmSubscription).plan;
   const navigate = useNavigate();
-  const { hospitalName, hospitalId, counts, subscription } = useHm();
   const pill = subscriptionPill(subscription);
+  const hospitalId = user?.hospitalId || '';
+  const hospitalName = hospital.name || user?.hospitalName || '';
 
   async function handleLogout() {
-    await logout();
+    await dispatch(logoutUser());
     navigate('/login', { replace: true });
   }
 

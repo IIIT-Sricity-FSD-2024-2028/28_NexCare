@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Feedback } from '../../api';
-import { useToast } from '../../context/ToastContext';
-import { useHm } from './HmContext';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import { fetchHmFeedback, selectHmFeedback, updateFeedbackStatus } from '../../store/hospitalManagerSlice';
 import { Badge, Field, HmModal, LoadingCell, isoDay } from './hmShared';
 
 // TAB — Patient Feedback & Issues: loadHmFeedback() / hmRenderFeedback() /
@@ -13,39 +13,27 @@ import { Badge, Field, HmModal, LoadingCell, isoDay } from './hmShared';
 const STATUSES = ['Open', 'In Progress', 'Resolved'];
 
 export default function FeedbackPage() {
-  const { hospitalId } = useHm();
-  const { notify } = useToast();
-  const [rows, setRows] = useState(null);
-  const [failed, setFailed] = useState(false);
+  const dispatch = useAppDispatch();
+  const feedback = useAppSelector(selectHmFeedback);
   const [filter, setFilter] = useState('all');
   const [edit, setEdit] = useState(null); // { id, current, next }
   const [busy, setBusy] = useState(false);
 
-  const load = useCallback(async () => {
-    if (!hospitalId) return;
-    try {
-      const res = await Feedback.getAll({ hospitalId });
-      setRows(Array.isArray(res.data) ? res.data : []);
-      setFailed(false);
-    } catch (err) {
-      console.error('Failed to load feedback:', err);
-      setFailed(true);
-      setRows([]);
-    }
-  }, [hospitalId]);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { dispatch(fetchHmFeedback()); }, [dispatch]);
 
-  const filtered = (rows || []).filter((f) => filter === 'all' || f.status === filter);
+  const rows = feedback.list;
+  const failed = Boolean(feedback.error);
+  const loading = feedback.loading && rows.length === 0;
+  const filtered = rows.filter((f) => filter === 'all' || f.status === filter);
 
   async function save() {
     setBusy(true);
     try {
-      await Feedback.updateStatus(edit.id, edit.next);
-      setRows((prev) => prev.map((f) => (f.id === edit.id ? { ...f, status: edit.next } : f)));
-      notify('Feedback status updated', 'success');
+      await dispatch(updateFeedbackStatus({ id: edit.id, status: edit.next })).unwrap();
+      dispatch(addToast({ message: 'Feedback status updated', type: 'success' }));
       setEdit(null);
     } catch (err) {
-      notify(err?.message || 'Could not update status. Please try again.', 'error');
+      dispatch(addToast({ message: typeof err === 'string' ? err : err?.message || 'Could not update status. Please try again.', type: 'error' }));
     } finally {
       setBusy(false);
     }
@@ -71,9 +59,9 @@ export default function FeedbackPage() {
           <thead><tr><th>Date</th><th>Patient</th><th>Subject / Summary</th><th>Category</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>
             {failed && <LoadingCell colSpan={7}><span style={{ color: 'red' }}>Error loading feedback.</span></LoadingCell>}
-            {!failed && rows === null && <LoadingCell colSpan={7}>Loading feedback...</LoadingCell>}
-            {!failed && rows && rows.length === 0 && <LoadingCell colSpan={7}>No feedback found.</LoadingCell>}
-            {!failed && rows && rows.length > 0 && filtered.length === 0 && <LoadingCell colSpan={7}>No feedback matches this filter.</LoadingCell>}
+            {!failed && loading && <LoadingCell colSpan={7}>Loading feedback...</LoadingCell>}
+            {!failed && !loading && rows.length === 0 && <LoadingCell colSpan={7}>No feedback found.</LoadingCell>}
+            {!failed && !loading && rows.length > 0 && filtered.length === 0 && <LoadingCell colSpan={7}>No feedback matches this filter.</LoadingCell>}
             {filtered.map((f) => {
               const rating = Math.max(0, Math.min(5, Number(f.rating) || 0));
               return (

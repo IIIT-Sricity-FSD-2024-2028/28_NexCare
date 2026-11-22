@@ -1,6 +1,7 @@
-import { useToast } from '../../context/ToastContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import { selectAmbulanceRequests } from '../../store/ambulanceSlice';
 import { isCompleted, isHistory, isPending, priorityOf } from '../../features/ambulance/transportSteps';
-import { useAmbulance } from './AmbulanceContext';
 import { EmptyState, ICON_PATH, PageHeader, PriorityBadge, StatusBadge, locationOf, patientOf } from './ambulanceShared';
 
 // #completed-transports-page: the three counters, the history table and the
@@ -11,8 +12,11 @@ import { EmptyState, ICON_PATH, PageHeader, PriorityBadge, StatusBadge, location
 const csvCell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
 
 export default function CompletedTransportsPage() {
-  const { notify } = useToast();
-  const { requests, loaded } = useAmbulance();
+  const dispatch = useAppDispatch();
+  const requestsState = useAppSelector(selectAmbulanceRequests);
+  const requests = requestsState.list;
+  const loaded = requestsState.loaded;
+  const notify = (message, type) => dispatch(addToast({ message, type }));
   const history = requests.filter(isHistory).sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
   const completed = history.filter(isCompleted);
   const pendingCount = requests.filter(isPending).length;

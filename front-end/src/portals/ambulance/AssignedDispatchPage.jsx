@@ -1,10 +1,20 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Ambulance } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import {
+  CHECKLIST_ITEMS,
+  CHECKLIST_KEY,
+  checklistToggled,
+  selectActiveTransport,
+  selectAmbulanceChecklist,
+  selectAmbulanceRequests,
+  selectChecklistComplete,
+  updateRequest,
+  updateTransportStatus,
+} from '../../store/ambulanceSlice';
 import useConfirm from '../../hooks/useConfirm';
 import { isAssigned } from '../../features/ambulance/transportSteps';
-import { CHECKLIST_ITEMS, useAmbulance } from './AmbulanceContext';
 import { EmptyState, ICON_PATH, PageHeader, PriorityBadge, contactOf, locationOf, patientOf } from './ambulanceShared';
 
 // #assigned-dispatch-page: the three counters, the pre-departure checklist
@@ -12,24 +22,39 @@ import { EmptyState, ICON_PATH, PageHeader, PriorityBadge, contactOf, locationOf
 // Dispatched request. Start Transport → PATCH /:id/status { En Route }; only
 // one transport can be active at a time, as the page enforced. Cancel
 // Assignment → PUT { status: 'Pending' } after the confirm.
+const messageOf = (err, fallback) => (typeof err === 'string' && err) || err?.message || fallback;
+
 export default function AssignedDispatchPage() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { notify } = useToast();
   const { ask, dialog } = useConfirm();
-  const { requests, loaded, activeTransport, checklist, checklistComplete, toggleChecklist, reload } = useAmbulance();
+  const requestsState = useAppSelector(selectAmbulanceRequests);
+  const activeTransport = useAppSelector(selectActiveTransport);
+  const checklist = useAppSelector(selectAmbulanceChecklist);
+  const checklistComplete = useAppSelector(selectChecklistComplete);
   const [busy, setBusy] = useState('');
+  const requests = requestsState.list;
+  const loaded = requestsState.loaded;
   const assigned = requests.filter(isAssigned);
+  const notify = (message, type) => dispatch(addToast({ message, type }));
+
+  // The slice stays serializable; persisting the tick is a side effect of the UI.
+  function toggleChecklist(index) {
+    const key = `checklist-${index}`;
+    const next = { ...checklist, [key]: !checklist[key] };
+    dispatch(checklistToggled(index));
+    try { sessionStorage.setItem(CHECKLIST_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+  }
 
   async function start(r) {
     setBusy(r.id);
     try {
-      await Ambulance.updateStatus(r.id, 'En Route');
+      await dispatch(updateTransportStatus({ id: r.id, status: 'En Route' })).unwrap();
       notify(`Transport started for ${patientOf(r)}`, 'success');
-      await reload();
       navigate('/ambulance/active-transport');
     } catch (err) {
       console.error('Error starting transport:', err);
-      notify(err?.message || 'Failed to start transport. Please try again.', 'error');
+      notify(messageOf(err, 'Failed to start transport. Please try again.'), 'error');
     } finally {
       setBusy('');
     }
@@ -39,12 +64,11 @@ export default function AssignedDispatchPage() {
     if (!(await ask(`Cancel assignment for ${patientOf(r)}?`, { title: 'Cancel assignment', confirmLabel: 'Cancel assignment', danger: true }))) return;
     setBusy(r.id);
     try {
-      await Ambulance.update(r.id, { status: 'Pending' });
-      await reload();
+      await dispatch(updateRequest({ id: r.id, data: { status: 'Pending' } })).unwrap();
       notify(`Assignment canceled for ${patientOf(r)}`, 'info');
     } catch (err) {
       console.error('Error canceling assignment:', err);
-      notify(err?.message || 'Failed to cancel assignment. Please try again.', 'error');
+      notify(messageOf(err, 'Failed to cancel assignment. Please try again.'), 'error');
     } finally {
       setBusy('');
     }

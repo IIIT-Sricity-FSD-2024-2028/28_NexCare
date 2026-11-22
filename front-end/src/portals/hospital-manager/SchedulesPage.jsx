@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Schedules } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import { decideSchedule, fetchHmSchedules, selectHmSchedules } from '../../store/hospitalManagerSlice';
 import useConfirm from '../../hooks/useConfirm';
-import { useHm } from './HmContext';
 import { LoadingCell } from './hmShared';
 
 // TAB — Schedule Approvals: loadSchedules() / renderSchedules() /
@@ -16,40 +16,29 @@ const BADGE = {
 };
 
 export default function SchedulesPage() {
-  const { hospitalId, refresh } = useHm();
-  const { notify } = useToast();
+  const dispatch = useAppDispatch();
+  const schedules = useAppSelector(selectHmSchedules);
   const { ask, dialog } = useConfirm();
-  const [rows, setRows] = useState(null);
-  const [failed, setFailed] = useState(false);
   const [status, setStatus] = useState('');
 
-  const load = useCallback(async () => {
-    try {
-      const res = await Schedules.getAll(hospitalId ? { hospitalId } : {});
-      setRows(Array.isArray(res.data) ? res.data : []);
-      setFailed(false);
-    } catch (err) {
-      console.error('Failed to load schedules:', err);
-      setFailed(true);
-      setRows([]);
-    }
-  }, [hospitalId]);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { dispatch(fetchHmSchedules()); }, [dispatch]);
+
+  const rows = schedules.list;
+  const failed = Boolean(schedules.error);
+  const loading = schedules.loading && rows.length === 0;
 
   async function decide(id, decision) {
     const question = decision === 'approved' ? 'Approve and publish this hospital schedule?' : 'Reject this hospital schedule?';
     if (!(await ask(question, { title: decision === 'approved' ? 'Approve schedule' : 'Reject schedule', confirmLabel: decision === 'approved' ? 'Approve' : 'Reject', danger: decision === 'rejected' }))) return;
     try {
-      await Schedules.update(id, { status: decision });
-      notify(decision === 'approved' ? 'Schedule approved and published!' : 'Schedule rejected', decision === 'approved' ? 'success' : 'warning');
-      await load();
-      refresh();
+      await dispatch(decideSchedule({ id, status: decision })).unwrap();
+      dispatch(addToast({ message: decision === 'approved' ? 'Schedule approved and published!' : 'Schedule rejected', type: decision === 'approved' ? 'success' : 'warning' }));
     } catch (err) {
-      notify(err?.message || (decision === 'approved' ? 'Could not approve schedule' : 'Could not reject schedule'), 'error');
+      dispatch(addToast({ message: typeof err === 'string' ? err : err?.message || (decision === 'approved' ? 'Could not approve schedule' : 'Could not reject schedule'), type: 'error' }));
     }
   }
 
-  const filtered = (rows || []).filter((s) => !status || s.status === status);
+  const filtered = rows.filter((s) => !status || s.status === status);
   const btn = (bg) => ({ padding: '4px 8px', fontSize: 12, borderRadius: 4, background: bg, color: '#fff', border: 'none', cursor: 'pointer' });
 
   return (
@@ -70,8 +59,8 @@ export default function SchedulesPage() {
           <thead><tr><th>Valid</th><th>Coverage</th><th>Notes</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>
             {failed && <LoadingCell colSpan={5}><span style={{ color: '#ef4444' }}>Failed to load schedules.</span></LoadingCell>}
-            {!failed && rows === null && <LoadingCell colSpan={5}>Loading schedules...</LoadingCell>}
-            {!failed && rows && filtered.length === 0 && <LoadingCell colSpan={5}>No schedules found.</LoadingCell>}
+            {!failed && loading && <LoadingCell colSpan={5}>Loading schedules...</LoadingCell>}
+            {!failed && !loading && filtered.length === 0 && <LoadingCell colSpan={5}>No schedules found.</LoadingCell>}
             {filtered.map((s) => {
               const b = BADGE[s.status] || BADGE.pending;
               return (

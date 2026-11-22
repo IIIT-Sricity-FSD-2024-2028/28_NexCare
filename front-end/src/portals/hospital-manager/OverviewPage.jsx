@@ -1,7 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Inventory, Leaves, Users } from '../../api';
-import { isPendingLeave, isPendingReq, useHm } from './HmContext';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { selectUser } from '../../store/authSlice';
+import {
+  openRenewalModal,
+  openStaffModal,
+  selectHmHospital,
+  selectHmOverview,
+  selectHmSubscription,
+} from '../../store/hospitalManagerSlice';
 import { Badge, LoadingCell, isoDay } from './hmShared';
 import useApprovals from './useApprovals';
 import { leaveDays } from './LeavesPage';
@@ -9,6 +15,8 @@ import { leaveDays } from './LeavesPage';
 // TAB 1 — loadOverview() + renderPendingQueue(): the four stat cards, the
 // quick actions, the registration-status card and the combined pending
 // queue (doctor leaves + inventory requisitions) with inline decisions.
+// loadOverview() is the fetchHmOverview thunk now (dispatched by the shell);
+// the page renders what the slice holds.
 const svg = (d) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">{d}</svg>;
 const ICON = {
   doctors: svg(<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>),
@@ -46,36 +54,17 @@ function QuickAction({ to, onClick, icon, tone, style, title, text }) {
 }
 
 export default function OverviewPage() {
-  const { hospitalId, hospitalName, subscription, openStaffModal, openRenewalModal, version } = useHm();
-  const [data, setData] = useState(null); // { doctors, adminStaff, pendingLeaves, urgentReqs, pendingReqs }
-  const [failed, setFailed] = useState(false);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const hospital = useAppSelector(selectHmHospital);
+  const overview = useAppSelector(selectHmOverview);
+  const subscription = useAppSelector(selectHmSubscription).plan;
+  const hospitalId = user?.hospitalId || '';
+  const hospitalName = hospital.name || user?.hospitalName || '';
+  const data = overview.stats; // { doctors, adminStaff, pendingLeaves, urgentReqs, pendingReqs }
+  const failed = Boolean(overview.error);
 
-  const load = useCallback(async () => {
-    if (!hospitalId) return;
-    try {
-      const [leaves, users, reqs] = await Promise.all([
-        Leaves.getAll({ hospitalId }).then((r) => (Array.isArray(r.data) ? r.data : [])).catch(() => []),
-        Users.getAll().then((r) => (Array.isArray(r.data) ? r.data : [])).catch(() => []),
-        Inventory.getRequirements({ hospitalId }).then((r) => (Array.isArray(r.data) ? r.data : [])).catch(() => []),
-      ]);
-      const pendingReqs = reqs.filter(isPendingReq);
-      setData({
-        doctors: users.filter((u) => u.role === 'doctor' && u.hospitalId === hospitalId).length,
-        adminStaff: users.filter((u) => u.role === 'administrative_staff' && u.hospitalId === hospitalId).length,
-        pendingLeaves: leaves.filter(isPendingLeave),
-        pendingReqs,
-        urgentReqs: pendingReqs.filter((r) => (r.priority || '').toUpperCase() === 'URGENT').length,
-      });
-      setFailed(false);
-    } catch (err) {
-      console.error('Error loading overview:', err);
-      setFailed(true);
-    }
-  }, [hospitalId]);
-
-  useEffect(() => { load(); }, [load, version]);
-
-  const { approveLeave, rejectLeave, approveReq, rejectReq, dialogs } = useApprovals(load);
+  const { approveLeave, rejectLeave, approveReq, rejectReq, dialogs } = useApprovals();
 
   const sub = subscription;
   const subBadge = sub?.status === 'EXPIRED' ? 'rejected' : sub?.status === 'DUE_SOON' ? 'pending' : 'active';
@@ -114,11 +103,11 @@ export default function OverviewPage() {
         <div className="card">
           <div className="card-header"><h2>Hospital Quick Actions</h2></div>
           <div className="quick-actions-grid">
-            <QuickAction onClick={openStaffModal} icon={ICON.addUser} tone="bg-blue" title="Register Staff" text="Add doctor, admin, or ambulance staff" />
+            <QuickAction onClick={() => dispatch(openStaffModal())} icon={ICON.addUser} tone="bg-blue" title="Register Staff" text="Add doctor, admin, or ambulance staff" />
             <QuickAction to="/hospital-manager/leaves" icon={ICON.calendar} tone="bg-amber" title="Review Doctor Leaves" text="Approve or reject doctor leave requests" />
             <QuickAction to="/hospital-manager/inventory-approvals" icon={ICON.inventory} tone="bg-cyan" title="Inventory Approvals" text="Approve replenishment requisitions" />
             <QuickAction to="/hospital-manager/ambulance" icon={ICON.ambulance} style={{ background: '#fee2e2', color: '#dc2626' }} title="Ambulance Fleet Status" text="Monitor live readiness & emergencies" />
-            <QuickAction onClick={openRenewalModal} icon={ICON.card} tone="bg-green" title="Renew License (+12 Mo)" text="Extend annual registration license" />
+            <QuickAction onClick={() => dispatch(openRenewalModal())} icon={ICON.card} tone="bg-green" title="Renew License (+12 Mo)" text="Extend annual registration license" />
           </div>
         </div>
 
@@ -134,7 +123,7 @@ export default function OverviewPage() {
             <div className="sub-hero-item"><span className="sub-hero-label">Days Remaining</span><strong className="sub-hero-val text-large">{sub ? `${sub.daysRemaining} Days` : '--'}</strong></div>
           </div>
           <div className="card-footer-action">
-            <button type="button" className="btn-primary btn-block" onClick={openRenewalModal}>Renew Subscription (12-Month Extension)</button>
+            <button type="button" className="btn-primary btn-block" onClick={() => dispatch(openRenewalModal())}>Renew Subscription (12-Month Extension)</button>
           </div>
         </div>
       </div>

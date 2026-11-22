@@ -1,8 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Revenue } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import { selectUser } from '../../store/authSlice';
+import {
+  fetchHmRevenue,
+  openRenewalModal,
+  selectHmRevenue,
+  selectHmSubscription,
+  updateSubscription,
+} from '../../store/hospitalManagerSlice';
 import useConfirm from '../../hooks/useConfirm';
-import { useHm } from './HmContext';
 import { Badge, LoadingCell, isoDay, money } from './hmShared';
 
 // TAB 6 — Subscription & Renewal: loadSubscription() (the registration
@@ -42,43 +49,39 @@ export function PlatformCharges({ pc }) {
   );
 }
 
+const messageOf = (err, fallback) => (typeof err === 'string' && err) || err?.message || fallback;
+
 export default function SubscriptionPage() {
-  const { hospitalId, hospitalName, subscription: sub, openRenewalModal, version } = useHm();
-  const { notify } = useToast();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const sub = useAppSelector(selectHmSubscription).plan;
+  const plans = useAppSelector(selectHmSubscription).plans;
+  const revenue = useAppSelector(selectHmRevenue);
   const { ask, dialog } = useConfirm();
-  const [revenue, setRevenue] = useState(undefined); // undefined = loading, null = failed
-  const [plans, setPlans] = useState([]);
   const [switching, setSwitching] = useState('');
 
-  const load = useCallback(async () => {
-    if (!hospitalId) return;
-    try {
-      const [rev, cat] = await Promise.all([
-        Revenue.getHospitalRevenue(hospitalId),
-        Revenue.getHospitalPlans().catch(() => ({ data: [] })),
-      ]);
-      setRevenue(rev.data || null);
-      setPlans(Array.isArray(cat.data) ? cat.data.filter((p) => p.status !== 'retired') : []);
-    } catch (err) {
-      console.error('Revenue load failed:', err);
-      setRevenue(null);
-    }
-  }, [hospitalId]);
-  useEffect(() => { load(); }, [load, version]);
+  const hospitalId = user?.hospitalId || '';
+  const hospitalName = sub?.hospitalName || user?.hospitalName || '';
 
-  const pc = revenue?.platformCharges || null;
+  useEffect(() => { dispatch(fetchHmRevenue()); }, [dispatch]);
+
+  const d = revenue.data;
+  const loading = revenue.loading && !d;
+  const failed = Boolean(revenue.error) && !d;
+  const pc = d?.platformCharges || null;
   const currentPlan = pc ? plans.find((p) => p.name === pc.planName) : null;
+  const catalogue = plans.filter((p) => p.status !== 'retired');
 
   async function switchPlan(plan) {
     const ok = await ask(`Move ${hospitalName || 'this hospital'} onto the ${plan.name} plan (${money(plan.monthlyFee)} / month)?`, { title: 'Change subscription plan', confirmLabel: 'Change plan' });
     if (!ok) return;
     setSwitching(plan.id);
     try {
-      await Revenue.updateHospitalSubscription(hospitalId, { planId: plan.id });
-      notify(`Subscription moved to ${plan.name}`, 'success');
-      await load();
+      await dispatch(updateSubscription({ planId: plan.id })).unwrap();
+      dispatch(addToast({ message: `Subscription moved to ${plan.name}`, type: 'success' }));
+      dispatch(fetchHmRevenue()); // the owed-this-cycle card is part of the revenue payload
     } catch (err) {
-      notify(err?.message || 'Could not change the subscription plan', 'error');
+      dispatch(addToast({ message: messageOf(err, 'Could not change the subscription plan'), type: 'error' }));
     } finally {
       setSwitching('');
     }
@@ -109,7 +112,7 @@ export default function SubscriptionPage() {
             </div>
             <div className="sub-status-pill" style={{ background: expired ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.2)', color: expired ? '#F87171' : '#34D399' }}>Status: {sub?.status || 'Active'}</div>
             <div className="sub-price-tag">₹50,000 / Year</div>
-            <button type="button" className="btn-primary btn-renew-hero" onClick={openRenewalModal}>
+            <button type="button" className="btn-primary btn-renew-hero" onClick={() => dispatch(openRenewalModal())}>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" /></svg>
               <span>Renew License (+12 Months)</span>
             </button>
@@ -123,9 +126,9 @@ export default function SubscriptionPage() {
           <span className="card-subtitle">Monthly plan based on your hospital's active staff size.</span>
         </div>
         <div style={{ padding: 20 }}>
-          {revenue === undefined && <p className="loading-cell">Loading…</p>}
-          {revenue === null && <p style={{ color: '#DC2626' }}>Could not load the subscription plan.</p>}
-          {revenue && !pc && <p>No active subscription for this hospital.</p>}
+          {loading && <p className="loading-cell">Loading…</p>}
+          {failed && <p style={{ color: '#DC2626' }}>Could not load the subscription plan.</p>}
+          {d && !pc && <p>No active subscription for this hospital.</p>}
           {pc && (
             <>
               <p style={{ fontSize: 13, marginBottom: 14 }}>
@@ -134,7 +137,7 @@ export default function SubscriptionPage() {
                 {pc.extraSeatFee > 0 && <span style={{ color: '#B45309' }}> · {money(pc.extraSeatFee)} in extra seats this month</span>}
               </p>
               <div className="stats-grid" style={{ marginBottom: 0 }}>
-                {plans.map((plan) => {
+                {catalogue.map((plan) => {
                   const current = currentPlan?.id === plan.id;
                   const range = plan.maxUsers === null ? `${plan.minUsers}+ staff` : `${plan.minUsers} – ${plan.maxUsers} staff`;
                   return (
@@ -190,9 +193,9 @@ export default function SubscriptionPage() {
       <div className="card" style={{ marginTop: 20 }}>
         <div className="card-header"><h2>What this hospital owes NexCare</h2></div>
         <div style={{ padding: 20 }}>
-          {revenue === undefined && <p className="loading-cell">Loading…</p>}
-          {revenue === null && <p style={{ color: '#DC2626' }}>Could not load revenue data.</p>}
-          {revenue && <PlatformCharges pc={pc} />}
+          {loading && <p className="loading-cell">Loading…</p>}
+          {failed && <p style={{ color: '#DC2626' }}>Could not load revenue data.</p>}
+          {d && <PlatformCharges pc={pc} />}
         </div>
       </div>
       {dialog}

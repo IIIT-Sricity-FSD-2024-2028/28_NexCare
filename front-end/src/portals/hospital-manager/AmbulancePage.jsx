@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Ambulance } from '../../api';
-import { useToast } from '../../context/ToastContext';
-import { useHm } from './HmContext';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+import { selectUser } from '../../store/authSlice';
+import { fetchFleet, fetchHmOverview, saveAmbulance, selectHmAmbulance } from '../../store/hospitalManagerSlice';
 import { Field, HmModal, LoadingCell } from './hmShared';
 
 // TAB — Ambulance Status & Fleet: loadAmbulanceFleet() / updateAmbulanceKpis()
@@ -38,31 +39,26 @@ function StatusBadge({ status }) {
   return <span className="badge" style={{ background: b.bg, color: b.color, fontWeight: 700 }}>{b.text}</span>;
 }
 
+const messageOf = (err, fallback) => (typeof err === 'string' && err) || err?.message || fallback;
+
 export default function AmbulancePage() {
-  const { hospitalId, refresh } = useHm();
-  const { notify } = useToast();
-  const [fleet, setFleet] = useState(null);
-  const [failed, setFailed] = useState(false);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const fleetState = useAppSelector(selectHmAmbulance);
+  const hospitalId = user?.hospitalId || '';
   const [term, setTerm] = useState('');
   const [status, setStatus] = useState('all');
   const [edit, setEdit] = useState(null); // { id, vehicle, status, driver, eta, notes }
   const [create, setCreate] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      const res = await Ambulance.getAll();
-      setFleet(Array.isArray(res.data) ? res.data : []);
-      setFailed(false);
-    } catch (err) {
-      console.error('Error loading ambulance fleet:', err);
-      setFailed(true);
-      setFleet([]);
-    }
-  }, []);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { dispatch(fetchFleet()); }, [dispatch]);
 
-  const list = fleet || [];
+  const fleet = fleetState.fleet;
+  const failed = Boolean(fleetState.error);
+  const loading = fleetState.loading && fleet.length === 0;
+
+  const list = fleet;
   const lower = (a) => (a.status || '').toLowerCase();
   const kpi = {
     total: list.length,
@@ -95,51 +91,54 @@ export default function AmbulancePage() {
     }
     setBusy(true);
     try {
-      await Ambulance.update(edit.id, {
-        status: edit.status,
-        driverName,
-        driverPhone: driverPhone || undefined,
-        eta: edit.eta.trim() || (edit.status === 'Available' ? 'Ready' : '--'),
-        notes: edit.notes.trim() || undefined,
-      });
-      notify(`Ambulance ${edit.id} status updated to ${edit.status}`, 'success');
+      await dispatch(saveAmbulance({
+        id: edit.id,
+        data: {
+          status: edit.status,
+          driverName,
+          driverPhone: driverPhone || undefined,
+          eta: edit.eta.trim() || (edit.status === 'Available' ? 'Ready' : '--'),
+          notes: edit.notes.trim() || undefined,
+        },
+      })).unwrap();
+      dispatch(addToast({ message: `Ambulance ${edit.id} status updated to ${edit.status}`, type: 'success' }));
       setEdit(null);
-      await load();
-      refresh();
+      dispatch(fetchHmOverview()); // the on-duty badge count is part of the overview
     } catch (err) {
-      notify(err?.message || 'Error updating ambulance status', 'error');
+      dispatch(addToast({ message: messageOf(err, 'Error updating ambulance status'), type: 'error' }));
     } finally {
       setBusy(false);
     }
   }
 
-  async function dispatch(e) {
+  async function createTransport(e) {
     e.preventDefault();
     const f = create;
     setBusy(true);
     try {
-      await Ambulance.create({
-        patientId: f.patientId.trim(),
-        patientName: f.patientName.trim(),
-        contact: f.contact.trim(),
-        pickupLocation: f.pickupLocation.trim(),
-        type: f.type,
-        vehicleNumber: f.vehicleNumber,
-        notes: f.notes.trim() || `Emergency ${f.type} requested by manager`,
-        status: 'Dispatched',
-        eta: '8 mins',
-        hospitalId,
-      });
+      await dispatch(saveAmbulance({
+        data: {
+          patientId: f.patientId.trim(),
+          patientName: f.patientName.trim(),
+          contact: f.contact.trim(),
+          pickupLocation: f.pickupLocation.trim(),
+          type: f.type,
+          vehicleNumber: f.vehicleNumber,
+          notes: f.notes.trim() || `Emergency ${f.type} requested by manager`,
+          status: 'Dispatched',
+          eta: '8 mins',
+          hospitalId,
+        },
+      })).unwrap();
       // dashboard.js said "dispatched", but the backend records every new
       // request as Pending until the ambulance desk dispatches it.
-      notify(`Transport request for ${f.patientName.trim()} created on ${f.vehicleNumber} — pending dispatch.`, 'success');
+      dispatch(addToast({ message: `Transport request for ${f.patientName.trim()} created on ${f.vehicleNumber} — pending dispatch.`, type: 'success' }));
       setCreate(null);
-      await load();
-      refresh();
+      dispatch(fetchHmOverview());
     } catch (err) {
       // The validator answers with a list of field errors; show the first one.
       const detail = Array.isArray(err?.data?.errors) ? err.data.errors[0] : null;
-      notify(detail || err?.message || 'Error dispatching ambulance', 'error');
+      dispatch(addToast({ message: detail || messageOf(err, 'Error dispatching ambulance'), type: 'error' }));
     } finally {
       setBusy(false);
     }
@@ -191,8 +190,8 @@ export default function AmbulancePage() {
             </thead>
             <tbody>
               {failed && <tr><td colSpan={8} className="text-center text-muted" style={{ padding: 24, textAlign: 'center', color: '#64748B' }}>Failed to load ambulance records.</td></tr>}
-              {!failed && fleet === null && <LoadingCell colSpan={8}>Loading ambulance status records...</LoadingCell>}
-              {!failed && fleet && filtered.length === 0 && <tr><td colSpan={8} style={{ padding: 28, textAlign: 'center', color: '#64748B' }}>No ambulance fleet records matching criteria.</td></tr>}
+              {!failed && loading && <LoadingCell colSpan={8}>Loading ambulance status records...</LoadingCell>}
+              {!failed && !loading && filtered.length === 0 && <tr><td colSpan={8} style={{ padding: 28, textAlign: 'center', color: '#64748B' }}>No ambulance fleet records matching criteria.</td></tr>}
               {filtered.map((item) => (
                 <tr key={item.id}>
                   <td><div style={{ fontWeight: 700, color: '#0f172a' }}>{item.vehicleNumber || item.id}</div><small style={{ color: '#64748b', fontSize: 11.5 }}>Unit ID: {item.id}</small></td>
@@ -235,7 +234,7 @@ export default function AmbulancePage() {
         )}
       </HmModal>
 
-      <HmModal open={Boolean(create)} onClose={() => setCreate(null)} title="New Emergency Transport / Dispatch" size="medium" as="form" onSubmit={dispatch}
+      <HmModal open={Boolean(create)} onClose={() => setCreate(null)} title="New Emergency Transport / Dispatch" size="medium" as="form" onSubmit={createTransport}
         footer={(<><button type="button" className="btn-secondary" onClick={() => setCreate(null)} disabled={busy}>Cancel</button><button type="submit" className="btn-primary" disabled={busy}>{busy ? 'Dispatching...' : 'Dispatch Ambulance'}</button></>)}>
         {create && (
           <>
