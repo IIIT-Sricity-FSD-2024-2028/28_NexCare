@@ -7,6 +7,7 @@ const initialState = {
     open: false,
     title: '',
     message: '',
+    ownerId: null,
   },
 };
 
@@ -28,9 +29,11 @@ const uiSlice = createSlice({
         open: true,
         title: action.payload?.title || '',
         message: action.payload?.message || '',
+        ownerId: action.payload?.ownerId || null,
       };
     },
-    hideConfirmDialog(state) {
+    hideConfirmDialog(state, action) {
+      if (action.payload && state.confirmDialog.ownerId !== action.payload) return;
       state.confirmDialog = initialState.confirmDialog;
     },
   },
