@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { pageLink } from '../../api/links';
-import { useToast } from '../../context/ToastContext';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   approveRegistration,
@@ -9,7 +8,7 @@ import {
   rejectRegistration,
   selectRegistrations,
 } from '../../store/superuserSlice';
-import { MessageRow, SuPage } from './suShared';
+import { MessageRow, SuPage, useNotify } from './suShared';
 
 // superuser/hospital-registrations.html + hospital-registrations.js: every
 // hospital on the platform, pending registrations first; assign a regional
@@ -59,7 +58,7 @@ const modalBackdrop = { position: 'fixed', inset: 0, background: 'rgba(15,23,42,
 const grey = { padding: '9px 16px', borderRadius: 8, background: '#F1F5F9', color: '#334155', border: '1px solid #CBD5E1', fontWeight: 600, fontSize: 13, cursor: 'pointer' };
 
 export default function HospitalRegistrationsPage() {
-  const { notify } = useToast();
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const {
     list: hospitals,

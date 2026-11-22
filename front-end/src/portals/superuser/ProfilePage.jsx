@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Auth } from '../../api';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
-import { SuPage } from './suShared';
+import { useAppSelector } from '../../store/hooks';
+import { selectUser } from '../../store/authSlice';
+import { SuPage, useNotify } from './suShared';
 
 export default function ProfilePage() {
-  const { user } = useAuth();
-  const { notify } = useToast();
+  const user = useAppSelector(selectUser);
+  const notify = useNotify();
   const [pw, setPw] = useState({ current: '', next: '', confirm: '' });
   const [saving, setSaving] = useState(false);
 

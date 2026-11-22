@@ -1,7 +1,20 @@
 // Bits the superuser pages share: the page wrapper that scopes superuser.css,
 // the header with the role line every page printed, and the small formatters
 // the scripts each re-declared.
+import { useCallback } from 'react';
 import Header from '../../components/layout/Header';
+import { useAppDispatch } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
+
+export function useNotify() {
+  const dispatch = useAppDispatch();
+  return useCallback((messageOrOptions, type = 'info', duration = 3500) => {
+    const options = typeof messageOrOptions === 'object' && messageOrOptions !== null
+      ? messageOrOptions
+      : { message: messageOrOptions, type, duration };
+    dispatch(addToast(options));
+  }, [dispatch]);
+}
 
 /** Every superuser page's header said "System Administrator" on the role line. */
 export const ROLE_TEXT = 'System Administrator';

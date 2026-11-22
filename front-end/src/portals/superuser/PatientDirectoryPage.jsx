@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useToast } from '../../context/ToastContext';
 import useConfirm from '../../hooks/useConfirm';
 import logActivity from '../../features/activity/logActivity';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { deleteUser, fetchAllPatients, selectAllPatients } from '../../store/superuserSlice';
-import { ICONS, MessageRow, SuPage } from './suShared';
+import { ICONS, MessageRow, SuPage, useNotify } from './suShared';
 
 // superuser/patient-directory.html + patient-directory.js: every patient
 // login account (`GET /users` filtered to role=patient), searchable, with a
@@ -23,7 +22,7 @@ function toRow(u) {
 }
 
 export default function PatientDirectoryPage() {
-  const { notify } = useToast();
+  const notify = useNotify();
   const { ask, dialog } = useConfirm();
   const dispatch = useAppDispatch();
   const { list: patients, loading, error } = useAppSelector(selectAllPatients);
