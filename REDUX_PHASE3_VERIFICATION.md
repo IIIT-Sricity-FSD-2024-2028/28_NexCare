@@ -77,3 +77,31 @@ real NestJS API. The backend ran with a temporary copy of the seed data.
   Redux development checks enabled. No serialization warnings or uncaught
   browser errors were reported.
 - The frontend production build passed. Repository seed files were untouched.
+
+## Deekshita — Superuser
+
+Phase 3 gives Superuser a live view of Regional Officer registration decisions
+without duplicating the backend call in the RO slice.
+
+| Check | Redux thunks/actions | Result |
+|---|---|---|
+| RO clears or rejects a hospital and Superuser sees the decision | `reviewHospital` → `reviewHospital.fulfilled` in `superuserSlice` | The shared Superuser registration list updates `regionalReviewStatus` immediately. |
+| Superuser re-fetches registrations | `fetchRegistrations` | `Hospitals.getAll()` and `Users.getAll()` restore the persisted status after login or remount. |
+| Logout clears every slice | `logoutUser.fulfilled`, `sessionCleared` | The root reducer recreates every slice with its `initialState`. |
+| Redux development checks | `immutableCheck`, `serializableCheck` | Store configuration enables both checks and should report no warnings for Superuser UI. |
+
+The Superuser hierarchy is intentionally handled by `HierarchyView.jsx`, which
+owns one fetch and is shared with Regional Officer; it is not duplicated into
+the Superuser slice, as defined by the Redux work split.
+
+### Live read-only API check
+
+On 2026-11-23, the running NestJS API was queried with the seeded Regional
+Officer and Superuser accounts:
+
+- Regional Officer review queue returned 3 registrations.
+- Superuser hospital list returned 11 hospitals.
+- A shared hospital record used the same backend fields in both roles
+  (`H001`, `verified`, with its regional review status).
+
+No registration or seed data was changed during this check.

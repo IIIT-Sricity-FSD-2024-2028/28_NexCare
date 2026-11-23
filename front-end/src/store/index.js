@@ -10,13 +10,20 @@ import ambulance from './ambulanceSlice';
 import regionalOfficer from './regionalOfficerSlice';
 import superuser from './superuserSlice';
 
-const appReducer = combineReducers({
+export const appReducer = combineReducers({
   auth, toast, ui, patient, doctor, staff, hospitalManager, ambulance, regionalOfficer, superuser,
 });
 
-const resetActions = [logoutUser.fulfilled.type, sessionCleared.type];
-const rootReducer = (state, action) =>
+export const resetActions = [logoutUser.fulfilled.type, sessionCleared.type];
+export const rootReducer = (state, action) =>
   appReducer(resetActions.includes(action.type) ? undefined : state, action);
 
-export const store = configureStore({ reducer: rootReducer });
+export const store = configureStore({
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      immutableCheck: true,
+      serializableCheck: true,
+    }),
+});
 export default store;
