@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { Feedback, Hospitals, Patients, Revenue, System, Users, Beds, Ambulance } from '../api';
+import { reviewHospital } from './regionalOfficerSlice';
 
 const messageFor = (error, fallback) => error?.message || fallback;
 const dataOf = (response, fallback) => response?.data ?? fallback;
@@ -311,6 +312,13 @@ const superuserSlice = createSlice({
       .addCase(assignManager.fulfilled, (state, action) => {
         const hospital = state.registrations.list.find((item) => item.id === action.payload.id);
         if (hospital) hospital.assignedManagerId = action.payload.managerId;
+      })
+      .addCase(reviewHospital.fulfilled, (state, action) => {
+        const hospital = state.registrations.list.find((item) => item.id === action.payload.id);
+        if (hospital) {
+          hospital.regionalReviewStatus = action.payload.decision;
+          hospital.regionalReviewNotes = action.meta?.arg?.notes || hospital.regionalReviewNotes;
+        }
       })
       .addCase(fetchAllPatients.fulfilled, (state, action) => {
         state.patients.list = action.payload;
