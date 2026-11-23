@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import Header from '../../components/layout/Header';
 import { Modal } from '../../components/ui';
-import { useToast } from '../../context/ToastContext';
 import useConfirm from '../../hooks/useConfirm';
+import { useNotify } from '../../hooks/useNotify';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchHospitalApprovals,
@@ -33,7 +33,7 @@ const reviewNote = (h) => (
 );
 
 export default function HospitalApprovalsPage() {
-  const { notify } = useToast();
+  const notify = useNotify();
   const { ask, dialog } = useConfirm();
   const dispatch = useAppDispatch();
   const { list: hospitals, filter: status, loading, error } = useAppSelector(selectRoApprovals);

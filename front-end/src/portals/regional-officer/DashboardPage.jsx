@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/layout/Header';
-import { useAuth } from '../../context/AuthContext';
+import { selectUser } from '../../store/authSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchRoDashboard, selectRoDashboard } from '../../store/regionalOfficerSlice';
 import {
@@ -22,7 +22,7 @@ const occupancyClass = (rate) => (rate >= 90 ? 'bad' : rate >= 80 ? 'warn' : 'go
 
 export default function DashboardPage() {
   useRegionalCss();
-  const { user } = useAuth();
+  const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
   const { stats, loading, error } = useAppSelector(selectRoDashboard);
 

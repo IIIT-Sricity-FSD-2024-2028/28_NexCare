@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import Header from '../../components/layout/Header';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchHospitalComparison,
@@ -30,7 +30,7 @@ const cls = (m, val) => (m.thresholds ? metricClass(m.key, val, { [m.key]: m.thr
 
 export default function HospitalComparisonPage() {
   useRegionalCss();
-  const { notify } = useToast();
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const {
     hospitals: all, selected, result: shown, loading, error,

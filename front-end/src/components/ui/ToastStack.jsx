@@ -1,6 +1,6 @@
-import { useCallback, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { addToast, hideToast, removeToast, selectNotifications, showToast } from '../store/toastSlice';
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { hideToast, removeToast, selectNotifications, showToast } from '../../store/toastSlice';
 
 const ICONS = {
   success: <polyline points="20 6 9 17 4 12" />,
@@ -9,7 +9,7 @@ const ICONS = {
   info: <><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></>,
 };
 
-function ToastStack() {
+export default function ToastStack() {
   const dispatch = useAppDispatch();
   const toasts = useAppSelector(selectNotifications);
   useEffect(() => {
@@ -31,31 +31,4 @@ function ToastStack() {
       ))}
     </div>
   );
-}
-
-export function ToastProvider({ children }) {
-  const dispatch = useAppDispatch();
-  const notify = useCallback((messageOrOptions, type = 'info', duration = 3500) => {
-    const options = typeof messageOrOptions === 'object' && messageOrOptions !== null
-      ? messageOrOptions
-      : { message: messageOrOptions, type, duration };
-    dispatch(addToast(options));
-  }, [dispatch]);
-  return (
-    <>
-      {children}
-      <ToastStack />
-    </>
-  );
-}
-
-export function useToast() {
-  const dispatch = useAppDispatch();
-  const notify = useCallback((messageOrOptions, type = 'info', duration = 3500) => {
-    const options = typeof messageOrOptions === 'object' && messageOrOptions !== null
-      ? messageOrOptions
-      : { message: messageOrOptions, type, duration };
-    dispatch(addToast(options));
-  }, [dispatch]);
-  return { notify, showToast: notify };
 }

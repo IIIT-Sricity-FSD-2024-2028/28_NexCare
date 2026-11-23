@@ -2,8 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import { AuthProvider } from './context/AuthContext';
-import { ToastProvider } from './context/ToastContext';
 import { DialogProvider } from './components/ui/Dialogs';
 import { Provider } from 'react-redux';
 import { store } from './store';
@@ -18,13 +16,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-        <AuthProvider>
-          <ToastProvider>
-            <DialogProvider>
-              <App />
-            </DialogProvider>
-          </ToastProvider>
-        </AuthProvider>
+        <DialogProvider>
+          <App />
+        </DialogProvider>
       </BrowserRouter>
     </Provider>
   </React.StrictMode>,

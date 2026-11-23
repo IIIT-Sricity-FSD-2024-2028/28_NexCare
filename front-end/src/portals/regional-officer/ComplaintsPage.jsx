@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Header from '../../components/layout/Header';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchComplaints,
@@ -17,7 +17,7 @@ const STATUSES = ['Open', 'In Progress', 'Resolved'];
 
 export default function ComplaintsPage() {
   useRegionalCss();
-  const { notify } = useToast();
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const { list: items, loading, error } = useAppSelector(selectRoComplaints);
   const [status, setStatus] = useState('all');

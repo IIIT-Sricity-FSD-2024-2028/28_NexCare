@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import Header from '../../components/layout/Header';
 import { Panel, PageHeader } from '../../components/ui';
 import { Auth, Hospitals } from '../../api';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
+import { selectUser } from '../../store/authSlice';
+import { useAppSelector } from '../../store/hooks';
 
 // regional-officer/profile.html + profile.js: the login user's regional
 // profile (read-only) and a change-password form.
@@ -16,8 +17,8 @@ const REGION_NAMES = {
 };
 
 export default function ProfilePage() {
-  const { user } = useAuth();
-  const { notify } = useToast();
+  const user = useAppSelector(selectUser);
+  const notify = useNotify();
   const [hospitalCount, setHospitalCount] = useState(0);
   const [pw, setPw] = useState({ current: '', next: '' });
   const [saving, setSaving] = useState(false);

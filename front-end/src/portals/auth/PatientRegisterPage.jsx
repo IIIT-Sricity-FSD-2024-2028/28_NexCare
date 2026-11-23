@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Auth } from '../../api';
-import { useAuth } from '../../context/AuthContext';
+import { loginUser } from '../../store/authSlice';
+import { useAppDispatch } from '../../store/hooks';
 import { AuthShell, SubmitButton, FormMessage, Field, validateSignupBasics, describeError } from './AuthShell';
 
 // front-end/auth/patient-register.html (with city + PIN, then back to the
@@ -11,7 +12,7 @@ export default function PatientRegisterPage({ variant = 'patient' }) {
   const isSignup = variant === 'signup';
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const dispatch = useAppDispatch();
   const [form, setForm] = useState({ fullName: '', email: '', phone: '', city: '', pincode: '', password: '', confirmPassword: '' });
   const [message, setMessage] = useState({ text: '', tone: 'error' });
   const [busy, setBusy] = useState(false);
@@ -38,7 +39,7 @@ export default function PatientRegisterPage({ variant = 'patient' }) {
       if (isSignup) {
         // signup.html stored the returned session itself; going through login()
         // stores the same keys and gets a token the guard will accept.
-        await login(trimmed.email, trimmed.password, 'patient');
+        await dispatch(loginUser({ email: trimmed.email, password: trimmed.password, role: 'patient' })).unwrap();
         setBusyLabel('Redirecting…');
         navigate('/patient/dashboard', { replace: true });
         return;

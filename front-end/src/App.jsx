@@ -1,7 +1,9 @@
 import { Suspense, lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import AuthSessionListener from './components/AuthSessionListener';
 import RequireAuth from './components/RequireAuth';
 import ScrollToTop from './components/ScrollToTop';
+import ToastStack from './components/ui/ToastStack';
 import LandingPage from './portals/public/LandingPage';
 import HospitalRegistrationPage from './portals/public/HospitalRegistrationPage';
 import LoginPage from './portals/auth/LoginPage';
@@ -51,6 +53,8 @@ function portal(base, roles, Element) {
 export default function App() {
   return (
     <>
+      <AuthSessionListener />
+      <ToastStack />
       <ScrollToTop />
       <Routes>
         {/* Public site + auth (plan.md Phase 1) */}

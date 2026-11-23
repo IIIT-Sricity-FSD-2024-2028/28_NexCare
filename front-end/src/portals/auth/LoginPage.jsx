@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { loginUser, selectUser } from '../../store/authSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { homeFor, ROLES } from '../../utils/roles';
 import { AuthShell, SubmitButton, FormMessage, Field, RoleGrid, describeError } from './AuthShell';
 
@@ -88,7 +89,8 @@ const PAGES = {
 export default function LoginPage() {
   const { role: slug } = useParams();
   const page = PAGES[slug || 'hub'];
-  const { user, login } = useAuth();
+  const user = useAppSelector(selectUser);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState('');
@@ -115,7 +117,7 @@ export default function LoginPage() {
     }
     setBusy(true);
     try {
-      const u = await login(email.trim(), password, chosen);
+      const u = await dispatch(loginUser({ email: email.trim(), password, role: chosen })).unwrap();
       if (u.mustChangePassword) {
         navigate('/change-password', { replace: true });
         return;

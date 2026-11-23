@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Auth } from '../../api';
-import { useAuth } from '../../context/AuthContext';
+import { selectUser, userUpdated } from '../../store/authSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { homeFor } from '../../utils/roles';
 import { AuthShell, describeError } from './AuthShell';
 
@@ -14,7 +15,8 @@ const idle = { color: '#64748b' };
 
 export default function ChangePasswordPage() {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
   const [currentPassword, setCurrent] = useState('');
   const [newPassword, setNew] = useState('');
   const [confirmPassword, setConfirm] = useState('');
@@ -35,7 +37,10 @@ export default function ChangePasswordPage() {
     try {
       await Auth.changePassword(currentPassword, newPassword);
       setAlert({ type: 'success', msg: 'Password updated successfully! Redirecting to your dashboard...' });
-      updateUser({ mustChangePassword: false });
+      if (user) {
+        sessionStorage.setItem('nexcare_user_data', JSON.stringify({ ...user, mustChangePassword: false }));
+      }
+      dispatch(userUpdated({ mustChangePassword: false }));
       setTimeout(() => navigate(homeFor(user?.role || 'administrative_staff'), { replace: true }), 1200);
     } catch (err) {
       setAlert({ type: 'error', msg: describeError(err) || 'Failed to update password. Please check your current password.' });

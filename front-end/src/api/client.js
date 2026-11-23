@@ -34,7 +34,7 @@ export class ApiError extends Error {
   }
 }
 
-/** Fired on window when the backend answers 401 — AuthContext logs out on it. */
+/** Fired on window when the backend answers 401 — AuthSessionListener logs out on it. */
 export const UNAUTHORIZED_EVENT = 'nexcare:unauthorized';
 
 export function getAuthToken() {
