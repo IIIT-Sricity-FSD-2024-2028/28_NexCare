@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Hospitals } from '../../api';
 import { ConfirmDialog } from '../../components/ui';
-import { useToast } from '../../context/ToastContext';
+import { addToast } from '../../store/toastSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   deleteFeedback, errorText, fetchFeedback, selectFeedbackList, selectPatientDisplayName,
@@ -29,7 +29,6 @@ const BADGES = { Open: 'badge-open', 'In Progress': 'badge-in-progress', Resolve
 const EMPTY = { hospitalId: '', category: '', description: '', rating: 0 };
 
 export default function FeedbackPage() {
-  const { notify } = useToast();
   const dispatch = useAppDispatch();
   const patientId = useAppSelector(selectPatientId);
   const patient = useAppSelector(selectPatientRecord);
@@ -77,17 +76,17 @@ export default function FeedbackPage() {
   async function submit(e) {
     e.preventDefault();
     const { hospitalId, category, description, rating } = form;
-    if (!hospitalId) return notify('Please select the hospital this feedback is about', 'error');
-    if (!category) return notify('Please select a feedback category', 'error');
-    if (!description || description.trim().length < 10) return notify('Please provide more detail (at least 10 characters)', 'error');
-    if (!rating) return notify('Please rate your experience by selecting stars', 'error');
+    if (!hospitalId) return dispatch(addToast({ message: 'Please select the hospital this feedback is about', type: 'error' }));
+    if (!category) return dispatch(addToast({ message: 'Please select a feedback category', type: 'error' }));
+    if (!description || description.trim().length < 10) return dispatch(addToast({ message: 'Please provide more detail (at least 10 characters)', type: 'error' }));
+    if (!rating) return dispatch(addToast({ message: 'Please rate your experience by selecting stars', type: 'error' }));
 
     try {
       let refId;
       if (editingId) {
         await dispatch(updateFeedback({ id: editingId, data: { hospitalId, category, summary: description.trim(), rating, status: 'Open' } })).unwrap();
         refId = editingId;
-        notify(`Feedback updated successfully! Reference ID: ${refId}`, 'success');
+        dispatch(addToast({ message: `Feedback updated successfully! Reference ID: ${refId}`, type: 'success' }));
       } else {
         const created = await dispatch(submitFeedback({
           patientId,
@@ -100,14 +99,14 @@ export default function FeedbackPage() {
           rating: Number(rating) || 1,
         })).unwrap();
         refId = created?.id;
-        notify(`Feedback submitted successfully! Reference ID: ${refId}`, 'success');
+        dispatch(addToast({ message: `Feedback submitted successfully! Reference ID: ${refId}`, type: 'success' }));
       }
       setForm({ ...EMPTY, hospitalId: ownHospitalId || '' });
       setEditingId(null);
       loadSubmissions();
       setTimeout(() => setTab('submissions'), 500);
     } catch (err) {
-      notify(errorText(err, 'Could not submit your feedback'), 'error');
+      dispatch(addToast({ message: errorText(err, 'Could not submit your feedback'), type: 'error' }));
     }
   }
 
@@ -126,7 +125,7 @@ export default function FeedbackPage() {
     try {
       await dispatch(deleteFeedback(id)).unwrap();
     } catch (err) {
-      notify(errorText(err, 'Could not delete the submission'), 'error');
+      dispatch(addToast({ message: errorText(err, 'Could not delete the submission'), type: 'error' }));
     }
   }
 
@@ -134,7 +133,7 @@ export default function FeedbackPage() {
     try {
       await dispatch(updateFeedback({ id, data: { status: 'Resolved' } })).unwrap();
     } catch (err) {
-      notify(errorText(err, 'Could not update the submission'), 'error');
+      dispatch(addToast({ message: errorText(err, 'Could not update the submission'), type: 'error' }));
     }
   }
 

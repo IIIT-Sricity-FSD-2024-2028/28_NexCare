@@ -1,6 +1,7 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import NexCareLogo from '../../components/NexCareLogo';
-import { useAuth } from '../../context/AuthContext';
+import { logoutUser } from '../../store/authSlice';
+import { useAppDispatch } from '../../store/hooks';
 
 // The <aside class="sidebar"> every patient page carried inline, with the
 // original icons. Logout is the last nav item, as in the HTML.
@@ -69,12 +70,12 @@ export const LogoutIcon = () => (
 );
 
 export default function PatientSidebar() {
-  const { logout } = useAuth();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   async function handleLogout(e) {
     e.preventDefault();
-    await logout();
+    await dispatch(logoutUser()).unwrap();
     navigate('/', { replace: true });
   }
 

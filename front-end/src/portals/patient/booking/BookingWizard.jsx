@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '../../../context/ToastContext';
+import { addToast } from '../../../store/toastSlice';
 import { availableDoctorsForDate, departmentsOf, slotsForDoctor, weekdayOfDate } from '../../../features/doctor-directory/catalogue';
 import { loadPublishedSchedules, publishedWindows } from '../../../features/doctor-directory/hospitalSchedule';
 import { DEFAULT_CONSULTATION_FEE } from '../../../utils/format';
@@ -355,7 +355,6 @@ function StepDateDoctor({ catalogue, booking, setBooking, onBack, onNext }) {
 
 /* ── Step 3: summary + confirm ────────────────────────────────────────────── */
 function StepSummary({ booking, onBack, onSlotTaken, onDone }) {
-  const { notify } = useToast();
   const dispatch = useAppDispatch();
   const membership = useAppSelector(selectPatientMembership);
   const patientId = useAppSelector(selectPatientId);
@@ -382,7 +381,7 @@ function StepSummary({ booking, onBack, onSlotTaken, onDone }) {
       const fresh = await bookedSlotsForDoctor(booking.doctor, booking.date, booking.rescheduleId);
       setChecking(false);
       if (fresh.has(booking.time)) {
-        notify(`Slot "${booking.time}" on ${booking.date} was just booked. Please choose another slot.`, 'error');
+        dispatch(addToast({ message: `Slot "${booking.time}" on ${booking.date} was just booked. Please choose another slot.`, type: 'error' }));
         onSlotTaken();
         return;
       }
@@ -409,7 +408,7 @@ function StepSummary({ booking, onBack, onSlotTaken, onDone }) {
       onDone();
     } catch (err) {
       console.error('Error confirming appointment:', err);
-      notify(errorText(err, 'Failed to confirm appointment'), 'error');
+      dispatch(addToast({ message: errorText(err, 'Failed to confirm appointment'), type: 'error' }));
     } finally {
       setChecking(false);
     }

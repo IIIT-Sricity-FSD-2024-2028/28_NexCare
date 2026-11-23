@@ -2,8 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Hospitals } from '../../api';
 import NexCareLogo from '../../components/NexCareLogo';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
+import { selectRole, selectUser } from '../../store/authSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToast } from '../../store/toastSlice';
 import useStylesheet from '../../hooks/useStylesheet';
 import patientCss from '../../styles/patient.css?url';
 import { ROLES } from '../../utils/roles';
@@ -93,8 +94,9 @@ function calculateDistance(h, userCoords, userCity, userPin) {
 
 function HospitalSearch({ isPatient }) {
   const navigate = useNavigate();
-  const { notify } = useToast();
-  const { user, role } = useAuth();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const role = useAppSelector(selectRole);
   const [filters, setFilters] = useState({ speciality: '', city: '', pincode: '' });
   const [results, setResults] = useState([]);
   const [status, setStatus] = useState({ loading: true, error: '' });
@@ -129,20 +131,20 @@ function HospitalSearch({ isPatient }) {
 
   function detectLiveGps() {
     if (!navigator.geolocation) {
-      notify('Geolocation is not supported by your browser', 'error');
+      dispatch(addToast({ message: 'Geolocation is not supported by your browser', type: 'error' }));
       return;
     }
-    notify('Detecting your GPS location...', 'info');
+    dispatch(addToast({ message: 'Detecting your GPS location...', type: 'info' }));
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserCoords(coords);
         fetchHospitals(filters, coords);
-        notify('📍 Live GPS active! Hospitals sorted by closest distance.', 'success');
+        dispatch(addToast({ message: '📍 Live GPS active! Hospitals sorted by closest distance.', type: 'success' }));
       },
       (err) => {
         console.warn('GPS location error:', err.message);
-        notify('GPS permission not available. Showing regional distance.', 'info');
+        dispatch(addToast({ message: 'GPS permission not available. Showing regional distance.', type: 'info' }));
       },
       { enableHighAccuracy: true, timeout: 8000 }
     );
@@ -319,7 +321,7 @@ function HospitalSearch({ isPatient }) {
 
 /** Route entry: the portal shell for a patient, full-width search for guests and public visitors. */
 export default function HospitalSearchPage() {
-  const { role } = useAuth();
+  const role = useAppSelector(selectRole);
   if (role === ROLES.PATIENT) {
     return <PatientPortal><HospitalSearch isPatient /></PatientPortal>;
   }

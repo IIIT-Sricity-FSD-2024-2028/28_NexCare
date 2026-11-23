@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useToast } from '../../context/ToastContext';
+import { addToast } from '../../store/toastSlice';
 import useStylesheet from '../../hooks/useStylesheet';
 import membershipCss from '../../styles/membership.css?url';
 import { formatDate, money, percent } from '../../utils/format';
@@ -19,7 +19,6 @@ import PatientHeader from './PatientHeader';
 
 export default function MembershipPage() {
   useStylesheet(membershipCss);
-  const { notify } = useToast();
   const dispatch = useAppDispatch();
   const { data: membership, plans, loading: membershipLoading, error } = useAppSelector(selectMembershipState);
   // Until the plan list has arrived once, the page shows its loading copy.
@@ -55,13 +54,13 @@ export default function MembershipPage() {
     } catch (err) {
       console.error('Payment processing failed:', err);
       setPayment((p) => ({ ...p, step: 1 }));
-      notify(errorText(err, 'Payment simulation could not complete'), 'error');
+      dispatch(addToast({ message: errorText(err, 'Payment simulation could not complete'), type: 'error' }));
     }
   }
 
   async function finishPayment() {
     setPayment(null);
-    notify('Care+ Membership successfully activated!', 'success');
+    dispatch(addToast({ message: 'Care+ Membership successfully activated!', type: 'success' }));
     await load();
   }
 
@@ -69,11 +68,11 @@ export default function MembershipPage() {
     setCancelOpen(false);
     try {
       await dispatch(subscribeMembership({ planId: 'CARE-PAYG' })).unwrap();
-      notify('Membership cancelled. You are now on Pay As You Go.', 'info');
+      dispatch(addToast({ message: 'Membership cancelled. You are now on Pay As You Go.', type: 'info' }));
       await load();
     } catch (err) {
       console.error('Cancel membership failed:', err);
-      notify(errorText(err, 'Could not cancel membership'), 'error');
+      dispatch(addToast({ message: errorText(err, 'Could not cancel membership'), type: 'error' }));
     }
   }
 

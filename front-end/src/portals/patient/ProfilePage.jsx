@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Auth } from '../../api';
 import { useDialogs } from '../../components/ui/Dialogs';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
+import { selectUser, userUpdated } from '../../store/authSlice';
+import { addToast } from '../../store/toastSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   errorText, fetchPatientProfile, selectIsPaidMembership, selectPatientDisplayId, selectPatientId,
@@ -35,12 +35,9 @@ function localPhone(raw) {
 }
 
 export default function ProfilePage() {
-  const { notify } = useToast();
   const { showSuccess } = useDialogs();
-  // updateUser keeps the cached session user (auth slice + sessionStorage) in step; it
-  // comes from the AuthContext shim until Phase 2 replaces useAuth().
-  const { updateUser } = useAuth();
   const dispatch = useAppDispatch();
+  const sessionUser = useAppSelector(selectUser);
   const patientId = useAppSelector(selectPatientId);
   const patient = useAppSelector(selectPatientRecord);
   const profile = useAppSelector(selectPatientProfile);
@@ -82,32 +79,35 @@ export default function ProfilePage() {
     const { fullName, phoneNumber, emailAddress } = fields;
     const { currentPassword, newPassword, confirmPassword } = passwords;
 
-    if (!fullName || !phoneNumber || !emailAddress) return notify('Please fill in all required fields in Personal Information', 'error');
-    if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(emailAddress)) return notify('Please enter a valid email address (e.g. user@example.com)', 'error');
-    if (!/^\d{10}$/.test(phoneNumber)) return notify('Phone number must be exactly 10 digits and contain only numbers.', 'error');
-    if (/^0+$/.test(phoneNumber) || /^(\d)\1+$/.test(phoneNumber)) return notify('Please enter a valid phone number (cannot be all the same digit).', 'error');
+    if (!fullName || !phoneNumber || !emailAddress) return dispatch(addToast({ message: 'Please fill in all required fields in Personal Information', type: 'error' }));
+    if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(emailAddress)) return dispatch(addToast({ message: 'Please enter a valid email address (e.g. user@example.com)', type: 'error' }));
+    if (!/^\d{10}$/.test(phoneNumber)) return dispatch(addToast({ message: 'Phone number must be exactly 10 digits and contain only numbers.', type: 'error' }));
+    if (/^0+$/.test(phoneNumber) || /^(\d)\1+$/.test(phoneNumber)) return dispatch(addToast({ message: 'Please enter a valid phone number (cannot be all the same digit).', type: 'error' }));
 
     let passwordChanged = false;
     if (currentPassword || newPassword || confirmPassword) {
-      if (!currentPassword) return notify('Please enter your current password to change it.', 'error');
-      if (!newPassword) return notify('Please enter a new password.', 'error');
-      if (newPassword.length < 8) return notify('New password must be at least 8 characters long.', 'error');
-      if (newPassword === currentPassword) return notify('New password cannot be the same as your current password.', 'error');
-      if (newPassword !== confirmPassword) return notify('New passwords do not match.', 'error');
+      if (!currentPassword) return dispatch(addToast({ message: 'Please enter your current password to change it.', type: 'error' }));
+      if (!newPassword) return dispatch(addToast({ message: 'Please enter a new password.', type: 'error' }));
+      if (newPassword.length < 8) return dispatch(addToast({ message: 'New password must be at least 8 characters long.', type: 'error' }));
+      if (newPassword === currentPassword) return dispatch(addToast({ message: 'New password cannot be the same as your current password.', type: 'error' }));
+      if (newPassword !== confirmPassword) return dispatch(addToast({ message: 'New passwords do not match.', type: 'error' }));
       passwordChanged = true;
     }
 
     setSaving(true);
     try {
       await dispatch(updatePatientProfile({ id: patientId, data: { fullName, phone: phoneNumber, email: emailAddress } })).unwrap();
-      // Keep the cached session user in step, so the header and sidebar update.
-      updateUser({ name: fullName, email: emailAddress });
+      // Keep the cached session user in step (sessionStorage + auth slice), so the
+      // header and sidebar update. Storage is written here, never in a reducer.
+      const patch = { name: fullName, email: emailAddress };
+      if (sessionUser) sessionStorage.setItem('nexcare_user_data', JSON.stringify({ ...sessionUser, ...patch }));
+      dispatch(userUpdated(patch));
 
       if (passwordChanged) {
         try {
           await Auth.changePassword(currentPassword, newPassword);
         } catch (err) {
-          notify(errorText(err, 'Failed to change password. Please check your current password.'), 'error');
+          dispatch(addToast({ message: errorText(err, 'Failed to change password. Please check your current password.'), type: 'error' }));
           setSaving(false);
           return;
         }
@@ -133,7 +133,7 @@ export default function ProfilePage() {
       });
     } catch (err) {
       console.error('Save profile error:', err);
-      notify(errorText(err, 'An error occurred while saving your profile. Please try again.'), 'error');
+      dispatch(addToast({ message: errorText(err, 'An error occurred while saving your profile. Please try again.'), type: 'error' }));
     } finally {
       setSaving(false);
     }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ConfirmDialog } from '../../components/ui';
-import { useToast } from '../../context/ToastContext';
+import { addToast } from '../../store/toastSlice';
 import useDoctorDirectory from '../../features/doctor-directory/useDoctorDirectory';
 import { findHospital } from '../../features/doctor-directory/catalogue';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -29,7 +29,6 @@ const badgeClass = (status) => ({
 
 export default function AppointmentsPage() {
   const [params, setParams] = useSearchParams();
-  const { notify } = useToast();
   const { catalogue, loading: catalogueLoading, error: catalogueError } = useDoctorDirectory();
 
   const dispatch = useAppDispatch();
@@ -93,7 +92,7 @@ export default function AppointmentsPage() {
     try {
       await dispatch(cancelAppointment(id)).unwrap();
     } catch (err) {
-      notify(errorText(err, 'Could not cancel the appointment'), 'error');
+      dispatch(addToast({ message: errorText(err, 'Could not cancel the appointment'), type: 'error' }));
     }
   }
 
@@ -101,7 +100,7 @@ export default function AppointmentsPage() {
     try {
       await dispatch(deleteAppointment(id)).unwrap();
     } catch (err) {
-      notify(errorText(err, 'Could not delete the appointment'), 'error');
+      dispatch(addToast({ message: errorText(err, 'Could not delete the appointment'), type: 'error' }));
     }
   }
 
