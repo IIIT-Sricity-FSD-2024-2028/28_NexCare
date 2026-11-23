@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useToast } from '../../context/ToastContext';
+import { addToast } from '../../store/toastSlice';
 import CardPaymentForm from '../../features/payments/CardPaymentForm';
 import InvoiceModal from '../../features/invoice/InvoiceModal';
 import { checkAmbulanceStatus, downloadInvoicePDF, getBillTotals } from '../../features/invoice/invoice';
@@ -24,7 +24,6 @@ import PatientHeader from './PatientHeader';
 
 export default function BillingPage() {
   const [params, setParams] = useSearchParams();
-  const { notify } = useToast();
   const dispatch = useAppDispatch();
   const patient = useAppSelector(selectPatientRecord);
   const displayName = useAppSelector(selectPatientDisplayName);
@@ -42,8 +41,8 @@ export default function BillingPage() {
   const [invoiceBill, setInvoiceBill] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchBills()).unwrap().catch((err) => notify(errorText(err, 'Could not load your bills'), 'error'));
-  }, [dispatch, notify]);
+    dispatch(fetchBills()).unwrap().catch((err) => dispatch(addToast({ message: errorText(err, 'Could not load your bills'), type: 'error' })));
+  }, [dispatch]);
 
   const selectedId = params.get('bill');
   const bill = (selectedId && bills.find((b) => String(b.id) === String(selectedId))) || pendingBills[0] || bills[0] || null;
@@ -65,7 +64,7 @@ export default function BillingPage() {
       const result = await dispatch(payBill({ billId: bill.id, card })).unwrap();
       console.info('[NexCare] Platform fees recorded:', result.platformFees);
       setPayOpen(false);
-      notify(`Payment of ${moneyFixed(totals.total)} approved for ${bill.id}.`, 'success');
+      dispatch(addToast({ message: `Payment of ${moneyFixed(totals.total)} approved for ${bill.id}.`, type: 'success' }));
       // The bill is already marked paid in the store; refetch for the server's own fields.
       dispatch(fetchBills());
     } catch (err) {
@@ -204,7 +203,7 @@ export default function BillingPage() {
                   id="btnDownloadCurrentBill"
                   className="btn-outline-sm"
                   disabled={!bill}
-                  onClick={() => downloadInvoicePDF(bill, patient, (m) => notify(m, 'warning'))}
+                  onClick={() => downloadInvoicePDF(bill, patient, (m) => dispatch(addToast({ message: m, type: 'warning' })))}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#F8FAFC', border: '1px solid #CBD5E1', color: '#0F172A', padding: '7px 14px', borderRadius: 8, fontWeight: 600, cursor: 'pointer', fontSize: 13 }}
                 >
                   <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
@@ -281,7 +280,7 @@ export default function BillingPage() {
                           <button
                             type="button"
                             className="btn-outline-sm"
-                            onClick={() => { select(b.id); downloadInvoicePDF(b, patient, (m) => notify(m, 'warning')); }}
+                            onClick={() => { select(b.id); downloadInvoicePDF(b, patient, (m) => dispatch(addToast({ message: m, type: 'warning' }))); }}
                             style={{ padding: '4px 10px', fontSize: 12, borderRadius: 6, fontWeight: 600, cursor: 'pointer', background: '#F8FAFC', border: '1px solid #CBD5E1', color: '#0F172A' }}
                           >
                             PDF

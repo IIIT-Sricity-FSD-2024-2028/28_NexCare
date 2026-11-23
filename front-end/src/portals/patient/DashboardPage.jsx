@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Hospitals } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { addToast } from '../../store/toastSlice';
 import InvoiceModal from '../../features/invoice/InvoiceModal';
 import { downloadInvoicePDF } from '../../features/invoice/invoice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -24,7 +24,6 @@ const contains = (q, ...parts) => !q || parts.join(' ').toLowerCase().includes(q
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const { notify } = useToast();
   const dispatch = useAppDispatch();
   const patientId = useAppSelector(selectPatientId);
   const profile = useAppSelector(selectPatientProfile);
@@ -81,7 +80,7 @@ export default function DashboardPage() {
     try {
       await dispatch(cancelAppointment(id)).unwrap();
     } catch (err) {
-      notify(errorText(err, 'Could not cancel the appointment'), 'error');
+      dispatch(addToast({ message: errorText(err, 'Could not cancel the appointment'), type: 'error' }));
     }
   }
 
@@ -298,7 +297,7 @@ export default function DashboardPage() {
                         {bill.status === 'Pending' ? (
                           <button type="button" className="btn-primary-sm" onClick={() => setModal({ title: 'Confirm Payment', message: `Proceed to pay ${bill.currency}${bill.subtotal} for ${bill.id}?`, onConfirm: () => payBill(bill.id) })}>Pay Now</button>
                         ) : (
-                          <button type="button" className="btn-icon" title="Download PDF" onClick={() => downloadInvoicePDF(bill, patient, (m) => notify(m, 'warning'))}>
+                          <button type="button" className="btn-icon" title="Download PDF" onClick={() => downloadInvoicePDF(bill, patient, (m) => dispatch(addToast({ message: m, type: 'warning' })))}>
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M14 10v3.333A1.333 1.333 0 0112.667 14.667H3.333A1.333 1.333 0 012 13.333V10" stroke="#4A5565" strokeWidth="1.33" strokeLinecap="round" strokeLinejoin="round" /><path d="M4.667 6.667L8 10l3.333-3.333M8 10V1.333" stroke="#4A5565" strokeWidth="1.33" strokeLinecap="round" strokeLinejoin="round" /></svg>
                           </button>
                         )}
