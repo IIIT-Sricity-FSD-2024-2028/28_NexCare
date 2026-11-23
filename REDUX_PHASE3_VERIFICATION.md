@@ -58,5 +58,22 @@ on 2026-11-23, branch `poornasri-phase3-integration`.
   re-fetched per mount/poll), so no slice held stale data.
 - Runtime data files under `back-end/data/` were restored after testing; the
   repo's seed data is unchanged.
-- Remaining Phase 3 rows belong to the other portal owners (see
-  `REDUX_WORK_SPLIT.md` §5).
+
+## Nikitha — Doctor and Administrative Staff
+
+Verified on 2026-11-23 in a browser with the Vite development server and the
+real NestJS API. The backend ran with a temporary copy of the seed data.
+
+| Check | Redux thunks | Result |
+|---|---|---|
+| Patient books an appointment and the doctor sees it | `createAppointment`, `fetchDoctorAppointments` | The same appointment ID appeared in the doctor's list with status `Pending`. |
+| Staff generates a bill and the patient sees it | `generateBill`, patient `fetchBills` | The same pending bill ID and ₹250 line item appeared in the patient's billing state. |
+| Hospital Manager approves a leave and the doctor sees it | `requestLeave`, `approveLeave`, `fetchDoctorLeaves` | The same leave ID changed from `pending` to `approved`. |
+
+- Dispatched `logoutUser` between roles and checked that it cleared auth,
+  the stored token, and the appointment, bill, and leave lists used in these
+  checks. Each receiving role fetched its data after signing in again.
+- Opened all five Doctor pages and all ten Administrative Staff pages with
+  Redux development checks enabled. No serialization warnings or uncaught
+  browser errors were reported.
+- The frontend production build passed. Repository seed files were untouched.
