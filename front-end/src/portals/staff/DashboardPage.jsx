@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDialogs } from '../../components/ui/Dialogs';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchBeds, fetchPatientDirectory, fetchStaffAppointments, fetchStaffFeedback,
@@ -21,7 +21,7 @@ function statusClass(status) {
 export default function DashboardPage() {
   const dispatch = useAppDispatch();
   const { showLoading } = useDialogs();
-  const { notify } = useToast();
+  const notify = useNotify();
   const { list: patients } = useAppSelector(selectStaffPatients);
   const { list: all } = useAppSelector(selectStaffAppointments);
   const { list: beds } = useAppSelector(selectBeds);

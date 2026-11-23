@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { selectRole, selectUser } from '../../store/authSlice';
 import { initials } from '../../utils/format';
 import { roleLabel, ROLES } from '../../utils/roles';
 import NotificationBell from './NotificationBell';
@@ -13,7 +13,8 @@ import { selectSidebarOpen, toggleSidebar } from '../../store/uiSlice';
  * "System Administrator" where roleLabel() would say "Super User".
  */
 export default function Header({ title, roleText }) {
-  const { user, role } = useAuth();
+  const user = useAppSelector(selectUser);
+  const role = useAppSelector(selectRole);
   const dispatch = useAppDispatch();
   const sidebarOpen = useAppSelector(selectSidebarOpen);
   const label = roleText || roleLabel(role);

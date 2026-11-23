@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Appointments, Users } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import { errorMessage, logActivity } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
@@ -49,7 +49,7 @@ function toTimeLabel(value) {
 }
 
 export default function ManageAppointmentsPage() {
-  const { notify } = useToast();
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const { list } = useAppSelector(selectStaffAppointments);
   const [term, setTerm] = useState('');

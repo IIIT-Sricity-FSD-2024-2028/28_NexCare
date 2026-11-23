@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Uploads } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import useConfirm from '../../hooks/useConfirm';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
@@ -18,7 +18,7 @@ function formatSize(bytes) {
 }
 
 export default function PatientDirectoryPage() {
-  const { notify } = useToast();
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const { list: patients } = useAppSelector(selectStaffPatients);
   const [loading, setLoading] = useState(true);

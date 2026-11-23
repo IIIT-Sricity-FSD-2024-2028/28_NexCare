@@ -5,8 +5,8 @@ import { Panel, PageHeader } from '../../components/ui';
 import { Auth } from '../../api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchDoctorProfile, selectDoctorProfile } from '../../store/doctorSlice';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
+import { selectUser } from '../../store/authSlice';
+import { useNotify } from '../../hooks/useNotify';
 import { money } from '../../utils/format';
 
 // doctor/profile.html + profile.js.
@@ -14,8 +14,8 @@ import { money } from '../../utils/format';
 // The directory entry is what the booking wizard shows patients, so every
 // field is read-only apart from the password.
 export default function ProfilePage() {
-  const { user } = useAuth();
-  const { notify } = useToast();
+  const user = useAppSelector(selectUser);
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const { data: fetched } = useAppSelector(selectDoctorProfile);
   // Falls back to the cached session until (or if) the fetch succeeds.

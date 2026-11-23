@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Ambulance, Appointments, Beds, Users } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import { errorMessage, findPatient, logActivity, useHospitalId } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
@@ -34,7 +34,7 @@ function wardLineItem(bed) {
 
 export default function GenerateBillPage() {
   const hospitalId = useHospitalId();
-  const { notify } = useToast();
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const billing = useAppSelector(selectStaffBilling);
   const { list: patients } = useAppSelector(selectStaffPatients);

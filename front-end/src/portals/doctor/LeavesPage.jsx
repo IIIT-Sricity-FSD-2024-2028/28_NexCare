@@ -3,8 +3,8 @@ import Header from '../../components/layout/Header';
 import { Panel, StatusPill, EmptyRow, PageHeader } from '../../components/ui';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchDoctorLeaves, requestLeave, deleteLeave, selectDoctorLeaves } from '../../store/doctorSlice';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
+import { selectUser } from '../../store/authSlice';
+import { useNotify } from '../../hooks/useNotify';
 import useConfirm from '../../hooks/useConfirm';
 import { formatDate, isoDate, plural } from '../../utils/format';
 
@@ -13,8 +13,8 @@ import { formatDate, isoDate, plural } from '../../utils/format';
 // A doctor files their own request; approving it is the hospital manager's
 // call. An approved leave stops the booking wizard offering those dates.
 export default function LeavesPage() {
-  const { user } = useAuth();
-  const { notify } = useToast();
+  const user = useAppSelector(selectUser);
+  const notify = useNotify();
   const { ask, dialog } = useConfirm();
   const dispatch = useAppDispatch();
   const { list: leaves, loading, error } = useAppSelector(selectDoctorLeaves);

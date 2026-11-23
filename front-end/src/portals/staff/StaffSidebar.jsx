@@ -1,8 +1,9 @@
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Hospitals } from '../../api';
 import NexCareLogo from '../../components/NexCareLogo';
-import { useAuth } from '../../context/AuthContext';
+import { logoutUser, selectUser } from '../../store/authSlice';
 
 // The <div class="sidebar"> from the staff HTML pages: the <nex-care-logo>
 // block logo.js rendered (logo, "Administrative Staff", hospital name), the
@@ -43,7 +44,8 @@ const ITEMS = [
 ];
 
 export default function StaffSidebar() {
-  const { user, logout } = useAuth();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [hospitalName, setHospitalName] = useState('');
@@ -59,7 +61,7 @@ export default function StaffSidebar() {
   }, [user?.hospitalId]);
 
   async function handleLogout() {
-    await logout();
+    await dispatch(logoutUser()).unwrap();
     navigate('/login', { replace: true });
   }
 
