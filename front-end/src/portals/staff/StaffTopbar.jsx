@@ -1,9 +1,10 @@
-import { useAuth } from '../../context/AuthContext';
+import { useAppSelector } from '../../store/hooks';
+import { selectUser } from '../../store/authSlice';
 
 // The <div class="topbar"> after logo.js rewrote it: `.user` became a
 // `.user-profile` pill with the initial and the name from the JWT.
 export default function StaffTopbar() {
-  const { user } = useAuth();
+  const user = useAppSelector(selectUser);
   const name = user?.name || 'Admin User';
   return (
     <div className="topbar">

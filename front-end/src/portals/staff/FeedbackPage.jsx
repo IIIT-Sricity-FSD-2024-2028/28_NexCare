@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchStaffFeedback, selectStaffFeedback,
@@ -13,7 +13,7 @@ function Stars({ rating }) {
 }
 
 export default function FeedbackPage() {
-  const { notify } = useToast();
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const { list } = useAppSelector(selectStaffFeedback);
   const [term, setTerm] = useState('');

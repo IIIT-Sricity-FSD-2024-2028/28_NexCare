@@ -3,8 +3,8 @@ import Header from '../../components/layout/Header';
 import { KpiTile, Panel, PageHeader } from '../../components/ui';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchDoctorEarnings, updateConsultationFee, selectDoctorEarnings } from '../../store/doctorSlice';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
+import { updateSessionUser } from '../../store/authSlice';
+import { useNotify } from '../../hooks/useNotify';
 import { money, plural } from '../../utils/format';
 
 // doctor/earnings.html + earnings.js.
@@ -12,8 +12,7 @@ import { money, plural } from '../../utils/format';
 // NexCare charges a doctor nothing: the hospital's staff-count subscription
 // covers the seat, so there is no tier to choose and no commission to deduct.
 export default function EarningsPage() {
-  const { updateUser } = useAuth();
-  const { notify } = useToast();
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const { data: earnings, error } = useAppSelector(selectDoctorEarnings);
   const [fee, setFee] = useState('');
@@ -33,7 +32,7 @@ export default function EarningsPage() {
     setSaving(true);
     try {
       await dispatch(updateConsultationFee(consultationFee)).unwrap();
-      updateUser({ consultationFee });
+      dispatch(updateSessionUser({ consultationFee }));
       notify('Consultation fee updated', 'success');
       dispatch(fetchDoctorEarnings());
     } catch (err) {

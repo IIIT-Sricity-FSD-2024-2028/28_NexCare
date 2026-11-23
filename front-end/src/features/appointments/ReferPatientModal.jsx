@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, fieldLabel, fieldInput } from '../../components/ui';
 import { Appointments, Users } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import { DEFAULT_CONSULTATION_FEE, isoDate } from '../../utils/format';
 
 const FALLBACK_DEPTS = ['Cardiology', 'Neurology', 'Orthopaedics', 'General Medicine', 'Dermatology', 'Paediatrics'];
@@ -13,7 +13,7 @@ const FALLBACK_DEPTS = ['Cardiology', 'Neurology', 'Orthopaedics', 'General Medi
  * outcome through onCreated().
  */
 export default function ReferPatientModal({ apt, onClose, onCreated }) {
-  const { notify } = useToast();
+  const notify = useNotify();
   const [doctors, setDoctors] = useState([]);
   const [department, setDepartment] = useState('');
   const [doctorId, setDoctorId] = useState('');

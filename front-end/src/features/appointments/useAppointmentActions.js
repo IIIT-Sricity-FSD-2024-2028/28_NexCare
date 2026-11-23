@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import { useAppDispatch } from '../../store/hooks';
 import { updateAppointmentStatus } from '../../store/doctorSlice';
 
@@ -10,7 +10,7 @@ import { updateAppointmentStatus } from '../../store/doctorSlice';
  */
 export function useAppointmentActions(reload) {
   const dispatch = useAppDispatch();
-  const { notify } = useToast();
+  const notify = useNotify();
   const [busyId, setBusyId] = useState(null);
 
   const act = useCallback(

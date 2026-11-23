@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Inventory } from '../../api';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
+import { selectUser } from '../../store/authSlice';
+import { useNotify } from '../../hooks/useNotify';
 import { errorMessage, logActivity } from './staffData';
 import useConfirm from '../../hooks/useConfirm';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -68,8 +68,8 @@ function requisitionView(r) {
 }
 
 export default function InventoryPage() {
-  const { user } = useAuth();
-  const { notify } = useToast();
+  const user = useAppSelector(selectUser);
+  const notify = useNotify();
   const { ask, dialog } = useConfirm();
   const dispatch = useAppDispatch();
   const inv = useAppSelector(selectInventory);

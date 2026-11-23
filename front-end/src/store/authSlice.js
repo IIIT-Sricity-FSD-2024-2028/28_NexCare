@@ -88,17 +88,26 @@ export const logoutUser = createAsyncThunk('auth/logoutUser', async (_, { getSta
 
 export const checkSession = createAsyncThunk('auth/checkSession', async () => readStoredUser());
 
+export const updateSessionUser = (patch) => (dispatch, getState) => {
+  const user = selectUser(getState());
+  if (!user) return;
+  sessionStorage.setItem(USER_KEY, JSON.stringify({ ...user, ...patch }));
+  dispatch(userUpdated(patch));
+};
+
+function clearAuthState(state) {
+  state.user = null;
+  state.role = null;
+  state.isLoggedIn = false;
+  state.loading = false;
+  state.error = null;
+}
+
 export const authSlice = createSlice({
   name: 'auth',
   initialState: makeInitialState,
   reducers: {
-    sessionCleared: (state) => {
-      state.user = null;
-      state.role = null;
-      state.isLoggedIn = false;
-      state.loading = false;
-      state.error = null;
-    },
+    sessionCleared: clearAuthState,
     userUpdated: (state, action) => {
       if (state.user) state.user = { ...state.user, ...action.payload };
     },
@@ -122,9 +131,7 @@ export const authSlice = createSlice({
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
       })
-      .addCase(logoutUser.fulfilled, (state) => {
-        state.loading = false;
-      })
+      .addCase(logoutUser.fulfilled, clearAuthState)
       .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Logout failed';

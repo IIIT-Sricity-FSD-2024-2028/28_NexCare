@@ -10,12 +10,12 @@ import {
   fetchDoctorAppointments, fetchDoctorStats, fetchDoctorEarnings,
   selectDoctorAppointmentsState, selectDoctorEarnings,
 } from '../../store/doctorSlice';
-import { useAuth } from '../../context/AuthContext';
+import { selectUser } from '../../store/authSlice';
 import { money, todayLabel, appointmentTime, plural } from '../../utils/format';
 
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
   const { list: appointments, stats, loading: aptLoading, error } = useAppSelector(selectDoctorAppointmentsState);
   const { data: earnings } = useAppSelector(selectDoctorEarnings);

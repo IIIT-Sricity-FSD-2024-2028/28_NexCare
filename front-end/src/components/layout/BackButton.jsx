@@ -1,5 +1,6 @@
+import { useAppSelector } from '../../store/hooks';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { selectRole } from '../../store/authSlice';
 import { homeFor } from '../../utils/roles';
 import { BackIcon } from '../icons';
 
@@ -10,7 +11,7 @@ import { BackIcon } from '../icons';
 const HIDDEN_ON = /(login|signup|register|landing|dashboard|overview)/i;
 
 export default function BackButton() {
-  const { role } = useAuth();
+  const role = useAppSelector(selectRole);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   if (HIDDEN_ON.test(pathname)) return null;

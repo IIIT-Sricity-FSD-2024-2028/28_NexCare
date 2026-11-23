@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Schedules } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import { errorMessage, useHospitalId } from './staffData';
 import useConfirm from '../../hooks/useConfirm';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -87,7 +87,7 @@ function DayTiming({ doctor, dayKey, dateStr, leaves }) {
 
 export default function StaffSchedulingPage() {
   const hospitalId = useHospitalId();
-  const { notify } = useToast();
+  const notify = useNotify();
   const { ask, dialog } = useConfirm();
   const [weekStart, setWeekStart] = useState(() => getStartOfWeek(new Date(2026, 8, 1))); // Default around 01 Sep 2026
   const [expanded, setExpanded] = useState(() => new Set(['Cardiology', 'Orthopedics', 'Orthopaedics', 'Neurology', 'General Medicine']));

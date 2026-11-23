@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Beds } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import { errorMessage, findPatient, patientName } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
@@ -64,7 +64,7 @@ async function applyStatusChange(bed, target, patient) {
 }
 
 export default function BedAllocationPage() {
-  const { notify } = useToast();
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const { list: beds, ward } = useAppSelector(selectBeds);
   const { list: patients } = useAppSelector(selectStaffPatients);

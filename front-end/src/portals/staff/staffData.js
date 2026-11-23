@@ -1,10 +1,11 @@
-import { useAuth } from '../../context/AuthContext';
+import { useAppSelector } from '../../store/hooks';
+import { selectUser } from '../../store/authSlice';
 
 // getHospitalId() from every staff script: the signed-in user's hospital. The
 // backend scopes staff reads to it from the token anyway; the pages still send
 // it as `?hospitalId=` exactly as the HTML did.
 export function useHospitalId() {
-  const { user } = useAuth();
+  const user = useAppSelector(selectUser);
   return user?.hospitalId || '';
 }
 

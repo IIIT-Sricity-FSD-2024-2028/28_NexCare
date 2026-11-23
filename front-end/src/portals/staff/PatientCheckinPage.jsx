@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Users } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import { findPatient, logActivity, patientName } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
@@ -22,7 +22,7 @@ function writeCheckins(list) {
 const timeNow = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
 export default function PatientCheckinPage() {
-  const { notify } = useToast();
+  const notify = useNotify();
   const dispatch = useAppDispatch();
   const checkins = useAppSelector(selectCheckins);
   const [patientId, setPatientId] = useState('');

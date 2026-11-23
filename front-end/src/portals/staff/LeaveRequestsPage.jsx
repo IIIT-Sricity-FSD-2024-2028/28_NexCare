@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Leaves, Users } from '../../api';
-import { useToast } from '../../context/ToastContext';
+import { useNotify } from '../../hooks/useNotify';
 import { useHospitalId } from './staffData';
 import useConfirm from '../../hooks/useConfirm';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -26,7 +26,7 @@ const today = () => new Date().toISOString().split('T')[0];
 
 export default function LeaveRequestsPage() {
   const hospitalId = useHospitalId();
-  const { notify } = useToast();
+  const notify = useNotify();
   const { ask, dialog } = useConfirm();
   const dispatch = useAppDispatch();
   const { list: leaves } = useAppSelector(selectLeaveRequests);

@@ -1,6 +1,7 @@
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { useEffect } from 'react';
 import PortalLayout from '../../components/layout/PortalLayout';
-import { useAuth } from '../../context/AuthContext';
+import { selectUser, updateSessionUser } from '../../store/authSlice';
 import { Users } from '../../api';
 
 const DIRECTORY_FIELDS = [
@@ -15,7 +16,8 @@ const DIRECTORY_FIELDS = [
  * /users/doctors and merged into the cached user for every doctor page.
  */
 export default function DoctorPortal() {
-  const { user, updateUser } = useAuth();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
 
   useEffect(() => {
     if (!user?.id || user.dept) return undefined;
@@ -28,11 +30,11 @@ export default function DoctorPortal() {
         const patch = Object.fromEntries(
           DIRECTORY_FIELDS.filter((k) => me[k] !== undefined && me[k] !== null && user[k] === undefined).map((k) => [k, me[k]]),
         );
-        if (Object.keys(patch).length) updateUser(patch);
+        if (Object.keys(patch).length) dispatch(updateSessionUser(patch));
       })
       .catch(() => { /* the summary card falls back to its defaults */ });
     return () => { cancelled = true; };
-  }, [user, updateUser]);
+  }, [dispatch, user]);
 
   return <PortalLayout />;
 }
