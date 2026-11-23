@@ -105,3 +105,47 @@ Officer and Superuser accounts:
   (`H001`, `verified`, with its regional review status).
 
 No registration or seed data was changed during this check.
+
+## Poorvishree — Regional Officer
+
+Verified on 2026-11-23 against the running NestJS API (port 3001) and the Vite
+app. `reviewHospital` is the Regional Officer thunk (`PATCH /hospitals/:id/regional-review`).
+After logout, Superuser `fetchRegistrations` (`GET /hospitals` + `GET /users`)
+must return the persisted decision.
+
+| Check | Redux thunks | Result |
+|---|---|---|
+| RO reviews a hospital and Superuser sees the new status | `reviewHospital`, then Superuser `fetchRegistrations` | Same hospital ID flipped to `regionalReviewStatus: cleared` on the Superuser list. |
+| Regional Officer pages have no Redux serializable warnings | RO slice selectors + pages | All nine RO screens loaded with the console hook; no non-serializable or immutable warnings. |
+| Final repo check | — | `npm run build` passed. The only remaining `createContext` / `useContext` is `DialogProvider`. |
+
+### RO reviews a hospital → Superuser sees it
+
+- Rainbow Hospital (`H009`) was `pending_verification` with
+  `regionalReviewStatus: pending`, assigned to Regional Officer `RM001`
+  (`regional@nexcare.com`).
+- As the Regional Officer, `GET /api/hospitals/review-queue` (what
+  `fetchHospitalApprovals` calls) included `H009`.
+- `PATCH /api/hospitals/H009/regional-review` `{ decision: 'cleared', notes: 'Phase 3 verification: facilities and records check out.' }`
+  — the same payload `reviewHospital` sends — returned
+  `regionalReviewStatus: cleared`. Hospital stayed `pending_verification`
+  (final approval is Superuser-only).
+- Logged out of that session and signed in as Superuser
+  (`superuser@nexcare.com`). `GET /api/hospitals` (what `fetchRegistrations`
+  uses) returned 11 hospitals; `H009` had `regionalReviewStatus: cleared`
+  and the same notes.
+- Superuser Hospital Registrations (`/superuser/hospital-registrations`)
+  showed Rainbow Hospital as **RO Cleared**, with Final Approve / Reject
+  enabled. Regional Officer Hospital Approvals showed the review as sent
+  to the Superuser.
+
+### Regional Officer portal console pass
+
+Opened every Regional Officer route with Redux development checks enabled:
+
+Dashboard, My Region (hierarchy), Hospital Approvals, Revenue, Performance
+Alerts, Hospital Comparison, Patient Complaints, My Profile, and Hospital
+Details (`?id=H001`). No serialization warnings or uncaught console errors.
+
+Runtime data files under `back-end/data/` were restored after testing; the
+repo's seed data is unchanged.
