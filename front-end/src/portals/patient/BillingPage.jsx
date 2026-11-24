@@ -7,7 +7,7 @@ import { checkAmbulanceStatus, downloadInvoicePDF, getBillTotals } from '../../f
 import { moneyFixed } from '../../utils/format';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-  errorText, fetchBills, payBill, selectBillingState, selectPaidBills, selectPatientDisplayId,
+  errorText, fetchBills, payBill, selectBillById, selectBillingState, selectPaidBills, selectPatientDisplayId,
   selectPatientDisplayName, selectPatientRecord, selectPendingBills,
 } from '../../store/patientSlice';
 import PatientHeader from './PatientHeader';
@@ -38,7 +38,8 @@ export default function BillingPage() {
   const [payOpen, setPayOpen] = useState(false);
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState('');
-  const [invoiceBill, setInvoiceBill] = useState(null);
+  const [invoiceBillId, setInvoiceBillId] = useState(null);
+  const invoiceBill = useAppSelector((state) => selectBillById(state, invoiceBillId));
 
   useEffect(() => {
     dispatch(fetchBills()).unwrap().catch((err) => dispatch(addToast({ message: errorText(err, 'Could not load your bills'), type: 'error' })));
@@ -139,7 +140,7 @@ export default function BillingPage() {
                         <td><strong>{moneyFixed(getBillTotals(b).total)}</strong></td>
                         <td><span className="badge badge-pending">Pending</span></td>
                         <td style={{ textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                          <button type="button" className="btn-view-invoice" onClick={() => { select(b.id); setInvoiceBill(b); }}>View</button>
+                          <button type="button" className="btn-view-invoice" onClick={() => { select(b.id); setInvoiceBillId(b.id); }}>View</button>
                           <button type="button" className="btn-pay" onClick={() => { select(b.id); setPayError(''); setPayOpen(true); }}>Pay Now</button>
                         </td>
                       </tr>
@@ -276,7 +277,7 @@ export default function BillingPage() {
                         <td><strong>{moneyFixed(getBillTotals(b).total)}</strong></td>
                         <td><span className="badge badge-paid">Paid</span></td>
                         <td style={{ textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                          <button type="button" className="btn-view-invoice" onClick={() => { select(b.id); setInvoiceBill(b); }}>View</button>
+                          <button type="button" className="btn-view-invoice" onClick={() => { select(b.id); setInvoiceBillId(b.id); }}>View</button>
                           <button
                             type="button"
                             className="btn-outline-sm"
@@ -392,7 +393,7 @@ export default function BillingPage() {
       <InvoiceModal
         bill={invoiceBill}
         patient={patient}
-        onClose={() => setInvoiceBill(null)}
+        onClose={() => setInvoiceBillId(null)}
         onPay={() => { setPayError(''); setPayOpen(true); }}
       />
     </main>

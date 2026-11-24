@@ -1,23 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Payments } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchTestCards, selectTestCards } from '../../store/patientSlice';
 import { digitsOnly, formatCardNumber, formatExpiry, validateCard } from './payBill';
 
 // The card form from patient/billing.html's payment modal. The parent owns the
 // gateway call: `onSubmit(card)` receives { cardNumber, cardholderName,
 // expiryDate, cvv } once the fields pass the same checks the HTML page made.
-// Test cards are listed from /payments/test-cards when the backend answers.
+// Test cards are listed from /payments/test-cards (fetchTestCards, held in the
+// patient slice) when the backend answers. The card fields stay local.
 export default function CardPaymentForm({ amountLabel, busy, error, onSubmit, onCancel }) {
   const [form, setForm] = useState({ paymentMethod: 'credit', cardholderName: '', cardNumber: '', expiryDate: '', cvv: '' });
   const [localError, setLocalError] = useState('');
-  const [testCards, setTestCards] = useState(null);
+  const dispatch = useAppDispatch();
+  const testCards = useAppSelector(selectTestCards);
 
-  useEffect(() => {
-    let cancelled = false;
-    Payments.getTestCards()
-      .then((res) => { if (!cancelled && Array.isArray(res.data?.cards)) setTestCards(res.data.cards); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
+  useEffect(() => { dispatch(fetchTestCards()); }, [dispatch]);
 
   const set = (k, fmt = (v) => v) => (e) => setForm((f) => ({ ...f, [k]: fmt(e.target.value) }));
 

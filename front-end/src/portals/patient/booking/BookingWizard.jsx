@@ -1,23 +1,25 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addToast } from '../../../store/toastSlice';
 import { availableDoctorsForDate, departmentsOf, slotsForDoctor, weekdayOfDate } from '../../../features/doctor-directory/catalogue';
-import { loadPublishedSchedules, publishedWindows } from '../../../features/doctor-directory/hospitalSchedule';
+import { publishedWindows } from '../../../features/doctor-directory/hospitalSchedule';
 import { DEFAULT_CONSULTATION_FEE } from '../../../utils/format';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import {
-  createAppointment, errorText, rescheduleAppointment, selectBookingSubmitting, selectIsPaidMembership,
-  selectPatientId, selectPatientMembership,
+  bookedSlotsFrom, createAppointment, errorText, fetchAppointments, fetchPublishedSchedules, rescheduleAppointment,
+  selectAppointments, selectBookingSubmitting, selectIsPaidMembership, selectPatientId, selectPatientMembership,
+  selectSchedulesState,
 } from '../../../store/patientSlice';
-import { bookedSlotsForDoctor } from './bookedSlots';
 import { deptInfo } from './DEPT_INFO';
 import StepIndicator from './StepIndicator';
 
 // The four-step booking flow from patient/appointments/appointments.js
 // (renderStep0..3 + renderConfirmation). `booking` is the patient slice's
 // booking draft and `setBooking` dispatches updateBookingDraft, so a reschedule
-// can prefill it; `catalogue` is the live directory. The step, the `booked`
-// slot Set and the field inputs stay in local state (short-lived wizard UI).
+// can prefill it; `catalogue` is the live directory. The published schedules
+// and the appointments the booked slots are worked out from are in the slice
+// too; only the step and the field inputs stay in local state (short-lived
+// wizard UI).
 //
 //
 // Steps: 0 hospital · 1 department · 2 date, doctor & slot · 3 summary · 4 done.
@@ -176,12 +178,16 @@ function StepDateDoctor({ catalogue, booking, setBooking, onBack, onNext }) {
   const [date, setDate] = useState(booking.date || '');
   const [doctorId, setDoctorId] = useState(booking.doctorId || '');
   const [time, setTime] = useState(booking.time || null);
-  const [booked, setBooked] = useState(new Set());
+  const dispatch = useAppDispatch();
+  const appointments = useAppSelector(selectAppointments);
+  const scheduleState = useAppSelector(selectSchedulesState);
   // The hospital's published rosters: `undefined` while loading, `null` when
   // the request failed (slots are then offered untrimmed and the server has
   // the final say), else the approved rows for this hospital.
-  const [schedules, setSchedules] = useState(undefined);
-  const latest = useRef(0);
+  let schedules;
+  if (scheduleState.hospitalId === hospId && !scheduleState.loading) {
+    schedules = scheduleState.error ? null : scheduleState.list;
+  }
 
   const todayStr = new Date().toISOString().split('T')[0];
   const maxDate = new Date();
@@ -190,16 +196,8 @@ function StepDateDoctor({ catalogue, booking, setBooking, onBack, onNext }) {
   // One GET /schedules per hospital — the wizard only ever offers slots inside
   // the published roster, which is what the server checks a booking against.
   useEffect(() => {
-    let cancelled = false;
-    setSchedules(undefined);
-    loadPublishedSchedules(hospId)
-      .then((rows) => { if (!cancelled) setSchedules(rows); })
-      .catch((err) => {
-        console.warn('[NexCare] Published hospital schedule could not be loaded:', err.message);
-        if (!cancelled) setSchedules(null);
-      });
-    return () => { cancelled = true; };
-  }, [hospId]);
+    dispatch(fetchPublishedSchedules(hospId));
+  }, [dispatch, hospId]);
 
   const doctors = useMemo(() => (date ? availableDoctorsForDate(catalogue, hospId, dept, date) : []), [catalogue, hospId, dept, date]);
   const selectedDoc = doctors.find((d) => (d.id && d.id === doctorId) || d.name === doctorId) || doctors[0] || null;
@@ -217,13 +215,17 @@ function StepDateDoctor({ catalogue, booking, setBooking, onBack, onNext }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date, doctors]);
 
-  // Booked slots for the chosen doctor on the chosen date.
+  // Booked slots for the chosen doctor on the chosen date: refetch the
+  // patient's appointments when either changes, and work the taken times out
+  // of the slice's list.
+  const selectedName = selectedDoc ? selectedDoc.name : '';
   useEffect(() => {
-    if (!date || !selectedDoc) { setBooked(new Set()); return undefined; }
-    const id = ++latest.current;
-    bookedSlotsForDoctor(selectedDoc.name, date, booking.rescheduleId).then((set) => { if (id === latest.current) setBooked(set); });
-    return undefined;
-  }, [date, selectedDoc]);
+    if (date && selectedName) dispatch(fetchAppointments());
+  }, [dispatch, date, selectedName]);
+  const booked = useMemo(
+    () => new Set(bookedSlotsFrom(appointments, selectedName, date, booking.rescheduleId)),
+    [appointments, selectedName, date, booking.rescheduleId],
+  );
 
   // A previously selected slot that is no longer offered or is now taken is
   // dropped — once the roster is known, so a time carried back from the
@@ -356,6 +358,7 @@ function StepDateDoctor({ catalogue, booking, setBooking, onBack, onNext }) {
 /* ── Step 3: summary + confirm ────────────────────────────────────────────── */
 function StepSummary({ booking, onBack, onSlotTaken, onDone }) {
   const dispatch = useAppDispatch();
+  const appointments = useAppSelector(selectAppointments);
   const membership = useAppSelector(selectPatientMembership);
   const patientId = useAppSelector(selectPatientId);
   const paid = useAppSelector(selectIsPaidMembership);
@@ -378,9 +381,12 @@ function StepSummary({ booking, onBack, onSlotTaken, onDone }) {
     setChecking(true);
     try {
       // Guard: the slot may have been taken since step 2.
-      const fresh = await bookedSlotsForDoctor(booking.doctor, booking.date, booking.rescheduleId);
+      // If the refetch fails, check against the list already held; the server
+      // refuses a clash either way.
+      const latestList = await dispatch(fetchAppointments()).unwrap().catch(() => appointments);
+      const fresh = bookedSlotsFrom(latestList, booking.doctor, booking.date, booking.rescheduleId);
       setChecking(false);
-      if (fresh.has(booking.time)) {
+      if (fresh.includes(booking.time)) {
         dispatch(addToast({ message: `Slot "${booking.time}" on ${booking.date} was just booked. Please choose another slot.`, type: 'error' }));
         onSlotTaken();
         return;

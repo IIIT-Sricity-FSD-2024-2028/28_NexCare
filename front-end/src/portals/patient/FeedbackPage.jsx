@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Hospitals } from '../../api';
 import { ConfirmDialog } from '../../components/ui';
 import { addToast } from '../../store/toastSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-  deleteFeedback, errorText, fetchFeedback, selectFeedbackList, selectPatientDisplayName,
-  selectPatientId, selectPatientRecord, submitFeedback, updateFeedback,
+  deleteFeedback, errorText, fetchFeedback, fetchHospitals, selectFeedbackList, selectPatientDisplayName,
+  selectPatientId, selectPatientRecord, selectVerifiedHospitals, submitFeedback, updateFeedback,
 } from '../../store/patientSlice';
 
 // patient/feedback.html + feedback.js.
@@ -13,7 +12,7 @@ import {
 // Two tabs: submit (or edit) a submission, and the list of your own. The
 // hospital picker is required — feedback with no hospital used to land in the
 // Admin's queue as "Unknown Hospital" and could not be routed.
-// Submissions live in the patient slice; the form and tab stay local.
+// Submissions and the hospital list live in the patient slice; the form and tab stay local.
 
 const CATEGORIES = [
   ['billing', 'Billing/Payment Issue'],
@@ -34,33 +33,18 @@ export default function FeedbackPage() {
   const patient = useAppSelector(selectPatientRecord);
   const displayName = useAppSelector(selectPatientDisplayName);
   const items = useAppSelector(selectFeedbackList);
+  // Only somewhere actually on the platform can act on a complaint (verified only).
+  const hospitals = useAppSelector(selectVerifiedHospitals); // null = loading
 
   const [tab, setTab] = useState('submit');
   const [form, setForm] = useState(EMPTY);
   const [editingId, setEditingId] = useState(null);
-  const [hospitals, setHospitals] = useState(null); // null = loading
   const [confirm, setConfirm] = useState(null);
 
   const loadSubmissions = () => (patientId ? dispatch(fetchFeedback(patientId)) : null);
   useEffect(() => { if (patientId) dispatch(fetchFeedback(patientId)); }, [dispatch, patientId]);
 
-  // Only somewhere actually on the platform can act on a complaint.
-  useEffect(() => {
-    let cancelled = false;
-    Hospitals.getAll()
-      .then((res) => {
-        if (cancelled) return;
-        const list = (res.data || [])
-          .filter((h) => (h.verificationStatus || 'verified') === 'verified')
-          .sort((a, b) => String(a.name).localeCompare(String(b.name)));
-        setHospitals(list);
-      })
-      .catch((err) => {
-        console.warn('Could not load hospitals for the feedback picker:', err.message);
-        if (!cancelled) setHospitals([]);
-      });
-    return () => { cancelled = true; };
-  }, []);
+  useEffect(() => { dispatch(fetchHospitals()); }, [dispatch]);
 
   // The patient's own hospital is nearly always the one they mean, but they may
   // be reviewing somewhere they were referred to, so it is only a preselection.

@@ -1177,11 +1177,45 @@ not an Error. Still not migrated: the superuser pages (slice written, no page
 imports it), most hospital-manager pages (fetch the API directly), and
 `HmContext` / `AmbulanceContext`, which remain as context adapters over their slices.
 
+Status on 2026-11-25: Phase 2 (context removal, PRs #59–#64) and the Phase 3
+verification PRs of the other four members (#65–#67) are merged; `AuthContext` /
+`ToastContext` are gone (`src/context/` no longer exists).
+
+**The evaluation rules (stated in class, 2026-11).** The evaluator will open the
+store's slices and expects: slices organised by the backend's repositories
+(NestJS modules), CRUD thunks per repository (the stated yardstick is
+"CRUD operations = repositories × 4"), **every piece of server data read from
+the Redux store and never from component `useState`**, and the async-thunk
+pattern for every API call. How the patient slice meets this (Vivian, Phase 3,
+branch `vivian-phase3-integration`):
+
+- Patient pages and `features/payments` / `features/doctor-directory` no longer
+  import `src/api`. The only API callers are thunks, plus the helper modules
+  thunks call (`loadCatalogue`, `loadPublishedSchedules`, `payBill`).
+- Added thunks: `fetchHospitals`, `fetchNearbyHospitals` (nearby, falls back to
+  the whole network), `searchHospitals` (Find Hospitals; `pending` stores the
+  query), `fetchDoctorDirectory`, `fetchPublishedSchedules` (keyed on the
+  hospital it was asked for, so a slow answer for another hospital is
+  dropped), `fetchTestCards`, `changePassword`, `cancelMembership`.
+- `booking/bookedSlots.js` is deleted. Booked slots are derived from
+  `patient.appointments.list` by `bookedSlotsFrom()` (exported from the slice,
+  returns an array, because a `Set` is not serializable). The wizard refetches
+  appointments when the date or doctor changes, and once more before it confirms.
+- Modals hold an **id** (`invoiceBillId`) and select the record
+  (`selectBillById`), not a copy of it.
+- The slice's header comment holds the per-repository CRUD table. Writes the
+  backend refuses to patients (create/delete a bill, delete an ambulance
+  request, delete a patient) are deliberately absent; they belong to the staff
+  and superuser slices.
+- Not changed: the slices are still one per portal, as `REDUX_WORK_SPLIT.md`
+  assigns them. Re-cutting the whole store into one slice per repository
+  would be a team decision, not one owner's change.
+
 ```
 front-end/
   index.html  vite.config.js  package.json
   src/
-    main.jsx                 Redux <Provider> + BrowserRouter + AuthProvider/ToastProvider (shims) + DialogProvider
+    main.jsx                 Redux <Provider> + BrowserRouter + DialogProvider (the auth/toast shims were removed in Phase 2)
     store/                   configureStore, hooks, and one slice per portal (see above)
     App.jsx                  the whole route tree; the seven portals are React.lazy
     api/
@@ -1194,8 +1228,8 @@ front-end/
                              Schedules, Hierarchy, Notifications, Uploads, System)
       links.js               `pageLink(page, params)` + `LEGACY_ROUTES` — the old
                              `folder/page.html#section` names still resolve to SPA routes
-    context/                 AuthContext (session, role aliases, JWT expiry, login/logout),
-                             ToastContext (`notify()`)
+    (context/ was removed in Phase 2: auth and toasts are the auth/toast slices,
+     `components/AuthSessionListener.jsx` handles 401s, `components/ui/ToastStack.jsx` renders toasts)
     components/
       layout/                PortalLayout, Sidebar (role → menu map in `navigation.js`),
                              Header, NotificationBell, BackButton

@@ -1,29 +1,33 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchAppointments, fetchBills, selectPatientDisplayId, selectPatientDisplayName } from '../../store/patientSlice';
+import {
+  fetchAppointments, fetchBills, selectAppointments, selectPatientDisplayId, selectPatientDisplayName, selectPendingBills,
+} from '../../store/patientSlice';
 import SystemModal from './SystemModal';
 
 // The <header class="header"> on the patient pages: a search box, the bell and
 // the profile button (→ profile page). The bell opens dashboard.js's
-// "Notifications Center": upcoming appointments and pending bills.
+// "Notifications Center": upcoming appointments and pending bills, read from
+// the patient slice. Only whether the modal is open is local.
 export default function PatientHeader({ searchPlaceholder = 'Search...', search, onSearch }) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const displayName = useAppSelector(selectPatientDisplayName);
   const displayId = useAppSelector(selectPatientDisplayId);
-  const [notifications, setNotifications] = useState(null); // null = closed
+  const appointments = useAppSelector(selectAppointments);
+  const pendingBills = useAppSelector(selectPendingBills);
+  const [open, setOpen] = useState(false);
   const initials = displayName.split(' ').map((p) => p[0]).join('').substring(0, 2).toUpperCase();
+  const notifications = useMemo(() => ({
+    upcoming: appointments.filter((a) => a.status === 'Confirmed' || a.status === 'Pending'),
+    pending: pendingBills,
+  }), [appointments, pendingBills]);
 
   // Refetches through the slice, so opening the bell also refreshes the pages' lists.
   async function showNotifications() {
-    let appointments = [];
-    let bills = [];
-    try { appointments = await dispatch(fetchAppointments()).unwrap(); } catch { /* shown as none */ }
-    try { bills = await dispatch(fetchBills()).unwrap(); } catch { /* shown as none */ }
-    const upcoming = appointments.filter((a) => a.status === 'Confirmed' || a.status === 'Pending');
-    const pending = bills.filter((b) => b.status === 'Pending');
-    setNotifications({ upcoming, pending });
+    await Promise.allSettled([dispatch(fetchAppointments()), dispatch(fetchBills())]);
+    setOpen(true);
   }
 
   return (
@@ -64,10 +68,10 @@ export default function PatientHeader({ searchPlaceholder = 'Search...', search,
       </header>
 
       <SystemModal
-        open={Boolean(notifications)}
+        open={open}
         title="Notifications Center"
-        onClose={() => setNotifications(null)}
-        message={notifications && (notifications.upcoming.length + notifications.pending.length === 0 ? (
+        onClose={() => setOpen(false)}
+        message={open && (notifications.upcoming.length + notifications.pending.length === 0 ? (
           <div style={{ padding: 24, textAlign: 'center', color: '#6A7282', fontStyle: 'italic' }}>You have caught up on all alerts.<br />There are no new notifications.</div>
         ) : (
           <div style={{ maxHeight: 350, overflowY: 'auto', paddingRight: 8 }}>

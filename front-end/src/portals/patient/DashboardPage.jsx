@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Hospitals } from '../../api';
 import { addToast } from '../../store/toastSlice';
 import InvoiceModal from '../../features/invoice/InvoiceModal';
 import { downloadInvoicePDF } from '../../features/invoice/invoice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-  cancelAppointment, errorText, fetchAmbulanceRequests, fetchAppointments, fetchBills,
-  selectBills, selectCompletedAppointments, selectIsPaidMembership, selectOpenAmbulanceCount,
-  selectPatientDisplayName, selectPatientId, selectPatientMembership, selectPatientProfile,
-  selectPatientRecord, selectPendingBills, selectUpcomingAppointments,
+  cancelAppointment, errorText, fetchAmbulanceRequests, fetchAppointments, fetchBills, fetchNearbyHospitals,
+  selectBillById, selectBills, selectCompletedAppointments, selectIsPaidMembership, selectNearbyHospitals,
+  selectOpenAmbulanceCount, selectPatientDisplayName, selectPatientId, selectPatientMembership,
+  selectPatientProfile, selectPatientRecord, selectPendingBills, selectUpcomingAppointments,
 } from '../../store/patientSlice';
 import PatientHeader from './PatientHeader';
 import SystemModal from './SystemModal';
@@ -36,10 +35,11 @@ export default function DashboardPage() {
   const completed = useAppSelector(selectCompletedAppointments);
   const pendingBills = useAppSelector(selectPendingBills);
   const ambulanceCount = useAppSelector(selectOpenAmbulanceCount);
-  const [hospitals, setHospitals] = useState(null); // null = loading, [] = unavailable
+  const hospitals = useAppSelector(selectNearbyHospitals); // null = loading, [] = unavailable
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(null); // { title, message, onConfirm? }
-  const [invoiceBill, setInvoiceBill] = useState(null);
+  const [invoiceBillId, setInvoiceBillId] = useState(null);
+  const invoiceBill = useAppSelector((state) => selectBillById(state, invoiceBillId));
   const recordsRef = useRef(null);
 
   const firstName = displayName.split(' ')[0];
@@ -56,23 +56,8 @@ export default function DashboardPage() {
   const patientCity = String(profile.city || '').trim();
   const patientState = String(profile.state || '').trim();
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      let list = [];
-      try {
-        let res;
-        try { res = await Hospitals.getNearby(patientCity, patientState, patientPincode); } catch { res = null; }
-        if (!res) res = await Hospitals.getAll();
-        const raw = res.data;
-        list = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : Array.isArray(raw?.hospitals) ? raw.hospitals : [];
-      } catch (err) {
-        console.error('Backend unavailable or returned error for hospitals:', err);
-        list = [];
-      }
-      if (!cancelled) setHospitals(list);
-    })();
-    return () => { cancelled = true; };
-  }, [patientCity, patientState, patientPincode, patient]);
+    dispatch(fetchNearbyHospitals({ city: patientCity, state: patientState, pincode: patientPincode }));
+  }, [dispatch, patientCity, patientState, patientPincode]);
 
   const q = search.toLowerCase().trim();
 
@@ -301,7 +286,7 @@ export default function DashboardPage() {
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M14 10v3.333A1.333 1.333 0 0112.667 14.667H3.333A1.333 1.333 0 012 13.333V10" stroke="#4A5565" strokeWidth="1.33" strokeLinecap="round" strokeLinejoin="round" /><path d="M4.667 6.667L8 10l3.333-3.333M8 10V1.333" stroke="#4A5565" strokeWidth="1.33" strokeLinecap="round" strokeLinejoin="round" /></svg>
                           </button>
                         )}
-                        <button type="button" className="btn-icon" title="View Breakdown" onClick={() => setInvoiceBill(bill)}>{eyeIcon}</button>
+                        <button type="button" className="btn-icon" title="View Breakdown" onClick={() => setInvoiceBillId(bill.id)}>{eyeIcon}</button>
                       </td>
                     </tr>
                   );
@@ -344,7 +329,7 @@ export default function DashboardPage() {
       </section>
 
       <SystemModal open={Boolean(modal)} title={modal?.title} message={modal?.message} onConfirm={modal?.onConfirm} onClose={() => setModal(null)} />
-      <InvoiceModal bill={invoiceBill} patient={patient} onClose={() => setInvoiceBill(null)} onPay={invoiceBill ? () => payBill(invoiceBill.id) : undefined} />
+      <InvoiceModal bill={invoiceBill} patient={patient} onClose={() => setInvoiceBillId(null)} onPay={invoiceBill ? () => payBill(invoiceBill.id) : undefined} />
     </main>
   );
 }

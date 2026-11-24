@@ -6,7 +6,7 @@ import membershipCss from '../../styles/membership.css?url';
 import { formatDate, money, percent } from '../../utils/format';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-  errorText, fetchMembership, fetchPatientPlans, selectMembershipState, subscribeMembership,
+  cancelMembership, errorText, fetchMembership, fetchPatientPlans, selectMembershipState, subscribeMembership,
 } from '../../store/patientSlice';
 import PatientHeader from './PatientHeader';
 
@@ -67,7 +67,7 @@ export default function MembershipPage() {
   async function confirmCancel() {
     setCancelOpen(false);
     try {
-      await dispatch(subscribeMembership({ planId: 'CARE-PAYG' })).unwrap();
+      await dispatch(cancelMembership()).unwrap();
       dispatch(addToast({ message: 'Membership cancelled. You are now on Pay As You Go.', type: 'info' }));
       await load();
     } catch (err) {
