@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Hospitals } from '../../api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-  cancelAmbulanceRequest, errorText, fetchAmbulanceRequests, requestAmbulance, selectAmbulanceRequests,
-  selectPatientDisplayName, selectPatientId, selectPatientMembership, selectPatientProfile, selectPatientRecord,
+  cancelAmbulanceRequest, errorText, fetchAmbulanceRequests, fetchNearbyHospitals, requestAmbulance,
+  selectAmbulanceRequests, selectNearbyHospitals, selectPatientDisplayName, selectPatientId,
+  selectPatientMembership, selectPatientProfile, selectPatientRecord,
 } from '../../store/patientSlice';
 import NexCareModal from './NexCareModal';
 
@@ -13,7 +13,7 @@ import NexCareModal from './NexCareModal';
 // The request table in the HTML shipped with three hard-coded demo rows that
 // were replaced on load; here it simply renders what GET /ambulance/patient/:id
 // returns. Cancel is a soft cancel (PATCH …/cancel) — the row is kept.
-// The request list lives in the patient slice; the form and modal stay local.
+// The request list and the hospital picker live in the patient slice; the form and modal stay local.
 
 const BADGES = {
   Completed: 'badge-completed',
@@ -41,7 +41,11 @@ export default function AmbulancePage() {
   const membership = useAppSelector(selectPatientMembership);
   const rows = useAppSelector(selectAmbulanceRequests);
   const [form, setForm] = useState({ hospitalId: '', pickupLocation: '', contact: '', notes: '' });
-  const [hospitals, setHospitals] = useState(null); // null = loading
+  const nearby = useAppSelector(selectNearbyHospitals); // null = loading
+  const hospitals = useMemo(
+    () => (nearby === null ? null : nearby.filter((h) => (h.verificationStatus || 'verified') === 'verified')),
+    [nearby],
+  );
   const [modal, setModal] = useState(null);
 
   const loadRequests = () => { if (patientId) dispatch(fetchAmbulanceRequests(patientId)); };
@@ -52,29 +56,19 @@ export default function AmbulancePage() {
     if (patient?.phone) setForm((f) => (f.contact ? f : { ...f, contact: patient.phone }));
   }, [patient]);
 
-  // Hospitals to dispatch from: the patient's own city first, the full verified
-  // list as a fallback, so the form is never left unusable.
+  // Hospitals to dispatch from: those near the patient's address first, the
+  // whole network as a fallback, so the form is never left unusable. It is the
+  // same lookup as the dashboard's hospital network, so both read one list.
+  const city = String(profile.city || '').trim();
+  const region = String(profile.state || '').trim();
+  const pincode = String(profile.pincode || '').trim();
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const city = profile.city || '';
-      let list = [];
-      try {
-        if (city) {
-          try { list = (await Hospitals.getNearby(city)).data || []; } catch { list = []; }
-        }
-        if (!list.length) list = (await Hospitals.getAll()).data || [];
-      } catch (err) {
-        console.warn('Could not load hospitals for the ambulance form:', err.message);
-        list = [];
-      }
-      list = list.filter((h) => (h.verificationStatus || 'verified') === 'verified');
-      if (cancelled) return;
-      setHospitals(list);
-      setForm((f) => (f.hospitalId || !list.length ? f : { ...f, hospitalId: list[0].id }));
-    })();
-    return () => { cancelled = true; };
-  }, [profile.city]);
+    dispatch(fetchNearbyHospitals({ city, state: region, pincode }));
+  }, [dispatch, city, region, pincode]);
+  // Preselect the nearest hospital once the list is in.
+  useEffect(() => {
+    if (hospitals && hospitals.length) setForm((f) => (f.hospitalId ? f : { ...f, hospitalId: hospitals[0].id }));
+  }, [hospitals]);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 

@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Hospitals } from '../../api';
 import NexCareLogo from '../../components/NexCareLogo';
 import { selectRole, selectUser } from '../../store/authSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addToast } from '../../store/toastSlice';
+import { searchHospitals, selectHospitalSearch } from '../../store/patientSlice';
 import useStylesheet from '../../hooks/useStylesheet';
 import patientCss from '../../styles/patient.css?url';
 import { ROLES } from '../../utils/roles';
@@ -15,6 +15,12 @@ import PatientPortal from './PatientPortal';
 // The HTML page had no auth guard: a visitor from the landing page could search
 // and was asked to log in only when booking. When booking as a guest, the user
 // is redirected directly to the patient login page.
+//
+// The results live in the patient slice (searchHospitals). The store is global,
+// so this works for a signed-out visitor too. The filter inputs and the GPS
+// fix stay local; the distance sort is worked out from them on render.
+
+const EMPTY_FILTERS = { speciality: '', city: '', pincode: '' };
 
 const SPECIALITIES = [
   'General Medicine', 'Cardiology', 'Neurology', 'Orthopaedics', 'Orthopedics', 'Paediatrics', 'Pediatrics',
@@ -97,37 +103,26 @@ function HospitalSearch({ isPatient }) {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
   const role = useAppSelector(selectRole);
-  const [filters, setFilters] = useState({ speciality: '', city: '', pincode: '' });
-  const [results, setResults] = useState([]);
-  const [status, setStatus] = useState({ loading: true, error: '' });
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [userCoords, setUserCoords] = useState(null);
+  const { results: hospitals, query, loading: searching, error } = useAppSelector(selectHospitalSearch);
+  // Loading until the first search of this visit has answered.
+  const status = { loading: searching || query === null, error: error || '' };
 
-  const fetchHospitals = useCallback(async (f, coords = userCoords) => {
-    setStatus({ loading: true, error: '' });
-    let list = [];
-    let error = '';
-    try {
-      const res = await Hospitals.getAll({ speciality: f.speciality.trim(), city: f.city.trim(), pincode: f.pincode.trim() });
-      const raw = res.data;
-      list = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : Array.isArray(raw?.hospitals) ? raw.hospitals : [];
-    } catch (err) {
-      console.error('Backend unavailable or returned error for hospital search:', err);
-      error = 'Unable to load hospital data. Please check the connection and try again.';
-    }
-    const userCity = f.city.trim() || sessionStorage.getItem('nexcare_user_city') || 'Sri City';
-    const userPin = f.pincode.trim() || sessionStorage.getItem('nexcare_user_pincode') || '517646';
-    setResults(
-      list.map((h) => ({ ...h, distInfo: calculateDistance(h, coords, userCity, userPin) }))
-        .sort((a, b) => parseFloat(a.distInfo.km) - parseFloat(b.distInfo.km)),
-    );
-    setStatus({ loading: false, error });
-  }, [userCoords]);
+  useEffect(() => { dispatch(searchHospitals(EMPTY_FILTERS)); }, [dispatch]);
 
-  useEffect(() => { fetchHospitals({ speciality: '', city: '', pincode: '' }); }, [fetchHospitals]);
+  // Distance from the searched city/PIN (or the GPS fix), nearest first.
+  const results = useMemo(() => {
+    const userCity = String(query?.city || '').trim() || sessionStorage.getItem('nexcare_user_city') || 'Sri City';
+    const userPin = String(query?.pincode || '').trim() || sessionStorage.getItem('nexcare_user_pincode') || '517646';
+    return hospitals
+      .map((h) => ({ ...h, distInfo: calculateDistance(h, userCoords, userCity, userPin) }))
+      .sort((a, b) => parseFloat(a.distInfo.km) - parseFloat(b.distInfo.km));
+  }, [hospitals, query, userCoords]);
 
   const set = (k) => (e) => setFilters((f) => ({ ...f, [k]: e.target.value }));
-  const search = () => fetchHospitals(filters);
-  const clear = () => { const empty = { speciality: '', city: '', pincode: '' }; setFilters(empty); fetchHospitals(empty, null); setUserCoords(null); };
+  const search = () => dispatch(searchHospitals(filters));
+  const clear = () => { setFilters(EMPTY_FILTERS); setUserCoords(null); dispatch(searchHospitals(EMPTY_FILTERS)); };
 
   function detectLiveGps() {
     if (!navigator.geolocation) {
@@ -138,8 +133,7 @@ function HospitalSearch({ isPatient }) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setUserCoords(coords);
-        fetchHospitals(filters, coords);
+        setUserCoords(coords); // re-sorts the results already in the slice
         dispatch(addToast({ message: '📍 Live GPS active! Hospitals sorted by closest distance.', type: 'success' }));
       },
       (err) => {

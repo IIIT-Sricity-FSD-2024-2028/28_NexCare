@@ -149,3 +149,93 @@ Details (`?id=H001`). No serialization warnings or uncaught console errors.
 
 Runtime data files under `back-end/data/` were restored after testing; the
 repo's seed data is unchanged.
+
+## Vivian — Patient
+
+Verified on 2026-11-25 against the running NestJS API (port 3001) and the Vite
+**development** server, so Redux Toolkit's `serializableCheck` and
+`immutableCheck` were active. They do not run in a production build. A
+Playwright script read the live store through the `<Provider>` and asserted on
+`state.patient` / `state.doctor` / `state.ambulance` / `state.hospitalManager`
+directly, not on the DOM: **32/32 checks passed**. Runtime files under
+`back-end/data/` were restored afterwards.
+
+### The four cross-portal round trips
+
+| # | Check | Redux thunks | Result |
+|---|---|---|---|
+| 1 | Patient books → doctor sees it | `createAppointment` → logout → doctor `fetchDoctorAppointments` | `APT-…` booked with Dr. Vikram Patel (H001, Orthopaedics) through the wizard UI appeared in `state.doctor.appointments.list`. |
+| 2 | Staff generates a bill → patient sees it | staff `POST /billing` → patient `fetchBills` | `BILL-H001-001` (₹250 + GST) was in `state.patient.billing.bills`. The doctor's `complete` also added the consultation fee to the patient's open pending bill (the backend appends it to that bill; it does not open a new one). |
+| 3 | Patient pays → HM revenue updates | `payBill` (card form, test card 4242…) → HM `fetchHmRevenue` | `collected` went from ₹10,207 to ₹10,502 (+₹295, exactly the bill total). |
+| 4 | Patient requests an ambulance → crew sees it | `cancelAmbulanceRequest` (the seeded open request) → `requestAmbulance` → crew `fetchAmbulanceRequests` poll | The new `AMB-…` request (H001) was in `state.ambulance.requests.list` on the crew's Incoming Requests page. |
+
+### Same store, different screens
+
+- Paying a bill on Billing dropped the dashboard's Pending Bills count from 2
+  to 1. `payBill.fulfilled` marks the bill paid in `billing.bills` and the
+  dashboard reads the same list.
+- After booking, reopening the wizard for the same doctor and date showed that
+  slot as **Booked**. The wizard now derives booked slots from
+  `patient.appointments.list`, not from a separate fetch.
+
+### Logout
+
+The patient's `logoutUser.fulfilled` reset every patient sub-state (profile,
+appointments, bills, hospitals, nearby hospitals, search, directory, schedules,
+test cards). It also set `auth.user` to `null` and wiped `nexcare_auth_token`. The
+doctor who signed in next on the same tab saw an empty `state.patient`.
+
+### All patient data now comes from the store
+
+Before this change, six patient screens still fetched into component
+`useState`: the dashboard's hospital network, the feedback hospital picker, the
+ambulance hospital picker, Find Hospitals, the booking wizard (directory,
+published schedules, booked slots) and the card form's test cards. The profile
+page also called `Auth.changePassword` directly, and the notification bell kept
+its own copy of appointments and bills. Each of these now dispatches a thunk
+and reads a selector:
+
+| Screen | Thunk | Store key |
+|---|---|---|
+| Dashboard hospital network, ambulance hospital picker | `fetchNearbyHospitals` | `patient.nearbyHospitals` |
+| Feedback hospital picker | `fetchHospitals` | `patient.hospitals` |
+| Find Hospitals | `searchHospitals` | `patient.hospitalSearch` (`query` = the filters answered) |
+| Booking wizard catalogue | `fetchDoctorDirectory` | `patient.directory` |
+| Booking wizard rosters | `fetchPublishedSchedules` | `patient.schedules` |
+| Booking wizard booked slots | `fetchAppointments` + `bookedSlotsFrom()` | `patient.appointments` |
+| Card payment form | `fetchTestCards` | `patient.payments` |
+| Profile password | `changePassword` | `patient.profile.error` on rejection |
+| Care+ cancel | `cancelMembership` | `patient.membership` |
+| Notification bell, invoice modals | (selectors only) | `selectAppointments`, `selectPendingBills`, `selectBillById` |
+
+Live checks: each of those keys filled on its page (11 hospitals nearby, 11 in
+the picker, 2 for a "Tirupati" search, 8 hospitals in the catalogue, 1
+approved H001 roster, 5 test cards). A wrong current password produced
+`changePassword.rejected` with "Current password is incorrect" in
+`patient.profile.error`.
+
+Local `useState` now holds only form inputs, wizard steps, open/closed flags,
+one-button busy flags and the GPS fix on Find Hospitals.
+
+### CRUD per repository (patient slice)
+
+| Repository | Create | Read | Update | Delete |
+|---|---|---|---|---|
+| appointments | `createAppointment` | `fetchAppointments` | `rescheduleAppointment`, `cancelAppointment` | `deleteAppointment` |
+| feedback | `submitFeedback` | `fetchFeedback` | `updateFeedback` | `deleteFeedback` |
+| membership | `subscribeMembership` | `fetchMembership`, `fetchPatientPlans` | `subscribeMembership` (plan change) | `cancelMembership` |
+| patients | registration page | `fetchPatientProfile` | `updatePatientProfile`, `changePassword` | staff/superuser only |
+| billing | staff `generateBill` | `fetchBills` | `payBill` | staff only |
+| ambulance | `requestAmbulance` | `fetchAmbulanceRequests` | `cancelAmbulanceRequest` | staff only |
+| hospitals, users/doctors, schedules, payments | — | `fetchHospitals`, `fetchNearbyHospitals`, `searchHospitals`, `fetchDoctorDirectory`, `fetchPublishedSchedules`, `fetchTestCards` | — | — |
+
+"Staff only" means the backend's `@Roles` refuses the patient role. Those
+writes live in the staff and superuser slices.
+
+### Console
+
+The whole patient portal, the doctor appointments page, the hospital manager
+revenue page and the crew requests page were opened under the development
+checks. There were no non-serializable or mutation warnings and no uncaught
+errors. The only console error was the deliberate wrong-password `400`.
+`npm run build` passes.

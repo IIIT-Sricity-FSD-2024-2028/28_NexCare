@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Auth } from '../../api';
 import { useDialogs } from '../../components/ui/Dialogs';
-import { selectUser, userUpdated } from '../../store/authSlice';
+import { updateSessionUser } from '../../store/authSlice';
 import { addToast } from '../../store/toastSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-  errorText, fetchPatientProfile, selectIsPaidMembership, selectPatientDisplayId, selectPatientId,
+  changePassword, errorText, fetchPatientProfile, selectIsPaidMembership, selectPatientDisplayId, selectPatientId,
   selectPatientMembership, selectPatientProfile, selectPatientRecord, updatePatientProfile,
 } from '../../store/patientSlice';
 
@@ -37,7 +36,6 @@ function localPhone(raw) {
 export default function ProfilePage() {
   const { showSuccess } = useDialogs();
   const dispatch = useAppDispatch();
-  const sessionUser = useAppSelector(selectUser);
   const patientId = useAppSelector(selectPatientId);
   const patient = useAppSelector(selectPatientRecord);
   const profile = useAppSelector(selectPatientProfile);
@@ -98,14 +96,13 @@ export default function ProfilePage() {
     try {
       await dispatch(updatePatientProfile({ id: patientId, data: { fullName, phone: phoneNumber, email: emailAddress } })).unwrap();
       // Keep the cached session user in step (sessionStorage + auth slice), so the
-      // header and sidebar update. Storage is written here, never in a reducer.
-      const patch = { name: fullName, email: emailAddress };
-      if (sessionUser) sessionStorage.setItem('nexcare_user_data', JSON.stringify({ ...sessionUser, ...patch }));
-      dispatch(userUpdated(patch));
+      // header and sidebar update. updateSessionUser writes storage itself; a
+      // reducer never does.
+      dispatch(updateSessionUser({ name: fullName, email: emailAddress }));
 
       if (passwordChanged) {
         try {
-          await Auth.changePassword(currentPassword, newPassword);
+          await dispatch(changePassword({ currentPassword, newPassword })).unwrap();
         } catch (err) {
           dispatch(addToast({ message: errorText(err, 'Failed to change password. Please check your current password.'), type: 'error' }));
           setSaving(false);

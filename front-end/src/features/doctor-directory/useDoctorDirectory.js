@@ -1,21 +1,19 @@
-import { useEffect, useState } from 'react';
-import { loadCatalogue } from './catalogue';
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchDoctorDirectory, selectDoctorDirectory } from '../../store/patientSlice';
 
-// One load per mount (doctor-directory.js hydrated once per page load).
-// `catalogue` is [] until it resolves; `error` is set when the API is down.
+// The booking catalogue, held in the patient slice. One fetch per mount
+// (doctor-directory.js hydrated once per page load). `catalogue` is [] until
+// it resolves; `error` is set when the API is down. `loading` is also true
+// before the first fetch has started, so a caller waiting for the directory
+// never reads the empty initial state as "loaded".
 export default function useDoctorDirectory() {
-  const [state, setState] = useState({ catalogue: [], loading: true, error: '' });
+  const dispatch = useAppDispatch();
+  const { catalogue, status, error } = useAppSelector(selectDoctorDirectory);
 
   useEffect(() => {
-    let cancelled = false;
-    loadCatalogue()
-      .then((catalogue) => { if (!cancelled) setState({ catalogue, loading: false, error: '' }); })
-      .catch((err) => {
-        console.error('[NexCare] Live doctor directory could not be loaded:', err.message);
-        if (!cancelled) setState({ catalogue: [], loading: false, error: err.message || 'Could not load the hospital directory' });
-      });
-    return () => { cancelled = true; };
-  }, []);
+    dispatch(fetchDoctorDirectory());
+  }, [dispatch]);
 
-  return state;
+  return { catalogue, loading: status === 'idle' || status === 'loading', error: error || '' };
 }
