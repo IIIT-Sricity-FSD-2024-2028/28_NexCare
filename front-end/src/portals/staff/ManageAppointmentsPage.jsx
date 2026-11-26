@@ -1,11 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { fetchStaffUsers, selectStaffUsers } from '../../store/directorySlices';
+import {
+  fetchStaffUsers,
+  selectStaffUsers,
+  fetchStaffAppointments,
+  selectStaffAppointments,
+  createStaffAppointment,
+  editStaffAppointment,
+  deleteStaffAppointment,
+} from '../../store/staffSlice';
 import { useNotify } from '../../hooks/useNotify';
 import { errorMessage, useStaffActivity } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-  fetchStaffAppointments, selectStaffAppointments, createStaffAppointment, editStaffAppointment, deleteStaffAppointment,
-} from '../../store/staffSlice';
 
 // administrative_staff/manage_appointments.html + manage_appointments.js.
 //

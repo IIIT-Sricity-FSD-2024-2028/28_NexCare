@@ -1,11 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { fetchPatientDocuments, uploadPatientDocument, editPatientDocument, downloadPatientDocument, deletePatientDocument } from '../../store/uploadsSlice';
+import {
+  selectPatientDocuments,
+  fetchPatientDocuments,
+  uploadPatientDocument,
+  editPatientDocument,
+  downloadPatientDocument,
+  deletePatientDocument,
+  fetchPatientDirectory,
+  selectStaffPatients,
+} from '../../store/staffSlice';
 import { useNotify } from '../../hooks/useNotify';
 import useConfirm from '../../hooks/useConfirm';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-  fetchPatientDirectory, selectStaffPatients,
-} from '../../store/staffSlice';
 
 // administrative_staff/patient-directory.html + patient-directory.js: the
 // read-only patient table and the per-patient documents modal (uploads go
@@ -105,7 +111,7 @@ function DocumentsModal({ patientId, patientName, onClose }) {
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
   const dispatch = useAppDispatch();
-  const documents = useAppSelector((state) => state.uploads[patientId]);
+  const documents = useAppSelector((state) => selectPatientDocuments(state, patientId));
   const list = documents?.list ?? null;
   const listError = documents?.error;
   const [uploading, setUploading] = useState(false);

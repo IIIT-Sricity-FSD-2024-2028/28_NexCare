@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
-import { editPendingLeave } from '../../store/leavesSlice';
-import { fetchStaffUsers, selectStaffUsers } from '../../store/directorySlices';
+import {
+  editPendingLeave,
+  fetchStaffUsers,
+  selectStaffUsers,
+  fetchLeaveRequests,
+  createLeaveRequest,
+  deleteStaffLeave,
+  selectLeaveRequests,
+} from '../../store/staffSlice';
 import { useNotify } from '../../hooks/useNotify';
 import { useHospitalId } from './staffData';
 import useConfirm from '../../hooks/useConfirm';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-  fetchLeaveRequests, createLeaveRequest, deleteStaffLeave, selectLeaveRequests,
-} from '../../store/staffSlice';
 
 // administrative_staff/leave-requests.html + leave-requests.js.
 //

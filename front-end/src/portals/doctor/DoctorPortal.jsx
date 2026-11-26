@@ -2,7 +2,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { useEffect } from 'react';
 import PortalLayout from '../../components/layout/PortalLayout';
 import { selectUser } from '../../store/authSlice';
-import { enrichDoctorSession } from '../../store/directorySlices';
+import { enrichDoctorSession } from '../../store/doctorSlice';
 
 export default function DoctorPortal() {
   const dispatch = useAppDispatch();

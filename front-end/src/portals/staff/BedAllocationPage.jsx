@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useConfirm from '../../hooks/useConfirm';
-import { createBed, deleteBed } from '../../store/bedsSlice';
+import {
+  createBed,
+  deleteBed,
+  fetchBeds,
+  fetchPatientDirectory,
+  allocateBed,
+  updateBed,
+  setWard as setWardAction,
+  selectBeds,
+  selectStaffPatients,
+} from '../../store/staffSlice';
 import { useNotify } from '../../hooks/useNotify';
 import { errorMessage, findPatient, patientName } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-  fetchBeds, fetchPatientDirectory, allocateBed, updateBed, setWard as setWardAction, selectBeds, selectStaffPatients,
-} from '../../store/staffSlice';
 
 // administrative_staff/bed-allocation.html + bed.js.
 

@@ -8,7 +8,7 @@ import { useAppointmentActions } from '../../features/appointments/useAppointmen
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchDoctorAppointments, fetchDoctorStats, fetchDoctorEarnings,
-  selectDoctorAppointmentsState, selectDoctorEarnings,
+  selectDoctorAppointmentsState, selectDoctorEarnings, selectDoctorStats,
 } from '../../store/doctorSlice';
 import { selectUser } from '../../store/authSlice';
 import { money, todayLabel, appointmentTime, plural } from '../../utils/format';
@@ -17,7 +17,8 @@ import { money, todayLabel, appointmentTime, plural } from '../../utils/format';
 export default function DashboardPage() {
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
-  const { list: appointments, stats, loading: aptLoading, error } = useAppSelector(selectDoctorAppointmentsState);
+  const { list: appointments, loading: aptLoading, error } = useAppSelector(selectDoctorAppointmentsState);
+  const stats = useAppSelector(selectDoctorStats);
   const { data: earnings } = useAppSelector(selectDoctorEarnings);
   const [loaded, setLoaded] = useState(false);
   const [referTarget, setReferTarget] = useState(null);
