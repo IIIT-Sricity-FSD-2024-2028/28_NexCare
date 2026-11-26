@@ -28,12 +28,10 @@ export class SchedulesService {
   }
 
   private save(rows: HospitalSchedule[]): void {
-    try {
-      fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
-      fs.writeFileSync(this.filePath, JSON.stringify(rows, null, 2), 'utf-8');
-    } catch (err) {
-      console.error('Failed to persist schedules:', err);
-    }
+    fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
+    const temporaryPath = this.filePath + '.tmp';
+    fs.writeFileSync(temporaryPath, JSON.stringify(rows, null, 2), 'utf-8');
+    fs.renameSync(temporaryPath, this.filePath);
   }
 
   private seed(): HospitalSchedule[] {
@@ -105,6 +103,27 @@ export class SchedulesService {
     rows.push(created);
     this.save(rows);
     return ResponseUtil.success('Schedule submitted for hospital manager approval', created);
+  }
+
+  editPending(id: string, hospitalId: string | undefined, dto: CreateHospitalScheduleDto) {
+    const rows = this.load();
+    const index = rows.findIndex((row) => row.id === id && hospitalId && row.hospitalId === hospitalId);
+    if (index === -1) return ResponseUtil.error('Schedule not found', 404);
+    if (rows[index].status !== 'pending') return ResponseUtil.error('Only pending schedules can be edited', 409);
+
+    const { validFrom, validTo, slots, notes } = dto ?? {};
+    const from = new Date(validFrom);
+    const to = new Date(validTo);
+    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime()) || to < from) {
+      return ResponseUtil.error('Invalid schedule date range');
+    }
+    if (!Array.isArray(slots) || slots.length === 0 || slots.some((slot) =>
+      !slot || !slot.department || !slot.shift || !/^\d{2}:\d{2}$/.test(slot.startTime) || !/^\d{2}:\d{2}$/.test(slot.endTime))) {
+      return ResponseUtil.error('Add at least one valid department shift');
+    }
+    rows[index] = { ...rows[index], validFrom, validTo, slots, notes, updatedAt: new Date().toISOString() };
+    this.save(rows);
+    return ResponseUtil.updated('Schedule updated', rows[index]);
   }
 
   update(id: string, dto: UpdateHospitalScheduleDto) {

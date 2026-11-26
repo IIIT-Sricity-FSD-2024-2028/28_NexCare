@@ -63,19 +63,15 @@ export class InventoryService {
 
   /** Persist inventory to disk */
   private saveInventory(items: Inventory[]): void {
-    try {
-      // Restock / use move `quantity`; keep the seed's spellings in step so a
-      // client reading either sees the same stock level.
-      for (const item of items) {
-        item.itemName = item.name;
-        item.currentQuantity = item.quantity;
-        item.minimumQuantity = item.minStock;
-      }
-      fs.mkdirSync(path.dirname(this.inventoryFilePath), { recursive: true });
-      fs.writeFileSync(this.inventoryFilePath, JSON.stringify(items, null, 2), 'utf-8');
-    } catch (err) {
-      console.error('Failed to persist inventory:', err);
+    for (const item of items) {
+      item.itemName = item.name;
+      item.currentQuantity = item.quantity;
+      item.minimumQuantity = item.minStock;
     }
+    fs.mkdirSync(path.dirname(this.inventoryFilePath), { recursive: true });
+    const temporaryPath = this.inventoryFilePath + '.tmp';
+    fs.writeFileSync(temporaryPath, JSON.stringify(items, null, 2), 'utf-8');
+    fs.renameSync(temporaryPath, this.inventoryFilePath);
   }
 
   // In-memory mock inventory database (aligned with frontend db.js)

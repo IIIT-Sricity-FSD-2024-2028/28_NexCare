@@ -12,7 +12,7 @@ import { BedStatus } from '../common/interfaces/api-response.interface';
  */
 @Injectable()
 export class BedsService {
-  private readonly store = new FileStore<Bed>('beds.json', () => BedsService.seed());
+  private readonly store = new FileStore<Bed>('beds.json', () => BedsService.seed(), true);
 
   private static seed(): Bed[] {
     const mk = (id: string, ward: string): Bed => ({
@@ -183,10 +183,10 @@ export class BedsService {
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string, hospitalId?: string) {
     try {
       const beds = this.load();
-      const bedIndex = beds.findIndex(b => b.id === id);
+      const bedIndex = beds.findIndex((bed) => bed.id === id && (!hospitalId || bed.hospitalId === hospitalId));
       if (bedIndex === -1) return ResponseUtil.notFound('Bed', id);
 
       const bed = beds[bedIndex];

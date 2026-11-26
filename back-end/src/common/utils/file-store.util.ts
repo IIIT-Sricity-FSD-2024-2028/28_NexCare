@@ -15,7 +15,7 @@ import * as path from 'path';
 export class FileStore<T> {
   private readonly filePath: string;
 
-  constructor(fileName: string, private readonly seed: () => T[]) {
+  constructor(fileName: string, private readonly seed: () => T[], private readonly strictWrites = false) {
     this.filePath = path.join(process.cwd(), 'data', fileName);
   }
 
@@ -37,8 +37,11 @@ export class FileStore<T> {
   save(items: T[]): void {
     try {
       fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
-      fs.writeFileSync(this.filePath, JSON.stringify(items, null, 2), 'utf-8');
+      const target = this.strictWrites ? this.filePath + '.tmp' : this.filePath;
+      fs.writeFileSync(target, JSON.stringify(items, null, 2), 'utf-8');
+      if (this.strictWrites) fs.renameSync(target, this.filePath);
     } catch (err) {
+      if (this.strictWrites) throw err;
       console.error(`Failed to persist ${this.filePath}:`, err);
     }
   }

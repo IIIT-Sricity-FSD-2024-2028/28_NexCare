@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import useConfirm from '../../hooks/useConfirm';
+import { errorMessage } from './staffData';
+import { createStaffFeedback, editStaffFeedback, deleteStaffFeedback } from '../../store/feedbackSlice';
 import { useNotify } from '../../hooks/useNotify';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchStaffFeedback, selectStaffFeedback,
 } from '../../store/staffSlice';
 
-// administrative_staff/feedback.html + feedback.js: read-only feedback list
-// with a details modal.
+const EMPTY_FORM = { patientId: '', sender: '', category: 'service', subject: '', summary: '', rating: 5 };
 
 function Stars({ rating }) {
   return <span className="stars">{Array.from({ length: 5 }, (_, i) => (i < rating ? '★' : '☆')).join('')}</span>;
@@ -19,6 +21,9 @@ export default function FeedbackPage() {
   const [term, setTerm] = useState('');
   const [type, setType] = useState('All');
   const [view, setView] = useState(null);
+  const [form, setForm] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const { ask, dialog } = useConfirm();
 
   const rows = useMemo(() => list.map((f) => ({
     id: f.id,
@@ -38,6 +43,41 @@ export default function FeedbackPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  function openEdit(id) {
+    const record = list.find((row) => row.id === id);
+    if (!record) return;
+    const { category, subject, summary, description, rating } = record;
+    setForm({ id, category: category || 'service', subject: subject || '', summary: summary || description || '', rating: rating || 5 });
+  }
+
+  async function save(event) {
+    event.preventDefault();
+    if (saving) return;
+    const { id, patientId, sender, category, subject, summary, rating } = form;
+    const data = { category: category.trim(), subject: subject.trim(), summary: summary.trim(), rating: Number(rating) };
+    setSaving(true);
+    try {
+      if (id) await dispatch(editStaffFeedback({ id, data })).unwrap();
+      else await dispatch(createStaffFeedback({ ...data, patientId: patientId.trim(), sender: sender.trim() || undefined, type: 'Patient' })).unwrap();
+      notify(id ? 'Feedback updated' : 'Feedback recorded', 'success');
+      setForm(null);
+    } catch (err) {
+      notify(errorMessage(err, 'Failed to save feedback'), 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function remove(id) {
+    if (!(await ask('Delete this feedback entry?', { title: 'Delete feedback', confirmLabel: 'Delete', danger: true }))) return;
+    try {
+      await dispatch(deleteStaffFeedback(id)).unwrap();
+      notify('Feedback deleted', 'success');
+    } catch (err) {
+      notify(errorMessage(err, 'Failed to delete feedback'), 'error');
+    }
+  }
+
   const q = term.toLowerCase();
   const filtered = rows.filter((f) =>
     (f.sender.toLowerCase().includes(q) || f.subject.toLowerCase().includes(q) || f.id.toLowerCase().includes(q))
@@ -48,8 +88,9 @@ export default function FeedbackPage() {
       <div className="header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1>Feedback &amp; Reports</h1>
-          <div className="sub">View feedback from patients and staff.</div>
+          <div className="sub">Record and manage feedback from patients and staff.</div>
         </div>
+        <button type="button" className="btn-dark" onClick={() => setForm({ ...EMPTY_FORM })}>+ Record Feedback</button>
       </div>
 
       <div className="card" style={{ marginBottom: 20, display: 'flex', gap: 10 }}>
@@ -83,6 +124,8 @@ export default function FeedbackPage() {
                       <button type="button" className="action-btn" onClick={() => setView(f)} title="Read Feedback">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                       </button>
+                      <button type="button" className="action-btn" onClick={() => openEdit(f.id)}>Edit</button>
+                      <button type="button" className="action-btn" onClick={() => remove(f.id)}>Delete</button>
                     </div>
                   </td>
                 </tr>
@@ -92,6 +135,32 @@ export default function FeedbackPage() {
         </div>
       </div>
 
+      {dialog}
+      {form && (
+        <div className="modal active">
+          <form className="card modal-card" onSubmit={save}>
+            <h3>{form.id ? 'Edit Feedback' : 'Record Feedback'}</h3>
+            {!form.id && <>
+              <label htmlFor="feedbackPatient">Patient ID</label>
+              <input id="feedbackPatient" className="input" value={form.patientId} required onChange={(e) => setForm({ ...form, patientId: e.target.value })} />
+              <label htmlFor="feedbackSender">Sender name</label>
+              <input id="feedbackSender" className="input" value={form.sender} onChange={(e) => setForm({ ...form, sender: e.target.value })} />
+            </>}
+            <label htmlFor="feedbackCategory">Category</label>
+            <input id="feedbackCategory" className="input" value={form.category} required onChange={(e) => setForm({ ...form, category: e.target.value })} />
+            <label htmlFor="feedbackSubject">Subject</label>
+            <input id="feedbackSubject" className="input" value={form.subject} required onChange={(e) => setForm({ ...form, subject: e.target.value })} />
+            <label htmlFor="feedbackSummary">Feedback</label>
+            <textarea id="feedbackSummary" className="input" value={form.summary} required onChange={(e) => setForm({ ...form, summary: e.target.value })} />
+            <label htmlFor="feedbackRating">Rating</label>
+            <input id="feedbackRating" className="input" type="number" min="1" max="5" value={form.rating} required onChange={(e) => setForm({ ...form, rating: e.target.value })} />
+            <div className="modal-actions">
+              <button className="btn" disabled={saving}>Save Feedback</button>
+              <button type="button" className="btn-outline" onClick={() => setForm(null)}>Cancel</button>
+            </div>
+          </form>
+        </div>
+      )}
       {view && (
         <div className="modal active" id="viewFeedbackModal" onMouseDown={(e) => { if (e.target === e.currentTarget) setView(null); }}>
           <div className="modal-content">

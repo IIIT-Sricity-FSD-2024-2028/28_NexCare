@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { requestState, thunk, track } from './repositoryState';
 import { Auth } from '../api';
 import { clearAuthToken, getAuthToken, UNAUTHORIZED_EVENT } from '../api/client';
 import { isExpired, parseJwtPayload } from '../utils/jwt';
@@ -57,6 +58,7 @@ const makeInitialState = () => {
   const user = readStoredUser();
   return {
     user,
+    doctorProfile: requestState({ data: null }),
     role: user?.role || null,
     isLoggedIn: Boolean(user),
     loading: false,
@@ -87,6 +89,12 @@ export const logoutUser = createAsyncThunk('auth/logoutUser', async (_, { getSta
     wipeSession();
   }
 });
+
+export const fetchDoctorProfile = thunk(
+  'auth/fetchProfile',
+  async (userId) => (await Auth.getCurrentUser(userId))?.data || null,
+  'Could not load your profile',
+);
 
 export const checkSession = createAsyncThunk('auth/checkSession', async () => readStoredUser());
 
@@ -129,6 +137,7 @@ export const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    track(builder, fetchDoctorProfile, (s) => s.doctorProfile, (s, data) => { s.data = data; });
     builder
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
@@ -182,3 +191,5 @@ export const selectPasswordChangeLoading = (state) => state.auth.passwordChangin
 export const selectPasswordChangeError = (state) => state.auth.passwordChangeError;
 export { UNAUTHORIZED_EVENT };
 export default authSlice.reducer;
+
+export const selectDoctorProfile = (state) => state.auth.doctorProfile;

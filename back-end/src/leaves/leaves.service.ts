@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { ResponseUtil } from '../common/utils/response.util';
 import { IdGenerator } from '../common/utils/id-generator.util';
 import { Leave, CreateLeaveDto, UpdateLeaveDto, LeaveCalendarView } from './interfaces/leave.interface';
@@ -41,12 +41,10 @@ export class LeavesService {
 
   /** Persist leaves to disk */
   private saveLeaves(leaves: Leave[]): void {
-    try {
-      fs.mkdirSync(path.dirname(this.leavesFilePath), { recursive: true });
-      fs.writeFileSync(this.leavesFilePath, JSON.stringify(leaves, null, 2), 'utf-8');
-    } catch (err) {
-      console.error('Failed to persist leaves:', err);
-    }
+    fs.mkdirSync(path.dirname(this.leavesFilePath), { recursive: true });
+    const temporaryPath = this.leavesFilePath + '.tmp';
+    fs.writeFileSync(temporaryPath, JSON.stringify(leaves, null, 2), 'utf-8');
+    fs.renameSync(temporaryPath, this.leavesFilePath);
   }
 
   private getInitialMockData(): Leave[] {
@@ -162,8 +160,9 @@ export class LeavesService {
       updatedAt: new Date().toISOString()
     };
 
-    this.leaves.push(newLeave);
-    this.saveLeaves(this.leaves);
+    const records = [...this.leaves, newLeave];
+    this.saveLeaves(records);
+    this.leaves = records;
 
     // Notify Hospital Manager of new leave request
     if (this.notificationsService) {
@@ -186,6 +185,35 @@ export class LeavesService {
    * Approval is hospital-manager gated (LeaveRequestGuard) and then
    * reassigns or cancels appointments in the leave window.
    */
+  async editPending(id: string, hospitalId: string, doctorId: string | undefined, details: Partial<CreateLeaveDto>) {
+    const leave = this.leaves.find((row) => row.id === id && row.hospitalId === hospitalId
+      && (!doctorId || row.doctorId === doctorId));
+    if (!leave) throw new NotFoundException('Leave request not found');
+    if (leave.status !== LeaveStatus.PENDING) throw new ConflictException('Only pending leave requests can be edited');
+    const { startDate, endDate, reason } = details ?? {};
+    const start = new Date(startDate || '');
+    const end = new Date(endDate || '');
+    const today = new Date().toISOString().slice(0, 10);
+    const isoDate = (value: string | undefined, parsed: Date) => Boolean(value && /^\d{4}-\d{2}-\d{2}$/.test(value)
+      && !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value);
+    if (!startDate || !endDate || !isoDate(startDate, start) || !isoDate(endDate, end)
+      || startDate < today || end < start || typeof reason !== 'string' || !reason.trim()) {
+      throw new BadRequestException('Provide valid leave dates and a reason');
+    }
+    if (await this.hasOverlappingLeave(leave.doctorId, startDate, endDate)) {
+      throw new ConflictException('That staff member already has approved leave during this period');
+    }
+    if (leave.status !== LeaveStatus.PENDING || !this.leaves.includes(leave)) {
+      throw new ConflictException('This leave request changed while you were editing it');
+    }
+    const updated = { ...leave, startDate, endDate, reason: reason.trim(),
+      daysCount: (end.getTime() - start.getTime()) / 86_400_000 + 1, updatedAt: new Date().toISOString() };
+    const records = this.leaves.map((row) => row.id === id ? updated : row);
+    this.saveLeaves(records);
+    this.leaves = records;
+    return ResponseUtil.updated('Leave request updated', updated);
+  }
+
   async update(id: string, updateLeaveDto: UpdateLeaveDto): Promise<any> {
     const index = this.leaves.findIndex(l => l.id === id);
     if (index === -1) {
@@ -249,16 +277,20 @@ export class LeavesService {
   /**
    * Delete a leave request
    */
-  delete(id: string): any {
-    const index = this.leaves.findIndex(l => l.id === id);
+  delete(id: string, hospitalId?: string, doctorId?: string): any {
+    const index = this.leaves.findIndex((row) => row.id === id
+      && (!hospitalId || row.hospitalId === hospitalId) && (!doctorId || row.doctorId === doctorId));
     if (index === -1) {
       return ResponseUtil.error('Leave not found', 404);
     }
 
-    this.leaves.splice(index, 1);
-    this.saveLeaves(this.leaves);
-
-    return ResponseUtil.success(null, 'Leave deleted successfully');
+    if (hospitalId && this.leaves[index].status !== LeaveStatus.PENDING) {
+      throw new ConflictException('Only pending leave requests can be withdrawn');
+    }
+    const records = this.leaves.filter((_, rowIndex) => index !== rowIndex);
+    this.saveLeaves(records);
+    this.leaves = records;
+    return ResponseUtil.deleted('Leave');
   }
 
   /**

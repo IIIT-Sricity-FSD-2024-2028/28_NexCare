@@ -1,40 +1,29 @@
-import { useState } from 'react';
-import { Users } from '../../api';
+import { useEffect, useState } from 'react';
+import useConfirm from '../../hooks/useConfirm';
 import { useNotify } from '../../hooks/useNotify';
-import { findPatient, logActivity, patientName } from './staffData';
+import { findPatient, patientName, useStaffActivity } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-  CHECKIN_KEY, patientCheckedIn, checkinsUpdated, selectCheckins,
-} from '../../store/staffSlice';
+import { fetchPatientDirectory, selectStaffPatients } from '../../store/staffSlice';
+import { createCheckin, deleteCheckin, fetchCheckins, moveCheckin, selectCheckins } from '../../store/checkinsSlice';
 
-// administrative_staff/patient_checkin.html + patient_checkin.js.
-//
-// Check-ins are runtime-only: the HTML page kept them in sessionStorage under
-// `nexcare_checkins_session` and never sent them to the backend. Same key
-// here, so a tab that checked patients in on the HTML page still lists them.
-
-function readCheckins() {
-  try { return JSON.parse(sessionStorage.getItem(CHECKIN_KEY) || '[]'); } catch { return []; }
-}
-function writeCheckins(list) {
-  sessionStorage.setItem(CHECKIN_KEY, JSON.stringify(list));
-}
-const timeNow = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const formatTime = (value) => new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
 export default function PatientCheckinPage() {
   const notify = useNotify();
+  const logActivity = useStaffActivity();
   const dispatch = useAppDispatch();
-  const checkins = useAppSelector(selectCheckins);
+  const { list: checkins, loading, error } = useAppSelector(selectCheckins);
+  const { list: patients } = useAppSelector(selectStaffPatients);
+  const { ask, dialog } = useConfirm();
+  useEffect(() => {
+    dispatch(fetchCheckins());
+    dispatch(fetchPatientDirectory());
+  }, [dispatch]);
   const [patientId, setPatientId] = useState('');
   const [purpose, setPurpose] = useState('');
   const [busy, setBusy] = useState(false);
   // The `prompt()` for a new location, as a small dialog.
   const [locationPrompt, setLocationPrompt] = useState(null); // { checkinId, name, value }
-
-  function save(list) {
-    writeCheckins(list);
-    dispatch(checkinsUpdated(list));
-  }
 
   async function handleCheckin() {
     const id = patientId.trim();
@@ -46,62 +35,42 @@ export default function PatientCheckinPage() {
 
     setBusy(true);
     try {
-      // Validate the patient exists; on a lookup failure the typed id is used as-is.
-      let displayName = id;
-      let foundId = id;
-      try {
-        const resp = await Users.getAll({ role: 'patient' });
-        const found = findPatient(resp.data || [], id);
-        if (found) { displayName = patientName(found); foundId = found.id; }
-      } catch (err) {
-        console.warn('Patient lookup failed, proceeding with input ID:', err);
-      }
-
-      const current = readCheckins();
-      const existing = current.find((c) =>
-        String(c.patientId || '').toLowerCase() === foundId.toLowerCase()
-        && String(c.status || '').toLowerCase() !== 'completed');
-      if (existing) { notify(`This patient is already checked in (Check-in ID: ${existing.id}).`, 'warning'); return; }
-
-      const now = timeNow();
-      const entry = {
-        id: `C${Math.floor(Math.random() * 9000 + 1000)}`,
-        patientId: foundId,
-        name: displayName,
-        status: 'Waiting',
-        statusClass: 'status-waiting',
-        time: now,
-        location: 'Reception',
-        history: [{ label: 'Reception', time: now, state: 'completed' }],
-      };
-      writeCheckins([entry, ...current]);
-      dispatch(patientCheckedIn(entry));
-      dispatch(logActivity('Create', 'Patient Check-in', `Patient ${displayName} checked in for: ${why}`));
-      notify(`Successfully checked in patient ${displayName} for ${why}`, 'success');
+      const patient = findPatient(patients, id);
+      const name = patientName(patient) || id;
+      await dispatch(createCheckin({ patientId: patient?.patientId || patient?.id || id, name, purpose: why })).unwrap();
+      logActivity('Create', 'Patient Check-in', 'Patient ' + name + ' checked in for ' + why);
+      notify('Checked in ' + name, 'success');
       setPatientId('');
       setPurpose('');
+    } catch (err) {
+      notify(err.message || 'Could not check in the patient', 'error');
     } finally {
       setBusy(false);
     }
   }
 
-  function applyLocation() {
-    const loc = (locationPrompt?.value || '').trim();
-    const target = locationPrompt?.checkinId;
-    setLocationPrompt(null);
-    if (!loc || !target) return;
-    const current = readCheckins();
-    const idx = current.findIndex((c) => c.id === target);
-    if (idx < 0) return;
-    const p = current[idx];
-    const history = p.history.map((h) => (h.state === 'waiting' ? { ...h, state: 'completed' } : h));
-    history.push({ label: loc, time: timeNow(), state: 'waiting' });
-    let status = 'Moving';
-    let statusClass = 'status-waiting';
-    if (loc.toLowerCase().includes('consultation')) { status = 'In Consultation'; statusClass = 'status-consultation'; }
-    if (loc.toLowerCase().includes('er')) { status = 'In ER'; statusClass = 'status-er'; }
-    current[idx] = { ...p, location: loc, history, status, statusClass };
-    save(current);
+  async function applyLocation() {
+    const location = locationPrompt?.value.trim();
+    if (!location || busy) return;
+    setBusy(true);
+    try {
+      await dispatch(moveCheckin({ id: locationPrompt.checkinId, location })).unwrap();
+      setLocationPrompt(null);
+    } catch (err) {
+      notify(err.message || 'Could not update the location', 'error');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function checkOut(id) {
+    if (!(await ask('Check this patient out of the facility?', { title: 'Check out patient', confirmLabel: 'Check out' }))) return;
+    try {
+      await dispatch(deleteCheckin(id)).unwrap();
+      notify('Patient checked out', 'success');
+    } catch (err) {
+      notify(err.message || 'Could not check out the patient', 'error');
+    }
   }
 
   return (
@@ -119,7 +88,7 @@ export default function PatientCheckinPage() {
           Quick Check-in
         </div>
         <div className="checkin-card">
-          <input type="text" id="patientIdInput" className="form-input" placeholder="Enter Patient ID or Name" style={{ width: 250 }} required value={patientId} onChange={(e) => setPatientId(e.target.value)} />
+          <input type="text" id="patientIdInput" className="form-input" placeholder="Enter Patient ID" style={{ width: 250 }} required value={patientId} onChange={(e) => setPatientId(e.target.value)} />
           <input type="text" id="visitPurposeInput" className="form-input" placeholder="Visit Purpose" style={{ width: 200 }} required value={purpose} onChange={(e) => setPurpose(e.target.value)} />
           <button type="button" className="btn-dark" onClick={handleCheckin} disabled={busy}>Check-in Patient</button>
         </div>
@@ -128,14 +97,14 @@ export default function PatientCheckinPage() {
       <div className="card">
         <h3 style={{ marginBottom: 15 }}>Patients in Facility</h3>
         <div id="patientsContainer">
-          {checkins.length === 0 ? (
-            <div style={{ padding: 20, textAlign: 'center', color: '#6b7280' }}>No patients currently checked in today.</div>
+          {loading ? <p>Loading check-ins.</p> : error ? <p role="alert">{error}</p> : checkins.length === 0 ? (
+            <div style={{ padding: 20, textAlign: 'center', color: '#6b7280' }}>No patients currently checked in.</div>
           ) : checkins.map((p) => (
             <div className="card" key={p.id} style={{ marginBottom: 24, border: '1px solid #E5E7EB', padding: 20, borderRadius: 12, background: '#FFF' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ fontWeight: 700, fontSize: 18, color: '#111827' }}>{p.name}</div>
-                  <span className={`status-badge ${p.statusClass}`}>{p.status}</span>
+                  <span className={`status-badge ${p.status === 'In ER' ? 'status-er' : p.status === 'In Consultation' ? 'status-consultation' : 'status-waiting'}`}>{p.status}</span>
                 </div>
                 <button
                   type="button"
@@ -145,9 +114,10 @@ export default function PatientCheckinPage() {
                 >
                   Update Location
                 </button>
+                <button type="button" className="btn-outline" onClick={() => checkOut(p.id)}>Check out</button>
               </div>
               <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 20, fontFamily: "'JetBrains Mono', monospace" }}>
-                ID: {p.id} &bull; Checked in: {p.time} &bull; 📍 {p.location}
+                ID: {p.id} &bull; Checked in: {formatTime(p.time)} &bull; 📍 {p.location}
               </div>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 12, color: '#374151', letterSpacing: 0.5, textTransform: 'uppercase' }}>Movement History</div>
@@ -155,13 +125,13 @@ export default function PatientCheckinPage() {
                   {p.history.map((h, i) => (
                     <div key={`${h.label}-${i}`} style={{ display: 'contents' }}>
                       <div className="movement-step" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                        <div className={`step-icon ${h.state}`}>
-                          {h.state === 'completed'
+                        <div className={`step-icon ${i > 0 && i === p.history.length - 1 ? 'waiting' : 'completed'}`}>
+                          {i === 0 || i < p.history.length - 1
                             ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
                             : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#155DFC" strokeWidth="3"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>}
                         </div>
                         <div className="step-label" style={{ fontSize: 12, fontWeight: 500, color: '#111827' }}>{h.label}</div>
-                        <div className="step-time" style={{ fontSize: 11, color: '#6B7280' }}>{h.time}</div>
+                        <div className="step-time" style={{ fontSize: 11, color: '#6B7280' }}>{formatTime(h.time)}</div>
                       </div>
                       {i < p.history.length - 1 && <div style={{ color: '#D1D5DB', fontSize: 18 }}>&rarr;</div>}
                     </div>
@@ -173,6 +143,7 @@ export default function PatientCheckinPage() {
         </div>
       </div>
 
+      {dialog}
       {locationPrompt && (
         <div className="modal active" onMouseDown={(e) => { if (e.target === e.currentTarget) setLocationPrompt(null); }}>
           <div className="card modal-card">
@@ -187,7 +158,7 @@ export default function PatientCheckinPage() {
               placeholder="e.g. Consultation Room 2, ER, Pharmacy"
             />
             <div className="modal-actions">
-              <button type="button" className="btn" onClick={applyLocation}>OK</button>
+              <button type="button" className="btn" onClick={applyLocation} disabled={busy}>OK</button>
               <button type="button" className="btn-outline" onClick={() => setLocationPrompt(null)}>Cancel</button>
             </div>
           </div>

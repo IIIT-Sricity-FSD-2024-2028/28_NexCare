@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Ambulance, Appointments, Beds, Users } from '../../api';
+import { fetchAmbulanceRequests, selectAmbulanceRequests } from '../../store/ambulanceSlice';
+import useConfirm from '../../hooks/useConfirm';
+import { deleteBill, editBill } from '../../store/billingSlice';
 import { useNotify } from '../../hooks/useNotify';
-import { errorMessage, findPatient, logActivity, useHospitalId } from './staffData';
+import { errorMessage, findPatient, useStaffActivity, useHospitalId } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-  fetchBills, fetchPatientDirectory, generateBill, selectStaffBilling, selectStaffPatients,
+  fetchBeds, fetchStaffAppointments, selectBeds, selectStaffAppointments, fetchBills, fetchPatientDirectory, generateBill, selectStaffBilling, selectStaffPatients,
 } from '../../store/staffSlice';
 
 // administrative_staff/generate-bill.html + billing.js.
@@ -35,14 +37,19 @@ function wardLineItem(bed) {
 export default function GenerateBillPage() {
   const hospitalId = useHospitalId();
   const notify = useNotify();
+  const logActivity = useStaffActivity();
   const dispatch = useAppDispatch();
   const billing = useAppSelector(selectStaffBilling);
   const { list: patients } = useAppSelector(selectStaffPatients);
+  const { list: beds } = useAppSelector(selectBeds);
+  const { list: appts } = useAppSelector(selectStaffAppointments);
+  const { list: ambs } = useAppSelector(selectAmbulanceRequests);
   const loadError = Boolean(billing.error);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [modal, setModal] = useState(null); // { patientId, name, items: [{description, amount}] }
   const [view, setView] = useState(null); // a bill row
+  const { ask, dialog } = useConfirm();
   const [busy, setBusy] = useState(false);
 
   const bills = useMemo(() => billing.bills.map((db) => {
@@ -65,7 +72,12 @@ export default function GenerateBillPage() {
     [dispatch, notify],
   );
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    dispatch(fetchBeds());
+    dispatch(fetchStaffAppointments());
+    dispatch(fetchAmbulanceRequests());
+  }, [dispatch, load]);
 
   const totals = useMemo(() => ({
     total: bills.length,
@@ -80,53 +92,35 @@ export default function GenerateBillPage() {
   const subtotal = (modal?.items || []).reduce((sum, i) => sum + (Number(i.amount) || 0), 0);
   const setItems = (items) => setModal((m) => ({ ...m, items }));
 
-  async function fetchPatientDetails() {
+  function fetchPatientDetails() {
     const pid = modal.patientId.trim();
     if (!pid) { notify('Please enter a Patient ID first.', 'warning'); return; }
-    try {
-      const patient = findPatient((await Users.getAll({ role: 'patient' })).data || [], pid);
-      if (!patient) { notify('Patient not found. Please check the ID.', 'warning'); return; }
-      const pName = patient.name || patient.fullName;
-      const items = [];
+    const patient = findPatient(patients, pid);
+    if (!patient) { notify('Patient not found. Please check the ID.', 'warning'); return; }
+    const name = patient.name || patient.fullName;
+    const items = [];
+    const bed = beds.find((row) =>
+      row.patientId === patient.patientId || row.patientId === patient.id || (row.patient && row.patient === name));
+    const wardItem = bed ? wardLineItem(bed) : null;
+    if (wardItem) items.push(wardItem);
 
-      // 1. Beds
-      try {
-        const beds = (await Beds.getAll({ hospitalId })).data || [];
-        // `patient` is the login account (U004); beds carry the patient record id (P001).
-        const bed = beds.find((b) => b.patientId === patient.patientId || b.patientId === patient.id || (b.patient && b.patient === pName));
-        const wardItem = bed ? wardLineItem(bed) : null;
-        if (wardItem) items.push(wardItem);
-      } catch (e) { console.warn('Failed fetching beds', e); }
-
-      // 2. Appointments
-      try {
-        const appts = (await Appointments.getAll({ hospitalId })).data || [];
-        appts
-          .filter((a) => (a.patientId === patient.id || a.patientId === patient.patientId) && a.status !== 'Cancelled')
-          .forEach((a) => {
-            let doctorName = a.doctor || 'Unknown';
-            if (doctorName.startsWith('Dr. ')) doctorName = doctorName.substring(4).trim();
-            items.push({ description: `Consultation: Dr. ${doctorName} (${a.department || 'General'})`, amount: a.fee || a.amount || 500 });
-          });
-      } catch (e) { console.warn('Failed fetching appts', e); }
-
-      // 3. Ambulance
-      try {
-        const ambs = (await Ambulance.getAll()).data || [];
-        ambs.filter((a) => a.patientName === pName).forEach((a) => {
-          items.push({ description: `Ambulance Transport: ${a.type || 'Standard'}`, amount: a.amount || 1200 });
-        });
-      } catch (e) { console.warn('Failed fetching ambulance', e); }
-
-      if (items.length === 0) {
-        notify('No active charges found for this patient. Please enter items manually.', 'info');
-        items.push({ description: '', amount: 0 });
-      }
-      setModal((m) => ({ ...m, name: pName || 'Unknown', items }));
-    } catch (err) {
-      console.error('fetchPatientDetails error:', err);
-      notify('Failed to fetch patient details. Backend may be offline.', 'error');
+    for (const appointment of appts) {
+      if (![patient.id, patient.patientId].includes(appointment.patientId) || appointment.status === 'Cancelled') continue;
+      const doctor = (appointment.doctor || 'Unknown').replace(/^Dr\.\s+/, '');
+      items.push({
+        description: 'Consultation: Dr. ' + doctor + ' (' + (appointment.department || 'General') + ')',
+        amount: appointment.fee || appointment.amount || 500,
+      });
     }
+    for (const ambulance of ambs) {
+      if (ambulance.patientName !== name) continue;
+      items.push({ description: 'Ambulance Transport: ' + (ambulance.type || 'Standard'), amount: ambulance.amount || 1200 });
+    }
+    if (items.length === 0) {
+      notify('No active charges found for this patient. Please enter items manually.', 'info');
+      items.push({ description: '', amount: 0 });
+    }
+    setModal((draft) => ({ ...draft, name: name || 'Unknown', items }));
   }
 
   async function save() {
@@ -141,17 +135,25 @@ export default function GenerateBillPage() {
     }
     setBusy(true);
     try {
-      const patient = findPatient((await Users.getAll({ role: 'patient' })).data || [], pid);
-      if (!patient) { notify('Patient not found. Please verify the Patient ID.', 'warning'); return; }
+      const patient = findPatient(patients, pid);
+      if (!patient && !modal.id) { notify('Patient not found. Please verify the Patient ID.', 'warning'); return; }
+      const items = modal.items.map((item) => ({
+        description: item.description, department: item.department || 'Administrative', amount: Number(item.amount),
+      }));
       const payload = {
-        patientId: patient.patientId || patient.id,
+        patientId: patient?.patientId || patient?.id || pid,
         visitDate: new Date().toISOString().split('T')[0],
         dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        items: modal.items.map((item) => ({ description: item.description, department: 'Administrative', amount: Number(item.amount) })),
+        items,
       };
       if (hospitalId) payload.hospitalId = hospitalId;
-      await dispatch(generateBill(payload)).unwrap();
-      dispatch(logActivity('Create', 'Billing', `Admin generated new bill for ${modal.name} (ID: ${patient.id})`));
+      if (modal.id) {
+        await dispatch(editBill({ id: modal.id, data: { items } })).unwrap();
+        notify('Bill updated', 'success');
+      } else {
+        await dispatch(generateBill(payload)).unwrap();
+      }
+      if (!modal.id) logActivity('Create', 'Billing', `Admin generated new bill for ${modal.name} (ID: ${patient.id})`);
       setModal(null);
       await load();
     } catch (err) {
@@ -159,6 +161,26 @@ export default function GenerateBillPage() {
       notify(errorMessage(err, 'Failed to save bill. Please try again.'), 'error');
     } finally {
       setBusy(false);
+    }
+  }
+
+  function openBillEdit(bill) {
+    const record = billing.bills.find((row) => row.id === bill.id);
+    if (!record) return;
+    setModal({
+      id: record.id, patientId: record.patientId, name: bill.patient,
+      items: (record.items || []).map(({ description, department, amount }) => ({ description, department, amount })),
+    });
+  }
+
+  async function removeBill(id) {
+    if (!(await ask('Delete this pending bill?', { title: 'Delete bill', confirmLabel: 'Delete', danger: true }))) return;
+    try {
+      await dispatch(deleteBill(id)).unwrap();
+      setView(null);
+      notify('Bill deleted', 'success');
+    } catch (err) {
+      notify(errorMessage(err, 'Could not delete bill'), 'error');
     }
   }
 
@@ -257,13 +279,14 @@ export default function GenerateBillPage() {
         </table>
       </div>
 
+      {dialog}
       {modal && (
         <div id="modal" className="modal" style={{ display: 'flex' }}>
           <div className="card modal-card" style={{ width: 550 }}>
-            <h3>New Bill</h3>
+            <h3>{modal.id ? 'Edit Bill' : 'New Bill'}</h3>
             <div style={{ display: 'flex', gap: 10, marginBottom: 15 }}>
-              <input id="patientId" className="input" placeholder="Patient ID (e.g. P001)" style={{ flex: 1, marginBottom: 0 }} value={modal.patientId} onChange={(e) => setModal({ ...modal, patientId: e.target.value })} />
-              <button type="button" className="btn-outline" style={{ padding: '0 15px' }} onClick={fetchPatientDetails}>Fetch Details</button>
+              <input id="patientId" className="input" placeholder="Patient ID (e.g. P001)" style={{ flex: 1, marginBottom: 0 }} value={modal.patientId} readOnly={Boolean(modal.id)} onChange={(e) => setModal({ ...modal, patientId: e.target.value })} />
+              <button type="button" className="btn-outline" style={{ padding: '0 15px' }} onClick={fetchPatientDetails} disabled={Boolean(modal.id)}>Fetch Details</button>
             </div>
             <input id="name" className="input" placeholder="Patient Name" readOnly style={{ background: '#f3f4f6' }} value={modal.name} />
             <div id="lineItemsContainer" style={{ marginBottom: 15 }}>
@@ -300,6 +323,10 @@ export default function GenerateBillPage() {
               {billLines(view).map(([k, v]) => <p key={k}><strong>{k}:</strong> {v}</p>)}
             </div>
             <div className="modal-actions">
+              {String(view.status).toLowerCase() === 'pending' && <>
+                <button type="button" className="btn-outline" onClick={() => { openBillEdit(view); setView(null); }}>Edit Bill</button>
+                <button type="button" className="btn-outline" onClick={() => removeBill(view.id)}>Delete Bill</button>
+              </>}
               <button type="button" className="btn" onClick={printBillContent}>Print</button>
               <button type="button" className="btn-outline" onClick={downloadPDF}>Download PDF</button>
               <button type="button" className="btn-outline" onClick={() => setView(null)}>Close</button>

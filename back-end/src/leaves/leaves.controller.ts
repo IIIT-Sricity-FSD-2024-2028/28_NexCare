@@ -3,7 +3,8 @@ import {
   Get, 
   Post, 
   Body, 
-  Patch, 
+  Patch,
+  Put,
   Delete, 
   Param, 
   Query,
@@ -141,6 +142,16 @@ export class LeavesController {
    * Update leave status (approve/reject)
    * Guard validates only hospital_manager or superuser can approve/reject
    */
+  @Put(':id/details')
+  @Roles(UserRole.DOCTOR, UserRole.ADMINISTRATIVE_STAFF)
+  @ApiOperation({ summary: 'Edit a pending leave request' })
+  editPending(@Req() req: any, @Param('id') id: string, @Body() details: Partial<CreateLeaveDto>) {
+    const user = req.user;
+    if (!user.hospitalId) throw new ForbiddenException('Your account has no assigned hospital');
+    return this.leavesService.editPending(id, user.hospitalId,
+      user.role === UserRole.DOCTOR ? user.id || user.sub : undefined, details);
+  }
+
   @Patch(':id')
   @UseGuards(LeaveRequestGuard)
   @ApiOperation({ summary: 'Approve or reject leave request' })
@@ -180,7 +191,13 @@ export class LeavesController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
-  async delete(@Param('id') id: string) {
+  async delete(@Req() req: any, @Param('id') id: string) {
+    const user = req.user;
+    if (user.role === UserRole.DOCTOR || user.role === UserRole.ADMINISTRATIVE_STAFF) {
+      if (!user.hospitalId) throw new ForbiddenException('Your account has no assigned hospital');
+      return this.leavesService.delete(id, user.hospitalId,
+        user.role === UserRole.DOCTOR ? user.id || user.sub : undefined);
+    }
     return this.leavesService.delete(id);
   }
 }

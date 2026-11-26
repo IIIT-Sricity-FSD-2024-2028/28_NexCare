@@ -35,12 +35,10 @@ export class UploadsService {
 
   /** Persist records to disk */
   private save(records: UploadRecord[]): void {
-    try {
-      fs.mkdirSync(path.dirname(this.uploadsFilePath), { recursive: true });
-      fs.writeFileSync(this.uploadsFilePath, JSON.stringify(records, null, 2), 'utf-8');
-    } catch (err) {
-      fileLogger.error('Failed to persist upload metadata', { detail: String(err) });
-    }
+    fs.mkdirSync(path.dirname(this.uploadsFilePath), { recursive: true });
+    const temporaryPath = this.uploadsFilePath + '.tmp';
+    fs.writeFileSync(temporaryPath, JSON.stringify(records, null, 2), 'utf-8');
+    fs.renameSync(temporaryPath, this.uploadsFilePath);
   }
 
   /**
@@ -125,6 +123,16 @@ export class UploadsService {
   }
 
   /** Delete the record and the file behind it */
+  editDescription(id: string, description: string, userId: string, superuser: boolean) {
+    const records = this.load();
+    const index = records.findIndex((row) => row.id === id && row.entityType === UploadEntityType.PATIENT
+      && (superuser || row.uploadedBy === userId));
+    if (index < 0) return ResponseUtil.notFound('Document', id);
+    records[index] = { ...records[index], description };
+    this.save(records);
+    return ResponseUtil.updated('Description updated', records[index]);
+  }
+
   async remove(id: string, deletedBy: string) {
     try {
       const records = this.load();

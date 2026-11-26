@@ -203,6 +203,12 @@ export class BillingController {
     res.end(pdfBuffer);
   }
 
+  private billMutationHospital(req: any) {
+    if (req.user.role === UserRole.SUPERUSER) return undefined;
+    if (!req.user.hospitalId) throw new ForbiddenException('Your account has no assigned hospital');
+    return req.user.hospitalId as string;
+  }
+
   /**
    * Update bill
    */
@@ -212,8 +218,8 @@ export class BillingController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
-  async update(@Param('id') id: string, @Body() updateBillDto: UpdateBillDto) {
-    return this.billingService.update(id, updateBillDto as any);
+  async update(@Req() req: any, @Param('id') id: string, @Body() updateBillDto: UpdateBillDto) {
+    return this.billingService.update(id, updateBillDto as any, this.billMutationHospital(req));
   }
 
   /**
@@ -225,8 +231,8 @@ export class BillingController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
-  async patchUpdate(@Param('id') id: string, @Body() updateBillDto: UpdateBillDto) {
-    return this.billingService.update(id, updateBillDto as any);
+  async patchUpdate(@Req() req: any, @Param('id') id: string, @Body() updateBillDto: UpdateBillDto) {
+    return this.billingService.update(id, updateBillDto as any, this.billMutationHospital(req));
   }
 
   /**
@@ -238,8 +244,8 @@ export class BillingController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 429, description: 'Too Many Requests - Rate limit exceeded' })
-  async delete(@Param('id') id: string) {
-    return this.billingService.delete(id);
+  async delete(@Req() req: any, @Param('id') id: string) {
+    return this.billingService.delete(id, this.billMutationHospital(req));
   }
 
   /**

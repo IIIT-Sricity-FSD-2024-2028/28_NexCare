@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Header from '../../components/layout/Header';
 import { Panel, StatusPill, EmptyRow, PageHeader } from '../../components/ui';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchDoctorLeaves, requestLeave, deleteLeave, selectDoctorLeaves } from '../../store/doctorSlice';
+import { editPendingLeave, fetchDoctorLeaves, requestLeave, deleteLeave, selectDoctorLeaves } from '../../store/leavesSlice';
 import { selectUser } from '../../store/authSlice';
 import { useNotify } from '../../hooks/useNotify';
 import useConfirm from '../../hooks/useConfirm';
@@ -19,6 +19,7 @@ export default function LeavesPage() {
   const dispatch = useAppDispatch();
   const { list: leaves, loading, error } = useAppSelector(selectDoctorLeaves);
   const [form, setForm] = useState({ startDate: '', endDate: '', reason: '' });
+  const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   const today = isoDate();
@@ -42,13 +43,19 @@ export default function LeavesPage() {
 
     setSubmitting(true);
     try {
-      await dispatch(requestLeave({
-        doctorId: user.id,
-        doctorName: user.name,
-        hospitalId: user.hospitalId || '',
-        startDate, endDate, reason,
-      })).unwrap();
-      notify('Leave request submitted — your manager will review it', 'success');
+      if (editingId) {
+        await dispatch(editPendingLeave({ id: editingId, data: { startDate, endDate, reason } })).unwrap();
+        notify('Leave request updated', 'success');
+      } else {
+        await dispatch(requestLeave({
+          doctorId: user.id,
+          doctorName: user.name,
+          hospitalId: user.hospitalId || '',
+          startDate, endDate, reason,
+        })).unwrap();
+        notify('Leave request submitted for review', 'success');
+      }
+      setEditingId(null);
       setForm({ startDate: '', endDate: '', reason: '' });
       await load();
     } catch (err) {
@@ -65,6 +72,10 @@ export default function LeavesPage() {
     if (!(await ask('Withdraw this leave request?', { title: 'Withdraw leave', confirmLabel: 'Withdraw', danger: true }))) return;
     try {
       await dispatch(deleteLeave(id)).unwrap();
+      if (editingId === id) {
+        setEditingId(null);
+        setForm({ startDate: '', endDate: '', reason: '' });
+      }
       notify('Leave request withdrawn', 'success');
     } catch (err) {
       notify(err || 'Could not withdraw the request', 'error');
@@ -80,7 +91,7 @@ export default function LeavesPage() {
           subtitle="Request time off. Your hospital manager approves it — an approved leave blocks new bookings for those dates."
         />
 
-        <Panel title="Request leave">
+        <Panel title={editingId ? 'Edit leave request' : 'Request leave'}>
           <form onSubmit={submit} className="field-grid">
             <div className="field">
               <label htmlFor="startDate">From</label>
@@ -96,7 +107,11 @@ export default function LeavesPage() {
             </div>
             <div className="field">
               <label>&nbsp;</label>
-              <button type="submit" className="btn primary" disabled={submitting}>{submitting ? 'Submitting…' : 'Submit request'}</button>
+              <button type="submit" className="btn primary" disabled={submitting}>{submitting ? 'Submitting…' : editingId ? 'Save changes' : 'Submit request'}</button>
+              {editingId && <button type="button" className="btn" disabled={submitting} onClick={() => {
+                setEditingId(null);
+                setForm({ startDate: '', endDate: '', reason: '' });
+              }}>Cancel edit</button>}
             </div>
           </form>
         </Panel>
@@ -119,7 +134,13 @@ export default function LeavesPage() {
                   <td className="muted">{l.approvedBy || '—'}</td>
                   <td className="num">
                     {String(l.status).toLowerCase() === 'pending'
-                      ? <button type="button" className="btn danger" onClick={() => withdraw(l.id)}>Withdraw</button>
+                      ? <>
+                        <button type="button" className="btn" disabled={submitting} onClick={() => {
+                          setEditingId(l.id);
+                          setForm({ startDate: l.startDate.slice(0, 10), endDate: l.endDate.slice(0, 10), reason: l.reason || '' });
+                        }}>Edit</button>
+                        <button type="button" className="btn danger" disabled={submitting} onClick={() => withdraw(l.id)}>Withdraw</button>
+                      </>
                       : <span className="muted">—</span>}
                   </td>
                 </tr>

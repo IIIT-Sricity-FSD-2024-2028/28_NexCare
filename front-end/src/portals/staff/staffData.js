@@ -1,4 +1,5 @@
-import { useAppSelector } from '../../store/hooks';
+import logActivity from '../../features/activity/logActivity';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { selectUser } from '../../store/authSlice';
 
 // getHospitalId() from every staff script: the signed-in user's hospital. The
@@ -28,6 +29,7 @@ export function errorMessage(err, fallback) {
   return (typeof err === 'string' && err) || (err && err.message) || fallback;
 }
 
-// NexCareStore.logActivity() moved to features/activity/ once the superuser
-// pages needed it too; re-exported so the staff pages read as before.
-export { default as logActivity } from '../../features/activity/logActivity';
+export function useStaffActivity() {
+  const dispatch = useAppDispatch();
+  return (action, module, details) => dispatch(logActivity(action, module, details));
+}

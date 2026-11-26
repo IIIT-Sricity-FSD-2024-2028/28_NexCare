@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Leaves, Users } from '../../api';
+import { editPendingLeave } from '../../store/leavesSlice';
+import { fetchStaffUsers, selectStaffUsers } from '../../store/directorySlices';
 import { useNotify } from '../../hooks/useNotify';
 import { useHospitalId } from './staffData';
 import useConfirm from '../../hooks/useConfirm';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-  fetchLeaveRequests, createLeaveRequest, selectLeaveRequests,
+  fetchLeaveRequests, createLeaveRequest, deleteStaffLeave, selectLeaveRequests,
 } from '../../store/staffSlice';
 
 // administrative_staff/leave-requests.html + leave-requests.js.
@@ -30,7 +31,10 @@ export default function LeaveRequestsPage() {
   const { ask, dialog } = useConfirm();
   const dispatch = useAppDispatch();
   const { list: leaves } = useAppSelector(selectLeaveRequests);
-  const [staff, setStaff] = useState(null); // null = loading
+  const directory = useAppSelector(selectStaffUsers);
+  const staff = ['loading', 'idle'].includes(directory.status) ? null : directory.list.filter((u) =>
+    u.role !== 'patient' && u.role !== 'superuser' && u.status === 'Active'
+    && (!hospitalId || !u.hospitalId || u.hospitalId === hospitalId));
   const [status, setStatus] = useState('all');
   const [term, setTerm] = useState('');
   const [form, setForm] = useState(null); // { staffId, startDate, endDate, reason }
@@ -43,22 +47,7 @@ export default function LeaveRequestsPage() {
     [dispatch, notify],
   );
 
-  // The staff directory powers the "who is this leave for" dropdown.
-  const loadStaff = useCallback(async () => {
-    try {
-      const res = await Users.getAll();
-      const users = Array.isArray(res.data) ? res.data : [];
-      setStaff(users.filter((u) =>
-        u.role !== 'patient' && u.role !== 'superuser' && u.status === 'Active'
-        && (!hospitalId || !u.hospitalId || u.hospitalId === hospitalId)));
-    } catch (error) {
-      notify('Failed to load staff directory. Please check your connection and try again.', 'error');
-      console.warn('Failed to load staff directory:', error);
-      setStaff([]);
-    }
-  }, [hospitalId, notify]);
-
-  useEffect(() => { loadStaff(); loadLeaves(); }, [loadStaff, loadLeaves]);
+  useEffect(() => { dispatch(fetchStaffUsers()); loadLeaves(); }, [dispatch, loadLeaves]);
 
   const count = (s) => leaves.filter((l) => (l.status || '').toLowerCase() === s).length;
   const q = term.trim().toLowerCase();
@@ -80,13 +69,14 @@ export default function LeaveRequestsPage() {
     const payload = { doctorId: staffId, doctorName: member ? member.name : 'Unknown', hospitalId: hospitalId || undefined, startDate, endDate, reason };
     setSubmitting(true);
     try {
-      await dispatch(createLeaveRequest(payload)).unwrap();
+      if (form.id) await dispatch(editPendingLeave({ id: form.id, data: { startDate, endDate, reason } })).unwrap();
+      else await dispatch(createLeaveRequest(payload)).unwrap();
       setForm(null);
-      notify('Leave request recorded successfully', 'success');
+      notify(form.id ? 'Leave request updated' : 'Leave request recorded successfully', 'success');
     } catch (error) {
       // 409 from LeaveRequestGuard = an approved leave already covers these dates.
       const conflict = error?.status === 409 || String(error?.message || '').includes('409') || String(error?.message || '').toLowerCase().includes('overlap');
-      notify(conflict ? 'That staff member already has an approved leave covering these dates' : (error?.message || 'Failed to record leave request'), 'error');
+      notify(conflict ? 'That staff member already has an approved leave covering these dates' : ((typeof error === 'string' ? error : error?.message) || 'Failed to save leave request'), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -95,9 +85,9 @@ export default function LeaveRequestsPage() {
   async function cancelLeave(leaveId) {
     if (!(await ask('Withdraw this leave request?', { title: 'Withdraw request', confirmLabel: 'Withdraw', danger: true }))) return;
     try {
-      await Leaves.delete(leaveId);
+      await dispatch(deleteStaffLeave(leaveId)).unwrap();
     } catch (error) {
-      notify(error?.message || 'Failed to withdraw request', 'error');
+      notify((typeof error === 'string' ? error : error?.message) || 'Failed to withdraw request', 'error');
       return;
     }
     loadLeaves();
@@ -155,6 +145,10 @@ export default function LeaveRequestsPage() {
                     <td>
                       <div className="action-buttons">
                         <button type="button" className="action-btn" title="View details" onClick={() => setView(leave)}>&#128065;</button>
+                        {s === 'pending' && <button type="button" className="action-btn" onClick={() => setForm({
+                          id: leave.id, staffId: leave.doctorId, startDate: leave.startDate.slice(0, 10),
+                          endDate: leave.endDate.slice(0, 10), reason: leave.reason || '',
+                        })}>Edit</button>}
                         {s === 'pending' && <button type="button" className="action-btn" title="Withdraw request" onClick={() => cancelLeave(leave.id)}>&#10005;</button>}
                       </div>
                     </td>
@@ -173,13 +167,13 @@ export default function LeaveRequestsPage() {
         <div className="modal active" id="leaveModal" onMouseDown={(e) => { if (e.target === e.currentTarget) setForm(null); }}>
           <div className="modal-content">
             <div className="modal-header">
-              <h2>Record Leave Request</h2>
+              <h2>{form.id ? 'Edit Leave Request' : 'Record Leave Request'}</h2>
               <button type="button" className="modal-close" onClick={() => setForm(null)}>&times;</button>
             </div>
             <form id="leaveForm" onSubmit={submit}>
               <div className="form-group">
                 <label htmlFor="staffMember">Staff Member *</label>
-                <select id="staffMember" className="form-select" required value={form.staffId} onChange={(e) => setForm({ ...form, staffId: e.target.value })}>
+                <select id="staffMember" className="form-select" required disabled={Boolean(form.id)} value={form.staffId} onChange={(e) => setForm({ ...form, staffId: e.target.value })}>
                   {staff === null ? <option value="" disabled>Loading staff...</option>
                     : staff.length === 0 ? <option value="" disabled>No staff available</option>
                     : <option value="" disabled>Select staff member</option>}
