@@ -27,7 +27,7 @@ export default function DoctorRoutes() {
   return (
     <Routes>
       {doctorRoutes}
-      <Route path="*" element={<Navigate to="." replace />} />
+      <Route path="*" element={<Navigate to="/doctor" replace />} />
     </Routes>
   );
 }

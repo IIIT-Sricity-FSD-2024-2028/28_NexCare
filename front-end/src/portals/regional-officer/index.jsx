@@ -40,7 +40,7 @@ export default function RegionalOfficerRoutes() {
   return (
     <Routes>
       {regionalOfficerRoutes}
-      <Route path="*" element={<Navigate to="." replace />} />
+      <Route path="*" element={<Navigate to="/regional-officer" replace />} />
     </Routes>
   );
 }
