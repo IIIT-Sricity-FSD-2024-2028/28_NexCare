@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { hideToast, removeToast, selectNotifications, showToast } from '../../store/toastSlice';
 
@@ -12,15 +12,37 @@ const ICONS = {
 export default function ToastStack() {
   const dispatch = useAppDispatch();
   const toasts = useAppSelector(selectNotifications);
+  const timers = useRef(new Map());
+
   useEffect(() => {
-    const timers = [];
     toasts.forEach((toast) => {
-      if (!toast.show) timers.push(setTimeout(() => dispatch(showToast(toast.id)), 10));
-      timers.push(setTimeout(() => dispatch(hideToast(toast.id)), toast.duration));
-      timers.push(setTimeout(() => dispatch(removeToast(toast.id)), toast.duration + 300));
+      if (timers.current.has(toast.id)) return;
+      const toastTimers = [
+        setTimeout(() => dispatch(showToast(toast.id)), 10),
+        setTimeout(() => dispatch(hideToast(toast.id)), toast.duration),
+        setTimeout(() => dispatch(removeToast(toast.id)), toast.duration + 300),
+      ];
+      timers.current.set(toast.id, toastTimers);
     });
-    return () => timers.forEach(clearTimeout);
   }, [dispatch, toasts]);
+
+  useEffect(() => {
+    const scheduled = timers.current;
+    return () => {
+      scheduled.forEach((toastTimers) => toastTimers.forEach(clearTimeout));
+      scheduled.clear();
+    };
+  }, []);
+
+  useEffect(() => {
+    const activeIds = new Set(toasts.map((toast) => toast.id));
+    timers.current.forEach((toastTimers, id) => {
+      if (activeIds.has(id)) return;
+      toastTimers.forEach(clearTimeout);
+      timers.current.delete(id);
+    });
+  }, [toasts]);
+
   return (
     <div className="nexcare-toast-stack">
       {toasts.map((toast) => (

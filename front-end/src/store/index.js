@@ -2,7 +2,6 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import auth, { logoutUser, sessionCleared } from './authSlice';
 import { usersReducer, hospitalsReducer } from './directorySlices';
 import checkins from './checkinsSlice';
-import notifications from './notificationsSlice';
 import uploads from './uploadsSlice';
 import toast from './toastSlice';
 import ui from './uiSlice';
@@ -20,11 +19,15 @@ import hospitalManager from './hospitalManagerSlice';
 import ambulance from './ambulanceSlice';
 import regionalOfficer from './regionalOfficerSlice';
 import superuser from './superuserSlice';
+import layout from './layoutSlice';
+import notifications from './notificationsSlice';
+import activity from './activitySlice';
+import hierarchy from './hierarchySlice';
 
 export const appReducer = combineReducers({
   auth, users: usersReducer, hospitals: hospitalsReducer, notifications, uploads, checkins, toast, ui, patient, patientRecords,
   appointments, leaves, revenue, beds, inventory, schedules, feedback, billing,
-  hospitalManager, ambulance, regionalOfficer, superuser,
+  hospitalManager, ambulance, regionalOfficer, superuser, layout, activity, hierarchy,
 });
 
 export const resetActions = [logoutUser.fulfilled.type, sessionCleared.type];

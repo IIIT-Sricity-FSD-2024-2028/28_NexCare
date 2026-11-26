@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Auth } from '../../api';
-import { selectUser, userUpdated } from '../../store/authSlice';
+import { changePassword, selectPasswordChangeLoading, selectUser, updateSessionUser } from '../../store/authSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { homeFor } from '../../utils/roles';
 import { AuthShell, describeError } from './AuthShell';
@@ -17,11 +16,11 @@ export default function ChangePasswordPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const busy = useAppSelector(selectPasswordChangeLoading);
   const [currentPassword, setCurrent] = useState('');
   const [newPassword, setNew] = useState('');
   const [confirmPassword, setConfirm] = useState('');
   const [alert, setAlert] = useState(null); // { type, msg }
-  const [busy, setBusy] = useState(false);
 
   const ruleLength = newPassword.length >= 6;
   const ruleMatch = Boolean(newPassword) && newPassword === confirmPassword;
@@ -33,18 +32,13 @@ export default function ChangePasswordPage() {
     if (newPassword === DEFAULT_PASS) return setAlert({ type: 'error', msg: 'New password cannot be the temporary default password (NexCare@123).' });
     if (newPassword !== confirmPassword) return setAlert({ type: 'error', msg: 'New password and confirm password do not match.' });
     if (currentPassword === newPassword) return setAlert({ type: 'error', msg: 'New password must be different from current password.' });
-    setBusy(true);
     try {
-      await Auth.changePassword(currentPassword, newPassword);
+      await dispatch(changePassword({ currentPassword, newPassword })).unwrap();
       setAlert({ type: 'success', msg: 'Password updated successfully! Redirecting to your dashboard...' });
-      if (user) {
-        sessionStorage.setItem('nexcare_user_data', JSON.stringify({ ...user, mustChangePassword: false }));
-      }
-      dispatch(userUpdated({ mustChangePassword: false }));
+      if (user) dispatch(updateSessionUser({ mustChangePassword: false }));
       setTimeout(() => navigate(homeFor(user?.role || 'administrative_staff'), { replace: true }), 1200);
     } catch (err) {
-      setAlert({ type: 'error', msg: describeError(err) || 'Failed to update password. Please check your current password.' });
-      setBusy(false);
+      setAlert({ type: 'error', msg: (typeof err === 'string' ? err : describeError(err)) || 'Failed to update password. Please check your current password.' });
     }
     return undefined;
   }

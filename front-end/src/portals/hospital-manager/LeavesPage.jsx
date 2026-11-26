@@ -50,18 +50,30 @@ export default function LeavesPage() {
             <h2>Doctor Leave Requests</h2>
             <p className="card-subtitle">Review, approve, or reject doctor leave applications with strict hospital scoping</p>
           </div>
-          <div className="filter-toolbar">
-            <input type="text" className="input-search" placeholder="Search doctor or reason..." value={term} onChange={(e) => setTerm(e.target.value)} />
-            <select className="select-filter" value={status} onChange={(e) => setStatus(e.target.value)}>
-              <option value="ALL">All Statuses</option>
-              <option value="pending">Pending Only</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
-            <select className="select-filter" value={dept} onChange={(e) => setDept(e.target.value)}>
-              <option value="ALL">All Departments</option>
-              {depts.map((d) => <option key={d} value={d}>{d}</option>)}
-            </select>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ padding: '6px 12px', fontSize: 12 }}
+              onClick={() => dispatch(fetchHmLeaves())}
+              disabled={leaves.loading}
+              title="Refresh leave requests"
+            >
+              {leaves.loading ? '⟳ Refreshing...' : '🔄 Refresh'}
+            </button>
+            <div className="filter-toolbar">
+              <input type="text" className="input-search" placeholder="Search doctor or reason..." value={term} onChange={(e) => setTerm(e.target.value)} />
+              <select className="select-filter" value={status} onChange={(e) => setStatus(e.target.value)}>
+                <option value="ALL">All Statuses</option>
+                <option value="pending">Pending Only</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <select className="select-filter" value={dept} onChange={(e) => setDept(e.target.value)}>
+                <option value="ALL">All Departments</option>
+                {depts.map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
           </div>
         </div>
         <div className="table-responsive">

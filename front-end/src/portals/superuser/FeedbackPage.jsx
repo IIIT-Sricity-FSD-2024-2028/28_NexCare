@@ -30,8 +30,11 @@ export default function FeedbackPage() {
   const { ask, dialog } = useConfirm();
   const dispatch = useAppDispatch();
   const { list: feedbackRows, loading, error } = useAppSelector(selectSuFeedback);
-  const [items, setItems] = useState(null);
-  const [hospitalOptions, setHospitalOptions] = useState([]);
+  const items = useMemo(() => (feedbackRows || []).map((feedback) => toRow(feedback, {})), [feedbackRows]);
+  const hospitalOptions = useMemo(
+    () => [...new Set(items.map((row) => row.hospitalName))].sort(),
+    [items],
+  );
   const [term, setTerm] = useState('');
   const [type, setType] = useState('All');
   const [hospital, setHospital] = useState('All');
@@ -39,17 +42,9 @@ export default function FeedbackPage() {
 
   useEffect(() => { dispatch(fetchSuFeedback()); }, [dispatch]);
 
-  useEffect(() => {
-    const rows = (feedbackRows || []).map((feedback) => toRow(feedback, {}));
-    setItems(rows);
-    setHospitalOptions((opts) => opts.length
-      ? opts
-      : [...new Set(rows.map((row) => row.hospitalName))].sort());
-  }, [feedbackRows]);
-
   const rows = useMemo(() => {
     const t = term.toLowerCase();
-    return (items || []).filter((f) => {
+    return items.filter((f) => {
       const matchesTerm = f.sender.toLowerCase().includes(t) || f.subject.toLowerCase().includes(t) || f.id.toLowerCase().includes(t);
       const matchesType = type === 'All' || f.type === type;
       const matchesHosp = hospital === 'All' || f.hospitalName === hospital;
@@ -95,7 +90,7 @@ export default function FeedbackPage() {
             </tr>
           </thead>
           <tbody id="feedbackTableBody">
-            {loading || items === null ? (
+            {loading ? (
               <MessageRow colSpan={8}>Loading feedback…</MessageRow>
             ) : error ? (
               <MessageRow colSpan={8} padding={30} color="#DC2626">{error}</MessageRow>

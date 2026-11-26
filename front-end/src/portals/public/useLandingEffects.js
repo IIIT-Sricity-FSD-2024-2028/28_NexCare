@@ -17,6 +17,7 @@ export default function useLandingEffects(rootRef) {
 
     // Navbar scroll effect
     const navbar = root.querySelector('#navbar');
+    const heroIllustration = root.querySelector('.hero-illustration');
     on(window, 'scroll', () => navbar && navbar.classList.toggle('scrolled', window.scrollY > 20));
 
     // Smooth scroll for in-page anchors

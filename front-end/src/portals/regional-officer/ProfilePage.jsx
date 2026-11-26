@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import Header from '../../components/layout/Header';
 import { Panel, PageHeader } from '../../components/ui';
-import { Auth, Hospitals } from '../../api';
+import { Hospitals } from '../../api';
 import { useNotify } from '../../hooks/useNotify';
-import { selectUser } from '../../store/authSlice';
-import { useAppSelector } from '../../store/hooks';
+import { changePassword as changePasswordAction, selectPasswordChangeLoading, selectUser } from '../../store/authSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 
 // regional-officer/profile.html + profile.js: the login user's regional
 // profile (read-only) and a change-password form.
@@ -17,11 +17,12 @@ const REGION_NAMES = {
 };
 
 export default function ProfilePage() {
+  const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const saving = useAppSelector(selectPasswordChangeLoading);
   const notify = useNotify();
   const [hospitalCount, setHospitalCount] = useState(0);
   const [pw, setPw] = useState({ current: '', next: '' });
-  const [saving, setSaving] = useState(false);
 
   // Assigned hospitals count from the regional overview.
   useEffect(() => {
@@ -39,15 +40,12 @@ export default function ProfilePage() {
     e.preventDefault();
     if (!pw.current || !pw.next) return notify('Please fill in both password fields', 'warning');
     if (pw.next.length < 6) return notify('New password must be at least 6 characters', 'warning');
-    setSaving(true);
     try {
-      await Auth.changePassword(pw.current, pw.next);
+      await dispatch(changePasswordAction({ currentPassword: pw.current, newPassword: pw.next })).unwrap();
       notify('Password updated successfully', 'success');
       setPw({ current: '', next: '' });
     } catch (err) {
-      notify(`Failed to update password: ${err?.message || 'Unknown error'}`, 'error');
-    } finally {
-      setSaving(false);
+      notify(`Failed to update password: ${typeof err === 'string' ? err : err?.message || 'Unknown error'}`, 'error');
     }
   }
 

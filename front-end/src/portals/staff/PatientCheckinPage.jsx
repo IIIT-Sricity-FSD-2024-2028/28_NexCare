@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import useConfirm from '../../hooks/useConfirm';
 import { useNotify } from '../../hooks/useNotify';
-import { findPatient, patientName } from './staffData';
+import { findPatient, patientName, useStaffActivity } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchPatientDirectory, selectStaffPatients } from '../../store/staffSlice';
 import { createCheckin, deleteCheckin, fetchCheckins, moveCheckin, selectCheckins } from '../../store/checkinsSlice';
@@ -10,6 +10,7 @@ const formatTime = (value) => new Date(value).toLocaleTimeString([], { hour: '2-
 
 export default function PatientCheckinPage() {
   const notify = useNotify();
+  const logActivity = useStaffActivity();
   const dispatch = useAppDispatch();
   const { list: checkins, loading, error } = useAppSelector(selectCheckins);
   const { list: patients } = useAppSelector(selectStaffPatients);
@@ -37,6 +38,7 @@ export default function PatientCheckinPage() {
       const patient = findPatient(patients, id);
       const name = patientName(patient) || id;
       await dispatch(createCheckin({ patientId: patient?.patientId || patient?.id || id, name, purpose: why })).unwrap();
+      logActivity('Create', 'Patient Check-in', 'Patient ' + name + ' checked in for ' + why);
       notify('Checked in ' + name, 'success');
       setPatientId('');
       setPurpose('');

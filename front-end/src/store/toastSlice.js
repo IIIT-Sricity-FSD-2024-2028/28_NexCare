@@ -1,20 +1,22 @@
-import { createSlice } from '@reduxjs/toolkit';
-
-let nextToastId = 0;
+import { createSlice, nanoid } from '@reduxjs/toolkit';
 
 const toastSlice = createSlice({
   name: 'toast',
   initialState: { notifications: [] },
   reducers: {
-    addToast: (state, action) => {
-      const { message, type = 'info', duration = 3500 } = action.payload;
-      state.notifications.push({
-        id: ++nextToastId,
-        message: String(message ?? ''),
-        type: ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info',
-        duration,
-        show: false,
-      });
+    addToast: {
+      reducer: (state, action) => {
+        state.notifications.push(action.payload);
+      },
+      prepare: ({ message, type = 'info', duration = 3500 }) => ({
+        payload: {
+          id: nanoid(),
+          message: String(message ?? ''),
+          type: ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info',
+          duration,
+          show: false,
+        },
+      }),
     },
     hideToast: (state, action) => {
       const toast = state.notifications.find((item) => item.id === action.payload);

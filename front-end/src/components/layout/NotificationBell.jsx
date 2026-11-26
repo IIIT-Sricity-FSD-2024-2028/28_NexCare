@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { BellIcon } from '../icons';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchUnread, fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../store/notificationsSlice';
+import {
+  fetchNotifications, fetchUnreadCount, markAllNotificationsRead,
+  markNotificationRead, selectNotifications,
+} from '../../store/notificationsSlice';
 
 function timeAgo(dateStr) {
   if (!dateStr) return '';
@@ -15,11 +18,15 @@ function timeAgo(dateStr) {
 // The unread badge + dropdown nav.js used to inject into the top bar.
 export default function NotificationBell() {
   const dispatch = useAppDispatch();
-  const { unread, items, error } = useAppSelector((state) => state.notifications);
+  const {
+    list: items, unreadCount: unread, listLoading, listError, unreadError, actionError,
+  } = useAppSelector(selectNotifications);
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
 
-  useEffect(() => { dispatch(fetchUnread()); }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchUnreadCount());
+  }, [dispatch]);
 
   // Close when clicking anywhere outside the bell.
   useEffect(() => {
@@ -35,13 +42,14 @@ export default function NotificationBell() {
     if (next) dispatch(fetchNotifications());
   }
 
-  function markAll(event) {
-    event.stopPropagation();
+  function markAll(e) {
+    e.stopPropagation();
     dispatch(markAllNotificationsRead());
   }
 
-  function markOne(notification) {
-    if (!notification.read) dispatch(markNotificationRead(notification.id));
+  function markOne(n) {
+    if (n.read) return;
+    dispatch(markNotificationRead(n.id));
   }
 
   return (
@@ -50,6 +58,7 @@ export default function NotificationBell() {
         type="button"
         onClick={toggle}
         aria-label="Notifications"
+        title={unreadError || `${unread} unread notification${unread === 1 ? '' : 's'}`}
         style={{ position: 'relative', display: 'inline-flex', padding: 6, borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0', cursor: 'pointer' }}
       >
         <BellIcon />
@@ -68,11 +77,13 @@ export default function NotificationBell() {
               Mark all read
             </button>
           </div>
+          {unreadError && <div role="status" style={{ fontSize: 11, color: '#B91C1C', padding: '6px 12px' }}>Unread count unavailable: {unreadError}</div>}
           <div style={{ padding: 4, maxHeight: 380, overflowY: 'auto' }}>
-            {items === null && <div style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: 20 }}>Loading notifications…</div>}
-            {items !== null && error && <div style={{ fontSize: 12, color: '#ef4444', textAlign: 'center', padding: 20 }}>Failed to load notifications</div>}
-            {items !== null && !error && items.length === 0 && <div style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', padding: '30px 16px' }}>🔔 No notifications</div>}
-            {items !== null && items.map((n) => (
+            {listLoading && <div style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: 20 }}>Loading notifications…</div>}
+            {!listLoading && listError && <div style={{ fontSize: 12, color: '#ef4444', textAlign: 'center', padding: 20 }}>{listError}</div>}
+            {!listLoading && !listError && items.length === 0 && <div style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', padding: '30px 16px' }}>🔔 No notifications</div>}
+            {actionError && <div role="alert" style={{ fontSize: 12, color: '#ef4444', textAlign: 'center', padding: 8 }}>{actionError}</div>}
+            {!listLoading && !listError && items.map((n) => (
               <div
                 key={n.id}
                 onClick={() => markOne(n)}

@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/layout/Header';
 import { Panel, PageHeader } from '../../components/ui';
-import { changePassword } from '../../store/authSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchDoctorProfile, selectDoctorProfile } from '../../store/doctorSlice';
-import { selectUser } from '../../store/authSlice';
+import { changePassword as changePasswordAction, selectPasswordChangeLoading, selectUser } from '../../store/authSlice';
 import { useNotify } from '../../hooks/useNotify';
 import { money } from '../../utils/format';
 
@@ -15,13 +14,13 @@ import { money } from '../../utils/format';
 // field is read-only apart from the password.
 export default function ProfilePage() {
   const user = useAppSelector(selectUser);
+  const saving = useAppSelector(selectPasswordChangeLoading);
   const notify = useNotify();
   const dispatch = useAppDispatch();
   const { data: fetched } = useAppSelector(selectDoctorProfile);
   // Falls back to the cached session until (or if) the fetch succeeds.
   const record = fetched ? { ...user, ...fetched } : user;
   const [pw, setPw] = useState({ current: '', next: '' });
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (user?.id) dispatch(fetchDoctorProfile(user.id));
@@ -31,15 +30,12 @@ export default function ProfilePage() {
     e.preventDefault();
     if (!pw.current || !pw.next) return notify('Enter both your current and your new password', 'error');
     if (pw.next.length < 6) return notify('The new password must be at least 6 characters', 'error');
-    setSaving(true);
     try {
-      await dispatch(changePassword(pw)).unwrap();
+      await dispatch(changePasswordAction({ currentPassword: pw.current, newPassword: pw.next })).unwrap();
       notify('Password updated', 'success');
       setPw({ current: '', next: '' });
     } catch (err) {
-      notify(err.message || 'Could not change your password', 'error');
-    } finally {
-      setSaving(false);
+      notify((typeof err === 'string' ? err : err?.message) || 'Could not change your password', 'error');
     }
   }
 

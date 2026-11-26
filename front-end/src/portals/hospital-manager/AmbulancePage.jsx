@@ -125,7 +125,7 @@ export default function AmbulancePage() {
           type: f.type,
           vehicleNumber: f.vehicleNumber,
           notes: f.notes.trim() || `Emergency ${f.type} requested by manager`,
-          status: 'Dispatched',
+          status: 'Pending',
           eta: '8 mins',
           hospitalId,
         },

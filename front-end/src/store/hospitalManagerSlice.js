@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { Ambulance, Feedback, Hospitals, Inventory, Leaves, Revenue, Schedules, SupportRequests, Users } from '../api';
+import { Ambulance, Beds, Feedback, Hospitals, Inventory, Leaves, Revenue, Schedules, SupportRequests, Users } from '../api';
 
 const errorMessage = (error, fallback) => error?.message || fallback;
 const hospitalIdOf = (getState) => getState().auth.user?.hospitalId || '';
@@ -18,13 +18,21 @@ export const fetchHmOverview = createAsyncThunk(
     const hospitalId = hospitalIdOf(getState);
     if (!hospitalId) return rejectWithValue('No hospital assigned to this account.');
     try {
-      const [hospital, users, leaves, reqs, fleet] = await Promise.all([
-        Hospitals.getById(hospitalId).catch(() => ({ data: null })),
-        Users.getAll().catch(() => ({ data: [] })),
-        Leaves.getAll({ hospitalId }).catch(() => ({ data: [] })),
-        Inventory.getRequirements({ hospitalId }).catch(() => ({ data: [] })),
-        Ambulance.getAll().catch(() => ({ data: [] })),
+      const results = await Promise.allSettled([
+        Hospitals.getById(hospitalId),
+        Users.getAll(),
+        Leaves.getAll({ hospitalId }),
+        Inventory.getRequirements({ hospitalId }),
+        Ambulance.getAll(),
       ]);
+      const failed = results
+        .map((r, i) => (r.status === 'rejected' ? i : -1))
+        .filter((i) => i >= 0);
+      const failedLabels = ['hospital', 'users', 'leaves', 'inventoryReqs', 'fleet'];
+      const failedNames = failed.map((i) => failedLabels[i]);
+      const [hospital, users, leaves, reqs, fleet] = results.map((r) =>
+        r.status === 'fulfilled' ? r.value : { data: r.status === 'rejected' && r.reason?.response?.data ? r.reason.response.data : (r.reason?.message ? { message: r.reason.message } : null) }
+      );
       const staff = asList({ data: users.data }).filter((u) => u.hospitalId === hospitalId);
       const pendingLeaves = asList(leaves).filter(isPendingLeave);
       const pendingReqs = asList(reqs).filter(isPendingReq);
@@ -42,6 +50,7 @@ export const fetchHmOverview = createAsyncThunk(
           pendingReqs: pendingReqs.length,
           onDutyAmbulances: asList(fleet).filter(isOnDuty).length,
         },
+        partialFailures: failedNames,
       };
     } catch (error) {
       return rejectWithValue(errorMessage(error, 'Could not load hospital overview.'));
@@ -305,13 +314,82 @@ export const updateSubscription = createAsyncThunk(
 
 export const renewSubscription = createAsyncThunk(
   'hospitalManager/renewSubscription',
-  async (payment = {}, { getState, rejectWithValue }) => {
+  async (payment = {}, { getState, dispatch, rejectWithValue }) => {
     const hospitalId = hospitalIdOf(getState);
     try {
       const res = await Hospitals.renewSubscription(hospitalId, payment);
+      // Auto-refresh overview data after successful renewal
+      await dispatch(fetchHmOverview()).unwrap();
       return res.data;
     } catch (error) {
       return rejectWithValue(errorMessage(error, 'Could not renew subscription.'));
+    }
+  },
+);
+
+// Beds: hospital-scoped infrastructure (Setup page)
+const fetchHmBeds = createAsyncThunk(
+  'hospitalManager/fetchBeds',
+  async (_, { getState, rejectWithValue }) => {
+    const hospitalId = hospitalIdOf(getState);
+    try {
+      const res = await Beds.getAll({ hospitalId });
+      return asList(res);
+    } catch (error) {
+      return rejectWithValue(errorMessage(error, 'Could not load bed infrastructure.'));
+    }
+  },
+);
+
+const createHmBed = createAsyncThunk(
+  'hospitalManager/createBed',
+  async ({ id, ward }, { getState, rejectWithValue }) => {
+    const hospitalId = hospitalIdOf(getState);
+    try {
+      const res = await Beds.create({ id, ward, hospitalId });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(errorMessage(error, 'Could not register bed.'));
+    }
+  },
+);
+
+// Inventory catalog: hospital-scoped stock items (Setup page)
+const fetchHmInventoryCatalog = createAsyncThunk(
+  'hospitalManager/fetchInventoryCatalog',
+  async (_, { getState, rejectWithValue }) => {
+    const hospitalId = hospitalIdOf(getState);
+    try {
+      const res = await Inventory.getAll({ hospitalId });
+      return asList(res);
+    } catch (error) {
+      return rejectWithValue(errorMessage(error, 'Could not load inventory catalog.'));
+    }
+  },
+);
+
+const createHmInventoryItem = createAsyncThunk(
+  'hospitalManager/createInventoryItem',
+  async (data, { getState, rejectWithValue }) => {
+    const hospitalId = hospitalIdOf(getState);
+    try {
+      const res = await Inventory.create({ ...data, hospitalId });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(errorMessage(error, 'Could not add inventory item.'));
+    }
+  },
+);
+
+// Email preview for staff registration form (debounced)
+const previewEmail = createAsyncThunk(
+  'hospitalManager/previewEmail',
+  async (name, { rejectWithValue }) => {
+    try {
+      const res = await Users.previewEmail(name);
+      return { email: res.data?.email || '', error: null };
+    } catch (error) {
+      return rejectWithValue({ email: '', error: error?.message || 'Preview failed' });
     }
   },
 );
@@ -329,10 +407,13 @@ const initialState = {
   support: { tickets: [], loading: false, error: null },
   feedback: listState(),
   inventory: { approvals: [], loading: false, error: null },
+  inventoryCatalog: listState(),
+  beds: listState(),
   ambulance: { fleet: [], loading: false, error: null },
   revenue: { data: null, loading: false, error: null },
   subscription: { plan: null, plans: [], loading: false, error: null },
   setup: { config: null, loading: false, error: null },
+  emailPreview: '',
 };
 
 const hospitalManagerSlice = createSlice({
@@ -344,6 +425,7 @@ const hospitalManagerSlice = createSlice({
     openRenewalModal: (state) => { state.ui.renewalModalOpen = true; },
     closeRenewalModal: (state) => { state.ui.renewalModalOpen = false; },
     setRegistered: (state, action) => { state.ui.registered = action.payload; },
+    setEmailPreview: (state, action) => { state.emailPreview = action.payload; },
   },
   extraReducers: (builder) => {
     const pending = (slot) => (state) => {
@@ -452,13 +534,59 @@ const hospitalManagerSlice = createSlice({
       })
       .addCase(approveInventory.fulfilled, (state, action) => {
         const req = state.inventory.approvals.find((r) => r.id === action.payload.id);
-        if (req) req.status = action.payload.status;
-        state.counts.pendingReqs = Math.max(0, state.counts.pendingReqs - 1);
+        if (req && req.status === 'PENDING') {
+          req.status = action.payload.status;
+          state.counts.pendingReqs = Math.max(0, state.counts.pendingReqs - 1);
+        }
       })
       .addCase(rejectInventory.fulfilled, (state, action) => {
         const req = state.inventory.approvals.find((r) => r.id === action.payload.id);
-        if (req) req.status = action.payload.status;
-        state.counts.pendingReqs = Math.max(0, state.counts.pendingReqs - 1);
+        if (req && req.status === 'PENDING') {
+          req.status = action.payload.status;
+          state.counts.pendingReqs = Math.max(0, state.counts.pendingReqs - 1);
+        }
+      })
+
+      .addCase(fetchHmBeds.pending, pending('beds'))
+      .addCase(fetchHmBeds.fulfilled, (state, action) => {
+        state.beds.list = action.payload;
+        state.beds.loading = false;
+      })
+      .addCase(fetchHmBeds.rejected, rejected('beds'))
+      .addCase(createHmBed.fulfilled, (state, action) => {
+        if (action.payload) state.beds.list.unshift(action.payload);
+      })
+
+      .addCase(fetchHmInventoryCatalog.pending, pending('inventoryCatalog'))
+      .addCase(fetchHmInventoryCatalog.fulfilled, (state, action) => {
+        const normalize = (item) => ({
+          ...item,
+          name: item.name || item.itemName,
+          minStock: item.minStock ?? item.minimumQuantity,
+          currentQuantity: item.quantity ?? item.currentQuantity,
+        });
+        state.inventoryCatalog.list = (action.payload || []).map(normalize);
+        state.inventoryCatalog.loading = false;
+      })
+      .addCase(fetchHmInventoryCatalog.rejected, rejected('inventoryCatalog'))
+      .addCase(createHmInventoryItem.fulfilled, (state, action) => {
+        if (action.payload) {
+          const item = action.payload;
+          const normalized = {
+            ...item,
+            name: item.name || item.itemName,
+            minStock: item.minStock ?? item.minimumQuantity,
+            currentQuantity: item.quantity ?? item.currentQuantity,
+          };
+          state.inventoryCatalog.list.unshift(normalized);
+        }
+      })
+
+      .addCase(previewEmail.fulfilled, (state, action) => {
+        state.emailPreview = action.payload?.email || '';
+      })
+      .addCase(previewEmail.rejected, (state, action) => {
+        state.emailPreview = action.payload?.email || '';
       })
 
       .addCase(fetchFleet.pending, (state) => {
@@ -515,7 +643,16 @@ export const {
   openRenewalModal,
   closeRenewalModal,
   setRegistered,
+  setEmailPreview,
 } = hospitalManagerSlice.actions;
+
+export {
+  fetchHmBeds,
+  createHmBed,
+  fetchHmInventoryCatalog,
+  createHmInventoryItem,
+  previewEmail,
+};
 
 export const selectHm = (state) => state.hospitalManager;
 export const selectHmHospital = (state) => state.hospitalManager.hospital;
@@ -528,9 +665,12 @@ export const selectHmSchedules = (state) => state.hospitalManager.schedules;
 export const selectHmSupport = (state) => state.hospitalManager.support;
 export const selectHmFeedback = (state) => state.hospitalManager.feedback;
 export const selectHmInventory = (state) => state.hospitalManager.inventory;
+export const selectHmInventoryCatalog = (state) => state.hospitalManager.inventoryCatalog;
+export const selectHmBeds = (state) => state.hospitalManager.beds;
 export const selectHmAmbulance = (state) => state.hospitalManager.ambulance;
 export const selectHmRevenue = (state) => state.hospitalManager.revenue;
 export const selectHmSubscription = (state) => state.hospitalManager.subscription;
 export const selectHmSetup = (state) => state.hospitalManager.setup;
+export const selectEmailPreview = (state) => state.hospitalManager.emailPreview;
 
 export default hospitalManagerSlice.reducer;

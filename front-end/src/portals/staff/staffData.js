@@ -1,4 +1,4 @@
-import { System } from "../../api";
+import logActivity from '../../features/activity/logActivity';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { selectUser } from '../../store/authSlice';
 
@@ -29,17 +29,7 @@ export function errorMessage(err, fallback) {
   return (typeof err === 'string' && err) || (err && err.message) || fallback;
 }
 
-const recordActivity = (action, module, details) => async (_, getState) => {
-  const user = selectUser(getState());
-  if (!user?.id) return;
-  try {
-    await System.logActivity({ userId: String(user.id), action, module, details, severity: 'INFO' });
-  } catch (error) {
-    console.warn('Activity log API failed:', error.message);
-  }
-};
-
 export function useStaffActivity() {
   const dispatch = useAppDispatch();
-  return (action, module, details) => dispatch(recordActivity(action, module, details));
+  return (action, module, details) => dispatch(logActivity(action, module, details));
 }

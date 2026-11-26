@@ -1,9 +1,9 @@
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { fetchStaffHospital, selectStaffHospital } from '../../store/directorySlices';
 import NexCareLogo from '../../components/NexCareLogo';
 import { logoutUser, selectUser } from '../../store/authSlice';
+import { fetchSidebarHospital, selectSidebarHospital } from '../../store/layoutSlice';
 
 // The <div class="sidebar"> from the staff HTML pages: the <nex-care-logo>
 // block logo.js rendered (logo, "Administrative Staff", hospital name), the
@@ -46,13 +46,19 @@ const ITEMS = [
 export default function StaffSidebar() {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const sidebarHospital = useAppSelector(selectSidebarHospital);
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const hospitalName = useAppSelector((state) => selectStaffHospital(state, user?.hospitalId)?.name) || '';
 
+  // logo.js: GET /hospitals/:id for the name under the logo.
   useEffect(() => {
-    if (user?.hospitalId) dispatch(fetchStaffHospital(user.hospitalId));
-  }, [dispatch, user?.hospitalId]);
+    if (!user?.hospitalId || user.hospitalName) return undefined;
+    dispatch(fetchSidebarHospital(user.hospitalId));
+    return undefined;
+  }, [dispatch, user?.hospitalId, user?.hospitalName]);
+
+  const hospitalName = user?.hospitalName
+    || (sidebarHospital.id === user?.hospitalId ? sidebarHospital.name : '');
 
   async function handleLogout() {
     await dispatch(logoutUser()).unwrap();
