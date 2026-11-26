@@ -151,7 +151,7 @@ export default function GenerateBillPage() {
       };
       if (hospitalId) payload.hospitalId = hospitalId;
       await dispatch(generateBill(payload)).unwrap();
-      logActivity('Create', 'Billing', `Admin generated new bill for ${modal.name} (ID: ${patient.id})`);
+      dispatch(logActivity('Create', 'Billing', `Admin generated new bill for ${modal.name} (ID: ${patient.id})`));
       setModal(null);
       await load();
     } catch (err) {

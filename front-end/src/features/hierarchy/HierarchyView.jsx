@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Hierarchy } from '../../api';
 import { PageHeader } from '../../components/ui';
+import { fetchHierarchy, selectHierarchy } from '../../store/hierarchySlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import './hierarchy.css';
 
 /**
@@ -129,27 +130,14 @@ function ScopeCounts({ scope }) {
 }
 
 export default function HierarchyView({ heading, description }) {
-  const [tree, setTree] = useState(null);
-  const [scope, setScope] = useState(null);
-  const [error, setError] = useState('');
+  const dispatch = useAppDispatch();
+  const { tree, scope, loading, error } = useAppSelector(selectHierarchy);
   const [search, setSearch] = useState('');
   const filter = useMemo(() => search.trim().toLowerCase(), [search]);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [treeRes, scopeRes] = await Promise.all([Hierarchy.getTree(), Hierarchy.getScope()]);
-        if (cancelled) return;
-        setScope(scopeRes.data);
-        setTree(treeRes.data);
-      } catch (err) {
-        console.error('Hierarchy load failed:', err);
-        if (!cancelled) setError('Could not load the hierarchy. Check that the backend is running.');
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
+    dispatch(fetchHierarchy());
+  }, [dispatch]);
 
   return (
     <div className="hierarchy-view">
@@ -174,8 +162,10 @@ export default function HierarchyView({ heading, description }) {
         <div className="panel-body" id="treeRoot">
           {error
             ? <p className="empty" style={{ color: '#B91C1C' }}>{error}</p>
-            : !tree
+            : loading && !tree
               ? 'Loading…'
+              : !tree
+                ? <p className="empty">Hierarchy data is unavailable.</p>
               : (filter && !subtreeMatches(tree, filter))
                 ? <p className="empty">Nothing in your scope yet.</p>
                 : <Node node={tree} depth={0} filter={filter} />}

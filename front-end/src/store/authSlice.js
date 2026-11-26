@@ -61,6 +61,8 @@ const makeInitialState = () => {
     isLoggedIn: Boolean(user),
     loading: false,
     error: null,
+    passwordChanging: false,
+    passwordChangeError: null,
   };
 };
 
@@ -88,6 +90,18 @@ export const logoutUser = createAsyncThunk('auth/logoutUser', async (_, { getSta
 
 export const checkSession = createAsyncThunk('auth/checkSession', async () => readStoredUser());
 
+export const changePassword = createAsyncThunk(
+  'auth/changePassword',
+  async ({ currentPassword, newPassword }, { rejectWithValue }) => {
+    try {
+      await Auth.changePassword(currentPassword, newPassword);
+      return true;
+    } catch (error) {
+      return rejectWithValue(error?.message || 'Could not change your password.');
+    }
+  },
+);
+
 export const updateSessionUser = (patch) => (dispatch, getState) => {
   const user = selectUser(getState());
   if (!user) return;
@@ -101,6 +115,8 @@ function clearAuthState(state) {
   state.isLoggedIn = false;
   state.loading = false;
   state.error = null;
+  state.passwordChanging = false;
+  state.passwordChangeError = null;
 }
 
 export const authSlice = createSlice({
@@ -141,6 +157,18 @@ export const authSlice = createSlice({
         state.role = action.payload?.role || null;
         state.isLoggedIn = Boolean(action.payload);
       });
+    builder
+      .addCase(changePassword.pending, (state) => {
+        state.passwordChanging = true;
+        state.passwordChangeError = null;
+      })
+      .addCase(changePassword.fulfilled, (state) => {
+        state.passwordChanging = false;
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.passwordChanging = false;
+        state.passwordChangeError = action.payload || action.error.message;
+      });
   },
 });
 
@@ -150,5 +178,7 @@ export const selectRole = (state) => state.auth.role;
 export const selectIsLoggedIn = (state) => state.auth.isLoggedIn;
 export const selectAuthLoading = (state) => state.auth.loading;
 export const selectAuthError = (state) => state.auth.error;
+export const selectPasswordChangeLoading = (state) => state.auth.passwordChanging;
+export const selectPasswordChangeError = (state) => state.auth.passwordChangeError;
 export { UNAUTHORIZED_EVENT };
 export default authSlice.reducer;

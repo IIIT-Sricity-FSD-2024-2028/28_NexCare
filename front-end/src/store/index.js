@@ -9,9 +9,14 @@ import hospitalManager from './hospitalManagerSlice';
 import ambulance from './ambulanceSlice';
 import regionalOfficer from './regionalOfficerSlice';
 import superuser from './superuserSlice';
+import layout from './layoutSlice';
+import notifications from './notificationsSlice';
+import activity from './activitySlice';
+import hierarchy from './hierarchySlice';
 
 export const appReducer = combineReducers({
   auth, toast, ui, patient, doctor, staff, hospitalManager, ambulance, regionalOfficer, superuser,
+  layout, notifications, activity, hierarchy,
 });
 
 export const resetActions = [logoutUser.fulfilled.type, sessionCleared.type];

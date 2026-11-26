@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import NexCareLogo from '../NexCareLogo';
 import { LogoutIcon } from '../icons';
 import { logoutUser, selectRole, selectUser } from '../../store/authSlice';
-import { Hospitals } from '../../api';
 import { roleLabel } from '../../utils/roles';
 import { menuFor } from './navigation';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { selectSidebarOpen } from '../../store/uiSlice';
+import { fetchSidebarHospital, selectSidebarHospital } from '../../store/layoutSlice';
 
 // front-end/shared/nav.js as a component: the role picks the menu, NavLink
 // handles the "active" class nav.js computed from window.location, and the
@@ -17,17 +17,17 @@ export default function Sidebar() {
   const user = useAppSelector(selectUser);
   const role = useAppSelector(selectRole);
   const sidebarOpen = useAppSelector(selectSidebarOpen);
+  const sidebarHospital = useAppSelector(selectSidebarHospital);
   const navigate = useNavigate();
-  const [hospitalName, setHospitalName] = useState(user?.hospitalName || '');
 
   useEffect(() => {
-    let cancelled = false;
     if (!user?.hospitalId || user.hospitalName) return undefined;
-    Hospitals.getById(user.hospitalId)
-      .then((res) => { if (!cancelled && res?.data?.name) setHospitalName(res.data.name); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [user]);
+    dispatch(fetchSidebarHospital(user.hospitalId));
+    return undefined;
+  }, [dispatch, user?.hospitalId, user?.hospitalName]);
+
+  const hospitalName = user?.hospitalName
+    || (sidebarHospital.id === user?.hospitalId ? sidebarHospital.name : '');
 
   async function handleLogout() {
     await dispatch(logoutUser()).unwrap();

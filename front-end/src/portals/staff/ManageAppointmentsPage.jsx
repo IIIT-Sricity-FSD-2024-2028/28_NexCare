@@ -132,10 +132,10 @@ export default function ManageAppointmentsPage() {
     try {
       if (f.id) {
         await Appointments.update(f.id, payload);
-        logActivity('Update', 'Appointments', `Updated appointment to ${f.status} for ${f.patientName} (Dr. ${f.doctor})`);
+        dispatch(logActivity('Update', 'Appointments', `Updated appointment to ${f.status} for ${f.patientName} (Dr. ${f.doctor})`));
       } else {
         await Appointments.create({ ...payload, patientId: f.patientId.trim(), fee: 100 });
-        logActivity('Create', 'Appointments', `New appointment: ${f.patientName} with Dr. ${f.doctor} (${f.dept})`);
+        dispatch(logActivity('Create', 'Appointments', `New appointment: ${f.patientName} with Dr. ${f.doctor} (${f.dept})`));
       }
       setModal(null);
       await load();
@@ -152,7 +152,7 @@ export default function ManageAppointmentsPage() {
     setTimeout(async () => {
       try {
         await Appointments.delete(id);
-        logActivity('Delete', 'Appointments', `Cancelled appointment (ID: ${id})`);
+        dispatch(logActivity('Delete', 'Appointments', `Cancelled appointment (ID: ${id})`));
       } catch (err) {
         console.error('Delete appointment failed:', err);
       }

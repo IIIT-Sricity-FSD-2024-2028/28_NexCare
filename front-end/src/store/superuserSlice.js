@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, isAnyOf } from '@reduxjs/toolkit';
 import { Feedback, Hospitals, Patients, Revenue, System, Users, Beds, Ambulance } from '../api';
 import { reviewHospital } from './regionalOfficerSlice';
 
@@ -218,25 +218,49 @@ export const updatePatientPlan = run(
 
 export const fetchReports = run(
   'fetchReports',
-  async () => {
+  async (rangeDays = 30) => {
+    const days = [7, 30, 90, 365].includes(Number(rangeDays)) ? Number(rangeDays) : 30;
+    const to = new Date();
+    const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000);
+    const filters = { from: from.toISOString().slice(0, 10), to: to.toISOString().slice(0, 10) };
+    const latency = [];
+    const measured = async (path, request) => {
+      const start = Date.now();
+      let ok = true;
+      try {
+        return await request();
+      } catch (error) {
+        ok = false;
+        throw error;
+      } finally {
+        latency.push({ path, ms: Date.now() - start, ok });
+      }
+    };
     const [users, activities, streams, trend, patientSubs, patientPlans, health,
       patients, feedback, hospitals, beds, trips] = await Promise.all([
-      Users.getAll(),
-      System.getRecentActivity(1000),
-      Revenue.getPlatformStreams(),
-      Revenue.getPlatformTrend(6),
-      Revenue.getPatientSubscriptions(),
-      Revenue.getPatientPlans(),
-      System.getHealth(),
-      Patients.getAll(),
-      Feedback.getAll(),
-      Hospitals.getAll(),
-      Beds.getAll(),
-      Ambulance.getAll(),
+      measured('Users.getAll', () => Users.getAll()),
+      measured('System.getRecentActivity', () => System.getRecentActivity(1000)),
+      measured('Revenue.getPlatformStreams', () => Revenue.getPlatformStreams(filters)),
+      measured('Revenue.getPlatformTrend', () => Revenue.getPlatformTrend(6)),
+      measured('Revenue.getPatientSubscriptions', () => Revenue.getPatientSubscriptions()),
+      measured('Revenue.getPatientPlans', () => Revenue.getPatientPlans()),
+      measured('System.getHealth', () => System.getHealth()),
+      measured('Patients.getAll', () => Patients.getAll()),
+      measured('Feedback.getAll', () => Feedback.getAll()),
+      measured('Hospitals.getAll', () => Hospitals.getAll()),
+      measured('Beds.getAll', () => Beds.getAll()),
+      measured('Ambulance.getAll', () => Ambulance.getAll()),
     ]);
+    const cutoff = from.getTime();
+    const inRangeActivities = dataOf(activities, []).filter((activity) => {
+      const timestamp = new Date(activity.createdAt || activity.timestamp || activity.date).getTime();
+      return Number.isFinite(timestamp) && timestamp >= cutoff;
+    });
     return {
+      rangeDays: days,
+      latency,
       usage: {
-        users: dataOf(users, []), activities: dataOf(activities, []),
+        users: dataOf(users, []), activities: inRangeActivities,
         streams: dataOf(streams, null), trend: dataOf(trend, []),
         patSubs: dataOf(patientSubs, []), patPlans: dataOf(patientPlans, []),
       },
@@ -245,11 +269,25 @@ export const fetchReports = run(
         patients: dataOf(patients, []), feedback: dataOf(feedback, []),
         hospitals: dataOf(hospitals, []), beds: dataOf(beds, []), trips: dataOf(trips, []),
       },
-      security: { available: true, activities: dataOf(activities, []) },
+      security: { available: true, activities: inRangeActivities },
     };
   },
   'Could not load reports.',
 );
+
+const mutationThunks = [
+  approveRegistration,
+  rejectRegistration,
+  assignManager,
+  createUser,
+  updateUser,
+  deleteUser,
+  updateSystemSettings,
+  deleteFeedback,
+  updatePricingRates,
+  updateHospitalPlan,
+  updatePatientPlan,
+];
 
 const initialState = {
   dashboard: { stats: null, activity: [], loading: false, error: null },
@@ -260,6 +298,10 @@ const initialState = {
   feedback: { list: [], loading: false, error: null },
   revenue: { data: null, tab: 'streams', loading: false, error: null },
   reports: { data: null, loading: false, error: null },
+  mutations: Object.fromEntries(mutationThunks.map((thunk) => [
+    thunk.typePrefix.split('/')[1],
+    { loading: false, error: null, pendingRequestIds: [] },
+  ])),
 };
 
 const requestGroups = [
@@ -308,6 +350,12 @@ const superuserSlice = createSlice({
       })
       .addCase(approveRegistration.fulfilled, (state, action) => {
         state.registrations.credentials = action.payload.credentials;
+        const hospital = state.registrations.list.find((item) => item.id === action.payload.id);
+        if (hospital) hospital.verificationStatus = 'verified';
+      })
+      .addCase(rejectRegistration.fulfilled, (state, action) => {
+        const hospital = state.registrations.list.find((item) => item.id === action.payload.id);
+        if (hospital) hospital.verificationStatus = 'rejected';
       })
       .addCase(assignManager.fulfilled, (state, action) => {
         const hospital = state.registrations.list.find((item) => item.id === action.payload.id);
@@ -339,6 +387,10 @@ const superuserSlice = createSlice({
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.users.list = state.users.list.filter((user) => user.id !== action.payload);
+        const deletedId = String(action.payload);
+        state.patients.list = state.patients.list.filter((patient) =>
+          (patient.id == null || String(patient.id) !== deletedId)
+          && (patient.userId == null || String(patient.userId) !== deletedId));
         state.users.loading = false;
       })
       .addCase(fetchSystemSettings.fulfilled, (state, action) => {
@@ -380,6 +432,27 @@ const superuserSlice = createSlice({
       .addCase(fetchReports.fulfilled, (state, action) => {
         state.reports.data = action.payload;
         state.reports.loading = false;
+      })
+      .addMatcher(isAnyOf(...mutationThunks.map((thunk) => thunk.pending)), (state, action) => {
+        const name = action.type.split('/')[1];
+        const mutation = state.mutations[name];
+        mutation.pendingRequestIds.push(action.meta.requestId);
+        mutation.loading = true;
+        mutation.error = null;
+      })
+      .addMatcher(isAnyOf(...mutationThunks.map((thunk) => thunk.fulfilled)), (state, action) => {
+        const name = action.type.split('/')[1];
+        const mutation = state.mutations[name];
+        mutation.pendingRequestIds = mutation.pendingRequestIds.filter((id) => id !== action.meta.requestId);
+        mutation.loading = mutation.pendingRequestIds.length > 0;
+        mutation.error = null;
+      })
+      .addMatcher(isAnyOf(...mutationThunks.map((thunk) => thunk.rejected)), (state, action) => {
+        const name = action.type.split('/')[1];
+        const mutation = state.mutations[name];
+        mutation.pendingRequestIds = mutation.pendingRequestIds.filter((id) => id !== action.meta.requestId);
+        mutation.loading = mutation.pendingRequestIds.length > 0;
+        mutation.error = action.payload || action.error.message;
       });
   },
 });
@@ -394,5 +467,6 @@ export const selectSystemSettings = (state) => state.superuser.settings;
 export const selectSuFeedback = (state) => state.superuser.feedback;
 export const selectPlatformRevenue = (state) => state.superuser.revenue;
 export const selectReports = (state) => state.superuser.reports;
+export const selectSuMutation = (state, name) => state.superuser.mutations[name];
 
 export default superuserSlice.reducer;

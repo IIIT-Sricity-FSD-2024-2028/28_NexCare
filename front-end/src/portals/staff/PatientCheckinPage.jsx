@@ -76,7 +76,7 @@ export default function PatientCheckinPage() {
       };
       writeCheckins([entry, ...current]);
       dispatch(patientCheckedIn(entry));
-      logActivity('Create', 'Patient Check-in', `Patient ${displayName} checked in for: ${why}`);
+      dispatch(logActivity('Create', 'Patient Check-in', `Patient ${displayName} checked in for: ${why}`));
       notify(`Successfully checked in patient ${displayName} for ${why}`, 'success');
       setPatientId('');
       setPurpose('');

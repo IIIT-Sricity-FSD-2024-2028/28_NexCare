@@ -100,14 +100,14 @@ export default function ManageUsersPage() {
           password: 'Password123',
         })).unwrap();
         notify(`Successfully created ${role} account for ${name}`, 'success');
-        logActivity('Create', 'Users', `New ${role} account created: ${name} (${dept})`);
+        dispatch(logActivity('Create', 'Users', `New ${role} account created: ${name} (${dept})`));
       } else {
         await dispatch(updateUser({
           id: modal.id,
           data: { name, email, role, dept, status, areas: role === 'regional_manager' ? areas : undefined },
         })).unwrap();
         notify(`Successfully updated user details for ${name}`, 'success');
-        logActivity('Update', 'Users', `Updated user details for ${name} (ID: ${modal.id})`);
+        dispatch(logActivity('Update', 'Users', `Updated user details for ${name} (ID: ${modal.id})`));
       }
     } catch (err) {
       console.error('Save user failed:', err);

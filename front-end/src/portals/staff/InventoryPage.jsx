@@ -117,7 +117,7 @@ export default function InventoryPage() {
       // does not declare — a 400 under forbidNonWhitelisted, so "Add Item"
       // never worked. The backend derives the status itself.
       await Inventory.create({ name, category, quantity: qty, minStock, unit, location });
-      logActivity('Create', 'Inventory', `Added inventory item: ${name} (Qty: ${qty}, Min: ${minStock})`);
+      dispatch(logActivity('Create', 'Inventory', `Added inventory item: ${name} (Qty: ${qty}, Min: ${minStock})`));
       close();
       await loadInventory();
     } catch (err) {
@@ -130,7 +130,7 @@ export default function InventoryPage() {
     if (!(await ask(`Delete "${item.name}"?`, { title: 'Delete item', confirmLabel: 'Delete', danger: true }))) return;
     try {
       await Inventory.delete(item.id);
-      logActivity('Delete', 'Inventory', `Deleted inventory item: ${item.name} (${item.id})`);
+      dispatch(logActivity('Delete', 'Inventory', `Deleted inventory item: ${item.name} (${item.id})`));
     } catch (err) {
       console.error(err);
       notify('Failed to delete inventory item.', 'error');
@@ -151,7 +151,7 @@ export default function InventoryPage() {
         notes: (f.notes || '').trim() || undefined,
         restockedBy: user?.id || user?.email || 'ADMIN',
       } })).unwrap();
-      logActivity('Restock', 'Inventory', `Restocked ${item.name}: +${quantity} units (new total: ${item.qty + quantity})`);
+      dispatch(logActivity('Restock', 'Inventory', `Restocked ${item.name}: +${quantity} units (new total: ${item.qty + quantity})`));
       close();
       await loadInventory();
     } catch (err) {
@@ -172,7 +172,7 @@ export default function InventoryPage() {
     if (quantity > item.qty) { notify(`Cannot use ${quantity} units. Only ${item.qty} units available.`, 'warning'); return; }
     try {
       await dispatch(consumeInventoryItem({ id: item.id, usage: { quantity, notes: (f.notes || '').trim() || undefined } })).unwrap();
-      logActivity('Use', 'Inventory', `Used ${item.name}: -${quantity} units (remaining: ${item.qty - quantity})`);
+      dispatch(logActivity('Use', 'Inventory', `Used ${item.name}: -${quantity} units (remaining: ${item.qty - quantity})`));
       close();
       await loadInventory();
     } catch (err) {
