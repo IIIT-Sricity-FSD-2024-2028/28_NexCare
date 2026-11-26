@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { loginUser, selectUser } from '../../store/authSlice';
+import { loginUser, selectAuthLoading, selectUser } from '../../store/authSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { selectLoginForm, setLoginError, setLoginField } from '../../store/uiSlice';
 import { homeFor, ROLES } from '../../utils/roles';
 import { AuthShell, SubmitButton, FormMessage, Field, RoleGrid, describeError } from './AuthShell';
 
@@ -90,14 +91,15 @@ export default function LoginPage() {
   const { role: slug } = useParams();
   const page = PAGES[slug || 'hub'];
   const user = useAppSelector(selectUser);
+  const busy = useAppSelector(selectAuthLoading);
+  const { email, password, role, error } = useAppSelector(selectLoginForm);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState(page?.role || '');
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    dispatch(setLoginField({ key: 'role', value: page?.role || '' }));
+  }, [dispatch, page?.role, slug]);
 
   if (!page) return <Navigate to="/login" replace />;
   // The HTML login pages never bounced a signed-in visitor (they may be here to
@@ -109,13 +111,12 @@ export default function LoginPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError('');
+    dispatch(setLoginError(''));
     const chosen = page.role || role;
     if (!chosen) {
-      setError('Please select a role before signing in.');
+      dispatch(setLoginError('Please select a role before signing in.'));
       return;
     }
-    setBusy(true);
     try {
       const u = await dispatch(loginUser({ email: email.trim(), password, role: chosen })).unwrap();
       if (u.mustChangePassword) {
@@ -124,9 +125,7 @@ export default function LoginPage() {
       }
       navigate(location.state?.from || homeFor(u.role), { replace: true });
     } catch (err) {
-      setError(describeError(err) || 'Authentication failed. Check your credentials.');
-    } finally {
-      setBusy(false);
+      dispatch(setLoginError(describeError(err) || 'Authentication failed. Check your credentials.'));
     }
   }
 
@@ -136,10 +135,10 @@ export default function LoginPage() {
       {page.subtitle && <p style={{ color: '#666', fontSize: 14, marginBottom: 20 }}>{page.subtitle}</p>}
       <form onSubmit={handleSubmit}>
         <Field label="Email">
-          <input type="email" className="form-control" placeholder={page.emailPlaceholder} required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />
+          <input type="email" className="form-control" placeholder={page.emailPlaceholder} required value={email} onChange={(e) => dispatch(setLoginField({ key: 'email', value: e.target.value }))} autoComplete="username" />
         </Field>
         <Field label="Password">
-          <input type="password" className="form-control" placeholder={page.passwordPlaceholder} required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+          <input type="password" className="form-control" placeholder={page.passwordPlaceholder} required value={password} onChange={(e) => dispatch(setLoginField({ key: 'password', value: e.target.value }))} autoComplete="current-password" />
         </Field>
         <div className="form-actions-row">
           <label style={{ fontWeight: 'normal', fontSize: 14, color: '#666' }}>
@@ -148,7 +147,7 @@ export default function LoginPage() {
           <Link to="/forgot-password">Forgot Password?</Link>
         </div>
         <FormMessage message={error} />
-        {page.roles && <RoleGrid options={page.roles} value={role} onChange={setRole} />}
+        {page.roles && <RoleGrid options={page.roles} value={role} onChange={(value) => dispatch(setLoginField({ key: 'role', value }))} />}
         <SubmitButton busy={busy} busyLabel="Signing in…">{page.button}</SubmitButton>
         {page.links && page.links(location.state)}
       </form>

@@ -1,8 +1,14 @@
-import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Auth } from '../../api';
 import { loginUser } from '../../store/authSlice';
-import { useAppDispatch } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  registerPatient,
+  selectPatientRegister,
+  selectRegisterPatient,
+  setPatientRegisterField,
+  setPatientRegisterMessage,
+  setPatientRegisterStatus,
+} from '../../store/uiSlice';
 import { AuthShell, SubmitButton, FormMessage, Field, validateSignupBasics, describeError } from './AuthShell';
 
 // front-end/auth/patient-register.html (with city + PIN, then back to the
@@ -13,43 +19,39 @@ export default function PatientRegisterPage({ variant = 'patient' }) {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const [form, setForm] = useState({ fullName: '', email: '', phone: '', city: '', pincode: '', password: '', confirmPassword: '' });
-  const [message, setMessage] = useState({ text: '', tone: 'error' });
-  const [busy, setBusy] = useState(false);
-  const [busyLabel, setBusyLabel] = useState('Creating account…');
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const registerState = useAppSelector(selectRegisterPatient);
+  const { fields: form, message, redirecting, busyLabel } = useAppSelector(selectPatientRegister);
+  const set = (k) => (e) => dispatch(setPatientRegisterField({ key: k, value: e.target.value }));
+  const busy = registerState.loading || redirecting;
 
   async function handleSubmit(e) {
     e.preventDefault();
     const trimmed = { ...form, fullName: form.fullName.trim(), email: form.email.trim(), phone: form.phone.trim(), city: form.city.trim(), pincode: form.pincode.trim() };
     const problem = validateSignupBasics(trimmed);
     if (problem) {
-      setMessage({ text: problem, tone: 'error' });
+      dispatch(setPatientRegisterMessage({ text: problem, tone: 'error' }));
       return;
     }
-    setBusy(true);
-    setBusyLabel('Creating account…');
+    dispatch(setPatientRegisterStatus({ busyLabel: 'Creating account…' }));
     try {
       const payload = { fullName: trimmed.fullName, email: trimmed.email, phone: trimmed.phone, password: trimmed.password };
       if (!isSignup) {
         payload.city = trimmed.city;
         payload.pincode = trimmed.pincode;
       }
-      await Auth.register(payload);
+      await dispatch(registerPatient(payload)).unwrap();
       if (isSignup) {
-        // signup.html stored the returned session itself; going through login()
-        // stores the same keys and gets a token the guard will accept.
         await dispatch(loginUser({ email: trimmed.email, password: trimmed.password, role: 'patient' })).unwrap();
-        setBusyLabel('Redirecting…');
+        dispatch(setPatientRegisterStatus({ busyLabel: 'Redirecting…', redirecting: true }));
         navigate('/patient/dashboard', { replace: true });
         return;
       }
-      setMessage({ text: 'Registration successful! Redirecting to login...', tone: 'success' });
-      setBusyLabel('Redirecting…');
+      dispatch(setPatientRegisterMessage({ text: 'Registration successful! Redirecting to login...', tone: 'success' }));
+      dispatch(setPatientRegisterStatus({ busyLabel: 'Redirecting…', redirecting: true }));
       setTimeout(() => navigate('/login/patient', { state: location.state }), 1500);
     } catch (err) {
-      setMessage({ text: describeError(err) || 'Registration failed. Please try again.', tone: 'error' });
-      setBusy(false);
+      dispatch(setPatientRegisterMessage({ text: describeError(err) || 'Registration failed. Please try again.', tone: 'error' }));
+      dispatch(setPatientRegisterStatus({ redirecting: false }));
     }
   }
 

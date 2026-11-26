@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Header from '../../components/layout/Header';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchRoHospitalRevenue,
   fetchRoRevenue,
   selectRoRevenue,
+  setRevenuePicked,
 } from '../../store/regionalOfficerSlice';
 import { formatINR as money } from './roShared';
 import '../../styles/regional-console.css';
@@ -21,17 +22,12 @@ const rateColour = (rate) => (rate >= 70 ? '#10B981' : rate >= 50 ? '#F59E0B' : 
 export default function RevenuePage() {
   const dispatch = useAppDispatch();
   const {
-    data, loading, detailLoading, error, detailError,
+    data, picked, loading, detailLoading, error, detailError,
   } = useAppSelector(selectRoRevenue);
-  const [picked, setPicked] = useState('');
 
   useEffect(() => {
     dispatch(fetchRoRevenue());
   }, [dispatch]);
-
-  useEffect(() => {
-    if (!picked && data?.rows?.length) setPicked(data.rows[0].hospitalId);
-  }, [data, picked]);
 
   useEffect(() => {
     if (picked && data && !data.detailsByHospital[picked]) {
@@ -119,7 +115,7 @@ export default function RevenuePage() {
             <select
               id="hospitalPicker"
               value={picked}
-              onChange={(e) => setPicked(e.target.value)}
+              onChange={(e) => dispatch(setRevenuePicked(e.target.value))}
               style={{ height: 34, border: '1px solid #E5E7EB', borderRadius: 8, padding: '0 10px', fontSize: 13 }}
             >
               {list.map((r) => <option key={r.hospitalId} value={r.hospitalId}>{r.hospitalName}</option>)}
