@@ -216,6 +216,10 @@ export const Hospitals = {
   getComparison: (hospitalIds) =>
     http.get(`/hospitals/regional/comparison${q({ ids: Array.isArray(hospitalIds) ? hospitalIds.join(',') : hospitalIds })}`),
   getMyHospitals: () => http.get('/hospitals/regional/my-hospitals'),
+  getHospitalDoctors: (id) => http.get(`/hospitals/${enc(id)}/doctors`),
+  getHospitalBeds: (id) => http.get(`/hospitals/${enc(id)}/beds`),
+  getHospitalInventory: (id) => http.get(`/hospitals/${enc(id)}/inventory`),
+  getHospitalAmbulances: (id) => http.get(`/hospitals/${enc(id)}/ambulances`),
 };
 
 // The backend scopes GET by the caller's role: a regional_manager sees requests

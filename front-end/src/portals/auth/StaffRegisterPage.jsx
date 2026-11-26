@@ -1,6 +1,13 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Auth } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  registerStaff,
+  selectRegisterStaff,
+  selectStaffRegister,
+  setStaffRegisterField,
+  setStaffRegisterMessage,
+  setStaffRegisterStatus,
+} from '../../store/uiSlice';
 import { ROLES } from '../../utils/roles';
 import { AuthShell, SubmitButton, FormMessage, Field, RoleGrid, validateSignupBasics, describeError } from './AuthShell';
 
@@ -16,34 +23,30 @@ const ROLE_OPTIONS = [
 // account could never be booked.
 export default function StaffRegisterPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    fullName: '', email: '', phone: '', role: '', specialization: '', registrationNo: '', consultationFee: '',
-    hospitalId: '', department: '', password: '', confirmPassword: '',
-  });
-  const [message, setMessage] = useState({ text: '', tone: 'error' });
-  const [busy, setBusy] = useState(false);
-  const [busyLabel, setBusyLabel] = useState('Creating account…');
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const dispatch = useAppDispatch();
+  const registerState = useAppSelector(selectRegisterStaff);
+  const { fields: form, message, redirecting, busyLabel } = useAppSelector(selectStaffRegister);
+  const busy = registerState.loading || redirecting;
+  const set = (k) => (e) => dispatch(setStaffRegisterField({ key: k, value: e.target.value }));
   const isDoctor = form.role === ROLES.DOCTOR;
 
   async function handleSubmit(e) {
     e.preventDefault();
     const t = Object.fromEntries(Object.entries(form).map(([k, v]) => [k, typeof v === 'string' && !/password/i.test(k) ? v.trim() : v]));
     if (!t.role) {
-      setMessage({ text: 'Please select a role.', tone: 'error' });
+      dispatch(setStaffRegisterMessage({ text: 'Please select a role.', tone: 'error' }));
       return;
     }
     const problem = validateSignupBasics(t);
     if (problem) {
-      setMessage({ text: problem, tone: 'error' });
+      dispatch(setStaffRegisterMessage({ text: problem, tone: 'error' }));
       return;
     }
     if (isDoctor && !t.specialization) {
-      setMessage({ text: 'Please enter your specialisation — patients book by department.', tone: 'error' });
+      dispatch(setStaffRegisterMessage({ text: 'Please enter your specialisation — patients book by department.', tone: 'error' }));
       return;
     }
-    setBusy(true);
-    setBusyLabel('Creating account…');
+    dispatch(setStaffRegisterStatus({ busyLabel: 'Creating account…' }));
     try {
       const payload = { fullName: t.fullName, email: t.email, phone: t.phone, password: t.password, role: t.role, hospitalId: t.hospitalId };
       if (t.department) payload.dept = t.department;
@@ -52,13 +55,13 @@ export default function StaffRegisterPage() {
         if (t.registrationNo) payload.registrationNo = t.registrationNo;
         if (t.consultationFee !== '') payload.consultationFee = Number(t.consultationFee);
       }
-      await Auth.registerStaff(payload);
-      setMessage({ text: 'Registration successful! Redirecting to login...', tone: 'success' });
-      setBusyLabel('Redirecting…');
+      await dispatch(registerStaff(payload)).unwrap();
+      dispatch(setStaffRegisterMessage({ text: 'Registration successful! Redirecting to login...', tone: 'success' }));
+      dispatch(setStaffRegisterStatus({ busyLabel: 'Redirecting…', redirecting: true }));
       setTimeout(() => navigate(isDoctor ? '/login/doctor' : '/login/staff'), 1500);
     } catch (err) {
-      setMessage({ text: describeError(err) || 'Registration failed. Please try again.', tone: 'error' });
-      setBusy(false);
+      dispatch(setStaffRegisterMessage({ text: describeError(err) || 'Registration failed. Please try again.', tone: 'error' }));
+      dispatch(setStaffRegisterStatus({ redirecting: false }));
     }
   }
 
@@ -75,7 +78,7 @@ export default function StaffRegisterPage() {
         <Field label="Phone">
           <input type="tel" className="form-control" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required value={form.phone} onChange={set('phone')} />
         </Field>
-        <RoleGrid options={ROLE_OPTIONS} value={form.role} onChange={(v) => setForm((f) => ({ ...f, role: v }))} style={{ marginBottom: 15 }} />
+        <RoleGrid options={ROLE_OPTIONS} value={form.role} onChange={(v) => dispatch(setStaffRegisterField({ key: 'role', value: v }))} style={{ marginBottom: 15 }} />
         {isDoctor && (
           <>
             <Field label="Specialisation">
