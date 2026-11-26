@@ -1,11 +1,13 @@
+import { fetchStaffUsers, selectStaffUsers } from '../../store/directorySlices';
+import { fetchLeaveRequests, selectLeaveRequests } from '../../store/leavesSlice';
+import { editPendingSchedule } from '../../store/schedulesSlice';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Schedules } from '../../api';
 import { useNotify } from '../../hooks/useNotify';
 import { errorMessage, useHospitalId } from './staffData';
 import useConfirm from '../../hooks/useConfirm';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-  fetchSchedules, createSchedule, selectSchedules,
+  deleteSchedule as removeSchedule, fetchSchedules, createSchedule, selectSchedules,
 } from '../../store/staffSlice';
 
 // administrative_staff/staff_scheduling.html + staff_scheduling.js: the
@@ -92,7 +94,10 @@ export default function StaffSchedulingPage() {
   const [weekStart, setWeekStart] = useState(() => getStartOfWeek(new Date(2026, 8, 1))); // Default around 01 Sep 2026
   const [expanded, setExpanded] = useState(() => new Set(['Cardiology', 'Orthopedics', 'Orthopaedics', 'Neurology', 'General Medicine']));
   const dispatch = useAppDispatch();
-  const { list: schedules, doctors, leaves, loaded } = useAppSelector(selectSchedules);
+  const { list: schedules, loaded } = useAppSelector(selectSchedules);
+  const { list: doctors } = useAppSelector(selectStaffUsers);
+  const { list: leaveRequests } = useAppSelector(selectLeaveRequests);
+  const leaves = useMemo(() => leaveRequests.filter((leave) => leave.status === 'approved'), [leaveRequests]);
   const [modal, setModal] = useState(null); // { validFrom, validTo, notes, slots: [{department, shift}] }
   const [submitting, setSubmitting] = useState(false);
 
@@ -102,7 +107,11 @@ export default function StaffSchedulingPage() {
 
   const load = useCallback(() => dispatch(fetchSchedules()), [dispatch]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    dispatch(fetchStaffUsers());
+    dispatch(fetchLeaveRequests());
+  }, [dispatch, load]);
 
   const weekEnd = addDays(weekStart, 6);
   const approved = useMemo(() => schedules.filter((s) => s.status === 'approved' && s.hospitalId === hospitalId), [schedules, hospitalId]);
@@ -133,7 +142,7 @@ export default function StaffSchedulingPage() {
   async function deleteSchedule(id) {
     if (!(await ask(`Are you sure you want to delete schedule ${id}?`, { title: 'Delete schedule', confirmLabel: 'Delete', danger: true }))) return;
     try {
-      await Schedules.delete(id);
+      await dispatch(removeSchedule(id)).unwrap();
       notify('Schedule deleted successfully.', 'success');
       await load();
     } catch (err) {
@@ -148,14 +157,17 @@ export default function StaffSchedulingPage() {
   async function submitSchedule(e) {
     e.preventDefault();
     const slots = modal.slots.map((row) => {
-      const meta = SHIFTS.find((s) => s.label === row.shift) || SHIFTS[0];
+      const meta = SHIFTS.find((s) => s.label === row.shift) || row;
       return { department: row.department, shift: row.shift, startTime: meta.startTime, endTime: meta.endTime };
     });
     if (!slots.length) { notify('Add at least one department shift.', 'warning'); return; }
     setSubmitting(true);
     try {
-      await dispatch(createSchedule({ hospitalId, validFrom: modal.validFrom, validTo: modal.validTo, slots, notes: modal.notes.trim() })).unwrap();
+      const data = { validFrom: modal.validFrom, validTo: modal.validTo, slots, notes: modal.notes.trim() };
+      if (modal.id) await dispatch(editPendingSchedule({ id: modal.id, data })).unwrap();
+      else await dispatch(createSchedule({ ...data, hospitalId })).unwrap();
       setModal(null);
+      notify(modal.id ? 'Schedule updated' : 'Schedule sent for approval', 'success');
       await load();
     } catch (err) {
       notify(errorMessage(err, 'Failed to submit schedule.'), 'error');
@@ -269,6 +281,10 @@ export default function StaffSchedulingPage() {
                   <td>{slotsSummary(s.slots)}</td>
                   <td><span className={`status-badge ${statusClass(s.status)}`}>{(s.status || 'pending').toUpperCase()}</span></td>
                   <td style={{ textAlign: 'right' }}>
+                    <button type="button" className="btn-light" onClick={() => setModal({
+                      id: s.id, validFrom: s.validFrom.slice(0, 10), validTo: s.validTo.slice(0, 10),
+                      notes: s.notes || '', slots: s.slots,
+                    })}>Edit</button>
                     <button type="button" className="btn-delete-schedule" onClick={() => deleteSchedule(s.id)}>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
                       Delete
@@ -285,7 +301,7 @@ export default function StaffSchedulingPage() {
         <div className="modal active" id="scheduleModal" onMouseDown={(e) => { if (e.target === e.currentTarget) setModal(null); }}>
           <div className="modal-content">
             <div className="modal-header">
-              <h2>Submit hospital schedule</h2>
+              <h2>{modal.id ? 'Edit hospital schedule' : 'Submit hospital schedule'}</h2>
               <button type="button" className="modal-close" onClick={() => setModal(null)}>&times;</button>
             </div>
             <form id="scheduleForm" onSubmit={submitSchedule}>
@@ -320,7 +336,7 @@ export default function StaffSchedulingPage() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
                 <button type="button" className="btn-light" onClick={() => setModal(null)}>Cancel</button>
-                <button type="submit" className="btn-dark" disabled={submitting}>Send for approval</button>
+                <button type="submit" className="btn-dark" disabled={submitting}>{modal.id ? 'Save changes' : 'Send for approval'}</button>
               </div>
             </form>
           </div>

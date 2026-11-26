@@ -31,3 +31,7 @@ back-end/.e2e-data-backup/
 
 # Vite build output of the React frontend
 front-end/dist/
+
+# Runtime patient check-in records
+back-end/data/checkins.json
+back-end/data/checkins.json.tmp.*

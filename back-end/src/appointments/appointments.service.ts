@@ -72,12 +72,10 @@ export class AppointmentsService {
 
   /** Persist appointments to disk */
   private saveAppointments(appointments: Appointment[]): void {
-    try {
-      fs.mkdirSync(path.dirname(this.appointmentsFilePath), { recursive: true });
-      fs.writeFileSync(this.appointmentsFilePath, JSON.stringify(appointments, null, 2), 'utf-8');
-    } catch (err) {
-      console.error('Failed to persist appointments:', err);
-    }
+    fs.mkdirSync(path.dirname(this.appointmentsFilePath), { recursive: true });
+    const temporaryPath = this.appointmentsFilePath + '.tmp';
+    fs.writeFileSync(temporaryPath, JSON.stringify(appointments, null, 2), 'utf-8');
+    fs.renameSync(temporaryPath, this.appointmentsFilePath);
   }
 
   private getInitialMockData(): Appointment[] {

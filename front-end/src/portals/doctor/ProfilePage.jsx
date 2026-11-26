@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/layout/Header';
 import { Panel, PageHeader } from '../../components/ui';
-import { Auth } from '../../api';
+import { changePassword } from '../../store/authSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchDoctorProfile, selectDoctorProfile } from '../../store/doctorSlice';
 import { selectUser } from '../../store/authSlice';
@@ -33,7 +33,7 @@ export default function ProfilePage() {
     if (pw.next.length < 6) return notify('The new password must be at least 6 characters', 'error');
     setSaving(true);
     try {
-      await Auth.changePassword(pw.current, pw.next);
+      await dispatch(changePassword(pw)).unwrap();
       notify('Password updated', 'success');
       setPw({ current: '', next: '' });
     } catch (err) {

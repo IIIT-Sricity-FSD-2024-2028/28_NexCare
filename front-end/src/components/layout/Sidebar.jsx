@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import NexCareLogo from '../NexCareLogo';
 import { LogoutIcon } from '../icons';
 import { logoutUser, selectRole, selectUser } from '../../store/authSlice';
-import { Hospitals } from '../../api';
+import { fetchStaffHospital, selectStaffHospital } from '../../store/directorySlices';
 import { roleLabel } from '../../utils/roles';
 import { menuFor } from './navigation';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -18,16 +18,13 @@ export default function Sidebar() {
   const role = useAppSelector(selectRole);
   const sidebarOpen = useAppSelector(selectSidebarOpen);
   const navigate = useNavigate();
-  const [hospitalName, setHospitalName] = useState(user?.hospitalName || '');
+  const hospital = useAppSelector((state) => selectStaffHospital(state, user?.hospitalId));
+  const hospitalName = user?.hospitalName || hospital?.name;
 
   useEffect(() => {
-    let cancelled = false;
-    if (!user?.hospitalId || user.hospitalName) return undefined;
-    Hospitals.getById(user.hospitalId)
-      .then((res) => { if (!cancelled && res?.data?.name) setHospitalName(res.data.name); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [user]);
+    if (user?.hospitalId && !user.hospitalName) dispatch(fetchStaffHospital(user.hospitalId));
+  }, [dispatch, user?.hospitalId, user?.hospitalName]);
+
 
   async function handleLogout() {
     await dispatch(logoutUser()).unwrap();

@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Appointments, Users } from '../../api';
+import { fetchStaffUsers, selectStaffUsers } from '../../store/directorySlices';
 import { useNotify } from '../../hooks/useNotify';
-import { errorMessage, logActivity } from './staffData';
+import { errorMessage, useStaffActivity } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-  fetchStaffAppointments, selectStaffAppointments,
+  fetchStaffAppointments, selectStaffAppointments, createStaffAppointment, editStaffAppointment, deleteStaffAppointment,
 } from '../../store/staffSlice';
 
 // administrative_staff/manage_appointments.html + manage_appointments.js.
@@ -18,7 +18,7 @@ import {
 const STATUSES = ['Pending', 'Confirmed', 'Completed', 'Cancelled', 'No Show'];
 // The seed also carries legacy lowercase `scheduled` rows; they can be filtered, not saved.
 const FILTER_STATUSES = ['Pending', 'Confirmed', 'Scheduled', 'Completed', 'Cancelled', 'No Show'];
-const DEPARTMENTS = ['Cardiology', 'Orthopedics', 'Pediatrics', 'Neurology', 'General Medicine', 'Dermatology', 'Emergency'];
+const DEPARTMENTS = ['Cardiology', 'Orthopaedics', 'Paediatrics', 'Neurology', 'General Medicine', 'Dermatology', 'Emergency'];
 
 const EMPTY_FORM = { id: '', patientName: '', patientId: '', doctor: '', dept: '', date: '', time: '', status: 'Pending' };
 
@@ -50,6 +50,7 @@ function toTimeLabel(value) {
 
 export default function ManageAppointmentsPage() {
   const notify = useNotify();
+  const logActivity = useStaffActivity();
   const dispatch = useAppDispatch();
   const { list } = useAppSelector(selectStaffAppointments);
   const [term, setTerm] = useState('');
@@ -57,7 +58,13 @@ export default function ManageAppointmentsPage() {
   const [pendingDelete, setPendingDelete] = useState(null); // id whose row shows confirm/cancel
   const [fading, setFading] = useState(null);
   const [modal, setModal] = useState(null); // { title, form }
-  const [doctors, setDoctors] = useState({ state: 'idle', list: [] });
+  const directory = useAppSelector(selectStaffUsers);
+  const department = modal?.form.dept;
+  const departments = [...new Set([...DEPARTMENTS, ...directory.list.filter((user) => user.role === 'doctor').map((user) => user.dept).filter(Boolean), department].filter(Boolean))];
+  const doctors = {
+    state: department ? directory.status : 'idle',
+    list: directory.list.filter((u) => u.role?.toLowerCase() === 'doctor' && u.dept === department && u.status === 'Active'),
+  };
   const [saving, setSaving] = useState(false);
 
   const rows = useMemo(() => list.map((a) => ({
@@ -77,7 +84,7 @@ export default function ManageAppointmentsPage() {
     [dispatch, notify],
   );
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(); dispatch(fetchStaffUsers()); }, [dispatch, load]);
 
   const q = term.toLowerCase();
   const filtered = rows.filter((a) => {
@@ -86,21 +93,7 @@ export default function ManageAppointmentsPage() {
     return matchesTerm && matchesStatus;
   });
 
-  // The doctor list for a department: GET /users filtered to active doctors of that dept.
-  async function loadDoctors(dept, selected = '') {
-    setDoctors({ state: 'loading', list: [] });
-    try {
-      const resp = await Users.getAll();
-      const list = (resp.data || []).filter((u) => u.role && u.role.toLowerCase() === 'doctor' && u.dept === dept && u.status === 'Active');
-      setDoctors({ state: 'ready', list });
-      setModal((m) => (m ? { ...m, form: { ...m.form, doctor: selected && list.some((d) => d.name === selected) ? selected : '' } } : m));
-    } catch {
-      setDoctors({ state: 'error', list: [] });
-    }
-  }
-
   function openNew() {
-    setDoctors({ state: 'idle', list: [] });
     setModal({ title: 'New Appointment', form: { ...EMPTY_FORM } });
   }
 
@@ -109,7 +102,6 @@ export default function ManageAppointmentsPage() {
       title: 'Edit Appointment',
       form: { id: apt.id, patientName: apt.patient, patientId: apt.patientId, doctor: apt.doctor, dept: apt.dept, date: toInputDate(apt.date), time: toInputTime(apt.time), status: apt.status },
     });
-    loadDoctors(apt.dept, apt.doctor);
   }
 
   const setField = (k, v) => setModal((m) => ({ ...m, form: { ...m.form, [k]: v } }));
@@ -121,7 +113,9 @@ export default function ManageAppointmentsPage() {
       notify('Please fill all required fields correctly.', 'warning');
       return;
     }
+    const selectedDoctor = doctors.list.find((doctor) => doctor.name === f.doctor);
     const payload = {
+      doctorId: selectedDoctor?.id,
       department: f.dept,
       doctor: f.doctor.trim(),
       dateLabel: toDateLabel(f.date),
@@ -131,10 +125,10 @@ export default function ManageAppointmentsPage() {
     setSaving(true);
     try {
       if (f.id) {
-        await Appointments.update(f.id, payload);
+        await dispatch(editStaffAppointment({ id: f.id, data: payload })).unwrap();
         logActivity('Update', 'Appointments', `Updated appointment to ${f.status} for ${f.patientName} (Dr. ${f.doctor})`);
       } else {
-        await Appointments.create({ ...payload, patientId: f.patientId.trim(), fee: 100 });
+        await dispatch(createStaffAppointment({ ...payload, patientId: f.patientId.trim(), fee: 100 })).unwrap();
         logActivity('Create', 'Appointments', `New appointment: ${f.patientName} with Dr. ${f.doctor} (${f.dept})`);
       }
       setModal(null);
@@ -151,10 +145,10 @@ export default function ManageAppointmentsPage() {
     setFading(id);
     setTimeout(async () => {
       try {
-        await Appointments.delete(id);
+        await dispatch(deleteStaffAppointment(id)).unwrap();
         logActivity('Delete', 'Appointments', `Cancelled appointment (ID: ${id})`);
       } catch (err) {
-        console.error('Delete appointment failed:', err);
+        notify(errorMessage(err, 'Could not delete appointment'), 'error');
       }
       setFading(null);
       setPendingDelete(null);
@@ -255,9 +249,9 @@ export default function ManageAppointmentsPage() {
               </div>
               <div className="form-group">
                 <label>Department</label>
-                <select id="deptName" className="form-select" required value={modal.form.dept} onChange={(e) => { setField('dept', e.target.value); loadDoctors(e.target.value); }}>
+                <select id="deptName" className="form-select" required value={modal.form.dept} onChange={(e) => { setModal((m) => ({ ...m, form: { ...m.form, dept: e.target.value, doctor: '' } }));}}>
                   <option value="" disabled>Select Dept</option>
-                  {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+                  {departments.map((d) => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
               <div className="form-group">

@@ -7,6 +7,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { BillingModule } from './billing/billing.module';
 import { AmbulanceModule } from './ambulance/ambulance.module';
 import { FeedbackModule } from './feedback/feedback.module';
+import { CheckinsController } from './checkins/checkins.controller';
 import { BedsModule } from './beds/beds.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { HospitalsModule } from './hospitals/hospitals.module';
@@ -79,6 +80,7 @@ import { RequestLoggerMiddleware, SecurityMiddleware, CsrfMiddleware } from './l
     PaymentsModule,
     NotificationsModule,
   ],
+  controllers: [CheckinsController],
   providers: [
     // AuthGuard runs first — validates the JWT and populates request.user
     {

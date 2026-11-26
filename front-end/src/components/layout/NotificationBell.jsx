@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { BellIcon } from '../icons';
-import { Notifications } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchUnread, fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../store/notificationsSlice';
 
 function timeAgo(dateStr) {
   if (!dateStr) return '';
@@ -13,34 +14,12 @@ function timeAgo(dateStr) {
 
 // The unread badge + dropdown nav.js used to inject into the top bar.
 export default function NotificationBell() {
-  const [unread, setUnread] = useState(0);
+  const dispatch = useAppDispatch();
+  const { unread, items, error } = useAppSelector((state) => state.notifications);
   const [open, setOpen] = useState(false);
-  const [items, setItems] = useState(null); // null = loading
-  const [error, setError] = useState(false);
   const wrapRef = useRef(null);
 
-  async function refreshUnread() {
-    try {
-      const res = await Notifications.unreadCount();
-      setUnread(res?.data?.unreadCount || 0);
-    } catch {
-      /* the badge is a nicety; a failure must not break the page */
-    }
-  }
-
-  async function loadList() {
-    setItems(null);
-    setError(false);
-    try {
-      const res = await Notifications.list();
-      setItems(Array.isArray(res?.data) ? res.data.slice(0, 15) : []);
-    } catch {
-      setError(true);
-      setItems([]);
-    }
-  }
-
-  useEffect(() => { refreshUnread(); }, []);
+  useEffect(() => { dispatch(fetchUnread()); }, [dispatch]);
 
   // Close when clicking anywhere outside the bell.
   useEffect(() => {
@@ -53,25 +32,16 @@ export default function NotificationBell() {
   function toggle() {
     const next = !open;
     setOpen(next);
-    if (next) loadList();
+    if (next) dispatch(fetchNotifications());
   }
 
-  async function markAll(e) {
-    e.stopPropagation();
-    try {
-      await Notifications.markAllRead();
-      await refreshUnread();
-      loadList();
-    } catch { /* ignore */ }
+  function markAll(event) {
+    event.stopPropagation();
+    dispatch(markAllNotificationsRead());
   }
 
-  async function markOne(n) {
-    if (n.read) return;
-    try {
-      await Notifications.markRead(n.id);
-      setItems((list) => list.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
-      refreshUnread();
-    } catch { /* ignore */ }
+  function markOne(notification) {
+    if (!notification.read) dispatch(markNotificationRead(notification.id));
   }
 
   return (

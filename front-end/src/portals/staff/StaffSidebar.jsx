@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Hospitals } from '../../api';
+import { fetchStaffHospital, selectStaffHospital } from '../../store/directorySlices';
 import NexCareLogo from '../../components/NexCareLogo';
 import { logoutUser, selectUser } from '../../store/authSlice';
 
@@ -48,17 +48,11 @@ export default function StaffSidebar() {
   const user = useAppSelector(selectUser);
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const [hospitalName, setHospitalName] = useState('');
+  const hospitalName = useAppSelector((state) => selectStaffHospital(state, user?.hospitalId)?.name) || '';
 
-  // logo.js: GET /hospitals/:id for the name under the logo.
   useEffect(() => {
-    let cancelled = false;
-    if (!user?.hospitalId) { setHospitalName(''); return undefined; }
-    Hospitals.getById(user.hospitalId)
-      .then((res) => { if (!cancelled) setHospitalName(res.data?.name || ''); })
-      .catch((err) => console.error('Failed to fetch hospital name:', err));
-    return () => { cancelled = true; };
-  }, [user?.hospitalId]);
+    if (user?.hospitalId) dispatch(fetchStaffHospital(user.hospitalId));
+  }, [dispatch, user?.hospitalId]);
 
   async function handleLogout() {
     await dispatch(logoutUser()).unwrap();

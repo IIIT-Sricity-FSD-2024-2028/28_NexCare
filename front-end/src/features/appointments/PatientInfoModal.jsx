@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Modal, StatusPill } from '../../components/ui';
-import { Patients } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchPatientRecord } from '../../store/patientRecordsSlice';
 import { appointmentTime } from '../../utils/format';
 
 const sectionStyle = { marginBottom: 20, padding: 16, background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0' };
@@ -13,19 +14,13 @@ const h4Style = { margin: '0 0 12px 0', fontSize: 14, color: '#334155', fontWeig
  */
 export default function PatientInfoModal({ patientId, appointments, onClose }) {
   const fromAppointment = (appointments || []).find((a) => a.patientId === patientId);
-  const [patient, setPatient] = useState(null);
-  const [state, setState] = useState('idle'); // idle | loading | ok | error
-
+  const dispatch = useAppDispatch();
+  const entry = useAppSelector((state) => state.patientRecords[patientId]);
+  const patient = entry?.data;
+  const state = entry?.status || 'loading';
   useEffect(() => {
-    if (!patientId) return undefined;
-    let cancelled = false;
-    setState('loading');
-    setPatient(null);
-    Patients.byId(patientId)
-      .then((res) => { if (!cancelled) { setPatient(res?.data || null); setState(res?.data ? 'ok' : 'error'); } })
-      .catch(() => { if (!cancelled) setState('error'); });
-    return () => { cancelled = true; };
-  }, [patientId]);
+    if (patientId) dispatch(fetchPatientRecord(patientId));
+  }, [dispatch, patientId]);
 
   const history = (appointments || [])
     .filter((a) => a.patientId === patientId)

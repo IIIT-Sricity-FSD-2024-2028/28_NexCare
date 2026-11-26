@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Inventory } from '../../api';
 import { selectUser } from '../../store/authSlice';
 import { useNotify } from '../../hooks/useNotify';
-import { errorMessage, logActivity } from './staffData';
+import { errorMessage, useStaffActivity } from './staffData';
 import useConfirm from '../../hooks/useConfirm';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-  fetchInventory, fetchRequisitions, restockItem, consumeInventoryItem, createRequisition, selectInventory,
+  createInventoryItem, deleteInventoryItem, startPurchase, markPurchased as purchaseCompleted,
+  markRestocked as restockCompleted, fetchInventoryAudit, fetchInventory, fetchRequisitions, restockItem, consumeInventoryItem, createRequisition, selectInventory,
 } from '../../store/staffSlice';
 
 // administrative_staff/inventory.html + inventory.js: the stock table with
@@ -70,6 +70,7 @@ function requisitionView(r) {
 export default function InventoryPage() {
   const user = useAppSelector(selectUser);
   const notify = useNotify();
+  const logActivity = useStaffActivity();
   const { ask, dialog } = useConfirm();
   const dispatch = useAppDispatch();
   const inv = useAppSelector(selectInventory);
@@ -79,6 +80,7 @@ export default function InventoryPage() {
   const requisitions = inv.requisitions; // null = loading
   const reqError = Boolean(inv.requisitionsError);
   const [modal, setModal] = useState(null); // { kind, item?, req?, form }
+  const audit = useAppSelector((state) => selectInventory(state).audits[modal?.item?.id]);
 
   const loadInventory = useCallback(
     () => dispatch(fetchInventory()).unwrap()
@@ -116,7 +118,7 @@ export default function InventoryPage() {
       // Fixed on port: inventory.js also sent `status`, which CreateInventoryDto
       // does not declare — a 400 under forbidNonWhitelisted, so "Add Item"
       // never worked. The backend derives the status itself.
-      await Inventory.create({ name, category, quantity: qty, minStock, unit, location });
+      await dispatch(createInventoryItem({ name, category, quantity: qty, minStock, unit, location })).unwrap();
       logActivity('Create', 'Inventory', `Added inventory item: ${name} (Qty: ${qty}, Min: ${minStock})`);
       close();
       await loadInventory();
@@ -129,7 +131,7 @@ export default function InventoryPage() {
   async function deleteItem(item) {
     if (!(await ask(`Delete "${item.name}"?`, { title: 'Delete item', confirmLabel: 'Delete', danger: true }))) return;
     try {
-      await Inventory.delete(item.id);
+      await dispatch(deleteInventoryItem(item.id)).unwrap();
       logActivity('Delete', 'Inventory', `Deleted inventory item: ${item.name} (${item.id})`);
     } catch (err) {
       console.error(err);
@@ -181,15 +183,9 @@ export default function InventoryPage() {
     }
   }
 
-  async function openAudit(item) {
-    open('audit', { item, logs: null, auditError: false });
-    try {
-      const resp = await Inventory.getAudit(item.id);
-      setModal((m) => (m && m.kind === 'audit' ? { ...m, logs: resp.data || [] } : m));
-    } catch (err) {
-      console.error('Failed to load audit trail:', err);
-      setModal((m) => (m && m.kind === 'audit' ? { ...m, logs: [], auditError: true } : m));
-    }
+  function openAudit(item) {
+    open('audit', { item });
+    dispatch(fetchInventoryAudit(item.id));
   }
 
   /* ── requisition workflow ─────────────────────────────────────────────── */
@@ -243,9 +239,9 @@ export default function InventoryPage() {
       return;
     }
     try {
-      await Inventory.startPurchase(req.id, {
+      await dispatch(startPurchase({ id: req.id, data: {
         supplier, invoiceNumber, purchaseDate: f.date, quantityPurchased, finalCost: Number(f.cost), purchaseNotes: (f.notes || '').trim(),
-      });
+      } })).unwrap();
       notify(`Purchase details recorded for ${req.itemName}! Status updated to Purchase in Progress.`, 'success');
       close();
       await loadRequisitions();
@@ -258,7 +254,7 @@ export default function InventoryPage() {
   async function markPurchased(reqId) {
     if (!(await ask('Confirm marking this item as purchased from the vendor?', { title: 'Mark purchased' }))) return;
     try {
-      await Inventory.markPurchased(reqId);
+      await dispatch(purchaseCompleted(reqId)).unwrap();
       notify('Item marked as Purchased. Next step: Mark Restocked once delivered to hospital.', 'success');
       await loadRequisitions();
     } catch (err) {
@@ -270,7 +266,7 @@ export default function InventoryPage() {
   async function markRestocked(reqId) {
     if (!(await ask('Confirm goods received and restocked into central hospital inventory? This will automatically increase the stock quantity.', { title: 'Mark restocked' }))) return;
     try {
-      await Inventory.markRestocked(reqId);
+      await dispatch(restockCompleted(reqId)).unwrap();
       notify('Requirement marked as RESTOCKED! Central inventory item quantity has been automatically updated.', 'success');
       await loadRequisitions();
       await loadInventory();
@@ -490,13 +486,13 @@ export default function InventoryPage() {
               <table>
                 <thead><tr><th>Date &amp; Time</th><th>Action</th><th>Before</th><th>Change</th><th>After</th><th>User ID</th><th>Notes</th></tr></thead>
                 <tbody id="auditHistoryTable">
-                  {modal.logs === null ? (
+                  {!audit || audit.list === null ? (
                     <tr><td colSpan={7} style={{ textAlign: 'center', padding: 20, color: '#6b7280' }}>Loading audit history...</td></tr>
-                  ) : modal.auditError ? (
+                  ) : audit.error ? (
                     <tr><td colSpan={7} style={{ textAlign: 'center', padding: 20, color: '#dc2626' }}>Failed to load audit history.</td></tr>
-                  ) : modal.logs.length === 0 ? (
+                  ) : audit.list.length === 0 ? (
                     <tr><td colSpan={7} style={{ textAlign: 'center', padding: 24, color: '#6b7280' }}>No audit records found for this item yet.</td></tr>
-                  ) : modal.logs.map((entry, i) => {
+                  ) : audit.list.map((entry, i) => {
                     const isRestock = entry.action === 'restock';
                     const diff = (entry.quantityAfter ?? 0) - (entry.quantityBefore ?? 0);
                     return (
