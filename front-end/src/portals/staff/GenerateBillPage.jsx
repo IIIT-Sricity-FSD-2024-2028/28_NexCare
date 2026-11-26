@@ -1,13 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { fetchAmbulanceRequests, selectAmbulanceRequests } from '../../store/ambulanceSlice';
+import {
+  fetchStaffAmbulanceRequests,
+  selectStaffAmbulanceRequests,
+  deleteBill,
+  editBill,
+  fetchBeds,
+  fetchStaffAppointments,
+  selectBeds,
+  selectStaffAppointments,
+  fetchBills,
+  fetchPatientDirectory,
+  generateBill,
+  selectStaffBilling,
+  selectStaffPatients,
+} from '../../store/staffSlice';
 import useConfirm from '../../hooks/useConfirm';
-import { deleteBill, editBill } from '../../store/billingSlice';
 import { useNotify } from '../../hooks/useNotify';
 import { errorMessage, findPatient, useStaffActivity, useHospitalId } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-  fetchBeds, fetchStaffAppointments, selectBeds, selectStaffAppointments, fetchBills, fetchPatientDirectory, generateBill, selectStaffBilling, selectStaffPatients,
-} from '../../store/staffSlice';
 
 // administrative_staff/generate-bill.html + billing.js.
 
@@ -43,7 +53,7 @@ export default function GenerateBillPage() {
   const { list: patients } = useAppSelector(selectStaffPatients);
   const { list: beds } = useAppSelector(selectBeds);
   const { list: appts } = useAppSelector(selectStaffAppointments);
-  const { list: ambs } = useAppSelector(selectAmbulanceRequests);
+  const { list: ambs } = useAppSelector(selectStaffAmbulanceRequests);
   const loadError = Boolean(billing.error);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
@@ -76,7 +86,7 @@ export default function GenerateBillPage() {
     load();
     dispatch(fetchBeds());
     dispatch(fetchStaffAppointments());
-    dispatch(fetchAmbulanceRequests());
+    dispatch(fetchStaffAmbulanceRequests());
   }, [dispatch, load]);
 
   const totals = useMemo(() => ({

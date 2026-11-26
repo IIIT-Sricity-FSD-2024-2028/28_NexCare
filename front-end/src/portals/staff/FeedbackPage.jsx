@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useConfirm from '../../hooks/useConfirm';
 import { errorMessage } from './staffData';
-import { createStaffFeedback, editStaffFeedback, deleteStaffFeedback } from '../../store/feedbackSlice';
+import {
+  createStaffFeedback,
+  editStaffFeedback,
+  deleteStaffFeedback,
+  fetchStaffFeedback,
+  selectStaffFeedback,
+} from '../../store/staffSlice';
 import { useNotify } from '../../hooks/useNotify';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-  fetchStaffFeedback, selectStaffFeedback,
-} from '../../store/staffSlice';
 
 const EMPTY_FORM = { patientId: '', sender: '', category: 'service', subject: '', summary: '', rating: 5 };
 

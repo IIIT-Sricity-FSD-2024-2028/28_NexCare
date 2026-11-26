@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, fieldLabel, fieldInput } from '../../components/ui';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchReferralDoctors, selectReferralDoctors } from '../../store/directorySlices';
-import { createReferral } from '../../store/doctorSlice';
+import {
+  fetchReferralDoctors,
+  selectReferralDoctors,
+  createReferral,
+} from '../../store/doctorSlice';
 import { useNotify } from '../../hooks/useNotify';
 import { DEFAULT_CONSULTATION_FEE, isoDate } from '../../utils/format';
 

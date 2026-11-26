@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Header from '../../components/layout/Header';
 import { Panel, StatusPill, EmptyRow, PageHeader } from '../../components/ui';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { editPendingLeave, fetchDoctorLeaves, requestLeave, deleteLeave, selectDoctorLeaves } from '../../store/leavesSlice';
+import { editPendingLeave, fetchDoctorLeaves, requestLeave, deleteLeave, selectDoctorLeaves } from '../../store/doctorSlice';
 import { selectUser } from '../../store/authSlice';
 import { useNotify } from '../../hooks/useNotify';
 import useConfirm from '../../hooks/useConfirm';

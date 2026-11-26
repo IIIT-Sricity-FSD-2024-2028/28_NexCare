@@ -3,8 +3,15 @@ import useConfirm from '../../hooks/useConfirm';
 import { useNotify } from '../../hooks/useNotify';
 import { findPatient, patientName, useStaffActivity } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchPatientDirectory, selectStaffPatients } from '../../store/staffSlice';
-import { createCheckin, deleteCheckin, fetchCheckins, moveCheckin, selectCheckins } from '../../store/checkinsSlice';
+import {
+  fetchPatientDirectory,
+  selectStaffPatients,
+  createCheckin,
+  deleteCheckin,
+  fetchCheckins,
+  moveCheckin,
+  selectCheckins,
+} from '../../store/staffSlice';
 
 const formatTime = (value) => new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 

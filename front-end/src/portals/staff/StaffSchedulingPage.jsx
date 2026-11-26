@@ -1,14 +1,19 @@
-import { fetchStaffUsers, selectStaffUsers } from '../../store/directorySlices';
-import { fetchLeaveRequests, selectLeaveRequests } from '../../store/leavesSlice';
-import { editPendingSchedule } from '../../store/schedulesSlice';
+import {
+  fetchStaffUsers,
+  selectStaffUsers,
+  fetchLeaveRequests,
+  selectLeaveRequests,
+  editPendingSchedule,
+  deleteSchedule as removeSchedule,
+  fetchSchedules,
+  createSchedule,
+  selectSchedules,
+} from '../../store/staffSlice';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNotify } from '../../hooks/useNotify';
 import { errorMessage, useHospitalId } from './staffData';
 import useConfirm from '../../hooks/useConfirm';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-  deleteSchedule as removeSchedule, fetchSchedules, createSchedule, selectSchedules,
-} from '../../store/staffSlice';
 
 // administrative_staff/staff_scheduling.html + staff_scheduling.js: the
 // weekly department accordion (doctors' saved rosters, approved leaves laid

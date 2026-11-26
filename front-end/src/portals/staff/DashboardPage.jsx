@@ -40,17 +40,12 @@ export default function DashboardPage() {
       })
       .finally(() => { hideLoading(); if (!cancelled) setLoaded(true); });
     return () => { cancelled = true; hideLoading(); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
+  }, [dispatch, notify, showLoading]);
 
   const stats = useMemo(() => {
     if (!loaded) return { patients: '--', todayAppts: '--', beds: null, alerts: null };
-    // "Today's" appointments — dashboard.js matched the current month and
-    // year inside dateLabel, not the day.
-    const now = new Date();
-    const year = String(now.getFullYear());
-    const month = now.toLocaleString('default', { month: 'long' });
-    const todays = all.filter((a) => a.dateLabel && a.dateLabel.includes(year) && a.dateLabel.includes(month));
+    const today = new Date().toDateString();
+    const todays = all.filter((appointment) => new Date(appointment.dateLabel).toDateString() === today);
 
     let bedStat = null;
     if (beds.length > 0) {
