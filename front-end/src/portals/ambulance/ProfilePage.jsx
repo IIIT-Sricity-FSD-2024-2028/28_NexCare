@@ -2,7 +2,15 @@ import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addToast } from '../../store/toastSlice';
 import { selectUser } from '../../store/authSlice';
-import { PROFILE_KEY, profileSaved, selectAmbulanceProfile, selectAmbulanceRequests } from '../../store/ambulanceSlice';
+import {
+  PROFILE_KEY,
+  profileSaved,
+  selectAmbulanceProfile,
+  selectCompletedTransports,
+  selectPendingRequests,
+  selectAssigned,
+  selectActiveTransport,
+} from '../../store/ambulanceSlice';
 import { isAssigned, isCompleted, isInTransit } from '../../features/ambulance/transportSteps';
 import { initials } from '../../utils/format';
 import { PageHeader } from './ambulanceShared';
@@ -49,7 +57,6 @@ export default function ProfilePage() {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
   const profile = useAppSelector(selectAmbulanceProfile);
-  const requests = useAppSelector(selectAmbulanceRequests).list;
   const notify = (message, type) => dispatch(addToast({ message, type }));
 
   // The page keeps the edits in sessionStorage (no route lets an ambulance
@@ -75,13 +82,16 @@ export default function ProfilePage() {
     if (errors[k]) setErrors((er) => ({ ...er, [k]: undefined }));
   };
 
-  const completed = requests.filter(isCompleted);
+  const completed = useAppSelector(selectCompletedTransports);
+  const pending = useAppSelector(selectPendingRequests);
+  const assigned = useAppSelector(selectAssigned);
+  const active = useAppSelector(selectActiveTransport);
   const now = new Date();
   const thisMonth = completed.filter((r) => {
     const d = new Date(r.completedDate || r.updatedAt || 0);
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   }).length;
-  const accepted = requests.filter((r) => isAssigned(r) || isInTransit(r) || isCompleted(r)).length;
+  const accepted = [...assigned, ...(active ? [active] : []), ...completed].length;
 
   // The form's phone field is the 10-digit national number the page enforced.
   const editable = () => ({ ...current, phone: String(current.phone).replace(/\D/g, '').slice(-10) });

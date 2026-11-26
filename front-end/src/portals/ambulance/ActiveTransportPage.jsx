@@ -9,7 +9,7 @@ import {
   updateRequest,
   updateTransportStatus,
 } from '../../store/ambulanceSlice';
-import { TRANSPORT_STEPS, completionStamps, isFinalStep, nextStatus, stepIndexOf } from '../../features/ambulance/transportSteps';
+import { TRANSPORT_STEPS, completionStamps, isFinalStep, nextStatus, stepIndexOf, isInTransit } from '../../features/ambulance/transportSteps';
 import useTransportEta from '../../features/ambulance/useTransportEta';
 import { PageHeader, contactOf, locationOf, patientOf } from './ambulanceShared';
 
@@ -79,6 +79,10 @@ export default function ActiveTransportPage() {
   }
 
   async function complete() {
+    if (!isFinalStep(active.status)) {
+      notify('Cannot complete transport. Must reach hospital first.', 'warning');
+      return;
+    }
     setBusy(true);
     try {
       // The completion stamps app.js wrote on the record, then the completion itself.

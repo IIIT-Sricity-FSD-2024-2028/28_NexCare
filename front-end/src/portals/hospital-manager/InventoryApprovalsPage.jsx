@@ -55,29 +55,41 @@ export default function InventoryApprovalsPage() {
       && (!q || [r.itemName, r.department, r.reason].some((v) => (v || '').toLowerCase().includes(q)));
   });
 
-  return (
+return (
     <div className="card">
       <div className="card-header flex-between">
         <div>
           <h2>Inventory Requirements & Approvals</h2>
           <p className="card-subtitle">Approve or reject stock requisition requests raised by administrative staff</p>
         </div>
-        <div className="filter-toolbar">
-          <input type="text" className="input-search" placeholder="Search item or department..." value={term} onChange={(e) => setTerm(e.target.value)} />
-          <select className="select-filter" value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="ALL">All Statuses</option>
-            <option value="PENDING">Pending</option>
-            <option value="APPROVED">Approved</option>
-            <option value="REJECTED">Rejected</option>
-            <option value="FULFILLED">Fulfilled / Restocked</option>
-          </select>
-          <select className="select-filter" value={priority} onChange={(e) => setPriority(e.target.value)}>
-            <option value="ALL">All Priorities</option>
-            <option value="URGENT">Urgent</option>
-            <option value="HIGH">High</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="LOW">Low</option>
-          </select>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ padding: '6px 12px', fontSize: 12 }}
+            onClick={() => dispatch(fetchInventoryApprovals())}
+            disabled={inventory.loading}
+            title="Refresh inventory approvals"
+          >
+            {inventory.loading ? '⟳ Refreshing...' : '🔄 Refresh'}
+          </button>
+          <div className="filter-toolbar">
+            <input type="text" className="input-search" placeholder="Search item or department..." value={term} onChange={(e) => setTerm(e.target.value)} />
+            <select className="select-filter" value={status} onChange={(e) => setStatus(e.target.value)}>
+              <option value="ALL">All Statuses</option>
+              <option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="FULFILLED">Fulfilled / Restocked</option>
+            </select>
+            <select className="select-filter" value={priority} onChange={(e) => setPriority(e.target.value)}>
+              <option value="ALL">All Priorities</option>
+              <option value="URGENT">Urgent</option>
+              <option value="HIGH">High</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LOW">Low</option>
+            </select>
+          </div>
         </div>
       </div>
       <div className="table-responsive">

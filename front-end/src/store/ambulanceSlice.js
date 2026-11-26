@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { Ambulance, Hospitals } from '../api';
-import { isInTransit } from '../features/ambulance/transportSteps';
 
 const errorMessage = (error, fallback) => error?.message || fallback;
 const asList = (res) => (Array.isArray(res?.data) ? res.data : []);
@@ -11,7 +10,7 @@ export const PROFILE_KEY = 'ambulanceProfile';
 export const REFRESH_MS = 5000;
 
 const readJson = (key) => {
-  try { return JSON.parse(sessionStorage.getItem(key)) || {}; } catch { return {}; }
+  try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; }
 };
 
 // GET /ambulance is one list for the whole crew — "pending", "assigned",
@@ -55,7 +54,23 @@ export const updateTransportStatus = createAsyncThunk(
 
 export const updateRequest = createAsyncThunk(
   'ambulance/updateRequest',
-  async ({ id, data }, { rejectWithValue }) => {
+  async ({ id, data }, { getState, rejectWithValue }) => {
+    // Validation: prevent invalid status transitions
+    const state = getState();
+    const request = state.ambulance?.requests?.list?.find((r) => r.id === id);
+    if (request && data.status) {
+      const currentStatus = request.status;
+      const newStatus = data.status;
+      // Prevent reverting from in-transit statuses
+      const inTransitStatuses = ['En Route', 'Picked Up', 'At Hospital'];
+      if (inTransitStatuses.includes(currentStatus) && newStatus === 'Pending') {
+        return rejectWithValue('Cannot revert an in-transit transport to Pending');
+      }
+      // Prevent setting status to Completed without going through completeTransport
+      if (newStatus === 'Completed' && currentStatus !== 'At Hospital') {
+        return rejectWithValue('Transport must reach hospital before completion');
+      }
+    }
     try {
       const res = await Ambulance.update(id, data);
       return { id, ...(res.data || {}) };
@@ -80,7 +95,10 @@ export const completeTransport = createAsyncThunk(
 export const fetchHospitalName = createAsyncThunk(
   'ambulance/fetchHospitalName',
   async (_, { getState }) => {
-    const user = getState().auth.user || {};
+    const state = getState();
+    const user = state.auth.user || {};
+    const existingName = state.ambulance?.hospitalName;
+    if (existingName) return existingName;
     if (user.hospitalName) return user.hospitalName;
     if (!user.hospitalId) return '';
     try {
@@ -95,6 +113,11 @@ export const fetchHospitalName = createAsyncThunk(
 const mergeRequest = (state, payload) => {
   const index = state.requests.list.findIndex((r) => r.id === payload.id);
   if (index >= 0) state.requests.list[index] = { ...state.requests.list[index], ...payload };
+};
+
+const rollbackRequest = (state, action) => {
+  // On rejection, refetch to ensure consistency
+  state.requests.loaded = false;
 };
 
 // A function, so the logout reset re-reads checklist/profile from sessionStorage.
@@ -134,9 +157,13 @@ const ambulanceSlice = createSlice({
         state.requests.loaded = true;
       })
       .addCase(dispatchAmbulance.fulfilled, (state, action) => mergeRequest(state, action.payload))
+      .addCase(dispatchAmbulance.rejected, (state) => rollbackRequest(state))
       .addCase(updateTransportStatus.fulfilled, (state, action) => mergeRequest(state, action.payload))
+      .addCase(updateTransportStatus.rejected, (state) => rollbackRequest(state))
       .addCase(updateRequest.fulfilled, (state, action) => mergeRequest(state, action.payload))
+      .addCase(updateRequest.rejected, (state) => rollbackRequest(state))
       .addCase(completeTransport.fulfilled, (state, action) => mergeRequest(state, action.payload))
+      .addCase(completeTransport.rejected, (state) => rollbackRequest(state))
       .addCase(fetchHospitalName.fulfilled, (state, action) => {
         if (action.payload) state.hospitalName = action.payload;
       });
@@ -154,8 +181,10 @@ export const selectPendingRequests = (state) =>
   state.ambulance.requests.list.filter((r) => r.status === 'Pending');
 export const selectAssigned = (state) =>
   state.ambulance.requests.list.filter((r) => r.status === 'Dispatched');
-export const selectActiveTransport = (state) =>
-  state.ambulance.requests.list.find(isInTransit) || null;
+export const selectActiveTransport = (state) => {
+  const IN_TRANSIT = ['En Route', 'Picked Up', 'At Hospital'];
+  return state.ambulance.requests.list.find((r) => IN_TRANSIT.includes(r.status)) || null;
+};
 export const selectCompletedTransports = (state) =>
   state.ambulance.requests.list.filter((r) => ['Completed', 'Cancelled'].includes(r.status));
 export const selectChecklistComplete = (state) =>

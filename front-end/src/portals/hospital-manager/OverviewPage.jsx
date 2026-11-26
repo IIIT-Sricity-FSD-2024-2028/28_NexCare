@@ -1,22 +1,20 @@
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { selectUser } from '../../store/authSlice';
+import { addToast } from '../../store/toastSlice';
 import {
   openRenewalModal,
   openStaffModal,
   selectHmHospital,
   selectHmOverview,
   selectHmSubscription,
+  fetchHmOverview,
 } from '../../store/hospitalManagerSlice';
 import { Badge, LoadingCell, isoDay } from './hmShared';
 import useApprovals from './useApprovals';
 import { leaveDays } from './LeavesPage';
 
-// TAB 1 — loadOverview() + renderPendingQueue(): the four stat cards, the
-// quick actions, the registration-status card and the combined pending
-// queue (doctor leaves + inventory requisitions) with inline decisions.
-// loadOverview() is the fetchHmOverview thunk now (dispatched by the shell);
-// the page renders what the slice holds.
 const svg = (d) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">{d}</svg>;
 const ICON = {
   doctors: svg(<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>),
@@ -70,6 +68,13 @@ export default function OverviewPage() {
   const subBadge = sub?.status === 'EXPIRED' ? 'rejected' : sub?.status === 'DUE_SOON' ? 'pending' : 'active';
   const nLeaves = data?.pendingLeaves.length ?? 0;
   const nUrgent = data?.urgentReqs ?? 0;
+  const partialFailures = overview.partialFailures || [];
+
+  useEffect(() => {
+    if (partialFailures.length > 0) {
+      dispatch(addToast({ message: `Some overview data failed to load: ${partialFailures.join(', ')}`, type: 'warning' }));
+    }
+  }, [dispatch, partialFailures]);
 
   const queue = data ? [
     ...data.pendingLeaves.map((l) => ({
@@ -92,11 +97,21 @@ export default function OverviewPage() {
 
   return (
     <>
-      <div className="stats-grid">
+      <div className="stats-grid" style={{ position: 'relative' }}>
         <StatCard to="/hospital-manager/leaves" icon={ICON.doctors} tone="icon-blue" value={data?.doctors ?? 0} label="Active Doctors" sub={`${nLeaves} pending leave request${nLeaves === 1 ? '' : 's'}`} />
         <StatCard to="/hospital-manager/supervision" icon={ICON.admin} tone="icon-purple" value={data?.adminStaff ?? 0} label="Administrative Staff" sub="Operations & Front Desk" />
         <StatCard to="/hospital-manager/inventory-approvals" icon={ICON.inventory} tone="icon-amber" value={data?.pendingReqs.length ?? 0} label="Inventory Approvals" sub={`${nUrgent} urgent requisition${nUrgent === 1 ? '' : 's'}`} />
         <StatCard to="/hospital-manager/subscription" icon={ICON.card} tone="icon-green" value={sub?.daysRemaining ?? '--'} label="Days to Renewal" sub={`License ${sub?.status || 'Active'}`} />
+        <button
+          type="button"
+          className="btn-secondary"
+          style={{ position: 'absolute', top: -8, right: 0, padding: '6px 12px', fontSize: 12 }}
+          onClick={() => dispatch(fetchHmOverview())}
+          disabled={overview.loading}
+          title="Refresh overview data"
+        >
+          {overview.loading ? '⟳ Refreshing...' : '🔄 Refresh'}
+        </button>
       </div>
 
       <div className="grid-2-col">

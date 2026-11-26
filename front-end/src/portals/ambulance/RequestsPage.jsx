@@ -9,9 +9,12 @@ import {
   selectAmbulanceProfile,
   selectAmbulanceRequests,
   selectChecklistComplete,
+  selectPendingRequests,
 } from '../../store/ambulanceSlice';
 import { isPending, requestTime } from '../../features/ambulance/transportSteps';
 import { EmptyState, ICON_PATH, PageHeader, PriorityBadge, contactOf, locationOf, patientOf } from './ambulanceShared';
+
+const PAGE_SIZE = 10;
 
 // #ambulance-requests-page: renderAmbulanceRequests() + the delegated Accept
 // handler. Accepting is PATCH /ambulance/:id/dispatch with this crew member
@@ -27,12 +30,15 @@ export default function RequestsPage() {
   const user = useAppSelector(selectUser);
   const profile = useAppSelector(selectAmbulanceProfile);
   const requestsState = useAppSelector(selectAmbulanceRequests);
+  const pending = useAppSelector(selectPendingRequests);
   const checklistComplete = useAppSelector(selectChecklistComplete);
   const [busy, setBusy] = useState('');
-  const requests = requestsState.list;
+  const [page, setPage] = useState(1);
   const loaded = requestsState.loaded;
-  const pending = requests.filter(isPending);
   const notify = (message, type) => dispatch(addToast({ message, type }));
+
+  const totalPages = Math.max(1, Math.ceil(pending.length / PAGE_SIZE));
+  const paginatedPending = pending.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function accept(r) {
     if (!isPending(r)) { notify('This request is no longer pending', 'warning'); dispatch(fetchAmbulanceRequests()); return; }
@@ -64,14 +70,14 @@ export default function RequestsPage() {
             </thead>
             <tbody id="ambulance-requests-tbody">
               {!loaded && <tr><td colSpan={8} className="text-gray">Loading requests…</td></tr>}
-              {loaded && pending.length === 0 && (
+              {loaded && paginatedPending.length === 0 && (
                 <tr className="empty-row">
                   <td colSpan={8}>
                     <EmptyState icon={ICON_PATH.inbox} title="No Pending Requests" description="There are no pending ambulance requests from dispatch at the moment. New requests will appear here automatically." />
                   </td>
                 </tr>
               )}
-              {pending.map((r) => (
+              {paginatedPending.map((r) => (
                 <tr key={r.id}>
                   <td><span className="request-id">{r.id}</span></td>
                   <td><span className="patient-name">{patientOf(r)}</span></td>
@@ -91,6 +97,29 @@ export default function RequestsPage() {
             </tbody>
           </table>
         </div>
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 16, alignItems: 'center' }}>
+            <button
+              type="button"
+              className="btn-secondary btn-sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              ← Prev
+            </button>
+            <span style={{ fontSize: 13, color: '#64748b' }}>
+              Page {page} of {totalPages} ({pending.length} total)
+            </span>
+            <button
+              type="button"
+              className="btn-secondary btn-sm"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              Next →
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

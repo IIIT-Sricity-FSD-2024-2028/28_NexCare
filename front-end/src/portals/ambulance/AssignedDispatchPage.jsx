@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addToast } from '../../store/toastSlice';
@@ -9,6 +9,7 @@ import {
   selectActiveTransport,
   selectAmbulanceChecklist,
   selectAmbulanceRequests,
+  selectAssigned,
   selectChecklistComplete,
   updateRequest,
   updateTransportStatus,
@@ -24,29 +25,58 @@ import { EmptyState, ICON_PATH, PageHeader, PriorityBadge, contactOf, locationOf
 // Assignment → PUT { status: 'Pending' } after the confirm.
 const messageOf = (err, fallback) => (typeof err === 'string' && err) || err?.message || fallback;
 
+const ASSIGNED_PAGE_SIZE = 5;
+
 export default function AssignedDispatchPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { ask, dialog } = useConfirm();
   const requestsState = useAppSelector(selectAmbulanceRequests);
+  const assigned = useAppSelector(selectAssigned);
   const activeTransport = useAppSelector(selectActiveTransport);
   const checklist = useAppSelector(selectAmbulanceChecklist);
   const checklistComplete = useAppSelector(selectChecklistComplete);
   const [busy, setBusy] = useState('');
-  const requests = requestsState.list;
+  const [assignedPage, setAssignedPage] = useState(1);
   const loaded = requestsState.loaded;
-  const assigned = requests.filter(isAssigned);
   const notify = (message, type) => dispatch(addToast({ message, type }));
+
+  const assignedTotalPages = Math.max(1, Math.ceil(assigned.length / ASSIGNED_PAGE_SIZE));
+  const paginatedAssigned = assigned.slice((assignedPage - 1) * ASSIGNED_PAGE_SIZE, assignedPage * ASSIGNED_PAGE_SIZE);
+
+  // Cross-tab checklist sync via localStorage
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === CHECKLIST_KEY && e.newValue) {
+        try {
+          const next = JSON.parse(e.newValue);
+          // Dispatch individual toggles for each changed item
+          Object.keys(next).forEach((key) => {
+            const index = parseInt(key.replace('checklist-', ''), 10);
+            if (!isNaN(index) && next[key] !== checklist[key]) {
+              dispatch(checklistToggled(index));
+            }
+          });
+        } catch { /* ignore */ }
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [dispatch, checklist, CHECKLIST_KEY]);
 
   // The slice stays serializable; persisting the tick is a side effect of the UI.
   function toggleChecklist(index) {
     const key = `checklist-${index}`;
     const next = { ...checklist, [key]: !checklist[key] };
     dispatch(checklistToggled(index));
-    try { sessionStorage.setItem(CHECKLIST_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+    try { localStorage.setItem(CHECKLIST_KEY, JSON.stringify(next)); } catch { /* ignore */ }
   }
 
   async function start(r) {
+    if (activeTransport) {
+      notify('Another transport is already in progress. Complete it first.', 'warning');
+      return;
+    }
     setBusy(r.id);
     try {
       await dispatch(updateTransportStatus({ id: r.id, status: 'En Route' })).unwrap();
@@ -133,7 +163,7 @@ export default function AssignedDispatchPage() {
             action={<Link to="/ambulance/ambulance-requests" className="btn btn-primary">View Incoming Requests</Link>}
           />
         )}
-        {assigned.map((r) => {
+        {paginatedAssigned.map((r) => {
           const blocked = activeTransport ? 'Finish current transport first' : !checklistComplete ? 'Complete ALL pre-departure checklist items to start' : '';
           return (
             <div key={r.id} className="dispatch-card">
@@ -167,6 +197,29 @@ export default function AssignedDispatchPage() {
             </div>
           );
         })}
+        {assignedTotalPages > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 16, alignItems: 'center' }}>
+            <button
+              type="button"
+              className="btn-secondary btn-sm"
+              onClick={() => setAssignedPage((p) => Math.max(1, p - 1))}
+              disabled={assignedPage === 1}
+            >
+              ← Prev
+            </button>
+            <span style={{ fontSize: 13, color: '#64748b' }}>
+              Page {assignedPage} of {assignedTotalPages} ({assigned.length} total)
+            </span>
+            <button
+              type="button"
+              className="btn-secondary btn-sm"
+              onClick={() => setAssignedPage((p) => Math.min(assignedTotalPages, p + 1))}
+              disabled={assignedPage === assignedTotalPages}
+            >
+              Next →
+            </button>
+          </div>
+        )}
       </div>
       {dialog}
     </div>

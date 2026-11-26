@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users } from '../../api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addToast } from '../../store/toastSlice';
 import { selectUser } from '../../store/authSlice';
@@ -8,9 +7,12 @@ import {
   closeStaffModal,
   fetchHmStaff,
   openStaffModal,
+  previewEmail,
   registerStaff,
+  selectEmailPreview,
   selectHmHospital,
   selectHmUi,
+  setEmailPreview,
   setRegistered,
 } from '../../store/hospitalManagerSlice';
 import { Field, HmModal, roleLabel } from './hmShared';
@@ -43,17 +45,19 @@ const blank = (variant) => ({
   driverLicense: '', assignedVehicle: '', shift: SHIFTS[0],
 });
 
-/** Users.previewEmail(name) 250 ms after the last keystroke, as both forms did. */
+/** previewEmail(name) 250 ms after the last keystroke, via Redux thunk. */
 function useEmailPreview(name) {
-  const [email, setEmail] = useState('');
+  const dispatch = useAppDispatch();
+  const email = useAppSelector(selectEmailPreview);
   const timer = useRef(null);
   useEffect(() => {
     clearTimeout(timer.current);
-    if (!name.trim()) { setEmail(''); return undefined; }
+    if (!name.trim()) {
+      dispatch(setEmailPreview(''));
+      return undefined;
+    }
     timer.current = setTimeout(() => {
-      Users.previewEmail(name.trim())
-        .then((res) => { if (res.data?.email) setEmail(res.data.email); })
-        .catch((e) => console.error('Email preview error:', e));
+      dispatch(previewEmail(name.trim()));
     }, 250);
     return () => clearTimeout(timer.current);
   }, [name]);
@@ -365,7 +369,7 @@ export function StaffRegisterForm() {
 
         <div style={{ background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: 8, padding: '12px 16px', marginTop: 20, fontSize: 13, color: '#92400e', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 18 }}>ℹ️</span>
-          <div>Newly registered staff will automatically receive default login credentials (<code>NexCare@123</code>) and will be prompted to change their password on first login.</div>
+          <div>Newly registered staff will receive login credentials via email and will be prompted to change their password on first login.</div>
         </div>
 
         <div style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end', gap: 12, alignItems: 'center' }}>
@@ -401,13 +405,14 @@ export function RegistrationSuccessModal() {
     role: roleLabel(registered.role),
     hospital: registered.hospitalName || hospitalName || 'Hospital',
     email: registered.email,
-    password: registered.tempPassword || 'NexCare@123',
+    password: registered.tempPassword,
   };
   const row = { display: 'flex', justifyContent: 'space-between', marginBottom: 6 };
   const key = { color: '#64748b' };
 
   function copy() {
-    const text = `NexCare Staff Credentials:\nName: ${creds.name}\nEmployee ID: ${creds.employeeId}\nRole: ${creds.role}\nHospital: ${creds.hospital}\nEmail: ${creds.email}\nTemporary Password: ${creds.password}\n(Note: Password change required on first login)`;
+    const passwordText = creds.password ? `Temporary Password: ${creds.password}` : 'Temporary Password: (will be sent via email)';
+    const text = `NexCare Staff Credentials:\nName: ${creds.name}\nEmployee ID: ${creds.employeeId}\nRole: ${creds.role}\nHospital: ${creds.hospital}\nEmail: ${creds.email}\n${passwordText}\n(Note: Password change required on first login)`;
     navigator.clipboard.writeText(text)
       .then(() => notify('Staff credentials copied to clipboard!', 'success'))
       .catch(() => notify(`Credentials ready: ${creds.email}`, 'info'));
@@ -431,8 +436,15 @@ export function RegistrationSuccessModal() {
           <div style={row}><span style={key}>Hospital:</span><strong style={{ color: '#0f172a' }}>{creds.hospital}</strong></div>
           <hr style={{ border: 'none', borderTop: '1px dashed #cbd5e1', margin: '10px 0' }} />
           <div style={row}><span style={key}>Login Email:</span><code style={{ background: '#e0f2fe', color: '#0369a1', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>{creds.email}</code></div>
-          <div style={row}><span style={key}>Temporary Password:</span><code style={{ background: '#fef3c7', color: '#92400e', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>{creds.password}</code></div>
-          <div style={{ fontSize: 11.5, color: '#d97706', marginTop: 6 }}>⚠️ Password must be changed during first login.</div>
+          {creds.password && (
+            <>
+              <div style={row}><span style={key}>Temporary Password:</span><code style={{ background: '#fef3c7', color: '#92400e', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>{creds.password}</code></div>
+              <div style={{ fontSize: 11.5, color: '#d97706', marginTop: 6 }}>⚠️ Password must be changed during first login.</div>
+            </>
+          )}
+          {!creds.password && (
+            <div style={{ fontSize: 11.5, color: '#2563eb', marginTop: 6 }}>ℹ️ Temporary password will be sent to the registered email.</div>
+          )}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
