@@ -34,7 +34,7 @@ export default function AmbulanceRoutes() {
   return (
     <Routes>
       {ambulanceRoutes}
-      <Route path="*" element={<Navigate to="." replace />} />
+      <Route path="*" element={<Navigate to="/ambulance" replace />} />
     </Routes>
   );
 }

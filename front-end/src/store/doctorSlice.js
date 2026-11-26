@@ -1,36 +1,66 @@
-import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+// Doctor portal state. Owner: Nikitha
+import { createAsyncThunk, createSlice, createSelector } from '@reduxjs/toolkit';
 import { Appointments, Auth, Leaves, Revenue, Users } from '../api';
-import { appointmentTime } from '../utils/format';
 import { updateSessionUser } from './authSlice';
-import { asList, requestState, thunk, track, upsert } from './repositoryState';
+import { upsert } from './repositoryState';
+import { appointmentTime } from '../utils/format';
+
+const msg = (err, fallback) => err?.message || fallback;
+const asList = (res) => (Array.isArray(res?.data) ? res.data : []);
+
+
+const thunk = (type, call, fallback) =>
+  createAsyncThunk(type, async (arg, { rejectWithValue }) => {
+    try {
+      return await call(arg);
+    } catch (err) {
+      return rejectWithValue(msg(err, fallback));
+    }
+  });
+
+
 
 export const fetchDoctorAppointments = thunk(
-  'doctor/fetchDoctorAppointments',
+  'doctor/fetchAppointments',
   async () => asList(await Appointments.mine()).sort((a, b) => appointmentTime(b) - appointmentTime(a)),
   'Could not load your appointments. Check that the backend is running.',
 );
 
 export const fetchDoctorStats = thunk(
-  'doctor/fetchDoctorStats',
+  'doctor/fetchStats',
   async () => (await Appointments.myStats())?.data || {},
   'Could not load your schedule. Check that the backend is running.',
 );
 
-export const createReferral = createAsyncThunk('doctor/createReferral', async (data) => (await Appointments.create(data)).data);
-
+// verb: 'confirm' | 'complete' | any other status string (goes through updateStatus).
 export const updateAppointmentStatus = thunk(
   'doctor/updateAppointmentStatus',
   async ({ id, verb }) => {
-    const result = verb === 'confirm' || verb === 'complete'
-      ? await Appointments[verb](id)
-      : await Appointments.updateStatus(id, verb);
-    return result.data;
+    if (verb === 'confirm' || verb === 'complete') await Appointments[verb](id);
+    else await Appointments.updateStatus(id, verb);
+    const status = { confirm: 'Confirmed', complete: 'Completed' }[verb] || verb;
+    return { id, status };
   },
   'Could not update the appointment',
 );
 
+export const fetchDoctorEarnings = thunk(
+  'doctor/fetchEarnings',
+  async () => (await Revenue.myEarnings())?.data || null,
+  'Could not load your earnings. Check that the backend is running.',
+);
+
+export const updateConsultationFee = thunk(
+  'doctor/updateConsultationFee',
+  async (fee) => {
+    await Revenue.updateMyConsultationFee(fee);
+    return fee;
+  },
+  'Could not save your fee',
+);
+
 export const fetchDoctorLeaves = thunk(
-  'doctor/fetchDoctorLeaves',
+  'doctor/fetchLeaves',
   async (doctorId) =>
     asList(await Leaves.list({ doctorId })).sort((a, b) => String(b.startDate).localeCompare(String(a.startDate))),
   'Could not load your leave requests. Check that the backend is running.',
@@ -51,29 +81,16 @@ export const deleteLeave = thunk(
   'Could not withdraw the request',
 );
 
-export const editPendingLeave = thunk('doctor/editPendingLeave', async ({ id, data }) =>
-  (await Leaves.editPending(id, data)).data, 'Could not update the leave request');
-
-export const fetchDoctorEarnings = thunk(
-  'doctor/fetchDoctorEarnings',
-  async () => (await Revenue.myEarnings())?.data || null,
-  'Could not load your earnings. Check that the backend is running.',
-);
-
-export const updateConsultationFee = thunk(
-  'doctor/updateConsultationFee',
-  async (fee) => {
-    await Revenue.updateMyConsultationFee(fee);
-    return fee;
-  },
-  'Could not save your fee',
-);
-
 export const fetchDoctorProfile = thunk(
-  'doctor/fetchDoctorProfile',
+  'doctor/fetchProfile',
   async (userId) => (await Auth.getCurrentUser(userId))?.data || null,
   'Could not load your profile',
 );
+
+export const createReferral = createAsyncThunk('doctor/createReferral', async (data) => (await Appointments.create(data)).data);
+
+export const editPendingLeave = thunk('doctor/editPendingLeave', async ({ id, data }) =>
+  (await Leaves.editPending(id, data)).data, 'Could not update the leave request');
 
 export const fetchReferralDoctors = createAsyncThunk('doctor/fetchReferralDoctors', async () => (await Users.getDoctors()).data || []);
 
@@ -95,54 +112,75 @@ export const enrichDoctorSession = createAsyncThunk('doctor/enrichDoctorSession'
   if (Object.keys(patch).length) dispatch(updateSessionUser(patch));
 });
 
-const slice = createSlice({
+/* ---------- slice ---------- */
+
+const sub = (extra) => ({ ...extra, loading: false, error: null });
+
+const initialState = {
+  appointments: sub({ list: [], filters: { status: '', search: '' } }),
+  referralDoctors: [],
+  stats: sub({ data: null }),
+  earnings: sub({ data: null }),
+  leaves: sub({ list: [] }),
+  profile: sub({ data: null }),
+};
+
+// pending → loading, rejected → error, fulfilled → apply(state, payload).
+const track = (builder, asyncThunk, key, apply) => {
+  builder
+    .addCase(asyncThunk.pending, (state) => { state[key].loading = true; state[key].error = null; })
+    .addCase(asyncThunk.rejected, (state, { payload }) => { state[key].loading = false; state[key].error = payload; })
+    .addCase(asyncThunk.fulfilled, (state, { payload }) => { state[key].loading = false; apply(state[key], payload); });
+};
+
+const doctorSlice = createSlice({
   name: 'doctor',
-  initialState: {
-    appointments: requestState({ list: [], filters: { status: '', search: '' } }),
-    stats: requestState({ data: null }),
-    leaves: requestState({ list: [] }),
-    earnings: requestState({ data: null }),
-    profile: requestState({ data: null }),
-    referralDoctors: [],
-  },
+  initialState,
   reducers: {
     setStatusFilter(state, { payload }) { state.appointments.filters.status = payload; },
     setSearch(state, { payload }) { state.appointments.filters.search = payload; },
   },
   extraReducers: (builder) => {
-    track(builder, fetchDoctorAppointments, (s) => s.appointments, (s, list) => { s.list = list; });
-    track(builder, fetchDoctorStats, (s) => s.stats, (s, stats) => { s.data = stats; });
-    builder.addCase(updateAppointmentStatus.fulfilled, (state, { payload }) => {
-      upsert(state.appointments.list, payload);
-    });
+    track(builder, fetchDoctorAppointments, 'appointments', (s, list) => { s.list = list; });
+    track(builder, fetchDoctorStats, 'stats', (s, stats) => { s.data = stats; });
+    track(builder, fetchDoctorEarnings, 'earnings', (s, data) => { s.data = data; });
+    track(builder, fetchDoctorLeaves, 'leaves', (s, list) => { s.list = list; });
+    track(builder, fetchDoctorProfile, 'profile', (s, data) => { s.data = data; });
 
-    track(builder, fetchDoctorLeaves, (s) => s.leaves, (s, list) => { s.list = list; });
+    // Mutations don't flip the page-level loading flag (the button shows its own busy state).
     builder
-      .addCase(requestLeave.fulfilled, (s, a) => upsert(s.leaves.list, a.payload))
-      .addCase(deleteLeave.fulfilled, (s, a) => { s.leaves.list = s.leaves.list.filter((row) => row.id !== a.payload); });
-    builder.addCase(editPendingLeave.fulfilled, (state, { payload }) => {
-      if (state.leaves.list.some((row) => row.id === payload.id)) upsert(state.leaves.list, payload);
-    });
-
-    track(builder, fetchDoctorEarnings, (s) => s.earnings, (s, data) => { s.data = data; });
-    builder.addCase(updateConsultationFee.fulfilled, (state, { payload }) => {
-      if (state.earnings.data) state.earnings.data.consultationFee = payload;
-    });
-
-    track(builder, fetchDoctorProfile, (s) => s.profile, (s, data) => { s.data = data; });
-    builder.addCase(fetchReferralDoctors.fulfilled, (state, { payload }) => { state.referralDoctors = payload; });
+      .addCase(fetchReferralDoctors.fulfilled, (state, { payload }) => { state.referralDoctors = payload; })
+      .addCase(editPendingLeave.fulfilled, (state, { payload }) => {
+        if (state.leaves.list.some((row) => row.id === payload.id)) upsert(state.leaves.list, payload);
+      })
+      .addCase(updateAppointmentStatus.fulfilled, (state, { payload }) => {
+        const apt = state.appointments.list.find((a) => a.id === payload.id);
+        if (apt) apt.status = payload.status;
+      })
+      .addCase(updateConsultationFee.fulfilled, (state, { payload }) => {
+        if (state.earnings.data) state.earnings.data.consultationFee = payload;
+      })
+      .addCase(requestLeave.fulfilled, (state, { payload }) => {
+        if (payload?.id) state.leaves.list.unshift(payload);
+      })
+      .addCase(deleteLeave.fulfilled, (state, { payload }) => {
+        state.leaves.list = state.leaves.list.filter((l) => l.id !== payload);
+      });
   },
 });
 
-export const { setStatusFilter, setSearch } = slice.actions;
+export const { setStatusFilter, setSearch } = doctorSlice.actions;
+
+/* ---------- selectors ---------- */
+
 export const selectDoctorAppointmentsState = (s) => s.doctor.appointments;
 export const selectDoctorAppointments = (s) => s.doctor.appointments.list;
 export const selectDoctorStats = (s) => s.doctor.stats.data;
-export const selectDoctorFilters = (s) => s.doctor.appointments.filters;
-export const selectDoctorLeaves = (s) => s.doctor.leaves;
-export const selectDoctorEarnings = (s) => s.doctor.earnings;
-export const selectDoctorProfile = (s) => s.doctor.profile;
 export const selectReferralDoctors = (s) => s.doctor.referralDoctors;
+export const selectDoctorFilters = (s) => s.doctor.appointments.filters;
+export const selectDoctorEarnings = (s) => s.doctor.earnings;
+export const selectDoctorLeaves = (s) => s.doctor.leaves;
+export const selectDoctorProfile = (s) => s.doctor.profile;
 
 export const selectFilteredDoctorAppointments = createSelector(
   [selectDoctorAppointments, selectDoctorFilters],
@@ -156,4 +194,4 @@ export const selectFilteredDoctorAppointments = createSelector(
   },
 );
 
-export default slice.reducer;
+export default doctorSlice.reducer;
