@@ -355,10 +355,6 @@ const superuserSlice = createSlice({
       })
       .addCase(rejectRegistration.fulfilled, (state, action) => {
         const hospital = state.registrations.list.find((item) => item.id === action.payload.id);
-        if (hospital) hospital.verificationStatus = 'rejected';
-      })
-      .addCase(rejectRegistration.fulfilled, (state, action) => {
-        const hospital = state.registrations.list.find((item) => item.id === action.payload.id);
         if (hospital) {
           hospital.verificationStatus = 'rejected';
           hospital.rejectionReason = action.payload.reason;
