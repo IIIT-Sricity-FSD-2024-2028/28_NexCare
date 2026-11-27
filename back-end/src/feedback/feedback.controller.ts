@@ -100,6 +100,9 @@ export class FeedbackController {
     const dto: any = { ...createFeedbackDto };
     if (this.isPatient(req)) {
       dto.patientId = req.user.patientId;
+    } else if (req.user.role === UserRole.ADMINISTRATIVE_STAFF) {
+      if (!req.user.hospitalId) throw new ForbiddenException('Your account has no assigned hospital.');
+      dto.hospitalId = req.user.hospitalId;
     }
     return this.feedbackService.create(dto);
   }
@@ -277,12 +280,19 @@ export class FeedbackController {
    * so ownership is checked here rather than trusted from the request.
    */
   private async assertMayEdit(req: any, id: string) {
-    if (!this.isPatient(req)) return;
+    const staff = req.user?.role === UserRole.ADMINISTRATIVE_STAFF;
+    if (!this.isPatient(req) && !staff) return;
 
     const existing: any = await this.feedbackService.findById(id);
     const row = existing?.data ?? existing;
     if (!row || !row.id) {
       throw new NotFoundException(`Feedback ${id} was not found.`);
+    }
+    if (staff) {
+      if (!req.user?.hospitalId || row.hospitalId !== req.user.hospitalId) {
+        throw new ForbiddenException('You can only change feedback for your assigned hospital.');
+      }
+      return;
     }
     if (row.patientId !== req.user?.patientId) {
       throw new ForbiddenException('You can only change your own feedback.');

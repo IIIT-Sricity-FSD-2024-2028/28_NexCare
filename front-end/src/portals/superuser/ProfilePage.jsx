@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { Auth } from '../../api';
-import { useAppSelector } from '../../store/hooks';
-import { selectUser } from '../../store/authSlice';
+import { changePassword as changePasswordAction, selectPasswordChangeLoading, selectUser } from '../../store/authSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { SuPage, useNotify } from './suShared';
 
 export default function ProfilePage() {
+  const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const saving = useAppSelector(selectPasswordChangeLoading);
   const notify = useNotify();
   const [pw, setPw] = useState({ current: '', next: '', confirm: '' });
-  const [saving, setSaving] = useState(false);
 
   async function changePassword(e) {
     e.preventDefault();
@@ -22,15 +22,12 @@ export default function ProfilePage() {
       return notify('New password and confirm password do not match', 'warning');
     }
 
-    setSaving(true);
     try {
-      await Auth.changePassword(pw.current, pw.next);
+      await dispatch(changePasswordAction({ currentPassword: pw.current, newPassword: pw.next })).unwrap();
       notify('Administrator password updated successfully', 'success');
       setPw({ current: '', next: '', confirm: '' });
     } catch (err) {
-      notify(`Failed to update password: ${err?.message || 'Unknown error'}`, 'error');
-    } finally {
-      setSaving(false);
+      notify(`Failed to update password: ${typeof err === 'string' ? err : err?.message || 'Unknown error'}`, 'error');
     }
   }
 

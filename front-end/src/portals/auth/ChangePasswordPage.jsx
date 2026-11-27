@@ -1,8 +1,7 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Auth } from '../../api';
-import { selectUser, userUpdated } from '../../store/authSlice';
+import { changePassword, selectPasswordChangeLoading, selectUser, updateSessionUser } from '../../store/authSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { selectChangePasswordForm, setChangePasswordAlert, setChangePasswordField } from '../../store/uiSlice';
 import { homeFor } from '../../utils/roles';
 import { AuthShell, describeError } from './AuthShell';
 
@@ -17,11 +16,8 @@ export default function ChangePasswordPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
-  const [currentPassword, setCurrent] = useState('');
-  const [newPassword, setNew] = useState('');
-  const [confirmPassword, setConfirm] = useState('');
-  const [alert, setAlert] = useState(null); // { type, msg }
-  const [busy, setBusy] = useState(false);
+  const busy = useAppSelector(selectPasswordChangeLoading);
+  const { current: currentPassword, next: newPassword, confirm: confirmPassword, alert } = useAppSelector(selectChangePasswordForm);
 
   const ruleLength = newPassword.length >= 6;
   const ruleMatch = Boolean(newPassword) && newPassword === confirmPassword;
@@ -29,22 +25,17 @@ export default function ChangePasswordPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (newPassword.length < 6) return setAlert({ type: 'error', msg: 'New password must be at least 6 characters long.' });
-    if (newPassword === DEFAULT_PASS) return setAlert({ type: 'error', msg: 'New password cannot be the temporary default password (NexCare@123).' });
-    if (newPassword !== confirmPassword) return setAlert({ type: 'error', msg: 'New password and confirm password do not match.' });
-    if (currentPassword === newPassword) return setAlert({ type: 'error', msg: 'New password must be different from current password.' });
-    setBusy(true);
+    if (newPassword.length < 6) return dispatch(setChangePasswordAlert({ type: 'error', msg: 'New password must be at least 6 characters long.' }));
+    if (newPassword === DEFAULT_PASS) return dispatch(setChangePasswordAlert({ type: 'error', msg: 'New password cannot be the temporary default password (NexCare@123).' }));
+    if (newPassword !== confirmPassword) return dispatch(setChangePasswordAlert({ type: 'error', msg: 'New password and confirm password do not match.' }));
+    if (currentPassword === newPassword) return dispatch(setChangePasswordAlert({ type: 'error', msg: 'New password must be different from current password.' }));
     try {
-      await Auth.changePassword(currentPassword, newPassword);
-      setAlert({ type: 'success', msg: 'Password updated successfully! Redirecting to your dashboard...' });
-      if (user) {
-        sessionStorage.setItem('nexcare_user_data', JSON.stringify({ ...user, mustChangePassword: false }));
-      }
-      dispatch(userUpdated({ mustChangePassword: false }));
+      await dispatch(changePassword({ currentPassword, newPassword })).unwrap();
+      dispatch(setChangePasswordAlert({ type: 'success', msg: 'Password updated successfully! Redirecting to your dashboard...' }));
+      if (user) dispatch(updateSessionUser({ mustChangePassword: false }));
       setTimeout(() => navigate(homeFor(user?.role || 'administrative_staff'), { replace: true }), 1200);
     } catch (err) {
-      setAlert({ type: 'error', msg: describeError(err) || 'Failed to update password. Please check your current password.' });
-      setBusy(false);
+      dispatch(setChangePasswordAlert({ type: 'error', msg: (typeof err === 'string' ? err : describeError(err)) || 'Failed to update password. Please check your current password.' }));
     }
     return undefined;
   }
@@ -68,16 +59,16 @@ export default function ChangePasswordPage() {
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Current (Temporary) Password *</label>
-          <input type="password" className="form-control" placeholder="Enter current / temporary password" required value={currentPassword} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" />
+          <input type="password" className="form-control" placeholder="Enter current / temporary password" required value={currentPassword} onChange={(e) => dispatch(setChangePasswordField({ key: 'current', value: e.target.value }))} autoComplete="current-password" />
         </div>
         <div className="form-group">
           <label>New Password *</label>
-          <input type="password" className="form-control" placeholder="Create a new password (min 6 characters)" required value={newPassword} onChange={(e) => setNew(e.target.value)} autoComplete="new-password" />
+          <input type="password" className="form-control" placeholder="Create a new password (min 6 characters)" required value={newPassword} onChange={(e) => dispatch(setChangePasswordField({ key: 'next', value: e.target.value }))} autoComplete="new-password" />
           <div style={{ fontSize: 11.5, color: '#64748b', marginTop: 4 }}>Cannot be the default password (<code>NexCare@123</code>).</div>
         </div>
         <div className="form-group">
           <label>Confirm New Password *</label>
-          <input type="password" className="form-control" placeholder="Re-enter new password" required value={confirmPassword} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" />
+          <input type="password" className="form-control" placeholder="Re-enter new password" required value={confirmPassword} onChange={(e) => dispatch(setChangePasswordField({ key: 'confirm', value: e.target.value }))} autoComplete="new-password" />
         </div>
         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, padding: '10px 14px', marginBottom: 18, fontSize: 12, color: '#475569' }}>
           <div style={ruleLength ? ok : idle}>{ruleLength ? '✓ Minimum 6 characters' : '● Minimum 6 characters'}</div>

@@ -47,6 +47,29 @@ export const reviewHospital = createAsyncThunk(
   },
 );
 
+const DETAIL_TAB_FETCHERS = {
+  staff: Hospitals.getHospitalDoctors,
+  beds: Hospitals.getHospitalBeds,
+  inventory: Hospitals.getHospitalInventory,
+  ambulances: Hospitals.getHospitalAmbulances,
+};
+
+const emptyDetailTab = () => ({ rows: [], loading: false, error: null, requestId: null, loaded: false });
+const emptyDetailTabs = () => ({
+  staff: emptyDetailTab(),
+  beds: emptyDetailTab(),
+  inventory: emptyDetailTab(),
+  ambulances: emptyDetailTab(),
+});
+
+function rowsForHospital(list, hospitalId) {
+  return (list || []).filter((row) => {
+    if (!row) return false;
+    const hid = row.hospitalId || row.hospital_id;
+    return !hid || hid === hospitalId;
+  });
+}
+
 export const fetchHospitalDetails = createAsyncThunk(
   'regionalOfficer/fetchHospitalDetails',
   async (id, { rejectWithValue }) => {
@@ -59,6 +82,39 @@ export const fetchHospitalDetails = createAsyncThunk(
       return { hospital: hospital.data, revenue: revenue.data };
     } catch (error) {
       return rejectWithValue(errorMessage(error, 'Could not load hospital details.'));
+    }
+  },
+);
+
+export const fetchHospitalDetailCounts = createAsyncThunk(
+  'regionalOfficer/fetchHospitalDetailCounts',
+  async (id, { rejectWithValue }) => {
+    try {
+      const [beds, inventory] = await Promise.all([
+        Hospitals.getHospitalBeds(id).then((res) => res.data || []).catch(() => []),
+        Hospitals.getHospitalInventory(id).then((res) => res.data || []).catch(() => []),
+      ]);
+      return { id, beds: rowsForHospital(beds, id), inventory: rowsForHospital(inventory, id) };
+    } catch (error) {
+      return rejectWithValue(errorMessage(error, 'Could not load hospital snapshot counts.'));
+    }
+  },
+);
+
+export const fetchHospitalDetailTab = createAsyncThunk(
+  'regionalOfficer/fetchHospitalDetailTab',
+  async ({ id, tab }, { rejectWithValue }) => {
+    const fetchTab = DETAIL_TAB_FETCHERS[tab];
+    if (!fetchTab) return rejectWithValue('Unknown hospital details tab.');
+    try {
+      const response = await fetchTab(id);
+      let rows = rowsForHospital(response.data, id);
+      if (tab === 'staff') {
+        rows = rows.filter((user) => String(user.role || '').toLowerCase() === 'doctor');
+      }
+      return { id, tab, rows };
+    } catch (error) {
+      return rejectWithValue(errorMessage(error, `Could not load ${tab}.`));
     }
   },
 );
@@ -173,9 +229,29 @@ export const fetchRoHospitalRevenue = createAsyncThunk(
 const initialState = {
   dashboard: { stats: null, loading: false, error: null, requestId: null },
   approvals: {
-    list: [], filter: 'pending_verification', loading: false, error: null, requestId: null,
+    list: [],
+    filter: 'pending_verification',
+    term: '',
+    busyId: null,
+    reject: null,
+    loading: false,
+    error: null,
+    requestId: null,
   },
-  hospitalDetails: { data: null, loading: false, error: null, requestId: null },
+  hospitalDetails: {
+    data: null,
+    loading: false,
+    error: null,
+    requestId: null,
+    hospitalId: null,
+    tab: 'overview',
+    counts: null,
+    countsLoading: false,
+    countsError: null,
+    countsRequestId: null,
+    tabs: emptyDetailTabs(),
+  },
+  profilePassword: { current: '', next: '' },
   comparison: {
     hospitals: [], selected: [], result: null, loading: false, error: null, requestId: null,
   },
@@ -187,9 +263,18 @@ const initialState = {
     error: null,
     requestId: null,
   },
-  complaints: { list: [], loading: false, error: null, requestId: null },
+  complaints: {
+    list: [],
+    filters: { status: 'all', category: 'all', hospital: 'all', term: '' },
+    editing: null,
+    saving: false,
+    loading: false,
+    error: null,
+    requestId: null,
+  },
   revenue: {
     data: null,
+    picked: '',
     loading: false,
     detailLoading: false,
     error: null,
@@ -205,6 +290,38 @@ const regionalOfficerSlice = createSlice({
   reducers: {
     setApprovalFilter: (state, action) => {
       state.approvals.filter = action.payload;
+    },
+    setApprovalTerm: (state, action) => {
+      state.approvals.term = action.payload;
+    },
+    setApprovalReject: (state, action) => {
+      state.approvals.reject = action.payload;
+    },
+    setApprovalRejectNotes: (state, action) => {
+      if (state.approvals.reject) state.approvals.reject.notes = action.payload;
+    },
+    setHospitalDetailsTab: (state, action) => {
+      state.hospitalDetails.tab = action.payload;
+    },
+    setProfilePasswordField: (state, action) => {
+      const { key, value } = action.payload;
+      if (Object.hasOwn(state.profilePassword, key)) state.profilePassword[key] = value;
+    },
+    clearProfilePassword: (state) => {
+      state.profilePassword = { current: '', next: '' };
+    },
+    setComplaintFilter: (state, action) => {
+      const { key, value } = action.payload;
+      if (Object.hasOwn(state.complaints.filters, key)) state.complaints.filters[key] = value;
+    },
+    setComplaintEditing: (state, action) => {
+      state.complaints.editing = action.payload;
+    },
+    setComplaintEditingStatus: (state, action) => {
+      if (state.complaints.editing) state.complaints.editing.status = action.payload;
+    },
+    setRevenuePicked: (state, action) => {
+      state.revenue.picked = action.payload;
     },
     setAlertFilter: (state, action) => {
       const { key, value } = action.payload;
@@ -256,15 +373,32 @@ const regionalOfficerSlice = createSlice({
         state.approvals.error = action.payload;
         state.approvals.requestId = null;
       })
+      .addCase(reviewHospital.pending, (state, action) => {
+        state.approvals.error = null;
+        state.approvals.busyId = action.meta.arg?.id || null;
+      })
       .addCase(reviewHospital.fulfilled, (state, action) => {
         const hospital = state.approvals.list.find((item) => item.id === action.payload.id);
         if (hospital) hospital.regionalReviewStatus = action.payload.decision;
+        if (state.approvals.busyId === action.payload.id) state.approvals.busyId = null;
+        state.approvals.reject = null;
+      })
+      .addCase(reviewHospital.rejected, (state, action) => {
+        state.approvals.error = action.payload;
+        state.approvals.busyId = null;
       })
       .addCase(fetchHospitalDetails.pending, (state, action) => {
         state.hospitalDetails.data = null;
         state.hospitalDetails.loading = true;
         state.hospitalDetails.error = null;
         state.hospitalDetails.requestId = action.meta.requestId;
+        state.hospitalDetails.hospitalId = action.meta.arg;
+        state.hospitalDetails.tab = 'overview';
+        state.hospitalDetails.counts = null;
+        state.hospitalDetails.countsLoading = false;
+        state.hospitalDetails.countsError = null;
+        state.hospitalDetails.countsRequestId = null;
+        state.hospitalDetails.tabs = emptyDetailTabs();
       })
       .addCase(fetchHospitalDetails.fulfilled, (state, action) => {
         if (state.hospitalDetails.requestId !== action.meta.requestId) return;
@@ -277,6 +411,59 @@ const regionalOfficerSlice = createSlice({
         state.hospitalDetails.loading = false;
         state.hospitalDetails.error = action.payload;
         state.hospitalDetails.requestId = null;
+      })
+      .addCase(fetchHospitalDetailCounts.pending, (state, action) => {
+        state.hospitalDetails.countsLoading = true;
+        state.hospitalDetails.countsError = null;
+        state.hospitalDetails.countsRequestId = action.meta.requestId;
+      })
+      .addCase(fetchHospitalDetailCounts.fulfilled, (state, action) => {
+        if (state.hospitalDetails.countsRequestId !== action.meta.requestId) return;
+        if (state.hospitalDetails.hospitalId !== action.payload.id) return;
+        state.hospitalDetails.counts = {
+          beds: action.payload.beds,
+          inventory: action.payload.inventory,
+        };
+        state.hospitalDetails.countsLoading = false;
+        state.hospitalDetails.countsRequestId = null;
+      })
+      .addCase(fetchHospitalDetailCounts.rejected, (state, action) => {
+        if (state.hospitalDetails.countsRequestId !== action.meta.requestId) return;
+        state.hospitalDetails.countsLoading = false;
+        state.hospitalDetails.countsError = action.payload;
+        state.hospitalDetails.countsRequestId = null;
+      })
+      .addCase(fetchHospitalDetailTab.pending, (state, action) => {
+        const tab = action.meta.arg?.tab;
+        if (!state.hospitalDetails.tabs[tab]) return;
+        state.hospitalDetails.tabs[tab].loading = true;
+        state.hospitalDetails.tabs[tab].error = null;
+        state.hospitalDetails.tabs[tab].requestId = action.meta.requestId;
+      })
+      .addCase(fetchHospitalDetailTab.fulfilled, (state, action) => {
+        const { id, tab, rows } = action.payload;
+        const current = state.hospitalDetails.tabs[tab];
+        if (!current || current.requestId !== action.meta.requestId) return;
+        if (state.hospitalDetails.hospitalId !== id) return;
+        current.rows = rows;
+        current.loading = false;
+        current.loaded = true;
+        current.requestId = null;
+        if (tab === 'beds' || tab === 'inventory') {
+          const counts = state.hospitalDetails.counts || { beds: [], inventory: [] };
+          state.hospitalDetails.counts = {
+            ...counts,
+            [tab]: rows,
+          };
+        }
+      })
+      .addCase(fetchHospitalDetailTab.rejected, (state, action) => {
+        const tab = action.meta.arg?.tab;
+        const current = state.hospitalDetails.tabs[tab];
+        if (!current || current.requestId !== action.meta.requestId) return;
+        current.loading = false;
+        current.error = action.payload;
+        current.requestId = null;
       })
       .addCase(fetchHospitalComparison.pending, (state, action) => {
         state.comparison.loading = true;
@@ -332,9 +519,19 @@ const regionalOfficerSlice = createSlice({
         state.complaints.error = action.payload;
         state.complaints.requestId = null;
       })
+      .addCase(updateComplaintStatus.pending, (state) => {
+        state.complaints.error = null;
+        state.complaints.saving = true;
+      })
       .addCase(updateComplaintStatus.fulfilled, (state, action) => {
         const complaint = state.complaints.list.find((item) => item.id === action.payload.id);
         if (complaint) complaint.status = action.payload.status;
+        state.complaints.saving = false;
+        state.complaints.editing = null;
+      })
+      .addCase(updateComplaintStatus.rejected, (state, action) => {
+        state.complaints.error = action.payload;
+        state.complaints.saving = false;
       })
       .addCase(fetchRoRevenue.pending, (state, action) => {
         state.revenue.loading = true;
@@ -346,6 +543,9 @@ const regionalOfficerSlice = createSlice({
         state.revenue.data = action.payload;
         state.revenue.loading = false;
         state.revenue.requestId = null;
+        if (!state.revenue.picked && action.payload.rows?.[0]?.hospitalId) {
+          state.revenue.picked = action.payload.rows[0].hospitalId;
+        }
       })
       .addCase(fetchRoRevenue.rejected, (state, action) => {
         if (state.revenue.requestId !== action.meta.requestId) return;
@@ -376,13 +576,28 @@ const regionalOfficerSlice = createSlice({
 export const {
   setAlertFilter,
   setApprovalFilter,
+  setApprovalTerm,
+  setApprovalReject,
+  setApprovalRejectNotes,
+  setHospitalDetailsTab,
+  setProfilePasswordField,
+  clearProfilePassword,
+  setComplaintFilter,
+  setComplaintEditing,
+  setComplaintEditingStatus,
+  setRevenuePicked,
   setComparisonSelection,
   toggleComparisonHospital,
 } = regionalOfficerSlice.actions;
 
 export const selectRoDashboard = (state) => state.regionalOfficer.dashboard;
+export const selectRoAssignedHospitalCount = (state) => {
+  const stats = state.regionalOfficer.dashboard.stats;
+  return stats?.summary?.assignedHospitals ?? stats?.hospitals?.length ?? 0;
+};
 export const selectRoApprovals = (state) => state.regionalOfficer.approvals;
 export const selectRoHospitalDetails = (state) => state.regionalOfficer.hospitalDetails;
+export const selectRoProfilePassword = (state) => state.regionalOfficer.profilePassword;
 export const selectRoComparison = (state) => state.regionalOfficer.comparison;
 export const selectRoAlerts = (state) => state.regionalOfficer.alerts;
 export const selectRoComplaints = (state) => state.regionalOfficer.complaints;

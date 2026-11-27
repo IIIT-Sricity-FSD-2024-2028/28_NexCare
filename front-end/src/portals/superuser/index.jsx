@@ -43,7 +43,7 @@ export default function SuperuserRoutes() {
   return (
     <Routes>
       {superuserRoutes}
-      <Route path="*" element={<Navigate to="." replace />} />
+      <Route path="*" element={<Navigate to="/superuser" replace />} />
     </Routes>
   );
 }

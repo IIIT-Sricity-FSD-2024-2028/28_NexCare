@@ -1,11 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Beds } from '../../api';
+import useConfirm from '../../hooks/useConfirm';
+import {
+  createBed,
+  deleteBed,
+  fetchBeds,
+  fetchPatientDirectory,
+  allocateBed,
+  updateBed,
+  setWard as setWardAction,
+  selectBeds,
+  selectStaffPatients,
+} from '../../store/staffSlice';
 import { useNotify } from '../../hooks/useNotify';
 import { errorMessage, findPatient, patientName } from './staffData';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-  fetchBeds, fetchPatientDirectory, allocateBed, setWard as setWardAction, selectBeds, selectStaffPatients,
-} from '../../store/staffSlice';
 
 // administrative_staff/bed-allocation.html + bed.js.
 
@@ -26,43 +34,6 @@ function displayBedName(b) {
   return m ? `Bed ${parseInt(m[1], 10)}` : `Bed ${b.id || '1'}`;
 }
 
-/**
- * Send a status change through the dedicated bed endpoints so it passes
- * BedStatusChangeMiddleware: allocate → occupied, release → available,
- * everything else via /status. (bed.js applyStatusChange, call for call.)
- */
-async function applyStatusChange(bed, target, patient) {
-  const id = bed.id;
-  const current = (bed.status || 'available').toLowerCase();
-
-  if (target === current) {
-    if ((target === 'occupied' || target === 'critical') && patient && patient !== bed.patient) {
-      await Beds.update(id, { status: target, patient });
-    }
-    return;
-  }
-  if (target === 'available') {
-    if (current === 'occupied' || current === 'critical') await Beds.release(id);
-    else await Beds.updateStatus(id, 'available');
-    return;
-  }
-  if (target === 'occupied' || target === 'critical') {
-    // No patient on the bed yet: allocate first, then escalate if needed.
-    // From maintenance the allocate call is what the middleware rejects,
-    // and its message explains the required maintenance -> available step.
-    if (!bed.patient) {
-      await Beds.allocate(id, { patientId: patient });
-      if (target === 'critical') await Beds.updateStatus(id, 'critical');
-      return;
-    }
-    if (patient && patient !== bed.patient) await Beds.update(id, { status: current, patient });
-    await Beds.updateStatus(id, target);
-    return;
-  }
-  // maintenance (rejected by the middleware while a patient is assigned)
-  await Beds.updateStatus(id, target);
-}
-
 export default function BedAllocationPage() {
   const notify = useNotify();
   const dispatch = useAppDispatch();
@@ -72,6 +43,9 @@ export default function BedAllocationPage() {
   const [view, setView] = useState('grid');
   const [search, setSearch] = useState('');
   const [update, setUpdate] = useState(null); // { bedId, patientId, patientName, status, error }
+  const { ask, dialog } = useConfirm();
+  const [newBed, setNewBed] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [admit, setAdmit] = useState(null); // { patientId, name, ward }
 
   // fetchBeds also snaps `ward` to a real ward when the current one has no beds.
@@ -139,7 +113,7 @@ export default function BedAllocationPage() {
       return;
     }
     try {
-      await applyStatusChange(bed, update.status, name);
+      await dispatch(updateBed({ bed, target: update.status, patient: name })).unwrap();
       await load();
       setUpdate(null);
     } catch (err) {
@@ -167,6 +141,31 @@ export default function BedAllocationPage() {
     }
   }
 
+  async function addBed(event) {
+    event.preventDefault();
+    setSaving(true);
+    try {
+      await dispatch(createBed({ id: newBed.id.trim(), ward: newBed.ward.trim() })).unwrap();
+      setNewBed(null);
+      notify('Bed added', 'success');
+    } catch (err) {
+      notify(errorMessage(err, 'Failed to add bed'), 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function removeBed(id) {
+    if (!(await ask('Remove this available bed?', { title: 'Remove bed', confirmLabel: 'Remove', danger: true }))) return;
+    try {
+      await dispatch(deleteBed(id)).unwrap();
+      setUpdate(null);
+      notify('Bed removed', 'success');
+    } catch (err) {
+      notify(errorMessage(err, 'Failed to remove bed'), 'error');
+    }
+  }
+
   const statusMeta = (b) => {
     const status = (b.status || 'available').toLowerCase();
     if (status === 'occupied') return { status, color: 'blue', text: 'Stable' };
@@ -190,6 +189,7 @@ export default function BedAllocationPage() {
           <h2>Patient Bed Management</h2>
           <div className="sub">💖 Compassionate care for every patient</div>
         </div>
+        <button type="button" className="btn-outline" onClick={() => setNewBed({ id: '', ward: wards[0] || '' })}>+ Add Bed</button>
         <button type="button" className="btn" onClick={() => setAdmit({ patientId: '', name: '', ward: wards[0] || '' })}>+ Admit Patient</button>
       </div>
 
@@ -287,6 +287,22 @@ export default function BedAllocationPage() {
         </div>
       </div>
 
+      {dialog}
+      {newBed && (
+        <div className="modal active">
+          <form className="card modal-card" onSubmit={addBed}>
+            <h3>Add Bed</h3>
+            <label htmlFor="newBedId">Bed ID</label>
+            <input id="newBedId" className="input" required value={newBed.id} onChange={(e) => setNewBed({ ...newBed, id: e.target.value })} />
+            <label htmlFor="newBedWard">Ward</label>
+            <input id="newBedWard" className="input" required value={newBed.ward} onChange={(e) => setNewBed({ ...newBed, ward: e.target.value })} />
+            <div className="modal-actions">
+              <button className="btn" disabled={saving}>Add Bed</button>
+              <button type="button" className="btn-outline" onClick={() => setNewBed(null)}>Cancel</button>
+            </div>
+          </form>
+        </div>
+      )}
       {update && (
         <div id="modal" className="modal active">
           <div className="card modal-card">
@@ -305,6 +321,8 @@ export default function BedAllocationPage() {
             <div id="bedModalHint" className="small" style={{ color: '#6b7280', marginTop: 6 }}>{update.hint}</div>
             {update.error && <div id="bedModalError" className="small" style={{ color: '#b91c1c', marginTop: 6 }}>{update.error}</div>}
             <div className="modal-actions">
+              {beds.find((bed) => bed.id === update.bedId)?.status?.toLowerCase() === 'available' &&
+                <button type="button" className="btn-outline" onClick={() => removeBed(update.bedId)}>Remove bed</button>}
               <button type="button" className="btn" onClick={saveBed}>Save</button>
               <button type="button" className="btn-outline" onClick={() => setUpdate(null)}>Cancel</button>
             </div>

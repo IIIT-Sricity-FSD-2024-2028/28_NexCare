@@ -43,7 +43,7 @@ export default function StaffRoutes() {
   return (
     <Routes>
       {staffRoutes}
-      <Route path="*" element={<Navigate to="." replace />} />
+      <Route path="*" element={<Navigate to="/staff" replace />} />
     </Routes>
   );
 }

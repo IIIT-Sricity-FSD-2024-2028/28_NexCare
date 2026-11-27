@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, fieldLabel, fieldInput } from '../../components/ui';
-import { Appointments, Users } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  fetchReferralDoctors,
+  selectReferralDoctors,
+  createReferral,
+} from '../../store/doctorSlice';
 import { useNotify } from '../../hooks/useNotify';
 import { DEFAULT_CONSULTATION_FEE, isoDate } from '../../utils/format';
 
@@ -14,7 +19,12 @@ const FALLBACK_DEPTS = ['Cardiology', 'Neurology', 'Orthopaedics', 'General Medi
  */
 export default function ReferPatientModal({ apt, onClose, onCreated }) {
   const notify = useNotify();
-  const [doctors, setDoctors] = useState([]);
+  const dispatch = useAppDispatch();
+  const directory = useAppSelector(selectReferralDoctors);
+  const hospitalId = apt?.hospitalId;
+  const doctors = useMemo(() => hospitalId
+    ? directory.filter((doctor) => !doctor.hospitalId || doctor.hospitalId === hospitalId)
+    : directory, [directory, hospitalId]);
   const [department, setDepartment] = useState('');
   const [doctorId, setDoctorId] = useState('');
   const [date, setDate] = useState('');
@@ -25,7 +35,6 @@ export default function ReferPatientModal({ apt, onClose, onCreated }) {
   // Reset the form and load the referable doctors whenever a new appointment is opened.
   useEffect(() => {
     if (!apt) return undefined;
-    let cancelled = false;
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     setDepartment('');
@@ -33,17 +42,8 @@ export default function ReferPatientModal({ apt, onClose, onCreated }) {
     setDate(isoDate(tomorrow));
     setTime('10:00 AM');
     setReason('');
-    setDoctors([]);
-    Users.doctors()
-      .then((res) => {
-        if (cancelled) return;
-        const list = Array.isArray(res?.data) ? res.data : [];
-        // Same hospital only — a referral stays inside the hospital that owns the booking.
-        setDoctors(apt.hospitalId ? list.filter((d) => !d.hospitalId || d.hospitalId === apt.hospitalId) : list);
-      })
-      .catch(() => { if (!cancelled) setDoctors([]); });
-    return () => { cancelled = true; };
-  }, [apt]);
+    dispatch(fetchReferralDoctors());
+  }, [apt, dispatch]);
 
   const departments = useMemo(() => {
     const set = Array.from(new Set(doctors.map((d) => d.dept).filter(Boolean)));
@@ -68,9 +68,8 @@ export default function ReferPatientModal({ apt, onClose, onCreated }) {
       const dateLabel = isNaN(d.getTime())
         ? date
         : d.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
-      await Appointments.create({
+      await dispatch(createReferral({
         patientId: apt.patientId,
-        patientName: apt.patientName,
         department,
         doctor: doctor.name,
         doctorId: doctor.id,
@@ -82,7 +81,7 @@ export default function ReferPatientModal({ apt, onClose, onCreated }) {
         reason: reason ? `Referral: ${reason}` : 'Referred follow-up consultation',
         parentAppointmentId: apt.id,
         status: 'Pending',
-      });
+      })).unwrap();
       notify('Referral appointment created (billed on completion)', 'success');
       onCreated?.();
       onClose();

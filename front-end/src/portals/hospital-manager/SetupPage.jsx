@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Beds, Inventory } from '../../api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addToast } from '../../store/toastSlice';
 import { selectUser } from '../../store/authSlice';
+import {
+  createHmBed,
+  createHmInventoryItem,
+  fetchHmBeds,
+  fetchHmInventoryCatalog,
+  selectHmBeds,
+  selectHmInventoryCatalog,
+} from '../../store/hospitalManagerSlice';
 import { LoadingCell } from './hmShared';
 import { StaffRegisterForm } from './StaffRegistration';
 
@@ -18,31 +25,25 @@ function BedsSection() {
   const dispatch = useAppDispatch();
   const hospitalId = useAppSelector(selectUser)?.hospitalId || '';
   const notify = (message, type) => dispatch(addToast({ message, type }));
-  const [beds, setBeds] = useState(null);
-  const [failed, setFailed] = useState('');
+  const bedsState = useAppSelector(selectHmBeds);
   const [form, setForm] = useState({ ward: 'General', id: '' });
   const [busy, setBusy] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      const res = await Beds.getAll({ hospitalId });
-      setBeds(Array.isArray(res.data) ? res.data : []);
-      setFailed('');
-    } catch (err) {
-      setFailed(err?.message || 'Failed to load infrastructure.');
-      setBeds([]);
-    }
-  }, [hospitalId]);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    if (hospitalId) dispatch(fetchHmBeds());
+  }, [dispatch, hospitalId]);
 
   async function submit(e) {
     e.preventDefault();
+    if (beds.some(b => b.id === form.id)) {
+      notify('Bed ID already exists. Choose a unique ID.', 'error');
+      return;
+    }
     setBusy(true);
     try {
-      await Beds.create({ id: form.id, ward: form.ward });
+      await dispatch(createHmBed({ id: form.id, ward: form.ward })).unwrap();
       notify('Bed registered successfully!', 'success');
       setForm({ ward: 'General', id: '' });
-      load();
     } catch (err) {
       notify(err?.message || 'Failed to register bed.', 'error');
     } finally {
@@ -50,10 +51,29 @@ function BedsSection() {
     }
   }
 
+  const beds = bedsState.list;
+  const failed = bedsState.error;
+  const loading = bedsState.loading && beds.length === 0;
+
   return (
     <div className="grid-2-col">
       <div className="card">
-        <div className="card-header"><h2>Register Ward / Add Beds</h2><p className="card-subtitle">Onboard new beds for your hospital.</p></div>
+        <div className="card-header flex-between">
+          <div>
+            <h2>Register Ward / Add Beds</h2>
+            <p className="card-subtitle">Onboard new beds for your hospital.</p>
+          </div>
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ padding: '6px 12px', fontSize: 12 }}
+            onClick={() => dispatch(fetchHmBeds())}
+            disabled={bedsState.loading}
+            title="Refresh bed list"
+          >
+            {bedsState.loading ? '⟳' : '🔄'}
+          </button>
+        </div>
         <div style={{ padding: 24 }}>
           <form onSubmit={submit} className="setup-form">
             <div className="form-group">
@@ -97,46 +117,44 @@ function InventorySection() {
   const dispatch = useAppDispatch();
   const hospitalId = useAppSelector(selectUser)?.hospitalId || '';
   const notify = (message, type) => dispatch(addToast({ message, type }));
-  const [items, setItems] = useState(null);
-  const [failed, setFailed] = useState('');
+  const catalogState = useAppSelector(selectHmInventoryCatalog);
   const blank = { name: '', category: 'Medication', quantity: '', minStock: '', unit: '', location: '' };
   const [form, setForm] = useState(blank);
   const [busy, setBusy] = useState(false);
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const load = useCallback(async () => {
-    try {
-      const res = await Inventory.getAll({ hospitalId });
-      setItems(Array.isArray(res.data) ? res.data : []);
-      setFailed('');
-    } catch (err) {
-      setFailed(err?.message || 'Failed to load inventory.');
-      setItems([]);
-    }
-  }, [hospitalId]);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    if (hospitalId) dispatch(fetchHmInventoryCatalog());
+  }, [dispatch, hospitalId]);
 
   async function submit(e) {
     e.preventDefault();
+    if (items.some(i => (i.name || i.itemName) === form.name)) {
+      notify('Item name already exists. Choose a unique name.', 'error');
+      return;
+    }
     setBusy(true);
     try {
-      await Inventory.create({
+      await dispatch(createHmInventoryItem({
         name: form.name,
         category: form.category,
         quantity: parseInt(form.quantity, 10),
         minStock: parseInt(form.minStock, 10),
         unit: form.unit,
         location: form.location,
-      });
+      })).unwrap();
       notify('Item added to catalog!', 'success');
       setForm(blank);
-      load();
     } catch (err) {
       notify(err?.message || 'Failed to add item.', 'error');
     } finally {
       setBusy(false);
     }
   }
+
+  const items = catalogState.list;
+  const failed = catalogState.error;
+  const loading = catalogState.loading && items.length === 0;
 
   return (
     <>
@@ -158,7 +176,21 @@ function InventorySection() {
       </div>
 
       <div className="card">
-        <div className="card-header"><h2>Current Stock Catalog</h2></div>
+        <div className="card-header flex-between">
+          <div>
+            <h2>Current Stock Catalog</h2>
+          </div>
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ padding: '6px 12px', fontSize: 12 }}
+            onClick={() => dispatch(fetchHmInventoryCatalog())}
+            disabled={catalogState.loading}
+            title="Refresh inventory catalog"
+          >
+            {catalogState.loading ? '⟳' : '🔄'}
+          </button>
+        </div>
         <div className="table-responsive">
           <table className="data-table">
             <thead><tr><th>Item Name</th><th>Category</th><th>Location</th><th>Stock Level</th><th>Status</th></tr></thead>
@@ -167,14 +199,12 @@ function InventorySection() {
               {!failed && items === null && <LoadingCell colSpan={5}>Loading inventory catalog...</LoadingCell>}
               {!failed && items && items.length === 0 && <tr><td colSpan={5} style={{ textAlign: 'center', color: '#6b7280' }}>Catalog is empty. Add items above.</td></tr>}
               {(items || []).map((item) => {
-                // Seeded items are itemName / minimumQuantity; created ones name / minStock.
-                const name = item.name || item.itemName;
-                const qty = Number(item.quantity ?? item.currentQuantity ?? 0);
-                const min = Number(item.minStock ?? item.minimumQuantity ?? 0);
+                const qty = Number(item.quantity ?? 0);
+                const min = Number(item.minStock ?? 0);
                 const low = qty <= min;
                 return (
                   <tr key={item.id}>
-                    <td><strong>{name}</strong><br /><small style={{ color: '#6b7280' }}>{item.id}</small></td>
+                    <td><strong>{item.name}</strong><br /><small style={{ color: '#6b7280' }}>{item.id}</small></td>
                     <td>{item.category}</td>
                     <td>{item.location || item.department || '—'}</td>
                     <td>{qty} {item.unit} <small style={{ color: '#6b7280' }}>(Min: {min})</small></td>

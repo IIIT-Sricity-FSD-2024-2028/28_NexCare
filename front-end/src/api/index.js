@@ -101,6 +101,7 @@ export const Billing = {
   getAll: (filters) => http.get(`/billing${typeof filters === 'string' ? q({ patientId: filters }) : query(filters, ['patientId', 'status', 'hospitalId'])}`),
   getById: (id) => http.get(`/billing/${enc(id)}`),
   create: (data) => http.post('/billing', data),
+  delete: (id) => http.delete('/billing/' + enc(id)),
   update: (id, data) => http.put(`/billing/${enc(id)}`, data),
   updateStatus: (id, status) => http.patch(`/billing/${enc(id)}/status`, { status }),
   markPaid: (id, paymentData) => http.patch(`/billing/${enc(id)}/pay`, paymentData),
@@ -147,11 +148,19 @@ export const Feedback = {
   getRegional: (filters = {}) => http.get(`/feedback/regional${query(filters, ['status', 'category', 'hospitalId'])}`),
 };
 
+export const Checkins = {
+  list: () => http.get('/checkins'),
+  create: (data) => http.post('/checkins', data),
+  update: (id, location) => http.patch('/checkins/' + enc(id), { location }),
+  delete: (id) => http.delete('/checkins/' + enc(id)),
+};
+
 export const Beds = {
   getAll: (filters = {}) => http.get(`/beds${query(filters, ['ward', 'status', 'hospitalId'])}`),
   getById: (id) => http.get(`/beds/${enc(id)}`),
   getAvailable: () => http.get('/beds/available'),
   create: (data) => http.post('/beds', data),
+  delete: (id) => http.delete('/beds/' + enc(id)),
   /** Accepts either a bare patientId string or a full payload object. */
   allocate: (id, allocation) =>
     http.patch(`/beds/${enc(id)}/allocate`, typeof allocation === 'string' ? { patientId: allocation } : allocation),
@@ -213,6 +222,10 @@ export const Hospitals = {
   getComparison: (hospitalIds) =>
     http.get(`/hospitals/regional/comparison${q({ ids: Array.isArray(hospitalIds) ? hospitalIds.join(',') : hospitalIds })}`),
   getMyHospitals: () => http.get('/hospitals/regional/my-hospitals'),
+  getHospitalDoctors: (id) => http.get(`/hospitals/${enc(id)}/doctors`),
+  getHospitalBeds: (id) => http.get(`/hospitals/${enc(id)}/beds`),
+  getHospitalInventory: (id) => http.get(`/hospitals/${enc(id)}/inventory`),
+  getHospitalAmbulances: (id) => http.get(`/hospitals/${enc(id)}/ambulances`),
 };
 
 // The backend scopes GET by the caller's role: a regional_manager sees requests
@@ -231,6 +244,7 @@ export const Leaves = {
   update: (id, data) => http.patch(`/leaves/${enc(id)}`, data),
   delete: (id) => http.delete(`/leaves/${enc(id)}`),
   remove: (id) => Leaves.delete(id),
+  editPending: (id, data) => http.put("/leaves/" + enc(id) + "/details", data),
   getCalendarView: (filters = {}) => http.get(`/leaves/calendar${query(filters, ['hospitalId', 'startDate', 'endDate'])}`),
   approve: (id) => http.patch(`/leaves/${enc(id)}`, { status: 'approved' }),
   reject: (id, rejectionReason) => http.patch(`/leaves/${enc(id)}`, { status: 'rejected', rejectionReason }),
@@ -298,6 +312,7 @@ export const Payments = {
 export const Schedules = {
   getAll: (filters = {}) => http.get(`/schedules${query(filters, ['hospitalId', 'status'])}`),
   create: (data) => http.post('/schedules', data),
+  editPending: (id, data) => http.put('/schedules/' + enc(id) + '/details', data),
   update: (id, data) => http.patch(`/schedules/${enc(id)}`, data),
   delete: (id) => http.delete(`/schedules/${enc(id)}`),
 };
@@ -330,6 +345,7 @@ export const Uploads = {
   upload: ({ file, entityType, entityId, description }) =>
     http.upload('/uploads', { file, entityType, entityId, description }),
   delete: (id) => http.delete(`/uploads/${enc(id)}`),
+  editDescription: (id, description) => http.patch('/uploads/' + enc(id) + '/description', { description }),
   async download(id) {
     const res = await fetch(`${BASE_URL}/uploads/${enc(id)}/download`, {
       headers: { Authorization: `Bearer ${getAuthToken()}` },

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SchedulesService } from './schedules.service';
 import { CreateHospitalScheduleDto, UpdateHospitalScheduleDto } from './interfaces/schedule.interface';
@@ -55,6 +55,13 @@ export class SchedulesController {
     if (!dto.hospitalId) dto.hospitalId = req.user?.hospitalId;
     dto.submittedBy = req.user?.sub || req.user?.id || dto.submittedBy;
     return this.schedulesService.create(dto);
+  }
+
+  @Put(':id/details')
+  @Roles(UserRole.ADMINISTRATIVE_STAFF)
+  @ApiOperation({ summary: 'Edit a pending hospital schedule' })
+  editPending(@Req() req: any, @Param('id') id: string, @Body() dto: CreateHospitalScheduleDto) {
+    return this.schedulesService.editPending(id, req.user?.hospitalId, dto);
   }
 
   @Patch(':id')

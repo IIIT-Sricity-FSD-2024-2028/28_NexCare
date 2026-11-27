@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addToast } from '../../store/toastSlice';
-import { selectAmbulanceRequests } from '../../store/ambulanceSlice';
-import { isCompleted, isHistory, isPending, priorityOf } from '../../features/ambulance/transportSteps';
+import { selectAmbulanceRequests, selectCompletedTransports, selectPendingRequests } from '../../store/ambulanceSlice';
+import { isCompleted, isPending, priorityOf } from '../../features/ambulance/transportSteps';
 import { EmptyState, ICON_PATH, PageHeader, PriorityBadge, StatusBadge, locationOf, patientOf } from './ambulanceShared';
 
 // #completed-transports-page: the three counters, the history table and the
@@ -14,19 +14,18 @@ const csvCell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
 export default function CompletedTransportsPage() {
   const dispatch = useAppDispatch();
   const requestsState = useAppSelector(selectAmbulanceRequests);
-  const requests = requestsState.list;
+  const history = useAppSelector(selectCompletedTransports);
+  const pending = useAppSelector(selectPendingRequests);
   const loaded = requestsState.loaded;
   const notify = (message, type) => dispatch(addToast({ message, type }));
-  const history = requests.filter(isHistory).sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
-  const completed = history.filter(isCompleted);
-  const pendingCount = requests.filter(isPending).length;
-  const latest = completed[0];
+  const pendingCount = pending.length;
+  const latest = history[0];
   const completedAt = (t) => (t.completedDate && t.completedTime ? `${t.completedDate} at ${t.completedTime}` : t.completedDate || t.completedTime || '');
 
   function exportCsv() {
-    if (completed.length === 0) { notify('No completed transports to export', 'warning'); return; }
+    if (history.length === 0) { notify('No completed transports to export', 'warning'); return; }
     const headers = ['Transport ID', 'Patient Name', 'Pickup Location', 'Completed Date', 'Completed Time', 'Priority Level', 'Status'];
-    const rows = completed.map((t) => [t.id, patientOf(t), locationOf(t), t.completedDate || '', t.completedTime || '', priorityOf(t), t.status].map(csvCell).join(','));
+    const rows = history.map((t) => [t.id, patientOf(t), locationOf(t), t.completedDate || '', t.completedTime || '', priorityOf(t), t.status].map(csvCell).join(','));
     const csv = [headers.join(','), ...rows].join('\n');
     const filename = `completed-transports-${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.csv`;
     try {

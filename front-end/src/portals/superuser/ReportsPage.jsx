@@ -66,7 +66,7 @@ function recentMonthKeys(count) {
 
 const legendTop = { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } };
 
-function StatCard({ label, value, trend, trendClass = 'trend-up', valueStyle }) {
+function StatCard({ label, value, trend, trendClass = 'trend-neutral', valueStyle }) {
   return (
     <div className="stat-card">
       <p className="stat-label">{label}</p>
@@ -114,13 +114,13 @@ export default function ReportsPage() {
   const dispatch = useAppDispatch();
   const { data: reportData, loading, error } = useAppSelector(selectReports);
 
-  useEffect(() => { dispatch(fetchReports()); }, [dispatch, tab, range]);
+  useEffect(() => { dispatch(fetchReports(Number(range))); }, [dispatch, range]);
 
   const usage = reportData?.usage || null;
   const perf = reportData?.performance || null;
   const ops = reportData?.operational || null;
   const sec = reportData?.security || null;
-  const latency = [];
+  const latency = reportData?.latency || [];
 
   function switchTab(name) {
     setParams(name === 'usage' ? {} : { tab: name }, { replace: true });
@@ -132,6 +132,9 @@ export default function ReportsPage() {
         <div>
           <h1>Analytics Dashboard</h1>
           <p style={{ margin: '5px 0 0', color: 'var(--text-muted)', fontSize: 14 }}>Comprehensive portal performance and operational metrics.</p>
+          <p style={{ margin: '5px 0 0', color: '#64748B', fontSize: 12 }}>
+            The selected range filters platform revenue and audit events. Directory, operational, and health metrics are current snapshots; the revenue chart shows six monthly periods.
+          </p>
         </div>
         <div className="date-filter">
           <select id="dateRange" value={range} onChange={(e) => setRange(e.target.value)}>
@@ -142,6 +145,9 @@ export default function ReportsPage() {
           </select>
         </div>
       </div>
+
+      {error && <div role="alert" style={{ margin: '0 0 16px', padding: 12, borderRadius: 8, color: '#B91C1C', background: '#FEF2F2' }}>{error}</div>}
+      {loading && <p role="status" style={{ margin: '0 0 12px', color: '#64748B', fontSize: 13 }}>Refreshing report data…</p>}
 
       <div className="tab-container">
         {TABS.map(([key, label]) => (
@@ -233,10 +239,10 @@ function UsageSection({ data }) {
   return (
     <div id="usage-section" className="report-section active">
       <div className="stats-grid">
-        <StatCard label="Active User Accounts" value={d ? (users.length ? users.filter((u) => u.status === 'Active').length : null) : '--'} trend="↑ 12% vs last period" />
-        <StatCard label="Total Platform Revenue" value={d ? (streams ? inrCompact(streams.totalRevenue) : null) : '--'} trend="↑ 18.5% Growth" />
-        <StatCard label="Care+ Subscribers" value={d ? (patPlans.length ? activePaid.length : null) : '--'} trend="↑ Active Plans" />
-        <StatCard label="Hospitals on a Plan" value={d ? (typeof billedHospitals === 'number' ? billedHospitals : null) : '--'} trend="Active Network" />
+        <StatCard label="Active User Accounts" value={d ? (users.length ? users.filter((u) => u.status === 'Active').length : null) : '--'} trend="Current directory snapshot" />
+        <StatCard label="Total Platform Revenue" value={d ? (streams ? inrCompact(streams.totalRevenue) : null) : '--'} trend={`Selected ${d?.rangeDays || 30}-day period`} />
+        <StatCard label="Care+ Subscribers" value={d ? (patPlans.length ? activePaid.length : null) : '--'} trend="Current active paid plans" />
+        <StatCard label="Hospitals on a Plan" value={d ? (typeof billedHospitals === 'number' ? billedHospitals : null) : '--'} trend="Current billed hospitals" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 20, marginBottom: 24 }}>
@@ -287,25 +293,25 @@ function PerformanceSection({ data, latency }) {
   return (
     <div id="performance-section" className="report-section active">
       <div className="stats-grid">
-        <StatCard label="API Response Time" value={v((x) => x.apiResponseTime)} trend="Operational" />
-        <StatCard label="System Uptime" value={v((x) => x.systemUptime)} trend="99.98% Available" />
-        <StatCard label="Database Status" value={v((x) => x.databaseStatus)} trend="JSON Data Stores" valueStyle={{ fontSize: 16 }} />
-        <StatCard label="Active Ambulances" value={v((x) => (x.activeAmbulances != null ? `${x.activeAmbulances} Units` : null))} trend="Fleet Ready" />
+        <StatCard label="API Response Time" value={v((x) => x.apiResponseTime)} trend="Reported by health endpoint" />
+        <StatCard label="System Uptime" value={v((x) => x.systemUptime)} trend="Reported by health endpoint" />
+        <StatCard label="Database Status" value={v((x) => x.databaseStatus)} trend="Reported by health endpoint" valueStyle={{ fontSize: 16 }} />
+        <StatCard label="Active Ambulances" value={v((x) => (x.activeAmbulances != null ? `${x.activeAmbulances} Units` : null))} trend="Current health snapshot" />
       </div>
 
       <div className="performance-grid">
         {[
-          ['API Status', v((x) => x.apiStatus) ?? (loaded ? FALLBACK : 'Operational'), 'Healthy', { fontSize: 15, color: '#16A34A' }],
-          ['Memory Usage', v((x) => x.memoryUsage) ?? FALLBACK, 'Normal'],
-          ['Registered Hospitals', v((x) => (x.activeHospitals != null ? `${x.activeHospitals} Active (${x.pendingApprovals ?? 0} Pending)` : null)) ?? FALLBACK, 'Active'],
-          ['Node Runtime', v((x) => x.nodeVersion) ?? (loaded ? FALLBACK : 'v24.19.0'), 'Verified', { fontSize: 15 }],
-        ].map(([label, value, status, style]) => (
+          ['API Status', v((x) => x.apiStatus), { fontSize: 15 }],
+          ['Memory Usage', v((x) => x.memoryUsage), undefined],
+          ['Registered Hospitals', v((x) => (x.activeHospitals != null ? `${x.activeHospitals} Active (${x.pendingApprovals ?? 0} Pending)` : null)), undefined],
+          ['Node Runtime', v((x) => x.nodeVersion), { fontSize: 15 }],
+        ].map(([label, value, style]) => (
           <div className="performance-item" key={label}>
             <div>
               <div className="perf-label">{label}</div>
               <div className="perf-value" style={style}>{value}</div>
             </div>
-            <span className="perf-status status-good">{status}</span>
+            <span className="perf-status">{loaded && value !== FALLBACK ? 'Reported' : 'Unavailable'}</span>
           </div>
         ))}
       </div>
@@ -348,10 +354,10 @@ function OperationalSection({ data }) {
   return (
     <div id="operational-section" className="report-section active">
       <div className="stats-grid">
-        <StatCard label="Total Patients" value={!d ? '--' : d.patients ? d.patients.length : null} trend="↑ Live Directory" />
-        <StatCard label="Hospital Network Health" value={!d ? '--' : hospitals.length ? `${verified} / ${hospitals.length} Verified` : null} trend="Verified Hospitals" />
-        <StatCard label="Avg Feedback Rating" value={!d ? '--' : rated.length ? `⭐ ${(rated.reduce((s, f) => s + f.rating, 0) / rated.length).toFixed(1)} / 5.0` : null} trend="⭐ 4.8 / 5.0" />
-        <StatCard label="Dispatches Completed" value={!d ? '--' : trips.length ? `${completedTrips} / ${trips.length} Dispatches Completed` : null} trend="100% Online" />
+        <StatCard label="Total Patients" value={!d ? '--' : d.patients ? d.patients.length : null} trend="Current patient directory" />
+        <StatCard label="Hospital Network Health" value={!d ? '--' : hospitals.length ? `${verified} / ${hospitals.length} Verified` : null} trend="Current verification status" />
+        <StatCard label="Avg Feedback Rating" value={!d ? '--' : rated.length ? `⭐ ${(rated.reduce((s, f) => s + f.rating, 0) / rated.length).toFixed(1)} / 5.0` : null} trend={`${rated.length} rated feedback entries`} />
+        <StatCard label="Dispatches Completed" value={!d ? '--' : trips.length ? `${completedTrips} / ${trips.length} Dispatches Completed` : null} trend="Current dispatch records" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
@@ -370,7 +376,6 @@ function OperationalSection({ data }) {
         <div style={{ height: 260, position: 'relative' }}><ChartCanvas id="regionalComplianceCanvas" spec={feedbackSpec} /></div>
       </div>
 
-      {/* reports.js never filled this table; the HTML page showed its loading row forever. Kept as it was. */}
       <div className="data-table-container">
         <div className="table-header"><h3>Department Performance</h3></div>
         <table className="data-table">
@@ -378,7 +383,7 @@ function OperationalSection({ data }) {
             <tr><th>Department</th><th>Active Staff</th><th>Patient Interactions</th><th>Avg Response Time</th><th>Performance Score</th></tr>
           </thead>
           <tbody id="departmentPerformanceTable">
-            <tr><td colSpan={5} className="loading-spinner">Loading department data...</td></tr>
+            <tr><td colSpan={5} style={{ textAlign: 'center', color: '#64748B', padding: 18 }}>Department-level performance data is not provided by the available report APIs.</td></tr>
           </tbody>
         </table>
       </div>
@@ -506,10 +511,10 @@ function SecuritySection({ data }) {
   return (
     <div id="security-section" className="report-section active">
       <div className="stats-grid">
-        <StatCard label="Failed Login Attempts" value={stat(() => activities.filter(isFailedLogin).length)} trend="↓ 8% vs last period" trendClass="trend-down" />
-        <StatCard label="Security Incidents" value={stat(() => activities.filter((a) => String(a.severity || '').toUpperCase() === 'HIGH').length)} trend="→ Resolved" trendClass="trend-neutral" />
-        <StatCard label="Credential & Record Changes" value={stat(() => activities.filter((a) => /passwordchange|password reset|update/i.test(a.action || '')).length)} trend="→ Normal" trendClass="trend-neutral" />
-        <StatCard label="Data Access Logs" value={stat(() => activities.length.toLocaleString('en-IN'))} trend="↑ 12% vs last period" />
+        <StatCard label="Failed Login Attempts" value={stat(() => activities.filter(isFailedLogin).length)} trend="Events in selected period" />
+        <StatCard label="Security Incidents" value={stat(() => activities.filter((a) => String(a.severity || '').toUpperCase() === 'HIGH').length)} trend="High-severity events in selected period" />
+        <StatCard label="Credential & Record Changes" value={stat(() => activities.filter((a) => /passwordchange|password reset|update/i.test(a.action || '')).length)} trend="Matching audit entries in selected period" />
+        <StatCard label="Data Access Logs" value={stat(() => activities.length.toLocaleString('en-IN'))} trend="Events in selected period" />
       </div>
 
       <div className="data-table-container">

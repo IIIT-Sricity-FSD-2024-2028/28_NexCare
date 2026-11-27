@@ -43,7 +43,7 @@ export default function PatientDirectoryPage() {
     if (!(await ask('WARNING: Are you sure you want to permanently delete this patient from the NexCare records?', { title: 'Delete patient', confirmLabel: 'OK', danger: true }))) return;
     try {
       await dispatch(deleteUser(p._userId)).unwrap();
-      logActivity('Delete', 'Patient Directory', `Full deletion of patient: ${p.fullName} (ID: ${p.id})`);
+      dispatch(logActivity('Delete', 'Patient Directory', `Full deletion of patient: ${p.fullName} (ID: ${p.id})`));
       notify('Patient deleted successfully', 'success');
     } catch (err) {
       console.error('Delete patient failed:', err);

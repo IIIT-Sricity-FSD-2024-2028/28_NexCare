@@ -1,6 +1,16 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Auth } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  resetForgotPassword,
+  selectForgotPassword,
+  selectResetForgotPassword,
+  selectVerifyForgotPassword,
+  setForgotConfirmError,
+  setForgotError,
+  setForgotField,
+  toggleForgotVisibility,
+  verifyForgotPassword,
+} from '../../store/uiSlice';
 import '../../styles/forgot-password.css';
 
 // front-end/auth/forgot-password.html — two steps: verify the email exists,
@@ -37,50 +47,40 @@ const ErrorBox = ({ text }) => text ? (
 ) : null;
 
 export default function ForgotPasswordPage() {
-  const [step, setStep] = useState(1); // 1 verify, 2 reset, 3 success
-  const [email, setEmail] = useState('');
-  const [newPwd, setNewPwd] = useState('');
-  const [confirmPwd, setConfirmPwd] = useState('');
-  const [showNew, setShowNew] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [error, setError] = useState('');
-  const [confirmError, setConfirmError] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const dispatch = useAppDispatch();
+  const verifyState = useAppSelector(selectVerifyForgotPassword);
+  const resetState = useAppSelector(selectResetForgotPassword);
+  const {
+    step, email, newPwd, confirmPwd, showNew, showConfirm, error, confirmError,
+  } = useAppSelector(selectForgotPassword);
+  const busy = verifyState.loading || resetState.loading;
 
   const masked = email.replace(/(.{2})(.*)(@.*)/, (_, a, b, c) => a + '*'.repeat(b.length) + c);
   const lvl = strength(newPwd);
 
   async function verify(e) {
     e.preventDefault();
-    setError('');
-    setBusy(true);
+    dispatch(setForgotError(''));
     try {
-      await Auth.forgotPasswordVerify(email.trim());
-      setStep(2);
-    } catch (err) {
-      setError(err.status === 0 ? 'Unable to reach NexCare server. Please try again.' : err.message || 'No account found with this email address.');
-    } finally {
-      setBusy(false);
+      await dispatch(verifyForgotPassword(email.trim())).unwrap();
+    } catch {
+      // error text is stored on the forgot-password slice
     }
   }
 
   async function reset(e) {
     e.preventDefault();
-    setError('');
-    if (newPwd.length < 8) return setError('Password must be at least 8 characters.');
+    dispatch(setForgotError(''));
+    if (newPwd.length < 8) return dispatch(setForgotError('Password must be at least 8 characters.'));
     if (newPwd !== confirmPwd) {
-      setConfirmError(true);
-      return setError('Passwords do not match.');
+      dispatch(setForgotConfirmError(true));
+      return dispatch(setForgotError('Passwords do not match.'));
     }
-    setConfirmError(false);
-    setBusy(true);
+    dispatch(setForgotConfirmError(false));
     try {
-      await Auth.forgotPasswordReset(email.trim(), newPwd);
-      setStep(3);
-    } catch (err) {
-      setError(err.status === 0 ? 'Unable to reach NexCare server. Please try again.' : err.message || 'Password reset failed. Please try again.');
-    } finally {
-      setBusy(false);
+      await dispatch(resetForgotPassword({ email: email.trim(), newPassword: newPwd })).unwrap();
+    } catch {
+      // error text is stored on the forgot-password slice
     }
     return undefined;
   }
@@ -119,7 +119,7 @@ export default function ForgotPasswordPage() {
               <form onSubmit={verify}>
                 <div className="form-group">
                   <label htmlFor="emailInput">Email Address</label>
-                  <input type="email" id="emailInput" placeholder="e.g. priya.sharma@email.com" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <input type="email" id="emailInput" placeholder="e.g. priya.sharma@email.com" required autoComplete="email" value={email} onChange={(e) => dispatch(setForgotField({ key: 'email', value: e.target.value }))} />
                   <p className="field-hint">Enter the email linked to your NexCare account.</p>
                 </div>
                 <button type="submit" className="btn-primary" disabled={busy}>
@@ -141,8 +141,8 @@ export default function ForgotPasswordPage() {
                 <div className="form-group">
                   <label htmlFor="newPassword">New Password</label>
                   <div className="input-group">
-                    <input type={showNew ? 'text' : 'password'} id="newPassword" placeholder="Min. 8 characters" required autoComplete="new-password" value={newPwd} onChange={(e) => setNewPwd(e.target.value)} />
-                    <button type="button" className="toggle-password" title="Show/hide password" onClick={() => setShowNew((v) => !v)}><EyeIcon off={showNew} /></button>
+                    <input type={showNew ? 'text' : 'password'} id="newPassword" placeholder="Min. 8 characters" required autoComplete="new-password" value={newPwd} onChange={(e) => dispatch(setForgotField({ key: 'newPwd', value: e.target.value }))} />
+                    <button type="button" className="toggle-password" title="Show/hide password" onClick={() => dispatch(toggleForgotVisibility('showNew'))}><EyeIcon off={showNew} /></button>
                   </div>
                   <div className="strength-bar"><div className="strength-fill" style={{ width: lvl.pct, background: lvl.color }} /></div>
                   <div className="strength-text" style={{ color: lvl.color }}>{lvl.label}</div>
@@ -150,8 +150,8 @@ export default function ForgotPasswordPage() {
                 <div className="form-group">
                   <label htmlFor="confirmPassword">Confirm Password</label>
                   <div className="input-group">
-                    <input type={showConfirm ? 'text' : 'password'} id="confirmPassword" className={confirmError ? 'error' : undefined} placeholder="Re-enter new password" required autoComplete="new-password" value={confirmPwd} onChange={(e) => setConfirmPwd(e.target.value)} />
-                    <button type="button" className="toggle-password" title="Show/hide password" onClick={() => setShowConfirm((v) => !v)}><EyeIcon off={showConfirm} /></button>
+                    <input type={showConfirm ? 'text' : 'password'} id="confirmPassword" className={confirmError ? 'error' : undefined} placeholder="Re-enter new password" required autoComplete="new-password" value={confirmPwd} onChange={(e) => dispatch(setForgotField({ key: 'confirmPwd', value: e.target.value }))} />
+                    <button type="button" className="toggle-password" title="Show/hide password" onClick={() => dispatch(toggleForgotVisibility('showConfirm'))}><EyeIcon off={showConfirm} /></button>
                   </div>
                 </div>
                 <button type="submit" className="btn-primary" disabled={busy}>

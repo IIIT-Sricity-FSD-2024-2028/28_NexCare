@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import Header from '../../components/layout/Header';
-import { http } from '../../api/client';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
+  fetchHospitalDetailCounts,
   fetchHospitalDetails,
+  fetchHospitalDetailTab,
   selectRoHospitalDetails,
+  setHospitalDetailsTab,
 } from '../../store/regionalOfficerSlice';
 import '../../styles/regional-details.css';
 
@@ -19,18 +21,8 @@ const TABS = [
   ['inventory', 'Inventory'], ['ambulances', 'Ambulances'],
 ];
 
-const enc = encodeURIComponent;
 const lower = (v) => String(v || '').toLowerCase();
 const na = (v) => (v === undefined || v === null || v === '' ? 'N/A' : v);
-
-/** Rows of one sub-resource, or null when the record lacks a hospital id. */
-function forHospital(list, hospitalId) {
-  return (list || []).filter((r) => {
-    if (!r) return false;
-    const hid = r.hospitalId || r.hospital_id;
-    return !hid || hid === hospitalId;
-  });
-}
 
 function bedCounts(beds) {
   return {
@@ -51,17 +43,10 @@ export default function HospitalDetailsPage() {
   const [params] = useSearchParams();
   const id = params.get('id');
   const dispatch = useAppDispatch();
-  const { data, loading, error } = useAppSelector(selectRoHospitalDetails);
-  const [tab, setTab] = useState('overview');
-  const [counts, setCounts] = useState(null); // { beds:{…}, inventory:n }
-  // Per-tab state: { loading, error, rows }
-  const [tabs, setTabs] = useState({});
+  const { data, loading, error, counts: countRows, tabs, tab } = useAppSelector(selectRoHospitalDetails);
 
   useEffect(() => {
     if (!id) return undefined;
-    setCounts(null);
-    setTabs({});
-    setTab('overview');
     dispatch(fetchHospitalDetails(id));
     return undefined;
   }, [dispatch, id]);
@@ -79,40 +64,15 @@ export default function HospitalDetailsPage() {
 
   useEffect(() => {
     if (!id || !hospital) return undefined;
-    let cancelled = false;
-    (async () => {
-      // Actual bed and inventory counts from the database rather than the static hospital record.
-      const [beds, inventory] = await Promise.all([
-        http.get(`/hospitals/${enc(id)}/beds`).then((r) => r.data || []).catch((e) => { console.warn('Failed to load beds data:', e); return []; }),
-        http.get(`/hospitals/${enc(id)}/inventory`).then((r) => r.data || []).catch((e) => { console.warn('Failed to load inventory data:', e); return []; }),
-      ]);
-      if (cancelled) return;
-      setCounts({ beds: bedCounts(beds), inventory: inventory.length });
-    })();
-    return () => { cancelled = true; };
-  }, [hospital, id]);
+    dispatch(fetchHospitalDetailCounts(id));
+    return undefined;
+  }, [dispatch, hospital, id]);
 
-  // The four lazy tabs: fetch when opened, every time.
   useEffect(() => {
     if (!id || tab === 'overview') return undefined;
-    let cancelled = false;
-    setTabs((t) => ({ ...t, [tab]: { loading: true } }));
-    const path = { staff: 'doctors', beds: 'beds', inventory: 'inventory', ambulances: 'ambulances' }[tab];
-    http.get(`/hospitals/${enc(id)}/${path}`)
-      .then((res) => {
-        if (cancelled) return;
-        let rows = forHospital(res.data, id);
-        if (tab === 'staff') rows = rows.filter((u) => lower(u.role) === 'doctor');
-        setTabs((t) => ({ ...t, [tab]: { rows } }));
-        // Keep the overview counts consistent with what the tab shows.
-        if (tab === 'beds') setCounts((c) => ({ ...(c || { inventory: 0 }), beds: bedCounts(rows) }));
-        if (tab === 'inventory') setCounts((c) => ({ ...(c || { beds: bedCounts([]) }), inventory: rows.length }));
-      })
-      .catch((err) => {
-        if (!cancelled) setTabs((t) => ({ ...t, [tab]: { error: err?.message || `Failed to load ${path}.` } }));
-      });
-    return () => { cancelled = true; };
-  }, [id, tab]);
+    dispatch(fetchHospitalDetailTab({ id, tab }));
+    return undefined;
+  }, [dispatch, id, tab]);
 
   // Reached without ?id= — go back to the dashboard rather than trapping the user.
   if (!id) return <Navigate to="/regional-officer/dashboard" replace />;
@@ -120,6 +80,9 @@ export default function HospitalDetailsPage() {
   const specs = hospital
     ? (Array.isArray(hospital.specialities) ? hospital.specialities.join(', ') : (hospital.speciality || 'N/A'))
     : '';
+  const counts = countRows
+    ? { beds: bedCounts(countRows.beds || []), inventory: (countRows.inventory || []).length }
+    : null;
   const b = counts?.beds;
   const snapshot = counts
     ? `${b.total} Total Beds · ${b.icu} ICU · ${b.available} Available · ${counts.inventory} Inventory Items · ${specs}`
@@ -130,10 +93,12 @@ export default function HospitalDetailsPage() {
   const inv = tabs.inventory;
   const amb = tabs.ambulances;
   const onLeave = (staff?.rows || []).filter((d) => ['on leave', 'on_leave'].includes(lower(d.status))).length;
-  const bedRows = beds?.rows ? bedCounts(beds.rows) : null;
+  const bedRows = beds?.loaded ? bedCounts(beds.rows) : null;
 
   const body = (state, colSpan, loadingText, emptyText, render) => {
-    if (!state || state.loading) return <tr className="empty-state"><td colSpan={colSpan}>{state ? loadingText : 'Loading...'}</td></tr>;
+    if (!state || state.loading || (!state.loaded && !state.error)) {
+      return <tr className="empty-state"><td colSpan={colSpan}>{state?.loading ? loadingText : 'Loading...'}</td></tr>;
+    }
     if (state.error) return <tr className="empty-state"><td colSpan={colSpan}>{state.error}</td></tr>;
     if (!state.rows.length) return <tr className="empty-state"><td colSpan={colSpan}>{emptyText}</td></tr>;
     return state.rows.map(render);
@@ -158,7 +123,7 @@ export default function HospitalDetailsPage() {
 
         <div className="tabs" role="tablist">
           {TABS.map(([key, lbl]) => (
-            <button type="button" key={key} role="tab" aria-selected={tab === key} className={`tab${tab === key ? ' active' : ''}`} onClick={() => setTab(key)}>
+            <button type="button" key={key} role="tab" aria-selected={tab === key} className={`tab${tab === key ? ' active' : ''}`} onClick={() => dispatch(setHospitalDetailsTab(key))}>
               {lbl}
             </button>
           ))}
@@ -191,7 +156,7 @@ export default function HospitalDetailsPage() {
         <div id="staff" className={`tab-content${tab === 'staff' ? ' active' : ''}`}>
           <div className="tab-stats">
             <div className="stat-card"><span>Doctors</span><div id="staffStatsSummary">
-              {staff?.rows ? `${staff.rows.length} Doctors · ${onLeave} On Leave` : staff?.error ? 'Unable to load doctors' : 'Open this tab to load'}
+              {staff?.loaded ? `${staff.rows.length} Doctors · ${onLeave} On Leave` : staff?.error ? 'Unable to load doctors' : 'Open this tab to load'}
             </div></div>
           </div>
           <table className="data-table">
@@ -223,7 +188,7 @@ export default function HospitalDetailsPage() {
         <div id="inventory" className={`tab-content${tab === 'inventory' ? ' active' : ''}`}>
           <div className="tab-stats">
             <div className="stat-card"><span>Inventory Status</span><div id="inventoryStatsSummary">
-              {inv?.rows ? `${inv.rows.length} Items · ${inv.rows.filter(isLow).length} Low / Out of Stock` : inv?.error ? 'Unable to load inventory' : 'Open this tab to load'}
+              {inv?.loaded ? `${inv.rows.length} Items · ${inv.rows.filter(isLow).length} Low / Out of Stock` : inv?.error ? 'Unable to load inventory' : 'Open this tab to load'}
             </div></div>
           </div>
           <table className="data-table">
@@ -239,7 +204,7 @@ export default function HospitalDetailsPage() {
         <div id="ambulances" className={`tab-content${tab === 'ambulances' ? ' active' : ''}`}>
           <div className="tab-stats">
             <div className="stat-card"><span>Ambulances</span><div id="ambulanceStatsSummary">
-              {amb?.rows ? `${amb.rows.length} Ambulance Records` : amb?.error ? 'Unable to load ambulances' : 'Open this tab to load'}
+              {amb?.loaded ? `${amb.rows.length} Ambulance Records` : amb?.error ? 'Unable to load ambulances' : 'Open this tab to load'}
             </div></div>
           </div>
           <table className="data-table">

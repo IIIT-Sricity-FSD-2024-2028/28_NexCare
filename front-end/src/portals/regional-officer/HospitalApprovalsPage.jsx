@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import Header from '../../components/layout/Header';
 import { Modal } from '../../components/ui';
 import useConfirm from '../../hooks/useConfirm';
@@ -9,6 +9,9 @@ import {
   reviewHospital,
   selectRoApprovals,
   setApprovalFilter,
+  setApprovalReject,
+  setApprovalRejectNotes,
+  setApprovalTerm,
 } from '../../store/regionalOfficerSlice';
 import '../../styles/regional-console.css';
 
@@ -36,11 +39,7 @@ export default function HospitalApprovalsPage() {
   const notify = useNotify();
   const { ask, dialog } = useConfirm();
   const dispatch = useAppDispatch();
-  const { list: hospitals, filter: status, loading, error } = useAppSelector(selectRoApprovals);
-  const [term, setTerm] = useState('');
-  const [busyId, setBusyId] = useState(null);
-  // The `prompt()` for a rejection reason, as a small dialog.
-  const [reject, setReject] = useState(null); // { hospital, notes }
+  const { list: hospitals, filter: status, term, busyId, reject, loading, error } = useAppSelector(selectRoApprovals);
 
   useEffect(() => {
     dispatch(fetchHospitalApprovals());
@@ -59,15 +58,12 @@ export default function HospitalApprovalsPage() {
 
   async function decide(hospital, action, notes = '') {
     const name = hospital.name || hospital.id;
-    setBusyId(hospital.id);
     try {
       await dispatch(reviewHospital({ id: hospital.id, decision: action, notes })).unwrap();
       notify(`${name} ${action === 'cleared' ? 'sent to the superuser for final approval' : 'review rejected'} successfully`, 'success');
     } catch (err) {
       console.error(err);
       notify(err?.message || `Failed to ${action} registration. Please try again.`, 'error');
-    } finally {
-      setBusyId(null);
     }
   }
 
@@ -77,12 +73,12 @@ export default function HospitalApprovalsPage() {
   }
 
   function onReject(hospital) {
-    setReject({ hospital, notes: '' });
+    dispatch(setApprovalReject({ hospital, notes: '' }));
   }
 
   function submitReject() {
     const { hospital, notes } = reject;
-    setReject(null);
+    dispatch(setApprovalReject(null));
     decide(hospital, 'rejected', notes);
   }
 
@@ -117,7 +113,7 @@ export default function HospitalApprovalsPage() {
               <option value="verified">Verified</option>
               <option value="rejected">Rejected</option>
             </select>
-            <input type="text" id="searchInput" placeholder="Search by name, city or registration no." value={term} onChange={(e) => setTerm(e.target.value)} />
+            <input type="text" id="searchInput" placeholder="Search by name, city or registration no." value={term} onChange={(e) => dispatch(setApprovalTerm(e.target.value))} />
           </div>
           <table className="activity-table">
             <thead>
@@ -178,7 +174,7 @@ export default function HospitalApprovalsPage() {
       </div>
 
       {dialog}
-      <Modal open={Boolean(reject)} onClose={() => setReject(null)} title="Reject registration" maxWidth={440}>
+      <Modal open={Boolean(reject)} onClose={() => dispatch(setApprovalReject(null))} title="Reject registration" maxWidth={440}>
         {reject && (
           <form onSubmit={(e) => { e.preventDefault(); submitReject(); }}>
             <label htmlFor="rejectNotes" style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
@@ -188,11 +184,11 @@ export default function HospitalApprovalsPage() {
               id="rejectNotes"
               autoFocus
               value={reject.notes}
-              onChange={(e) => setReject((r) => ({ ...r, notes: e.target.value }))}
+              onChange={(e) => dispatch(setApprovalRejectNotes(e.target.value))}
               style={{ width: '100%', padding: 10, border: '1px solid #E5E7EB', borderRadius: 8, marginBottom: 16, fontSize: 14 }}
             />
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button type="button" className="btn-sm btn-neutral" onClick={() => setReject(null)}>Cancel</button>
+              <button type="button" className="btn-sm btn-neutral" onClick={() => dispatch(setApprovalReject(null))}>Cancel</button>
               <button type="submit" className="btn-sm btn-reject">OK</button>
             </div>
           </form>

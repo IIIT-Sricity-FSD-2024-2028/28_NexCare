@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Param,
   Query,
@@ -124,6 +125,16 @@ export class UploadsController {
   /**
    * Delete an upload and the file behind it
    */
+  @Patch(':id/description')
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
+  @ApiOperation({ summary: 'Edit the description of an uploaded patient document' })
+  editDescription(@Param('id') id: string, @Body('description') value: unknown, @Req() req: any) {
+    if (typeof value !== 'string' || value.length > 500) {
+      throw new BadRequestException('Description must be at most 500 characters');
+    }
+    return this.uploadsService.editDescription(id, value.trim(), req.user.id, req.user.role === UserRole.SUPERUSER);
+  }
+
   @Delete(':id')
   @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF)
   @ApiOperation({ summary: 'Delete an uploaded document' })

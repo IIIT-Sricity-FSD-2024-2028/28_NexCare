@@ -1,10 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Header from '../../components/layout/Header';
 import { Panel, PageHeader } from '../../components/ui';
-import { Auth, Hospitals } from '../../api';
 import { useNotify } from '../../hooks/useNotify';
-import { selectUser } from '../../store/authSlice';
-import { useAppSelector } from '../../store/hooks';
+import { changePassword as changePasswordAction, selectPasswordChangeLoading, selectUser } from '../../store/authSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  clearProfilePassword,
+  fetchRoDashboard,
+  selectRoAssignedHospitalCount,
+  selectRoProfilePassword,
+  setProfilePasswordField,
+} from '../../store/regionalOfficerSlice';
 
 // regional-officer/profile.html + profile.js: the login user's regional
 // profile (read-only) and a change-password form.
@@ -17,37 +23,27 @@ const REGION_NAMES = {
 };
 
 export default function ProfilePage() {
+  const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const saving = useAppSelector(selectPasswordChangeLoading);
+  const hospitalCount = useAppSelector(selectRoAssignedHospitalCount);
+  const pw = useAppSelector(selectRoProfilePassword);
   const notify = useNotify();
-  const [hospitalCount, setHospitalCount] = useState(0);
-  const [pw, setPw] = useState({ current: '', next: '' });
-  const [saving, setSaving] = useState(false);
 
-  // Assigned hospitals count from the regional overview.
   useEffect(() => {
-    let cancelled = false;
-    Hospitals.getRegionalOverview()
-      .then((res) => {
-        if (cancelled) return;
-        setHospitalCount(res.data?.summary?.assignedHospitals || res.data?.hospitals?.length || 0);
-      })
-      .catch((e) => console.warn('Could not fetch regional overview count:', e));
-    return () => { cancelled = true; };
-  }, []);
+    dispatch(fetchRoDashboard());
+  }, [dispatch]);
 
   async function changePassword(e) {
     e.preventDefault();
     if (!pw.current || !pw.next) return notify('Please fill in both password fields', 'warning');
     if (pw.next.length < 6) return notify('New password must be at least 6 characters', 'warning');
-    setSaving(true);
     try {
-      await Auth.changePassword(pw.current, pw.next);
+      await dispatch(changePasswordAction({ currentPassword: pw.current, newPassword: pw.next })).unwrap();
       notify('Password updated successfully', 'success');
-      setPw({ current: '', next: '' });
+      dispatch(clearProfilePassword());
     } catch (err) {
-      notify(`Failed to update password: ${err?.message || 'Unknown error'}`, 'error');
-    } finally {
-      setSaving(false);
+      notify(`Failed to update password: ${typeof err === 'string' ? err : err?.message || 'Unknown error'}`, 'error');
     }
   }
 
@@ -93,11 +89,11 @@ export default function ProfilePage() {
           <form onSubmit={changePassword} className="field-grid" style={{ maxWidth: 700 }}>
             <div className="field">
               <label htmlFor="currentPassword">Current password</label>
-              <input id="currentPassword" type="password" autoComplete="current-password" value={pw.current} onChange={(e) => setPw((p) => ({ ...p, current: e.target.value }))} />
+              <input id="currentPassword" type="password" autoComplete="current-password" value={pw.current} onChange={(e) => dispatch(setProfilePasswordField({ key: 'current', value: e.target.value }))} />
             </div>
             <div className="field">
               <label htmlFor="newPassword">New password</label>
-              <input id="newPassword" type="password" autoComplete="new-password" value={pw.next} onChange={(e) => setPw((p) => ({ ...p, next: e.target.value }))} />
+              <input id="newPassword" type="password" autoComplete="new-password" value={pw.next} onChange={(e) => dispatch(setProfilePasswordField({ key: 'next', value: e.target.value }))} />
             </div>
             <div className="field">
               <label>&nbsp;</label>

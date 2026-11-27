@@ -17,6 +17,11 @@ export class UpdateAppointmentDto {
   @IsString()
   doctor?: string;
 
+  @ApiPropertyOptional({ description: 'User ID of the selected doctor' })
+  @IsOptional()
+  @IsString()
+  doctorId?: string;
+
   @ApiPropertyOptional({ example: 'March 15, 2026', description: 'Date of appointment' })
   @IsOptional()
   @IsString()

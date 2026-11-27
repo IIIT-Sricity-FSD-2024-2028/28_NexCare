@@ -36,7 +36,7 @@ export default function PatientRoutes() {
   return (
     <Routes>
       {patientRoutes}
-      <Route path="*" element={<Navigate to="." replace />} />
+      <Route path="*" element={<Navigate to="/patient" replace />} />
     </Routes>
   );
 }

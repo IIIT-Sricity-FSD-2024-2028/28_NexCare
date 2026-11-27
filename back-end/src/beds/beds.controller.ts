@@ -10,7 +10,8 @@ import {
   Query,
   Req,
   HttpCode,
-  HttpStatus
+  HttpStatus,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { BedsService } from './beds.service';
@@ -157,8 +158,12 @@ export class BedsController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a bed' })
   @ApiResponse({ status: 200, description: 'Bed deleted successfully' })
-  async delete(@Param('id') id: string) {
-    return this.bedsService.delete(id);
+  async delete(@Req() req: any, @Param('id') id: string) {
+    const hospitalId = this.scopeHospitalId(req);
+    if (!hospitalId && req.user.role !== UserRole.SUPERUSER) {
+      throw new ForbiddenException('Your account has no assigned hospital');
+    }
+    return this.bedsService.delete(id, hospitalId);
   }
 
   /**

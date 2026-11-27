@@ -1,11 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { Uploads } from '../../api';
+import {
+  selectPatientDocuments,
+  fetchPatientDocuments,
+  uploadPatientDocument,
+  editPatientDocument,
+  downloadPatientDocument,
+  deletePatientDocument,
+  fetchPatientDirectory,
+  selectStaffPatients,
+} from '../../store/staffSlice';
 import { useNotify } from '../../hooks/useNotify';
 import useConfirm from '../../hooks/useConfirm';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-  fetchPatientDirectory, selectStaffPatients,
-} from '../../store/staffSlice';
 
 // administrative_staff/patient-directory.html + patient-directory.js: the
 // read-only patient table and the per-patient documents modal (uploads go
@@ -99,26 +105,18 @@ export default function PatientDirectoryPage() {
 function DocumentsModal({ patientId, patientName, onClose }) {
   const { ask, dialog } = useConfirm();
   const fileRef = useRef(null);
+  const userId = useAppSelector((state) => state.auth.user?.id);
+  const [editing, setEditing] = useState(null);
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
-  const [list, setList] = useState(null); // null = loading
-  const [listError, setListError] = useState('');
+  const dispatch = useAppDispatch();
+  const documents = useAppSelector((state) => selectPatientDocuments(state, patientId));
+  const list = documents?.list ?? null;
+  const listError = documents?.error;
   const [uploading, setUploading] = useState(false);
 
-  async function load() {
-    setList(null);
-    setListError('');
-    try {
-      const resp = await Uploads.getAll('patient', patientId);
-      setList(resp.data || []);
-    } catch (err) {
-      setList([]);
-      setListError(err.message);
-    }
-  }
-
-  useEffect(() => { load(); /* eslint-disable-line react-hooks/exhaustive-deps */ }, [patientId]);
+  useEffect(() => { dispatch(fetchPatientDocuments(patientId)); }, [dispatch, patientId]);
 
   async function upload() {
     const file = fileRef.current?.files?.[0];
@@ -127,11 +125,11 @@ function DocumentsModal({ patientId, patientName, onClose }) {
     setError('');
     setStatus(`Uploading ${file.name}…`);
     try {
-      await Uploads.upload({ file, entityType: 'patient', entityId: patientId, description: description.trim() });
+      await dispatch(uploadPatientDocument({ file, patientId, description: description.trim() })).unwrap();
       setStatus(`${file.name} uploaded.`);
       fileRef.current.value = '';
       setDescription('');
-      await load();
+      await dispatch(fetchPatientDocuments(patientId));
     } catch (err) {
       setStatus('');
       // e.g. "Unsupported file type ..." or "File is too large. Maximum size is 5 MB."
@@ -141,9 +139,20 @@ function DocumentsModal({ patientId, patientName, onClose }) {
     }
   }
 
+  async function saveDescription() {
+    try {
+      await dispatch(editPatientDocument({ id: editing.id, patientId, description: editing.description })).unwrap();
+      setEditing(null);
+      setError('');
+      setStatus('Description updated.');
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   async function download(id, name) {
     try {
-      const blob = await Uploads.download(id);
+      const blob = await dispatch(downloadPatientDocument(id));
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -160,9 +169,9 @@ function DocumentsModal({ patientId, patientName, onClose }) {
   async function remove(id) {
     if (!(await ask('Delete this document? This cannot be undone.', { title: 'Delete document', confirmLabel: 'Delete', danger: true }))) return;
     try {
-      await Uploads.delete(id);
+      await dispatch(deletePatientDocument({ id, patientId })).unwrap();
       setStatus('Document deleted.');
-      await load();
+      await dispatch(fetchPatientDocuments(patientId));
     } catch (err) {
       setError(err.message);
     }
@@ -182,6 +191,13 @@ function DocumentsModal({ patientId, patientName, onClose }) {
         {error && <div id="docError" className="small" style={{ color: '#b91c1c', marginTop: 6 }}>{error}</div>}
         {status && <div id="docStatus" className="small" style={{ color: '#2563eb', marginTop: 6 }}>{status}</div>}
 
+        {editing && <div style={{ marginTop: 12 }}>
+          <label htmlFor="editDocumentDescription">Edit description</label>
+          <input id="editDocumentDescription" className="input" maxLength={500} value={editing.description}
+            onChange={(event) => setEditing({ ...editing, description: event.target.value })} />
+          <button type="button" className="btn" onClick={saveDescription}>Save description</button>
+          <button type="button" className="btn-outline" onClick={() => setEditing(null)}>Cancel edit</button>
+        </div>}
         <div style={{ marginTop: 16 }}>
           <h4 style={{ margin: '0 0 8px', fontSize: 13, color: '#374151' }}>Uploaded documents</h4>
           <div id="docList" style={{ maxHeight: 220, overflowY: 'auto' }}>
@@ -201,6 +217,8 @@ function DocumentsModal({ patientId, patientName, onClose }) {
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                   <button type="button" className="btn-outline" style={{ padding: '4px 8px', fontSize: 11 }} onClick={() => download(d.id, d.originalName)}>Download</button>
+                  {d.uploadedBy === userId && <button type="button" className="btn-outline"
+                    onClick={() => setEditing({ id: d.id, description: d.description || '' })}>Edit description</button>}
                   <button type="button" className="btn-outline" style={{ padding: '4px 8px', fontSize: 11, color: '#b91c1c' }} onClick={() => remove(d.id)}>Delete</button>
                 </div>
               </div>

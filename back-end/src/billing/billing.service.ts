@@ -43,14 +43,10 @@ export class BillingService {
 
   /** Persist bills to disk atomically */
   private saveBills(bills: Bill[]): void {
-    try {
-      fs.mkdirSync(path.dirname(this.billsFilePath), { recursive: true });
-      const tmpPath = `${this.billsFilePath}.tmp.${Date.now()}`;
-      fs.writeFileSync(tmpPath, JSON.stringify(bills, null, 2), 'utf-8');
-      fs.renameSync(tmpPath, this.billsFilePath);
-    } catch (err) {
-      console.error('Failed to persist bills:', err);
-    }
+    fs.mkdirSync(path.dirname(this.billsFilePath), { recursive: true });
+    const tmpPath = `${this.billsFilePath}.tmp.${Date.now()}`;
+    fs.writeFileSync(tmpPath, JSON.stringify(bills, null, 2), 'utf-8');
+    fs.renameSync(tmpPath, this.billsFilePath);
   }
 
   private getInitialMockData(): Bill[] {
@@ -343,10 +339,10 @@ export class BillingService {
    * @param updateData Bill update data
    * @returns Updated bill data
    */
-  async update(id: string, updateData: UpdateBillRequest) {
+  async update(id: string, updateData: UpdateBillRequest, hospitalId?: string) {
     try {
       const bills = this.loadBills();
-      const billIndex = bills.findIndex(b => b.id === id);
+      const billIndex = bills.findIndex((bill) => bill.id === id && (!hospitalId || bill.hospitalId === hospitalId));
       
       if (billIndex === -1) {
         return ResponseUtil.notFound('Bill', id);
@@ -401,10 +397,10 @@ export class BillingService {
    * @param id Bill ID
    * @returns Deletion confirmation
    */
-  async delete(id: string) {
+  async delete(id: string, hospitalId?: string) {
     try {
       const bills = this.loadBills();
-      const billIndex = bills.findIndex(b => b.id === id);
+      const billIndex = bills.findIndex((bill) => bill.id === id && (!hospitalId || bill.hospitalId === hospitalId));
       
       if (billIndex === -1) {
         return ResponseUtil.notFound('Bill', id);

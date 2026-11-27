@@ -75,12 +75,8 @@ export class FeedbackService {
 
   /** Persist the full feedback array to disk */
   private saveFeedback(feedback: Feedback[]): void {
-    try {
-      fs.mkdirSync(path.dirname(this.feedbackFilePath), { recursive: true });
-      fs.writeFileSync(this.feedbackFilePath, JSON.stringify(feedback, null, 2), 'utf-8');
-    } catch (err) {
-      console.error('Failed to persist feedback to disk:', err);
-    }
+    fs.mkdirSync(path.dirname(this.feedbackFilePath), { recursive: true });
+    fs.writeFileSync(this.feedbackFilePath, JSON.stringify(feedback, null, 2), 'utf-8');
   }
 
   /**

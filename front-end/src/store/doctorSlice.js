@@ -1,12 +1,14 @@
 // Doctor portal state. Owner: Nikitha
 import { createAsyncThunk, createSlice, createSelector } from '@reduxjs/toolkit';
-import { Appointments, Auth, Leaves, Revenue } from '../api';
+import { Appointments, Auth, Leaves, Revenue, Users } from '../api';
+import { updateSessionUser } from './authSlice';
+import { upsert } from './repositoryState';
 import { appointmentTime } from '../utils/format';
 
 const msg = (err, fallback) => err?.message || fallback;
 const asList = (res) => (Array.isArray(res?.data) ? res.data : []);
 
-// Wraps an API call so every thunk returns res.data and rejects with a message.
+
 const thunk = (type, call, fallback) =>
   createAsyncThunk(type, async (arg, { rejectWithValue }) => {
     try {
@@ -16,7 +18,7 @@ const thunk = (type, call, fallback) =>
     }
   });
 
-/* ---------- thunks ---------- */
+
 
 export const fetchDoctorAppointments = thunk(
   'doctor/fetchAppointments',
@@ -85,12 +87,39 @@ export const fetchDoctorProfile = thunk(
   'Could not load your profile',
 );
 
+export const createReferral = createAsyncThunk('doctor/createReferral', async (data) => (await Appointments.create(data)).data);
+
+export const editPendingLeave = thunk('doctor/editPendingLeave', async ({ id, data }) =>
+  (await Leaves.editPending(id, data)).data, 'Could not update the leave request');
+
+export const fetchReferralDoctors = createAsyncThunk('doctor/fetchReferralDoctors', async () => (await Users.getDoctors()).data || []);
+
+const DIRECTORY_FIELDS = [
+  'dept', 'department', 'specialization', 'consultationFee', 'experienceYears',
+  'qualification', 'consultationTiming', 'medicalRegNumber', 'employeeId', 'hospitalName',
+];
+
+export const enrichDoctorSession = createAsyncThunk('doctor/enrichDoctorSession', async (_, { dispatch, getState }) => {
+  const user = getState().auth.user;
+  if (!user?.id || user.dept) return;
+  const doctors = await dispatch(fetchReferralDoctors()).unwrap();
+  if (getState().auth.user?.id !== user.id) return;
+  const me = doctors.find((doctor) => String(doctor.id) === String(user.id));
+  if (!me) return;
+  const patch = Object.fromEntries(DIRECTORY_FIELDS
+    .filter((key) => me[key] != null && user[key] === undefined)
+    .map((key) => [key, me[key]]));
+  if (Object.keys(patch).length) dispatch(updateSessionUser(patch));
+});
+
 /* ---------- slice ---------- */
 
 const sub = (extra) => ({ ...extra, loading: false, error: null });
 
 const initialState = {
-  appointments: sub({ list: [], stats: null, filters: { status: '', search: '' } }),
+  appointments: sub({ list: [], filters: { status: '', search: '' } }),
+  referralDoctors: [],
+  stats: sub({ data: null }),
   earnings: sub({ data: null }),
   leaves: sub({ list: [] }),
   profile: sub({ data: null }),
@@ -113,13 +142,17 @@ const doctorSlice = createSlice({
   },
   extraReducers: (builder) => {
     track(builder, fetchDoctorAppointments, 'appointments', (s, list) => { s.list = list; });
-    track(builder, fetchDoctorStats, 'appointments', (s, stats) => { s.stats = stats; });
+    track(builder, fetchDoctorStats, 'stats', (s, stats) => { s.data = stats; });
     track(builder, fetchDoctorEarnings, 'earnings', (s, data) => { s.data = data; });
     track(builder, fetchDoctorLeaves, 'leaves', (s, list) => { s.list = list; });
     track(builder, fetchDoctorProfile, 'profile', (s, data) => { s.data = data; });
 
     // Mutations don't flip the page-level loading flag (the button shows its own busy state).
     builder
+      .addCase(fetchReferralDoctors.fulfilled, (state, { payload }) => { state.referralDoctors = payload; })
+      .addCase(editPendingLeave.fulfilled, (state, { payload }) => {
+        if (state.leaves.list.some((row) => row.id === payload.id)) upsert(state.leaves.list, payload);
+      })
       .addCase(updateAppointmentStatus.fulfilled, (state, { payload }) => {
         const apt = state.appointments.list.find((a) => a.id === payload.id);
         if (apt) apt.status = payload.status;
@@ -142,7 +175,8 @@ export const { setStatusFilter, setSearch } = doctorSlice.actions;
 
 export const selectDoctorAppointmentsState = (s) => s.doctor.appointments;
 export const selectDoctorAppointments = (s) => s.doctor.appointments.list;
-export const selectDoctorStats = (s) => s.doctor.appointments.stats;
+export const selectDoctorStats = (s) => s.doctor.stats.data;
+export const selectReferralDoctors = (s) => s.doctor.referralDoctors;
 export const selectDoctorFilters = (s) => s.doctor.appointments.filters;
 export const selectDoctorEarnings = (s) => s.doctor.earnings;
 export const selectDoctorLeaves = (s) => s.doctor.leaves;

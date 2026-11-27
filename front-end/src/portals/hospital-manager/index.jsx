@@ -45,7 +45,7 @@ export default function HospitalManagerRoutes() {
   return (
     <Routes>
       {hospitalManagerRoutes}
-      <Route path="*" element={<Navigate to="." replace />} />
+      <Route path="*" element={<Navigate to="/hospital-manager" replace />} />
     </Routes>
   );
 }
