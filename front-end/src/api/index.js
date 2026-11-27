@@ -113,6 +113,12 @@ export const Ambulance = {
   getRequestById: (id) => Ambulance.getById(id),
   /** One patient's requests — the patient portal's status table. */
   getByPatient: (patientId) => http.get(`/ambulance/patient/${enc(patientId)}`),
+  /**
+   * Fleet per hospital: one crew login = one ambulance (vehicle + driver).
+   * `{ total, available, onTransport, unavailable, waiting, crews[] }`; patients get counts only,
+   * hospital staff only their own hospital (an object, not a list).
+   */
+  getFleet: (hospitalId) => http.get(`/ambulance/fleet${hospitalId ? `?hospitalId=${enc(hospitalId)}` : ''}`),
   create: (data) => http.post('/ambulance', data),
   createRequest: (data) => Ambulance.create(data),
   update: (id, data) => http.put(`/ambulance/${enc(id)}`, data),

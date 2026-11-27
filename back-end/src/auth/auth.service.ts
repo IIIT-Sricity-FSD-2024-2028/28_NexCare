@@ -268,6 +268,7 @@ export class AuthService {
       if (userAny.responsibilities) authResponse.user.responsibilities = userAny.responsibilities;
       if (userAny.gender) authResponse.user.gender = userAny.gender;
       if (userAny.assignedVehicle) authResponse.user.assignedVehicle = userAny.assignedVehicle;
+      if (userAny.driverName) authResponse.user.driverName = userAny.driverName;
       if (userAny.driverLicense) authResponse.user.driverLicense = userAny.driverLicense;
       if (userAny.shift) authResponse.user.shift = userAny.shift;
       if (userAny.joiningDate) authResponse.user.joiningDate = userAny.joiningDate;

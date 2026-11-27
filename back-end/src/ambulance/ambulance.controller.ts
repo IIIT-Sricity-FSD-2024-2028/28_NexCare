@@ -59,6 +59,41 @@ export class AmbulanceController {
   }
 
   /**
+   * For a hospital-scoped caller (staff, manager, crew), the request must be
+   * their hospital's; a crew member may only drive requests assigned to them.
+   * Superuser and regional roles pass; patients are checked by assertOwnsRequest.
+   */
+  private async assertHospitalAccess(req: any, id: string, crewMustOwn = false) {
+    const hospitalId = this.scopeHospitalId(req);
+    if (!hospitalId && req?.user?.role !== UserRole.AMBULANCE) return;
+    const res: any = await this.ambulanceService.findById(id);
+    if (!res?.success || !res.data) return; // the service answers "not found"
+    if (hospitalId && res.data.hospitalId !== hospitalId) {
+      throw new ForbiddenException('You can only manage ambulance requests for your assigned hospital');
+    }
+    if (crewMustOwn && req.user.role === UserRole.AMBULANCE && res.data.assignedTo && res.data.assignedTo !== req.user.id) {
+      throw new ForbiddenException('This transport is assigned to another ambulance crew');
+    }
+  }
+
+  /**
+   * Fleet: each hospital's ambulances (one crew login = one vehicle + driver),
+   * which are free, which are out on a job, and how many requests wait.
+   */
+  @Get('fleet')
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.PATIENT, UserRole.REGIONAL_MANAGER, UserRole.HOSPITAL_MANAGER)
+  @ApiOperation({ summary: 'Ambulance fleet and availability (patients: counts only; staff: their hospital only)' })
+  @ApiQuery({ name: 'hospitalId', required: false })
+  @ApiResponse({ status: 200, description: 'Fleet per hospital (one hospital when hospitalId is given or the caller is hospital-scoped)' })
+  async fleet(@Req() req: any, @Query('hospitalId') hospitalId?: string) {
+    const scoped = this.scopeHospitalId(req);
+    if (scoped && hospitalId && hospitalId !== scoped) {
+      throw new ForbiddenException('You can only view the fleet of your assigned hospital');
+    }
+    return this.ambulanceService.fleet(scoped || hospitalId, !this.isPatient(req));
+  }
+
+  /**
    * Get all ambulance requests with optional filtering
    */
   @Get()
@@ -170,6 +205,7 @@ export class AmbulanceController {
   @ApiResponse({ status: 403, description: 'Forbidden - Unauthorized cross-hospital or cross-patient access' })
   async findById(@Req() req: any, @Param('id') id: string) {
     await this.assertOwnsRequest(req, id);
+    await this.assertHospitalAccess(req, id);
     return this.ambulanceService.findById(id);
   }
 
@@ -180,7 +216,8 @@ export class AmbulanceController {
   @ApiOperation({ summary: 'Update an ambulance request' })
   @ApiResponse({ status: 403, description: 'Forbidden — AmbulanceAccessMiddleware: no hospital assignment, or the request belongs to another hospital' })
   @ApiResponse({ status: 200, description: 'Request updated successfully' })
-  async update(@Param('id') id: string, @Body() updateRequestDto: UpdateAmbulanceRequestDto) {
+  async update(@Req() req: any, @Param('id') id: string, @Body() updateRequestDto: UpdateAmbulanceRequestDto) {
+    await this.assertHospitalAccess(req, id, true);
     return this.ambulanceService.update(id, updateRequestDto as any);
   }
 
@@ -191,7 +228,8 @@ export class AmbulanceController {
   @ApiOperation({ summary: 'Partially update an ambulance request' })
   @ApiResponse({ status: 403, description: 'Forbidden — AmbulanceAccessMiddleware: no hospital assignment, or the request belongs to another hospital' })
   @ApiResponse({ status: 200, description: 'Request updated successfully' })
-  async patchUpdate(@Param('id') id: string, @Body() updateRequestDto: UpdateAmbulanceRequestDto) {
+  async patchUpdate(@Req() req: any, @Param('id') id: string, @Body() updateRequestDto: UpdateAmbulanceRequestDto) {
+    await this.assertHospitalAccess(req, id, true);
     return this.ambulanceService.update(id, updateRequestDto as any);
   }
 
@@ -209,6 +247,7 @@ export class AmbulanceController {
   @ApiResponse({ status: 400, description: 'Bad Request - Cannot cancel a completed request or one in transit' })
   async cancel(@Req() req: any, @Param('id') id: string, @Body() body: { reason?: string } = {}) {
     await this.assertOwnsRequest(req, id);
+    await this.assertHospitalAccess(req, id, true);
     return this.ambulanceService.cancel(id, req.user?.id, body?.reason);
   }
 
@@ -226,9 +265,15 @@ export class AmbulanceController {
    * Dispatch ambulance
    */
   @Patch(':id/dispatch')
-  @ApiOperation({ summary: 'Dispatch an ambulance' })
-  @ApiResponse({ status: 200, description: 'Ambulance dispatched successfully' })
+  @Roles(UserRole.SUPERUSER, UserRole.ADMINISTRATIVE_STAFF, UserRole.AMBULANCE, UserRole.HOSPITAL_MANAGER)
+  @ApiOperation({ summary: 'Dispatch an ambulance: assign a crew (vehicle + driver) of the request\'s own hospital' })
+  @ApiResponse({ status: 200, description: 'Ambulance dispatched, or success:false when the crew is from another hospital, busy, off duty or has no vehicle' })
+  @ApiResponse({ status: 403, description: 'Request of another hospital, or a crew member assigning someone else' })
   async dispatch(@Param('id') id: string, @Body() dispatchDto: DispatchAmbulanceDto, @Req() req: any) {
+    await this.assertHospitalAccess(req, id);
+    if (req?.user?.role === UserRole.AMBULANCE && dispatchDto.assignedTo !== req.user.id) {
+      throw new ForbiddenException('A crew member can only accept a request for their own ambulance');
+    }
     const dispatchedBy = req?.user?.id || dispatchDto.dispatchedBy;
     return this.ambulanceService.dispatch(id, dispatchDto.assignedTo, dispatchedBy);
   }
@@ -240,7 +285,8 @@ export class AmbulanceController {
   @ApiOperation({ summary: 'Mark an ambulance request as completed' })
   @ApiResponse({ status: 200, description: 'Request completed successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request - Request must be in an active state (e.g. dispatched)' })
-  async complete(@Param('id') id: string) {
+  async complete(@Req() req: any, @Param('id') id: string) {
+    await this.assertHospitalAccess(req, id, true);
     return this.ambulanceService.complete(id);
   }
 
@@ -251,7 +297,8 @@ export class AmbulanceController {
   @ApiOperation({ summary: 'Update ambulance request status' })
   @ApiResponse({ status: 200, description: 'Status updated successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request - Invalid status transition' })
-  async updateStatus(@Param('id') id: string, @Body('status') status: string) {
+  async updateStatus(@Req() req: any, @Param('id') id: string, @Body('status') status: string) {
+    await this.assertHospitalAccess(req, id, true);
     return this.ambulanceService.updateStatus(id, status as any);
   }
 }

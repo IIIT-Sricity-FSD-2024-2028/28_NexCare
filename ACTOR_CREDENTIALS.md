@@ -4,7 +4,7 @@
 > `back-end/data/users.json` on this machine. These are not production
 > credentials and there is no production deployment.
 >
-> Generated from `users.json` on 2026-09-02 — 141 accounts.
+> Generated from `users.json` on 2026-09-02 — 141 accounts; ambulance crews regenerated 2026-11-27 (159 accounts in `users.json` now).
 > **Every row was verified by an actual `POST /api/auth/login` call**, not
 > read off the file. All 141 succeed (`U004` was reset on 2026-09-23 — see
 > below).
@@ -240,28 +240,49 @@ Login: `/login/staff` · Portal: `/staff/*` · Role value in code: `administrati
 | `ADM-TN02-04` | V. Keerthana | `v.keerthana@nexcare.in` | `Password123` | H008 — Kaveri Medical Centre | REG-TN-NORTH | Patient Helpdesk | Active | ✅ |
 | `ADM-H008-05` | Aravind Kumar | `aravind.kumar@nexcare.in` | `Password123` | H008 — Kaveri Medical Centre | REG-TN-NORTH | Patient Relations | Active | ✅ |
 
-## Ambulance Staff — 16 accounts
+## Ambulance Staff — 31 accounts
 
 Login: `/login/staff` · Portal: `/ambulance/*` · Role value in code: `ambulance`
 
-| ID | Name | Email | Password | Hospital | Region | Status | Login |
-|---|---|---|---|---|---|---|---|
-| `U003` | Tirupati Crew Alpha | `ambulance@nexcare.com` | `Password123` | H001 — Sri Venkateswara Multispeciality Hospital | REG-AP-SOUTH | Active | ✅ |
-| `AMB-H001-02` | Tirupati Crew Bravo | `ambulance.h0012@nexcare.in` | `Password123` | H001 — Sri Venkateswara Multispeciality Hospital | REG-AP-SOUTH | Active | ✅ |
-| `AMB-H002-01` | Nellore Crew Alpha | `ambulance.h0021@nexcare.in` | `Password123` | H002 — Coastal Care Hospital | REG-AP-SOUTH | Active | ✅ |
-| `AMB-H002-02` | Nellore Crew Bravo | `ambulance.h0022@nexcare.in` | `Password123` | H002 — Coastal Care Hospital | REG-AP-SOUTH | Active | ✅ |
-| `AMB-H003-01` | Bengaluru Crew Alpha | `ambulance.h0031@nexcare.in` | `Password123` | H003 — Namma Health Multispeciality | REG-KA-SOUTH | Active | ✅ |
-| `AMB-H003-02` | Bengaluru Crew Bravo | `ambulance.h0032@nexcare.in` | `Password123` | H003 — Namma Health Multispeciality | REG-KA-SOUTH | Active | ✅ |
-| `AMB-H004-01` | Mysuru Crew Alpha | `ambulance.h0041@nexcare.in` | `Password123` | H004 — Cauvery City Hospital | REG-KA-SOUTH | Active | ✅ |
-| `AMB-H004-02` | Mysuru Crew Bravo | `ambulance.h0042@nexcare.in` | `Password123` | H004 — Cauvery City Hospital | REG-KA-SOUTH | Active | ✅ |
-| `AMB-H005-01` | Pune Crew Alpha | `ambulance.h0051@nexcare.in` | `Password123` | H005 — Sahyadri Care Hospital | REG-MH-CENTRAL | Active | ✅ |
-| `AMB-H005-02` | Pune Crew Bravo | `ambulance.h0052@nexcare.in` | `Password123` | H005 — Sahyadri Care Hospital | REG-MH-CENTRAL | Active | ✅ |
-| `AMB-H006-01` | Nashik Crew Alpha | `ambulance.h0061@nexcare.in` | `Password123` | H006 — Deccan Multispeciality Centre | REG-MH-CENTRAL | Active | ✅ |
-| `AMB-H006-02` | Nashik Crew Bravo | `ambulance.h0062@nexcare.in` | `Password123` | H006 — Deccan Multispeciality Centre | REG-MH-CENTRAL | Active | ✅ |
-| `AMB-H007-01` | Chennai Crew Alpha | `ambulance.h0071@nexcare.in` | `Password123` | H007 — Chennai Lifeline Hospital | REG-TN-NORTH | Active | ✅ |
-| `AMB-H007-02` | Chennai Crew Bravo | `ambulance.h0072@nexcare.in` | `Password123` | H007 — Chennai Lifeline Hospital | REG-TN-NORTH | Active | ✅ |
-| `AMB-H008-01` | Vellore Crew Alpha | `ambulance.h0081@nexcare.in` | `Password123` | H008 — Kaveri Medical Centre | REG-TN-NORTH | Active | ✅ |
-| `AMB-H008-02` | Vellore Crew Bravo | `ambulance.h0082@nexcare.in` | `Password123` | H008 — Kaveri Medical Centre | REG-TN-NORTH | Active | ✅ |
+One crew login is one ambulance of its hospital: the account carries the
+vehicle and the driver, and each hospital has as many crews as its
+`ambulanceCount` (H001 3 · H002 4 · H003 5 · H004 3 · H005 4 · H006 5 · H007 3 ·
+H008 4). A request only goes to a free crew of the hospital the patient chose
+(added 2026-11-27).
+
+| ID | Name | Email | Password | Hospital | Region | Vehicle | Driver | Status | Login |
+|---|---|---|---|---|---|---|---|---|---|
+| `U003` | Tirupati Crew Alpha | `ambulance@nexcare.com` | `Password123` | H001 — Sri Venkateswara Multispeciality Hospital | REG-AP-SOUTH | `AP 03 AB 4821` | Ramesh Naidu | Active | ✅ |
+| `AMB-H001-02` | Tirupati Crew Bravo | `ambulance.h0012@nexcare.in` | `Password123` | H001 — Sri Venkateswara Multispeciality Hospital | REG-AP-SOUTH | `AP 03 AB 4822` | Suresh Kumar | Active | ✅ |
+| `AMB-H001-03` | Tirupati Crew Charlie | `ambulance.h0013@nexcare.in` | `Password123` | H001 — Sri Venkateswara Multispeciality Hospital | REG-AP-SOUTH | `AP 03 AB 4823` | Prakash Reddy | Active | ✅ |
+| `AMB-H002-01` | Nellore Crew Alpha | `ambulance.h0021@nexcare.in` | `Password123` | H002 — Coastal Care Hospital | REG-AP-SOUTH | `AP 26 CD 1042` | Venu Gopal | Active | ✅ |
+| `AMB-H002-02` | Nellore Crew Bravo | `ambulance.h0022@nexcare.in` | `Password123` | H002 — Coastal Care Hospital | REG-AP-SOUTH | `AP 26 CD 1043` | Sailesh Raju | Active | ✅ |
+| `AMB-H002-03` | Nellore Crew Charlie | `ambulance.h0023@nexcare.in` | `Password123` | H002 — Coastal Care Hospital | REG-AP-SOUTH | `AP 26 CD 1044` | Kiran Varma | Active | ✅ |
+| `AMB-H002-04` | Nellore Crew Delta | `ambulance.h0024@nexcare.in` | `Password123` | H002 — Coastal Care Hospital | REG-AP-SOUTH | `AP 26 CD 1045` | Naresh Babu | Active | ✅ |
+| `AMB-H003-01` | Bengaluru Crew Alpha | `ambulance.h0031@nexcare.in` | `Password123` | H003 — Namma Health Multispeciality | REG-KA-SOUTH | `KA 01 MN 7534` | Pradeep Shetty | Active | ✅ |
+| `AMB-H003-02` | Bengaluru Crew Bravo | `ambulance.h0032@nexcare.in` | `Password123` | H003 — Namma Health Multispeciality | REG-KA-SOUTH | `KA 01 MN 7535` | Manjunath Gowda | Active | ✅ |
+| `AMB-H003-03` | Bengaluru Crew Charlie | `ambulance.h0033@nexcare.in` | `Password123` | H003 — Namma Health Multispeciality | REG-KA-SOUTH | `KA 01 MN 7536` | Siddharth Murthy | Active | ✅ |
+| `AMB-H003-04` | Bengaluru Crew Delta | `ambulance.h0034@nexcare.in` | `Password123` | H003 — Namma Health Multispeciality | REG-KA-SOUTH | `KA 01 MN 7537` | Harish Kumar | Active | ✅ |
+| `AMB-H003-05` | Bengaluru Crew Echo | `ambulance.h0035@nexcare.in` | `Password123` | H003 — Namma Health Multispeciality | REG-KA-SOUTH | `KA 01 MN 7538` | Lokesh Rao | Active | ✅ |
+| `AMB-H004-01` | Mysuru Crew Alpha | `ambulance.h0041@nexcare.in` | `Password123` | H004 — Cauvery City Hospital | REG-KA-SOUTH | `KA 09 PQ 3021` | Basavaraj Rai | Active | ✅ |
+| `AMB-H004-02` | Mysuru Crew Bravo | `ambulance.h0042@nexcare.in` | `Password123` | H004 — Cauvery City Hospital | REG-KA-SOUTH | `KA 09 PQ 3022` | Girish Urs | Active | ✅ |
+| `AMB-H004-03` | Mysuru Crew Charlie | `ambulance.h0043@nexcare.in` | `Password123` | H004 — Cauvery City Hospital | REG-KA-SOUTH | `KA 09 PQ 3023` | Mahesh Hegde | Active | ✅ |
+| `AMB-H005-01` | Pune Crew Alpha | `ambulance.h0051@nexcare.in` | `Password123` | H005 — Sahyadri Care Hospital | REG-MH-CENTRAL | `MH 12 QR 2846` | Vijay Patil | Active | ✅ |
+| `AMB-H005-02` | Pune Crew Bravo | `ambulance.h0052@nexcare.in` | `Password123` | H005 — Sahyadri Care Hospital | REG-MH-CENTRAL | `MH 12 QR 2847` | Sachin Pawar | Active | ✅ |
+| `AMB-H005-03` | Pune Crew Charlie | `ambulance.h0053@nexcare.in` | `Password123` | H005 — Sahyadri Care Hospital | REG-MH-CENTRAL | `MH 12 QR 2848` | Rahul Shinde | Active | ✅ |
+| `AMB-H005-04` | Pune Crew Delta | `ambulance.h0054@nexcare.in` | `Password123` | H005 — Sahyadri Care Hospital | REG-MH-CENTRAL | `MH 12 QR 2849` | Amol Kulkarni | Active | ✅ |
+| `AMB-H006-01` | Nashik Crew Alpha | `ambulance.h0061@nexcare.in` | `Password123` | H006 — Deccan Multispeciality Centre | REG-MH-CENTRAL | `MH 15 ST 9102` | Ganesh Borse | Active | ✅ |
+| `AMB-H006-02` | Nashik Crew Bravo | `ambulance.h0062@nexcare.in` | `Password123` | H006 — Deccan Multispeciality Centre | REG-MH-CENTRAL | `MH 15 ST 9103` | Vikas Jadhav | Active | ✅ |
+| `AMB-H006-03` | Nashik Crew Charlie | `ambulance.h0063@nexcare.in` | `Password123` | H006 — Deccan Multispeciality Centre | REG-MH-CENTRAL | `MH 15 ST 9104` | Santosh More | Active | ✅ |
+| `AMB-H006-04` | Nashik Crew Delta | `ambulance.h0064@nexcare.in` | `Password123` | H006 — Deccan Multispeciality Centre | REG-MH-CENTRAL | `MH 15 ST 9105` | Nitin Gaikwad | Active | ✅ |
+| `AMB-H006-05` | Nashik Crew Echo | `ambulance.h0065@nexcare.in` | `Password123` | H006 — Deccan Multispeciality Centre | REG-MH-CENTRAL | `MH 15 ST 9106` | Dinesh Wagh | Active | ✅ |
+| `AMB-H007-01` | Chennai Crew Alpha | `ambulance.h0071@nexcare.in` | `Password123` | H007 — Chennai Lifeline Hospital | REG-TN-NORTH | `TN 10 XY 6182` | Manikandan R | Active | ✅ |
+| `AMB-H007-02` | Chennai Crew Bravo | `ambulance.h0072@nexcare.in` | `Password123` | H007 — Chennai Lifeline Hospital | REG-TN-NORTH | `TN 10 XY 6183` | S. Vijay | Active | ✅ |
+| `AMB-H007-03` | Chennai Crew Charlie | `ambulance.h0073@nexcare.in` | `Password123` | H007 — Chennai Lifeline Hospital | REG-TN-NORTH | `TN 10 XY 6184` | M. Saravanan | Active | ✅ |
+| `AMB-H008-01` | Vellore Crew Alpha | `ambulance.h0081@nexcare.in` | `Password123` | H008 — Kaveri Medical Centre | REG-TN-NORTH | `TN 23 ZW 4410` | A. Sathish | Active | ✅ |
+| `AMB-H008-02` | Vellore Crew Bravo | `ambulance.h0082@nexcare.in` | `Password123` | H008 — Kaveri Medical Centre | REG-TN-NORTH | `TN 23 ZW 4411` | T. Loganathan | Active | ✅ |
+| `AMB-H008-03` | Vellore Crew Charlie | `ambulance.h0083@nexcare.in` | `Password123` | H008 — Kaveri Medical Centre | REG-TN-NORTH | `TN 23 ZW 4412` | K. Murugan | Active | ✅ |
+| `AMB-H008-04` | Vellore Crew Delta | `ambulance.h0084@nexcare.in` | `Password123` | H008 — Kaveri Medical Centre | REG-TN-NORTH | `TN 23 ZW 4413` | R. Senthil | Active | ✅ |
 
 ## Patient — 24 accounts
 

@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-  cancelAmbulanceRequest, errorText, fetchAmbulanceRequests, fetchNearbyHospitals, requestAmbulance,
-  selectAmbulanceRequests, selectNearbyHospitals, selectPatientDisplayName, selectPatientId,
+  cancelAmbulanceRequest, errorText, fetchAmbulanceFleet, fetchAmbulanceRequests, fetchNearbyHospitals, requestAmbulance,
+  selectAmbulanceFleetByHospital, selectAmbulanceFleetState, selectAmbulanceRequests, selectNearbyHospitals, selectPatientDisplayName, selectPatientId,
   selectPatientMembership, selectPatientProfile, selectPatientRecord,
 } from '../../store/patientSlice';
 import NexCareModal from './NexCareModal';
@@ -14,6 +14,11 @@ import NexCareModal from './NexCareModal';
 // were replaced on load; here it simply renders what GET /ambulance/patient/:id
 // returns. Cancel is a soft cancel (PATCH …/cancel) — the row is kept.
 // The request list and the hospital picker live in the patient slice; the form and modal stay local.
+//
+// Each hospital has its own fleet: one ambulance-crew login is one ambulance
+// (a vehicle and its driver). Only hospitals with a fleet are offered, the
+// picker shows how many of their ambulances are free, and the request table
+// shows the driver and vehicle once a crew of that hospital accepts.
 
 const BADGES = {
   Completed: 'badge-completed',
@@ -42,14 +47,22 @@ export default function AmbulancePage() {
   const rows = useAppSelector(selectAmbulanceRequests);
   const [form, setForm] = useState({ hospitalId: '', pickupLocation: '', contact: '', notes: '' });
   const nearby = useAppSelector(selectNearbyHospitals); // null = loading
+  const fleetState = useAppSelector(selectAmbulanceFleetState);
+  const fleet = useAppSelector(selectAmbulanceFleetByHospital);
+  const fleetLoaded = fleetState.list.length > 0;
+  // A hospital with no ambulances cannot send one. Until the fleet is in (or
+  // if it fails to load) fall back to the hospital's own ambulanceService flag.
   const hospitals = useMemo(
-    () => (nearby === null ? null : nearby.filter((h) => (h.verificationStatus || 'verified') === 'verified')),
-    [nearby],
+    () => (nearby === null ? null : nearby.filter((h) => (h.verificationStatus || 'verified') === 'verified'
+      && (fleetLoaded ? Boolean(fleet[h.id]?.ambulanceService) : h.ambulanceService !== false))),
+    [nearby, fleet, fleetLoaded],
   );
+  const selectedFleet = fleet[form.hospitalId];
   const [modal, setModal] = useState(null);
 
   const loadRequests = () => { if (patientId) dispatch(fetchAmbulanceRequests(patientId)); };
   useEffect(() => { if (patientId) dispatch(fetchAmbulanceRequests(patientId)); }, [dispatch, patientId]);
+  useEffect(() => { dispatch(fetchAmbulanceFleet()); }, [dispatch]);
 
   // Prefill the contact number from the patient's own record.
   useEffect(() => {
@@ -66,8 +79,10 @@ export default function AmbulancePage() {
     dispatch(fetchNearbyHospitals({ city, state: region, pincode }));
   }, [dispatch, city, region, pincode]);
   // Preselect the nearest hospital once the list is in.
+  // Also re-pick when the chosen hospital drops out of the list (no fleet).
   useEffect(() => {
-    if (hospitals && hospitals.length) setForm((f) => (f.hospitalId ? f : { ...f, hospitalId: hospitals[0].id }));
+    if (!hospitals) return;
+    setForm((f) => (hospitals.some((h) => h.id === f.hospitalId) ? f : { ...f, hospitalId: hospitals[0]?.id || '' }));
   }, [hospitals]);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -109,14 +124,22 @@ export default function AmbulancePage() {
             contact,
             notes: notes || '',
           })).unwrap();
-          const requestId = created?.id || `AMB-2026-${String(Math.floor(Math.random() * 900 + 100)).padStart(3, '0')}`;
+          const hospitalName = hospitals.find((h) => h.id === hospitalId)?.name || 'the hospital';
+          const free = selectedFleet?.available;
           setModal({
-            title: 'Ambulance Dispatched!',
-            message: 'Your emergency ambulance request has been registered and dispatched.',
-            details: <><strong>Request ID:</strong> {requestId}<br /><strong>ETA:</strong> 8-12 minutes<br /><strong>Contact:</strong> {contact}</>,
+            title: 'Ambulance Requested',
+            message: <>Your request has been sent to the ambulance crews of <strong>{hospitalName}</strong>. The first free crew will accept it, and the driver and vehicle will be shown in the table below.</>,
+            details: (
+              <>
+                {created?.id && <><strong>Request ID:</strong> {created.id}<br /></>}
+                {selectedFleet && <><strong>Ambulances free right now:</strong> {free} of {selectedFleet.total}<br /></>}
+                <strong>Contact:</strong> {contact}
+              </>
+            ),
             onDismiss: () => {
               setForm((f) => ({ hospitalId: f.hospitalId, pickupLocation: '', contact: patient?.phone || '', notes: '' }));
               loadRequests();
+              dispatch(fetchAmbulanceFleet());
             },
           });
         } catch (err) {
@@ -201,12 +224,21 @@ export default function AmbulancePage() {
               </label>
               <select id="ambulanceHospital" name="ambulanceHospital" required value={form.hospitalId} onChange={set('hospitalId')}>
                 {hospitals === null && <option value="" disabled>Loading hospitals…</option>}
-                {hospitals !== null && hospitals.length === 0 && <option value="" disabled>No hospitals available</option>}
-                {(hospitals || []).map((h) => (
-                  <option key={h.id} value={h.id}>{h.name}{h.city ? ` — ${h.city}` : ''}</option>
-                ))}
+                {hospitals !== null && hospitals.length === 0 && <option value="" disabled>No hospitals with an ambulance service</option>}
+                {(hospitals || []).map((h) => {
+                  const f = fleet[h.id];
+                  const counts = f ? ` (${f.total} ambulance${f.total === 1 ? '' : 's'} · ${f.available} free)` : '';
+                  return <option key={h.id} value={h.id}>{h.name}{h.city ? ` — ${h.city}` : ''}{counts}</option>;
+                })}
               </select>
               <p className="form-help">The ambulance is dispatched from this hospital and the patient is brought here.</p>
+              {selectedFleet && (
+                <p className="form-help" id="ambulanceAvailability" style={{ color: selectedFleet.available ? '#15803D' : '#B45309' }}>
+                  {selectedFleet.available
+                    ? `${selectedFleet.available} of ${selectedFleet.total} ambulances are free at this hospital.`
+                    : `All ${selectedFleet.total} ambulances of this hospital are on a transport — your request will wait for the next free crew${selectedFleet.waiting ? ` (${selectedFleet.waiting} already waiting)` : ''}.`}
+                </p>
+              )}
             </div>
 
             <div className="form-group">
@@ -275,10 +307,10 @@ export default function AmbulancePage() {
                         {dName ? (
                           <div style={{ fontSize: 12.5 }}>
                             <strong style={{ color: '#0F172A' }}>👨‍✈️ {dName}</strong><br />
-                            <small style={{ color: '#475569' }}>🚑 {dVehicle || 'TN-07-AB-4501'} · 📞 {dPhone || '+91 98765 43210'}</small>
+                            <small style={{ color: '#475569' }}>{[dVehicle && `🚑 ${dVehicle}`, dPhone && `📞 ${dPhone}`].filter(Boolean).join(' · ')}</small>
                           </div>
                         ) : (
-                          <span style={{ color: '#9CA3AF', fontSize: 12 }}>Awaiting Dispatch</span>
+                          <span style={{ color: '#9CA3AF', fontSize: 12 }}>{r.status === 'Pending' ? 'Waiting for a crew to accept' : '—'}</span>
                         )}
                       </td>
                       <td>{r.contact}</td>

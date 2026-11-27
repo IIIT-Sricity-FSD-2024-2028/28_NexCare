@@ -236,26 +236,40 @@ export const rejectInventory = createAsyncThunk(
   },
 );
 
+// The hospital's ambulance fleet — one crew login = one ambulance (vehicle +
+// driver), each free or out on a job — and the transport requests it serves.
 export const fetchFleet = createAsyncThunk(
   'hospitalManager/fetchFleet',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await Ambulance.getAll();
-      return asList(res);
+      const [fleet, requests] = await Promise.all([Ambulance.getFleet(), Ambulance.getAll()]);
+      return { fleet: fleet.data || null, requests: asList(requests) };
     } catch (error) {
       return rejectWithValue(errorMessage(error, 'Could not load ambulance fleet.'));
     }
   },
 );
 
-export const saveAmbulance = createAsyncThunk(
-  'hospitalManager/saveAmbulance',
-  async ({ id, data }, { rejectWithValue }) => {
+/** POST /ambulance — a new transport request; it waits (Pending) until a crew is assigned. */
+export const createTransport = createAsyncThunk(
+  'hospitalManager/createTransport',
+  async (data, { rejectWithValue }) => {
     try {
-      const res = id ? await Ambulance.update(id, data) : await Ambulance.create(data);
-      return res.data;
+      return (await Ambulance.create(data)).data;
     } catch (error) {
-      return rejectWithValue(errorMessage(error, 'Could not save ambulance.'));
+      return rejectWithValue(errorMessage(error, 'Could not create the transport request.'));
+    }
+  },
+);
+
+/** PATCH /ambulance/:id/dispatch — hand a waiting request to one free crew of this hospital. */
+export const assignCrew = createAsyncThunk(
+  'hospitalManager/assignCrew',
+  async ({ id, crewId }, { rejectWithValue }) => {
+    try {
+      return (await Ambulance.dispatch(id, crewId)).data;
+    } catch (error) {
+      return rejectWithValue(errorMessage(error, 'Could not assign the ambulance.'));
     }
   },
 );
@@ -329,7 +343,8 @@ const initialState = {
   support: { tickets: [], loading: false, error: null },
   feedback: listState(),
   inventory: { approvals: [], loading: false, error: null },
-  ambulance: { fleet: [], loading: false, error: null },
+  // fleet: GET /ambulance/fleet for this hospital ({ total, available, crews[] … }); requests: its transports.
+  ambulance: { fleet: null, requests: [], loading: false, error: null },
   revenue: { data: null, loading: false, error: null },
   subscription: { plan: null, plans: [], loading: false, error: null },
   setup: { config: null, loading: false, error: null },
@@ -466,18 +481,20 @@ const hospitalManagerSlice = createSlice({
         state.ambulance.error = null;
       })
       .addCase(fetchFleet.fulfilled, (state, action) => {
-        state.ambulance.fleet = action.payload;
+        state.ambulance.fleet = action.payload.fleet;
+        state.ambulance.requests = action.payload.requests;
         state.ambulance.loading = false;
       })
       .addCase(fetchFleet.rejected, (state, action) => {
         state.ambulance.loading = false;
         state.ambulance.error = action.payload;
       })
-      .addCase(saveAmbulance.fulfilled, (state, action) => {
-        if (!action.payload) return;
-        const index = state.ambulance.fleet.findIndex((a) => a.id === action.payload.id);
-        if (index >= 0) state.ambulance.fleet[index] = { ...state.ambulance.fleet[index], ...action.payload };
-        else state.ambulance.fleet.unshift(action.payload);
+      .addCase(createTransport.fulfilled, (state, action) => {
+        if (action.payload?.id) state.ambulance.requests.unshift(action.payload);
+      })
+      .addCase(assignCrew.fulfilled, (state, action) => {
+        const index = state.ambulance.requests.findIndex((r) => r.id === action.payload?.id);
+        if (index >= 0) state.ambulance.requests[index] = { ...state.ambulance.requests[index], ...action.payload };
       })
 
       .addCase(fetchHmRevenue.pending, pending('revenue'))
@@ -533,4 +550,4 @@ export const selectHmRevenue = (state) => state.hospitalManager.revenue;
 export const selectHmSubscription = (state) => state.hospitalManager.subscription;
 export const selectHmSetup = (state) => state.hospitalManager.setup;
 
-export default hospitalManagerSlice.reducer;
+export default hospitalManagerSlice.reducer;

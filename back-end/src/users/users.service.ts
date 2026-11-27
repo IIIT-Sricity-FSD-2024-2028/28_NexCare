@@ -142,6 +142,20 @@ export class UsersService {
    * @param userData User creation data
    * @returns Created user data
    */
+  /**
+   * An ambulance crew account is one ambulance of its hospital, so it must
+   * name a vehicle and no other crew of that hospital may hold the same one.
+   */
+  private vehicleConflict(role: string, hospitalId?: string, vehicle?: string, selfId?: string): string | null {
+    if (role !== UserRole.AMBULANCE) return null;
+    const plate = (vehicle || '').trim();
+    if (!plate) return 'An ambulance crew needs an assigned vehicle registration number';
+    const norm = (v: string) => String(v || '').replace(/[\s-]/g, '').toUpperCase();
+    const clash = this.users.find(u =>
+      u.id !== selfId && u.role === UserRole.AMBULANCE && u.hospitalId === hospitalId && norm(u.assignedVehicle) === norm(plate));
+    return clash ? `Vehicle ${plate} is already assigned to ${clash.name}` : null;
+  }
+
   async create(userData: CreateUserRequest) {
     try {
       // Auto-generate email if missing
@@ -154,6 +168,10 @@ export class UsersService {
           return ResponseUtil.error('Email already exists');
         }
       }
+
+      // One ambulance crew = one vehicle: it needs its own registration number.
+      const vehicleError = this.vehicleConflict(userData.role, userData.hospitalId, userData.assignedVehicle);
+      if (vehicleError) return ResponseUtil.error(vehicleError);
 
       // Auto-generate employeeId if missing
       const employeeId = userData.employeeId || this.generateEmployeeId(userData.role, userData.hospitalId);
@@ -265,6 +283,17 @@ export class UsersService {
         if (existingUser) {
           return ResponseUtil.error('Email already exists');
         }
+      }
+
+      const existing = this.users[userIndex];
+      if (updateData.assignedVehicle !== undefined || updateData.hospitalId !== undefined) {
+        const vehicleError = this.vehicleConflict(
+          existing.role,
+          updateData.hospitalId ?? existing.hospitalId,
+          updateData.assignedVehicle ?? existing.assignedVehicle,
+          id,
+        );
+        if (vehicleError) return ResponseUtil.error(vehicleError);
       }
 
       // Update user

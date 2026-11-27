@@ -417,7 +417,9 @@
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
     "employeeId": "AMB-EMP-U003",
-    "phone": "+91 9901638397"
+    "phone": "+91 9901638397",
+    "assignedVehicle": "AP 03 AB 4821",
+    "driverName": "Ramesh Naidu"
   },
   {
     "id": "AMB-H001-02",
@@ -430,7 +432,24 @@
     "hospitalName": "Sri Venkateswara Multispeciality Hospital",
     "regionId": "REG-AP-SOUTH",
     "employeeId": "AMB-EMP-AMB-H001-02",
-    "phone": "+91 9461249490"
+    "phone": "+91 9461249490",
+    "assignedVehicle": "AP 03 AB 4822",
+    "driverName": "Suresh Kumar"
+  },
+  {
+    "id": "AMB-H001-03",
+    "name": "Tirupati Crew Charlie",
+    "email": "ambulance.h0013@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H001",
+    "hospitalName": "Sri Venkateswara Multispeciality Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H001-03",
+    "phone": "+91 9848100000",
+    "assignedVehicle": "AP 03 AB 4823",
+    "driverName": "Prakash Reddy"
   },
   {
     "id": "U004",
@@ -816,7 +835,9 @@
     "hospitalName": "Coastal Care Hospital",
     "regionId": "REG-AP-SOUTH",
     "employeeId": "AMB-EMP-AMB-H002-01",
-    "phone": "+91 9599208653"
+    "phone": "+91 9599208653",
+    "assignedVehicle": "AP 26 CD 1042",
+    "driverName": "Venu Gopal"
   },
   {
     "id": "AMB-H002-02",
@@ -829,7 +850,39 @@
     "hospitalName": "Coastal Care Hospital",
     "regionId": "REG-AP-SOUTH",
     "employeeId": "AMB-EMP-AMB-H002-02",
-    "phone": "+91 9292179060"
+    "phone": "+91 9292179060",
+    "assignedVehicle": "AP 26 CD 1043",
+    "driverName": "Sailesh Raju"
+  },
+  {
+    "id": "AMB-H002-03",
+    "name": "Nellore Crew Charlie",
+    "email": "ambulance.h0023@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H002-03",
+    "phone": "+91 9848107919",
+    "assignedVehicle": "AP 26 CD 1044",
+    "driverName": "Kiran Varma"
+  },
+  {
+    "id": "AMB-H002-04",
+    "name": "Nellore Crew Delta",
+    "email": "ambulance.h0024@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H002",
+    "hospitalName": "Coastal Care Hospital",
+    "regionId": "REG-AP-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H002-04",
+    "phone": "+91 9848115838",
+    "assignedVehicle": "AP 26 CD 1045",
+    "driverName": "Naresh Babu"
   },
   {
     "id": "PAT-LOGIN-H2-1",
@@ -1213,7 +1266,9 @@
     "hospitalName": "Namma Health Multispeciality",
     "regionId": "REG-KA-SOUTH",
     "employeeId": "AMB-EMP-AMB-H003-01",
-    "phone": "+91 9370084806"
+    "phone": "+91 9370084806",
+    "assignedVehicle": "KA 01 MN 7534",
+    "driverName": "Pradeep Shetty"
   },
   {
     "id": "AMB-H003-02",
@@ -1226,7 +1281,54 @@
     "hospitalName": "Namma Health Multispeciality",
     "regionId": "REG-KA-SOUTH",
     "employeeId": "AMB-EMP-AMB-H003-02",
-    "phone": "+91 9244613826"
+    "phone": "+91 9244613826",
+    "assignedVehicle": "KA 01 MN 7535",
+    "driverName": "Manjunath Gowda"
+  },
+  {
+    "id": "AMB-H003-03",
+    "name": "Bengaluru Crew Charlie",
+    "email": "ambulance.h0033@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H003-03",
+    "phone": "+91 9848123757",
+    "assignedVehicle": "KA 01 MN 7536",
+    "driverName": "Siddharth Murthy"
+  },
+  {
+    "id": "AMB-H003-04",
+    "name": "Bengaluru Crew Delta",
+    "email": "ambulance.h0034@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H003-04",
+    "phone": "+91 9848131676",
+    "assignedVehicle": "KA 01 MN 7537",
+    "driverName": "Harish Kumar"
+  },
+  {
+    "id": "AMB-H003-05",
+    "name": "Bengaluru Crew Echo",
+    "email": "ambulance.h0035@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H003",
+    "hospitalName": "Namma Health Multispeciality",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H003-05",
+    "phone": "+91 9848139595",
+    "assignedVehicle": "KA 01 MN 7538",
+    "driverName": "Lokesh Rao"
   },
   {
     "id": "PAT-LOGIN-H3-1",
@@ -1610,7 +1712,9 @@
     "hospitalName": "Cauvery City Hospital",
     "regionId": "REG-KA-SOUTH",
     "employeeId": "AMB-EMP-AMB-H004-01",
-    "phone": "+91 9475381481"
+    "phone": "+91 9475381481",
+    "assignedVehicle": "KA 09 PQ 3021",
+    "driverName": "Basavaraj Rai"
   },
   {
     "id": "AMB-H004-02",
@@ -1623,7 +1727,24 @@
     "hospitalName": "Cauvery City Hospital",
     "regionId": "REG-KA-SOUTH",
     "employeeId": "AMB-EMP-AMB-H004-02",
-    "phone": "+91 9857295347"
+    "phone": "+91 9857295347",
+    "assignedVehicle": "KA 09 PQ 3022",
+    "driverName": "Girish Urs"
+  },
+  {
+    "id": "AMB-H004-03",
+    "name": "Mysuru Crew Charlie",
+    "email": "ambulance.h0043@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H004",
+    "hospitalName": "Cauvery City Hospital",
+    "regionId": "REG-KA-SOUTH",
+    "employeeId": "AMB-EMP-AMB-H004-03",
+    "phone": "+91 9848147514",
+    "assignedVehicle": "KA 09 PQ 3023",
+    "driverName": "Mahesh Hegde"
   },
   {
     "id": "PAT-LOGIN-H4-1",
@@ -2007,7 +2128,9 @@
     "hospitalName": "Sahyadri Care Hospital",
     "regionId": "REG-MH-CENTRAL",
     "employeeId": "AMB-EMP-AMB-H005-01",
-    "phone": "+91 9922318403"
+    "phone": "+91 9922318403",
+    "assignedVehicle": "MH 12 QR 2846",
+    "driverName": "Vijay Patil"
   },
   {
     "id": "AMB-H005-02",
@@ -2020,7 +2143,39 @@
     "hospitalName": "Sahyadri Care Hospital",
     "regionId": "REG-MH-CENTRAL",
     "employeeId": "AMB-EMP-AMB-H005-02",
-    "phone": "+91 9940450253"
+    "phone": "+91 9940450253",
+    "assignedVehicle": "MH 12 QR 2847",
+    "driverName": "Sachin Pawar"
+  },
+  {
+    "id": "AMB-H005-03",
+    "name": "Pune Crew Charlie",
+    "email": "ambulance.h0053@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "AMB-EMP-AMB-H005-03",
+    "phone": "+91 9848155433",
+    "assignedVehicle": "MH 12 QR 2848",
+    "driverName": "Rahul Shinde"
+  },
+  {
+    "id": "AMB-H005-04",
+    "name": "Pune Crew Delta",
+    "email": "ambulance.h0054@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H005",
+    "hospitalName": "Sahyadri Care Hospital",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "AMB-EMP-AMB-H005-04",
+    "phone": "+91 9848163352",
+    "assignedVehicle": "MH 12 QR 2849",
+    "driverName": "Amol Kulkarni"
   },
   {
     "id": "PAT-LOGIN-H5-1",
@@ -2404,7 +2559,9 @@
     "hospitalName": "Deccan Multispeciality Centre",
     "regionId": "REG-MH-CENTRAL",
     "employeeId": "AMB-EMP-AMB-H006-01",
-    "phone": "+91 9819302054"
+    "phone": "+91 9819302054",
+    "assignedVehicle": "MH 15 ST 9102",
+    "driverName": "Ganesh Borse"
   },
   {
     "id": "AMB-H006-02",
@@ -2417,7 +2574,54 @@
     "hospitalName": "Deccan Multispeciality Centre",
     "regionId": "REG-MH-CENTRAL",
     "employeeId": "AMB-EMP-AMB-H006-02",
-    "phone": "+91 9227149086"
+    "phone": "+91 9227149086",
+    "assignedVehicle": "MH 15 ST 9103",
+    "driverName": "Vikas Jadhav"
+  },
+  {
+    "id": "AMB-H006-03",
+    "name": "Nashik Crew Charlie",
+    "email": "ambulance.h0063@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "AMB-EMP-AMB-H006-03",
+    "phone": "+91 9848171271",
+    "assignedVehicle": "MH 15 ST 9104",
+    "driverName": "Santosh More"
+  },
+  {
+    "id": "AMB-H006-04",
+    "name": "Nashik Crew Delta",
+    "email": "ambulance.h0064@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "AMB-EMP-AMB-H006-04",
+    "phone": "+91 9848179190",
+    "assignedVehicle": "MH 15 ST 9105",
+    "driverName": "Nitin Gaikwad"
+  },
+  {
+    "id": "AMB-H006-05",
+    "name": "Nashik Crew Echo",
+    "email": "ambulance.h0065@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H006",
+    "hospitalName": "Deccan Multispeciality Centre",
+    "regionId": "REG-MH-CENTRAL",
+    "employeeId": "AMB-EMP-AMB-H006-05",
+    "phone": "+91 9848187109",
+    "assignedVehicle": "MH 15 ST 9106",
+    "driverName": "Dinesh Wagh"
   },
   {
     "id": "PAT-LOGIN-H6-1",
@@ -2801,7 +3005,9 @@
     "hospitalName": "Chennai Lifeline Hospital",
     "regionId": "REG-TN-NORTH",
     "employeeId": "AMB-EMP-AMB-H007-01",
-    "phone": "+91 9144725177"
+    "phone": "+91 9144725177",
+    "assignedVehicle": "TN 10 XY 6182",
+    "driverName": "Manikandan R"
   },
   {
     "id": "AMB-H007-02",
@@ -2814,7 +3020,24 @@
     "hospitalName": "Chennai Lifeline Hospital",
     "regionId": "REG-TN-NORTH",
     "employeeId": "AMB-EMP-AMB-H007-02",
-    "phone": "+91 9103700640"
+    "phone": "+91 9103700640",
+    "assignedVehicle": "TN 10 XY 6183",
+    "driverName": "S. Vijay"
+  },
+  {
+    "id": "AMB-H007-03",
+    "name": "Chennai Crew Charlie",
+    "email": "ambulance.h0073@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H007",
+    "hospitalName": "Chennai Lifeline Hospital",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "AMB-EMP-AMB-H007-03",
+    "phone": "+91 9848195028",
+    "assignedVehicle": "TN 10 XY 6184",
+    "driverName": "M. Saravanan"
   },
   {
     "id": "PAT-LOGIN-H7-1",
@@ -3198,7 +3421,9 @@
     "hospitalName": "Kaveri Medical Centre",
     "regionId": "REG-TN-NORTH",
     "employeeId": "AMB-EMP-AMB-H008-01",
-    "phone": "+91 9310656594"
+    "phone": "+91 9310656594",
+    "assignedVehicle": "TN 23 ZW 4410",
+    "driverName": "A. Sathish"
   },
   {
     "id": "AMB-H008-02",
@@ -3211,7 +3436,39 @@
     "hospitalName": "Kaveri Medical Centre",
     "regionId": "REG-TN-NORTH",
     "employeeId": "AMB-EMP-AMB-H008-02",
-    "phone": "+91 9325888585"
+    "phone": "+91 9325888585",
+    "assignedVehicle": "TN 23 ZW 4411",
+    "driverName": "T. Loganathan"
+  },
+  {
+    "id": "AMB-H008-03",
+    "name": "Vellore Crew Charlie",
+    "email": "ambulance.h0083@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "AMB-EMP-AMB-H008-03",
+    "phone": "+91 9848202947",
+    "assignedVehicle": "TN 23 ZW 4412",
+    "driverName": "K. Murugan"
+  },
+  {
+    "id": "AMB-H008-04",
+    "name": "Vellore Crew Delta",
+    "email": "ambulance.h0084@nexcare.in",
+    "role": "ambulance",
+    "status": "Active",
+    "password": "Password123",
+    "hospitalId": "H008",
+    "hospitalName": "Kaveri Medical Centre",
+    "regionId": "REG-TN-NORTH",
+    "employeeId": "AMB-EMP-AMB-H008-04",
+    "phone": "+91 9848210866",
+    "assignedVehicle": "TN 23 ZW 4413",
+    "driverName": "R. Senthil"
   },
   {
     "id": "PAT-LOGIN-H8-1",

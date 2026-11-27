@@ -25,7 +25,12 @@ const ICON = {
   power: icon(<><path d="M18.36 6.64a9 9 0 1 1-12.73 0" /><line x1="12" y1="2" x2="12" y2="12" /></>),
 };
 
-/** ValidationUtils from app.js: name letters/spaces, phone 10 digits, vehicle 3–10 chars. */
+/**
+ * ValidationUtils from app.js: name letters/spaces, phone 10 digits. The
+ * vehicle is not edited here: one crew account is one ambulance of the
+ * hospital, so its registration number is assigned by the hospital manager
+ * and the backend dispatches requests with it.
+ */
 function validate(f) {
   const errors = {};
   if (!f.name.trim()) errors.name = 'Full name is required';
@@ -33,8 +38,6 @@ function validate(f) {
   const digits = f.phone.replace(/\D/g, '');
   if (!digits) errors.phone = 'Phone number is required';
   else if (digits.length !== 10) errors.phone = 'Phone number must be 10 digits';
-  if (!f.vehicle.trim()) errors.vehicle = 'Vehicle number is required';
-  else if (f.vehicle.trim().length < 3 || f.vehicle.trim().length > 10) errors.vehicle = 'Vehicle number must be 3-10 characters';
   if (!STATUSES.includes(f.status)) errors.status = 'Choose a status';
   return errors;
 }
@@ -62,7 +65,8 @@ export default function ProfilePage() {
   const current = {
     name: profile.name || user?.name || '',
     phone: profile.phone || user?.phone || '',
-    vehicle: profile.vehicle || user?.assignedVehicle || '',
+    vehicle: user?.assignedVehicle || '',
+    driver: user?.driverName || '',
     status: profile.status || 'Available',
   };
   const [editing, setEditing] = useState(false);
@@ -90,7 +94,7 @@ export default function ProfilePage() {
   function save() {
     const errs = validate(form);
     if (Object.keys(errs).length) { setErrors(errs); return; }
-    saveProfile({ name: form.name.trim(), phone: form.phone.trim(), vehicle: form.vehicle.trim().toUpperCase(), status: form.status });
+    saveProfile({ name: form.name.trim(), phone: form.phone.trim(), status: form.status });
     setEditing(false);
     notify('Profile updated successfully!', 'success');
   }
@@ -117,7 +121,8 @@ export default function ProfilePage() {
           </div>
           <div className="profile-info-section">
             <div className="profile-info-item">{ICON.phone}<span id="profile-display-phone">{current.phone || '—'}</span></div>
-            <div className="profile-info-item">{ICON.truck}<span>Vehicle: <span id="profile-display-vehicle">{current.vehicle || '—'}</span></span></div>
+            <div className="profile-info-item">{ICON.truck}<span>Vehicle: <span id="profile-display-vehicle">{current.vehicle || 'Not assigned — ask your hospital manager'}</span></span></div>
+            {current.driver && <div className="profile-info-item">{ICON.user}<span>Driver: <span id="profile-display-driver">{current.driver}</span></span></div>}
           </div>
         </div>
 
@@ -131,7 +136,7 @@ export default function ProfilePage() {
             <div className="profile-fields-grid">
               {field('name', 'Full Name', ICON.user, <input type="text" id="profile-name" className={`form-input${errors.name ? ' input-error' : ''}`} value={form.name} onChange={set('name')} disabled={!editing} />)}
               {field('phone', 'Phone Number', ICON.phone, <input type="tel" id="profile-phone" className={`form-input${errors.phone ? ' input-error' : ''}`} inputMode="numeric" maxLength={10} value={form.phone} onChange={set('phone')} disabled={!editing} />)}
-              {field('vehicle', 'Vehicle Number', ICON.truck, <input type="text" id="profile-vehicle" className={`form-input${errors.vehicle ? ' input-error' : ''}`} value={form.vehicle} onChange={set('vehicle')} disabled={!editing} />)}
+              {field('vehicle', 'Vehicle Number (assigned by the hospital)', ICON.truck, <input type="text" id="profile-vehicle" className="form-input" value={current.vehicle} readOnly disabled />)}
               {field('status', 'Availability Status', ICON.power, (
                 <select id="profile-status" className="form-input" value={form.status} onChange={set('status')} disabled={!editing}>
                   {STATUSES.map((s) => <option key={s}>{s}</option>)}

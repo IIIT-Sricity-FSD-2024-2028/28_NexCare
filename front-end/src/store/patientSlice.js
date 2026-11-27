@@ -20,7 +20,8 @@
 //   appointments    createAppointment     fetchAppointments            rescheduleAppointment, cancel…       deleteAppointment
 //   billing         (staff: generateBill) fetchBills                   payBill                              (staff only)
 //   feedback        submitFeedback        fetchFeedback                updateFeedback                       deleteFeedback
-//   ambulance       requestAmbulance      fetchAmbulanceRequests       cancelAmbulanceRequest               (staff only)
+//   ambulance       requestAmbulance      fetchAmbulanceRequests,      cancelAmbulanceRequest               (staff only)
+//                                         fetchAmbulanceFleet (counts per hospital)
 //   membership      subscribeMembership   fetchMembership, …Plans      subscribeMembership (plan change)    cancelMembership
 //   hospitals       —                     fetchHospitals, fetchNearbyHospitals, searchHospitals (read-only for patients)
 //   users/doctors   —                     fetchDoctorDirectory          (read-only for patients)
@@ -249,6 +250,16 @@ export const fetchAmbulanceRequests = createAsyncThunk('patient/fetchAmbulanceRe
   }
 });
 
+/** How many ambulances each hospital has and how many are free (counts only for a patient). */
+export const fetchAmbulanceFleet = createAsyncThunk('patient/fetchAmbulanceFleet', async (_, { rejectWithValue }) => {
+  try {
+    const res = await Ambulance.getFleet();
+    return Array.isArray(res?.data) ? res.data : [];
+  } catch (error) {
+    return rejectWithValue(errorMessage(error, 'Could not load ambulance availability.'));
+  }
+});
+
 export const requestAmbulance = createAsyncThunk('patient/requestAmbulance', async (data, { rejectWithValue }) => {
   try {
     return (await Ambulance.createRequest(data)).data || null;
@@ -349,6 +360,8 @@ const initialState = {
   feedback: { list: [], loading: false, error: null },
   booking: { draft: EMPTY_BOOKING, submitting: false },
   ambulance: { requests: [], loading: false, error: null },
+  // One row per hospital: { hospitalId, ambulanceService, total, available, onTransport, waiting }.
+  ambulanceFleet: { list: [], loading: false, error: null },
   payments: { testCards: [], loading: false, error: null },
   hospitals: { list: [], loading: false, error: null },
   nearbyHospitals: { list: [], loading: false, error: null },
@@ -434,6 +447,7 @@ const patientSlice = createSlice({
     mutate(builder, deleteFeedback, 'feedback', (s, id) => { s.list = s.list.filter((f) => f.id !== id); });
 
     track(builder, fetchAmbulanceRequests, 'ambulance', (s, list) => { s.requests = list; });
+    track(builder, fetchAmbulanceFleet, 'ambulanceFleet', (s, list) => { s.list = list; });
     mutate(builder, requestAmbulance, 'ambulance', (s, req) => { if (req?.id) s.requests.unshift(req); });
     mutate(builder, cancelAmbulanceRequest, 'ambulance', (s, req) => { replaceById(s.requests, req); });
 
@@ -534,6 +548,10 @@ export const selectPaidBills = createSelector([selectBills], (bills) =>
 export const selectFeedbackList = (state) => state.patient.feedback.list;
 
 export const selectAmbulanceRequests = (state) => state.patient.ambulance.requests;
+export const selectAmbulanceFleetState = (state) => state.patient.ambulanceFleet;
+/** hospitalId → fleet row, for the ambulance form's hospital picker. */
+export const selectAmbulanceFleetByHospital = createSelector([(state) => state.patient.ambulanceFleet.list], (list) =>
+  Object.fromEntries(list.map((row) => [row.hospitalId, row])));
 /** Requests that are not finished yet (the dashboard's "Ambulance Requests" card). */
 export const selectOpenAmbulanceCount = (state) =>
   state.patient.ambulance.requests.filter((r) => r.status !== 'Completed').length;

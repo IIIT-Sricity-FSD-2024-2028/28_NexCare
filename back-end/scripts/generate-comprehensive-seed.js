@@ -779,11 +779,35 @@ hospitalsData.forEach((h, hIdx) => {
     employeeId: `ADM-${h.id}-005`
   });
 
-  // Add Ambulance Staff (2 per hospital)
-  const ambStaff = [
-    { id: h.id === 'H001' ? 'U003' : `AMB-${h.id}-01`, name: `${h.city} Crew Alpha`, email: h.id === 'H001' ? 'ambulance@nexcare.com' : `ambulance.${h.id.toLowerCase()}1@nexcare.in` },
-    { id: `AMB-${h.id}-02`, name: `${h.city} Crew Bravo`, email: `ambulance.${h.id.toLowerCase()}2@nexcare.in` }
+  // Ambulance fleet: one crew login = one ambulance (its vehicle + its driver),
+  // as many as the hospital's ambulanceCount. A request is only ever handed
+  // to a free crew of its own hospital (AmbulanceService.dispatch).
+  const FLEET_SERIES = [['AP 03 AB', 4821], ['AP 26 CD', 1042], ['KA 01 MN', 7534], ['KA 09 PQ', 3021],
+    ['MH 12 QR', 2846], ['MH 15 ST', 9102], ['TN 10 XY', 6182], ['TN 23 ZW', 4410]];
+  const FLEET_DRIVERS = [
+    ['Ramesh Naidu', 'Suresh Kumar', 'Prakash Reddy'],
+    ['Venu Gopal', 'Sailesh Raju', 'Kiran Varma', 'Naresh Babu'],
+    ['Pradeep Shetty', 'Manjunath Gowda', 'Siddharth Murthy', 'Harish Kumar', 'Lokesh Rao'],
+    ['Basavaraj Rai', 'Girish Urs', 'Mahesh Hegde'],
+    ['Vijay Patil', 'Sachin Pawar', 'Rahul Shinde', 'Amol Kulkarni'],
+    ['Ganesh Borse', 'Vikas Jadhav', 'Santosh More', 'Nitin Gaikwad', 'Dinesh Wagh'],
+    ['Manikandan R', 'S. Vijay', 'M. Saravanan'],
+    ['A. Sathish', 'T. Loganathan', 'K. Murugan', 'R. Senthil'],
   ];
+  const CALLSIGNS = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo'];
+  const fleetSize = 3 + (hIdx % 3); // = the hospital's ambulanceCount
+  const [platePrefix, plateBase] = FLEET_SERIES[hIdx] || ['AP 03 AB', 9000];
+  const ambStaff = Array.from({ length: fleetSize }, (_, k) => {
+    const first = k === 0 && h.id === 'H001';
+    return {
+      id: first ? 'U003' : `AMB-${h.id}-${String(k + 1).padStart(2, '0')}`,
+      name: `${h.city} Crew ${CALLSIGNS[k]}`,
+      email: first ? 'ambulance@nexcare.com' : `ambulance.${h.id.toLowerCase()}${k + 1}@nexcare.in`,
+      assignedVehicle: `${platePrefix} ${plateBase + k}`,
+      driverName: (FLEET_DRIVERS[hIdx] || [])[k] || `${h.city} Driver ${k + 1}`,
+      phone: `+91 98480 ${String(hIdx + 1).padStart(2, '0')}${String(k + 1).padStart(3, '0')}`,
+    };
+  });
   ambStaff.forEach((amb) => {
     users.push({
       id: amb.id,
@@ -795,7 +819,10 @@ hospitalsData.forEach((h, hIdx) => {
       hospitalId: h.id,
       hospitalName: h.name,
       regionId: h.regionId,
-      employeeId: `AMB-EMP-${amb.id}`
+      employeeId: `AMB-EMP-${amb.id}`,
+      phone: amb.phone,
+      assignedVehicle: amb.assignedVehicle,
+      driverName: amb.driverName,
     });
   });
 
@@ -983,30 +1010,10 @@ hospitalsData.forEach((h, hIdx) => {
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z'
   });
-  // Add Ambulance Fleet for hospital
-  const ambRegs = [
-    ['AP 03 AB 4821', 'AP 03 AB 4822', 'AP 03 AB 4823'],
-    ['AP 26 CD 1042', 'AP 26 CD 1043'],
-    ['KA 01 MN 7534', 'KA 01 MN 7535', 'KA 01 MN 7536', 'KA 01 MN 7537'],
-    ['KA 09 PQ 3021', 'KA 09 PQ 3022'],
-    ['MH 12 QR 2846', 'MH 12 QR 2847', 'MH 12 QR 2848'],
-    ['MH 15 ST 9102', 'MH 15 ST 9103'],
-    ['TN 10 XY 6182', 'TN 10 XY 6183', 'TN 10 XY 6184', 'TN 10 XY 6185'],
-    ['TN 23 ZW 4410', 'TN 23 ZW 4411']
-  ];
-  const ambDrivers = [
-    ['Ramesh Naidu', 'Suresh Kumar', 'K. Venkatesh'],
-    ['Venu Gopal', 'Sailesh Raju'],
-    ['Pradeep Shetty', 'Manjunath Gowda', 'Kiran Bhat', 'Siddharth Murthy'],
-    ['Basavaraj Rai', 'Girish Ursu'],
-    ['Vijay Patil', 'Sachin Pawar', 'Ajinkya Shinde'],
-    ['Ganesh Borse', 'Vikas Jadhav'],
-    ['Manikandan R', 'S. Vijay', 'R. Karthik', 'M. Saravanan'],
-    ['A. Sathish', 'T. Loganathan']
-  ];
-
-  const hRegs = ambRegs[hIdx] || ['AP 03 AB 9999'];
-  const hDrv = ambDrivers[hIdx] || ['Emergency Driver'];
+  // Seeded transport requests per hospital (2–4). The crew, vehicle and driver
+  // of each come from ambStaff above: waiting requests have none, and every
+  // live one has its own crew, since a crew holds one transport at a time.
+  const requestsPerHospital = [3, 2, 4, 2, 3, 2, 4, 2][hIdx] || 2;
 
   // data/ambulance.json is the AmbulanceRequest collection — see
   // FileStore<AmbulanceRequest>('ambulance.json') in ambulance.service.ts.
@@ -1022,11 +1029,15 @@ hospitalsData.forEach((h, hIdx) => {
     AmbulanceStatus.DISPATCHED
   ];
 
-  hRegs.forEach((vNum, vIdx) => {
+  let nextFreeCrew = 1; // crew 0 ran the completed job; live jobs take crews 1, 2, …
+  Array.from({ length: requestsPerHospital }).forEach((_, vIdx) => {
     const ambId = `AMB-${h.id}-${String(vIdx + 1).padStart(2, '0')}`;
     const requester = patientData[hIdx][vIdx % patientData[hIdx].length];
     const status = requestStatuses[vIdx % requestStatuses.length];
     const dispatched = status !== AmbulanceStatus.PENDING;
+    const crew = !dispatched ? null
+      : status === AmbulanceStatus.COMPLETED ? ambStaff[0]
+      : ambStaff[Math.min(nextFreeCrew++, ambStaff.length - 1)];
 
     ambulances.push({
       id: ambId,
@@ -1038,12 +1049,12 @@ hospitalsData.forEach((h, hIdx) => {
       status,
       hospitalId: h.id,
       hospitalName: h.name,
-      assignedTo: ambStaff[vIdx % ambStaff.length]?.id || 'U003',
-      // Fleet details, populated once a vehicle has actually been dispatched.
-      vehicleNumber: dispatched ? vNum : undefined,
+      assignedTo: crew ? crew.id : undefined,
+      // Fleet details, from the crew that took the job.
+      vehicleNumber: crew ? crew.assignedVehicle : undefined,
       type: vIdx === 0 ? 'Advanced Life Support (ALS)' : 'Basic Life Support (BLS)',
-      driverName: dispatched ? hDrv[vIdx % hDrv.length] : undefined,
-      driverPhone: dispatched ? `+91 98480 ${hIdx + 1}${vIdx + 1}00${vIdx}` : undefined,
+      driverName: crew ? crew.driverName : undefined,
+      driverPhone: crew ? crew.phone : undefined,
       completedDate: status === AmbulanceStatus.COMPLETED ? '2026-08-25' : undefined,
       completedTime: status === AmbulanceStatus.COMPLETED ? '11:45 AM' : undefined,
       createdAt: '2026-08-25T10:00:00Z',

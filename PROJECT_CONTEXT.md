@@ -54,10 +54,11 @@ Source of truth for scope: `README.md`, `DomainExpertInteraction.md`, `definitio
 **Branch:** `vivian`, merged up to `origin/main` at `7a4cf06`. The 2026-09-01 revenue
 model change is uncommitted in the working tree — the team commits it themselves.
 
-**Backend test suite:** 10 suites, 62 tests, **all passing** (`npx jest` in `back-end/`,
-~7s). Suites: `array.util`, `id-generator.util`, `hospitals.service`,
+**Backend test suite:** 11 suites, 71 tests, **all passing** (`npx jest` in `back-end/`,
+~10s, 2026-11-27). Suites: `array.util`, `id-generator.util`, `hospitals.service`,
 `hospital-query.interceptor`, `leave-request.guard`, `appointments.service`,
-`appointments.controller`, `mock-gateway`, `payments.service`, `revenue.service`.
+`appointments.controller`, `mock-gateway`, `payments.service`, `revenue.service`,
+`ambulance.service` (§5D).
 
 **Backend compiles clean.** It did not before 2026-08-28 — `npm run build` emitted
 3 TypeScript errors (two wrong middleware import paths, one missing enum member).
@@ -737,6 +738,46 @@ had. Method-level `@Roles` fully overrides the class-level decorator (the guard 
 
 ---
 
+## 5D. Ambulance fleet — one crew login is one ambulance (added 2026-11-27)
+
+**The rule:** an emergency request goes to an ambulance of the hospital the
+patient chose, and the record says exactly which vehicle and which driver took it.
+
+- **Fleet = crew accounts.** Every `role: ambulance` user is one ambulance of its
+  `hospitalId`, carrying `assignedVehicle` (the registration) and `driverName`
+  (the person; falls back to the account `name` for crews a manager registers).
+  Each seeded hospital has as many crews as its `ambulanceCount`: H001 3 · H002 4 ·
+  H003 5 · H004 3 · H005 4 · H006 5 · H007 3 · H008 4 (31 crews; was 2 each).
+  H009 (not verified), H010 and H011 (`ambulanceService: false`) have none.
+- **`GET /ambulance/fleet[?hospitalId]`** derives the fleet live: `total`,
+  `available`, `onTransport`, `unavailable`, `waiting`, plus `crews[]` with each
+  unit's state and current job. Patients get counts only; staff, managers and crews
+  only their own hospital.
+- **`PATCH /ambulance/:id/dispatch` enforces it** (`ambulance.service.ts`
+  `dispatch()`): the crew must be an ambulance account of the request's own hospital,
+  on duty, with a vehicle, and not already on a live transport. Vehicle, driver and
+  phone come from the crew's account, never from the request body. A crew may only
+  accept for itself; a caller from another hospital gets 403 (controller
+  `assertHospitalAccess`, also on PUT/PATCH/cancel/complete/status/GET by id).
+- `PUT/PATCH /ambulance/:id` can no longer set `assignedTo`, vehicle or driver, and
+  no write can move an unassigned request to an active status — dispatch is the only
+  way a crew gets a job. `POST /ambulance` refuses a hospital that is unverified or
+  has no fleet.
+- **No invented drivers.** `populateDriver()` used to fill an unassigned request
+  with "Suresh Kumar / AP 03 AB 4821"; the patient page had `TN-07-AB-4501` and the
+  manager page `AP-03-AX-1001` fallbacks. All removed.
+- **Crew registration needs a vehicle** (`users.service.ts` `vehicleConflict()`):
+  required for the ambulance role and unique within the hospital. The ambulance
+  portal profile shows the vehicle read-only.
+- **UI:** the patient picker lists only hospitals with a fleet, with "3 ambulances
+  · 1 free"; the manager's *Ambulance Fleet Status* page lists the real units and
+  assigns a waiting request to a free one (it used to list requests as vehicles).
+- Seed repair kept every crew to at most one live job and cleared drivers from
+  pending requests; `scripts/generate-comprehensive-seed.js` generates the same
+  fleet. Tests: `ambulance.service.spec.ts` (9).
+
+---
+
 ## 6. Repository map
 
 ```
@@ -960,7 +1001,9 @@ Others (`POST`, `PUT`, `PATCH`, `DELETE`, `/stats/overview`, `/overdue`, `/reven
 | POST · DELETE | `/ambulance`, `/ambulance/:id` | + **patient** |
 | GET | `/ambulance/patient/:patientId`, `/ambulance/:id` | + **patient** |
 | GET | `/ambulance/stats/overview`, `/active`, `/assigned/:assignedTo` | class |
-| PUT · PATCH | `/ambulance/:id`, `/:id/dispatch`, `/:id/complete`, `/:id/status` | class |
+| GET | `/ambulance/fleet` | + **patient** (counts only), **regional_manager**, **hospital_manager** (§5D) |
+| PATCH | `/ambulance/:id/dispatch` | superuser, administrative_staff, ambulance (self only), hospital_manager — same hospital only |
+| PUT · PATCH | `/ambulance/:id`, `/:id/complete`, `/:id/status` | class — same hospital only; a crew only its own jobs |
 
 ### `feedback` — class: superuser, administrative_staff
 `GET /feedback` allows **patient, hospital_manager, regional_manager** (managers and staff are locked
@@ -1989,7 +2032,7 @@ cd back-end
 npm install
 npm run start:dev          # watch mode
 npm run start:prod         # node dist/src/main
-npx jest                   # 10 suites, 62 tests
+npx jest                   # 11 suites, 71 tests
 npm run build              # regenerate dist/
 
 # Frontend (Vite; the API client mirrors the current hostname on :3001)

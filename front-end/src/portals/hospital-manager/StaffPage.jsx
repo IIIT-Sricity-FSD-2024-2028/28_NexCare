@@ -102,7 +102,7 @@ export default function StaffPage() {
                   <td>
                     {s.role === 'doctor' && (<><div><strong>MRN:</strong> {s.medicalRegNumber || 'MCI-REG'}</div><div style={{ fontSize: 11, color: '#64748B' }}><strong>OPD:</strong> {s.consultationTiming || 'Regular Hours'}</div></>)}
                     {s.role === 'administrative_staff' && (<div className="resp-tags-container" style={{ marginTop: 2 }}>{resps.slice(0, 2).map((r) => <span key={r} className="resp-tag">{r}</span>)}</div>)}
-                    {s.role === 'ambulance' && (<><div><strong>Veh:</strong> {s.assignedVehicle || 'AP-03-AX-1001'}</div><div style={{ fontSize: 11, color: '#64748B' }}>{s.shift || 'Day Shift'}</div></>)}
+                    {s.role === 'ambulance' && (<><div><strong>Veh:</strong> {s.assignedVehicle || <span style={{ color: '#B91C1C' }}>No vehicle</span>}</div><div style={{ fontSize: 11, color: '#64748B' }}>{s.shift || 'Day Shift'}</div></>)}
                   </td>
                   <td><Badge tone={isActive ? 'active' : 'inactive'}>{s.status || 'Active'}</Badge></td>
                   <td>

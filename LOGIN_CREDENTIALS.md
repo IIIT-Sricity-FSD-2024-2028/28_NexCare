@@ -4,7 +4,7 @@
 - Shared demo password for every account: `Password123`
 - Select the matching role on the login form.
 
-Total accounts: 141
+Total accounts: 159
 
 ## Platform and regional accounts
 
@@ -34,6 +34,7 @@ Total accounts: 141
 | Administrative Staff | Naveen Reddy | naveen.reddy@nexcare.in | ADM-H001-05 |
 | Ambulance Staff | Tirupati Crew Alpha | ambulance@nexcare.com | U003 |
 | Ambulance Staff | Tirupati Crew Bravo | ambulance.h0012@nexcare.in | AMB-H001-02 |
+| Ambulance Staff | Tirupati Crew Charlie | ambulance.h0013@nexcare.in | AMB-H001-03 |
 | Patient | Raghav Rao | patient@gmail.com | U004 |
 | Patient | Sravani Reddy | sravani.reddy@example.in | PAT-LOGIN-H1-2 |
 | Patient | Venkat Rao | venkat.rao@example.in | PAT-LOGIN-H1-3 |
@@ -56,6 +57,8 @@ Total accounts: 141
 | Administrative Staff | Keerthana Devi | keerthana.devi@nexcare.in | ADM-H002-05 |
 | Ambulance Staff | Nellore Crew Alpha | ambulance.h0021@nexcare.in | AMB-H002-01 |
 | Ambulance Staff | Nellore Crew Bravo | ambulance.h0022@nexcare.in | AMB-H002-02 |
+| Ambulance Staff | Nellore Crew Charlie | ambulance.h0023@nexcare.in | AMB-H002-03 |
+| Ambulance Staff | Nellore Crew Delta | ambulance.h0024@nexcare.in | AMB-H002-04 |
 | Patient | Karthik Varma | karthik.v@example.in | PAT-LOGIN-H2-1 |
 | Patient | Gayathri Devi | gayathri.d@example.in | PAT-LOGIN-H2-2 |
 | Patient | Rahul Verma | rahul.v@example.in | PAT-LOGIN-H2-3 |
@@ -78,6 +81,9 @@ Total accounts: 141
 | Administrative Staff | Ritu Malhotra | ritu.malhotra@nexcare.in | ADM-H003-05 |
 | Ambulance Staff | Bengaluru Crew Alpha | ambulance.h0031@nexcare.in | AMB-H003-01 |
 | Ambulance Staff | Bengaluru Crew Bravo | ambulance.h0032@nexcare.in | AMB-H003-02 |
+| Ambulance Staff | Bengaluru Crew Charlie | ambulance.h0033@nexcare.in | AMB-H003-03 |
+| Ambulance Staff | Bengaluru Crew Delta | ambulance.h0034@nexcare.in | AMB-H003-04 |
+| Ambulance Staff | Bengaluru Crew Echo | ambulance.h0035@nexcare.in | AMB-H003-05 |
 | Patient | Manoj Prasad | manoj.prasad@example.in | PAT-LOGIN-H3-1 |
 | Patient | Pooja Hegde | pooja.h@example.in | PAT-LOGIN-H3-2 |
 | Patient | Varun Gowda | varun.gowda@example.in | PAT-LOGIN-H3-3 |
@@ -100,6 +106,7 @@ Total accounts: 141
 | Administrative Staff | Anusha Shetty | anusha.shetty@nexcare.in | ADM-H004-05 |
 | Ambulance Staff | Mysuru Crew Alpha | ambulance.h0041@nexcare.in | AMB-H004-01 |
 | Ambulance Staff | Mysuru Crew Bravo | ambulance.h0042@nexcare.in | AMB-H004-02 |
+| Ambulance Staff | Mysuru Crew Charlie | ambulance.h0043@nexcare.in | AMB-H004-03 |
 | Patient | Basavaraj Ursu | basavaraj.u@example.in | PAT-LOGIN-H4-1 |
 | Patient | Divya Shetty | divya.s@example.in | PAT-LOGIN-H4-2 |
 | Patient | Chetan Rai | chetan.r@example.in | PAT-LOGIN-H4-3 |
@@ -122,6 +129,8 @@ Total accounts: 141
 | Administrative Staff | Tejas Kulkarni | tejas.kulkarni@nexcare.in | ADM-H005-05 |
 | Ambulance Staff | Pune Crew Alpha | ambulance.h0051@nexcare.in | AMB-H005-01 |
 | Ambulance Staff | Pune Crew Bravo | ambulance.h0052@nexcare.in | AMB-H005-02 |
+| Ambulance Staff | Pune Crew Charlie | ambulance.h0053@nexcare.in | AMB-H005-03 |
+| Ambulance Staff | Pune Crew Delta | ambulance.h0054@nexcare.in | AMB-H005-04 |
 | Patient | Rohan Joshi | rohan.j@example.in | PAT-LOGIN-H5-1 |
 | Patient | Swati Kulkarni | swati.k@example.in | PAT-LOGIN-H5-2 |
 | Patient | Ajinkya Shinde | ajinkya.s@example.in | PAT-LOGIN-H5-3 |
@@ -144,6 +153,9 @@ Total accounts: 141
 | Administrative Staff | Madhura Joshi | madhura.joshi@nexcare.in | ADM-H006-05 |
 | Ambulance Staff | Nashik Crew Alpha | ambulance.h0061@nexcare.in | AMB-H006-01 |
 | Ambulance Staff | Nashik Crew Bravo | ambulance.h0062@nexcare.in | AMB-H006-02 |
+| Ambulance Staff | Nashik Crew Charlie | ambulance.h0063@nexcare.in | AMB-H006-03 |
+| Ambulance Staff | Nashik Crew Delta | ambulance.h0064@nexcare.in | AMB-H006-04 |
+| Ambulance Staff | Nashik Crew Echo | ambulance.h0065@nexcare.in | AMB-H006-05 |
 | Patient | Sanjay Borse | sanjay.b@example.in | PAT-LOGIN-H6-1 |
 | Patient | Pallavi Sonawane | pallavi.s@example.in | PAT-LOGIN-H6-2 |
 | Patient | Ganesh Jadhav | ganesh.j@example.in | PAT-LOGIN-H6-3 |
@@ -166,6 +178,7 @@ Total accounts: 141
 | Administrative Staff | S. Nivetha | s.nivetha@nexcare.in | ADM-H007-05 |
 | Ambulance Staff | Chennai Crew Alpha | ambulance.h0071@nexcare.in | AMB-H007-01 |
 | Ambulance Staff | Chennai Crew Bravo | ambulance.h0072@nexcare.in | AMB-H007-02 |
+| Ambulance Staff | Chennai Crew Charlie | ambulance.h0073@nexcare.in | AMB-H007-03 |
 | Patient | S. Karthikeyan | s.karthik@example.in | PAT-LOGIN-H7-1 |
 | Patient | R. Vijayalakshmi | r.vijaya@example.in | PAT-LOGIN-H7-2 |
 | Patient | M. Saravanan | m.saravana@example.in | PAT-LOGIN-H7-3 |
@@ -188,6 +201,8 @@ Total accounts: 141
 | Administrative Staff | Aravind Kumar | aravind.kumar@nexcare.in | ADM-H008-05 |
 | Ambulance Staff | Vellore Crew Alpha | ambulance.h0081@nexcare.in | AMB-H008-01 |
 | Ambulance Staff | Vellore Crew Bravo | ambulance.h0082@nexcare.in | AMB-H008-02 |
+| Ambulance Staff | Vellore Crew Charlie | ambulance.h0083@nexcare.in | AMB-H008-03 |
+| Ambulance Staff | Vellore Crew Delta | ambulance.h0084@nexcare.in | AMB-H008-04 |
 | Patient | A. Sathish | a.sathish@example.in | PAT-LOGIN-H8-1 |
 | Patient | V. Sangeetha | v.sangeetha@example.in | PAT-LOGIN-H8-2 |
 | Patient | E. Srinivasan | e.srini@example.in | PAT-LOGIN-H8-3 |

@@ -103,8 +103,14 @@ export function useRegisterStaff(variant) {
       payload.responsibilities = form.responsibilities.length ? form.responsibilities
         : (variant === 'page' ? ['Bed Allocation & Patient Check-in', 'Inventory Requisition & Tracking'] : ['Bed Allocation & Patient Check-in']);
     } else if (role === 'ambulance') {
+      // One crew account = one ambulance of this hospital, so it needs its own
+      // vehicle; the backend refuses a missing or already-used registration.
+      if (!form.assignedVehicle.trim()) {
+        notify('Enter the vehicle registration number of this crew\'s ambulance', 'error');
+        return;
+      }
       payload.driverLicense = form.driverLicense.trim() || 'DL-AP-TEMP';
-      payload.assignedVehicle = form.assignedVehicle.trim() || 'AP-03-AX-1001';
+      payload.assignedVehicle = form.assignedVehicle.trim().toUpperCase();
       payload.shift = form.shift || SHIFTS[0];
     }
 
@@ -185,7 +191,7 @@ function RoleFields({ variant, form, set }) {
       <h4 style={{ margin: '0 0 10px 0', color: '#92400e', fontSize: 14 }}>Ambulance Driver & Transport Details</h4>
       <div className="form-row">
         <Field label="Driver License Number" required><input className="form-control" placeholder="e.g. DL-AP-2019-88391" value={form.driverLicense} onChange={set('driverLicense')} /></Field>
-        <Field label="Assigned Vehicle Registration"><input className="form-control" placeholder="e.g. AP-03-AX-1001" value={form.assignedVehicle} onChange={set('assignedVehicle')} /></Field>
+        <Field label="Assigned Vehicle Registration" required><input className="form-control" placeholder="e.g. AP 03 AB 4824" required value={form.assignedVehicle} onChange={set('assignedVehicle')} /></Field>
         <Field label="Shift Schedule"><select className="form-control" value={form.shift} onChange={set('shift')}>{shifts.map((s) => <option key={s}>{s}</option>)}</select></Field>
       </div>
     </div>
@@ -194,7 +200,7 @@ function RoleFields({ variant, form, set }) {
       <h4 className="section-divider-title">Ambulance Service Details</h4>
       <div className="form-row mt-8">
         <Field label="Driver License Number"><input className="form-control" placeholder="e.g. DL-AP-2020-99882" value={form.driverLicense} onChange={set('driverLicense')} /></Field>
-        <Field label="Assigned Vehicle Number"><input className="form-control" placeholder="e.g. AP-03-AX-1001" value={form.assignedVehicle} onChange={set('assignedVehicle')} /></Field>
+        <Field label="Assigned Vehicle Number" required><input className="form-control" placeholder="e.g. AP 03 AB 4824" required value={form.assignedVehicle} onChange={set('assignedVehicle')} /></Field>
       </div>
       <Field label="Duty Shift" className="form-group mt-8"><select className="form-control" value={form.shift} onChange={set('shift')}>{shifts.map((s) => <option key={s}>{s}</option>)}</select></Field>
     </div>

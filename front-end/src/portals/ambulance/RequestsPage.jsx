@@ -6,7 +6,6 @@ import { selectUser } from '../../store/authSlice';
 import {
   dispatchAmbulance,
   fetchAmbulanceRequests,
-  selectAmbulanceProfile,
   selectAmbulanceRequests,
   selectChecklistComplete,
 } from '../../store/ambulanceSlice';
@@ -19,13 +18,14 @@ import { EmptyState, ICON_PATH, PageHeader, PriorityBadge, contactOf, locationOf
 // left the request attributed to nobody); the outcome — status Dispatched,
 // the request on the Assigned Dispatch page — is the same. Accept stays
 // disabled until the pre-departure checklist is complete, as it did.
+// The backend stamps this crew's own vehicle and driver on the request and
+// refuses it when the crew is already out on another transport.
 const messageOf = (err, fallback) => (typeof err === 'string' && err) || err?.message || fallback;
 
 export default function RequestsPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const user = useAppSelector(selectUser);
-  const profile = useAppSelector(selectAmbulanceProfile);
   const requestsState = useAppSelector(selectAmbulanceRequests);
   const checklistComplete = useAppSelector(selectChecklistComplete);
   const [busy, setBusy] = useState('');
@@ -41,7 +41,6 @@ export default function RequestsPage() {
       await dispatch(dispatchAmbulance({
         id: r.id,
         assignedTo: user.id,
-        vehicleNumber: profile.vehicle || user.assignedVehicle || undefined,
       })).unwrap();
       notify(`Accepted request ${r.id} - ${patientOf(r)}`, 'success');
       navigate('/ambulance/assigned-dispatch');

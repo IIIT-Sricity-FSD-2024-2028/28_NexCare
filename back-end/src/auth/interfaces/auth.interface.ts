@@ -56,6 +56,8 @@ export interface AuthResponse {
     // manager registered them with — the only way the ambulance portal's
     // profile can show them, since GET /users/:id is not open to that role.
     assignedVehicle?: string;
+    /** The person who drives that vehicle (seeded crews); else the account name. */
+    driverName?: string;
     driverLicense?: string;
     shift?: string;
     joiningDate?: string;

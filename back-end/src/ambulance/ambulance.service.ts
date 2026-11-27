@@ -48,51 +48,106 @@ export class AmbulanceService {
     ];
   }
 
-  /** Populate driver details to ensure driverName and assignedDriver are never unassigned */
+  private readonly hospitalsStore = new FileStore<any>('hospitals.json', () => []);
+
+  /** Statuses in which a crew is out on a job and cannot take another. */
+  static readonly ACTIVE_STATUSES: AmbulanceStatus[] = [
+    AmbulanceStatus.DISPATCHED, AmbulanceStatus.EN_ROUTE, AmbulanceStatus.PICKED_UP, AmbulanceStatus.AT_HOSPITAL,
+  ];
+
+  private static isCrew(u: any): boolean {
+    return u?.role === UserRole.AMBULANCE;
+  }
+
+  /**
+   * A hospital's ambulance fleet. One ambulance-crew login is one ambulance:
+   * the account carries the vehicle (assignedVehicle) and the person driving
+   * it (driverName, or the account name for crews registered by a manager).
+   */
+  private crewsOf(hospitalId: string, users = this.usersStore.load()): any[] {
+    return users.filter(u => AmbulanceService.isCrew(u) && u.hospitalId === hospitalId);
+  }
+
+  private static driverNameOf(crew: any): string {
+    return crew.driverName || crew.name;
+  }
+
+  /** The driver fields a request carries once a crew has taken it. */
+  private static driverFields(crew: any) {
+    const name = AmbulanceService.driverNameOf(crew);
+    return {
+      assignedTo: crew.id,
+      driverName: name,
+      driverPhone: crew.phone || '',
+      vehicleNumber: crew.assignedVehicle,
+      assignedDriver: { id: crew.id, name, phone: crew.phone || '', vehicleNumber: crew.assignedVehicle, unit: crew.name },
+    };
+  }
+
+  /**
+   * Attach the assigned crew's live details. A request nobody has taken has
+   * no driver: nothing is invented for it.
+   */
   private populateDriver(req: any): any {
     if (!req) return req;
     const item = { ...req };
-    const users = this.usersStore.load();
-    const assignedId = item.assignedTo || item.driverId;
-
-    let driver = null;
-    if (assignedId) {
-      driver = users.find(u => u.id === assignedId || u.userId === assignedId);
-    }
-    if (!driver && item.hospitalId) {
-      driver = users.find(u => (u.role === 'ambulance' || u.role === UserRole.AMBULANCE) && u.hospitalId === item.hospitalId);
-    }
-
-    if (driver) {
-      item.driverName = item.driverName || driver.name;
-      item.driverPhone = item.driverPhone || driver.phone || '+91 98480 12001';
-      item.vehicleNumber = item.vehicleNumber || driver.assignedVehicle || 'AP 03 AB 4821';
-      item.assignedDriver = {
-        id: driver.id || assignedId,
-        name: driver.name,
-        phone: driver.phone || '+91 98480 12001',
-        vehicleNumber: item.vehicleNumber,
-      };
+    if (!item.assignedTo) return item;
+    const crew = this.usersStore.load().find(u => u.id === item.assignedTo && AmbulanceService.isCrew(u));
+    if (crew) {
+      const fields = AmbulanceService.driverFields(crew);
+      // The vehicle that ran the job is history: keep what was recorded.
+      item.vehicleNumber = item.vehicleNumber || fields.vehicleNumber;
+      item.driverName = item.driverName || fields.driverName;
+      item.driverPhone = item.driverPhone || fields.driverPhone;
+      item.assignedDriver = { ...fields.assignedDriver, vehicleNumber: item.vehicleNumber };
     } else if (item.driverName) {
-      item.assignedDriver = {
-        id: assignedId || 'AMB-DRV',
-        name: item.driverName,
-        phone: item.driverPhone || '+91 98480 12001',
-        vehicleNumber: item.vehicleNumber || 'AP 03 AB 4821',
-      };
-    } else if (item.status && item.status !== AmbulanceStatus.PENDING && item.status !== AmbulanceStatus.CANCELLED) {
-      item.driverName = 'Suresh Kumar';
-      item.driverPhone = '+91 98480 12001';
-      item.vehicleNumber = item.vehicleNumber || 'AP 03 AB 4821';
-      item.assignedDriver = {
-        id: assignedId || 'AMB-DRV-01',
-        name: 'Suresh Kumar',
-        phone: '+91 98480 12001',
-        vehicleNumber: item.vehicleNumber,
-      };
+      item.assignedDriver = { id: item.assignedTo, name: item.driverName, phone: item.driverPhone || '', vehicleNumber: item.vehicleNumber };
     }
-
     return item;
+  }
+
+  /**
+   * Fleet status per hospital: every crew/vehicle, whether it is free or out
+   * on a job, and how many requests are still waiting for a crew.
+   * `withCrews: false` returns counts only (what a patient is shown).
+   */
+  fleet(hospitalId?: string, withCrews = true) {
+    try {
+      const users = this.usersStore.load();
+      const requests = this.store.load();
+      const hospitals = this.hospitalsStore.load()
+        .filter(h => !hospitalId || h.id === hospitalId);
+      if (hospitalId && hospitals.length === 0) return ResponseUtil.notFound('Hospital', hospitalId);
+
+      const rows = hospitals.map(h => {
+        const crews = this.crewsOf(h.id, users).map(c => {
+          const job = requests.find(r => r.assignedTo === c.id && AmbulanceService.ACTIVE_STATUSES.includes(r.status));
+          const onDuty = String(c.status || 'Active') === 'Active';
+          const status = !onDuty ? 'off_duty' : job ? 'on_transport' : c.assignedVehicle ? 'available' : 'no_vehicle';
+          return {
+            id: c.id, unit: c.name, driverName: AmbulanceService.driverNameOf(c), phone: c.phone || '',
+            vehicleNumber: c.assignedVehicle || null, status,
+            currentRequest: job ? { id: job.id, status: job.status, patientName: job.patientName, pickupLocation: job.pickupLocation } : null,
+          };
+        });
+        const count = (st: string) => crews.filter(c => c.status === st).length;
+        const row: any = {
+          hospitalId: h.id,
+          hospitalName: h.name,
+          ambulanceService: h.ambulanceService !== false && crews.length > 0,
+          total: crews.length,
+          available: count('available'),
+          onTransport: count('on_transport'),
+          unavailable: count('off_duty') + count('no_vehicle'),
+          waiting: requests.filter(r => r.hospitalId === h.id && r.status === AmbulanceStatus.PENDING).length,
+        };
+        if (withCrews) row.crews = crews;
+        return row;
+      });
+      return ResponseUtil.success('Ambulance fleet retrieved successfully', hospitalId ? rows[0] : rows);
+    } catch (error) {
+      return ResponseUtil.serverError('Failed to retrieve the ambulance fleet');
+    }
   }
 
   /** Resolve a patient's display name, falling back to any supplied name or a placeholder. */
@@ -170,6 +225,14 @@ export class AmbulanceService {
       if (!requestData.hospitalId) {
         return ResponseUtil.error('Hospital ID is required for ambulance request');
       }
+      const hospital = this.hospitalsStore.load().find(h => h.id === requestData.hospitalId);
+      if (!hospital) return ResponseUtil.notFound('Hospital', requestData.hospitalId);
+      if ((hospital.verificationStatus || 'verified') !== 'verified') {
+        return ResponseUtil.error(`${hospital.name} is not verified yet and cannot take ambulance requests`);
+      }
+      if (hospital.ambulanceService === false || this.crewsOf(hospital.id).length === 0) {
+        return ResponseUtil.error(`${hospital.name} has no ambulance service. Please choose another hospital.`);
+      }
 
       const newRequest: AmbulanceRequest = {
         id: newRequestId,
@@ -220,7 +283,18 @@ export class AmbulanceService {
       const requestIndex = requests.findIndex(r => r.id === id);
       if (requestIndex === -1) return ResponseUtil.notFound('Ambulance request', id);
 
-      const updatedRequest = { ...requests[requestIndex], ...updateData, updatedAt: new Date().toISOString() };
+      const current = requests[requestIndex];
+      // Who drives and in which vehicle is decided by dispatch() from the
+      // crew's account; an edit cannot rewrite it or move the request.
+      const { assignedTo, vehicleNumber, driverName, driverPhone, hospitalId, ...changes } = updateData as any;
+      const stillUnassigned = !current.assignedTo;
+      if (changes.status && stillUnassigned && AmbulanceService.ACTIVE_STATUSES.includes(changes.status)) {
+        return ResponseUtil.error('Assign an ambulance crew (dispatch) before moving this request to ' + changes.status);
+      }
+      if (changes.status && !Object.values(AmbulanceStatus).includes(changes.status)) {
+        return ResponseUtil.error(`'${changes.status}' is not a request status`);
+      }
+      const updatedRequest = { ...current, ...changes, updatedAt: new Date().toISOString() };
       requests[requestIndex] = updatedRequest;
       this.store.save(requests);
 
@@ -371,6 +445,11 @@ export class AmbulanceService {
     }
   }
 
+  /**
+   * Hand a pending request to one crew (= one ambulance) of the SAME hospital.
+   * The vehicle and driver come from that crew's account, never from the
+   * caller, and a crew already out on a job cannot take a second one.
+   */
   async dispatch(id: string, assignedTo?: string, dispatchedBy?: string) {
     try {
       const requests = this.store.load();
@@ -381,43 +460,53 @@ export class AmbulanceService {
       if (request.status !== AmbulanceStatus.PENDING) {
         return ResponseUtil.error('Cannot dispatch request that is not pending');
       }
-
-      if (!assignedTo) {
+      if (!assignedTo || assignedTo.trim() === '') {
         return ResponseUtil.error('Assigned staff ID is required for dispatch');
       }
 
-      if (!assignedTo || assignedTo.trim() === '') {
-        return ResponseUtil.error('Invalid staff ID provided');
+      const crew = this.usersStore.load().find(u => u.id === assignedTo.trim() && AmbulanceService.isCrew(u));
+      if (!crew) {
+        return ResponseUtil.error(`${assignedTo} is not an ambulance crew account`);
+      }
+      if (crew.hospitalId !== request.hospitalId) {
+        return ResponseUtil.error(`${crew.name} belongs to another hospital and cannot take a ${request.hospitalId} request`);
+      }
+      if (String(crew.status || 'Active') !== 'Active') {
+        return ResponseUtil.error(`${crew.name} is not on duty`);
+      }
+      if (!crew.assignedVehicle) {
+        return ResponseUtil.error(`${crew.name} has no vehicle assigned. Ask the hospital manager to assign one.`);
+      }
+      const current = requests.find(r => r.assignedTo === crew.id && AmbulanceService.ACTIVE_STATUSES.includes(r.status));
+      if (current) {
+        return ResponseUtil.error(`${crew.name} (${crew.assignedVehicle}) is already on transport ${current.id}`);
       }
 
-      const users = this.usersStore.load();
-      let driver = users.find(u => u.id === assignedTo || u.userId === assignedTo);
-      if (!driver && request.hospitalId) {
-        driver = users.find(u => (u.role === 'ambulance' || u.role === UserRole.AMBULANCE) && u.hospitalId === request.hospitalId);
-      }
-
-      const driverName = driver?.name || (assignedTo.startsWith('U') || assignedTo.startsWith('AMB') ? 'Suresh Kumar' : assignedTo);
-      const driverPhone = driver?.phone || '+91 98480 12001';
-      const vehicleNumber = driver?.assignedVehicle || request.vehicleNumber || 'AP 03 AB 4822';
-
-      requests[requestIndex].status = AmbulanceStatus.DISPATCHED;
-      requests[requestIndex].assignedTo = driver?.id || assignedTo;
-      requests[requestIndex].driverName = driverName;
-      requests[requestIndex].driverPhone = driverPhone;
-      requests[requestIndex].vehicleNumber = vehicleNumber;
-      requests[requestIndex].assignedDriver = {
-        id: driver?.id || assignedTo,
-        name: driverName,
-        phone: driverPhone,
-        vehicleNumber: vehicleNumber,
-      };
-      requests[requestIndex].updatedAt = new Date().toISOString();
+      const fields = AmbulanceService.driverFields(crew);
+      Object.assign(requests[requestIndex], fields, {
+        status: AmbulanceStatus.DISPATCHED,
+        dispatchedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
       this.store.save(requests);
+
+      if (this.notificationsService && request.patientId) {
+        this.notificationsService.create({
+          recipientUserId: request.patientId,
+          recipientRole: 'patient',
+          hospitalId: request.hospitalId,
+          type: NotificationType.INFO,
+          title: 'Ambulance Dispatched',
+          message: `${fields.driverName} is on the way in ambulance ${fields.vehicleNumber} (${fields.driverPhone}).`,
+          entityType: NotificationEntityType.AMBULANCE,
+          entityId: request.id,
+        });
+      }
 
       this.systemService.createActivity({
         userId: dispatchedBy || 'System',
         action: 'Dispatch',
-        details: `Ambulance request ${id} dispatched to driver ${driverName} (${assignedTo}) for ${request.patientName}`,
+        details: `Ambulance request ${id} dispatched to ${crew.name} — ${fields.driverName}, ${fields.vehicleNumber} — for ${request.patientName}`,
         module: 'Ambulance',
         severity: 'INFO',
       });
@@ -476,6 +565,9 @@ export class AmbulanceService {
       const requestIndex = requests.findIndex(r => r.id === id);
       if (requestIndex === -1) return ResponseUtil.notFound('Ambulance request', id);
 
+      if (!requests[requestIndex].assignedTo && AmbulanceService.ACTIVE_STATUSES.includes(status)) {
+        return ResponseUtil.error('Assign an ambulance crew (dispatch) before moving this request to ' + status);
+      }
       if (!this.isValidStatusTransition(requests[requestIndex].status, status)) {
         return ResponseUtil.error(`Invalid status transition from ${requests[requestIndex].status} to ${status}`);
       }
@@ -559,7 +651,7 @@ export class AmbulanceService {
   async findByPatient(patientId: string) {
     try {
       const requests = this.store.load().filter(r => r.patientId === patientId);
-      return ResponseUtil.success(`Ambulance requests for patient ${patientId} retrieved successfully`, requests);
+      return ResponseUtil.success(`Ambulance requests for patient ${patientId} retrieved successfully`, requests.map(r => this.populateDriver(r)));
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve patient ambulance requests');
     }
@@ -584,7 +676,7 @@ export class AmbulanceService {
       if (hospitalId) {
         requests = requests.filter(r => r.hospitalId === hospitalId);
       }
-      return ResponseUtil.success(`Ambulance requests assigned to ${assignedTo} retrieved successfully`, requests);
+      return ResponseUtil.success(`Ambulance requests assigned to ${assignedTo} retrieved successfully`, requests.map(r => this.populateDriver(r)));
     } catch (error) {
       return ResponseUtil.serverError('Failed to retrieve assigned ambulance requests');
     }

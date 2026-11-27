@@ -33,6 +33,7 @@ export class AmbulanceModule {
         { path: 'ambulance/stats/overview', method: RequestMethod.GET },
         { path: 'ambulance/patient/:patientId', method: RequestMethod.GET },
         { path: 'ambulance/active', method: RequestMethod.GET },
+        { path: 'ambulance/fleet', method: RequestMethod.GET },
         { path: 'ambulance/assigned/:assignedTo', method: RequestMethod.GET },
       );
   }

@@ -30,6 +30,7 @@ export interface User {
   // Ambulance staff fields
   driverLicense?: string;
   assignedVehicle?: string;
+  driverName?: string;
   shift?: string;
   // Administrative staff fields
   responsibilities?: string[] | string;
