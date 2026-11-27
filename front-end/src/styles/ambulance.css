@@ -150,11 +150,13 @@
   display: block;
 }
 
-.ambulance-portal .nav-item:hover,
+.ambulance-portal .nav-item:hover {
+  background: none;
+  transform: none;
+}
+
 .ambulance-portal .nav-item::before {
-  display: none !important;
-  background: none !important;
-  transform: none !important;
+  display: none;
 }
 
 .ambulance-portal .nav-link {
