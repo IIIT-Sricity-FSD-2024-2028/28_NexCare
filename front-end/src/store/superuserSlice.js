@@ -80,7 +80,7 @@ export const rejectRegistration = run(
   'rejectRegistration',
   async ({ id, reason }) => {
     await Hospitals.rejectFinal(id, reason);
-    return { id };
+    return { id, reason };
   },
   'Could not reject the hospital registration.',
 );
@@ -308,6 +308,13 @@ const superuserSlice = createSlice({
       })
       .addCase(approveRegistration.fulfilled, (state, action) => {
         state.registrations.credentials = action.payload.credentials;
+      })
+      .addCase(rejectRegistration.fulfilled, (state, action) => {
+        const hospital = state.registrations.list.find((item) => item.id === action.payload.id);
+        if (hospital) {
+          hospital.verificationStatus = 'rejected';
+          hospital.rejectionReason = action.payload.reason;
+        }
       })
       .addCase(assignManager.fulfilled, (state, action) => {
         const hospital = state.registrations.list.find((item) => item.id === action.payload.id);
