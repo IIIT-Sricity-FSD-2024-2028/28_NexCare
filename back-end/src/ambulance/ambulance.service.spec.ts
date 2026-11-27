@@ -102,6 +102,25 @@ describe('AmbulanceService - hospital fleet and dispatch', () => {
     expect(requests[0].vehicleNumber).toBeUndefined();
   });
 
+  it('cancel assignment returns the request to the queue without a driver, and frees the crew', async () => {
+    await service.dispatch('R1', 'C1');
+    const res: any = await service.update('R1', { status: AmbulanceStatus.PENDING } as any);
+    expect(res.success).toBe(true);
+    expect(requests[0].status).toBe(AmbulanceStatus.PENDING);
+    for (const f of ['assignedTo', 'driverName', 'driverPhone', 'vehicleNumber', 'assignedDriver']) {
+      expect(requests[0][f]).toBeUndefined();
+    }
+    expect(((await service.dispatch('R2', 'C1')) as any).success).toBe(true);
+  });
+
+  it('a transport already on the road cannot be handed back', async () => {
+    await service.dispatch('R1', 'C1');
+    await service.updateStatus('R1', AmbulanceStatus.EN_ROUTE);
+    const res: any = await service.update('R1', { status: AmbulanceStatus.PENDING } as any);
+    expect(res.success).toBe(false);
+    expect(requests[0].assignedTo).toBe('C1');
+  });
+
   it('reports each hospital\'s fleet: total, free, out on a job and waiting', async () => {
     await service.dispatch('R1', 'C1');
     const res: any = service.fleet('H001');

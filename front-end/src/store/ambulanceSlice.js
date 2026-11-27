@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
 import { Ambulance, Hospitals } from '../api';
 
 const errorMessage = (error, fallback) => error?.message || fallback;
@@ -13,9 +13,12 @@ const readJson = (key) => {
   try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; }
 };
 
-// GET /ambulance is one list for the whole crew — "pending", "assigned",
-// "in transit" and "completed" are statuses on it, so the slice keeps one
-// list and the pages filter with the selectors below.
+// GET /ambulance is one list for the crew's whole HOSPITAL — "pending",
+// "assigned", "in transit" and "completed" are statuses on it, so the slice
+// keeps one list and the pages filter with the selectors below. A waiting
+// (Pending) request is open to every crew of the hospital; once a crew accepts
+// it, it belongs to that crew alone (assignedTo), so the Assigned, Active and
+// Completed views show only the signed-in crew's own jobs.
 export const fetchAmbulanceRequests = createAsyncThunk(
   'ambulance/fetchRequests',
   async (_, { rejectWithValue }) => {
@@ -177,16 +180,25 @@ export const selectAmbulanceHospitalName = (state) => state.ambulance.hospitalNa
 export const selectAmbulanceChecklist = (state) => state.ambulance.checklist;
 export const selectAmbulanceProfile = (state) => state.ambulance.profile;
 
-export const selectPendingRequests = (state) =>
-  state.ambulance.requests.list.filter((r) => r.status === 'Pending');
-export const selectAssigned = (state) =>
-  state.ambulance.requests.list.filter((r) => r.status === 'Dispatched');
-export const selectActiveTransport = (state) => {
-  const IN_TRANSIT = ['En Route', 'Picked Up', 'At Hospital'];
-  return state.ambulance.requests.list.find((r) => IN_TRANSIT.includes(r.status)) || null;
-};
-export const selectCompletedTransports = (state) =>
-  state.ambulance.requests.list.filter((r) => ['Completed', 'Cancelled'].includes(r.status));
+const selectList = (state) => state.ambulance.requests.list;
+const selectCrewId = (state) => state.auth.user?.id || '';
+const IN_TRANSIT = ['En Route', 'Picked Up', 'At Hospital'];
+
+/** Waiting requests of the hospital: any free crew of it may accept one. */
+export const selectPendingRequests = createSelector([selectList], (list) =>
+  list.filter((r) => r.status === 'Pending'));
+/** Jobs this crew has taken (any status). */
+export const selectMyRequests = createSelector([selectList, selectCrewId], (list, me) =>
+  list.filter((r) => me && r.assignedTo === me));
+/** What this crew's screens show: the hospital's waiting requests + its own jobs. */
+export const selectCrewRequests = createSelector([selectPendingRequests, selectMyRequests], (pending, mine) =>
+  [...pending, ...mine]);
+export const selectAssigned = createSelector([selectMyRequests], (mine) =>
+  mine.filter((r) => r.status === 'Dispatched'));
+export const selectActiveTransport = createSelector([selectMyRequests], (mine) =>
+  mine.find((r) => IN_TRANSIT.includes(r.status)) || null);
+export const selectCompletedTransports = createSelector([selectMyRequests], (mine) =>
+  mine.filter((r) => ['Completed', 'Cancelled'].includes(r.status)));
 export const selectChecklistComplete = (state) =>
   CHECKLIST_ITEMS.every((_, i) => state.ambulance.checklist[`checklist-${i}`]);
 

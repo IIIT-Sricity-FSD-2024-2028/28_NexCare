@@ -1,6 +1,6 @@
 import { useAppSelector } from '../../store/hooks';
 import { selectUser } from '../../store/authSlice';
-import { selectAmbulanceProfile, selectAmbulanceRequests } from '../../store/ambulanceSlice';
+import { selectAmbulanceProfile, selectAmbulanceRequests, selectCrewRequests } from '../../store/ambulanceSlice';
 import { isAssigned, isCompleted, isInTransit, isPending, requestTime } from '../../features/ambulance/transportSteps';
 import { PriorityBadge, StatusBadge, locationOf, patientOf } from './ambulanceShared';
 
@@ -18,9 +18,9 @@ const STATS = [
 export default function DashboardPage() {
   const user = useAppSelector(selectUser);
   const profile = useAppSelector(selectAmbulanceProfile);
-  const requestsState = useAppSelector(selectAmbulanceRequests);
-  const requests = requestsState.list;
-  const loaded = requestsState.loaded;
+  const loaded = useAppSelector(selectAmbulanceRequests).loaded;
+  // The hospital's waiting requests and this crew's own jobs, not other crews' jobs.
+  const requests = useAppSelector(selectCrewRequests);
   const recent = [...requests].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 10);
 
   return (

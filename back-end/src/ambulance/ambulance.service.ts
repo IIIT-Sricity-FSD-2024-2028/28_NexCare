@@ -294,7 +294,18 @@ export class AmbulanceService {
       if (changes.status && !Object.values(AmbulanceStatus).includes(changes.status)) {
         return ResponseUtil.error(`'${changes.status}' is not a request status`);
       }
-      const updatedRequest = { ...current, ...changes, updatedAt: new Date().toISOString() };
+      const updatedRequest: any = { ...current, ...changes, updatedAt: new Date().toISOString() };
+      // "Cancel assignment": the crew hands a dispatched request back. It waits
+      // for any crew again, so it carries no driver or vehicle any more.
+      const handedBack = changes.status === AmbulanceStatus.PENDING && current.status !== AmbulanceStatus.PENDING;
+      if (handedBack) {
+        if (current.status !== AmbulanceStatus.DISPATCHED) {
+          return ResponseUtil.error(`A '${current.status}' request cannot be handed back to the queue`);
+        }
+        for (const field of ['assignedTo', 'driverName', 'driverPhone', 'vehicleNumber', 'assignedDriver', 'dispatchedAt']) {
+          delete updatedRequest[field];
+        }
+      }
       requests[requestIndex] = updatedRequest;
       this.store.save(requests);
 

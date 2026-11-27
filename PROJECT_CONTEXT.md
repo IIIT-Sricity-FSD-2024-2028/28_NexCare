@@ -54,7 +54,7 @@ Source of truth for scope: `README.md`, `DomainExpertInteraction.md`, `definitio
 **Branch:** `vivian`, merged up to `origin/main` at `7a4cf06`. The 2026-09-01 revenue
 model change is uncommitted in the working tree — the team commits it themselves.
 
-**Backend test suite:** 11 suites, 71 tests, **all passing** (`npx jest` in `back-end/`,
+**Backend test suite:** 11 suites, 73 tests, **all passing** (`npx jest` in `back-end/`,
 ~10s, 2026-11-27). Suites: `array.util`, `id-generator.util`, `hospitals.service`,
 `hospital-query.interceptor`, `leave-request.guard`, `appointments.service`,
 `appointments.controller`, `mock-gateway`, `payments.service`, `revenue.service`,
@@ -772,9 +772,17 @@ patient chose, and the record says exactly which vehicle and which driver took i
 - **UI:** the patient picker lists only hospitals with a fleet, with "3 ambulances
   · 1 free"; the manager's *Ambulance Fleet Status* page lists the real units and
   assigns a waiting request to a free one (it used to list requests as vehicles).
+- **A crew's portal shows only its own jobs** (2026-11-27, `ambulanceSlice.js`).
+  `GET /ambulance` returns the whole hospital's requests; Incoming lists the
+  hospital's Pending ones (any free crew may accept), but Assigned, Active,
+  Completed and the dashboard filter to `assignedTo === user.id`. Before this,
+  another crew's live job blocked "Start Transport" and appeared as yours.
+- **Cancel Assignment** (`PUT /ambulance/:id {status:'Pending'}`) hands a
+  Dispatched request back to the queue and clears its driver and vehicle; a
+  request already on the road cannot be handed back.
 - Seed repair kept every crew to at most one live job and cleared drivers from
   pending requests; `scripts/generate-comprehensive-seed.js` generates the same
-  fleet. Tests: `ambulance.service.spec.ts` (9).
+  fleet. Tests: `ambulance.service.spec.ts` (11).
 
 ---
 
@@ -2032,7 +2040,7 @@ cd back-end
 npm install
 npm run start:dev          # watch mode
 npm run start:prod         # node dist/src/main
-npx jest                   # 11 suites, 71 tests
+npx jest                   # 11 suites, 73 tests
 npm run build              # regenerate dist/
 
 # Frontend (Vite; the API client mirrors the current hostname on :3001)

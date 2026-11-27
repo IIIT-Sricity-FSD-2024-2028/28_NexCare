@@ -14,18 +14,21 @@ const csvCell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
 export default function CompletedTransportsPage() {
   const dispatch = useAppDispatch();
   const requestsState = useAppSelector(selectAmbulanceRequests);
-  const history = useAppSelector(selectCompletedTransports);
+  // This crew's finished jobs (completed + cancelled), newest first.
+  const history = [...useAppSelector(selectCompletedTransports)]
+    .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+  const completed = history.filter(isCompleted);
   const pending = useAppSelector(selectPendingRequests);
   const loaded = requestsState.loaded;
   const notify = (message, type) => dispatch(addToast({ message, type }));
   const pendingCount = pending.length;
-  const latest = history[0];
+  const latest = completed[0];
   const completedAt = (t) => (t.completedDate && t.completedTime ? `${t.completedDate} at ${t.completedTime}` : t.completedDate || t.completedTime || '');
 
   function exportCsv() {
-    if (history.length === 0) { notify('No completed transports to export', 'warning'); return; }
+    if (completed.length === 0) { notify('No completed transports to export', 'warning'); return; }
     const headers = ['Transport ID', 'Patient Name', 'Pickup Location', 'Completed Date', 'Completed Time', 'Priority Level', 'Status'];
-    const rows = history.map((t) => [t.id, patientOf(t), locationOf(t), t.completedDate || '', t.completedTime || '', priorityOf(t), t.status].map(csvCell).join(','));
+    const rows = completed.map((t) => [t.id, patientOf(t), locationOf(t), t.completedDate || '', t.completedTime || '', priorityOf(t), t.status].map(csvCell).join(','));
     const csv = [headers.join(','), ...rows].join('\n');
     const filename = `completed-transports-${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.csv`;
     try {
